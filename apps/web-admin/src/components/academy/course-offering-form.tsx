@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
   Field,
@@ -41,7 +40,16 @@ import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-prof
 import { useAcademyLiveTerms } from "@/lib/api/services/academy-classes"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
-import { CalendarIcon } from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import { CalendarIcon, HelpCircle } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 
 /** Chuỗi ISO từ API → giá trị cho input datetime-local (giờ địa phương trình duyệt). */
@@ -196,7 +204,43 @@ export function CourseOfferingForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Tiêu đề gói</FieldLabel>
+                  <div className="flex items-center gap-1">
+                    <FieldLabel className="mb-0">Tiêu đề gói</FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                          aria-label="Hướng dẫn đặt tên gói bán"
+                        >
+                          <HelpCircle className="size-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80" align="start">
+                        <PopoverHeader>
+                          <PopoverTitle>
+                            Quy tắc đặt tên hiển thị cho học viên
+                          </PopoverTitle>
+                          <PopoverDescription className="space-y-2 text-xs leading-relaxed">
+                            <span className="block text-popover-foreground">
+                              <strong>VOD:</strong> Cổng học viên ưu tiên hiển thị{" "}
+                              <strong>tên lớp</strong>. Nên đặt tiêu đề gói trùng
+                              hoặc gần tên lớp; nếu khác, hệ thống vẫn hiện tên
+                              lớp là chính và tên gói ở dòng phụ.
+                            </span>
+                            <span className="block text-popover-foreground">
+                              <strong>LIVE:</strong> Gói gắn theo{" "}
+                              <strong>kỳ học</strong>. Tiêu đề gói nên mô tả
+                              kỳ/chương trình; tên từng lớp (ca học, giảng viên)
+                              do từng lớp trong kỳ quản lý.
+                            </span>
+                          </PopoverDescription>
+                        </PopoverHeader>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <Input placeholder="JLPT N5 - Live + VOD 2026" {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>

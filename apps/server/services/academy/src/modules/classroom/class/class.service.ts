@@ -620,7 +620,6 @@ export class ClassService {
         data: {
           classId: input.classId,
           assignmentId: assignment.id,
-          titleOverride: input.titleOverride ?? null,
           openAt: input.openAt ? new Date(input.openAt) : null,
           deadline: input.deadline ? new Date(input.deadline) : null,
         },
@@ -633,20 +632,19 @@ export class ClassService {
     const ca = await this.prisma.classAssignment.findUnique({ where: { id } });
     if (!ca) throw new NotFoundException('Class assignment not found');
 
+    const assignmentUpdate: { title?: string; instructions?: string } = {};
+    if (input.title !== undefined) assignmentUpdate.title = input.title;
+    if (input.instructions !== undefined)
+      assignmentUpdate.instructions = input.instructions;
+
     return this.prisma.classAssignment.update({
       where: { id },
       data: {
-        titleOverride: input.titleOverride,
         openAt: input.openAt ? new Date(input.openAt) : undefined,
         deadline: input.deadline ? new Date(input.deadline) : undefined,
         assignment:
-          input.title || input.instructions
-            ? {
-                update: {
-                  title: input.title,
-                  instructions: input.instructions,
-                },
-              }
+          Object.keys(assignmentUpdate).length > 0
+            ? { update: assignmentUpdate }
             : undefined,
       },
       include: { assignment: true },

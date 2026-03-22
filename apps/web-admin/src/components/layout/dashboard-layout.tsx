@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom"
 import { AppSidebar } from "@/components/layout/app-sidebar.tsx";
 import { DashboardHeader } from "@/components/layout/dashboard-header.tsx";
+import { LecturerAcademyRedirect } from "@/lib/guard/lecturer-academy-redirect.tsx";
 import {
   SidebarProvider,
   SidebarInset,
@@ -33,6 +34,7 @@ export default function DashboardLayout() {
 
           {/* Page Content */}
           <main className="flex-1 overflow-auto">
+            <LecturerAcademyRedirect />
             <div className="mx-auto max-w-7xl px-4 md:px-6 py-6 w-full">
               <Outlet />
             </div>

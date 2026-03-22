@@ -163,8 +163,9 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="system.config" />}>
                     <Route path="notifications" element={<NotificationsPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
                   </Route>
+
+                  <Route path="settings" element={<SettingsPage />} />
 
                   <Route path="profile" element={<ProfilePage />} />
 

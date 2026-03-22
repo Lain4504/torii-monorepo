@@ -122,11 +122,6 @@ export class ClassAssignmentCreateDto {
   instructions?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  titleOverride?: string;
-
-  @IsOptional()
   @IsString() // ISO Date
   openAt?: string;
 
@@ -152,11 +147,6 @@ export class ClassAssignmentUpdateDto {
   @IsOptional()
   @IsString() // ISO Date
   deadline?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  titleOverride?: string;
 }
 
 // --- Lesson Progress DTOs ---

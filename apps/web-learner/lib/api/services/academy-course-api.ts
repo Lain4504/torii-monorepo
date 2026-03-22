@@ -4,6 +4,7 @@ import type {
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
+import { computeLearnerOfferingDisplay } from '@/lib/utils/learner-offering-display';
 
 function normalizeOfferingForLearner(item: any) {
   if (!item) return null;
@@ -60,6 +61,13 @@ function normalizeOfferingForLearner(item: any) {
     return cls;
   });
 
+  const display = computeLearnerOfferingDisplay(item, {
+    isLive,
+    primaryClass,
+    profile,
+    classesForTerm: normalizedClasses,
+  });
+
   return {
     ...item,
     classes: normalizedClasses,
@@ -80,6 +88,9 @@ function normalizeOfferingForLearner(item: any) {
       null,
     isLive,
     type: isLive ? 'LIVE' : 'VOD',
+    learnerDisplayTitle: display.learnerDisplayTitle,
+    learnerMarketingSubtitle: display.learnerMarketingSubtitle,
+    liveContextLine: display.liveContextLine,
   };
 }
 

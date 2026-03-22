@@ -11,22 +11,74 @@ export type JlptMockTemplate = {
   totalDurationMinutes?: number;
 };
 
+export type JlptBankQuestionMondai = {
+  id: string;
+  code: string;
+  titleVi: string;
+};
+
+/** Dữ liệu thô từ API có thể có `level: { code }` thay vì `levelCode` ở root. */
 export type JlptBankQuestion = {
   id: string;
   levelCode: string;
   sectionCode: string;
   questionType: string;
+  /** EASY | MEDIUM | HARD */
+  difficulty?: string;
   stemText: string;
-  contextText?: string;
-  audioAssetId?: string;
-  imageAssetId?: string;
+  contextText?: string | null;
+  audioAssetId?: string | null;
+  imageAssetId?: string | null;
   options: {
     id: string;
     key: string;
     contentText: string;
     isCorrect: boolean;
   }[];
+  mondai?: JlptBankQuestionMondai | null;
+  level?: { code: string };
 };
+
+export function normalizeJlptBankQuestion(raw: Record<string, unknown> | null | undefined): JlptBankQuestion {
+  if (!raw || typeof raw !== 'object') {
+    throw new Error('Invalid bank question payload');
+  }
+  const levelCode =
+    (typeof raw.levelCode === 'string' && raw.levelCode) ||
+    (raw.level && typeof (raw.level as { code?: string }).code === 'string'
+      ? (raw.level as { code: string }).code
+      : '');
+
+  const optionsRaw = Array.isArray(raw.options) ? raw.options : [];
+  const options = optionsRaw.map((o: Record<string, unknown>) => ({
+    id: String(o.id ?? ''),
+    key: String(o.key ?? ''),
+    contentText: String(o.contentText ?? ''),
+    isCorrect: Boolean(o.isCorrect),
+  }));
+
+  const mondai = raw.mondai && typeof raw.mondai === 'object'
+    ? (raw.mondai as JlptBankQuestionMondai)
+    : null;
+
+  return {
+    id: String(raw.id ?? ''),
+    levelCode,
+    sectionCode: String(raw.sectionCode ?? ''),
+    questionType: String(raw.questionType ?? ''),
+    difficulty:
+      raw.difficulty != null && raw.difficulty !== ''
+        ? String(raw.difficulty)
+        : undefined,
+    stemText: String(raw.stemText ?? ''),
+    contextText: raw.contextText != null ? String(raw.contextText) : undefined,
+    audioAssetId: raw.audioAssetId != null ? String(raw.audioAssetId) : undefined,
+    imageAssetId: raw.imageAssetId != null ? String(raw.imageAssetId) : undefined,
+    options,
+    mondai,
+    level: raw.level && typeof raw.level === 'object' ? (raw.level as { code: string }) : undefined,
+  };
+}
 
 export const academyJlptMockApi = {
   // Templates
@@ -69,28 +121,67 @@ export const academyJlptMockApi = {
     return res.data.data?.ok;
   },
 
-  // Bank Questions
-  async findAllBankQuestions(params: { level?: string; sectionCode?: string; q?: string } = {}) {
-    const res = await apiClient.get<StandardApiResponse<{ items: JlptBankQuestion[] }>>(
-      "/api/academy/jlpt-mock/admin/bank-questions",
-      { params }
-    );
+  // Bank Questions (phân trang server: `page`, `limit`; `take` = alias `limit`)
+  async findAllBankQuestions(
+    params: {
+      level?: string;
+      sectionCode?: string;
+      q?: string;
+      mondaiCode?: string;
+      questionType?: string;
+      difficulty?: string;
+      page?: number;
+      limit?: number;
+      take?: number;
+    } = {},
+  ) {
+    const res = await apiClient.get<
+      StandardApiResponse<{
+        items: Record<string, unknown>[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>
+    >("/api/academy/jlpt-mock/admin/bank-questions", { params });
+    const payload = res.data.data;
+    const rows = Array.isArray(payload?.items) ? payload.items : [];
+    return {
+      items: rows.map((row) => normalizeJlptBankQuestion(row)),
+      total: payload?.total ?? 0,
+      page: payload?.page ?? 1,
+      limit: payload?.limit ?? 20,
+      totalPages: payload?.totalPages ?? 0,
+    };
+  },
+
+  async listBankMondaiOptions(params: { level: string; sectionCode: string }) {
+    const res = await apiClient.get<
+      StandardApiResponse<{
+        items: { id: string; code: string; titleVi: string | null; titleJa: string | null }[];
+      }>
+    >("/api/academy/jlpt-mock/admin/bank-questions/mondai-options", { params });
     return res.data.data?.items ?? [];
   },
 
-  async createBankQuestion(data: any) {
-    const res = await apiClient.post<StandardApiResponse<{ item: JlptBankQuestion }>>(
+  async createBankQuestion(data: Record<string, unknown>) {
+    const { levelCode, ...rest } = data;
+    const level = (typeof data.level === 'string' && data.level) || (typeof levelCode === 'string' ? levelCode : undefined);
+    const body = { ...rest, ...(level ? { level } : {}) };
+    const res = await apiClient.post<StandardApiResponse<{ item: Record<string, unknown> }>>(
       "/api/academy/jlpt-mock/admin/bank-questions",
-      data
+      body,
     );
-    return res.data.data?.item;
+    const item = res.data.data?.item;
+    return item ? normalizeJlptBankQuestion(item) : undefined;
   },
 
   async updateBankQuestion(id: string, data: any) {
-    const res = await apiClient.patch<StandardApiResponse<{ item: JlptBankQuestion }>>(
+    const res = await apiClient.patch<StandardApiResponse<{ item: Record<string, unknown> }>>(
       `/api/academy/jlpt-mock/admin/bank-questions/${id}`,
-      data
+      data,
     );
-    return res.data.data?.item;
+    const item = res.data.data?.item;
+    return item ? normalizeJlptBankQuestion(item) : undefined;
   },
 };

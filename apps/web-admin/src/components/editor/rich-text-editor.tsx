@@ -6,6 +6,10 @@ import MDEditor from '@uiw/react-md-editor';
 // ─────────────────────────────────────────────────────────────
 
 interface RichTextEditorProps {
+  /** Controlled: dùng cùng `onChange` (ví dụ react-hook-form Controller). */
+  value?: string;
+  onChange?: (data: string) => void;
+  /** Uncontrolled: đồng bộ từ bên ngoài khi không dùng value/onChange */
   initialContent?: string | null;
   onUpdate?: (data: string) => void;
   placeholder?: string;
@@ -14,27 +18,36 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({
+  value: controlledValue,
+  onChange: controlledOnChange,
   initialContent,
   onUpdate,
   placeholder = 'Nhập nội dung...',
   minHeight = 300,
   readOnly = false,
 }: RichTextEditorProps) {
-  const [value, setValue] = useState(initialContent ?? '');
+  const isControlled = controlledOnChange !== undefined;
+  const [internalValue, setInternalValue] = useState(initialContent ?? '');
   const lastPushedValue = useRef(initialContent ?? '');
 
+  const value = isControlled ? (controlledValue ?? '') : internalValue;
+
   useEffect(() => {
+    if (isControlled) return;
     const newVal = initialContent ?? '';
     if (newVal !== lastPushedValue.current) {
-      setValue(newVal);
+      setInternalValue(newVal);
       lastPushedValue.current = newVal;
     }
-  }, [initialContent]);
+  }, [initialContent, isControlled]);
 
   const handleChange = (val?: string) => {
     const newValue = val ?? '';
-    setValue(newValue);
-    lastPushedValue.current = newValue;
+    if (!isControlled) {
+      setInternalValue(newValue);
+      lastPushedValue.current = newValue;
+    }
+    controlledOnChange?.(newValue);
     onUpdate?.(newValue);
   };
 

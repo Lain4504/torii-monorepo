@@ -36,14 +36,29 @@ export class JlptMockService {
   // -------------------------
 
   async findAllBankQuestions(query: JlptBankQuestionQueryDto) {
+    const page = Math.max(1, Number((query as any).page) || 1);
+    const limitRaw = Number((query as any).limit ?? (query as any).take) || 20;
+    const limit = Math.min(100, Math.max(1, limitRaw));
+    const skip = (page - 1) * limit;
+
     const andFilters: Prisma.JlptQuestionBankQuestionWhereInput[] = [];
+    let levelId: string | undefined;
 
     if (query.level) {
       const level = await this.prisma.jlptLevel.findUnique({
         where: { code: query.level as any },
         select: { id: true },
       });
-      if (!level) return [];
+      if (!level) {
+        return {
+          items: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        };
+      }
+      levelId = level.id;
       andFilters.push({ levelId: level.id });
     }
 
@@ -54,8 +69,27 @@ export class JlptMockService {
     if (query.difficulty)
       andFilters.push({ difficulty: query.difficulty as any });
 
+    /** Mondai là unique theo (sectionId, code); cùng `code` có thể tồn tại ở nhiều cấp → bắt buộc khớp section + level khi lọc. */
     if (query.mondaiCode) {
-      andFilters.push({ mondai: { is: { code: query.mondaiCode } } });
+      if (!levelId && !query.sectionCode) {
+        andFilters.push({
+          mondai: { is: { code: query.mondaiCode } },
+        });
+      } else {
+        andFilters.push({
+          mondai: {
+            is: {
+              code: query.mondaiCode,
+              section: {
+                ...(levelId ? { levelId } : {}),
+                ...(query.sectionCode
+                  ? { code: query.sectionCode as any }
+                  : {}),
+              },
+            },
+          },
+        });
+      }
     }
 
     if (query.q) {
@@ -70,16 +104,66 @@ export class JlptMockService {
     const where: Prisma.JlptQuestionBankQuestionWhereInput =
       andFilters.length > 0 ? { AND: andFilters } : {};
 
-    return this.prisma.jlptQuestionBankQuestion.findMany({
-      where,
-      orderBy: [{ createdAt: 'desc' }],
-      take: query.take ?? 50,
-      include: {
-        mondai: { select: { id: true, code: true, titleVi: true } },
-        options: { orderBy: [{ orderIndex: 'asc' }] },
-        level: { select: { code: true } },
-      },
+    const include = {
+      mondai: { select: { id: true, code: true, titleVi: true } },
+      options: { orderBy: [{ orderIndex: 'asc' as const }] },
+      level: { select: { code: true } },
+    };
+
+    const [total, rows] = await Promise.all([
+      this.prisma.jlptQuestionBankQuestion.count({ where }),
+      this.prisma.jlptQuestionBankQuestion.findMany({
+        where,
+        orderBy: [{ createdAt: 'desc' }],
+        skip,
+        take: limit,
+        include,
+      }),
+    ]);
+
+    const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
+
+    return {
+      items: rows.map((r) => this.mapBankQuestionToAdmin(r)),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+  }
+
+  /** Payload admin: thêm `levelCode` (Prisma chỉ join `level`). */
+  private mapBankQuestionToAdmin(row: {
+    level?: { code: string } | null;
+    [key: string]: unknown;
+  }) {
+    const { level, ...rest } = row;
+    return {
+      ...rest,
+      levelCode: level?.code ?? '',
+      level: level ? { code: level.code } : null,
+    };
+  }
+
+  /** Mondai theo cấp + phần thi (đúng cấu trúc JLPT: mỗi level có section → mondai). */
+  async listMondaiForBankFilters(query: { level: string; sectionCode: string }) {
+    const level = await this.prisma.jlptLevel.findUnique({
+      where: { code: query.level as any },
+      select: { id: true },
     });
+    if (!level) return { items: [] as { id: string; code: string; titleVi: string | null; titleJa: string | null }[] };
+
+    const items = await this.prisma.jlptMondai.findMany({
+      where: {
+        section: {
+          levelId: level.id,
+          code: query.sectionCode as any,
+        },
+      },
+      orderBy: [{ orderIndex: 'asc' }],
+      select: { id: true, code: true, titleVi: true, titleJa: true },
+    });
+    return { items };
   }
 
   async createBankQuestion(
@@ -106,7 +190,13 @@ export class JlptMockService {
       mondaiId = mondai?.id ?? null;
     }
 
-    return this.prisma.jlptQuestionBankQuestion.create({
+    const include = {
+      mondai: { select: { id: true, code: true, titleVi: true } },
+      options: { orderBy: [{ orderIndex: 'asc' as const }] },
+      level: { select: { code: true } },
+    };
+
+    const created = await this.prisma.jlptQuestionBankQuestion.create({
       data: {
         levelId: level.id,
         sectionCode: input.sectionCode as any,
@@ -128,8 +218,9 @@ export class JlptMockService {
           })),
         },
       },
-      include: { options: true },
+      include,
     });
+    return this.mapBankQuestionToAdmin(created);
   }
 
   async updateBankQuestion(
@@ -165,7 +256,13 @@ export class JlptMockService {
       }
     }
 
-    return this.prisma.jlptQuestionBankQuestion.update({
+    const include = {
+      mondai: { select: { id: true, code: true, titleVi: true } },
+      options: { orderBy: [{ orderIndex: 'asc' as const }] },
+      level: { select: { code: true } },
+    };
+
+    const updated = await this.prisma.jlptQuestionBankQuestion.update({
       where: { id },
       data: {
         questionType: (input.questionType as any) ?? undefined,
@@ -188,8 +285,9 @@ export class JlptMockService {
               }
             : undefined,
       },
-      include: { options: true },
+      include,
     });
+    return this.mapBankQuestionToAdmin(updated);
   }
 
   // -------------------------
@@ -318,8 +416,22 @@ export class JlptMockService {
     });
     if (!level) throw new BadRequestException('Invalid JLPT level');
 
+    let resolvedProfileId = input.scoringProfileId;
+    if (!resolvedProfileId) {
+      const fallback = await this.prisma.jlptScoringProfile.findFirst({
+        where: { levelId: level.id, isActive: true },
+        orderBy: [{ name: 'asc' }],
+        select: { id: true },
+      });
+      if (!fallback)
+        throw new BadRequestException(
+          'No active scoring profile for this JLPT level; create one or pass scoringProfileId',
+        );
+      resolvedProfileId = fallback.id;
+    }
+
     const profile = await this.prisma.jlptScoringProfile.findUnique({
-      where: { id: input.scoringProfileId },
+      where: { id: resolvedProfileId },
       select: { id: true, levelId: true },
     });
     if (!profile) throw new BadRequestException('Scoring profile not found');
@@ -331,7 +443,7 @@ export class JlptMockService {
     return this.prisma.jlptMockExamTemplate.create({
       data: {
         levelId: level.id,
-        scoringProfileId: profile.id,
+        scoringProfileId: resolvedProfileId,
         code: input.code,
         title: input.title,
         description: input.description ?? null,

@@ -210,11 +210,17 @@ export default function CheckoutPage() {
                             <CardContent>
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
-                                        <Image src={offering.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.title} fill className="object-cover" />
+                                        <Image src={offering.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.learnerDisplayTitle || offering.title} fill className="object-cover" />
                                     </div>
                                     <div className="flex-1 space-y-3">
                                         <Badge variant="secondary">{offering.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
-                                        <h3 className="font-bold text-lg">{offering.title}</h3>
+                                        <h3 className="font-bold text-lg">{offering.learnerDisplayTitle || offering.title}</h3>
+                                        {offering.liveContextLine && (
+                                            <p className="text-sm text-muted-foreground">{offering.liveContextLine}</p>
+                                        )}
+                                        {offering.learnerMarketingSubtitle && (
+                                            <p className="text-xs text-muted-foreground">Gói: {offering.learnerMarketingSubtitle}</p>
+                                        )}
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
