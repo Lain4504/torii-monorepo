@@ -16,7 +16,7 @@ export class CouponService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   private normalizeDiscountType(
     value: unknown,
@@ -185,10 +185,19 @@ export class CouponService {
     userId: string,
     orderId: string,
   ) {
-    await tx.coupon.update({
+    const coupon = await tx.coupon.update({
       where: { id: couponId },
       data: { usageCount: { increment: 1 } },
     });
+
+    // Automatically deactivate if limit reached
+    if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
+      await tx.coupon.update({
+        where: { id: couponId },
+        data: { status: CouponStatus.INACTIVE },
+      });
+    }
+
     await tx.couponUsage.create({
       data: {
         couponId,
