@@ -22,7 +22,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
 import { Calendar } from '@workspace/ui/components/calendar';
 import { cn } from '@workspace/ui/lib/utils';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 import { Ticket, CalendarIcon, AlertCircle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, CouponStatus, type CouponResponseDTO, type CouponUpdateDTO } from '@workspace/schemas';
@@ -47,6 +47,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
         formState: { errors, isDirty },
         reset,
         watch,
+        setValue,
     } = useForm<CouponUpdateDTO>({
         defaultValues: {
             code: coupon.code,
@@ -92,6 +93,8 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
     }, [open, coupon, reset]);
 
     const discountType = watch('discountType');
+    const startDate = watch('startDate');
+    const today = startOfDay(new Date());
 
     const handleClose = () => {
         if (!updateMutation.isPending) {
@@ -111,8 +114,8 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                     minOrderValue: (data.minOrderValue !== undefined && data.minOrderValue !== null && !Number.isNaN(data.minOrderValue)) ? Number(data.minOrderValue) : null,
                     usageLimit: (data.usageLimit && !Number.isNaN(data.usageLimit)) ? Number(data.usageLimit) : null,
                     perUserLimit: Number(data.perUserLimit || 1),
-                    startDate: data.startDate!,
-                    endDate: data.endDate!
+                    startDate: data.startDate ? startOfDay(new Date(data.startDate)) : undefined,
+                    endDate: data.endDate ? endOfDay(new Date(data.endDate)) : undefined
                 }
             });
 
@@ -354,7 +357,16 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                         <Calendar
                                                             mode="single"
                                                             selected={field.value ? new Date(field.value) : undefined}
-                                                            onSelect={field.onChange}
+                                                            onSelect={(date) => {
+                                                                field.onChange(date);
+                                                                if (date) {
+                                                                    const currentEndDate = watch('endDate');
+                                                                    if (currentEndDate && date > currentEndDate) {
+                                                                        setValue('endDate', date, { shouldDirty: true, shouldValidate: true });
+                                                                    }
+                                                                }
+                                                            }}
+                                                            disabled={{ before: today }}
                                                             initialFocus
                                                         />
                                                     </PopoverContent>
@@ -389,6 +401,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                             mode="single"
                                                             selected={field.value ? new Date(field.value) : undefined}
                                                             onSelect={field.onChange}
+                                                            disabled={{ before: startDate ? startOfDay(new Date(startDate)) : today }}
                                                             initialFocus
                                                         />
                                                     </PopoverContent>

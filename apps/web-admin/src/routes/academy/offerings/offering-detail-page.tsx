@@ -67,8 +67,9 @@ export default function OfferingDetailPage() {
         subtitle={`Thông tin chi tiết và thống kê kinh doanh cho gói #${offering.code}`}
         stats={[
           { label: "Mã gói", value: offering.code },
-          { label: "Trạng thái", value: offering.status === 'PUBLISHED' ? "ĐANG BÁN" : "CHỜ DUYỆT" },
+          { label: "Trạng thái", value: offering.status === 'PUBLISHED' ? "ĐANG BÁN" : offering.status === 'PENDING_APPROVAL' ? "CHỜ DUYỆT" : offering.status === 'ARCHIVED' ? "ĐÃ LƯU TRỮ" : offering.status === 'DRAFT' ? "BẢN NHÁP" : "BỊ TỪ CHỐI" },
         ]}
+
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

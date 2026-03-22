@@ -151,15 +151,17 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
                         <FileText className="h-4 w-4" />
                         Xuất
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
-                        onClick={() => onCancel(order)}
-                    >
-                        <XCircle className="h-4 w-4" />
-                        Hủy
-                    </Button>
+                    {(order.status === OrderStatus.PENDING || order.status === OrderStatus.PROCESSING) && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                            onClick={() => onCancel(order)}
+                        >
+                            <XCircle className="h-4 w-4" />
+                            Hủy
+                        </Button>
+                    )}
                 </div>
             );
         },

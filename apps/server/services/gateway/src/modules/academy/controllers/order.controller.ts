@@ -137,4 +137,16 @@ export class OrderController {
     );
     return successResponse(result);
   }
+
+  @Post(':id/cancel')
+  @Permissions('academy:order:admin')
+  async admin_cancel(@Param('id') id: string, @Req() req: ReqWithRequester) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.order.admin.cancel' },
+        { id, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse(result);
+  }
 }
