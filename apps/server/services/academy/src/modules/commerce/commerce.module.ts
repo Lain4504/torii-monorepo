@@ -7,6 +7,7 @@ import { OrderListener } from './order.listener';
 import { CouponService } from './coupon.service';
 import { CouponHandler } from './coupon.handler';
 import { PayOSService } from './payos.service';
+import { CouponCronService } from './coupon-cron.service';
 import { EnrollmentModule } from '../classroom/enrollment/enrollment.module';
 import { NatsClientModule } from '@server/shared';
 
@@ -18,7 +19,7 @@ import { NatsClientModule } from '@server/shared';
     QuotaModule,
   ],
   controllers: [OrderHandler, OrderListener, CouponHandler],
-  providers: [OrderService, CouponService, PayOSService],
+  providers: [OrderService, CouponService, PayOSService, CouponCronService],
   exports: [OrderService, CourseOfferingModule, CouponService, QuotaModule],
 })
 export class CommerceModule {}

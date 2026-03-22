@@ -22,7 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/component
 import { Calendar } from '@workspace/ui/components/calendar';
 import { cn } from '@workspace/ui/lib/utils';
 import { format } from 'date-fns';
-import { Ticket, CalendarIcon, Percent, DollarSign } from 'lucide-react';
+import { Ticket, CalendarIcon } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
 import { useCreateCoupon } from "@/lib/api/services/coupons";
@@ -195,11 +195,8 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                                 type="number"
                                                 min="0"
                                                 {...register('discountValue', { valueAsNumber: true, required: true, min: 1 })}
-                                                className="pl-10 font-mono font-bold"
+                                                className="font-mono font-bold"
                                             />
-                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                                                {discountType === CouponDiscountType.PERCENTAGE ? <Percent className="size-4" /> : <DollarSign className="size-4" />}
-                                            </div>
                                         </div>
                                     </Field>
                                 </div>

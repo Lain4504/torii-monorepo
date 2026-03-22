@@ -7,8 +7,6 @@ import {
     Trash,
     Tag,
     Calendar,
-    Percent,
-    DollarSign,
     Users,
 } from 'lucide-react';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
@@ -75,7 +73,6 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
                             ? "bg-blue-500/10 text-blue-600 border-blue-500/20" 
                             : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
                     )}>
-                        {type === CouponDiscountType.PERCENTAGE ? <Percent className="size-3" /> : <DollarSign className="size-3" />}
                         {type === CouponDiscountType.PERCENTAGE ? `${value}%` : formatCurrency(value)}
                     </div>
                 </div>
