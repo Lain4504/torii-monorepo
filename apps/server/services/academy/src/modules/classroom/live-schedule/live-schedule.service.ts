@@ -487,6 +487,83 @@ export class LiveScheduleService {
     });
   }
 
+  /** Lịch buổi LIVE của học viên trong khoảng ngày + trạng thái điểm danh (nếu có). */
+  async getLearnerScheduleWithAttendance(
+    userId: string,
+    from: Date,
+    to: Date,
+  ) {
+    const fromDay = this.startOfDay(from);
+    const toDay = this.startOfDay(to);
+
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        class: { mode: 'LIVE' },
+      },
+      include: {
+        class: {
+          select: {
+            id: true,
+            name: true,
+            courseProfile: {
+              select: { title: true, thumbnailUrl: true },
+            },
+          },
+        },
+      },
+    });
+
+    const rows: Array<{
+      session: Awaited<
+        ReturnType<LiveScheduleService['listSessionsForClassRange']>
+      >[number];
+      courseTitle: string;
+      courseThumbnail: string | null;
+    }> = [];
+
+    for (const e of enrollments) {
+      await this.generateInstancesForClassRange(e.classId, 'SYSTEM');
+      const sessions = await this.listSessionsForClassRange(
+        e.classId,
+        fromDay,
+        toDay,
+      );
+      const courseTitle =
+        e.class.courseProfile?.title?.trim() || e.class.name;
+      const courseThumbnail = e.class.courseProfile?.thumbnailUrl ?? null;
+      for (const s of sessions) {
+        rows.push({ session: s, courseTitle, courseThumbnail });
+      }
+    }
+
+    const sessionIds = [...new Set(rows.map((r) => r.session.id))];
+    const attendances =
+      sessionIds.length > 0
+        ? await this.prisma.classAttendance.findMany({
+            where: { userId, sessionId: { in: sessionIds } },
+            select: { sessionId: true, status: true },
+          })
+        : [];
+    const attMap = new Map(attendances.map((a) => [a.sessionId, a.status]));
+
+    rows.sort((a, b) => {
+      const tA = a.session.sessionDate.getTime() - b.session.sessionDate.getTime();
+      if (tA !== 0) return tA;
+      return (a.session.startTime || '').localeCompare(
+        b.session.startTime || '',
+      );
+    });
+
+    return rows.map((r) => ({
+      ...r.session,
+      courseTitle: r.courseTitle,
+      courseThumbnail: r.courseThumbnail,
+      attendanceStatus: attMap.get(r.session.id) ?? null,
+    }));
+  }
+
   async generateInstancesForClassRange(
     classId: string,
     requesterId = 'SYSTEM',

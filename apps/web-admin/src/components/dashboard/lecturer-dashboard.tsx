@@ -4,14 +4,6 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@workspace/ui/components/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty"
 import {
@@ -22,7 +14,6 @@ import {
     Calendar,
     ChevronRight,
     ChevronLeft,
-    ExternalLink,
     Clock,
 } from "lucide-react"
 import { StatsCard } from "./stats-card"
@@ -48,14 +39,19 @@ import { Calendar as CalendarUI } from "@workspace/ui/components/calendar"
 import { cn } from "@workspace/ui/lib/utils"
 import { toast } from "sonner"
 import type { AcademyLiveScheduleSessionModel } from "@workspace/schemas"
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 
 const MEET_URL = import.meta.env.VITE_MEET_URL || "https://meet.torii.sbs"
 
 type SessionWithClass = AcademyLiveScheduleSessionModel & { className?: string; classCode?: string }
-
-const WEEKDAY_MAP: Record<number, string> = {
-    0: "CN", 1: "T2", 2: "T3", 3: "T4", 4: "T5", 5: "T6", 6: "T7",
-}
 
 const DAY_LABELS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
 
@@ -73,28 +69,30 @@ function sessionsForDayLecturer(sessions: SessionWithClass[], day: Date) {
 
 function LecturerTimetableSessionCard({
     session,
-    slotIndex,
-    onJoin,
+    onRequestJoin,
     joining,
 }: {
     session: SessionWithClass
-    slotIndex: number
-    onJoin: (id: string) => void
+    onRequestJoin: (s: SessionWithClass) => void
     joining: boolean
 }) {
     return (
-        <div className="flex gap-3 rounded-xl border border-border/60 bg-card p-2.5 text-left shadow-sm transition-colors hover:bg-muted/25">
-            <div className="flex shrink-0 gap-2">
-                <div className="flex w-5 items-center justify-center">
-                    <span className="origin-center -rotate-90 whitespace-nowrap text-[8px] font-black uppercase tracking-tight text-muted-foreground/80">
-                        #{slotIndex}
-                    </span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5 border-l border-border/60 py-0.5 pl-2">
-                    <span className="text-[11px] font-black tabular-nums leading-none">{session.startTime}</span>
-                    <div className="min-h-[10px] w-px flex-1 bg-border" />
-                    <span className="text-[11px] font-black tabular-nums leading-none">{session.endTime}</span>
-                </div>
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onRequestJoin(session)}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    onRequestJoin(session)
+                }
+            }}
+            className="flex cursor-pointer gap-3 rounded-xl border border-border/60 bg-card p-2.5 text-left shadow-sm transition-colors hover:bg-muted/25"
+        >
+            <div className="flex shrink-0 flex-col items-center gap-0.5 border-r border-border/60 py-0.5 pr-3">
+                <span className="text-[11px] font-black tabular-nums leading-none">{session.startTime}</span>
+                <div className="min-h-[10px] w-px flex-1 bg-border" />
+                <span className="text-[11px] font-black tabular-nums leading-none">{session.endTime}</span>
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -103,13 +101,22 @@ function LecturerTimetableSessionCard({
                         size="sm"
                         variant="default"
                         className="h-7 rounded-md px-2.5 text-[10px] font-black uppercase tracking-wide"
-                        onClick={() => onJoin(session.id)}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            onRequestJoin(session)
+                        }}
                         disabled={joining}
                     >
                         <Video className="mr-1 size-3" />
                         Vào phòng
                     </Button>
-                    <Button variant="outline" size="sm" className="h-7 text-[10px]" asChild>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-[10px]"
+                        asChild
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <Link to={`/academy/classes/${session.classId}/schedule`}>Lớp</Link>
                     </Button>
                 </div>
@@ -199,11 +206,11 @@ export default function LecturerDashboard() {
     }, [allSessions])
 
     const [weekOffset, setWeekOffset] = useState(0)
+    const [joinTarget, setJoinTarget] = useState<SessionWithClass | null>(null)
     const rowRefs = useRef<(HTMLDivElement | null)[]>([])
 
-    const today = new Date()
     const weekStart = useMemo(
-        () => startOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 }),
+        () => startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 1 }),
         [weekOffset]
     )
     const days = useMemo(
@@ -233,6 +240,7 @@ export default function LecturerDashboard() {
             const data = await joinMutation.mutateAsync(sessionId)
             if (data?.token) {
                 window.open(`${MEET_URL}?access_token=${data.token}`, "_blank", "noopener,noreferrer")
+                setJoinTarget(null)
             } else {
                 toast.error("Không lấy được token để vào phòng học.")
             }
@@ -250,18 +258,49 @@ export default function LecturerDashboard() {
         }
     }
 
-    const formatTimetableDate = (dateStr: string | Date) => {
-        try {
-            const d = typeof dateStr === "string" ? new Date(dateStr) : dateStr
-            const day = d.getDay()
-            return `${WEEKDAY_MAP[day]} ${format(d, "dd/MM", { locale: vi })}`
-        } catch {
-            return String(dateStr)
-        }
-    }
-
     return (
         <div className="space-y-6">
+            <AlertDialog open={!!joinTarget} onOpenChange={(open) => !open && setJoinTarget(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Mở phòng dạy trực tuyến?</AlertDialogTitle>
+                        <AlertDialogDescription asChild>
+                            <div className="space-y-2 text-sm text-muted-foreground">
+                                <p>
+                                    Bạn sắp vào phòng meeting cho lớp{" "}
+                                    <span className="font-medium text-foreground">
+                                        {joinTarget?.className || joinTarget?.classCode || "buổi học"}
+                                    </span>
+                                    {joinTarget?.classCode ? (
+                                        <>
+                                            {" "}
+                                            (<span className="font-mono">{joinTarget.classCode}</span>)
+                                        </>
+                                    ) : null}
+                                    .
+                                </p>
+                                {joinTarget && (
+                                    <p className="tabular-nums">
+                                        {formatDateLabel(joinTarget.sessionDate)} · {joinTarget.startTime}–{joinTarget.endTime}
+                                    </p>
+                                )}
+                                <p>Tiếp tục để mở tab phòng học.</p>
+                            </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel type="button">Hủy</AlertDialogCancel>
+                        <Button
+                            type="button"
+                            disabled={!joinTarget || joinMutation.isPending}
+                            onClick={() => joinTarget && void handleJoinSession(joinTarget.id)}
+                        >
+                            {joinMutation.isPending ? "Đang mở…" : "Vào phòng"}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             {nextSession && (
                 <Card>
                     <CardHeader>
@@ -277,7 +316,7 @@ export default function LecturerDashboard() {
                                 </CardDescription>
                             </div>
                             <div className="flex gap-2 shrink-0">
-                                <Button onClick={() => handleJoinSession(nextSession.id)} disabled={joinMutation.isPending}>
+                                <Button onClick={() => setJoinTarget(nextSession)} disabled={joinMutation.isPending}>
                                     <Video className="size-4 mr-2" />
                                     Vào phòng học
                                 </Button>
@@ -356,7 +395,7 @@ export default function LecturerDashboard() {
                                                 if (date) {
                                                     const offset = differenceInWeeks(
                                                         startOfWeek(date, { weekStartsOn: 1 }),
-                                                        startOfWeek(today, { weekStartsOn: 1 })
+                                                        startOfWeek(new Date(), { weekStartsOn: 1 })
                                                     )
                                                     setWeekOffset(offset)
                                                 }
@@ -480,12 +519,11 @@ export default function LecturerDashboard() {
                                                                 Không có buổi dạy
                                                             </div>
                                                         ) : (
-                                                            daySessions.map((s, si) => (
+                                                            daySessions.map((s) => (
                                                                 <LecturerTimetableSessionCard
                                                                     key={s.id}
                                                                     session={s}
-                                                                    slotIndex={si + 1}
-                                                                    onJoin={handleJoinSession}
+                                                                    onRequestJoin={setJoinTarget}
                                                                     joining={joinMutation.isPending}
                                                                 />
                                                             ))

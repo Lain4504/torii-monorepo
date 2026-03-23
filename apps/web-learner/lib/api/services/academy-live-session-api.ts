@@ -6,8 +6,6 @@ import type {
     StandardApiResponse,
     AcademyLiveScheduleSessionModel,
 } from '@workspace/schemas';
-import { academyEnrollmentApi } from './academy-enrollment-api';
-
 const SCHEDULE_WINDOW_PAST_WEEKS = 2;
 const SCHEDULE_WINDOW_FUTURE_WEEKS = 12;
 export const LIVE_SESSION_JOIN_OPEN_BEFORE_MINUTES = 30;
@@ -150,32 +148,45 @@ export const liveSessionApi = {
         return response.data.data!;
     },
 
-    // Aggregate all weekly schedules from active LIVE enrollments
-    async getMySchedule(): Promise<(LiveSessionResponseDTO & { courseTitle: string; courseThumbnail: string | null })[]> {
-        const enrollments = await academyEnrollmentApi.getMyEnrollments({ page: 1, limit: 100, status: 'ACTIVE' });
-        const liveEnrollments = (enrollments.data ?? []).filter((e: any) =>
-            e?.type === 'live' || e?.mode === 'LIVE' || e?.class?.mode === 'LIVE',
-        );
+    /** Lịch LIVE của user hiện tại + trạng thái điểm danh từng buổi (server aggregate). */
+    async getMySchedule(): Promise<
+        (LiveSessionResponseDTO & {
+            courseTitle: string;
+            courseThumbnail: string | null;
+            attendanceStatus?: LiveSessionResponseDTO['attendanceStatus'];
+        })[]
+    > {
+        const now = new Date();
+        const from = new Date(now);
+        from.setDate(from.getDate() - SCHEDULE_WINDOW_PAST_WEEKS * 7);
+        const to = new Date(now);
+        to.setDate(to.getDate() + SCHEDULE_WINDOW_FUTURE_WEEKS * 7);
 
-        if (liveEnrollments.length === 0) return [];
+        const response = await apiClient.get<
+            StandardApiResponse<{
+                items: Array<
+                    AcademyLiveScheduleSessionModel & {
+                        courseTitle: string;
+                        courseThumbnail: string | null;
+                        attendanceStatus: string | null;
+                    }
+                >;
+            }>
+        >('/api/academy/live-sessions/me', {
+            params: {
+                from: from.toISOString().slice(0, 10),
+                to: to.toISOString().slice(0, 10),
+            },
+        });
 
-        const sessionArrays = await Promise.allSettled(
-            liveEnrollments.map((enrollment: any) =>
-                liveSessionApi
-                    .getSessions(enrollment.classId)
-                    .then((sessions) =>
-                        sessions.map((s) => ({
-                            ...s,
-                            courseTitle: enrollment.courseTitle || enrollment.class?.courseProfile?.title || 'Untitled Course',
-                            courseThumbnail: enrollment.thumbnailUrl || enrollment.class?.courseProfile?.thumbnailUrl || null,
-                        })),
-                    ),
-            ),
-        );
-
-        return sessionArrays
-            .filter((r): r is PromiseFulfilledResult<any[]> => r.status === 'fulfilled')
-            .flatMap((r) => r.value)
+        const items = response.data.data?.items ?? [];
+        return items
+            .map((s) => ({
+                ...toSessionResponse(s, s.classId, now),
+                courseTitle: s.courseTitle || 'Khóa học',
+                courseThumbnail: s.courseThumbnail ?? null,
+                attendanceStatus: (s.attendanceStatus as LiveSessionResponseDTO['attendanceStatus']) ?? null,
+            }))
             .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
     }
 };

@@ -88,6 +88,17 @@ export class LiveScheduleHandler {
     );
   }
 
+  @MessagePattern({ cmd: 'academy.liveSession.getMyScheduleWithAttendance' })
+  getMyScheduleWithAttendance(
+    @Payload() data: { userId: string; from: string; to: string },
+  ) {
+    return this.schedules.getLearnerScheduleWithAttendance(
+      data.userId,
+      new Date(data.from),
+      new Date(data.to),
+    );
+  }
+
   @MessagePattern({ cmd: 'academy.liveSchedule.previewConflict' })
   previewConflict(@Payload() input: LiveScheduleConflictPreviewDto) {
     return this.schedules.previewConflict(input);

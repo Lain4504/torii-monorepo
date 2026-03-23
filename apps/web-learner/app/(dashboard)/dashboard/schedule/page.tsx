@@ -32,6 +32,15 @@ import { Spinner } from '@workspace/ui/components/spinner'
 import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty'
 import { cn } from '@workspace/ui/lib/utils'
 import { toast } from '@workspace/ui/components/sonner'
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@workspace/ui/components/alert-dialog'
 import { ChevronLeft, ChevronRight, Calendar, BookOpen, Clock } from 'lucide-react'
 import Link from 'next/link'
 
@@ -43,6 +52,15 @@ const MEET_URL =
 type ScheduleSession = LiveSessionResponseDTO & {
     courseTitle: string
     courseThumbnail: string | null
+    attendanceStatus?: LiveSessionResponseDTO['attendanceStatus']
+}
+
+function attendanceBadgeLabel(status: LiveSessionResponseDTO['attendanceStatus']) {
+    if (status === 'PRESENT') return 'Đã điểm danh: có mặt'
+    if (status === 'ABSENT') return 'Đã điểm danh: vắng'
+    if (status === 'LATE') return 'Đã điểm danh: muộn'
+    if (status === 'EXCUSED') return 'Đã điểm danh: có phép'
+    return 'Chưa có điểm danh'
 }
 
 function sessionsForDay(sessions: ScheduleSession[], day: Date) {
@@ -53,14 +71,12 @@ function sessionsForDay(sessions: ScheduleSession[], day: Date) {
 
 function CompactSessionCard({
     session,
-    slotIndex,
-    onJoin,
+    onRequestJoin,
     joiningId,
     now,
 }: {
     session: ScheduleSession
-    slotIndex: number
-    onJoin: (id: string) => void
+    onRequestJoin: (s: ScheduleSession) => void
     joiningId: string | null
     now: Date
 }) {
@@ -73,8 +89,20 @@ function CompactSessionCard({
 
     return (
         <div
+            role={canJoin ? 'button' : undefined}
+            tabIndex={canJoin ? 0 : undefined}
+            onClick={() => {
+                if (canJoin) onRequestJoin(session)
+            }}
+            onKeyDown={(e) => {
+                if (canJoin && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    onRequestJoin(session)
+                }
+            }}
             className={cn(
                 'flex gap-3 rounded-xl border p-2.5 text-left shadow-sm transition-colors',
+                canJoin && 'cursor-pointer',
                 isLive
                     ? 'border-destructive/35 bg-destructive/[0.06]'
                     : isEnded
@@ -82,17 +110,10 @@ function CompactSessionCard({
                         : 'border-border/60 bg-white hover:bg-zinc-50/90 dark:bg-zinc-900 dark:hover:bg-zinc-800/90'
             )}
         >
-            <div className="flex shrink-0 gap-2">
-                <div className="flex w-5 items-center justify-center">
-                    <span className="origin-center -rotate-90 whitespace-nowrap text-[8px] font-black uppercase tracking-tight text-muted-foreground/80">
-                        Slot {slotIndex}
-                    </span>
-                </div>
-                <div className="flex flex-col items-center gap-0.5 border-l border-border/60 py-0.5 pl-2">
-                    <span className="text-[11px] font-black tabular-nums leading-none">{format(start, 'HH:mm')}</span>
-                    <div className="min-h-[10px] w-px flex-1 bg-border" />
-                    <span className="text-[11px] font-black tabular-nums leading-none">{format(end, 'HH:mm')}</span>
-                </div>
+            <div className="flex shrink-0 flex-col items-center gap-0.5 border-r border-border/60 py-0.5 pr-3">
+                <span className="text-[11px] font-black tabular-nums leading-none">{format(start, 'HH:mm')}</span>
+                <div className="min-h-[10px] w-px flex-1 bg-border" />
+                <span className="text-[11px] font-black tabular-nums leading-none">{format(end, 'HH:mm')}</span>
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -111,12 +132,24 @@ function CompactSessionCard({
                             Đã xong
                         </Badge>
                     )}
+                    {isEnded && (
+                        <Badge
+                            variant="secondary"
+                            className="h-5 max-w-[140px] truncate px-1.5 text-[8px] font-bold"
+                            title={attendanceBadgeLabel(session.attendanceStatus ?? null)}
+                        >
+                            {attendanceBadgeLabel(session.attendanceStatus ?? null)}
+                        </Badge>
+                    )}
                     {canJoin && (
                         <Button
                             size="sm"
                             variant="default"
                             className="h-7 rounded-md px-2.5 text-[10px] font-black uppercase tracking-wide"
-                            onClick={() => onJoin(session.id)}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onRequestJoin(session)
+                            }}
                             disabled={!!joiningId}
                         >
                             {joiningId === session.id ? <Spinner className="size-3" /> : isLive ? 'Vào lớp' : 'Vào phòng'}
@@ -146,6 +179,7 @@ export default function SchedulePage() {
     const { data: allSessions = [], isLoading } = useMySchedule()
     const [weekOffset, setWeekOffset] = React.useState(0)
     const [joiningId, setJoiningId] = React.useState<string | null>(null)
+    const [joinConfirmSession, setJoinConfirmSession] = React.useState<ScheduleSession | null>(null)
     const [now, setNow] = React.useState(() => new Date())
     const rowRefs = React.useRef<(HTMLDivElement | null)[]>([])
 
@@ -170,6 +204,7 @@ export default function SchedulePage() {
             const joinData = await liveSessionApi.joinSession(sessionId)
             window.open(`${MEET_URL}?access_token=${joinData.token}`, '_blank', 'noopener,noreferrer')
             toast.success('Đang mở phòng học...')
+            setJoinConfirmSession(null)
         } catch (err: unknown) {
             const msg =
                 err && typeof err === 'object' && 'response' in err
@@ -189,6 +224,41 @@ export default function SchedulePage() {
 
     return (
         <div className="animate-in fade-in space-y-4 duration-500">
+            <AlertDialog
+                open={!!joinConfirmSession}
+                onOpenChange={(open) => {
+                    if (!open) setJoinConfirmSession(null)
+                }}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Vào phòng học trực tuyến?</AlertDialogTitle>
+                        <AlertDialogDescription asChild>
+                            <div className="space-y-2 text-sm text-muted-foreground">
+                                <p>
+                                    Bạn sắp mở phòng meeting cho buổi{' '}
+                                    <span className="font-medium text-foreground">{joinConfirmSession?.title}</span> —{' '}
+                                    <span className="font-medium text-foreground">{joinConfirmSession?.courseTitle}</span>.
+                                </p>
+                                <p>Tiếp tục để mở tab phòng học (LiveKit).</p>
+                            </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <Button
+                            type="button"
+                            disabled={!joinConfirmSession || !!joiningId}
+                            onClick={() => {
+                                if (joinConfirmSession) void handleJoin(joinConfirmSession.id)
+                            }}
+                        >
+                            {joiningId ? 'Đang mở…' : 'Vào phòng'}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-white p-4 shadow-sm dark:border-border/40 dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
                 <div className="space-y-0.5">
                     <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Thời khóa biểu</h1>
@@ -355,12 +425,11 @@ export default function SchedulePage() {
                                                 Không có buổi học
                                             </div>
                                         ) : (
-                                            daySessions.map((s, si) => (
+                                            daySessions.map((s) => (
                                                 <CompactSessionCard
                                                     key={s.id}
                                                     session={s}
-                                                    slotIndex={si + 1}
-                                                    onJoin={handleJoin}
+                                                    onRequestJoin={setJoinConfirmSession}
                                                     joiningId={joiningId}
                                                     now={now}
                                                 />

@@ -66,7 +66,11 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
         from: fromDate,
         to: toDate
     })
-    const { data: attendanceData } = useAcademyClassAttendances({ page: 1, limit: 1000 })
+    const { data: attendanceData } = useAcademyClassAttendances({
+        page: 1,
+        limit: 100,
+        classId: classId || undefined,
+    })
     const { data: schedules = [] } = useAcademyLiveSchedules({ classId })
     const { data: allRequests = [] } = useAcademyLiveScheduleRequests({})
     const requests = allRequests.filter(r => r.session?.classId === classId || (r as any).classId === classId)
