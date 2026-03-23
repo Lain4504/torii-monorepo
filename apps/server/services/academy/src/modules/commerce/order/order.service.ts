@@ -116,6 +116,12 @@ export class OrderService {
         klass = await this.prisma.class.findUnique({
           where: { id: offering.classId },
           include: {
+            courseProfile: {
+              select: {
+                editionId: true,
+                level: true,
+              },
+            },
             term: {
               select: {
                 enrollmentOpenAt: true,
@@ -160,6 +166,35 @@ export class OrderService {
         }
       } else {
         // VOD or other: class must be PUBLISHED/OPENING/ONGOING
+        // VOD duplication guard: if user already owns a VOD for the same edition group,
+        // block checkout to avoid "buying the same course twice".
+        const vodEditionId = (klass as any)?.courseProfile?.editionId ?? null;
+        const vodLevel = (klass as any)?.courseProfile?.level ?? null;
+
+        if (vodEditionId || vodLevel) {
+          const existingVodEnrollment = await this.prisma.enrollment.findFirst({
+            where: {
+              userId,
+              status: { in: ['ACTIVE', 'COMPLETED'] },
+              class: {
+                mode: ClassMode.VOD,
+                courseProfile: vodEditionId
+                  ? { editionId: vodEditionId }
+                  : { level: vodLevel ?? undefined },
+              },
+            },
+            select: { id: true },
+          });
+
+          if (existingVodEnrollment) {
+            throw new BadRequestException(
+              vodEditionId
+                ? 'Bạn đã sở hữu khóa VOD cho phiên bản này.'
+                : `Bạn đã sở hữu khóa VOD cấp ${vodLevel}.`,
+            );
+          }
+        }
+
         if (
           klass.status !== ClassStatus.OPENING &&
           klass.status !== ClassStatus.ONGOING &&

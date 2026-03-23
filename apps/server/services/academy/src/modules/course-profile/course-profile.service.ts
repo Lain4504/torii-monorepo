@@ -38,6 +38,12 @@ export class CourseProfileService {
       andFilters.push({ level: query.level });
     }
 
+    if ((query as any).editionKey) {
+      andFilters.push({
+        edition: { key: (query as any).editionKey },
+      });
+    }
+
     if ((query as any).status) {
       andFilters.push({ status: (query as any).status });
     }
@@ -56,6 +62,11 @@ export class CourseProfileService {
 
     return this.prisma.courseProfile.findMany({
       where,
+      include: {
+        edition: {
+          select: { id: true, key: true, level: true, title: true },
+        },
+      },
       orderBy: [{ createdAt: 'desc' }],
     });
   }
@@ -64,6 +75,9 @@ export class CourseProfileService {
     const item = await this.prisma.courseProfile.findUnique({
       where: { id },
       include: {
+        edition: {
+          select: { id: true, key: true, level: true, title: true },
+        },
         modules: {
           include: {
             lessons: { orderBy: { orderIndex: 'asc' } },
@@ -77,6 +91,27 @@ export class CourseProfileService {
   }
 
   async create(input: AcademyCourseProfileCreateDTO, requesterId?: string) {
+    // NOTE: editionKey is nullable for backward compatibility.
+    // Business rule: do NOT auto-create CourseEdition here.
+    const editionKey = (input as any).editionKey as string | null | undefined;
+    let editionId: string | null | undefined = undefined;
+    if (editionKey !== undefined) {
+      if (!editionKey) {
+        editionId = null;
+      } else {
+        const edition = await this.prisma.courseEdition.findUnique({
+          where: { key: editionKey },
+          select: { id: true },
+        });
+        if (!edition) {
+          throw new BadRequestException(
+            `CourseEdition key '${editionKey}' not found. Please create it first in admin.`,
+          );
+        }
+        editionId = edition.id;
+      }
+    }
+
     const exists = await this.prisma.courseProfile.findUnique({
       where: { code: input.code },
       select: { id: true },
@@ -90,6 +125,7 @@ export class CourseProfileService {
         title: input.title,
         description: input.description ?? null,
         level: input.level ?? null,
+        editionId,
         thumbnailUrl: input.thumbnailUrl ?? null,
         // CourseProfile không nên auto-PUBLISHED khi tạo mới (phải qua trạng thái duyệt theo workflow).
         status: (input as any).status ?? 'DRAFT',
@@ -127,12 +163,32 @@ export class CourseProfileService {
       );
     }
 
+    const editionKey = (input as any).editionKey as string | null | undefined;
+    let editionIdUpdate: string | null | undefined = undefined;
+    if (editionKey !== undefined) {
+      if (!editionKey) {
+        editionIdUpdate = null;
+      } else {
+        const edition = await this.prisma.courseEdition.findUnique({
+          where: { key: editionKey },
+          select: { id: true },
+        });
+        if (!edition) {
+          throw new BadRequestException(
+            `CourseEdition key '${editionKey}' not found. Please create it first in admin.`,
+          );
+        }
+        editionIdUpdate = edition.id;
+      }
+    }
+
     const item = await this.prisma.courseProfile.update({
       where: { id },
       data: {
         title: input.title ?? undefined,
         description: input.description ?? undefined,
         level: input.level ?? undefined,
+        editionId: editionIdUpdate,
         thumbnailUrl: input.thumbnailUrl ?? undefined,
         status: (input as any).status || undefined,
       },
@@ -276,6 +332,7 @@ export class CourseProfileService {
           title: newTitle,
           description: source.description,
           level: source.level,
+          editionId: source.editionId ?? undefined,
           thumbnailUrl: source.thumbnailUrl,
           status: 'DRAFT',
         },

@@ -45,6 +45,7 @@ import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles-page.tsx'
 import CourseProfileDetailPage from '@/routes/academy/course-profiles/course-profile-detail-page.tsx'
+import CourseEditionsPage from '@/routes/academy/course-editions/course-editions-page'
 import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
 import ClassStudentsPage from '@/routes/academy/classes/class-students-page.tsx'
 import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
@@ -115,6 +116,7 @@ function App() {
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"]} />}>
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
                     <Route path="academy/course-profiles/:profileId/detail" element={<CourseProfileDetailPage />} />
+                  <Route path="academy/course-editions" element={<CourseEditionsPage />} />
                     <Route path="academy/classes" element={<ClassesPage />} />
                     <Route path="academy/classes/:classId/detail" element={<ClassStudentsPage />} />
                     <Route path="academy/classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />

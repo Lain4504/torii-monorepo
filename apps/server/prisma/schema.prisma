@@ -1093,6 +1093,28 @@ enum LessonType {
 }
 
 // ==================================================
+// EDITION GROUP (used for logical VOD versioning)
+// ==================================================
+
+model CourseEdition {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  /// Logical edition key (group), e.g. "N5", "N4", ...
+  key       String   @unique @db.VarChar(50)
+  title     String?  @db.VarChar(255)
+  /// Optional: duplicated from CourseProfile.level for convenience.
+  level     String?  @db.VarChar(50)
+  isActive  Boolean  @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  courseProfiles CourseProfile[]
+
+  @@index([level])
+  @@map("academy_course_editions")
+}
+
+// ==================================================
 // CONTENT BANK LAYER
 // ==================================================
 
@@ -1102,6 +1124,9 @@ model CourseProfile {
   title        String              @db.VarChar(255)
   description  String?             @db.Text
   level        String?             @db.VarChar(50) // N5, N4, N3, N2, N1
+  /// Logical VOD edition group; nullable để không break các CourseProfile cũ.
+  editionId    String?             @map("edition_id") @db.Uuid
+  edition      CourseEdition?      @relation(fields: [editionId], references: [id], onDelete: SetNull)
   thumbnailUrl String?             @map("thumbnail_url") @db.Text
   status       CourseProfileStatus @default(DRAFT)
 

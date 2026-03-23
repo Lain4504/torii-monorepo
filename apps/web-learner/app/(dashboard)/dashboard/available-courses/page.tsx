@@ -1,17 +1,15 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Input } from '@workspace/ui/components/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@workspace/ui/components/collapsible'
 import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group'
-import { Search, Calendar, ChevronDown, Clock, Users } from 'lucide-react'
+import { Calendar, ChevronDown, Clock, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -31,31 +29,24 @@ function currentMonthParam() {
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
 export default function DashboardCoursesPage() {
-    const [searchQuery, setSearchQuery] = useState('')
     const [level, setLevel] = useState<string>('all')
     const searchParams = useSearchParams()
     const typeParam = (searchParams.get('type') ?? '').toLowerCase()
-    const [activeTab, setActiveTab] = useState<'live' | 'vod'>(() => (typeParam === 'vod' ? 'vod' : 'live'))
+    const showLive = typeParam !== 'vod'
+    const showVod = typeParam !== 'live'
 
     const month = useMemo(() => currentMonthParam(), [])
 
-    useEffect(() => {
-        setActiveTab(typeParam === 'vod' ? 'vod' : 'live')
-    }, [typeParam])
-
     const levelParam = level === 'all' ? undefined : level
-    const q = searchQuery.trim() || undefined
 
     const liveQuery = useAcademyClassCatalog({
         mode: 'LIVE',
         level: levelParam,
         month,
-        q,
     })
     const vodQuery = useAcademyClassCatalog({
         mode: 'VOD',
         level: levelParam,
-        q,
     })
 
     const liveItems = liveQuery.data?.items ?? []
@@ -67,19 +58,11 @@ export default function DashboardCoursesPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Khám phá khóa học</h1>
                     <p className="text-muted-foreground mt-1">
-                        Chọn trình độ (JLPT), xem lớp Live đang mở đăng ký trong tháng hoặc khóa VOD theo cấp độ.
+                        Chọn trình độ (JLPT) và khám phá lớp Live đang tuyển sinh trong tháng {month.replace('-', '/')} cùng
+                        khóa VOD theo cấp độ.
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                    <div className="relative w-full sm:max-w-md">
-                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Tìm theo tên lớp, mã, khóa học..."
-                            className="pl-9"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
                     <ToggleGroup
                         type="single"
                         value={level}
@@ -99,55 +82,71 @@ export default function DashboardCoursesPage() {
                 </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'live' | 'vod')} className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-2">
-                    <TabsTrigger value="live">Lớp Live</TabsTrigger>
-                    <TabsTrigger value="vod">Khóa VOD</TabsTrigger>
-                </TabsList>
+            <div className="space-y-8">
+                {showLive ? (
+                    <section className="space-y-4">
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-xl font-semibold">Lớp Live đang tuyển sinh</h2>
+                            <p className="text-sm text-muted-foreground">
+                                Lớp trực tiếp đang mở đăng ký, khai giảng trong tháng {month.replace('-', '/')}.
+                            </p>
+                        </div>
+                        {liveQuery.isLoading ? (
+                            <div className="flex justify-center py-16">
+                                <Spinner className="h-8 w-8 text-primary" />
+                            </div>
+                        ) : liveItems.length === 0 ? (
+                            <Card>
+                                <CardContent className="py-10 text-center text-muted-foreground text-sm">
+                                    Không có lớp Live phù hợp. Thử đổi cấp độ.
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory">
+                                {liveItems.map((klass: any) => (
+                                    <div
+                                        key={klass.id}
+                                        className="snap-start w-[280px] sm:w-[340px] lg:w-[400px] shrink-0"
+                                    >
+                                        <ClassLiveCard klass={klass} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                ) : null}
 
-                <TabsContent value="live" className="mt-6 space-y-4">
-                    <p className="text-sm text-muted-foreground">
-                        Lớp trực tiếp đang mở đăng ký, khai giảng trong tháng {month.replace('-', '/')}.
-                    </p>
-                    {liveQuery.isLoading ? (
-                        <div className="flex justify-center py-16">
-                            <Spinner className="h-8 w-8 text-primary" />
+                {showVod ? (
+                    <section className="space-y-4">
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-xl font-semibold">Khóa VOD</h2>
+                            <p className="text-sm text-muted-foreground">Chọn lớp phù hợp theo trình độ.</p>
                         </div>
-                    ) : liveItems.length === 0 ? (
-                        <Card>
-                            <CardContent className="py-10 text-center text-muted-foreground text-sm">
-                                Không có lớp Live phù hợp. Thử đổi cấp độ hoặc từ khóa tìm kiếm.
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {liveItems.map((klass: any) => (
-                                <ClassLiveCard key={klass.id} klass={klass} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-
-                <TabsContent value="vod" className="mt-6 space-y-4">
-                    {vodQuery.isLoading ? (
-                        <div className="flex justify-center py-16">
-                            <Spinner className="h-8 w-8 text-primary" />
-                        </div>
-                    ) : vodItems.length === 0 ? (
-                        <Card>
-                            <CardContent className="py-10 text-center text-muted-foreground text-sm">
-                                Không có khóa VOD phù hợp.
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="grid gap-4 md:grid-cols-2">
-                            {vodItems.map((klass: any) => (
-                                <ClassVodCard key={klass.id} klass={klass} />
-                            ))}
-                        </div>
-                    )}
-                </TabsContent>
-            </Tabs>
+                        {vodQuery.isLoading ? (
+                            <div className="flex justify-center py-16">
+                                <Spinner className="h-8 w-8 text-primary" />
+                            </div>
+                        ) : vodItems.length === 0 ? (
+                            <Card>
+                                <CardContent className="py-10 text-center text-muted-foreground text-sm">
+                                    Không có khóa VOD phù hợp.
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory">
+                                {vodItems.map((klass: any) => (
+                                    <div
+                                        key={klass.id}
+                                        className="snap-start w-[280px] sm:w-[340px] lg:w-[400px] shrink-0"
+                                    >
+                                        <ClassVodCard klass={klass} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                ) : null}
+            </div>
 
         </div>
     )
@@ -161,19 +160,19 @@ function ClassVodCard({ klass }: { klass: any }) {
     const price = klass.catalogPrice ?? 0
 
     return (
-        <Card className="overflow-hidden">
-            <div className="flex flex-col sm:flex-row">
-                <div className="relative aspect-video sm:w-44 sm:shrink-0 border-b sm:border-b-0 sm:border-r">
+        <Card>
+            <CardContent className="p-0">
+                <div className="relative aspect-video w-full border-b">
                     <Image src={thumb} alt="" fill className="object-cover" />
                     <div className="absolute top-2 left-2 flex gap-1">
                         <Badge>{level}</Badge>
                         <Badge variant="secondary">VOD</Badge>
                     </div>
                 </div>
-                <CardContent className="flex-1 p-4 space-y-3">
+                <div className="p-4 space-y-3">
                     <div>
                         <h3 className="font-semibold leading-snug">{title}</h3>
-                        <p className="text-xs text-muted-foreground font-mono mt-0.5">{klass.code}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{klass.code}</p>
                     </div>
                     {klass.instructor?.displayName ? (
                         <p className="text-sm text-muted-foreground">
@@ -186,14 +185,15 @@ function ClassVodCard({ klass }: { klass: any }) {
                             </Link>
                         </p>
                     ) : null}
+
                     <div className="flex items-center justify-between gap-2 pt-1">
                         <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
                         <Button size="sm" asChild>
-                            <Link href={`/dashboard/available-courses/class/${klass.id}`}>Chi tiết</Link>
+                            <Link href={`/dashboard/available-courses/class/${klass.id}`}>Chi tiết lớp</Link>
                         </Button>
                     </div>
-                </CardContent>
-            </div>
+                </div>
+            </CardContent>
         </Card>
     )
 }
@@ -214,7 +214,7 @@ function ClassLiveCard({ klass }: { klass: any }) {
                     <Image src={thumb} alt="" fill className="object-cover" />
                     <div className="absolute top-2 left-2 flex gap-1">
                         <Badge>{level}</Badge>
-                        <Badge variant="destructive">LIVE</Badge>
+                        <Badge variant="destructive">Đang tuyển sinh</Badge>
                     </div>
                 </div>
                 <div className="p-4 space-y-3">

@@ -109,6 +109,7 @@ export const academyClassCatalogApi = {
   findPublic: async (params: {
     mode: 'LIVE' | 'VOD';
     level?: string;
+    editionKey?: string;
     month?: string;
     q?: string;
   }): Promise<{ items: any[] }> => {
@@ -189,6 +190,7 @@ export function useAcademyCourseById(courseId?: string) {
 export function useAcademyClassCatalog(params: {
   mode: 'LIVE' | 'VOD';
   level?: string;
+  editionKey?: string;
   month?: string;
   q?: string;
 }) {

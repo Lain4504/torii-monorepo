@@ -34,6 +34,7 @@ import {
   useUpdateAcademyCourseProfile,
   type AcademyCourseProfile,
 } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyCourseEditionsPublic } from '@/lib/api/services/academy-course-editions'
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import { toast } from "sonner"
 import { Loader2, Save, X } from "lucide-react"
@@ -43,6 +44,8 @@ const courseProfileSchema = z.object({
   title: z.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự"),
   description: z.string().optional(),
   level: z.string().optional(),
+  /// Logical VOD edition group key; nullable for backward compatibility.
+  editionKey: z.union([z.string(), z.null()]).optional(),
   thumbnailUrl: z.union([z.string().url(), z.literal("")]).optional(),
 })
 
@@ -60,6 +63,11 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
   const updateMutation = useUpdateAcademyCourseProfile()
 
   const {
+    data: editions = [],
+    isLoading: editionsLoading,
+  } = useAcademyCourseEditionsPublic({ isActive: true })
+
+  const {
     control,
     handleSubmit,
     reset,
@@ -71,6 +79,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
       title: "",
       description: "",
       level: "",
+      editionKey: null,
       thumbnailUrl: "",
     },
   })
@@ -82,6 +91,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         title: profile.title,
         description: profile.description || "",
         level: profile.level || "",
+          editionKey: (profile as any)?.edition?.key ?? null,
         thumbnailUrl: profile.thumbnailUrl || "",
       })
     } else {
@@ -90,6 +100,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         title: "",
         description: "",
         level: "",
+          editionKey: null,
         thumbnailUrl: "",
       })
     }
@@ -104,7 +115,13 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
       if (isEditing && profile) {
         await updateMutation.mutateAsync({
           id: profile.id,
-          input: { title: payload.title, description: payload.description, level: payload.level, thumbnailUrl: payload.thumbnailUrl },
+          input: {
+            title: payload.title,
+            description: payload.description,
+            level: payload.level,
+            editionKey: payload.editionKey ?? null,
+            thumbnailUrl: payload.thumbnailUrl,
+          },
         })
         toast.success("Cập nhật hồ sơ khóa học thành công")
       } else {
@@ -113,6 +130,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
           title: payload.title,
           description: payload.description,
           level: payload.level,
+          editionKey: payload.editionKey ?? null,
           thumbnailUrl: payload.thumbnailUrl,
         })
         toast.success("Tạo hồ sơ khóa học thành công")
@@ -182,6 +200,37 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
                         />
                         <FieldDescription>Cấp độ học thuật (JLPT, v.v.)</FieldDescription>
                         <FieldError errors={[errors.level]} />
+                      </Field>
+
+                      <Field>
+                        <FieldLabel>Nhóm Edition (CourseEdition)</FieldLabel>
+                        <Controller
+                          name="editionKey"
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              value={(field.value ?? "") as any}
+                              onValueChange={(v) => field.onChange(v || null)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Không đặt (null)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">Không đặt</SelectItem>
+                                {editionsLoading
+                                  ? null
+                                  : editions.map((e: any) => (
+                                      <SelectItem key={e.id} value={e.key}>
+                                        {e.title || e.key}
+                                      </SelectItem>
+                                    ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        <FieldDescription>
+                          Dùng cho logic chặn mua trùng VOD theo phiên bản logic.
+                        </FieldDescription>
                       </Field>
                     </div>
 

@@ -74,6 +74,7 @@ export class ClassController {
   async findPublicCatalog(
     @Query('mode') mode: string,
     @Query('level') level?: string,
+    @Query('editionKey') editionKey?: string,
     @Query('month') month?: string,
     @Query('q') q?: string,
   ) {
@@ -83,7 +84,7 @@ export class ClassController {
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.class.findPublicCatalog' },
-        { mode, level, month, q },
+        { mode, level, editionKey, month, q },
       ),
     );
     return successResponse({ items });

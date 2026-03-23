@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { CourseProfileController } from './controllers/course-profile.controller';
 import { CourseOfferingController } from './controllers/course-offering.controller';
+import { CourseEditionController } from './controllers/course-edition.controller';
 import { TicketController } from './controllers/ticket.controller';
 import { ClassController } from './controllers/class.controller';
 import { LiveScheduleController } from './controllers/live-schedule.controller';
@@ -33,6 +34,7 @@ import { JlptMockController } from './controllers/jlpt-mock.controller';
   controllers: [
     CourseProfileController,
     CourseOfferingController,
+    CourseEditionController,
     TicketController,
     ClassController,
     LiveScheduleController,

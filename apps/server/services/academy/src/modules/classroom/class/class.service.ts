@@ -837,6 +837,7 @@ export class ClassService {
   async findPublicCatalog(query: {
     mode: 'LIVE' | 'VOD';
     level?: string;
+    editionKey?: string;
     month?: string;
     q?: string;
   }) {
@@ -857,13 +858,29 @@ export class ClassService {
 
     const baseWhere: Prisma.ClassWhereInput = {
       mode: query.mode as ClassMode,
-      ...(query.level
+      ...(query.editionKey
         ? {
             courseProfile: {
-              level: { equals: query.level, mode: 'insensitive' },
+              // Fallback cho các CourseProfile legacy có `editionId = NULL`
+              OR: [
+                {
+                  edition: {
+                    key: { equals: query.editionKey, mode: 'insensitive' },
+                  },
+                },
+                {
+                  level: { equals: query.editionKey, mode: 'insensitive' },
+                },
+              ],
             },
           }
-        : {}),
+        : query.level
+          ? {
+              courseProfile: {
+                level: { equals: query.level, mode: 'insensitive' },
+              },
+            }
+          : {}),
       ...(q
         ? {
             OR: [
@@ -907,6 +924,11 @@ export class ClassService {
             title: true,
             code: true,
             level: true,
+            edition: {
+              select: {
+                key: true,
+              },
+            },
             thumbnailUrl: true,
           },
         },

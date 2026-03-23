@@ -167,6 +167,7 @@ export class ClassHandler {
     data: {
       mode: 'LIVE' | 'VOD';
       level?: string;
+      editionKey?: string;
       month?: string;
       q?: string;
     },

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 import { useAcademyClassCatalogById } from '@/lib/api/services/academy-course-api'
-import { formatNumber } from '@/utils/format-utils'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Card, CardContent } from '@workspace/ui/components/card'
@@ -28,6 +27,7 @@ import {
   PlayCircle,
   Users,
 } from 'lucide-react'
+import { formatNumber } from '@/utils/format-utils'
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
@@ -109,29 +109,65 @@ export default function ClassCatalogDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center gap-2">
-              {jlptLevel ? (
-                <Badge variant="secondary" className="px-3 py-1">
-                  {jlptLevel}
+          {/* Banner lớn đặt phía trên để phù hợp trang detail (VOD/Live) */}
+          {isLIVE ? (
+            <div className="relative aspect-video rounded-2xl overflow-hidden border">
+              <Image src={thumb} alt="" fill className="object-cover" priority />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+              <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
+                {jlptLevel ? (
+                  <Badge variant="secondary" className="px-3 py-1">
+                    {jlptLevel}
+                  </Badge>
+                ) : null}
+                <Badge variant="destructive" className="px-3 py-1">
+                  Lớp Live
                 </Badge>
-              ) : null}
-              <Badge variant={isLIVE ? 'destructive' : 'secondary'}>
-                {isLIVE ? 'Lớp Live' : 'Khóa VOD'}
-              </Badge>
-              <Badge variant="outline" className="font-mono">
-                {klass.code}
-              </Badge>
+                <Badge variant="outline" className="font-mono">
+                  {klass.code}
+                </Badge>
+              </div>
+
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  {klass.name || profile?.title}
+                </h1>
+                {profile?.title && klass.name && klass.name !== profile.title ? (
+                  <p className="text-sm text-muted-foreground mt-2">{profile.title}</p>
+                ) : null}
+              </div>
             </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+              <div className="relative w-full sm:w-72 aspect-video rounded-2xl overflow-hidden border shrink-0">
+                <Image src={thumb} alt="" fill className="object-cover" priority />
+              </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              {klass.name || profile?.title}
-            </h1>
+              <div className="flex-1 space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  {jlptLevel ? (
+                    <Badge variant="secondary" className="px-3 py-1">
+                      {jlptLevel}
+                    </Badge>
+                  ) : null}
+                  <Badge variant="secondary" className="px-3 py-1">
+                    Khóa VOD
+                  </Badge>
+                  <Badge variant="outline" className="font-mono">
+                    {klass.code}
+                  </Badge>
+                </div>
 
-            {profile?.title && klass.name && klass.name !== profile.title ? (
-              <p className="text-base text-muted-foreground">{profile.title}</p>
-            ) : null}
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{klass.name || profile?.title}</h1>
 
+                {profile?.title && klass.name && klass.name !== profile.title ? (
+                  <p className="text-base text-muted-foreground">{profile.title}</p>
+                ) : null}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-6">
             <div className="flex flex-wrap gap-y-4 gap-x-8 text-sm font-medium text-muted-foreground pt-2">
               {klass.term?.openingDate ? (
                 <div className="flex items-center gap-2">
@@ -149,42 +185,35 @@ export default function ClassCatalogDetailPage() {
                 </span>
               </div>
             </div>
+
           </div>
 
-          <div className="relative aspect-video rounded-xl overflow-hidden border">
-            <Image
-              src={thumb}
-              alt=""
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-
-          <section id="instructor" className="space-y-4">
-            <h2 className="text-2xl font-bold tracking-tight border-b pb-2">Giảng viên</h2>
-            {klass.instructor?.id ? (
-              <div className="flex items-start gap-4">
-                <Avatar className="h-14 w-14">
-                  <AvatarImage src={klass.instructor.avatarUrl || undefined} alt="" />
-                  <AvatarFallback>
-                    {(klass.instructor.displayName || '?').slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <Link
-                    href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
-                    className="font-semibold text-lg hover:underline underline-offset-4"
-                  >
-                    {klass.instructor.displayName || '—'}
-                  </Link>
-                  <p className="text-sm text-muted-foreground">Giảng viên</p>
+          {isLIVE ? (
+            <section id="instructor" className="space-y-4">
+              <h2 className="text-2xl font-bold tracking-tight border-b pb-2">Giảng viên</h2>
+              {klass.instructor?.id ? (
+                <div className="flex items-start gap-4">
+                  <Avatar className="h-14 w-14">
+                    <AvatarImage src={klass.instructor.avatarUrl || undefined} alt="" />
+                    <AvatarFallback>
+                      {(klass.instructor.displayName || '?').slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <Link
+                      href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
+                      className="font-semibold text-lg hover:underline underline-offset-4"
+                    >
+                      {klass.instructor.displayName || '—'}
+                    </Link>
+                    <p className="text-sm text-muted-foreground">Giảng viên</p>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">Chưa cập nhật giảng viên.</p>
-            )}
-          </section>
+              ) : (
+                <p className="text-muted-foreground text-sm">Chưa cập nhật giảng viên.</p>
+              )}
+            </section>
+          ) : null}
 
           {isLIVE && (schedules.length > 0 || sessions.length > 0) ? (
             <section className="space-y-4">
