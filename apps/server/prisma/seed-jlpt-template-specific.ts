@@ -129,7 +129,43 @@ function inferQuestionTypeFromMondaiCode(mondaiCode: string): JlptQuestionType {
   const code = String(mondaiCode).toUpperCase();
   if (code.includes('_R_') || code.includes('READING')) return 'READING';
   if (code.includes('_G_') || code.includes('GRAMMAR')) return 'GRAMMAR';
+  if (code.includes('_L_') || code.includes('LISTEN') || code.includes('LISTENING')) return 'LISTENING';
   return 'VOCAB';
+}
+
+function inferQuestionTypeFromMondaiTitles(input: {
+  sectionCode: JlptSectionCode;
+  mondaiCode: string;
+  titleJa?: string | null;
+  titleVi?: string | null;
+}): JlptQuestionType {
+  const { sectionCode, mondaiCode, titleJa, titleVi } = input;
+  if (sectionCode === 'LISTENING') return 'LISTENING';
+
+  const base: JlptQuestionType = sectionCode === 'LANGUAGE_VOCAB' ? 'VOCAB' : 'GRAMMAR';
+  const raw = `${mondaiCode ?? ''}\n${titleJa ?? ''}\n${titleVi ?? ''}`;
+
+  // 読解
+  if (
+    /読解|内容理解|統合理解|主張理解|情報検索|長文|中文|短文|DOCKAI|DOKKAI|NATTOKU|JYOUHOU|CHUUBUN|CHUBUN|TOKU|RYOUKAI/i.test(
+      raw,
+    )
+  ) {
+    return 'READING';
+  }
+
+  // 文法
+  if (/文法|文の文法|文章の文法|BUNPO|BUN_NO|GRAMMAR/i.test(raw)) {
+    return 'GRAMMAR';
+  }
+
+  // 語彙・漢字
+  if (/漢字|語彙|表記|文脈|言い換え|用法|GOI|KANJI|HYOUKI/i.test(raw)) {
+    return 'VOCAB';
+  }
+
+  // Fallback: keep previous code-based heuristic.
+  return inferQuestionTypeFromMondaiCode(mondaiCode) ?? base;
 }
 
 async function ensureGlobalSection(
@@ -341,6 +377,8 @@ async function main() {
       let processedQuestions = 0;
       for (const m of mondais) {
         const mondaiCode = String(m.mondaiCode);
+        const titleVi = (m.titleVi ?? mondaiCode) as string;
+        const titleJa = m.titleJa ?? null;
         const globalMondaiId = globalMondaiIdByCode.get(mondaiCode);
         const templateMondaiId = templateMondaiIdByCode.get(mondaiCode);
         if (!globalMondaiId || !templateMondaiId) {
@@ -359,7 +397,12 @@ async function main() {
             continue;
           }
 
-          const inferredType = inferQuestionTypeFromMondaiCode(mondaiCode);
+          const inferredType = inferQuestionTypeFromMondaiTitles({
+            sectionCode,
+            mondaiCode,
+            titleJa,
+            titleVi,
+          });
           const questionType = normalizeQuestionType(q.questionType ?? null) ?? inferredType;
           const difficulty = (q.difficulty ?? 'EASY') as JlptDifficulty;
 
