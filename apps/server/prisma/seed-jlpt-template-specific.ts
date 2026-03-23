@@ -46,6 +46,7 @@ type Dataset = {
 
 type NestedDataset = {
   levelCode?: string;
+  examTitle?: string;
   sections: Array<{
     code: string;
     orderIndex?: number;
@@ -77,6 +78,19 @@ type NestedDataset = {
   }>;
 };
 
+type PartSection = {
+  sectionCode: string;
+  durationMinutes?: number;
+  orderIndex?: number;
+  mondais?: Array<any>;
+};
+
+type PartPayload = {
+  levelCode?: string;
+  examTitle?: string;
+  sections?: PartSection[];
+};
+
 function parseArgs(argv: string[]) {
   const out: Record<string, string | boolean> = {};
   for (let i = 2; i < argv.length; i += 1) {
@@ -86,6 +100,11 @@ function parseArgs(argv: string[]) {
     else if (a === '--templateId') out.templateId = argv[++i];
     else if (a === '--sectionCode') out.sectionCode = argv[++i];
     else if (a === '--input') out.input = argv[++i];
+    else if (a === '--inputPart1') out.inputPart1 = argv[++i];
+    else if (a === '--inputPart2') out.inputPart2 = argv[++i];
+    else if (a === '--inputPart3') out.inputPart3 = argv[++i];
+    else if (a === '--grammarTarget') out.grammarTarget = argv[++i];
+    else if (a === '--listeningTarget') out.listeningTarget = argv[++i];
     else if (a === '--take') out.take = argv[++i];
     else throw new Error(`Unknown arg: ${a}`);
   }
@@ -95,8 +114,65 @@ function parseArgs(argv: string[]) {
     templateId?: string;
     sectionCode?: JlptSectionCode;
     input?: string;
+    inputPart1?: string;
+    inputPart2?: string;
+    inputPart3?: string;
+    grammarTarget?: string;
+    listeningTarget?: string;
     take?: string;
   };
+}
+
+function deepClone<T>(x: T): T {
+  return JSON.parse(JSON.stringify(x)) as T;
+}
+
+function sectionTotal(section: { mondais?: Array<{ questions?: any[] }> }) {
+  return (section.mondais ?? []).reduce((acc, m) => acc + (m.questions?.length ?? 0), 0);
+}
+
+function ensureSectionToTarget(section: any, target: number) {
+  let total = sectionTotal(section);
+  if (total >= target) return;
+
+  const mondais = (section.mondais ?? []).slice().sort((a, b) => Number(a?.orderIndex ?? 0) - Number(b?.orderIndex ?? 0));
+  section.mondais = mondais;
+
+  const maxOrderByMondai = new Map<string, number>();
+  for (const m of section.mondais) {
+    const max = (m.questions ?? []).reduce((acc: number, q: any) => Math.max(acc, Number(q.orderIndex ?? 0)), 0);
+    maxOrderByMondai.set(m.mondaiCode, max);
+  }
+
+  let mondaiPtr = 0;
+  let qPtr = 0;
+
+  while (total < target) {
+    const m = section.mondais[mondaiPtr % section.mondais.length];
+    const pool = m.questions ?? [];
+    if (pool.length === 0) {
+      mondaiPtr += 1;
+      continue;
+    }
+
+    const src = pool[qPtr % pool.length];
+    const cloned = deepClone(src);
+
+    const curMax = maxOrderByMondai.get(m.mondaiCode) ?? 0;
+    const nextOrder = curMax + 1;
+    maxOrderByMondai.set(m.mondaiCode, nextOrder);
+
+    cloned.orderIndex = nextOrder;
+    cloned.options = (cloned.options ?? []).map((o: any, idx: number) => ({
+      ...o,
+      orderIndex: o.orderIndex ?? idx,
+    }));
+
+    m.questions.push(cloned);
+    total += 1;
+    qPtr += 1;
+    mondaiPtr += 1;
+  }
 }
 
 function buildSourceIdentity(q: DatasetQuestion) {
@@ -205,15 +281,83 @@ async function main() {
   const args = parseArgs(process.argv);
   const templateId = args.templateId ?? '625ac154-38b5-493b-9fcf-a10649fbe0ec';
   const sectionCode = args.sectionCode ?? 'LANGUAGE_GRAMMAR_READING';
-  const inputPath = args.input ?? '../../dataset/jlpt_n1_mock_exam_2024_filtered.json';
   const dry = !!args.dry;
   const mode = args.mode ?? 'append';
   const take = args.take ? Number(args.take) : undefined;
   const takeInt = take != null ? Math.max(1, take) : undefined;
 
-  const absInputPath = resolve(process.cwd(), inputPath);
-  const raw = readFileSync(absInputPath, 'utf-8');
-  const dataset = JSON.parse(raw) as Dataset | NestedDataset;
+  const hasParts =
+    !!args.inputPart1 && !!args.inputPart2 && !!args.inputPart3;
+
+  let dataset: Dataset | NestedDataset;
+  if (hasParts) {
+    const inputPart1 = args.inputPart1 ?? '../../dataset/n1/part1.json';
+    const inputPart2 = args.inputPart2 ?? '../../dataset/n1/part2.json';
+    const inputPart3 = args.inputPart3 ?? '../../dataset/n1/part3.json';
+
+    const grammarTarget = Number(args.grammarTarget ?? 80);
+    const listeningTarget = Number(args.listeningTarget ?? 40);
+
+    const raw1 = readFileSync(resolve(process.cwd(), inputPart1), 'utf-8');
+    const raw2 = readFileSync(resolve(process.cwd(), inputPart2), 'utf-8');
+    const raw3 = readFileSync(resolve(process.cwd(), inputPart3), 'utf-8');
+
+    const p1 = JSON.parse(raw1) as PartPayload;
+    const p2 = JSON.parse(raw2) as PartPayload;
+    const p3 = JSON.parse(raw3) as PartPayload;
+
+    const examTitle = [p1.examTitle, p2.examTitle, p3.examTitle].filter(Boolean).join(' | ');
+
+    const sectionsMap = new Map<string, { durationMinutes: number; mondais: Array<any> }>();
+    const pushParts = (p: PartPayload) => {
+      for (const s of p.sections ?? []) {
+        const code = String(s.sectionCode);
+        const durationMinutes = Number(s.durationMinutes ?? 0) || 0;
+        const existing = sectionsMap.get(code);
+        if (!existing) {
+          sectionsMap.set(code, { durationMinutes, mondais: [...(s.mondais ?? [])] });
+        } else {
+          existing.durationMinutes = existing.durationMinutes || durationMinutes;
+          existing.mondais.push(...(s.mondais ?? []));
+        }
+      }
+    };
+
+    pushParts(p1);
+    pushParts(p2);
+    pushParts(p3);
+
+    const combined: NestedDataset = {
+      levelCode: p1.levelCode ?? 'N1',
+      examTitle,
+      sections: Array.from(sectionsMap.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([code, v]) => {
+          const orderIndex = code === 'LANGUAGE_GRAMMAR_READING' ? 1 : code === 'LISTENING' ? 2 : 1;
+          return {
+            code,
+            durationMinutes: v.durationMinutes,
+            orderIndex,
+            mondais: v.mondais.slice().sort((a, b) => Number(a?.orderIndex ?? 0) - Number(b?.orderIndex ?? 0)),
+          };
+        }),
+    };
+
+    const grammar = (combined.sections as any).find((s: any) => s.code === 'LANGUAGE_GRAMMAR_READING');
+    const listening = (combined.sections as any).find((s: any) => s.code === 'LISTENING');
+    if (!grammar || !listening) {
+      throw new Error('Missing required parts sections: LANGUAGE_GRAMMAR_READING and/or LISTENING');
+    }
+
+    ensureSectionToTarget(grammar, grammarTarget);
+    ensureSectionToTarget(listening, listeningTarget);
+
+    dataset = combined;
+  } else {
+    throw new Error(
+      'Legacy dataset input is disabled for JLPT N1 seeding. Please provide --inputPart1/--inputPart2/--inputPart3.',
+    );
+  }
 
   const config = loadConfig();
   const prisma = new PrismaClient({
@@ -477,14 +621,15 @@ async function main() {
             create: {
               templateId,
               sectionId: templateSection.id,
-              mondaiId: templateMondaiId,
+              // TemplateQuestion.mondaiId references global `JlptMondai` (not `JlptMockExamMondai`)
+              mondaiId: globalMondaiId,
               questionId: bankQuestionId,
               orderIndex: orderIndexInLoop,
               weight: null,
             },
             update: {
               sectionId: templateSection.id,
-              mondaiId: templateMondaiId,
+              mondaiId: globalMondaiId,
               questionId: bankQuestionId,
               weight: null,
             },
@@ -680,14 +825,15 @@ async function main() {
           create: {
             templateId,
             sectionId: templateSection.id,
-            mondaiId: templateMondaiId,
+            // TemplateQuestion.mondaiId references global `JlptMondai` (not `JlptMockExamMondai`)
+            mondaiId: globalMondaiId,
             questionId: bankQuestionId,
             orderIndex: orderIndexInLoop,
             weight: null,
           },
           update: {
             sectionId: templateSection.id,
-            mondaiId: templateMondaiId,
+            mondaiId: globalMondaiId,
             questionId: bankQuestionId,
             weight: null,
           },

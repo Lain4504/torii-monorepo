@@ -22,6 +22,7 @@ import {
 import type { AcademyLessonModel } from '@workspace/schemas';
 import { useAppSelector } from '@/hooks/hooks';
 import { RootState } from '@/store/store';
+import { LessonDiscussion } from '@/components/courses/lesson-discussion';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -140,6 +141,7 @@ function ArticleViewer({
     onNext,
     navDisabledPrev,
     navDisabledNext,
+    courseClassId,
 }: {
     lesson: AcademyLessonModel;
     onComplete: () => void;
@@ -147,6 +149,7 @@ function ArticleViewer({
     onNext?: () => void;
     navDisabledPrev?: boolean;
     navDisabledNext?: boolean;
+    courseClassId: string;
 }) {
     return (
         <div className="p-6 sm:p-10 max-w-3xl mx-auto">
@@ -204,6 +207,15 @@ function ArticleViewer({
                     <CheckCircle2 className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
                     Hoàn thành bài học
                 </Button>
+            </div>
+
+            {/* Lesson discussion */}
+            <div className="mt-10">
+                <LessonDiscussion
+                    classId={courseClassId}
+                    lessonId={(lesson as any).id}
+                    moduleId={(lesson as any).moduleId}
+                />
             </div>
         </div>
     );
@@ -630,10 +642,11 @@ export default function CourseLearnPage() {
                                 </TabsContent>
 
                                 <TabsContent value="discussion" className="mt-0 outline-none">
-                                    <div className="text-center py-12 text-muted-foreground space-y-2">
-                                        <MessageSquare className="h-12 w-12 mx-auto opacity-40" />
-                                        <p className="font-medium">Chưa có thảo luận nào.</p>
-                                    </div>
+                                    <LessonDiscussion
+                                        classId={classId as string}
+                                        lessonId={(currentLesson as any)?.id ?? ''}
+                                        moduleId={(currentLesson as any)?.moduleId}
+                                    />
                                 </TabsContent>
                             </Tabs>
                         </section>
@@ -648,6 +661,7 @@ export default function CourseLearnPage() {
                             onNext={() => goTo(nextLesson)}
                             navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
                             navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
+                        courseClassId={classId as string}
                         />
                     )}
 

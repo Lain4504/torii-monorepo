@@ -1745,10 +1745,19 @@ export class JlptMockService {
     // nên ta check theo tổng (language + reading).
     if (levelCode === 'N4' || levelCode === 'N5') {
       const minLangRead = minLang + minRead;
-      return languageScaled + readingScaled >= minLangRead && listeningScaled >= minListen && totalScaled >= minTotal;
+      return (
+        languageScaled + readingScaled >= minLangRead &&
+        listeningScaled >= minListen &&
+        totalScaled >= minTotal
+      );
     }
 
     // JLPT N1-N3: Pass mark cho từng scoring section là riêng biệt.
-    return languageScaled >= minLang && readingScaled >= minRead && listeningScaled >= minListen && totalScaled >= minTotal;
+    return (
+      languageScaled >= minLang &&
+      readingScaled >= minRead &&
+      listeningScaled >= minListen &&
+      totalScaled >= minTotal
+    );
   }
 }
