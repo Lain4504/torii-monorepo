@@ -5,7 +5,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Zap, ShieldAlert } from "lucide-react"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { PageHeader } from "@/components/common/page-header"
-import { UserRole } from "@workspace/schemas"
+import { isAdminPortalRole, isStaffBranchRole, UserRole } from "@workspace/schemas"
 
 // Dashboards
 import AdminDashboard from "@/components/dashboard/admin-dashboard"
@@ -58,10 +58,10 @@ export default function DashboardPage() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-8" />
 
         {role === UserRole.ADMIN && <AdminDashboard />}
-        {(role === UserRole.STAFF || role === UserRole.STAFF_ACADEMIC || role === UserRole.STAFF_OPERATIONS || (role && role.toString().startsWith('staff-'))) && <StaffDashboard />}
+        {isStaffBranchRole(role) && <StaffDashboard />}
         {role === UserRole.LECTURER && <LecturerDashboard />}
 
-        {!role || (![UserRole.ADMIN, UserRole.STAFF, UserRole.LECTURER, UserRole.STAFF_ACADEMIC, UserRole.STAFF_OPERATIONS].includes(role) && !role.toString().startsWith('staff-')) && (
+        {(!role || !isAdminPortalRole(role)) && (
           <div className="p-20 text-center space-y-4 bg-muted/10 rounded-xl border border-dashed border-border/40">
             <ShieldAlert className="size-12 text-muted-foreground/30 mx-auto" />
             <div className="space-y-1">

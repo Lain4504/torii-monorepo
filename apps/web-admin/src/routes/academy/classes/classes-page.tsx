@@ -35,7 +35,7 @@ import {
 import { SendIcon } from "lucide-react"
 import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
-import { UserRole } from "@workspace/schemas";
+import { UserRole, isStaffBranchRole } from "@workspace/schemas";
 
 import {
     Dialog,
@@ -64,7 +64,7 @@ export default function ClassesPage() {
     const submitForApprovalMutation = useSubmitClassForApproval();
 
     const isLecturer = user?.role === UserRole.LECTURER;
-    const isStaff = user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF_ACADEMIC || user?.role === UserRole.STAFF_OPERATIONS;
+    const isStaff = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role);
 
     const { data: classes, isLoading } = useAcademyClasses({
         q: debouncedSearch,

@@ -34,7 +34,7 @@ export interface IAuthService {
   login(dto: UserLoginDTO): Promise<LoginResponseDTO>;
 
   /**
-   * Specialized login for admin portals (ADMIN, STAFF, LECTURER)
+   * Specialized login for admin portals (admin, staff-academic, staff-operations, lecturer)
    * Rejects users with LEARNER role even with valid credentials
    * @param dto - User login credentials
    * @returns Login response with tokens or 2FA requirement
@@ -243,7 +243,7 @@ export interface IAuthService {
   // ===== Invite Token (Internal Users) =====
 
   /**
-   * Verify invite token for internal users (LECTURER/STAFF)
+   * Verify invite token for internal users (lecturer / staff-academic / staff-operations)
    * @param token - The invite token
    * @returns Verification result with user email and role if valid
    */
@@ -253,7 +253,7 @@ export interface IAuthService {
 
   /**
    * Set password for invited internal user
-   * Completes the onboarding flow for LECTURER/STAFF
+   * Completes the onboarding flow for lecturer / staff-academic / staff-operations
    * @param token - The invite token
    * @param password - The new password
    * @throws UnauthorizedException if token is invalid

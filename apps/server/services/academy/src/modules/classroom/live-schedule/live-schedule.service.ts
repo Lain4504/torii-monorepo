@@ -30,6 +30,7 @@ import {
 } from '@workspace/protocol';
 import { AppConfigService } from '@server/shared';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { isStaffBranchRole, UserRole } from '@workspace/schemas';
 
 @Injectable()
 export class LiveScheduleService {
@@ -1459,11 +1460,12 @@ export class LiveScheduleService {
   ) {
     const user = await this.getUserById(requesterId);
     const role = String(user?.role || '').toLowerCase();
-    const isStaffOrAdmin = ['admin', 'staff', 'staff-lms'].includes(role);
+    const isStaffOrAdmin =
+      role === UserRole.ADMIN || isStaffBranchRole(user?.role);
     const isPrimaryTeacher = instructorId === requesterId;
     if (!isStaffOrAdmin && !isPrimaryTeacher) {
       throw new BadRequestException(
-        'Only primary teacher or staff/admin can create schedule requests',
+        'Only primary teacher or internal staff (academic/operations) / admin can create schedule requests',
       );
     }
   }
@@ -1481,12 +1483,12 @@ export class LiveScheduleService {
   ) {
     if (isAdmin) {
       const isPrimaryTeacher = schedule.class.instructorId === userId;
-      const isAdminOverride = ['admin', 'staff', 'staff-lms'].includes(
-        (userRole || '').toLowerCase(),
-      );
+      const ur = String(userRole || '');
+      const isAdminOverride =
+        ur.toLowerCase() === UserRole.ADMIN || isStaffBranchRole(ur);
       if (!isPrimaryTeacher && !isAdminOverride) {
         throw new BadRequestException(
-          'Only assigned lecturer or admin/staff can start this live room.',
+          'Only assigned lecturer or admin / internal staff (academic/operations) can start this live room.',
         );
       }
       return;

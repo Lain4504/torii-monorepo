@@ -74,12 +74,12 @@ function CompactSessionCard({
     return (
         <div
             className={cn(
-                'flex gap-3 rounded-lg border p-2.5 text-left transition-colors',
+                'flex gap-3 rounded-xl border p-2.5 text-left shadow-sm transition-colors',
                 isLive
                     ? 'border-destructive/35 bg-destructive/[0.06]'
                     : isEnded
-                        ? 'border-border/50 bg-muted/30 opacity-70'
-                        : 'border-border/50 bg-muted/25 hover:bg-muted/40'
+                        ? 'border-border/60 bg-white/90 opacity-80 dark:bg-zinc-900/90'
+                        : 'border-border/60 bg-white hover:bg-zinc-50/90 dark:bg-zinc-900 dark:hover:bg-zinc-800/90'
             )}
         >
             <div className="flex shrink-0 gap-2">
@@ -189,7 +189,7 @@ export default function SchedulePage() {
 
     return (
         <div className="animate-in fade-in space-y-4 duration-500">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-white p-4 shadow-sm dark:border-border/40 dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between sm:p-5">
                 <div className="space-y-0.5">
                     <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Thời khóa biểu</h1>
                     <p className="text-xs text-muted-foreground sm:text-sm">
@@ -197,7 +197,7 @@ export default function SchedulePage() {
                     </p>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-border/50 bg-muted/40 p-0.5">
+                <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-border/50 bg-zinc-100/80 p-0.5 dark:bg-zinc-900/80">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -261,12 +261,12 @@ export default function SchedulePage() {
             </div>
 
             {isLoading ? (
-                <div className="flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-xl border border-border/40 bg-card/50">
+                <div className="flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-2xl border border-border/50 bg-white shadow-sm dark:bg-zinc-950">
                     <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
                     <span className="text-sm font-medium text-muted-foreground">Đang tải lịch…</span>
                 </div>
             ) : allSessions.length === 0 ? (
-                <div className="rounded-xl border border-border/40 bg-card/50 p-10 text-center">
+                <div className="rounded-2xl border border-border/50 bg-white p-10 text-center shadow-sm dark:bg-zinc-950">
                     <Empty>
                         <EmptyMedia>
                             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted/60">
@@ -285,7 +285,7 @@ export default function SchedulePage() {
                     </Button>
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-3 rounded-2xl border border-border/50 bg-white p-4 shadow-sm dark:bg-zinc-950 sm:p-5">
                     <p className="text-[11px] font-semibold text-muted-foreground">
                         <Clock className="mr-1 inline size-3 align-text-bottom" />
                         Chọn ngày để cuộn tới · chấm xanh = có buổi học
@@ -303,7 +303,7 @@ export default function SchedulePage() {
                                         'flex min-w-[48px] flex-col items-center rounded-xl border px-2 py-1.5 transition-colors',
                                         todayDay
                                             ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-                                            : 'border-border/60 bg-muted/30 hover:bg-muted/50'
+                                            : 'border-border/60 bg-zinc-50 font-medium shadow-sm hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800'
                                     )}
                                 >
                                     <span
@@ -328,7 +328,7 @@ export default function SchedulePage() {
                         })}
                     </div>
 
-                    <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/50 bg-card/30">
+                    <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/60 bg-zinc-50/90 shadow-inner dark:divide-border/40 dark:border-border/40 dark:bg-zinc-900/50">
                         {days.map((day, i) => {
                             const daySessions = sessionsForDay(weekSessions, day)
                             const todayDay = isToday(day)
@@ -351,7 +351,7 @@ export default function SchedulePage() {
                                     </div>
                                     <div className="min-w-0 flex-1 space-y-2">
                                         {daySessions.length === 0 ? (
-                                            <div className="flex min-h-[52px] items-center rounded-lg bg-muted/45 px-3 text-[11px] text-muted-foreground/50">
+                                            <div className="flex min-h-[52px] items-center rounded-lg border border-dashed border-border/50 bg-white/80 px-3 text-[11px] text-muted-foreground/60 dark:bg-zinc-950/80">
                                                 Không có buổi học
                                             </div>
                                         ) : (
@@ -372,7 +372,7 @@ export default function SchedulePage() {
                         })}
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-4 rounded-lg border border-border/40 bg-muted/20 py-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                    <div className="flex flex-wrap items-center justify-center gap-4 rounded-xl border border-border/50 bg-zinc-50 py-2.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:bg-zinc-900/80">
                         <span className="flex items-center gap-1.5">
                             <span className="size-2 animate-pulse rounded-full bg-destructive" /> LIVE
                         </span>

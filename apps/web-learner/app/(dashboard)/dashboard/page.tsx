@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
-import { LiveSessionStatus, UserRole } from '@workspace/schemas';
+import { LiveSessionStatus, UserRole, isStaffBranchRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
 function formatDuration(seconds: number): string {
@@ -74,7 +74,7 @@ export default function DashboardClientPage() {
     const jlptTarget = (user?.userMetadata as Record<string, string>)?.jlptTarget || 'N3';
     const firstName = user?.displayName?.split(' ').at(-1) || 'Học viên';
     const role = user?.role as string | undefined;
-    const isStaffOrAdmin = role === UserRole.ADMIN || role === UserRole.STAFF || role === UserRole.STAFF_ACADEMIC || role === UserRole.STAFF_OPERATIONS;
+    const isStaffOrAdmin = role === UserRole.ADMIN || isStaffBranchRole(role);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">

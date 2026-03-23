@@ -28,7 +28,7 @@ import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
 import { ChevronRight, CheckCircle2, XCircle } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
+import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import {
   useAcademyClass,
   useApproveClass,
@@ -65,10 +65,7 @@ export default function ClassApprovalPreviewPage() {
 
   const [approveConfirmOpen, setApproveConfirmOpen] = useState(false)
 
-  const isStaffOrAdmin =
-    user?.role === UserRole.ADMIN ||
-    user?.role === UserRole.STAFF_ACADEMIC ||
-    user?.role === UserRole.STAFF_OPERATIONS
+  const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
   if (isLoading) {
     return (

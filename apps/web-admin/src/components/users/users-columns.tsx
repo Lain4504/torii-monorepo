@@ -121,7 +121,8 @@ export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersCo
             const role = info.getValue() as string;
             const roleLabels: Record<string, string> = {
                 admin: 'Quản trị viên',
-                staff: 'Nhân viên',
+                'staff-academic': 'NV Học vụ',
+                'staff-operations': 'NV Vận hành',
                 lecturer: 'Giảng viên',
                 learner: 'Học viên'
             };

@@ -27,7 +27,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "@workspace/ui/components/sonner"
 import { ChevronRight, CheckCircle2, XCircle } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
+import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import {
   useAcademyCourseOffering,
   useApproveCourseOffering,
@@ -72,10 +72,7 @@ export default function CourseOfferingApprovalPreviewPage() {
     )
   }
 
-  const isStaffOrAdmin =
-    user?.role === UserRole.ADMIN ||
-    user?.role === UserRole.STAFF_ACADEMIC ||
-    user?.role === UserRole.STAFF_OPERATIONS
+  const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
   const canApprove = isStaffOrAdmin && offering.status === "PENDING_APPROVAL"
   const linkedClass =

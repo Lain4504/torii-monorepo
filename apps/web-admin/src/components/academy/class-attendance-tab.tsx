@@ -20,7 +20,7 @@ import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
 import { ClassRescheduleRequestSheet } from "@/components/academy/class-reschedule-request-sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
+import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { toast } from "sonner"
 
@@ -55,7 +55,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
 
     const { user } = useAuth()
     const isLecturer = user?.role === UserRole.LECTURER
-    const isStaffOrAdmin = user?.role === UserRole.STAFF || user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF_ACADEMIC || user?.role === UserRole.STAFF_OPERATIONS
+    const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
     const { data: fetchedClass } = useAcademyClass(propAcademyClass ? undefined : classId)
     const academyClass = propAcademyClass || fetchedClass

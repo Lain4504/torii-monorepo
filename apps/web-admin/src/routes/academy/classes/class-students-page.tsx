@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/componen
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
+import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { ClassInfoTab } from "./tabs/class-info-tab"
 import { ClassStudentsTab } from "./tabs/class-students-tab"
 import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
@@ -23,10 +23,7 @@ export default function ClassStudentsPage() {
   const { data: academyClass, isLoading: isLoadingClass } = useAcademyClass(classId)
   const { user } = useAuth()
 
-  const isStaffOrAdmin =
-    user?.role === UserRole.ADMIN ||
-    user?.role === UserRole.STAFF_ACADEMIC ||
-    user?.role === UserRole.STAFF_OPERATIONS
+  const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
   const mode = academyClass?.mode as "VOD" | "LIVE" | undefined
 

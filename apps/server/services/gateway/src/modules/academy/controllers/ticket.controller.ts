@@ -101,7 +101,7 @@ export class TicketController {
       this.natsClient.send({ cmd: 'academy.ticket.findById' }, { id }),
     );
 
-    // Security check: if not staff/admin, must be the owner
+    // Không có quyền xem mọi ticket: chỉ chủ ticket hoặc admin / role có support.view
     const canViewAll =
       requester.role === 'admin' ||
       requester.permissions?.includes('support.view');
