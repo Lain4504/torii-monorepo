@@ -16,7 +16,11 @@ export const orderCheckoutSchema = z.object({
   classIdByOffering: classIdByOfferingSchema,
   paymentMethod: z.preprocess(
     (value) => (typeof value === 'string' ? value.toUpperCase() : value),
-    z.enum(['PAYOS', 'BANK_TRANSFER', 'MANUAL']),
+    z.enum(['PAYOS', 'BANK_TRANSFER', 'MANUAL', 'COIN']),
+  ),
+  paymentGateway: z.preprocess(
+    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    z.enum(['PAYOS', 'MOMO', 'STRIPE', 'INTERNAL']).optional(),
   ),
 });
 
