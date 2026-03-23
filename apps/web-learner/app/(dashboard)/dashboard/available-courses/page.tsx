@@ -1,199 +1,292 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Input } from '@workspace/ui/components/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
-import { Search, Filter, BookOpen, Users, Star, ArrowRight, PlayCircle, Calendar, ShieldCheck, Zap } from 'lucide-react'
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@workspace/ui/components/collapsible'
+import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group'
+import { Search, Calendar, ChevronDown, Clock, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useAcademyOfferings } from '@/lib/api/services/academy-course-api'
+import { useSearchParams } from 'next/navigation'
+import { useAcademyClassCatalog } from '@/lib/api/services/academy-course-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatNumber } from '@/utils/format-utils'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { Separator } from '@workspace/ui/components/separator'
+
+const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
+
+function currentMonthParam() {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
 export default function DashboardCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
-    const [activeTab, setActiveTab] = useState<string>('all')
-    const apiParams =
-        activeTab === 'live'
-            ? { limit: 50, mode: 'LIVE' as const, hasEnrollableLiveClass: true }
-            : activeTab === 'vod'
-                ? { limit: 50, mode: 'VOD' as const }
-                : { limit: 50 }
-    const { data: offeringsData, isLoading } = useAcademyOfferings(apiParams)
+    const [level, setLevel] = useState<string>('all')
+    const searchParams = useSearchParams()
+    const typeParam = (searchParams.get('type') ?? '').toLowerCase()
+    const [activeTab, setActiveTab] = useState<'live' | 'vod'>(() => (typeParam === 'vod' ? 'vod' : 'live'))
 
-    const courses = offeringsData?.data ?? []
-    const liveCourses = courses.filter((c: any) => c.type === 'LIVE' || c.isLive)
-    const vodCourses = courses.filter((c: any) => c.type === 'VOD' || !c.isLive)
+    const month = useMemo(() => currentMonthParam(), [])
 
-    const matchesSearch = (c: any, q: string) => {
-        if (!q.trim()) return true
-        const n = q.toLowerCase()
-        const hay = [
-            c.title,
-            c.learnerDisplayTitle,
-            c.class?.name,
-            c.courseProfile?.title,
-            c.code,
-        ]
-            .filter(Boolean)
-            .join(' ')
-            .toLowerCase()
-        return hay.includes(n)
-    }
+    useEffect(() => {
+        setActiveTab(typeParam === 'vod' ? 'vod' : 'live')
+    }, [typeParam])
 
-    const filteredCourses = (list: any[]) => list.filter((c) => matchesSearch(c, searchQuery))
+    const levelParam = level === 'all' ? undefined : level
+    const q = searchQuery.trim() || undefined
+
+    const liveQuery = useAcademyClassCatalog({
+        mode: 'LIVE',
+        level: levelParam,
+        month,
+        q,
+    })
+    const vodQuery = useAcademyClassCatalog({
+        mode: 'VOD',
+        level: levelParam,
+        q,
+    })
+
+    const liveItems = liveQuery.data?.items ?? []
+    const vodItems = vodQuery.data?.items ?? []
 
     return (
         <div className="space-y-8 pb-10">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Khám phá khóa học</h1>
-                    <p className="text-muted-foreground mt-1">Tìm kiếm và đăng ký các khóa học phù hợp với lộ trình của bạn.</p>
+                    <p className="text-muted-foreground mt-1">
+                        Chọn trình độ (JLPT), xem lớp Live đang mở đăng ký trong tháng hoặc khóa VOD theo cấp độ.
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="relative w-full md:w-64">
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                    <div className="relative w-full sm:max-w-md">
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Tìm khóa học..."
+                            placeholder="Tìm theo tên lớp, mã, khóa học..."
                             className="pl-9"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
+                    <ToggleGroup
+                        type="single"
+                        value={level}
+                        onValueChange={(v) => v && setLevel(v)}
+                        variant="outline"
+                        className="justify-start flex-wrap"
+                    >
+                        <ToggleGroupItem value="all" aria-label="Tất cả cấp">
+                            Tất cả
+                        </ToggleGroupItem>
+                        {LEVELS.map((lv) => (
+                            <ToggleGroupItem key={lv} value={lv} aria-label={`Cấp ${lv}`}>
+                                {lv}
+                            </ToggleGroupItem>
+                        ))}
+                    </ToggleGroup>
                 </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-6 w-full overflow-x-auto whitespace-nowrap">
-                    <TabsTrigger value="all">Tất cả</TabsTrigger>
-                    <TabsTrigger value="vod">Học qua Video (VOD)</TabsTrigger>
-                    <TabsTrigger value="live">Lớp học trực tiếp (Live)</TabsTrigger>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'live' | 'vod')} className="w-full">
+                <TabsList className="grid w-full max-w-md grid-cols-2">
+                    <TabsTrigger value="live">Lớp Live</TabsTrigger>
+                    <TabsTrigger value="vod">Khóa VOD</TabsTrigger>
                 </TabsList>
 
-                {isLoading ? (
-                    <div className="flex justify-center py-20">
-                        <Spinner className="h-8 w-8 text-primary" />
-                    </div>
-                ) : (
-                    <>
-                        <TabsContent value="all" className="space-y-10">
-                            {filteredCourses(courses).length === 0 ? (
-                                <div className="text-center py-10 border rounded-xl bg-muted/20">
-                                    <p className="text-muted-foreground">
-                                        Hiện chưa có khóa học nào để hiển thị.
-                                    </p>
-                                </div>
-                            ) : (
-                                <>
-                                    <CourseSection
-                                        title="Lớp học trực tiếp sắp khai giảng"
-                                        description="Học tương tác cùng đội ngũ thầy cô giàu kinh nghiệm"
-                                        courses={filteredCourses(liveCourses)}
-                                        type="live"
-                                    />
-                                    <CourseSection
-                                        title="Khóa học Video (VOD)"
-                                        description="Tự chủ thời gian học tập với kho bài giảng chất lượng cao"
-                                        courses={filteredCourses(vodCourses)}
-                                        type="vod"
-                                    />
-                                </>
-                            )}
-                        </TabsContent>
+                <TabsContent value="live" className="mt-6 space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                        Lớp trực tiếp đang mở đăng ký, khai giảng trong tháng {month.replace('-', '/')}.
+                    </p>
+                    {liveQuery.isLoading ? (
+                        <div className="flex justify-center py-16">
+                            <Spinner className="h-8 w-8 text-primary" />
+                        </div>
+                    ) : liveItems.length === 0 ? (
+                        <Card>
+                            <CardContent className="py-10 text-center text-muted-foreground text-sm">
+                                Không có lớp Live phù hợp. Thử đổi cấp độ hoặc từ khóa tìm kiếm.
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {liveItems.map((klass: any) => (
+                                <ClassLiveCard key={klass.id} klass={klass} />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
 
-                        <TabsContent value="vod">
-                            <CourseGrid courses={filteredCourses(vodCourses)} type="vod" />
-                        </TabsContent>
-
-                        <TabsContent value="live">
-                            <CourseGrid courses={filteredCourses(liveCourses)} type="live" />
-                        </TabsContent>
-                    </>
-                )}
+                <TabsContent value="vod" className="mt-6 space-y-4">
+                    {vodQuery.isLoading ? (
+                        <div className="flex justify-center py-16">
+                            <Spinner className="h-8 w-8 text-primary" />
+                        </div>
+                    ) : vodItems.length === 0 ? (
+                        <Card>
+                            <CardContent className="py-10 text-center text-muted-foreground text-sm">
+                                Không có khóa VOD phù hợp.
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {vodItems.map((klass: any) => (
+                                <ClassVodCard key={klass.id} klass={klass} />
+                            ))}
+                        </div>
+                    )}
+                </TabsContent>
             </Tabs>
+
         </div>
     )
 }
 
-function CourseSection({ title, description, courses, type }: any) {
-    if (courses.length === 0) return null
-    return (
-        <div className="space-y-4">
-            <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                    {type === 'live' ? <Calendar className="h-6 w-6 text-primary" /> : <PlayCircle className="h-6 w-6 text-primary" />}
-                    {title}
-                </h2>
-                <p className="text-muted-foreground">{description}</p>
-            </div>
-            <CourseGrid courses={courses.slice(0, 4)} type={type} />
-        </div>
-    )
-}
-
-function CourseGrid({ courses, type }: any) {
-    if (courses.length === 0) {
-        return (
-            <div className="text-center py-10 border rounded-xl bg-muted/20">
-                <p className="text-muted-foreground">Hiện chưa có khóa học nào trong danh mục này.</p>
-            </div>
-        )
-    }
+function ClassVodCard({ klass }: { klass: any }) {
+    const profile = klass.courseProfile
+    const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
+    const title = klass.name || profile?.title || 'Khóa học'
+    const level = profile?.level || '—'
+    const price = klass.catalogPrice ?? 0
 
     return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {courses.map((course: any) => (
-                <div key={course.id} className="group relative bg-card border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
-                    <div className="aspect-video relative overflow-hidden">
-                        <Image
-                            src={course.thumbnailUrl || '/course-placeholder.jpg'}
-                            alt={course.learnerDisplayTitle || course.title}
-                            fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute top-2 left-2 flex gap-1">
-                            <Badge className="bg-primary/90 backdrop-blur-sm">{course.jlptLevel || 'N5'}</Badge>
-                            {type === 'live' && <Badge variant="secondary" className="bg-yellow-500/90 text-white border-none">LIVE</Badge>}
-                        </div>
-                    </div>
-
-                    <div className="p-4 space-y-4 flex-1 flex flex-col text-left">
-                        <div className="space-y-2 flex-1">
-                            <h3 className="font-bold text-base line-clamp-2 group-hover:text-primary transition-colors">
-                                {course.learnerDisplayTitle || course.title}
-                            </h3>
-                            {course.liveContextLine && (
-                                <p className="text-xs text-muted-foreground line-clamp-1">{course.liveContextLine}</p>
-                            )}
-                            {course.learnerMarketingSubtitle && (
-                                <p className="text-xs text-muted-foreground line-clamp-1">
-                                    Gói: {course.learnerMarketingSubtitle}
-                                </p>
-                            )}
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {formatNumber(course.totalStudents || 0)}</span>
-                                <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> {course.rating || '5.0'}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2 border-t mt-auto">
-                            <div className="flex flex-col">
-                                <span className="text-lg font-bold text-primary">{formatNumber(course.price || 0)} đ</span>
-                                {course.oldPrice && <span className="text-xs text-muted-foreground line-through">{formatNumber(course.oldPrice)} đ</span>}
-                            </div>
-                            <Button size="sm" asChild>
-                                <Link href={`/dashboard/available-courses/${course.id}`}>
-                                    Xem chi tiết
-                                </Link>
-                            </Button>
-                        </div>
+        <Card className="overflow-hidden">
+            <div className="flex flex-col sm:flex-row">
+                <div className="relative aspect-video sm:w-44 sm:shrink-0 border-b sm:border-b-0 sm:border-r">
+                    <Image src={thumb} alt="" fill className="object-cover" />
+                    <div className="absolute top-2 left-2 flex gap-1">
+                        <Badge>{level}</Badge>
+                        <Badge variant="secondary">VOD</Badge>
                     </div>
                 </div>
-            ))}
-        </div>
+                <CardContent className="flex-1 p-4 space-y-3">
+                    <div>
+                        <h3 className="font-semibold leading-snug">{title}</h3>
+                        <p className="text-xs text-muted-foreground font-mono mt-0.5">{klass.code}</p>
+                    </div>
+                    {klass.instructor?.displayName ? (
+                        <p className="text-sm text-muted-foreground">
+                            Giảng viên:{' '}
+                            <Link
+                                href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
+                                className="text-foreground underline-offset-4 hover:underline"
+                            >
+                                {klass.instructor.displayName}
+                            </Link>
+                        </p>
+                    ) : null}
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                        <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
+                        <Button size="sm" asChild>
+                            <Link href={`/dashboard/available-courses/class/${klass.id}`}>Chi tiết</Link>
+                        </Button>
+                    </div>
+                </CardContent>
+            </div>
+        </Card>
+    )
+}
+
+function ClassLiveCard({ klass }: { klass: any }) {
+    const profile = klass.courseProfile
+    const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
+    const title = klass.name || profile?.title || 'Lớp học'
+    const level = profile?.level || '—'
+    const price = klass.catalogPrice ?? 0
+    const term = klass.term
+    const schedules = Array.isArray(klass.liveSchedules) ? klass.liveSchedules : []
+
+    return (
+        <Card>
+            <CardContent className="p-0">
+                <div className="relative aspect-video w-full border-b">
+                    <Image src={thumb} alt="" fill className="object-cover" />
+                    <div className="absolute top-2 left-2 flex gap-1">
+                        <Badge>{level}</Badge>
+                        <Badge variant="destructive">LIVE</Badge>
+                    </div>
+                </div>
+                <div className="p-4 space-y-3">
+                    <div>
+                        <h3 className="font-semibold leading-snug">{title}</h3>
+                        <p className="text-xs text-muted-foreground font-mono">{klass.code}</p>
+                    </div>
+                    {term?.openingDate ? (
+                        <p className="text-sm flex items-center gap-2 text-muted-foreground">
+                            <Calendar className="h-4 w-4 shrink-0" />
+                            Khai giảng:{' '}
+                            {new Date(term.openingDate).toLocaleDateString('vi-VN')}
+                        </p>
+                    ) : null}
+                    {klass.instructor?.displayName ? (
+                        <p className="text-sm text-muted-foreground">
+                            Giảng viên:{' '}
+                            <Link
+                                href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
+                                className="text-foreground underline-offset-4 hover:underline"
+                            >
+                                {klass.instructor.displayName}
+                            </Link>
+                        </p>
+                    ) : null}
+
+                    <Collapsible>
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="w-full justify-between px-0">
+                                <span className="flex items-center gap-2 text-muted-foreground">
+                                    <Clock className="h-4 w-4" />
+                                    Lịch học & chỗ
+                                </span>
+                                <ChevronDown className="h-4 w-4" />
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-2 pt-1">
+                            {schedules.length === 0 ? (
+                                <p className="text-xs text-muted-foreground">Chưa có khung giờ cố định.</p>
+                            ) : (
+                                <ul className="text-xs space-y-1 border rounded-md p-2 bg-muted/30">
+                                    {schedules.map((s: any) => (
+                                        <li key={s.id} className="flex justify-between gap-2">
+                                            <span>
+                                                {WEEKDAY_VI[s.weekday ?? 0] ?? '?'} · {s.startTime}–{s.endTime}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {klass.liveEnrollment != null ? (
+                                <p className="text-xs flex items-center gap-1 text-muted-foreground">
+                                    <Users className="h-3.5 w-3.5" />
+                                    {klass.liveEnrollment.maxStudents == null
+                                        ? `${klass.liveEnrollment.activeEnrollmentCount ?? 0} học viên`
+                                        : `${klass.liveEnrollment.activeEnrollmentCount ?? 0}/${klass.liveEnrollment.maxStudents} học viên`}
+                                    {klass.liveEnrollment.isFull ? ' — Đã đầy' : ''}
+                                </p>
+                            ) : null}
+                        </CollapsibleContent>
+                    </Collapsible>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between gap-2">
+                        <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
+                        <Button size="sm" asChild>
+                            <Link href={`/dashboard/available-courses/class/${klass.id}`}>Chi tiết lớp</Link>
+                        </Button>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     )
 }

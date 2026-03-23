@@ -96,8 +96,8 @@ export default function HistoryPage() {
                                 <Link
                                     href={
                                         item.isExpired
-                                            ? `/dashboard/available-courses/${item.slug}`
-                                            : `/courses/${item.classId || item.slug}/learn`
+                                            ? '/dashboard/available-courses'
+                                            : `/courses/${item.classId}/learn`
                                     }
                                 >
                                     {item.isExpired ? <ArrowRight className="size-4" /> : <ChevronRight className="size-4" />}

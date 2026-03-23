@@ -135,6 +135,26 @@ export default function JlptTemplatesPage() {
     }
   };
 
+  const handlePublish = async (tpl: JlptMockTemplate) => {
+    try {
+      await academyJlptMockApi.updateTemplate(tpl.id, { status: "PUBLISHED" });
+      toast.success("Đã xuất bản đề thi");
+      await fetchTemplates();
+    } catch {
+      toast.error("Không thể xuất bản đề thi");
+    }
+  };
+
+  const handleArchive = async (tpl: JlptMockTemplate) => {
+    try {
+      await academyJlptMockApi.updateTemplate(tpl.id, { status: "ARCHIVED" });
+      toast.success("Đã lưu trữ đề thi");
+      await fetchTemplates();
+    } catch {
+      toast.error("Không thể lưu trữ đề thi");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
@@ -149,7 +169,7 @@ export default function JlptTemplatesPage() {
       />
 
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="sm:max-w-md">
+        <SheetContent className="sm:max-w-[800px] overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Tạo đề thi JLPT mới</SheetTitle>
             <SheetDescription>
@@ -322,15 +342,22 @@ export default function JlptTemplatesPage() {
                                 <Edit className="size-4" /> Cấu hình đề (Builder)
                               </Link>
                             </DropdownMenuItem>
-                            {tpl.status === "DRAFT" ? (
-                              <DropdownMenuItem className="gap-2 text-emerald-600">
+                            {tpl.status === "DRAFT" || tpl.status === "READY" ? (
+                              <DropdownMenuItem
+                                className="gap-2 text-emerald-600"
+                                onClick={() => void handlePublish(tpl)}
+                              >
                                 <Play className="size-4" /> Xuất bản (Publish)
                               </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem className="gap-2 text-amber-600">
-                                <Archive className="size-4" /> Đóng lại (Archive)
+                            ) : null}
+                            {tpl.status === "PUBLISHED" ? (
+                              <DropdownMenuItem
+                                className="gap-2 text-amber-600"
+                                onClick={() => void handleArchive(tpl)}
+                              >
+                                <Archive className="size-4" /> Lưu trữ (Archive)
                               </DropdownMenuItem>
-                            )}
+                            ) : null}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

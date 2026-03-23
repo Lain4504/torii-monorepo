@@ -92,6 +92,14 @@ export default function CheckoutPage() {
     const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
+    // Preselect class từ URL (?classId=) khi vào từ trang chi tiết lớp
+    useEffect(() => {
+        const fromQuery = searchParams.get('classId')
+        if (!fromQuery || !offering || offering.type !== 'LIVE') return
+        const inList = (offering.classes || []).some((c: { id: string }) => c.id === fromQuery)
+        if (inList) setSelectedClassId(fromQuery)
+    }, [searchParams, offering])
+
     // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong offering.classes (siblingClasses)
     useEffect(() => {
         if (!offering || selectedClassId) return
@@ -235,7 +243,13 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-background pb-20">
             <div className="container max-w-6xl mx-auto px-4 pt-10">
                 <Button variant="ghost" size="sm" asChild className="mb-6 -ml-2 text-muted-foreground">
-                    <Link href={`/dashboard/available-courses/${courseId}`}>
+                    <Link
+                        href={
+                            searchParams.get('classId')
+                                ? `/dashboard/available-courses/class/${searchParams.get('classId')}`
+                                : '/dashboard/available-courses'
+                        }
+                    >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại trang khóa học
                     </Link>

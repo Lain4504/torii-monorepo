@@ -4,7 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ActivityType, ClassStatus } from '@prisma/generated';
+import {
+  ActivityType,
+  ClassStatus,
+  ClassMode,
+  OfferingStatus,
+} from '@prisma/generated';
+import { Prisma } from '@prisma/generated';
 import {
   ClassAssignmentCreateDto,
   ClassAssignmentUpdateDto,
@@ -17,7 +23,6 @@ import { AuditLoggerService } from '../../audit-logger.service';
 import { LiveScheduleService } from '../live-schedule/live-schedule.service';
 import { GamificationService } from '../../gamification/gamification.service';
 import { LiveClassCapacityService } from './live-class-capacity.service';
-import { ClassMode } from '@prisma/generated';
 
 /**
  * ClassService - The Operational Layer (Cohorts)
@@ -792,5 +797,216 @@ export class ClassService {
       .catch((err) => console.warn('Reward activity failed:', err));
 
     return progress;
+  }
+
+  // ==============================================================
+  // LEARNER CATALOG (theo lớp — gói CourseOffering chỉ để map giá/checkout)
+  // ==============================================================
+
+  /** Gói PUBLISHED tương ứng: VOD theo classId; LIVE theo courseProfileId + termId. */
+  async resolvePublishedOfferingForClass(classId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: {
+        id: true,
+        mode: true,
+        courseProfileId: true,
+        termId: true,
+      },
+    });
+    if (!klass) return null;
+    if (klass.mode === ClassMode.VOD) {
+      return this.prisma.courseOffering.findFirst({
+        where: {
+          classId,
+          status: OfferingStatus.PUBLISHED,
+          mode: ClassMode.VOD,
+        },
+        orderBy: { updatedAt: 'desc' },
+      });
+    }
+    if (!klass.termId) return null;
+    return this.prisma.courseOffering.findFirst({
+      where: {
+        courseProfileId: klass.courseProfileId,
+        termId: klass.termId,
+        mode: ClassMode.LIVE,
+        status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async findPublicCatalog(query: {
+    mode: 'LIVE' | 'VOD';
+    level?: string;
+    month?: string;
+    q?: string;
+  }) {
+    const now = new Date();
+    const monthStr =
+      query.month ??
+      `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const parts = monthStr.split('-');
+    const y = parseInt(parts[0] ?? '', 10);
+    const mo = parseInt(parts[1] ?? '', 10);
+    if (!Number.isFinite(y) || !Number.isFinite(mo) || mo < 1 || mo > 12) {
+      throw new BadRequestException('month phải là YYYY-MM');
+    }
+    const startOfMonth = new Date(y, mo - 1, 1);
+    const endOfMonth = new Date(y, mo, 0, 23, 59, 59, 999);
+
+    const q = query.q?.trim();
+
+    const baseWhere: Prisma.ClassWhereInput = {
+      mode: query.mode as ClassMode,
+      ...(query.level
+        ? {
+            courseProfile: {
+              level: { equals: query.level, mode: 'insensitive' },
+            },
+          }
+        : {}),
+      ...(q
+        ? {
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { name: { contains: q, mode: 'insensitive' } },
+              {
+                courseProfile: {
+                  title: { contains: q, mode: 'insensitive' },
+                },
+              },
+            ],
+          }
+        : {}),
+    };
+
+    if (query.mode === 'LIVE') {
+      Object.assign(baseWhere, {
+        status: ClassStatus.OPENING,
+        term: {
+          openingDate: {
+            gte: startOfMonth,
+            lte: endOfMonth,
+          },
+        },
+      });
+    } else {
+      Object.assign(baseWhere, {
+        status: ClassStatus.PUBLISHED,
+      });
+    }
+
+    const rows = await this.prisma.class.findMany({
+      where: baseWhere,
+      include: {
+        instructor: {
+          select: { id: true, displayName: true, avatarUrl: true },
+        },
+        courseProfile: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+            level: true,
+            thumbnailUrl: true,
+          },
+        },
+        term: {
+          select: {
+            id: true,
+            termCode: true,
+            openingDate: true,
+            closingDate: true,
+            enrollmentOpenAt: true,
+            enrollmentCloseAt: true,
+          },
+        },
+        liveSchedules: {
+          orderBy: { weekday: 'asc' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const enriched = await this.liveClassCapacity.attachLiveEnrollmentSummary(
+      rows,
+    );
+
+    const result: any[] = [];
+    for (const row of enriched) {
+      const offering = await this.resolvePublishedOfferingForClass(row.id);
+      if (!offering) continue;
+      const price = Number(offering.salePrice ?? offering.price ?? 0);
+      result.push({
+        ...row,
+        catalogOfferingId: offering.id,
+        catalogPrice: price,
+        catalogCurrency: offering.currency,
+      });
+    }
+    return result;
+  }
+
+  async findPublicCatalogById(id: string) {
+    const row = await this.prisma.class.findUnique({
+      where: { id },
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        courseProfile: {
+          include: {
+            modules: {
+              orderBy: { orderIndex: 'asc' },
+              include: {
+                lessons: { orderBy: { orderIndex: 'asc' } },
+              },
+            },
+          },
+        },
+        term: true,
+        liveSchedules: {
+          orderBy: { weekday: 'asc' },
+        },
+        liveScheduleSessions: {
+          where: { status: { not: 'CANCELLED' } },
+          orderBy: { sessionDate: 'asc' },
+          take: 64,
+        },
+      },
+    });
+    if (!row) throw new NotFoundException('Class not found');
+
+    const isLive = row.mode === ClassMode.LIVE;
+    const isCatalogVisible =
+      (isLive && row.status === ClassStatus.OPENING) ||
+      (!isLive && row.status === ClassStatus.PUBLISHED);
+    if (!isCatalogVisible) {
+      throw new NotFoundException('Class not available');
+    }
+
+    const offering = await this.resolvePublishedOfferingForClass(id);
+    if (!offering) {
+      throw new NotFoundException('No published offering for this class');
+    }
+
+    const [enriched] = await this.liveClassCapacity.attachLiveEnrollmentSummary([
+      row,
+    ]);
+    const price = Number(offering.salePrice ?? offering.price ?? 0);
+
+    return {
+      ...enriched,
+      catalogOfferingId: offering.id,
+      catalogPrice: price,
+      catalogCurrency: offering.currency,
+      offeringTitle: offering.title,
+    };
   }
 }

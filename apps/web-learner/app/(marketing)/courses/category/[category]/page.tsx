@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation"
 import React, { useMemo, useState } from "react"
-import { useAcademyOfferingsByCategory } from "@/lib/api/services/academy-course-api"
+import { useAcademyClassCatalog } from "@/lib/api/services/academy-course-api"
 import { useAppSelector } from "@/hooks/hooks"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
@@ -102,8 +102,15 @@ export default function CourseCategoryPage() {
     const params = useParams();
     const router = useRouter();
     const levelId = (params.category as string).toLowerCase();
+    const levelUpper = levelId.toUpperCase().replace(/^JLPT-/, "");
+    const month = useMemo(() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    }, []);
     const { isAuthenticated } = useAppSelector((state) => state.auth);
-    const { data: offerings, isLoading } = useAcademyOfferingsByCategory(levelId);
+    const liveQ = useAcademyClassCatalog({ mode: "LIVE", level: levelUpper, month });
+    const vodQ = useAcademyClassCatalog({ mode: "VOD", level: levelUpper });
+    const isLoading = liveQ.isLoading || vodQ.isLoading;
 
     const [selectedCourse, setSelectedCourse] = useState<any>(null);
     const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -115,15 +122,11 @@ export default function CourseCategoryPage() {
     }
 
     const filteredCourses = useMemo(() => {
-        if (!offerings?.data) return { vod: [], live: [] };
-
-        const matched = offerings.data;
-
         return {
-            vod: matched.filter((o: any) => o.mode === 'VOD' || o.type === 'VOD'),
-            live: matched.filter((o: any) => o.mode === 'LIVE' || o.type === 'LIVE')
+            vod: vodQ.data?.items ?? [],
+            live: liveQ.data?.items ?? [],
         };
-    }, [offerings]);
+    }, [vodQ.data?.items, liveQ.data?.items]);
 
     const handleCourseClick = (course: any) => {
         setSelectedCourse(course);
@@ -132,8 +135,10 @@ export default function CourseCategoryPage() {
     const handleActionClick = () => {
         if (!isAuthenticated) {
             setShowLoginDialog(true);
+        } else if (selectedCourse?.id) {
+            router.push(`/dashboard/available-courses/class/${selectedCourse.id}`);
         } else {
-            router.push('/dashboard/available-courses');
+            router.push(`/dashboard/available-courses`);
         }
     };
 
@@ -243,8 +248,8 @@ export default function CourseCategoryPage() {
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
-                                                    src={course.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
-                                                    alt={course.title}
+                                                    src={course.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
+                                                    alt={course.name}
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <div className="absolute top-4 left-4">
@@ -258,7 +263,7 @@ export default function CourseCategoryPage() {
                                                     <span className="text-muted-foreground font-medium ml-1">(1.2k)</span>
                                                 </div>
                                                 <CardTitle className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors">
-                                                    {course.title}
+                                                    {course.name || course.courseProfile?.title}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="px-6 pb-6 pt-0 flex-1">
@@ -274,7 +279,7 @@ export default function CourseCategoryPage() {
                                                 </div>
                                             </CardContent>
                                             <CardFooter className="p-6 pt-0 border-t border-border/40 mt-auto flex justify-between items-center bg-muted/20">
-                                                <div className="font-black text-xl text-primary">{formatPrice(course.price)}</div>
+                                                <div className="font-black text-xl text-primary">{formatPrice(course.catalogPrice)}</div>
                                                 <Button size="lg" className="font-bold shadow-lg shadow-primary/10">
                                                     Chi tiết <ChevronRight className="ml-1 size-4" />
                                                 </Button>
@@ -304,8 +309,8 @@ export default function CourseCategoryPage() {
                                 >
                                     <ItemMedia className="size-24 md:size-32 rounded-2xl overflow-hidden border border-border shadow-sm shrink-0">
                                         <img
-                                            src={course.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
-                                            alt={course.title}
+                                            src={course.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
+                                            alt={course.name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                     </ItemMedia>
@@ -313,11 +318,11 @@ export default function CourseCategoryPage() {
                                         <div className="flex items-center gap-2 mb-2">
                                             <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-none font-bold">LIVE</Badge>
                                             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                                                Khai giảng: {(course.class as any)?.openingDate ? new Date((course.class as any).openingDate).toLocaleDateString('vi-VN') : 'TBA'}
+                                                Khai giảng: {course.term?.openingDate ? new Date(course.term.openingDate).toLocaleDateString('vi-VN') : 'TBA'}
                                             </span>
                                         </div>
                                         <ItemTitle className="text-xl md:text-2xl font-black truncate group-hover:text-primary transition-colors mb-2">
-                                            {course.title}
+                                            {course.name || course.courseProfile?.title}
                                         </ItemTitle>
                                         <ItemDescription className="flex flex-wrap items-center gap-y-2 gap-x-6">
                                             <div className="flex items-center gap-1.5 text-foreground font-medium">
@@ -332,7 +337,7 @@ export default function CourseCategoryPage() {
                                     </ItemContent>
                                     <ItemActions className="flex flex-col justify-center items-end md:border-l border-border md:pl-8 pt-4 md:pt-0 shrink-0 min-w-[180px]">
                                         <div className="text-2xl font-black text-primary mb-3">
-                                            {formatPrice(course.price)}
+                                            {formatPrice(course.catalogPrice)}
                                         </div>
                                         <Button size="lg" className="w-full md:w-auto font-bold shadow-lg shadow-primary/10">Xem chi tiết</Button>
                                     </ItemActions>
@@ -361,16 +366,16 @@ export default function CourseCategoryPage() {
                             >
                                 <div className="relative aspect-video md:aspect-[21/9] overflow-hidden">
                                     <img
-                                        src={selectedCourse.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
-                                        alt={selectedCourse.title}
+                                        src={selectedCourse.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
+                                        alt={selectedCourse.name}
                                         className="w-full h-full object-cover"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8">
                                         <Badge className="w-fit mb-4 bg-primary text-primary-foreground border-none font-bold">
-                                            {selectedCourse.class?.mode || selectedCourse.mode || "Course"}
+                                            {selectedCourse.mode || "Course"}
                                         </Badge>
                                         <h2 className="text-2xl md:text-4xl font-black text-white leading-tight">
-                                            {selectedCourse.title}
+                                            {selectedCourse.name || selectedCourse.courseProfile?.title}
                                         </h2>
                                     </div>
                                 </div>
@@ -401,7 +406,7 @@ export default function CourseCategoryPage() {
                                                 Mô tả khóa học
                                             </h4>
                                             <p className="text-muted-foreground leading-relaxed">
-                                                {selectedCourse.description || selectedCourse.class?.courseProfile?.description || "Khóa học sẽ cung cấp cho bạn toàn bộ kiến thức cần thiết để chinh phục mục tiêu JLPT của mình một cách hiệu quả nhất."}
+                                                {selectedCourse.courseProfile?.description?.replace(/<[^>]+>/g, " ") || "Khóa học sẽ cung cấp cho bạn toàn bộ kiến thức cần thiết để chinh phục mục tiêu JLPT của mình một cách hiệu quả nhất."}
                                             </p>
                                         </div>
 
@@ -435,7 +440,7 @@ export default function CourseCategoryPage() {
                                 <div className="p-8 bg-muted/40 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
                                     <div className="flex md:flex-col items-center md:items-start gap-4 md:gap-1">
                                         <span className="text-sm font-bold text-muted-foreground uppercase opacity-70">Giá đăng ký</span>
-                                        <div className="text-3xl font-black text-primary">{formatPrice(selectedCourse.price)}</div>
+                                        <div className="text-3xl font-black text-primary">{formatPrice(selectedCourse.catalogPrice)}</div>
                                     </div>
                                     <div className="flex items-center gap-4 w-full md:w-auto">
                                         <Button

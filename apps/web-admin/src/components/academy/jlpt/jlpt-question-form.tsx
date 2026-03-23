@@ -196,8 +196,8 @@ export function JlptQuestionForm({
         <AlertTitle>Cấu trúc JLPT trong ngân hàng</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed">
           Chọn <strong>Cấp độ → Phần thi → Mondai (問題)</strong> theo đề chính thức (vd: 漢字読み, 文の文法, 内容理解, 課題理解…).
-          Mỗi câu gắn một mondai để lọc và ghép đề đúng format. Nếu danh sách trống, cần seed{" "}
-          <code className="rounded bg-muted px-1">jlpt_mondai</code> cho cấp độ đó trên server.
+          Mỗi câu gắn một mondai để lọc và ghép đề đúng format. Nếu danh sách trống, nghĩa là hệ thống chưa có dữ liệu mondai
+          cho cấp độ/phần thi đó và cần được nạp dữ liệu ở backend.
         </AlertDescription>
       </Alert>
 

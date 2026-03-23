@@ -17,6 +17,17 @@ import {
   JlptBankQuestionQueryDto,
   JlptBankQuestionUpdateDto,
 } from './dto/jlpt-bank.dto';
+import {
+  JlptMondaiCreateDto,
+  JlptMondaiUpdateDto,
+} from './dto/jlpt-mondai.dto';
+import {
+  JlptActiveScoringProfileQueryDto,
+  JlptAssembleTemplateFromBankDto,
+  JlptLevelConfigEnsureDto,
+  JlptScoringMappingUpsertDto,
+  JlptScoringProfileCreateDto,
+} from './dto/jlpt-config.dto';
 
 @Controller()
 export class JlptMockHandler {
@@ -95,6 +106,45 @@ export class JlptMockHandler {
 
   // --- Admin (minimal) ---
 
+  @MessagePattern({ cmd: 'academy.jlptMock.config.level.list' })
+  listLevels() {
+    return this.jlpt.listLevels();
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.config.level.ensure' })
+  ensureLevelConfig(
+    @Payload() data: JlptLevelConfigEnsureDto & { requesterId?: string },
+  ) {
+    void data.requesterId;
+    return this.jlpt.ensureLevelConfig(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.config.scoringProfile.active' })
+  getActiveScoringProfile(@Payload() query: JlptActiveScoringProfileQueryDto) {
+    return this.jlpt.getActiveScoringProfile(query);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.config.scoringProfile.create' })
+  createScoringProfile(
+    @Payload() data: JlptScoringProfileCreateDto & { requesterId?: string },
+  ) {
+    void data.requesterId;
+    return this.jlpt.createScoringProfile(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.config.level.sections.list' })
+  listSectionsForLevel(
+    @Payload() query: JlptActiveScoringProfileQueryDto & { requesterId?: string },
+  ) {
+    void (query as any).requesterId;
+    return this.jlpt.listSectionsForLevel(query);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.config.scoringMapping.upsert' })
+  upsertScoringMappings(@Payload() data: JlptScoringMappingUpsertDto) {
+    return this.jlpt.upsertScoringMappings(data);
+  }
+
   @MessagePattern({ cmd: 'academy.jlptMock.template.create' })
   createTemplate(
     @Payload() data: JlptMockExamTemplateCreateDto & { requesterId?: string },
@@ -126,11 +176,24 @@ export class JlptMockHandler {
     );
   }
 
+  @MessagePattern({ cmd: 'academy.jlptMock.template.assembleFromBank' })
+  assembleTemplateFromBank(
+    @Payload() data: JlptAssembleTemplateFromBankDto & { requesterId?: string },
+  ) {
+    void data.requesterId;
+    return this.jlpt.assembleTemplateFromBank(data);
+  }
+
   // --- Admin: JLPT Question Bank (minimal CRUD) ---
 
   @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.findAll' })
   findAllBankQuestions(@Payload() query: JlptBankQuestionQueryDto) {
     return this.jlpt.findAllBankQuestions(query);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.findById' })
+  findBankQuestionById(@Payload() data: { id: string }) {
+    return this.jlpt.findBankQuestionById(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.mondaiList' })
@@ -156,5 +219,29 @@ export class JlptMockHandler {
     },
   ) {
     return this.jlpt.updateBankQuestion(data.id, data.input, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.mondai.create' })
+  createMondai(@Payload() data: JlptMondaiCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    void requesterId;
+    return this.jlpt.createMondai(input);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.mondai.update' })
+  updateMondai(
+    @Payload()
+    data: {
+      id: string;
+      input: JlptMondaiUpdateDto;
+      requesterId?: string;
+    },
+  ) {
+    return this.jlpt.updateMondai(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.mondai.delete' })
+  deleteMondai(@Payload() data: { id: string; requesterId?: string }) {
+    return this.jlpt.deleteMondai(data.id);
   }
 }

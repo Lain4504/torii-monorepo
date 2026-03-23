@@ -62,6 +62,8 @@ import JlptTemplatesPage from '@/routes/academy/jlpt/templates/page.tsx'
 import JlptQuestionsPage from '@/routes/academy/jlpt/questions/page.tsx'
 import JlptQuestionDetailPage from '@/routes/academy/jlpt/questions/[id]/page.tsx'
 import JlptTemplateDetailPage from '@/routes/academy/jlpt/templates/[id]/page.tsx'
+import JlptMondaiMasterPage from '@/routes/academy/jlpt/mondai/page.tsx'
+import JlptConfigPage from '@/routes/academy/jlpt/config/page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,10 +127,12 @@ function App() {
                     <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
 
                     {/* JLPT Mock Exams */}
+                    <Route path="academy/jlpt/config" element={<JlptConfigPage />} />
                     <Route path="academy/jlpt/templates" element={<JlptTemplatesPage />} />
                     <Route path="academy/jlpt/templates/:id" element={<JlptTemplateDetailPage />} />
                     <Route path="academy/jlpt/questions" element={<JlptQuestionsPage />} />
                     <Route path="academy/jlpt/questions/:id" element={<JlptQuestionDetailPage />} />
+                    <Route path="academy/jlpt/mondai" element={<JlptMondaiMasterPage />} />
                   </Route>
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />

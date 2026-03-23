@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -20,6 +21,7 @@ import {
   GatewayAuthGuard,
   Permissions,
   PermissionsGuard,
+  Public,
   ZodValidationPipe,
   successResponse,
   ReqWithRequester,
@@ -64,6 +66,36 @@ export class ClassController {
       this.nats.send({ cmd: 'academy.class.findTerms' }, { courseProfileId }),
     );
     return successResponse({ items });
+  }
+
+  /** Danh sách lớp public cho learner (LIVE: kỳ khai giảng trong tháng + đang OPENING; VOD: đang PUBLISHED). */
+  @Public()
+  @Get('public')
+  async findPublicCatalog(
+    @Query('mode') mode: string,
+    @Query('level') level?: string,
+    @Query('month') month?: string,
+    @Query('q') q?: string,
+  ) {
+    if (mode !== 'LIVE' && mode !== 'VOD') {
+      throw new BadRequestException('mode là bắt buộc (LIVE hoặc VOD)');
+    }
+    const items = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.findPublicCatalog' },
+        { mode, level, month, q },
+      ),
+    );
+    return successResponse({ items });
+  }
+
+  @Public()
+  @Get('public/:id')
+  async findPublicCatalogById(@Param('id', new ParseUUIDPipe()) id: string) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.findPublicCatalogById' }, { id }),
+    );
+    return successResponse({ item });
   }
 
   @Get(':id')

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -199,6 +200,108 @@ export class JlptMockController {
 
   // --- Admin Endpoints ---
 
+  @Get('admin/config/levels')
+  async adminListLevels(@Req() req: ReqWithRequester) {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.level.list' },
+          { requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ items });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/config/levels')
+  async adminEnsureLevelConfig(@Req() req: ReqWithRequester, @Body() body: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.level.ensure' },
+          { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Get('admin/config/active-scoring-profile')
+  async adminGetActiveScoringProfile(
+    @Req() req: ReqWithRequester,
+    @Query() query: { level: string },
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.scoringProfile.active' },
+          { level: query.level, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/config/scoring-profiles')
+  async adminCreateScoringProfile(
+    @Req() req: ReqWithRequester,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.scoringProfile.create' },
+          { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Get('admin/config/levels/:level/sections')
+  async adminListSectionsForLevel(
+    @Req() req: ReqWithRequester,
+    @Param('level') level: string,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.level.sections.list' },
+          { level, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/config/scoring-mappings')
+  async adminUpsertScoringMappings(
+    @Req() req: ReqWithRequester,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.scoringMapping.upsert' },
+          { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
   @Get('admin/templates')
   async adminFindAllTemplates(
     @Req() req: ReqWithRequester,
@@ -212,6 +315,24 @@ export class JlptMockController {
         ),
       );
       return successResponse({ items });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Get('admin/templates/:id')
+  async adminFindTemplateById(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.findById' },
+          { id, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
     } catch (e: any) {
       return errorResponse(e.message);
     }
@@ -270,6 +391,30 @@ export class JlptMockController {
     }
   }
 
+  @Post('admin/templates/:id/assemble-random')
+  async adminAssembleTemplateFromBank(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+    @Body() body: { perMondaiCount?: number; clearExisting?: boolean },
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.assembleFromBank' },
+          {
+            templateId: id,
+            perMondaiCount: body.perMondaiCount,
+            clearExisting: body.clearExisting,
+            requesterId: req.requester.sub,
+          },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
   @Get('admin/bank-questions')
   async adminFindBankQuestions(
     @Req() req: ReqWithRequester,
@@ -311,6 +456,24 @@ export class JlptMockController {
     }
   }
 
+  @Get('admin/bank-questions/:id')
+  async adminFindBankQuestionById(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.bankQuestion.findById' },
+          { id, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
   @Post('admin/bank-questions')
   async adminCreateBankQuestion(
     @Req() req: ReqWithRequester,
@@ -343,6 +506,58 @@ export class JlptMockController {
         ),
       );
       return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/mondai')
+  async adminCreateMondai(@Req() req: ReqWithRequester, @Body() body: any) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.mondai.create' },
+          { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Patch('admin/mondai/:id')
+  async adminUpdateMondai(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.mondai.update' },
+          { id, input: body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Delete('admin/mondai/:id')
+  async adminDeleteMondai(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.mondai.delete' },
+          { id, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
     } catch (e: any) {
       return errorResponse(e.message);
     }

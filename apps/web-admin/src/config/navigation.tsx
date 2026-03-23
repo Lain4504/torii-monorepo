@@ -67,6 +67,8 @@ export const academicNavItems: NavItem[] = [
         items: [
             { titleKey: "Quản lý Đề thi (Templates)", url: "/academy/jlpt/templates" },
             { titleKey: "Ngân hàng Câu hỏi", url: "/academy/jlpt/questions" },
+            { titleKey: "Master Mondai", url: "/academy/jlpt/mondai" },
+            { titleKey: "JLPT Config", url: "/academy/jlpt/config" },
         ]
     },
     {

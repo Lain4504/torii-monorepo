@@ -1693,6 +1693,7 @@ model JlptMondai {
   section JlptSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   bankQuestions JlptQuestionBankQuestion[]
+  templateExamQuestions JlptMockExamTemplateQuestion[]
 
   @@unique([sectionId, code])
   @@index([sectionId])
@@ -1863,7 +1864,6 @@ model JlptMockExamMondai {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   section JlptMockExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  templateQuestions JlptMockExamTemplateQuestion[]
 
   @@unique([sectionId, code])
   @@index([sectionId])
@@ -1882,7 +1882,7 @@ model JlptMockExamTemplateQuestion {
 
   template JlptMockExamTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
   section  JlptMockExamSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  mondai   JlptMockExamMondai?  @relation(fields: [mondaiId], references: [id], onDelete: SetNull)
+  mondai   JlptMondai?  @relation(fields: [mondaiId], references: [id], onDelete: SetNull)
   question JlptQuestionBankQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
 
   answers JlptMockAnswer[]

@@ -160,4 +160,22 @@ export class ClassHandler {
   findTerms(@Payload() data: { courseProfileId: string }) {
     return this.classes.findTerms(data.courseProfileId);
   }
+
+  @MessagePattern({ cmd: 'academy.class.findPublicCatalog' })
+  findPublicCatalog(
+    @Payload()
+    data: {
+      mode: 'LIVE' | 'VOD';
+      level?: string;
+      month?: string;
+      q?: string;
+    },
+  ) {
+    return this.classes.findPublicCatalog(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.findPublicCatalogById' })
+  findPublicCatalogById(@Payload() data: { id: string }) {
+    return this.classes.findPublicCatalogById(data.id);
+  }
 }

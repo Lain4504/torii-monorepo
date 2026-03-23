@@ -152,9 +152,7 @@ export class OrderService {
           );
         }
 
-        const cap = await this.liveClassCapacity.getPublicCapacity(
-          selectedClassId,
-        );
+        const cap = await this.liveClassCapacity.getPublicCapacity(klass.id);
         if (cap?.isFull) {
           throw new BadRequestException(
             `Lớp ${klass.code} đã đủ ${cap.maxStudents} học viên. Vui lòng chọn lớp khác hoặc kỳ sau quay lại.`,
