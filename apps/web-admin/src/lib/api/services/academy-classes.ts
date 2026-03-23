@@ -16,6 +16,13 @@ export type AcademyClass = {
   name: string
   mode: "VOD" | "LIVE"
   status: string
+  maxStudents?: number | null
+  liveEnrollment?: {
+    activeEnrollmentCount: number
+    maxStudents: number | null
+    spotsLeft: number | null
+    isFull: boolean
+  }
   _count?: {
     enrollments?: number
     liveSchedules?: number

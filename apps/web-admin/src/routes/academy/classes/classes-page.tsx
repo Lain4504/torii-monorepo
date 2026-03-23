@@ -267,9 +267,30 @@ export default function ClassesPage() {
                                             </button>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-1 text-muted-foreground italic">
-                                                <span>--</span>
-                                            </div>
+                                            {cls.mode === "LIVE" ? (
+                                                (() => {
+                                                    const le = cls.liveEnrollment
+                                                    const max = cls.maxStudents
+                                                    if (le) {
+                                                        return (
+                                                            <div className="flex flex-wrap items-center gap-1 text-sm">
+                                                                <span className="tabular-nums font-medium">
+                                                                    {le.activeEnrollmentCount}
+                                                                    {max != null ? ` / ${max}` : " (∞)"}
+                                                                </span>
+                                                                {le.isFull && (
+                                                                    <Badge variant="destructive" className="text-[10px]">
+                                                                        Đầy
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    }
+                                                    return <span className="text-muted-foreground">—</span>
+                                                })()
+                                            ) : (
+                                                <span className="text-muted-foreground">—</span>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">

@@ -9,12 +9,14 @@ import { CouponHandler } from './coupon.handler';
 import { PayOSService } from './payos.service';
 import { CouponCronService } from './coupon-cron.service';
 import { EnrollmentModule } from '../classroom/enrollment/enrollment.module';
+import { ClassModule } from '../classroom/class/class.module';
 import { NatsClientModule } from '@server/shared';
 
 @Module({
   imports: [
     CourseOfferingModule,
     EnrollmentModule,
+    ClassModule,
     NatsClientModule,
     QuotaModule,
   ],

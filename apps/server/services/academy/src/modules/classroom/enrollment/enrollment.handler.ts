@@ -47,22 +47,6 @@ export class EnrollmentHandler {
     return this.enrollments.getCohortProgress(data.classId);
   }
 
-  @MessagePattern({ cmd: 'academy.enrollment.migrateStudents' })
-  migrate(
-    @Payload()
-    data: {
-      sourceClassId: string;
-      targetClassId: string;
-      requesterId?: string;
-    },
-  ) {
-    return this.enrollments.migrateStudents(
-      data.sourceClassId,
-      data.targetClassId,
-      data.requesterId,
-    );
-  }
-
   /** Gateway dùng để kiểm tra user có ghi danh vào class không (markLessonComplete, getAssignments, …). */
   @MessagePattern({ cmd: 'academy.enrollment.check' })
   check(@Payload() data: { userId: string; classId: string }) {

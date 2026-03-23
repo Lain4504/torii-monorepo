@@ -71,6 +71,8 @@ const classSchema = z.object({
   closingDate: z.string().optional().nullable(),
   enrollmentOpenAt: z.string().optional().nullable(),
   enrollmentCloseAt: z.string().optional().nullable(),
+  /** LIVE: để trống = không giới hạn */
+  maxStudents: z.number().int().min(1).optional(),
 }).superRefine((data, ctx) => {
   if (data.mode === "LIVE") {
     if (!data.termKey) {
@@ -123,6 +125,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
       closingDate: null,
       enrollmentOpenAt: null,
       enrollmentCloseAt: null,
+      maxStudents: undefined,
     },
   })
 
@@ -153,6 +156,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
         enrollmentCloseAt: term?.enrollmentCloseAt
           ? new Date(term.enrollmentCloseAt).toISOString().slice(0, 10)
           : null,
+        maxStudents: academyClass.maxStudents ?? undefined,
       })
     } else {
       reset({
@@ -167,6 +171,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
         closingDate: null,
         enrollmentOpenAt: null,
         enrollmentCloseAt: null,
+        maxStudents: undefined,
       })
     }
   }, [academyClass, initialMode, reset])
@@ -180,6 +185,9 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
           status: values.status || undefined,
           courseProfileId: values.courseProfileId,
           termId: (academyClass as any).termId ?? undefined,
+          ...(academyClass.mode === "LIVE"
+            ? { maxStudents: values.maxStudents ?? null }
+            : {}),
         } as any
         await updateMutation.mutateAsync({
           id: academyClass.id,
@@ -208,6 +216,9 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                     : undefined,
                 }
               : undefined,
+          ...(values.mode === "LIVE" && values.maxStudents != null
+            ? { maxStudents: values.maxStudents }
+            : {}),
         } as any
         await createMutation.mutateAsync(input)
         toast.success("Tạo Lớp học thành công")
@@ -457,6 +468,35 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                                 />
                               )}
                             />
+                          </Field>
+                          <Field className="md:col-span-2">
+                            <FieldLabel>Số học viên tối đa (LIVE)</FieldLabel>
+                            <Controller
+                              name="maxStudents"
+                              control={control}
+                              render={({ field }) => (
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  step={1}
+                                  placeholder="Để trống = không giới hạn"
+                                  value={field.value ?? ""}
+                                  onChange={(e) => {
+                                    const raw = e.target.value
+                                    if (raw === "") {
+                                      field.onChange(undefined)
+                                      return
+                                    }
+                                    const n = Number.parseInt(raw, 10)
+                                    field.onChange(Number.isFinite(n) ? n : undefined)
+                                  }}
+                                />
+                              )}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Chỉ áp dụng lớp LIVE. Khi đủ chỗ, học viên không thể đăng ký / thanh toán.
+                            </p>
+                            <FieldError errors={[errors.maxStudents]} />
                           </Field>
                         </div>
                       </>

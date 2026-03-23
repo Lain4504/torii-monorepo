@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/generated';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 import { AchievementService } from '../../gamification/achievement.service';
+import { LiveClassCapacityService } from '../class/live-class-capacity.service';
 
 /**
  * EnrollmentService - Manages student cohorts and course access.
@@ -19,6 +20,7 @@ export class EnrollmentService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     private readonly achievementService: AchievementService,
+    private readonly liveClassCapacity: LiveClassCapacityService,
   ) {}
 
   // ==============================================================
@@ -242,6 +244,8 @@ export class EnrollmentService {
     }
 
     return this.prisma.$transaction(async (tx) => {
+      await this.liveClassCapacity.assertRoomForOneMore(input.classId, tx);
+
       const enrollment = await tx.enrollment.create({
         data: {
           userId: input.userId,
@@ -346,46 +350,6 @@ export class EnrollmentService {
         };
       }),
     );
-  }
-
-  async migrateStudents(
-    sourceClassId: string,
-    targetClassId: string,
-    requesterId = 'SYSTEM',
-  ) {
-    const sourceClass = await this.prisma.class.findUnique({
-      where: { id: sourceClassId },
-      include: { _count: { select: { enrollments: true } } },
-    });
-    const targetClass = await this.prisma.class.findUnique({
-      where: { id: targetClassId },
-    });
-
-    if (!sourceClass || !targetClass)
-      throw new NotFoundException('Class not found');
-
-    const enrollments = await this.prisma.enrollment.findMany({
-      where: { classId: sourceClassId, status: 'ACTIVE' },
-    });
-
-    return this.prisma.$transaction(async (tx) => {
-      for (const e of enrollments) {
-        await tx.enrollment.update({
-          where: { id: e.id },
-          data: { classId: targetClassId },
-        });
-      }
-
-      await this.audit.log({
-        userId: requesterId,
-        action: 'enrollment.migrate',
-        entity: 'Enrollment',
-        entityId: targetClassId,
-        description: `Migrated ${enrollments.length} students from ${sourceClass.code} to ${targetClass.code}`,
-      });
-
-      return { migratedCount: enrollments.length };
-    });
   }
 
   async checkEligibility(

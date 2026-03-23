@@ -1218,6 +1218,8 @@ model Class {
   mode            ClassMode   @default(LIVE)
   status          ClassStatus @default(DRAFT)
   instructorId    String?     @map("instructor_id") @db.Uuid
+  /// LIVE only: giới hạn số học viên ACTIVE; null = không giới hạn. VOD bỏ qua.
+  maxStudents     Int?        @map("max_students")
 
   // Approval workflow
   submittedForApprovalAt DateTime? @map("submitted_for_approval_at")

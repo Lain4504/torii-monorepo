@@ -134,6 +134,33 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                 <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
                   <p className="font-medium">{formatDate(term?.enrollmentCloseAt)}</p>
               </div>
+              {academyClass.liveEnrollment && (
+                <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-3">
+                  <Users className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">Sĩ số LIVE (đang học / tối đa)</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium tabular-nums">
+                        {academyClass.liveEnrollment.activeEnrollmentCount}
+                        {academyClass.maxStudents != null
+                          ? ` / ${academyClass.maxStudents}`
+                          : " (∞)"}
+                      </p>
+                      {academyClass.liveEnrollment.isFull && (
+                        <Badge variant="destructive" className="text-[10px]">
+                          Đã đầy
+                        </Badge>
+                      )}
+                      {!academyClass.liveEnrollment.isFull &&
+                        academyClass.liveEnrollment.spotsLeft != null && (
+                          <span className="text-sm text-muted-foreground">
+                            Còn {academyClass.liveEnrollment.spotsLeft} chỗ
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

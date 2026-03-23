@@ -17,6 +17,7 @@ import {
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
 import { EnrollmentService } from '../../classroom/enrollment/enrollment.service';
+import { LiveClassCapacityService } from '../../classroom/class/live-class-capacity.service';
 import { AuditLoggerService } from '../../audit-logger.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
@@ -33,6 +34,7 @@ export class OrderService {
     private readonly couponService: CouponService,
     private readonly payOS: PayOSService,
     private readonly enrollmentService: EnrollmentService,
+    private readonly liveClassCapacity: LiveClassCapacityService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
     private readonly aiSubscriptionService: AiSubscriptionService,
@@ -147,6 +149,15 @@ export class OrderService {
         ) {
           throw new BadRequestException(
             `Class ${klass.code} is outside enrollment window or has no term defined`,
+          );
+        }
+
+        const cap = await this.liveClassCapacity.getPublicCapacity(
+          selectedClassId,
+        );
+        if (cap?.isFull) {
+          throw new BadRequestException(
+            `Lớp ${klass.code} đã đủ ${cap.maxStudents} học viên. Vui lòng chọn lớp khác hoặc kỳ sau quay lại.`,
           );
         }
       } else {

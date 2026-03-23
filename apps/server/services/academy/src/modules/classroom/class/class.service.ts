@@ -16,6 +16,8 @@ import {
 import { AuditLoggerService } from '../../audit-logger.service';
 import { LiveScheduleService } from '../live-schedule/live-schedule.service';
 import { GamificationService } from '../../gamification/gamification.service';
+import { LiveClassCapacityService } from './live-class-capacity.service';
+import { ClassMode } from '@prisma/generated';
 
 /**
  * ClassService - The Operational Layer (Cohorts)
@@ -30,6 +32,7 @@ export class ClassService {
     private readonly audit: AuditLoggerService,
     private readonly liveSchedules: LiveScheduleService,
     private readonly gamification: GamificationService,
+    private readonly liveClassCapacity: LiveClassCapacityService,
   ) {}
 
   // ==============================================================
@@ -50,7 +53,7 @@ export class ClassService {
             }
           : (query.status as ClassStatus);
 
-    return this.prisma.class.findMany({
+    const rows = await this.prisma.class.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
         mode: query.mode as any,
@@ -94,6 +97,7 @@ export class ClassService {
       },
       orderBy: [{ createdAt: 'desc' }],
     });
+    return this.liveClassCapacity.attachLiveEnrollmentSummary(rows);
   }
 
   async findById(id: string) {
@@ -138,6 +142,11 @@ export class ClassService {
       },
     });
     if (!item) throw new NotFoundException('Class not found');
+    if (item.mode === ClassMode.LIVE) {
+      const [enriched] =
+        await this.liveClassCapacity.attachLiveEnrollmentSummary([item]);
+      return enriched;
+    }
     return item;
   }
 
@@ -237,6 +246,16 @@ export class ClassService {
         );
       }
 
+      if (
+        input.mode === 'LIVE' &&
+        input.maxStudents != null &&
+        input.maxStudents < 1
+      ) {
+        throw new BadRequestException(
+          'Sĩ số tối đa (LIVE) phải ≥ 1 hoặc để trống (không giới hạn).',
+        );
+      }
+
       const classItem = await tx.class.create({
         data: {
           courseProfileId: input.courseProfileId,
@@ -246,6 +265,10 @@ export class ClassService {
           status: (input.status as ClassStatus) ?? 'DRAFT',
           instructorId: input.instructorId,
           termId: resolvedTermId,
+          maxStudents:
+            input.mode === 'LIVE' && input.maxStudents != null
+              ? input.maxStudents
+              : null,
         },
       });
 
@@ -277,6 +300,25 @@ export class ClassService {
       await this.assertPrimaryTeacherScheduleConflicts(id, input.instructorId);
     }
 
+    let maxStudentsUpdate: number | null | undefined = undefined;
+    if (classItem.mode === ClassMode.LIVE && input.maxStudents !== undefined) {
+      if (input.maxStudents != null && input.maxStudents < 1) {
+        throw new BadRequestException(
+          'Sĩ số tối đa (LIVE) phải ≥ 1 hoặc để trống (không giới hạn).',
+        );
+      }
+      const active = await this.liveClassCapacity.countActive(id);
+      if (
+        input.maxStudents != null &&
+        input.maxStudents < active
+      ) {
+        throw new BadRequestException(
+          `Không thể đặt tối đa ${input.maxStudents} học viên khi lớp đang có ${active} học viên đang học.`,
+        );
+      }
+      maxStudentsUpdate = input.maxStudents ?? null;
+    }
+
     return this.prisma.$transaction(async (tx) => {
       const updatedClass = await tx.class.update({
         where: { id },
@@ -286,6 +328,9 @@ export class ClassService {
           instructorId: input.instructorId,
           courseProfileId: input.courseProfileId,
           termId: input.termId,
+          ...(maxStudentsUpdate !== undefined
+            ? { maxStudents: maxStudentsUpdate }
+            : {}),
         },
       });
 

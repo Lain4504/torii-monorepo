@@ -42,6 +42,20 @@ import {
     ItemGroup,
 } from "@workspace/ui/components/item"
 
+function isLiveClassFull(cls: { liveEnrollment?: { isFull?: boolean } } | null | undefined): boolean {
+    return !!cls?.liveEnrollment?.isFull
+}
+
+function liveCapacityLabel(cls: { liveEnrollment?: { activeEnrollmentCount?: number; maxStudents?: number | null; spotsLeft?: number | null; isFull?: boolean } } | null | undefined): string | null {
+    const le = cls?.liveEnrollment
+    if (!le) return null
+    const max = le.maxStudents
+    const cur = le.activeEnrollmentCount ?? 0
+    if (max == null) return `${cur} học viên (không giới hạn)`
+    const tail = le.isFull ? ' — Đã đầy' : le.spotsLeft != null ? ` — Còn ${le.spotsLeft} chỗ` : ''
+    return `${cur}/${max} học viên${tail}`
+}
+
 export default function CheckoutPage() {
     const params = useParams()
     const router = useRouter()
@@ -82,7 +96,12 @@ export default function CheckoutPage() {
     useEffect(() => {
         if (!offering || selectedClassId) return
         if (offering.classId) {
-            setSelectedClassId(offering.classId)
+            const c =
+                (offering.classes || []).find((x: { id: string }) => x.id === offering.classId) ??
+                offering.class
+            if (c && !isLiveClassFull(c)) {
+                setSelectedClassId(offering.classId)
+            }
             return
         }
         if (
@@ -90,7 +109,10 @@ export default function CheckoutPage() {
             Array.isArray(offering.classes) &&
             offering.classes.length === 1
         ) {
-            setSelectedClassId(offering.classes[0].id)
+            const c = offering.classes[0]
+            if (!isLiveClassFull(c)) {
+                setSelectedClassId(c.id)
+            }
         }
     }, [offering, selectedClassId])
 
@@ -126,6 +148,17 @@ export default function CheckoutPage() {
 
     const handlePreview = async () => {
         if (!offering?.id) return
+        if (offering.type === 'LIVE') {
+            if (!selectedClassId) {
+                setPreview(null)
+                return
+            }
+            const picked = (offering.classes || []).find((x: { id: string }) => x.id === selectedClassId)
+            if (picked && isLiveClassFull(picked)) {
+                setPreview(null)
+                return
+            }
+        }
         try {
             setIsPreviewing(true)
             const result = await orderApi.previewOrder({
@@ -134,8 +167,14 @@ export default function CheckoutPage() {
                 classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined
             })
             setPreview(result)
-        } catch (error) {
-            console.error('Preview error:', error)
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }; message?: string }
+            const msg =
+                err?.response?.data?.message ??
+                err?.message ??
+                'Không thể tính tạm tính đơn hàng.'
+            toast.error(msg)
+            setPreview(null)
         } finally {
             setIsPreviewing(false)
         }
@@ -152,6 +191,10 @@ export default function CheckoutPage() {
 
         if (isLIVE && !selectedClassId) {
             toast.error('Vui lòng chọn một lớp học để tham gia.')
+            return
+        }
+        if (isLIVE && selectedClass && isLiveClassFull(selectedClass)) {
+            toast.error('Lớp đã đầy. Vui lòng chọn lớp khác hoặc kỳ sau quay lại.')
             return
         }
 
@@ -230,26 +273,60 @@ export default function CheckoutPage() {
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
                                                 <ItemContent><ItemTitle>{formatNumber(lessonCount)} bài học</ItemTitle></ItemContent>
                                             </Item>
+                                            {isLIVE && selectedClass && liveCapacityLabel(selectedClass) && (
+                                                <Item size="sm">
+                                                    <ItemMedia variant="icon"><Users /></ItemMedia>
+                                                    <ItemContent>
+                                                        <ItemTitle>{liveCapacityLabel(selectedClass)}</ItemTitle>
+                                                    </ItemContent>
+                                                </Item>
+                                            )}
                                         </ItemGroup>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
+                        {isLIVE && offering.classes && offering.classes.length === 1 && isLiveClassFull(offering.classes[0]) && (
+                            <Card className="border-destructive/50 bg-destructive/5">
+                                <CardContent className="pt-6 text-sm text-destructive">
+                                    Lớp LIVE hiện tại đã đủ học viên. Bạn không thể thanh toán gói này cho đến khi có chỗ trống.
+                                </CardContent>
+                            </Card>
+                        )}
+
                         {isLIVE && offering.classes && offering.classes.length > 1 && (
                             <Card>
                                 <CardHeader><CardTitle className="text-xl">Chọn lớp học (Kỳ học)</CardTitle></CardHeader>
                                 <CardContent className="space-y-4">
                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                         {offering.classes.map((cls: any) => (
-                                             <div key={cls.id} 
-                                                  onClick={() => setSelectedClassId(cls.id)}
-                                                  className={`p-4 border rounded-xl cursor-pointer transition-all ${selectedClassId === cls.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/50'}`}>
-                                                 <div className="flex justify-between items-start mb-2">
+                                         {offering.classes.map((cls: any) => {
+                                             const full = isLiveClassFull(cls)
+                                             const cap = liveCapacityLabel(cls)
+                                             return (
+                                             <div key={cls.id}
+                                                  role="button"
+                                                  tabIndex={full ? -1 : 0}
+                                                  onClick={() => { if (!full) setSelectedClassId(cls.id) }}
+                                                  onKeyDown={(e) => {
+                                                      if (full) return
+                                                      if (e.key === 'Enter' || e.key === ' ') {
+                                                          e.preventDefault()
+                                                          setSelectedClassId(cls.id)
+                                                      }
+                                                  }}
+                                                  className={`p-4 border rounded-xl transition-all ${full ? 'opacity-60 cursor-not-allowed border-muted' : 'cursor-pointer hover:border-primary/50'} ${selectedClassId === cls.id && !full ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}>
+                                                 <div className="flex justify-between items-start mb-2 gap-2">
                                                      <span className="font-bold">{cls.name || cls.code}</span>
-                                                     {selectedClassId === cls.id && <CheckCircle2 className="size-4 text-primary" />}
+                                                     <div className="flex items-center gap-1 shrink-0">
+                                                         {full && <Badge variant="destructive" className="text-[10px]">Đã đầy</Badge>}
+                                                         {selectedClassId === cls.id && !full && <CheckCircle2 className="size-4 text-primary" />}
+                                                     </div>
                                                  </div>
                                                  <p className="text-xs text-muted-foreground line-clamp-1">GV: {cls.instructor?.displayName || 'Chưa gán'}</p>
+                                                 {cap && (
+                                                     <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">{cap}</p>
+                                                 )}
                                                  {cls.term && (
                                                      <p className="text-[10px] text-muted-foreground mt-2 inline-flex items-center gap-1 bg-muted px-1.5 py-0.5 rounded">
                                                          <Clock className="size-3" />
@@ -257,7 +334,7 @@ export default function CheckoutPage() {
                                                      </p>
                                                  )}
                                              </div>
-                                         ))}
+                                         )})}
                                      </div>
                                 </CardContent>
                             </Card>
@@ -328,7 +405,7 @@ export default function CheckoutPage() {
                                             isProcessing ||
                                             isPreviewing ||
                                             (isGift && recipientStatus === 'enrolled') ||
-                                            (isLIVE && !selectedClass)
+                                            (isLIVE && (!selectedClass || isLiveClassFull(selectedClass)))
                                         }
                                     >
                                         {isProcessing ? 'Đang xử lý...' : 'Thanh toán ngay'}

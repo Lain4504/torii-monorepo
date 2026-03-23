@@ -45,6 +45,11 @@ export class ClassCreateDto {
   @IsOptional()
   @IsUUID()
   instructorId?: string;
+
+  /** LIVE: giới hạn số học viên ACTIVE; bỏ qua với VOD */
+  @IsOptional()
+  @IsInt()
+  maxStudents?: number | null;
 }
 
 export class ClassUpdateDto {
@@ -68,6 +73,10 @@ export class ClassUpdateDto {
   @IsOptional()
   @IsUUID()
   instructorId?: string;
+
+  @IsOptional()
+  @IsInt()
+  maxStudents?: number | null;
 }
 
 export class ClassQueryDto {

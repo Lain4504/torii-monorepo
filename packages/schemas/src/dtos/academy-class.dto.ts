@@ -19,6 +19,8 @@ export const academyClassCreateDTOSchema = z.object({
       enrollmentCloseAt: z.coerce.date().optional(),
     })
     .optional(),
+  /** LIVE: sĩ số tối đa; null/omit = không giới hạn. VOD bỏ qua. */
+  maxStudents: z.coerce.number().int().min(1).optional().nullable(),
 }).superRefine((data, ctx) => {
   if (data.mode === 'LIVE') {
     if (!data.termId && !data.term) {
@@ -29,6 +31,13 @@ export const academyClassCreateDTOSchema = z.object({
       })
     }
   }
+  if (data.mode === 'VOD' && data.maxStudents != null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['maxStudents'],
+      message: 'VOD không dùng maxStudents',
+    })
+  }
 });
 export type AcademyClassCreateDTO = z.infer<typeof academyClassCreateDTOSchema>;
 
@@ -38,6 +47,7 @@ export const academyClassUpdateDTOSchema = z.object({
   status: z.string().max(20).optional(),
   courseProfileId: z.string().uuid().optional(),
   termId: z.string().uuid().optional(),
+  maxStudents: z.coerce.number().int().min(1).optional().nullable(),
 });
 
 export type AcademyClassUpdateDTO = z.infer<typeof academyClassUpdateDTOSchema>;
@@ -85,6 +95,15 @@ export const academyClassModelSchema = z.object({
   rejectionReason: z.string().nullable().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  maxStudents: z.number().int().nullable().optional(),
+  liveEnrollment: z
+    .object({
+      activeEnrollmentCount: z.number().int(),
+      maxStudents: z.number().int().nullable(),
+      spotsLeft: z.number().int().nullable(),
+      isFull: z.boolean(),
+    })
+    .optional(),
 
   // Backward-compat fields (legacy responses may still include)
   vodClass: z.any().optional().nullable(),

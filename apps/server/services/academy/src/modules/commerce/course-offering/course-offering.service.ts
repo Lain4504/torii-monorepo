@@ -11,6 +11,7 @@ import {
 } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { LiveClassCapacityService } from '../../classroom/class/live-class-capacity.service';
 import {
   CourseOfferingCreateDto,
   CourseOfferingQueryDto,
@@ -22,6 +23,7 @@ export class CourseOfferingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    private readonly liveClassCapacity: LiveClassCapacityService,
   ) {}
 
   private get publicClassInclude() {
@@ -274,7 +276,8 @@ export class CourseOfferingService {
           },
         },
       });
-      result.siblingClasses = siblingClasses;
+      result.siblingClasses =
+        await this.liveClassCapacity.attachLiveEnrollmentSummary(siblingClasses);
     }
 
     return result;
