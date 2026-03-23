@@ -201,9 +201,9 @@ export function LivekitVoiceAgent() {
             `}</style>
 
             {(connectionState === "idle" || connectionState === "error") && (
-                <div className="w-full border-border shadow-none flex flex-col items-center gap-6 p-8 rounded-[1.5rem] border bg-card/50 animate-in fade-in duration-500">
-                    <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Mic className="size-8 text-primary" />
+                <div className="w-full flex flex-col items-center gap-6 p-4 animate-in fade-in duration-500">
+                    <div className="size-20 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Mic className="size-10 text-primary" />
                     </div>
 
                     <div className="text-center space-y-1.5">
@@ -220,7 +220,7 @@ export function LivekitVoiceAgent() {
                     <Button
                         onClick={connect}
                         size="lg"
-                        className="w-full max-w-sm h-11 font-bold uppercase tracking-widest text-[10px]"
+                        className="w-full max-w-sm h-11 font-bold uppercase tracking-widest text-[10px] rounded-xl"
                     >
                         <Mic className="mr-2 size-3.5" />
                         Bắt đầu bài học
@@ -229,14 +229,14 @@ export function LivekitVoiceAgent() {
             )}
 
             {connectionState === "connecting" && (
-                <div className="w-full border-border shadow-none flex flex-col items-center gap-4 py-20 bg-card/50 rounded-[1.5rem] border animate-in fade-in duration-500">
+                <div className="w-full flex flex-col items-center gap-4 py-20 animate-in fade-in duration-500">
                     <Loader2 className="size-10 text-primary animate-spin" strokeWidth={2.5} />
                     <p className="text-sm text-primary font-bold animate-pulse">Sensei đang chuẩn bị phòng...</p>
                 </div>
             )}
 
             {connectionState === "connected" && liveKitInfo && (
-                <div className="w-full border-border shadow-none flex flex-col items-center gap-10 p-8 rounded-[1.5rem] border bg-card/50 animate-in fade-in duration-500">
+                <div className="w-full flex flex-col items-center gap-10 p-4 animate-in fade-in duration-500">
                     <LiveKitRoom
                         video={false}
                         audio={true}

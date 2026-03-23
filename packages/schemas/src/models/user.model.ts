@@ -46,6 +46,7 @@ export const userSchema = z.object({
     permissions: z.array(z.string()).optional(),
     linkedMethods: z.array(z.string()).optional(),
     isOnboarded: z.boolean().optional(),
+    onboardingSurvey: z.record(z.any()).optional().nullable(),
 });
 
 export type User = z.infer<typeof userSchema>;

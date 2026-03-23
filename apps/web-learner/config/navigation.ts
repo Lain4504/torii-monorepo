@@ -49,7 +49,7 @@ export const progressNav: NavItem[] = [
 ]
 
 export const accountNav: NavItem[] = [
-    { name: 'Hồ sơ cá nhân', href: '/dashboard/profile', icon: User },
+    { name: 'Hồ sơ học tập', href: '/dashboard/profile', icon: User },
     { name: 'Đánh giá & Phản hồi', href: '/dashboard/reviews', icon: MessageSquare },
     { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: Receipt },
     { name: 'Hỗ trợ', href: '/dashboard/support', icon: LifeBuoy },
