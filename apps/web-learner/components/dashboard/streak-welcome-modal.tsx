@@ -5,6 +5,7 @@ import { useMarkToastShown, useStreak } from '@/lib/api/services/gamification-ap
 import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
+import { Shield } from 'lucide-react';
 
 type StreakWelcomeModalProps = {
   open?: boolean;
@@ -60,7 +61,9 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
   const currentStreak = (streak as any)?.currentStreak ?? 0;
   const freezeCount = (streak as any)?.freezeCount ?? 0;
   const isActiveToday = (streak as any)?.isActiveToday === true;
+  const streakSavedByFreeze = (streak as any)?.streakSavedByFreeze === true;
   const recentActiveDates = (streak as any)?.recentActiveDates ?? [];
+  const recentFreezeDates = (streak as any)?.recentFreezeDates ?? [];
 
   const weekly = useMemo(() => {
     const now = new Date();
@@ -70,7 +73,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
 
     const days: {
       dayName: string;
-      status: 'done' | 'todo';
+      status: 'done' | 'todo' | 'frozen';
       dateStr: string;
     }[] = [];
 
@@ -92,10 +95,12 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
       const done =
         (isToday && isActiveToday) ||
         (Array.isArray(recentActiveDates) && recentActiveDates.includes(dateStr));
+      
+      const frozen = !done && (Array.isArray(recentFreezeDates) && recentFreezeDates.includes(dateStr));
 
       days.push({
         dayName: dayNames[adjustedDay] ?? '',
-        status: done ? 'done' : 'todo',
+        status: done ? 'done' : frozen ? 'frozen' : 'todo',
         dateStr,
       });
     }
@@ -137,7 +142,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
 
     const cells: {
       label: number | null;
-      state: 'done' | 'todo' | 'today';
+      state: 'done' | 'todo' | 'today' | 'frozen';
     }[] = [];
 
     // padding before 1st
@@ -148,10 +153,11 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
       const dt = new Date(year, month, d);
       const ds = toDateStr(dt);
       const done = Array.isArray(recentActiveDates) && recentActiveDates.includes(ds);
+      const frozen = Array.isArray(recentFreezeDates) && recentFreezeDates.includes(ds);
       const isToday = ds === todayStr;
       cells.push({
         label: d,
-        state: isToday ? 'today' : done ? 'done' : 'todo',
+        state: isToday ? 'today' : done ? 'done' : frozen ? 'frozen' : 'todo',
       });
     }
     // pad to full weeks
@@ -184,9 +190,11 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   <span className="text-primary">ngày streak</span>
                 </div>
                 <div className="text-sm font-medium text-muted-foreground">
-                  {isActiveToday
-                    ? 'Bạn đã học hôm nay.'
-                    : 'Hoàn thành 1 hoạt động học để giữ streak.'}
+                  {streakSavedByFreeze 
+                    ? 'Hôm nay bạn đã được bảo vệ bởi Lá chắn! 🔥' 
+                    : isActiveToday
+                      ? 'Bạn đã học hôm nay.'
+                      : 'Hoàn thành 1 hoạt động học để giữ streak.'}
                 </div>
               </div>
             </div>
@@ -210,6 +218,11 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                         {d.status === 'done' && (
                           <div className="absolute inset-0 flex items-center justify-center text-primary-foreground text-base font-black">
                             ✓
+                          </div>
+                        )}
+                        {d.status === 'frozen' && (
+                          <div className="absolute inset-0 flex items-center justify-center text-blue-500 text-base font-black">
+                            <Shield className="h-5 w-5 fill-blue-500 text-white" />
                           </div>
                         )}
                       </div>
@@ -302,6 +315,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                       c.label != null && c.state === 'todo' && 'bg-muted/40 text-muted-foreground',
                       c.label != null && c.state === 'done' && 'bg-primary/15 text-primary',
                       c.label != null && c.state === 'today' && 'bg-primary text-primary-foreground',
+                      c.label != null && c.state === 'frozen' && 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 border border-blue-200 dark:border-blue-800',
                     )}
                   >
                     {c.label ?? ''}
@@ -320,7 +334,9 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   <span>Chưa học</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="inline-block h-5 w-5 rounded bg-blue-600" />
+                  <span className="inline-block h-5 w-5 rounded bg-blue-500/20 border border-blue-200 flex items-center justify-center">
+                    <Shield className="h-3 w-3 fill-blue-500 text-white" />
+                  </span>
                   <span>Đóng băng</span>
                 </div>
 

@@ -6,6 +6,7 @@ import {
     Clock,
     TrendingUp,
     Trophy,
+    Crown,
     User,
     CreditCard,
     Settings,
@@ -42,6 +43,7 @@ export const learningNav: NavItem[] = [
 
 export const progressNav: NavItem[] = [
     { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+    { name: 'Bảng xếp hạng', href: '/dashboard/leaderboard', icon: Crown },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },

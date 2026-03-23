@@ -14,7 +14,7 @@ import {
 } from '@/components/leaderboard'
 
 export default function LeaderboardPage() {
-    const [leaderboardType, setLeaderboardType] = useState<'global' | 'streak'>('global')
+    const [leaderboardType, setLeaderboardType] = useState<'global' | 'streak' | 'active'>('global')
     const { data: leaderboard, isLoading } = useLeaderboard(leaderboardType)
     const { user: currentUser } = useAppSelector((state) => state.auth)
 
@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
                         user={topThree[1]!}
                         rank={2}
                         isCurrentUser={topThree[1]!.id === currentUser?.id}
-                        type={leaderboardType}
+                        type={leaderboardType as 'global' | 'streak' | 'active'}
                     />
                 )}
                 {topThree.length >= 1 && (
@@ -47,7 +47,7 @@ export default function LeaderboardPage() {
                         user={topThree[0]!}
                         rank={1}
                         isCurrentUser={topThree[0]!.id === currentUser?.id}
-                        type={leaderboardType}
+                        type={leaderboardType as 'global' | 'streak' | 'active'}
                     />
                 )}
                 {topThree.length >= 3 && (
@@ -55,7 +55,7 @@ export default function LeaderboardPage() {
                         user={topThree[2]!}
                         rank={3}
                         isCurrentUser={topThree[2]!.id === currentUser?.id}
-                        type={leaderboardType}
+                        type={leaderboardType as 'global' | 'streak' | 'active'}
                     />
                 )}
             </div>
@@ -64,7 +64,7 @@ export default function LeaderboardPage() {
             {leaderboard?.currentUser && (
                 <CurrentUserRank
                     user={leaderboard.currentUser}
-                    type={leaderboardType}
+                    type={leaderboardType as 'global' | 'streak' | 'active'}
                 />
             )}
 
@@ -72,7 +72,7 @@ export default function LeaderboardPage() {
             <LeaderboardTable
                 users={others}
                 currentUserId={currentUser?.id}
-                type={leaderboardType}
+                type={leaderboardType as 'global' | 'streak' | 'active'}
             />
         </div>
     )

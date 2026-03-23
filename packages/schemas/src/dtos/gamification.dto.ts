@@ -123,6 +123,7 @@ export const LeaderboardUserDTOSchema = z.object({
     level: z.number().int(),
     rank: z.number().int(),
     currentStreak: z.number().int().optional(),
+    totalActiveDays: z.number().int().optional(),
 });
 
 export type LeaderboardUserDTO = z.infer<typeof LeaderboardUserDTOSchema>;
@@ -131,7 +132,7 @@ export const LeaderboardDTOSchema = z.object({
     users: z.array(LeaderboardUserDTOSchema),
     currentUser: LeaderboardUserDTOSchema.optional(),
     totalUsers: z.number().int(),
-    type: z.enum(['global', 'streak']),
+    type: z.enum(['global', 'streak', 'active']),
 });
 
 export type LeaderboardDTO = z.infer<typeof LeaderboardDTOSchema>;
