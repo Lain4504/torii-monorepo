@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, Zap, Star, Crown, ArrowRight, BadgeCheck } from "lucide-react"
+import { Check, Zap, Star, Crown, ArrowRight, BadgeCheck, Coins } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
@@ -10,6 +10,8 @@ import { formatCurrency } from "@/utils/format-utils"
 import { useRouter } from "next/navigation"
 import { toast } from "@workspace/ui/components/sonner"
 import { orderApi } from "@/lib/api/services/order-api"
+import { PaymentMethod } from "@workspace/schemas"
+import { useAppSelector } from "@/hooks/hooks"
 
 interface Tier {
     id: string
@@ -138,7 +140,9 @@ export default function SubscriptionsPage() {
 
     const currentTierIndex = tiers.findIndex(t => t.code === currentTier)
 
-    const handleSubscribe = async (tier: Tier) => {
+    const user = useAppSelector(state => state.auth.user)
+
+    const handleSubscribe = async (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS) => {
         const targetTierIndex = tiers.findIndex(t => t.id === tier.id)
 
         if (targetTierIndex < currentTierIndex && currentTier !== 'free') {
@@ -162,7 +166,7 @@ export default function SubscriptionsPage() {
                 subscriptionPlanIds: [tier.id], // Fix: use subscriptionPlanIds
                 description: `Đăng ký gói ${tier.name} - Torii AI Sensei`,
                 couponCode: "",
-                paymentMethod: "PAYOS"
+                paymentMethod: method
             })
 
             if (response.paymentUrl) {
@@ -277,7 +281,7 @@ export default function SubscriptionsPage() {
                                         tier.popular ? "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20" : "bg-primary hover:bg-primary/90",
                                         (isCurrent || isDowngrade) && "bg-muted text-muted-foreground hover:bg-muted cursor-default border-none shadow-none"
                                     )}
-                                    onClick={() => handleSubscribe(tier)}
+                                    onClick={() => handleSubscribe(tier, PaymentMethod.PAYOS)}
                                     disabled={loadingTier === tier.id || isCurrent || isDowngrade}
                                 >
                                     {loadingTier === tier.id ? (
@@ -293,6 +297,17 @@ export default function SubscriptionsPage() {
                                         </>
                                     )}
                                 </Button>
+
+                                {user?.walletBalance !== undefined && user.walletBalance >= tier.price && tier.price > 0 && !isCurrent && !isDowngrade && (
+                                    <button 
+                                        className="w-full mt-3 text-[10px] font-black text-amber-600 hover:text-amber-700 uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors group/coin"
+                                        onClick={() => handleSubscribe(tier, PaymentMethod.COIN)}
+                                        disabled={loadingTier === tier.id}
+                                    >
+                                        <Coins className="size-3 transition-transform group-hover/coin:scale-110" />
+                                        Thanh toán bằng {tier.price.toLocaleString()} Xu
+                                    </button>
+                                )}
                             </CardFooter>
                         </Card>
                     )

@@ -46,6 +46,7 @@ export const userSchema = z.object({
     permissions: z.array(z.string()).optional(),
     linkedMethods: z.array(z.string()).optional(),
     isOnboarded: z.boolean().optional(),
+    walletBalance: z.coerce.number().optional().default(0),
 });
 
 export type User = z.infer<typeof userSchema>;

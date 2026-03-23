@@ -61,12 +61,14 @@ enum PaymentMethod {
   PAYOS
   BANK_TRANSFER
   MANUAL
+  COIN
 }
 
 enum PaymentGateway {
   PAYOS
   MOMO
   STRIPE
+  INTERNAL
 }
 
 enum CouponStatus {

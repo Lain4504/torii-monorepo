@@ -20,7 +20,7 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog"
 import { formatNumber } from '@/utils/format-utils'
-import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Clock } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Clock, Coins } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { useAcademyOffering } from '@/lib/api/services/academy-course-api'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
@@ -141,7 +141,7 @@ export default function CheckoutPage() {
         }
     }
 
-    const handlePayment = async () => {
+    const handlePayment = async (method: PaymentMethod = PaymentMethod.PAYOS) => {
         if (!offering || !user) return
 
         if (isGift) {
@@ -159,7 +159,7 @@ export default function CheckoutPage() {
             setIsProcessing(true)
             const result = await orderApi.createOrder({
                 offeringIds: [offering.id],
-                paymentMethod: PaymentMethod.PAYOS,
+                paymentMethod: method,
                 couponCode: couponCode.trim() || undefined,
                 classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined,
                 metadata: {
@@ -323,7 +323,7 @@ export default function CheckoutPage() {
                                 <div className="pt-4 space-y-3">
                                     <Button
                                         className="w-full py-6 text-lg"
-                                        onClick={handlePayment}
+                                        onClick={() => handlePayment(PaymentMethod.PAYOS)}
                                         disabled={
                                             isProcessing ||
                                             isPreviewing ||
@@ -333,6 +333,34 @@ export default function CheckoutPage() {
                                     >
                                         {isProcessing ? 'Đang xử lý...' : 'Thanh toán ngay'}
                                     </Button>
+
+                                    {/* Coin Payment Option */}
+                                    {user?.walletBalance !== undefined && user.walletBalance > 0 && (
+                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-center justify-between group mt-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-amber-500/20 rounded-lg">
+                                                    <Coins className="size-4 text-amber-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Ví Xu Torii</p>
+                                                    <p className="text-xs font-semibold text-amber-900">
+                                                        Bạn có {formatNumber(user.walletBalance)} Xu
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {user.walletBalance >= displayTotal && (
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-7 px-2 text-[10px] font-black uppercase text-amber-600 hover:text-white hover:bg-amber-500 border border-amber-500/30 rounded-lg transition-all"
+                                                    onClick={() => handlePayment(PaymentMethod.COIN)}
+                                                    disabled={isProcessing}
+                                                >
+                                                    Thanh toán bằng Xu
+                                                </Button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>

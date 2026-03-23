@@ -371,11 +371,101 @@ export class OrderService {
       };
     }
 
+    if (input.paymentMethod === PaymentMethod.COIN) {
+      return this.processCoinPayment(order.userId, order);
+    }
+
     return {
       orderId: order.id,
       orderCode: order.code,
       message: 'Order created. Please proceed with manual payment.',
     };
+  }
+
+  private async processCoinPayment(userId: string, order: any) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, walletBalance: true },
+    });
+
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+
+    const total = Number(order.grandTotal);
+    const balance = Number(user.walletBalance);
+
+    if (balance < total) {
+      throw new BadRequestException(
+        'Số dư xu không đủ để thực hiện thanh toán này',
+      );
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // 1. Deduct balance
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            walletBalance: { decrement: order.grandTotal },
+          },
+        });
+
+        // 2. Log Wallet Transaction
+        await tx.walletTransaction.create({
+          data: {
+            userId,
+            amount: order.grandTotal,
+            type: 'PURCHASE',
+            referenceId: order.id,
+            description: `Thanh toán đơn hàng ${order.code} bằng Xu`,
+          },
+        });
+
+        // 3. Mark Order as PAID
+        await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: OrderStatus.PAID,
+            paidAt: new Date(),
+          },
+        });
+
+        // 4. Record internal transaction record for bookkeeping
+        await tx.transaction.create({
+          data: {
+            orderId: order.id,
+            gateway: PaymentGateway.INTERNAL,
+            amount: order.grandTotal,
+            status: 'SUCCESS',
+            transactionCode: order.code,
+            responsePayload: { method: 'COIN' } as any,
+          },
+        });
+
+        // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
+        for (const item of order.items) {
+          if (item.subscriptionPlanId) {
+            await this.fulfillAiSubscription(tx, order, item);
+          }
+        }
+      });
+
+      this.logger.log(`Order ${order.code} paid with coins successfully`);
+
+      // Emit order.paid event for external fulfillment (e.g., Course Enrollments)
+      this.natsClient.emit('order.paid', { orderId: order.id });
+
+      return {
+        orderId: order.id,
+        orderCode: order.code,
+        message: 'Thanh toán bằng xu thành công!',
+        success: true,
+      };
+    } catch (err: any) {
+      this.logger.error(
+        `Coin payment failed for order ${order.code}: ${err.message}`,
+      );
+      throw new BadRequestException(`Thanh toán thất bại: ${err.message}`);
+    }
   }
 
   async handlePaymentSuccess(
