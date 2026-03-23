@@ -11,14 +11,15 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Progress } from '@workspace/ui/components/progress'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { 
-    Award, 
-    Trophy, 
-    Star, 
-    Ticket, 
-    BookOpen, 
-    GraduationCap, 
-    Flame, 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import {
+    Award,
+    Trophy,
+    Star,
+    Ticket,
+    BookOpen,
+    GraduationCap,
+    Flame,
     ChevronRight,
     MapPin,
     Calendar,
@@ -26,7 +27,8 @@ import {
     User,
     ArrowUpRight,
     Clock,
-    CheckCircle2
+    CheckCircle2,
+    Target
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -57,7 +59,7 @@ export default function ProfilePage() {
     const { data: courses, isLoading: loadingCourses } = useAcademyMyCourses()
 
     const certificates = certsResp?.data || []
-    
+
     // Calculate achievement stats
     const achievementStats = (() => {
         if (!achievementsData) return { total: 0, earned: 0 }
@@ -68,288 +70,295 @@ export default function ProfilePage() {
     })()
 
     return (
-        <div className="container max-w-7xl mx-auto py-8 space-y-8">
-            {/* Profile Header */}
-            <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-lg"
+        <div className="container max-w-6xl mx-auto py-8 sm:py-12 space-y-10">
+            {/* Extended Profile Header */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card/50 backdrop-blur-xl shadow-2xl"
             >
-                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-primary/20 via-primary/5 to-transparent" />
-                <div className="relative px-8 pt-12 pb-8 flex flex-col md:flex-row items-center md:items-end gap-6">
-                    <Avatar className="size-32 border-4 border-background shadow-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 -z-10" />
+                <div className="relative px-8 sm:px-12 py-10 sm:py-14 flex flex-col md:flex-row items-center gap-8">
+                    <Avatar className="size-36 sm:size-44 border-8 border-background shadow-2xl">
                         <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-4xl">
+                        <AvatarFallback className="bg-primary/10 text-primary text-5xl font-black">
                             {user?.displayName?.charAt(0) || 'U'}
                         </AvatarFallback>
                     </Avatar>
-                    
-                    <div className="flex-1 text-center md:text-left space-y-2">
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                            <h1 className="text-3xl font-black text-foreground">{user?.displayName}</h1>
+
+                    <div className="flex-1 text-center md:text-left space-y-4">
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                            <h1 className="text-4xl sm:text-5xl font-black tracking-tight">{user?.displayName}</h1>
                             {gamification && (
-                                <Badge className="bg-primary text-white border-none px-3 py-1 font-bold">
-                                    Cấp {gamification.level}
+                                <Badge className="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-black">
+                                    CẤP {gamification.level}
                                 </Badge>
                             )}
                         </div>
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-muted-foreground text-sm font-medium">
-                            <span className="flex items-center gap-1.5"><Mail className="size-4" /> {user?.email}</span>
-                            <span className="flex items-center gap-1.5"><Calendar className="size-4" /> Tham gia {user?.createdAt ? formatDate(user.createdAt) : '2024'}</span>
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-muted-foreground text-sm font-bold">
+                            <span className="flex items-center gap-2"><Mail className="size-4 text-primary" /> {user?.email}</span>
+                            <span className="flex items-center gap-2"><Calendar className="size-4 text-primary" /> Tham gia {user?.createdAt ? formatDate(user.createdAt) : '2024'}</span>
                         </div>
                     </div>
 
-                    <div className="flex gap-2">
-                        <Link href="/dashboard/settings">
-                            <Button variant="outline" className="rounded-xl font-bold">Chỉnh sửa hồ sơ</Button>
-                        </Link>
-                    </div>
+
                 </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Stats & XP */}
-                <motion.div 
-                    variants={container}
-                    initial="hidden"
-                    animate="show"
-                    className="space-y-8"
-                >
-                    {/* Level & XP */}
-                    <motion.div variants={item}>
-                        <Card className="rounded-2xl border-border shadow-sm overflow-hidden group">
-                            <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                        <Trophy className="size-5 text-amber-500" /> Cấp độ hiện tại
-                                    </CardTitle>
-                                    <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">
-                                        {gamification?.currentXp || 0} XP
-                                    </span>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-black text-primary">{gamification?.level || 1}</span>
-                                    <span className="text-sm font-bold text-muted-foreground">LVL</span>
-                                </div>
-                                <Progress value={gamification ? (gamification.currentXp % 1000) / 10 : 0} className="h-3 bg-muted" />
-                                <p className="text-xs text-muted-foreground font-medium">
-                                    Cần thêm <span className="text-foreground font-bold">{gamification ? 1000 - (gamification.currentXp % 1000) : 0} XP</span> để lên cấp tiếp theo.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+            <Tabs defaultValue="overview" className="w-full space-y-10">
+                <TabsList className="bg-muted/30 p-1.5 rounded-2xl border border-border/50 h-16 w-full overflow-hidden flex">
+                    {[
+                        { value: 'overview', label: 'TỔNG QUAN', icon: Trophy },
+                        { value: 'courses', label: 'KHÓA HỌC', icon: BookOpen },
+                        { value: 'achievements', label: 'THÀNH TỰU', icon: Award },
+                        { value: 'coupons', label: 'ƯU ĐÃI', icon: Ticket },
+                        { value: 'onboarding', label: 'LỘ TRÌNH', icon: Target },
+                    ].map((tab) => (
+                        <TabsTrigger
+                            key={tab.value}
+                            value={tab.value}
+                            className="flex-1 px-4 py-3 rounded-xl font-black text-xs tracking-wider data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all shrink-0"
+                        >
+                            <tab.icon className="size-4 mr-2" />
+                            {tab.label}
+                        </TabsTrigger>
+                    ))}
+                </TabsList>
 
-                    {/* Quick Stats Grid */}
-                    <motion.div variants={item} className="grid grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl border border-border bg-card shadow-sm space-y-2">
-                            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 w-fit">
-                                <Star className="size-4" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-black text-foreground">{gamification?.points || 0}</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm Torii</p>
-                            </div>
-                        </div>
-                        <div className="p-4 rounded-2xl border border-border bg-card shadow-sm space-y-2">
-                            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-600 w-fit">
-                                <Flame className="size-4" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-black text-foreground">{streak?.currentStreak || 0}</p>
-                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Ngày học liên tiếp</p>
-                            </div>
-                        </div>
-                    </motion.div>
+                {/* --- OVERVIEW TAB --- */}
+                <TabsContent value="overview" className="outline-none">
+                    <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <motion.div variants={item} className="lg:col-span-2">
+                            <Card className="rounded-[2.5rem] border-2 border-border bg-card/30 backdrop-blur-sm p-8 sm:p-12 h-full">
+                                <div className="space-y-10">
+                                    <div className="flex items-center justify-between">
+                                        <h2 className="text-2xl font-black flex items-center gap-3"><Trophy className="size-7 text-amber-500" /> Hành trình học tập</h2>
+                                        <Badge variant="outline" className="px-4 py-1.5 rounded-xl font-black text-primary border-primary/20">{gamification?.currentXp || 0} XP</Badge>
+                                    </div>
 
-                    {/* Coupons Section */}
-                    <motion.div variants={item}>
-                        <Card className="rounded-2xl border-border shadow-sm">
-                            <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                                <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                    <Ticket className="size-5 text-purple-500" /> Mã giảm giá ({coupons?.length || 0})
-                                </CardTitle>
-                                <Link href="/dashboard/rewards">
-                                    <Button variant="ghost" size="sm" className="text-xs font-bold text-primary">Xem shop</Button>
-                                </Link>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                {loadingCoupons ? (
-                                    [1, 2].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)
-                                ) : coupons && coupons.length > 0 ? (
-                                    coupons.slice(0, 3).map((coupon: any) => (
-                                        <div key={coupon.id} className="p-3 border border-dashed border-border rounded-xl bg-muted/30 flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-bold text-foreground">{coupon.code}</p>
-                                                <p className="text-[10px] font-bold text-muted-foreground uppercase">Giảm {coupon.discountValue}% • {coupon.type}</p>
-                                            </div>
-                                            <Button size="sm" variant="outline" className="h-8 rounded-lg text-[10px] font-bold" onClick={() => {
-                                                navigator.clipboard.writeText(coupon.code)
-                                            }}>
-                                                Sao chép
-                                            </Button>
+                                    <div className="flex flex-col sm:flex-row items-center gap-10">
+                                        <div className="relative size-40 shrink-0 flex flex-col items-center justify-center rounded-full bg-primary/5 border-4 border-primary/10">
+                                            <span className="text-7xl font-black text-primary leading-none">{gamification?.level || 1}</span>
+                                            <span className="text-[10px] font-black text-muted-foreground tracking-widest mt-1">CẤP ĐỘ</span>
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-6 space-y-2">
-                                        <p className="text-sm text-muted-foreground">Bạn chưa có mã giảm giá nào.</p>
-                                        <Link href="/dashboard/rewards">
-                                            <Button variant="outline" size="sm" className="rounded-lg text-xs font-bold">Đổi thưởng ngay</Button>
-                                        </Link>
+                                        <div className="flex-1 space-y-6 w-full">
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between text-xs font-black text-muted-foreground uppercase tracking-wider">
+                                                    <span>Tiến trình hiện tại</span>
+                                                    <span className="text-foreground">{Math.floor(gamification ? (gamification.currentXp % 1000) / 10 : 0)}%</span>
+                                                </div>
+                                                <Progress value={gamification ? (gamification.currentXp % 1000) / 10 : 0} className="h-4 rounded-full bg-muted/50 border" />
+                                            </div>
+                                            <p className="text-sm font-bold text-muted-foreground leading-relaxed italic">
+                                                * Bạn chỉ còn cách cấp độ tiếp theo <span className="text-primary font-black underline underline-offset-4">{gamification ? 1000 - (gamification.currentXp % 1000) : 0} XP</span>. Hãy bền bỉ nhé!
+                                            </p>
+                                        </div>
                                     </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                </motion.div>
-
-                {/* Right Column: Courses, Certificates, Achievements */}
-                <motion.div 
-                    variants={container}
-                    initial="hidden"
-                    animate="show"
-                    className="lg:col-span-2 space-y-8"
-                >
-                    {/* Courses Summary */}
-                    <motion.div variants={item}>
-                        <Card className="rounded-3xl border-border shadow-sm overflow-hidden">
-                            <CardHeader className="bg-muted/30 border-b border-border pb-4 flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-xl font-bold flex items-center gap-2">
-                                        <BookOpen className="size-5 text-blue-500" /> Khóa học đang tham gia
-                                    </CardTitle>
-                                    <CardDescription>Tiếp tục hành trình học tập của bạn</CardDescription>
                                 </div>
-                                <Link href="/dashboard/my-courses">
-                                    <Button variant="ghost" size="sm" className="font-bold">Xem tất cả <ChevronRight className="size-4 ml-1" /></Button>
-                                </Link>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                {loadingCourses ? (
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        {[1, 2].map(i => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)}
-                                    </div>
-                                ) : courses && courses.length > 0 ? (
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        {courses.slice(0, 2).map((course: any) => (
-                                            <div key={course.id} className="group p-4 rounded-2xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-all flex gap-4">
-                                                <div className="size-20 bg-muted rounded-xl overflow-hidden shrink-0">
-                                                    {course.thumbnailUrl ? (
-                                                        <img src={course.thumbnailUrl} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                                    ) : (
-                                                        <BookOpen className="size-10 text-muted-foreground/30 m-auto mt-5" />
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 space-y-2 min-w-0">
-                                                    <h3 className="text-sm font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.courseTitle}</h3>
-                                                    <div className="space-y-1">
-                                                        <div className="flex justify-between text-[10px] font-bold text-muted-foreground">
-                                                            <span>Tiến độ</span>
-                                                            <span>{course.progress}%</span>
-                                                        </div>
-                                                        <Progress value={course.progress} className="h-1.5" />
-                                                    </div>
-                                                    <Link href={`/courses/${course.classId}/learn`}>
-                                                        <Button variant="ghost" size="sm" className="h-7 px-0 text-xs font-bold text-primary group-hover:translate-x-1 transition-transform">
-                                                            Học tiếp <ArrowUpRight className="size-3 ml-1" />
-                                                        </Button>
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <p className="text-muted-foreground mb-4">Bạn chưa đăng ký khóa học nào.</p>
-                                        <Link href="/courses">
-                                            <Button className="rounded-xl font-bold">Khám phá khóa học</Button>
-                                        </Link>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    {/* Middle Row: Certificates & Achievements summary */}
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {/* Achievements Summary */}
-                        <motion.div variants={item}>
-                            <Card className="rounded-3xl border-border shadow-sm h-full">
-                                <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                        <Award className="size-5 text-purple-500" /> Thành tích
-                                    </CardTitle>
-                                    <Link href="/dashboard/achievements">
-                                        <Button variant="ghost" size="sm" className="font-bold">Tất cả</Button>
-                                    </Link>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="text-muted-foreground font-medium">Đã mở khóa</span>
-                                        <span className="text-foreground font-black">{achievementStats.earned} / {achievementStats.total}</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-3">
-                                        {achievementsData?.filter(a => a.isUnlocked).slice(0, 4).map((achievement: any) => (
-                                            <div key={achievement.id} className="size-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-sm" title={achievement.achievement.title}>
-                                                <Trophy className="size-6 text-primary" />
-                                            </div>
-                                        ))}
-                                        {achievementsData?.filter(a => !a.isUnlocked).slice(0, 1).map((achievement: any) => (
-                                            <div key={achievement.id} className="size-12 rounded-xl bg-muted flex items-center justify-center opacity-40 grayscale" title="Chưa mở khóa">
-                                                <Star className="size-6 text-muted-foreground" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <p className="text-[10px] text-muted-foreground font-medium leading-relaxed italic">
-                                        Bắt đầu học tập tích cực để mở khóa thêm nhiều huy hiệu danh giá!
-                                    </p>
-                                </CardContent>
                             </Card>
                         </motion.div>
 
-                        {/* Certificates Summary */}
-                        <motion.div variants={item}>
-                            <Card className="rounded-3xl border-border shadow-sm h-full">
-                                <CardHeader className="pb-4 flex flex-row items-center justify-between">
-                                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                        <GraduationCap className="size-5 text-primary" /> Chứng chỉ
-                                    </CardTitle>
-                                    <Link href="/dashboard/certificates">
-                                        <Button variant="ghost" size="sm" className="font-bold">Xem hết</Button>
-                                    </Link>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {loadingCerts ? (
-                                        <Skeleton className="h-24 w-full rounded-2xl" />
-                                    ) : certificates && certificates.length > 0 ? (
+                        <motion.div variants={item} className="grid gap-6">
+                            {[
+                                { icon: Star, label: 'ĐIỂM TORII', value: gamification?.points || 0, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                { icon: Flame, label: 'HỌC LIÊN TIẾP', value: streak?.currentStreak || 0, color: 'text-orange-500', bg: 'bg-orange-500/10' }
+                            ].map((stat, i) => (
+                                <div key={i} className="p-8 rounded-[2rem] border-2 border-border bg-card shadow-lg flex items-center justify-between group hover:-translate-y-1 transition-transform">
+                                    <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}><stat.icon className="size-8" /></div>
+                                    <div className="text-right">
+                                        <p className="text-4xl font-black text-foreground">{stat.value}</p>
+                                        <p className="text-[10px] font-black text-muted-foreground tracking-widest uppercase mt-1">{stat.label}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </motion.div>
+                    </motion.div>
+                </TabsContent>
+
+                {/* --- COURSES TAB --- */}
+                <TabsContent value="courses" className="outline-none">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid md:grid-cols-2 gap-8">
+                        {loadingCourses ? (
+                            [1, 2].map(i => <Skeleton key={i} className="h-56 w-full rounded-[2.5rem]" />)
+                        ) : courses && courses.length > 0 ? (
+                            courses.map((course: any) => (
+                                <Card key={course.id} className="group rounded-[2.5rem] border-2 border-border bg-card/50 hover:border-primary/40 transition-all overflow-hidden flex flex-col sm:flex-row gap-6 p-6">
+                                    <div className="size-36 sm:size-44 bg-muted rounded-2xl overflow-hidden shrink-0 shadow-lg relative">
+                                        {course.thumbnailUrl ? (
+                                            <img src={course.thumbnailUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary/20"><BookOpen className="size-12" /></div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
                                         <div className="space-y-3">
-                                            {certificates.slice(0, 2).map((cert: any) => (
-                                                <div key={cert.id} className="p-3 border border-border rounded-xl bg-muted/20 flex items-center gap-3">
-                                                    <div className="size-10 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                                                        <CheckCircle2 className="size-5" />
-                                                    </div>
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="text-xs font-bold text-foreground truncate">{cert.courseRun?.courseMaster?.title}</p>
-                                                        <p className="text-[10px] text-muted-foreground">{formatDate(cert.issueDate)}</p>
-                                                    </div>
+                                            <h3 className="text-xl font-black text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.courseTitle}</h3>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-[10px] font-black text-muted-foreground tracking-widest uppercase">
+                                                    <span>Tiến độ</span>
+                                                    <span className="text-primary">{course.progress}%</span>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center py-6 text-center space-y-2">
-                                            <div className="size-12 rounded-full bg-muted/50 flex items-center justify-center mb-1">
-                                                <Award className="size-6 text-muted-foreground/30" />
+                                                <Progress value={course.progress} className="h-2 rounded-full" />
                                             </div>
-                                            <p className="text-xs text-muted-foreground font-medium">Bạn chưa nhận được chứng chỉ nào.</p>
                                         </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                                        <Link href={`/courses/${course.classId}/learn`} className="mt-6">
+                                            <Button className="w-full rounded-xl font-black text-xs h-10 tracking-widest">HỌC TIẾP</Button>
+                                        </Link>
+                                    </div>
+                                </Card>
+                            ))
+                        ) : (
+                            <div className="md:col-span-2 py-24 text-center bg-muted/10 rounded-[3rem] border-4 border-dashed border-border/50">
+                                <BookOpen className="size-20 text-muted-foreground/20 mx-auto mb-6" />
+                                <p className="text-xl font-black text-muted-foreground">Bạn chưa đăng ký khóa học nào.</p>
+                            </div>
+                        )}
+                    </motion.div>
+                </TabsContent>
+
+                {/* --- ACHIEVEMENTS TAB --- */}
+                <TabsContent value="achievements" className="outline-none">
+                    <div className="grid lg:grid-cols-2 gap-10">
+                        <Card className="rounded-[2.5rem] border-2 border-border bg-card p-10 space-y-10">
+                            <h2 className="text-2xl font-black flex items-center gap-4"><Award className="size-6 text-purple-500" /> Huy hiệu vinh danh</h2>
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-5">
+                                {achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => (
+                                    <motion.div key={achievement.id} whileHover={{ scale: 1.1, rotate: 10 }} className="aspect-square rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg cursor-help" title={achievement.achievement.title}>
+                                        <Trophy className="size-10 text-primary" />
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </Card>
+                        <Card className="rounded-[2.5rem] border-2 border-border bg-card p-10 space-y-10">
+                            <h2 className="text-2xl font-black flex items-center gap-4"><GraduationCap className="size-6 text-primary" /> Chứng chỉ đã đạt</h2>
+                            <div className="space-y-4">
+                                {certificates.map((cert: any) => (
+                                    <div key={cert.id} className="p-5 border border-border rounded-2xl bg-muted/20 flex items-center gap-5 hover:bg-muted/30 transition-colors">
+                                        <div className="size-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-500/20"><CheckCircle2 className="size-6" /></div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-black text-foreground truncate">{cert.courseRun?.courseMaster?.title}</p>
+                                            <p className="text-xs font-bold text-muted-foreground uppercase">{formatDate(cert.issueDate)}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
                     </div>
-                </motion.div>
-            </div>
+                </TabsContent>
+
+                {/* --- COUPONS TAB --- */}
+                <TabsContent value="coupons" className="outline-none">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                        <Card className="rounded-[3rem] border-2 border-border bg-card/40 backdrop-blur-md p-10 sm:p-14">
+                            {loadingCoupons ? (
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-[2rem]" />)}
+                                </div>
+                            ) : coupons && coupons.length > 0 ? (
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {coupons.map((coupon: any) => (
+                                        <div key={coupon.id} className="p-8 border-2 border-dashed border-primary/30 rounded-[2rem] bg-primary/5 flex flex-col items-center text-center space-y-6 hover:border-primary transition-all">
+                                            <div className="size-16 rounded-full bg-white flex items-center justify-center text-xl font-black text-primary shadow-xl">-{coupon.discountValue}%</div>
+                                            <div className="space-y-1">
+                                                <p className="text-xl font-black text-foreground tracking-tight">{coupon.code}</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{coupon.type} OFF</p>
+                                            </div>
+                                            <Button variant="outline" className="w-full rounded-xl border-2 font-black text-xs h-10" onClick={() => navigator.clipboard.writeText(coupon.code)}>SAO CHÉP</Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-20 text-center">
+                                    <Ticket className="size-20 text-muted-foreground/20 mx-auto mb-6" />
+                                    <p className="text-xl font-black text-muted-foreground">Bạn chưa sở hữu mã ưu đãi nào.</p>
+                                    <p className="text-sm font-bold text-muted-foreground/60 mt-2 italic">Tích lũy điểm Torii để đổi ưu đãi nhé!</p>
+                                </div>
+                            )}
+                        </Card>
+                    </motion.div>
+                </TabsContent>
+
+                {/* --- ONBOARDING TAB --- */}
+                <TabsContent value="onboarding" className="outline-none">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                        <Card className="rounded-[3rem] border-2 border-border bg-card/40 backdrop-blur-md p-10 sm:p-14">
+                            {user?.onboardingSurvey ? (
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {[
+                                        { icon: Target, label: 'Thời gian mục tiêu', value: user?.onboardingSurvey?.targetCompletionTime || 'Càng nhanh càng tốt' },
+                                        {
+                                            icon: Trophy,
+                                            label: 'Lý do học tập',
+                                            value: (() => {
+                                                const p = user?.onboardingSurvey?.purpose;
+                                                const map: any = {
+                                                    'JLPT': 'Thi JLPT',
+                                                    'Work': 'Đi làm IT / Công ty Nhật',
+                                                    'Study': 'Du học',
+                                                    'Travel': 'Sở thích / Du lịch',
+                                                    'Communicate': 'Giao tiếp cơ bản',
+                                                    'Others': 'Lý do khác'
+                                                };
+                                                return map[p || ''] || p || 'Khám phá';
+                                            })()
+                                        },
+                                        { icon: Calendar, label: 'Dự kiến thi', value: user?.onboardingSurvey?.jlptTargetDate ? formatDate(user.onboardingSurvey.jlptTargetDate) : 'Chưa quyết định' },
+                                        { icon: Clock, label: 'Thời lượng mỗi ngày', value: (user?.onboardingSurvey as any)?.studyTimePerSession || 'Chưa đặt' },
+                                        {
+                                            icon: Award,
+                                            label: 'Trình độ xuất phát',
+                                            value: (() => {
+                                                const cl = user?.onboardingSurvey?.currentLevel;
+                                                const map: any = {
+                                                    'NEVER': 'Chưa biết gì',
+                                                    'N5': 'Biết bảng chữ cái Hiragana/Katakana',
+                                                    'N4': 'Đã học cơ bản (N5–N4)',
+                                                    'N3': 'Trung cấp (N3)',
+                                                    'N2': 'Nâng cao (N2–N1)',
+                                                    'N1': 'Nâng cao (N2–N1)'
+                                                };
+                                                return map[cl || ''] || cl || 'Chưa biết gì';
+                                            })()
+                                        },
+                                        {
+                                            icon: Star,
+                                            label: 'Mục tiêu học tập',
+                                            value: (() => {
+                                                const currentTechnical = user?.onboardingSurvey?.currentLevel || 'NEVER';
+                                                const map: Record<string, string> = {
+                                                    'NEVER': 'N5',
+                                                    'N5': 'N5+',
+                                                    'N4': 'N3',
+                                                    'N3': 'N2',
+                                                    'N2': 'N1',
+                                                    'N1': 'N1+',
+                                                };
+                                                return map[currentTechnical] || 'N5';
+                                            })()
+                                        },
+                                    ].map((item, i) => (
+                                        <div key={i} className="p-8 rounded-[2rem] border-2 border-border bg-card shadow-lg flex flex-col items-center text-center space-y-4 hover:-translate-y-1 transition-transform">
+                                            <div className="p-4 rounded-2xl bg-primary/10 text-primary"><item.icon className="size-8" /></div>
+                                            <div className="space-y-1">
+                                                <p className="text-xl font-black text-foreground line-clamp-1">{item.value}</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{item.label}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-20 text-center">
+                                    <Target className="size-20 text-muted-foreground/20 mx-auto mb-6" />
+                                    <p className="text-xl font-black text-muted-foreground">Bạn chưa hoàn thành khảo sát lộ trình.</p>
+                                    <Link href="/onboarding" className="mt-6 inline-block">
+                                        <Button className="rounded-xl font-black px-8 py-6 h-auto text-lg hover:scale-105 transition-transform">XÂY DỰNG LỘ TRÌNH NGAY</Button>
+                                    </Link>
+                                </div>
+                            )}
+                        </Card>
+                    </motion.div>
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }

@@ -576,20 +576,20 @@ export function InteractiveRoleplay() {
 
     if (!isStarted) {
         return (
-            <div className="h-full flex flex-col items-center justify-center animate-in fade-in duration-500 max-w-2xl mx-auto p-6">
-                <Card className="w-full border-border shadow-none">
-                    <CardHeader className="text-center space-y-4">
+            <div className="h-full flex flex-col items-center justify-center animate-in fade-in duration-500 max-w-2xl mx-auto p-6 w-full">
+                <div className="w-full space-y-6">
+                    <div className="text-center space-y-4">
                         <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
                             <Sparkles className="size-8 text-primary" />
                         </div>
                         <div className="space-y-1.5">
-                            <CardTitle className="text-2xl font-bold">Roleplay với Sensei</CardTitle>
-                            <CardDescription className="text-sm">
+                            <h2 className="text-2xl font-bold">Roleplay với Sensei</h2>
+                            <p className="text-sm text-muted-foreground">
                                 Chọn một chủ đề và bắt đầu hội thoại. Sensei sẽ đóng vai và phản hồi sau khi kết thúc.
-                            </CardDescription>
+                            </p>
                         </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                    </div>
+                    <div className="space-y-6">
                         <div className="space-y-4 max-w-md mx-auto">
                             <Controller
                                 name="topic"
@@ -600,7 +600,7 @@ export function InteractiveRoleplay() {
                                             {...field}
                                             id={field.name}
                                             placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
-                                            className="h-11"
+                                            className="h-11 rounded-xl"
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter') topicForm.handleSubmit(handleStart)()
                                             }}
@@ -611,19 +611,19 @@ export function InteractiveRoleplay() {
                             />
                             <Button
                                 size="lg"
-                                className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
+                                className="w-full h-11 font-bold uppercase tracking-widest text-[10px] rounded-xl"
                                 onClick={topicForm.handleSubmit(handleStart)}
                                 disabled={!topicForm.watch("topic").trim() || isLoading}
                             >
                                 {isLoading ? <Spinner className="mr-2" /> : null}
                                 Bắt đầu hội thoại
                             </Button>
-                            <p className="text-[10px] text-muted-foreground italic text-center w-full">
+                            <p className="text-[10px] text-muted-foreground italic text-center w-full mt-4">
                                 * Tính năng này đang được thử nghiệm.
                             </p>
                         </div>
 
-                        <div className="pt-6 border-t">
+                        <div className="pt-6 border-t border-border/30">
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center mb-4">Gợi ý chủ đề</p>
                             <div className="flex flex-wrap justify-center gap-2">
                                 {["Đi siêu thị", "Gọi điện thoại", "Hỏi đường", "Kết bạn mới", "Tại sân bay"].map(t => (
@@ -639,8 +639,8 @@ export function InteractiveRoleplay() {
                                 ))}
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         )
     }
