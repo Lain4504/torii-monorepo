@@ -34,7 +34,7 @@ export default function PaymentSuccessPage() {
     }, [orderCode])
 
     return (
-        <div className="container flex items-center justify-center py-20">
+                <div className="container mx-auto flex items-center justify-center py-20">
             <Card className="w-full max-w-md text-center">
                 <CardHeader>
                     <div className="flex justify-center mb-4">
@@ -46,9 +46,9 @@ export default function PaymentSuccessPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {orderCode && (
+                    {(summary?.code || orderCode) && (
                         <div className="text-sm font-medium">
-                            Mã đơn hàng: <span className="font-mono">{orderCode}</span>
+                            Mã đơn hàng: <span className="font-mono">{summary?.code || orderCode}</span>
                         </div>
                     )}
                     {loading ? (

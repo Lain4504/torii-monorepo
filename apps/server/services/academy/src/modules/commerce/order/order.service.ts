@@ -820,7 +820,7 @@ export class OrderService {
   }
 
   async getByCodeForUser(userId: string, orderCode: string) {
-    const order = await this.prisma.order.findFirst({
+    let order = await this.prisma.order.findFirst({
       where: { code: orderCode, userId },
       include: {
         items: {
@@ -838,6 +838,36 @@ export class OrderService {
         },
       },
     });
+
+    if (!order) {
+      const numericCode = Number(orderCode);
+      if (!isNaN(numericCode)) {
+        order = await this.prisma.order.findFirst({
+          where: {
+            userId,
+            metadata: {
+              path: ['numericOrderCode'],
+              equals: numericCode,
+            },
+          },
+          include: {
+            items: {
+              include: {
+                offering: { select: { id: true, title: true, code: true } },
+                subscriptionPlan: true,
+              },
+            },
+            enrollments: {
+              select: {
+                classId: true,
+                status: true,
+                offeringId: true,
+              },
+            },
+          },
+        });
+      }
+    }
 
     if (!order) throw new NotFoundException('Order not found');
 
