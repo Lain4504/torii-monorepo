@@ -73,7 +73,10 @@ describe('AuthorizationService', () => {
       ];
       prisma.rolePermission.findMany.mockResolvedValue(mockPerms);
 
-      const result = await service.getUserPermissions('user-1', 'staff-academic');
+      const result = await service.getUserPermissions(
+        'user-1',
+        'staff-academic',
+      );
       expect(result.permissions).toEqual(['read:users', 'write:users']);
       expect(prisma.rolePermission.findMany).toHaveBeenCalledWith({
         where: { roleCode: 'staff-academic' },
@@ -86,7 +89,11 @@ describe('AuthorizationService', () => {
       prisma.rolePermission.findMany.mockResolvedValue([
         { permissionCode: '*' },
       ]);
-      const result = await service.hasPermission('u1', 'staff-academic', 'any:perm');
+      const result = await service.hasPermission(
+        'u1',
+        'staff-academic',
+        'any:perm',
+      );
       expect(result).toBe(true);
     });
 
@@ -94,7 +101,11 @@ describe('AuthorizationService', () => {
       prisma.rolePermission.findMany.mockResolvedValue([
         { permissionCode: 'read:users' },
       ]);
-      const result = await service.hasPermission('u1', 'staff-academic', 'read:users');
+      const result = await service.hasPermission(
+        'u1',
+        'staff-academic',
+        'read:users',
+      );
       expect(result).toBe(true);
     });
 
@@ -102,7 +113,11 @@ describe('AuthorizationService', () => {
       prisma.rolePermission.findMany.mockResolvedValue([
         { permissionCode: 'read:users' },
       ]);
-      const result = await service.hasPermission('u1', 'staff-academic', 'write:users');
+      const result = await service.hasPermission(
+        'u1',
+        'staff-academic',
+        'write:users',
+      );
       expect(result).toBe(false);
     });
   });

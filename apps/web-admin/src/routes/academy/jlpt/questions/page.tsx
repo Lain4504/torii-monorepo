@@ -73,6 +73,7 @@ export default function JlptQuestionsPage() {
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<JlptBankQuestion | null>(null);
+  const [sheetNonce, setSheetNonce] = useState(0);
 
   const prevFilters = useRef({
     level,
@@ -167,11 +168,13 @@ export default function JlptQuestionsPage() {
 
   const openAdd = () => {
     setEditingQuestion(null);
+    setSheetNonce((x) => x + 1);
     setIsSheetOpen(true);
   };
 
   const openEdit = (question: JlptBankQuestion) => {
     setEditingQuestion(question);
+    setSheetNonce((x) => x + 1);
     setIsSheetOpen(true);
   };
 
@@ -218,8 +221,10 @@ export default function JlptQuestionsPage() {
           <ScrollArea className="min-h-0 flex-1">
             <div className="p-3 pb-6 sm:p-6">
               <JlptQuestionForm
-                key={editingQuestion?.id ?? "new"}
+                key={`${editingQuestion?.id ?? "new"}-${level}-${section}-${sheetNonce}`}
                 initialData={editingQuestion}
+                presetLevelCode={level === "all" ? undefined : level}
+                presetSectionCode={section === "all" ? undefined : section}
                 onSuccess={() => {
                   setIsSheetOpen(false);
                   fetchQuestions();

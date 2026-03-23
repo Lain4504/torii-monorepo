@@ -169,14 +169,14 @@ export default function JlptTemplatesPage() {
       />
 
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="sm:max-w-[800px] overflow-y-auto">
-          <SheetHeader>
+        <SheetContent className="flex h-full !w-full flex-col p-0 sm:!max-w-[800px] overflow-y-auto">
+          <SheetHeader className="shrink-0 border-b p-4 sm:p-6">
             <SheetTitle>Tạo đề thi JLPT mới</SheetTitle>
             <SheetDescription>
               Mã đề (code) là duy nhất; cấp độ dùng để chọn profile chấm điểm mặc định trên server.
             </SheetDescription>
           </SheetHeader>
-          <form onSubmit={handleCreate} className="mt-6 space-y-4">
+          <form onSubmit={handleCreate} className="p-6 space-y-4">
             <Field>
               <FieldLabel>Cấp độ</FieldLabel>
               <Select value={newLevel} onValueChange={setNewLevel}>

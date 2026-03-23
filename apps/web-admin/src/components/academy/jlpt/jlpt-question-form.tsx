@@ -16,20 +16,24 @@ import { Switch } from "@workspace/ui/components/switch";
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
 import { FileAudio, Image as ImageIcon, Plus, Trash2, Loader2, Info } from "lucide-react";
 import { storageApi } from "@/lib/api/services/storage-api";
-import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
+import {
+  academyJlptMockApi,
+  type JlptBankQuestion,
+  type JlptLevel,
+  type JlptSection,
+} from "@/lib/api/services/academy-jlpt-mock";
 import { toast } from "sonner";
 import {
   JLPT_SECTIONS,
   JLPT_QUESTION_TYPES,
   JLPT_DIFFICULTIES,
   formatJlptMondaiLabel,
+  jlptSectionLabel,
 } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import {
   inferQuestionTypeFromMondai,
   inferQuestionTypeFromSection,
 } from "@/lib/jlpt/infer-question-type-from-mondai";
-
-const LEVELS = ["N1", "N2", "N3", "N4", "N5"];
 
 const VALID_QT = new Set(["VOCAB", "GRAMMAR", "READING", "LISTENING"]);
 
@@ -51,23 +55,33 @@ export function JlptQuestionForm({
   initialData,
   onSuccess,
   onCancel,
+  presetLevelCode,
+  presetSectionCode,
 }: {
   initialData?: JlptBankQuestion | null;
   onSuccess: () => void;
   onCancel: () => void;
+  presetLevelCode?: string;
+  presetSectionCode?: string;
 }) {
   const [uploading, setUploading] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [availableLevels, setAvailableLevels] = useState<JlptLevel[]>([]);
+  const [sectionsForLevel, setSectionsForLevel] = useState<JlptSection[]>([]);
+  const [sectionsLoading, setSectionsLoading] = useState(false);
   const [mondaiList, setMondaiList] = useState<MondaiRow[]>([]);
   const [mondaiLoading, setMondaiLoading] = useState(false);
 
   const defaultValues = useMemo(() => {
+    const initialLevelCode = initialData?.levelCode ?? presetLevelCode;
+    const initialSectionCode = initialData?.sectionCode ?? presetSectionCode;
     if (!initialData?.id) {
+      const section = initialSectionCode ?? "LANGUAGE_VOCAB";
       return {
-        levelCode: "N3",
-        sectionCode: "LANGUAGE_VOCAB",
+        levelCode: initialLevelCode ?? "N3",
+        sectionCode: section,
         mondaiCode: "",
-        questionType: "VOCAB",
+        questionType: normalizeQuestionType(undefined, section),
         difficulty: "MEDIUM",
         stemText: "",
         contextText: "",
@@ -100,9 +114,9 @@ export function JlptQuestionForm({
       imageAssetId: initialData.imageAssetId ?? "",
       options: opts,
     };
-  }, [initialData]);
+  }, [initialData, presetLevelCode, presetSectionCode]);
 
-  const { control, handleSubmit, watch, setValue } = useForm({
+  const { control, handleSubmit, watch, setValue, reset } = useForm({
     defaultValues,
   });
 
@@ -111,9 +125,73 @@ export function JlptQuestionForm({
   const mondaiCodeWatch = watch("mondaiCode");
 
   useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  useEffect(() => {
+    // Load available JLPT levels from DB so dropdown reflects real state.
+    let cancelled = false;
+    (async () => {
+      try {
+        const rows = await academyJlptMockApi.listLevels();
+        if (!cancelled) setAvailableLevels(rows);
+      } catch {
+        if (!cancelled) setAvailableLevels([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!availableLevels.length) return;
+    const codes = new Set(availableLevels.map((l) => l.code));
+    if (codes.has(levelCode)) return;
+    // Nếu preset/giá trị hiện tại không tồn tại trong DB, tự chuyển sang level đầu tiên.
+    setValue("levelCode", availableLevels[0]?.code ?? levelCode);
+    setValue("mondaiCode", "");
+  }, [availableLevels, levelCode, setValue]);
+
+  useEffect(() => {
+    // Load available sections for current selected level.
+    if (!levelCode) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setSectionsLoading(true);
+        const rows = await academyJlptMockApi.listSectionsForLevel(levelCode);
+        if (!cancelled) setSectionsForLevel(rows);
+      } catch {
+        if (!cancelled) setSectionsForLevel([]);
+      } finally {
+        if (!cancelled) setSectionsLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [levelCode]);
+
+  useEffect(() => {
+    // If current sectionCode is not available for the selected level, auto-fix it.
+    if (!sectionsForLevel.length) return;
+    const availableCodes = new Set(sectionsForLevel.map((s) => s.code));
+    if (availableCodes.has(sectionCode)) return;
+    const next = sectionsForLevel[0]?.code;
+    if (!next) return;
+    setValue("sectionCode", next);
+    setValue("mondaiCode", "");
+    setValue("questionType", inferQuestionTypeFromSection(next));
+  }, [sectionsForLevel, sectionCode, setValue]);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       setMondaiLoading(true);
+      // Tránh hiển thị option cũ trong lúc đang load dữ liệu mới.
+      setMondaiList([]);
       try {
         const rows = await academyJlptMockApi.listBankMondaiOptions({
           level: levelCode,
@@ -220,6 +298,7 @@ export function JlptQuestionForm({
                   <FieldLabel>Cấp độ (Level)</FieldLabel>
                   <Select
                     value={field.value}
+                    disabled={availableLevels.length === 0}
                     onValueChange={(v) => {
                       field.onChange(v);
                       setValue("mondaiCode", "");
@@ -229,11 +308,17 @@ export function JlptQuestionForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {LEVELS.map((l) => (
-                        <SelectItem key={l} value={l}>
-                          {l}
+                      {availableLevels.length ? (
+                        availableLevels.map((l) => (
+                          <SelectItem key={l.code} value={l.code}>
+                            {l.code}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value={field.value} disabled>
+                          Chưa có dữ liệu Level trong DB
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </Field>
@@ -247,6 +332,7 @@ export function JlptQuestionForm({
                   <FieldLabel>Phần thi (Section)</FieldLabel>
                   <Select
                     value={field.value}
+                    disabled={sectionsLoading || sectionsForLevel.length === 0}
                     onValueChange={(v) => {
                       field.onChange(v);
                       setValue("mondaiCode", "");
@@ -257,9 +343,9 @@ export function JlptQuestionForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {JLPT_SECTIONS.map((s) => (
+                      {(sectionsForLevel.length ? sectionsForLevel : JLPT_SECTIONS).map((s: any) => (
                         <SelectItem key={s.code} value={s.code}>
-                          {s.label}
+                          {s.nameVi ? `${s.code} · ${s.nameVi}` : jlptSectionLabel(s.code)}
                         </SelectItem>
                       ))}
                     </SelectContent>

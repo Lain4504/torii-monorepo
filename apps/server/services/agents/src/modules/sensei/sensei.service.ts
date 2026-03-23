@@ -29,7 +29,7 @@ export class SenseiService implements OnModuleInit {
     private readonly aiUsageTracking: AIUsageTrackingService,
     private readonly analyticsService: AnalyticsService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   private async deductCoins(userId: string, taskType: string, usage: any) {
     // Billing is temporarily disabled (No deduction, no usage recording, no logs)
@@ -181,7 +181,6 @@ export class SenseiService implements OnModuleInit {
         return data;
       },
     );
-
 
     // 5. Simulate Conversation
     this.fastMcpService.addTool(
@@ -503,7 +502,6 @@ export class SenseiService implements OnModuleInit {
       level,
     });
   }
-
 
   async simulateConversation(
     requester: Requester,

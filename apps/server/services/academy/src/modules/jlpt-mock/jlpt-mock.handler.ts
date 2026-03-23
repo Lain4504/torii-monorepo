@@ -134,7 +134,8 @@ export class JlptMockHandler {
 
   @MessagePattern({ cmd: 'academy.jlptMock.config.level.sections.list' })
   listSectionsForLevel(
-    @Payload() query: JlptActiveScoringProfileQueryDto & { requesterId?: string },
+    @Payload()
+    query: JlptActiveScoringProfileQueryDto & { requesterId?: string },
   ) {
     void (query as any).requesterId;
     return this.jlpt.listSectionsForLevel(query);
@@ -143,6 +144,14 @@ export class JlptMockHandler {
   @MessagePattern({ cmd: 'academy.jlptMock.config.scoringMapping.upsert' })
   upsertScoringMappings(@Payload() data: JlptScoringMappingUpsertDto) {
     return this.jlpt.upsertScoringMappings(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.config.scoringMapping.list' })
+  listScoringMappings(
+    @Payload() data: { profileId: string; requesterId?: string },
+  ) {
+    void data.requesterId;
+    return this.jlpt.listScoringMappings(data.profileId);
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.template.create' })
@@ -222,7 +231,9 @@ export class JlptMockHandler {
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.mondai.create' })
-  createMondai(@Payload() data: JlptMondaiCreateDto & { requesterId?: string }) {
+  createMondai(
+    @Payload() data: JlptMondaiCreateDto & { requesterId?: string },
+  ) {
     const { requesterId, ...input } = data;
     void requesterId;
     return this.jlpt.createMondai(input);

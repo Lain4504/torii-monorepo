@@ -363,10 +363,16 @@ export class BlogService implements IBlogService {
         if (pubDate > new Date()) {
           // Future date -> Always SCHEDULED
           updateData.status = BlogStatus.SCHEDULED;
-        } else if (status === BlogStatus.SCHEDULED || status === BlogStatus.DRAFT) {
+        } else if (
+          status === BlogStatus.SCHEDULED ||
+          status === BlogStatus.DRAFT
+        ) {
           // Past date and currently scheduled/draft -> effectively PUBLISHED
           // Only auto-publish if it was intended to be scheduled/published
-          if (status !== BlogStatus.DRAFT || dto.status === BlogStatus.PUBLISHED) {
+          if (
+            status !== BlogStatus.DRAFT ||
+            dto.status === BlogStatus.PUBLISHED
+          ) {
             updateData.status = BlogStatus.PUBLISHED;
           }
         }

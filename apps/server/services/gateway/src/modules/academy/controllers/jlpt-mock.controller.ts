@@ -216,7 +216,10 @@ export class JlptMockController {
   }
 
   @Post('admin/config/levels')
-  async adminEnsureLevelConfig(@Req() req: ReqWithRequester, @Body() body: any) {
+  async adminEnsureLevelConfig(
+    @Req() req: ReqWithRequester,
+    @Body() body: any,
+  ) {
     try {
       const result = await firstValueFrom(
         this.natsClient.send(
@@ -294,6 +297,24 @@ export class JlptMockController {
         this.natsClient.send(
           { cmd: 'academy.jlptMock.config.scoringMapping.upsert' },
           { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Get('admin/config/scoring-mappings')
+  async adminListScoringMappings(
+    @Req() req: ReqWithRequester,
+    @Query('profileId') profileId: string,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.config.scoringMapping.list' },
+          { profileId, requesterId: req.requester.sub },
         ),
       );
       return successResponse(result);

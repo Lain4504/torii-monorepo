@@ -488,11 +488,7 @@ export class LiveScheduleService {
   }
 
   /** Lịch buổi LIVE của học viên trong khoảng ngày + trạng thái điểm danh (nếu có). */
-  async getLearnerScheduleWithAttendance(
-    userId: string,
-    from: Date,
-    to: Date,
-  ) {
+  async getLearnerScheduleWithAttendance(userId: string, from: Date, to: Date) {
     const fromDay = this.startOfDay(from);
     const toDay = this.startOfDay(to);
 
@@ -530,8 +526,7 @@ export class LiveScheduleService {
         fromDay,
         toDay,
       );
-      const courseTitle =
-        e.class.courseProfile?.title?.trim() || e.class.name;
+      const courseTitle = e.class.courseProfile?.title?.trim() || e.class.name;
       const courseThumbnail = e.class.courseProfile?.thumbnailUrl ?? null;
       for (const s of sessions) {
         rows.push({ session: s, courseTitle, courseThumbnail });
@@ -549,7 +544,8 @@ export class LiveScheduleService {
     const attMap = new Map(attendances.map((a) => [a.sessionId, a.status]));
 
     rows.sort((a, b) => {
-      const tA = a.session.sessionDate.getTime() - b.session.sessionDate.getTime();
+      const tA =
+        a.session.sessionDate.getTime() - b.session.sessionDate.getTime();
       if (tA !== 0) return tA;
       return (a.session.startTime || '').localeCompare(
         b.session.startTime || '',

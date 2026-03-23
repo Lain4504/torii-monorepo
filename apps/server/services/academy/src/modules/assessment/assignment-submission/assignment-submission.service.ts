@@ -26,7 +26,9 @@ export class AssignmentSubmissionService {
     canViewAll = false,
   ) {
     const effectiveUserId =
-      isExamManager || canViewAll ? query.userId : requesterId ?? query.userId;
+      isExamManager || canViewAll
+        ? query.userId
+        : (requesterId ?? query.userId);
     return this.prisma.assignmentSubmission.findMany({
       where: {
         classAssignmentId: query.classAssessmentId ?? undefined,

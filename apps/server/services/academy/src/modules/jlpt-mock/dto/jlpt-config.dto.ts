@@ -61,7 +61,8 @@ export class JlptScoringProfileCreateDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  @Max(60)
+  // Tổng scaled score của JLPT là 0..180 (language + reading + listening).
+  @Max(180)
   minTotalScaled?: number;
 }
 
@@ -117,4 +118,3 @@ export class JlptAssembleTemplateFromBankDto {
   @IsBoolean()
   clearExisting?: boolean;
 }
-

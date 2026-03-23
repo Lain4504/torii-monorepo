@@ -49,7 +49,12 @@ export class JlptMockService {
   async listLevels() {
     return this.prisma.jlptLevel.findMany({
       orderBy: [{ code: 'asc' as const }],
-      select: { id: true, code: true, nameVi: true, totalDurationMinutes: true },
+      select: {
+        id: true,
+        code: true,
+        nameVi: true,
+        totalDurationMinutes: true,
+      },
     });
   }
 
@@ -217,6 +222,21 @@ export class JlptMockService {
     return { items };
   }
 
+  async listScoringMappings(profileId: string) {
+    const items = await this.prisma.jlptScoringMapping.findMany({
+      where: { profileId },
+      orderBy: [{ domain: 'asc' }, { rawScore: 'asc' }],
+      select: {
+        id: true,
+        profileId: true,
+        domain: true,
+        rawScore: true,
+        scaledScore: true,
+      },
+    });
+    return { items };
+  }
+
   // -------------------------
   // JLPT Question Bank (admin)
   // -------------------------
@@ -291,7 +311,9 @@ export class JlptMockService {
       andFilters.length > 0 ? { AND: andFilters } : {};
 
     const include = {
-      mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
+      mondai: {
+        select: { id: true, code: true, titleVi: true, titleJa: true },
+      },
       options: { orderBy: [{ orderIndex: 'asc' as const }] },
       level: { select: { code: true } },
     };
@@ -347,7 +369,10 @@ export class JlptMockService {
   }
 
   /** Mondai theo cấp + phần thi (đúng cấu trúc JLPT: mỗi level có section → mondai). */
-  async listMondaiForBankFilters(query: { level: string; sectionCode: string }) {
+  async listMondaiForBankFilters(query: {
+    level: string;
+    sectionCode: string;
+  }) {
     const level = await this.prisma.jlptLevel.findUnique({
       where: { code: query.level as any },
       select: { id: true },
@@ -402,7 +427,9 @@ export class JlptMockService {
       select: { id: true },
     });
     if (dup)
-      throw new BadRequestException('Mã mondai (code) đã tồn tại trong phần thi này');
+      throw new BadRequestException(
+        'Mã mondai (code) đã tồn tại trong phần thi này',
+      );
     return this.prisma.jlptMondai.create({
       data: {
         sectionId: section.id,
@@ -430,7 +457,9 @@ export class JlptMockService {
         select: { id: true },
       });
       if (dup && dup.id !== id)
-        throw new BadRequestException('Mã mondai (code) đã tồn tại trong phần thi này');
+        throw new BadRequestException(
+          'Mã mondai (code) đã tồn tại trong phần thi này',
+        );
     }
     return this.prisma.jlptMondai.update({
       where: { id },
@@ -448,7 +477,9 @@ export class JlptMockService {
   async deleteMondai(id: string) {
     const [bankCount, tplCount] = await Promise.all([
       this.prisma.jlptQuestionBankQuestion.count({ where: { mondaiId: id } }),
-      this.prisma.jlptMockExamTemplateQuestion.count({ where: { mondaiId: id } }),
+      this.prisma.jlptMockExamTemplateQuestion.count({
+        where: { mondaiId: id },
+      }),
     ]);
     if (bankCount > 0 || tplCount > 0)
       throw new BadRequestException(
@@ -483,7 +514,9 @@ export class JlptMockService {
     }
 
     const include = {
-      mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
+      mondai: {
+        select: { id: true, code: true, titleVi: true, titleJa: true },
+      },
       options: { orderBy: [{ orderIndex: 'asc' as const }] },
       level: { select: { code: true } },
     };
@@ -549,7 +582,9 @@ export class JlptMockService {
     }
 
     const include = {
-      mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
+      mondai: {
+        select: { id: true, code: true, titleVi: true, titleJa: true },
+      },
       options: { orderBy: [{ orderIndex: 'asc' as const }] },
       level: { select: { code: true } },
     };
@@ -655,7 +690,9 @@ export class JlptMockService {
           orderBy: [{ orderIndex: 'asc' }],
           include: {
             section: { select: { id: true, orderIndex: true, code: true } },
-            mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
+            mondai: {
+              select: { id: true, code: true, titleVi: true, titleJa: true },
+            },
             question: {
               include: { options: { orderBy: [{ orderIndex: 'asc' }] } },
             },
@@ -894,10 +931,12 @@ export class JlptMockService {
         where: { templateId: input.templateId },
       });
     } else {
-      const maxOrder = await this.prisma.jlptMockExamTemplateQuestion.aggregate({
-        where: { templateId: input.templateId },
-        _max: { orderIndex: true },
-      });
+      const maxOrder = await this.prisma.jlptMockExamTemplateQuestion.aggregate(
+        {
+          where: { templateId: input.templateId },
+          _max: { orderIndex: true },
+        },
+      );
       orderIndex = (maxOrder._max.orderIndex ?? 0) + 1;
     }
 
@@ -1064,18 +1103,21 @@ export class JlptMockService {
     if (!template) throw new NotFoundException('JLPT mock template not found');
     if (template.status !== 'PUBLISHED')
       throw new ForbiddenException('Template is not available');
-    const countQuestions = await this.prisma.jlptMockExamTemplateQuestion.count({
-      where: { templateId },
-    });
+    const countQuestions = await this.prisma.jlptMockExamTemplateQuestion.count(
+      {
+        where: { templateId },
+      },
+    );
     if (countQuestions <= 0) {
       throw new ForbiddenException('Template has no questions');
     }
     const sectionIds = template.sections.map((s) => s.id);
-    const sectionCounts = await this.prisma.jlptMockExamTemplateQuestion.groupBy({
-      by: ['sectionId'],
-      where: { templateId, sectionId: { in: sectionIds } },
-      _count: { sectionId: true },
-    });
+    const sectionCounts =
+      await this.prisma.jlptMockExamTemplateQuestion.groupBy({
+        by: ['sectionId'],
+        where: { templateId, sectionId: { in: sectionIds } },
+        _count: { sectionId: true },
+      });
     if (sectionCounts.length < sectionIds.length) {
       throw new ForbiddenException('Template has empty section(s)');
     }
@@ -1352,6 +1394,7 @@ export class JlptMockService {
     const totalScaled = scaled.language + scaled.reading + scaled.listening;
 
     const passMock = this._isPass(
+      (attempt.levelCode as any) ?? 'N5',
       profile,
       scaled.language,
       scaled.reading,
@@ -1523,14 +1566,14 @@ export class JlptMockService {
         {
           code: 'LANGUAGE_VOCAB',
           title: 'Language Knowledge (Vocabulary)',
-          durationMinutes: 20,
+          durationMinutes: 25,
           orderIndex: 1,
           isListening: false,
         },
         {
           code: 'LANGUAGE_GRAMMAR_READING',
           title: 'Language Knowledge (Grammar) · Reading',
-          durationMinutes: 40,
+          durationMinutes: 50,
           orderIndex: 2,
           isListening: false,
         },
@@ -1548,14 +1591,14 @@ export class JlptMockService {
         {
           code: 'LANGUAGE_VOCAB',
           title: 'Language Knowledge (Vocabulary)',
-          durationMinutes: 25,
+          durationMinutes: 30,
           orderIndex: 1,
           isListening: false,
         },
         {
           code: 'LANGUAGE_GRAMMAR_READING',
           title: 'Language Knowledge (Grammar) · Reading',
-          durationMinutes: 55,
+          durationMinutes: 60,
           orderIndex: 2,
           isListening: false,
         },
@@ -1638,14 +1681,17 @@ export class JlptMockService {
       }),
     ]);
     if (questionCount <= 0) {
-      throw new BadRequestException('Không thể publish đề rỗng (chưa có câu hỏi).');
+      throw new BadRequestException(
+        'Không thể publish đề rỗng (chưa có câu hỏi).',
+      );
     }
     const sectionIds = sections.map((s) => s.id);
-    const sectionCounts = await this.prisma.jlptMockExamTemplateQuestion.groupBy({
-      by: ['sectionId'],
-      where: { templateId, sectionId: { in: sectionIds } },
-      _count: { sectionId: true },
-    });
+    const sectionCounts =
+      await this.prisma.jlptMockExamTemplateQuestion.groupBy({
+        by: ['sectionId'],
+        where: { templateId, sectionId: { in: sectionIds } },
+        _count: { sectionId: true },
+      });
     const covered = new Set(sectionCounts.map((s) => s.sectionId));
     const missing = sectionIds.filter((id) => !covered.has(id));
     if (missing.length > 0) {
@@ -1677,6 +1723,7 @@ export class JlptMockService {
   }
 
   private _isPass(
+    levelCode: string,
     profile: {
       minLanguageScaled: number | null;
       minReadingScaled: number | null;
@@ -1693,11 +1740,15 @@ export class JlptMockService {
     const minListen = profile.minListeningScaled ?? 0;
     const minTotal = profile.minTotalScaled ?? 0;
 
-    return (
-      languageScaled >= minLang &&
-      readingScaled >= minRead &&
-      listeningScaled >= minListen &&
-      totalScaled >= minTotal
-    );
+    // JLPT N4/N5: Pass mark for "Language Knowledge (Vocab/Grammar) + Reading" is a single
+    // sectional criterion (38/120). Repo hiện chấm ra 2 domain LANGUAGE/READING (mỗi domain 0..60),
+    // nên ta check theo tổng (language + reading).
+    if (levelCode === 'N4' || levelCode === 'N5') {
+      const minLangRead = minLang + minRead;
+      return languageScaled + readingScaled >= minLangRead && listeningScaled >= minListen && totalScaled >= minTotal;
+    }
+
+    // JLPT N1-N3: Pass mark cho từng scoring section là riêng biệt.
+    return languageScaled >= minLang && readingScaled >= minRead && listeningScaled >= minListen && totalScaled >= minTotal;
   }
 }

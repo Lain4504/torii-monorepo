@@ -287,14 +287,14 @@ export default function JlptMondaiMasterPage() {
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="sm:!max-w-[800px] overflow-y-auto">
-          <SheetHeader>
+        <SheetContent className="flex h-full !w-full flex-col p-0 sm:!max-w-[800px] overflow-y-auto">
+          <SheetHeader className="shrink-0 border-b p-4 sm:p-6">
             <SheetTitle>{editingId ? "Sửa mondai" : "Thêm mondai"}</SheetTitle>
             <SheetDescription>
               Mã (code) ổn định theo phần thi; trùng code trong cùng phần sẽ bị từ chối.
             </SheetDescription>
           </SheetHeader>
-          <form onSubmit={handleSave} className="mt-6 space-y-4">
+          <form onSubmit={handleSave} className="p-6 space-y-4">
             <Field>
               <FieldLabel>Mã (code)</FieldLabel>
               <Input

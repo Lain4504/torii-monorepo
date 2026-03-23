@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ClassMode } from '@prisma/generated';
 import type { Prisma } from '@prisma/generated';
@@ -29,7 +26,9 @@ export class LiveClassCapacityService {
   /**
    * Chỉ cho LIVE + khi có maxStudents. Trả null nếu không áp dụng (VOD / không giới hạn).
    */
-  async getPublicCapacity(classId: string): Promise<LiveClassCapacitySnapshot | null> {
+  async getPublicCapacity(
+    classId: string,
+  ): Promise<LiveClassCapacitySnapshot | null> {
     const klass = await this.prisma.class.findUnique({
       where: { id: classId },
       select: { mode: true, maxStudents: true },

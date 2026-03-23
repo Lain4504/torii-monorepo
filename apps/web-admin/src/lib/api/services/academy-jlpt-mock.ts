@@ -346,6 +346,14 @@ export const academyJlptMockApi = {
     return res.data.data?.items ?? [];
   },
 
+  async listScoringMappings(profileId: string) {
+    const res = await apiClient.get<StandardApiResponse<{ items: JlptScoringMapping[] }>>(
+      "/api/academy/jlpt-mock/admin/config/scoring-mappings",
+      { params: { profileId } },
+    );
+    return res.data.data?.items ?? [];
+  },
+
   async assembleTemplateRandom(
     templateId: string,
     data: { perMondaiCount?: number; clearExisting?: boolean } = {},

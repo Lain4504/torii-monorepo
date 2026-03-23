@@ -23,9 +23,7 @@ import type { INotificationRepository } from '@server/identity/interfaces/reposi
 import { NOTIFICATION_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 
 @Injectable()
-export class NotificationService
-  implements INotificationService, OnModuleInit
-{
+export class NotificationService implements INotificationService, OnModuleInit {
   private readonly logger = new Logger(NotificationService.name);
   private firebaseApp: admin.app.App | null = null;
 
@@ -73,7 +71,9 @@ export class NotificationService
 
         for (const fallback of fallbacks) {
           if (fs.existsSync(fallback)) {
-            this.logger.debug(`Found Firebase service account key at: ${fallback}`);
+            this.logger.debug(
+              `Found Firebase service account key at: ${fallback}`,
+            );
             fullPath = fallback;
             break;
           }
@@ -638,7 +638,9 @@ export class NotificationService
   /**
    * Helper to send push notification to all devices of a user
    */
-  private async sendPushNotification(notification: Notification): Promise<void> {
+  private async sendPushNotification(
+    notification: Notification,
+  ): Promise<void> {
     if (!this.firebaseApp) {
       this.logger.debug('FCM skipped: Firebase not initialized');
       return;
@@ -693,7 +695,8 @@ export class NotificationService
           if (
             !resp.success &&
             (resp.error?.code === 'messaging/invalid-registration-token' ||
-              resp.error?.code === 'messaging/registration-token-not-registered')
+              resp.error?.code ===
+                'messaging/registration-token-not-registered')
           ) {
             tokensToRemove.push(tokens[idx]);
           }

@@ -313,10 +313,7 @@ export class ClassService {
         );
       }
       const active = await this.liveClassCapacity.countActive(id);
-      if (
-        input.maxStudents != null &&
-        input.maxStudents < active
-      ) {
+      if (input.maxStudents != null && input.maxStudents < active) {
         throw new BadRequestException(
           `Không thể đặt tối đa ${input.maxStudents} học viên khi lớp đang có ${active} học viên đang học.`,
         );
@@ -930,9 +927,8 @@ export class ClassService {
       orderBy: { createdAt: 'desc' },
     });
 
-    const enriched = await this.liveClassCapacity.attachLiveEnrollmentSummary(
-      rows,
-    );
+    const enriched =
+      await this.liveClassCapacity.attachLiveEnrollmentSummary(rows);
 
     const result: any[] = [];
     for (const row of enriched) {
@@ -996,9 +992,9 @@ export class ClassService {
       throw new NotFoundException('No published offering for this class');
     }
 
-    const [enriched] = await this.liveClassCapacity.attachLiveEnrollmentSummary([
-      row,
-    ]);
+    const [enriched] = await this.liveClassCapacity.attachLiveEnrollmentSummary(
+      [row],
+    );
     const price = Number(offering.salePrice ?? offering.price ?? 0);
 
     return {
