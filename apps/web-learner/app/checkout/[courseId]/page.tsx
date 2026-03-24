@@ -102,7 +102,7 @@ export default function CheckoutPage() {
         if (inList) setSelectedClassId(fromQuery)
     }, [searchParams, product])
 
-    // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong offering.classes (siblingClasses)
+    // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong product.classes (siblingClasses)
     useEffect(() => {
         if (!product || selectedClassId) return
         if (product.classId) {
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
         return () => clearTimeout(timer)
     }, [isGift, recipientEmail, courseId])
 
-    // Update Preview whenever offering, selected class (LIVE) or coupon changes
+    // Update Preview whenever product, selected class (LIVE) or coupon changes
     useEffect(() => {
         if (product?.id) {
             handlePreview()
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
     }
 
     const handlePayment = async (method: PaymentMethod = PaymentMethod.PAYOS) => {
-        if (!offering || !user) return
+        if (!product || !user) return
 
         if (isGift) {
             if (!recipientEmail) return toast.error('Vui lòng nhập email người nhận')
@@ -229,7 +229,7 @@ export default function CheckoutPage() {
                     vodPackageIds: [product.id],
                   }
             const result = await orderApi.createOrder({
-                offeringIds: [offering.id],
+                ...checkoutPayload,
                 paymentMethod: method,
                 couponCode: couponCode.trim() || undefined,
                 metadata: {
