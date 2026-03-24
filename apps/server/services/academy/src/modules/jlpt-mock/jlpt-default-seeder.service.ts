@@ -30,6 +30,12 @@ type SeedLevel = {
     minReadingScaled: number;
     minListeningScaled: number;
     minTotalScaled: number;
+    // PREP reference raw maxima per domain for mapping raw -> scaled(0..60).
+    rawMaxByDomain: {
+      LANGUAGE: number;
+      READING: number;
+      LISTENING: number;
+    };
   };
 };
 
@@ -40,10 +46,16 @@ const JLPT_SEED: SeedLevel[] = [
     code: 'N5',
     nameVi: 'JLPT N5',
     scoring: {
-      minLanguageScaled: 38,
-      minReadingScaled: 0,
+      // PREP reference: pass (Language+Reading) >= 80, Listening >= 19, Total >= 80.
+      minLanguageScaled: 40,
+      minReadingScaled: 40,
       minListeningScaled: 19,
       minTotalScaled: 80,
+      rawMaxByDomain: {
+        LANGUAGE: 58,
+        READING: 34,
+        LISTENING: 60,
+      },
     },
     sections: [
       {
@@ -177,10 +189,16 @@ const JLPT_SEED: SeedLevel[] = [
     code: 'N4',
     nameVi: 'JLPT N4',
     scoring: {
-      minLanguageScaled: 38,
-      minReadingScaled: 0,
+      // PREP reference: pass (Language+Reading) >= 90, Listening >= 19, Total >= 90.
+      minLanguageScaled: 45,
+      minReadingScaled: 45,
       minListeningScaled: 19,
       minTotalScaled: 90,
+      rawMaxByDomain: {
+        LANGUAGE: 80,
+        READING: 40,
+        LISTENING: 60,
+      },
     },
     sections: [
       {
@@ -325,6 +343,11 @@ const JLPT_SEED: SeedLevel[] = [
       minReadingScaled: 19,
       minListeningScaled: 19,
       minTotalScaled: 95,
+      rawMaxByDomain: {
+        LANGUAGE: 58,
+        READING: 60,
+        LISTENING: 60,
+      },
     },
     sections: [
       {
@@ -483,6 +506,11 @@ const JLPT_SEED: SeedLevel[] = [
       minReadingScaled: 19,
       minListeningScaled: 19,
       minTotalScaled: 90,
+      rawMaxByDomain: {
+        LANGUAGE: 60,
+        READING: 61,
+        LISTENING: 56,
+      },
     },
     sections: [
       {
@@ -646,6 +674,11 @@ const JLPT_SEED: SeedLevel[] = [
       minReadingScaled: 19,
       minListeningScaled: 19,
       minTotalScaled: 100,
+      rawMaxByDomain: {
+        LANGUAGE: 60,
+        READING: 60,
+        LISTENING: 60,
+      },
     },
     sections: [
       {
@@ -920,7 +953,21 @@ export class JlptDefaultSeederService implements OnModuleInit {
             });
 
         for (const domain of ['LANGUAGE', 'READING', 'LISTENING'] as const) {
-          for (let rawScore = 0; rawScore <= 60; rawScore += 1) {
+          const domainRawMax = levelSeed.scoring.rawMaxByDomain[domain];
+          // Keep wider range for future-proofing; values over domainRawMax are clamped to 60.
+          for (let rawScore = 0; rawScore <= 200; rawScore += 1) {
+            const scaledScore =
+              domainRawMax <= 0
+                ? 0
+                : Math.max(
+                    0,
+                    Math.min(
+                      60,
+                      Math.round(
+                        (Math.min(rawScore, domainRawMax) / domainRawMax) * 60,
+                      ),
+                    ),
+                  );
             await tx.jlptScoringMapping.upsert({
               where: {
                 profileId_domain_rawScore: {
@@ -933,10 +980,10 @@ export class JlptDefaultSeederService implements OnModuleInit {
                 profileId: scoringProfile.id,
                 domain,
                 rawScore,
-                scaledScore: rawScore,
+                scaledScore,
               },
               update: {
-                scaledScore: rawScore,
+                scaledScore,
               },
             });
           }
