@@ -191,6 +191,14 @@ export const orderApi = {
         const summary = response.data.data;
         return summary;
     },
+
+    async repayOrder(id: string): Promise<{ paymentUrl: string }> {
+        const response = await apiClient.post<StandardApiResponse<{ paymentUrl: string }>>(`/api/academy/orders/${id}/repay`);
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to repay order');
+        }
+        return response.data.data;
+    },
 };
 
 /**
@@ -211,6 +219,13 @@ export function useOrder(id: string) {
         queryKey: ['orders', id],
         queryFn: () => orderApi.getOrder(id),
         enabled: !!id,
+    });
+}
+
+import { useMutation } from '@tanstack/react-query';
+export function useRepayOrder() {
+    return useMutation({
+        mutationFn: (id: string) => orderApi.repayOrder(id),
     });
 }
 

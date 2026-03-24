@@ -94,6 +94,17 @@ export class OrderController {
     return successResponse({ item: result });
   }
 
+  @Post(':id/repay')
+  async repay(@Param('id') id: string, @Req() req: ReqWithRequester) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.order.repay' },
+        { userId: req.requester?.sub, orderId: id },
+      ),
+    );
+    return successResponse(result);
+  }
+
   // --- Admin CRUD ---
 
   @Get('admin')

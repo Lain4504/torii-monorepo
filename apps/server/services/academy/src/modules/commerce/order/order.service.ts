@@ -536,6 +536,83 @@ export class OrderService {
     return order;
   }
 
+  async repayOrder(userId: string, orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { vodPackage: true, cohort: true, subscriptionPlan: true } } },
+    });
+
+    if (!order || order.userId !== userId) {
+      throw new NotFoundException('Không tìm thấy đơn hàng');
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Đơn hàng không ở trạng thái chờ thanh toán');
+    }
+
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+    if (order.createdAt < fifteenMinutesAgo) {
+      // Auto cancel if user tries to repay an old order
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: { status: OrderStatus.CANCELLED },
+      });
+      throw new BadRequestException('Đơn hàng đã quá hạn thanh toán (15 phút)');
+    }
+
+    // Re-construct preview data for handlePaymentRedirect
+    const preview = {
+      grandTotal: Number(order.grandTotal),
+      vodPackages: order.items.filter(i => i.vodPackage).map(i => i.vodPackage),
+      cohorts: order.items.filter(i => i.cohort).map(i => i.cohort),
+      subscriptionPlans: order.items.filter(i => i.subscriptionPlan).map(i => i.subscriptionPlan),
+    };
+
+    const input = {
+      paymentMethod: order.paymentMethod,
+    };
+
+    return this.handlePaymentRedirect(order, preview, input);
+  }
+
+  async handleOrderAutoCancellation() {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    
+    const ordersToCancel = await this.prisma.order.findMany({
+      where: {
+        status: OrderStatus.PENDING,
+        createdAt: {
+          lt: fifteenMinutesAgo,
+        },
+      },
+      select: { id: true, code: true },
+    });
+
+    if (ordersToCancel.length > 0) {
+      this.logger.log(`Auto-cancelling ${ordersToCancel.length} expired orders`);
+      await this.prisma.order.updateMany({
+        where: {
+          id: { in: ordersToCancel.map(o => o.id) },
+        },
+        data: {
+          status: OrderStatus.CANCELLED,
+        },
+      });
+
+      for (const order of ordersToCancel) {
+        await this.audit.log({
+          userId: 'SYSTEM',
+          action: 'order.auto_cancel',
+          entity: 'Order',
+          entityId: order.id,
+          description: `Hệ thống tự động hủy đơn hàng ${order.code} do quá hạn 15 phút`,
+        });
+      }
+    }
+    return ordersToCancel.length;
+  }
+
   async admin_findOrdersByOffering(offeringId: string, query: any) {
     return { data: [], total: 0, limit: 10, page: 1, totalPages: 0 };
   }
