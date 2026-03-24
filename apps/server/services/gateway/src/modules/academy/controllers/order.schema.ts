@@ -22,7 +22,11 @@ export const orderCheckoutSchema = z.object({
   metadata: z.any().optional(),
   paymentMethod: z.preprocess(
     (value) => (typeof value === 'string' ? value.toUpperCase() : value),
-    z.enum(['PAYOS', 'BANK_TRANSFER', 'MANUAL']),
+    z.enum(['PAYOS', 'BANK_TRANSFER', 'MANUAL', 'COIN']),
+  ),
+  paymentGateway: z.preprocess(
+    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    z.enum(['PAYOS', 'MOMO', 'STRIPE', 'INTERNAL']).optional(),
   ),
 
   // Legacy compatibility (ignored by academy new flow)

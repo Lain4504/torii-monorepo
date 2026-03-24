@@ -1,10 +1,5 @@
-import {
-  Injectable,
-  Logger,
-  BadRequestException,
-  NotFoundException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, Logger, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentGateway } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
@@ -88,6 +83,11 @@ export class OrderService {
           'Đợt học hiện không trong thời gian đăng ký.',
         );
       }
+
+      const existing = await this.prisma.enrollment.findFirst({
+        where: { userId, status: { in: ['ACTIVE', 'COMPLETED'] }, liveClass: { cohortId: cohort.id } },
+      });
+      if (existing) throw new BadRequestException(`Bạn đã đăng ký đợt học ${cohort.name} rồi`);
 
       const selectedLiveClassId = input.liveClassIdByCohort?.[cohort.id];
       if (!selectedLiveClassId)
@@ -273,13 +273,103 @@ export class OrderService {
       };
     }
 
+    if (input.paymentMethod === PaymentMethod.COIN) {
+      return this.processCoinPayment(order.userId, order);
+    }
+
     return {
       orderId: order.id,
       orderCode: order.code,
-      message: 'Order created.',
+      message: 'Order created. Please proceed with manual payment.',
     };
   }
 
+  private async processCoinPayment(userId: string, order: any) {
+    const currentOrder = await this.prisma.order.findUnique({ where: { id: order.id }, select: { status: true } });
+    if (currentOrder?.status === OrderStatus.PAID) return { orderId: order.id, orderCode: order.code, message: 'Đơn hàng đã được thanh toán từ trước', success: true };
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, walletBalance: true },
+    });
+
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+
+    const total = Number(order.grandTotal);
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // 1. Deduct balance safely (Atomic check)
+        const updatedUser = await tx.user.updateMany({
+          where: { id: userId, walletBalance: { gte: order.grandTotal } },
+          data: {
+            walletBalance: { decrement: order.grandTotal },
+          },
+        });
+
+        if (updatedUser.count === 0) {
+          throw new BadRequestException('Số dư xu không đủ để thực hiện thanh toán này');
+        }
+
+        // 2. Log Wallet Transaction
+        await tx.walletTransaction.create({
+          data: {
+            userId,
+            amount: order.grandTotal,
+            type: 'PURCHASE',
+            referenceId: order.id,
+            description: `Thanh toán đơn hàng ${order.code} bằng Xu`,
+          },
+        });
+
+        // 3. Mark Order as PAID
+        await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: OrderStatus.PAID,
+            paidAt: new Date(),
+          },
+        });
+
+        // 4. Record internal transaction record for bookkeeping
+        await tx.transaction.create({
+          data: {
+            orderId: order.id,
+            gateway: PaymentGateway.INTERNAL,
+            amount: order.grandTotal,
+            status: 'SUCCESS',
+            transactionCode: order.code,
+            responsePayload: { method: 'COIN' } as any,
+          },
+        });
+
+        // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
+        const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
+        for (const item of order.items) {
+          if (item.subscriptionPlanId) {
+            await this.fulfillAiSubscription(tx, targetUserId, item);
+          }
+        }
+      });
+
+      this.logger.log(`Order ${order.code} paid with coins successfully`);
+
+      // Emit order.paid event for external fulfillment (e.g., Course Enrollments)
+      this.natsClient.emit('order.paid', { orderId: order.id });
+
+      return {
+        orderId: order.id,
+        orderCode: order.code,
+        message: 'Thanh toán bằng xu thành công!',
+        success: true,
+      };
+    } catch (err: any) {
+      this.logger.error(
+        `Coin payment failed for order ${order.code}: ${err.message}`,
+      );
+      throw new BadRequestException(`Thanh toán thất bại: ${err.message}`);
+    }
+  }
   async handlePaymentSuccess(
     orderCode: string,
     transactionId?: string,
@@ -356,9 +446,9 @@ export class OrderService {
         },
       });
 
+      const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
       for (const item of order.items) {
-        if (item.subscriptionPlanId)
-          await this.fulfillAiSubscription(tx, order, item);
+        if (item.subscriptionPlanId) await this.fulfillAiSubscription(tx, targetUserId, item);
       }
     });
 
@@ -385,23 +475,55 @@ export class OrderService {
     return { ok: true };
   }
 
-  public async fulfillAiSubscription(tx: any, order: any, item: any) {
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 1);
-    await tx.aiUserSubscription.updateMany({
-      where: { userId: order.userId, status: 'ACTIVE' },
-      data: { status: 'CANCELLED' },
+  public async fulfillAiSubscription(tx: any, targetUserId: string, item: any) {
+    const now = new Date();
+    
+    // Find active subscription for stacking logic
+    const activeSub = await tx.aiUserSubscription.findFirst({
+      where: { userId: targetUserId, status: 'ACTIVE' },
+      orderBy: { expiresAt: 'desc' },
     });
+
+    let newExpiresAt = new Date();
+    newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+
+    if (activeSub && activeSub.expiresAt > now) {
+      // Stack from current expiresAt
+      newExpiresAt = new Date(activeSub.expiresAt);
+      newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+    }
+
+    // Cancel old ones (or update them to EXTENDED/EXPIRED)
+    await tx.aiUserSubscription.updateMany({ where: { userId: targetUserId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
+    
+    // Create new one starting from the right point, or just creating a new one that captures the full period
     await tx.aiUserSubscription.create({
       data: {
-        userId: order.userId,
+        userId: targetUserId,
         planId: item.subscriptionPlanId,
         planCode: item.offeringSnapshot?.code || 'unknown',
-        startedAt: new Date(),
-        expiresAt,
-        status: 'ACTIVE',
+        startedAt: now,
+        expiresAt: newExpiresAt,
+        status: 'ACTIVE'
       },
     });
+  }
+
+  public async resolveTargetUserId(buyerId: string, metadata: any): Promise<string> {
+    const md = (metadata ?? {}) as any;
+    if (md.isGift && md.recipientEmail) {
+      try {
+        const response = await firstValueFrom<{ user: { id: string } }>(
+          this.natsClient.send({ cmd: 'identity.users.findByEmail' }, { email: md.recipientEmail }),
+        );
+        if (response?.user?.id) return response.user.id;
+        throw new BadRequestException(`Không tìm thấy người nhận với email ${md.recipientEmail}`);
+      } catch (err: any) {
+        this.logger.error(`Failed to resolve gift recipient: ${err.message}`);
+        throw new BadRequestException(err.message || 'Lỗi khi xác định người nhận quà');
+      }
+    }
+    return buyerId;
   }
 
   // --- Admin CRUD ---
@@ -605,6 +727,83 @@ export class OrderService {
     if (!order || order.userId !== userId)
       throw new NotFoundException('Order not found');
     return order;
+  }
+
+  async repayOrder(userId: string, orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { vodPackage: true, cohort: true, subscriptionPlan: true } } },
+    });
+
+    if (!order || order.userId !== userId) {
+      throw new NotFoundException('Không tìm thấy đơn hàng');
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Đơn hàng không ở trạng thái chờ thanh toán');
+    }
+
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
+    if (order.createdAt < fifteenMinutesAgo) {
+      // Auto cancel if user tries to repay an old order
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: { status: OrderStatus.CANCELLED },
+      });
+      throw new BadRequestException('Đơn hàng đã quá hạn thanh toán (15 phút)');
+    }
+
+    // Re-construct preview data for handlePaymentRedirect
+    const preview = {
+      grandTotal: Number(order.grandTotal),
+      vodPackages: order.items.filter(i => i.vodPackage).map(i => i.vodPackage),
+      cohorts: order.items.filter(i => i.cohort).map(i => i.cohort),
+      subscriptionPlans: order.items.filter(i => i.subscriptionPlan).map(i => i.subscriptionPlan),
+    };
+
+    const input = {
+      paymentMethod: order.paymentMethod,
+    };
+
+    return this.handlePaymentRedirect(order, preview, input);
+  }
+
+  async handleOrderAutoCancellation() {
+    const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    
+    const ordersToCancel = await this.prisma.order.findMany({
+      where: {
+        status: OrderStatus.PENDING,
+        createdAt: {
+          lt: fifteenMinutesAgo,
+        },
+      },
+      select: { id: true, code: true },
+    });
+
+    if (ordersToCancel.length > 0) {
+      this.logger.log(`Auto-cancelling ${ordersToCancel.length} expired orders`);
+      await this.prisma.order.updateMany({
+        where: {
+          id: { in: ordersToCancel.map(o => o.id) },
+        },
+        data: {
+          status: OrderStatus.CANCELLED,
+        },
+      });
+
+      for (const order of ordersToCancel) {
+        await this.audit.log({
+          userId: 'SYSTEM',
+          action: 'order.auto_cancel',
+          entity: 'Order',
+          entityId: order.id,
+          description: `Hệ thống tự động hủy đơn hàng ${order.code} do quá hạn 15 phút`,
+        });
+      }
+    }
+    return ordersToCancel.length;
   }
 
   async admin_findOrdersByOffering(offeringId: string, query: any) {
