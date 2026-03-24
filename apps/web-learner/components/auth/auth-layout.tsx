@@ -35,7 +35,7 @@ export function AuthLayout({
     const logo = useLogo()
 
     return (
-        <main className="min-h-screen flex flex-col md:flex-row font-sans nhai-blueprint-bg">
+        <main className="min-h-screen flex flex-col md:flex-row font-sans">
             {/* Left: một block cố định, gọn, trên nền caro */}
             <section
                 className="hidden md:flex md:w-[48%] flex-col justify-between p-10 lg:p-14"

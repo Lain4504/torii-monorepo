@@ -15,38 +15,38 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
-import { ChevronRight, Search, Eye, Package, GraduationCap, BookOpen } from "lucide-react"
+import { ChevronRight, Search, Eye, Package, BookOpen } from "lucide-react"
 import {
-  useAcademyCourseOfferings,
-  type AcademyCourseOffering,
-} from "@/lib/api/services/academy-course-offerings"
-import { useAcademyClasses, type AcademyClass } from "@/lib/api/services/academy-classes"
+  useAcademyCohorts,
+  type AcademyCohort,
+} from "@/lib/api/services/academy-cohorts"
 import { useAcademyCourseProfiles, type AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyVodPackages, type AcademyVodPackage } from "@/lib/api/services/academy-vod-packages"
 import { formatDateTime } from "@/lib/format-utils"
 
-type ApprovalTab = "courseOfferings" | "classes" | "courseProfiles"
+type ApprovalTab = "cohorts" | "vodPackages" | "courseProfiles"
 
 export default function ApprovalsPage() {
-  const [tab, setTab] = useState<ApprovalTab>("courseOfferings")
+  const [tab, setTab] = useState<ApprovalTab>("cohorts")
   
-  const [offeringSearch, setOfferingSearch] = useState("")
-  const [debouncedOfferingSearch] = useDebounceValue(offeringSearch, 500)
+  const [cohortSearch, setCohortSearch] = useState("")
+  const [debouncedCohortSearch] = useDebounceValue(cohortSearch, 500)
 
-  const [classSearch, setClassSearch] = useState("")
-  const [debouncedClassSearch] = useDebounceValue(classSearch, 500)
+  const [vodPackageSearch, setVodPackageSearch] = useState("")
+  const [debouncedVodPackageSearch] = useDebounceValue(vodPackageSearch, 500)
 
   const [profileSearch, setProfileSearch] = useState("")
   const [debouncedProfileSearch] = useDebounceValue(profileSearch, 500)
 
-  const { data: offerings = [], isLoading: isLoadingOfferings } =
-    useAcademyCourseOfferings({
+  const { data: cohorts = [], isLoading: isLoadingCohorts } =
+    useAcademyCohorts({
       status: "PENDING_APPROVAL",
-      q: debouncedOfferingSearch || undefined,
-    })
+      q: debouncedCohortSearch || undefined,
+    } as any)
 
-  const { data: classes = [], isLoading: isLoadingClasses } = useAcademyClasses({
+  const { data: vodPackages = [], isLoading: isLoadingVodPackages } = useAcademyVodPackages({
     status: "PENDING_APPROVAL",
-    q: debouncedClassSearch || undefined,
+    q: debouncedVodPackageSearch || undefined,
   } as any)
 
   const { data: courseProfiles = [], isLoading: isLoadingCourseProfiles } =
@@ -55,13 +55,13 @@ export default function ApprovalsPage() {
       q: debouncedProfileSearch || undefined,
     })
 
-  const pendingOfferings = useMemo(
-    () => offerings.filter((o) => o.status === "PENDING_APPROVAL"),
-    [offerings],
+  const pendingCohorts = useMemo(
+    () => cohorts.filter((o) => o.status === "PENDING_APPROVAL"),
+    [cohorts],
   )
-  const pendingClasses = useMemo(
-    () => classes.filter((c) => c.status === "PENDING_APPROVAL"),
-    [classes],
+  const pendingVodPackages = useMemo(
+    () => vodPackages.filter((p) => p.status === "PENDING_APPROVAL"),
+    [vodPackages],
   )
 
   const pendingCourseProfiles = useMemo(
@@ -70,8 +70,8 @@ export default function ApprovalsPage() {
   )
 
   const isLoading =
-    (tab === "courseOfferings" && isLoadingOfferings) ||
-    (tab === "classes" && isLoadingClasses) ||
+    (tab === "cohorts" && isLoadingCohorts) ||
+    (tab === "vodPackages" && isLoadingVodPackages) ||
     (tab === "courseProfiles" && isLoadingCourseProfiles)
 
   return (
@@ -80,7 +80,7 @@ export default function ApprovalsPage() {
         title={
           <div className="flex items-center gap-2">
             <Link
-              to="/academy/classes"
+              to="/academy/live-classes"
               className="hover:underline text-muted-foreground transition-colors"
             >
               Academy
@@ -95,15 +95,15 @@ export default function ApprovalsPage() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as ApprovalTab)}>
         <TabsList className="w-full overflow-x-auto whitespace-nowrap">
-          <TabsTrigger value="courseOfferings" className="gap-2">
+          <TabsTrigger value="cohorts" className="gap-2">
             <Package className="size-4" />
-            Offerings
-            <Badge variant="secondary">{pendingOfferings.length}</Badge>
+            Cohorts
+            <Badge variant="secondary">{pendingCohorts.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="classes" className="gap-2">
-            <GraduationCap className="size-4" />
-            Classes
-            <Badge variant="secondary">{pendingClasses.length}</Badge>
+          <TabsTrigger value="vodPackages" className="gap-2">
+            <Package className="size-4" />
+            VOD Packages
+            <Badge variant="secondary">{pendingVodPackages.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="courseProfiles" className="gap-2">
             <BookOpen className="size-4" />
@@ -113,14 +113,14 @@ export default function ApprovalsPage() {
         </TabsList>
 
         <div className="mt-6">
-          <TabsContent value="courseOfferings" className="space-y-4">
+          <TabsContent value="cohorts" className="space-y-4">
             <div className="relative max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm Offering theo mã hoặc tên..."
+                placeholder="Tìm Cohort theo mã hoặc tên..."
                 className="pl-10 h-10"
-                value={offeringSearch}
-                onChange={(e) => setOfferingSearch(e.target.value)}
+                value={cohortSearch}
+                onChange={(e) => setCohortSearch(e.target.value)}
               />
             </div>
             <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
@@ -129,7 +129,7 @@ export default function ApprovalsPage() {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12">STT</TableHead>
                     <TableHead className="w-[120px]">Mã</TableHead>
-                    <TableHead>Tên gói</TableHead>
+                    <TableHead>Tên</TableHead>
                     <TableHead>Ngày gửi duyệt</TableHead>
                     <TableHead className="text-right w-[140px]">Xem</TableHead>
                   </TableRow>
@@ -148,18 +148,18 @@ export default function ApprovalsPage() {
                         ))}
                       </TableRow>
                     ))
-                  ) : pendingOfferings.length === 0 ? (
+                  ) : pendingCohorts.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={5}
                         className="h-32 text-center text-muted-foreground"
                       >
-                        Không có Offering nào đang chờ duyệt.
+                        Không có Cohort nào đang chờ duyệt.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    pendingOfferings.map(
-                      (o: AcademyCourseOffering, index: number) => (
+                    pendingCohorts.map(
+                      (o: AcademyCohort, index: number) => (
                         <TableRow key={o.id}>
                           <TableCell className="text-muted-foreground tabular-nums">
                             {index + 1}
@@ -167,13 +167,13 @@ export default function ApprovalsPage() {
                           <TableCell className="font-mono text-xs font-bold">
                             {o.code}
                           </TableCell>
-                          <TableCell className="font-medium">{o.title}</TableCell>
+                          <TableCell className="font-medium">{o.name}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {formatDateTime(o.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
+                            {formatDateTime(o.submittedForApprovalAt || o.createdAt, "HH:mm dd/MM/yyyy")}
                           </TableCell>
                           <TableCell className="text-right">
                             <Button variant="outline" size="sm" asChild className="gap-1">
-                              <Link to={`/academy/approvals/course-offerings/${o.id}`}>
+                              <Link to={`/academy/approvals/cohorts/${o.id}`}>
                                 <Eye className="size-4" />
                                 Preview
                               </Link>
@@ -188,14 +188,14 @@ export default function ApprovalsPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="classes" className="space-y-4">
+          <TabsContent value="vodPackages" className="space-y-4">
             <div className="relative max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
-                placeholder="Tìm Class theo mã hoặc tên..."
+                placeholder="Tìm Package theo mã hoặc tên..."
                 className="pl-10 h-10"
-                value={classSearch}
-                onChange={(e) => setClassSearch(e.target.value)}
+                value={vodPackageSearch}
+                onChange={(e) => setVodPackageSearch(e.target.value)}
               />
             </div>
             <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
@@ -204,8 +204,7 @@ export default function ApprovalsPage() {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12">STT</TableHead>
                     <TableHead className="w-[120px]">Mã</TableHead>
-                    <TableHead>Tên lớp</TableHead>
-                    <TableHead className="w-[120px]">Mode</TableHead>
+                    <TableHead>Tên Package</TableHead>
                     <TableHead>Ngày gửi duyệt</TableHead>
                     <TableHead className="text-right w-[140px]">Xem</TableHead>
                   </TableRow>
@@ -224,36 +223,31 @@ export default function ApprovalsPage() {
                         ))}
                       </TableRow>
                     ))
-                  ) : pendingClasses.length === 0 ? (
+                  ) : pendingVodPackages.length === 0 ? (
                     <TableRow>
                       <TableCell
                         colSpan={6}
                         className="h-32 text-center text-muted-foreground"
                       >
-                        Không có Class nào đang chờ duyệt.
+                        Không có Package nào đang chờ duyệt.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    pendingClasses.map((c: AcademyClass, index: number) => (
-                      <TableRow key={c.id}>
+                    pendingVodPackages.map((p: AcademyVodPackage, index: number) => (
+                      <TableRow key={p.id}>
                         <TableCell className="text-muted-foreground tabular-nums">
                           {index + 1}
                         </TableCell>
                         <TableCell className="font-mono text-xs font-bold">
-                          {c.code}
+                          {p.code}
                         </TableCell>
-                        <TableCell className="font-medium">{c.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-[10px]">
-                            {c.mode}
-                          </Badge>
-                        </TableCell>
+                        <TableCell className="font-medium">{p.title}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {formatDateTime(c.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
+                          {formatDateTime(p.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button variant="outline" size="sm" asChild className="gap-1">
-                            <Link to={`/academy/approvals/classes/${c.id}`}>
+                            <Link to={`/academy/approvals/vod-packages/${p.id}`}>
                               <Eye className="size-4" />
                               Preview
                             </Link>

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ClassModule } from './class/class.module';
+import { LiveClassModule } from './live-class/live-class.module';
+import { CohortModule } from './cohort/cohort.module';
+import { VodPackageModule } from './vod-package/vod-package.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 
 import { ClassroomCronService } from './classroom-cron.service';
@@ -10,7 +12,9 @@ import { ClassAttendanceModule } from './class-attendance/class-attendance.modul
 
 @Module({
   imports: [
-    ClassModule,
+    LiveClassModule,
+    CohortModule,
+    VodPackageModule,
     LiveScheduleModule,
     EnrollmentModule,
 

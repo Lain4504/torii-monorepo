@@ -38,7 +38,6 @@ const ROLE_LABELS: Record<string, string> = {
     [UserRole.ADMIN]: 'Quản trị viên',
     [UserRole.LECTURER]: 'Giảng viên',
     [UserRole.LEARNER]: 'Học viên',
-    [UserRole.STAFF]: 'Nhân viên',
     [UserRole.STAFF_ACADEMIC]: 'Phụ trách Học thuật',
     [UserRole.STAFF_OPERATIONS]: 'Phụ trách Vận hành',
 }

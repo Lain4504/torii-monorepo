@@ -9,7 +9,7 @@ export class CertificateService {
     const enrollment = await this.prisma.enrollment.findUnique({
       where: { id: enrollmentId },
       include: {
-        class: {
+        liveClass: {
           select: { id: true, code: true, name: true },
         },
         user: {
@@ -31,7 +31,7 @@ export class CertificateService {
     });
     if (existing) return existing;
 
-    const classCode = enrollment.class?.code ?? 'CLASS';
+    const classCode = enrollment.liveClass?.code ?? 'CLASS';
     const userPrefix = enrollment.user.id.substring(0, 8);
     const certificateCode =
       `CERT-${classCode}-${userPrefix}-${Date.now()}`.toUpperCase();
@@ -39,7 +39,7 @@ export class CertificateService {
     return this.prisma.certificate.create({
       data: {
         userId: enrollment.userId,
-        classId: enrollment.classId,
+        liveClassId: enrollment.liveClassId,
         enrollmentId: enrollment.id,
         certificateCode,
         issueDate: new Date(),
@@ -52,7 +52,7 @@ export class CertificateService {
     return this.prisma.certificate.findMany({
       where: { userId },
       include: {
-        class: true,
+        liveClass: true,
         enrollment: true,
       },
       orderBy: { issueDate: 'desc' },
@@ -71,13 +71,13 @@ export class CertificateService {
 
     const where: any = {};
     if (query?.userId) where.userId = query.userId;
-    if (query?.classId) where.classId = query.classId;
+    if (query?.classId) where.liveClassId = query.classId;
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.certificate.findMany({
         where,
         include: {
-          class: true,
+          liveClass: true,
           enrollment: true,
           user: { select: { id: true, displayName: true, avatarUrl: true } },
         },
@@ -100,7 +100,7 @@ export class CertificateService {
   async findById(id: string) {
     const item = await this.prisma.certificate.findUnique({
       where: { id },
-      include: { class: true, user: true, enrollment: true },
+      include: { liveClass: true, user: true, enrollment: true },
     });
     if (!item) throw new NotFoundException('Certificate not found');
     return item;
@@ -110,7 +110,7 @@ export class CertificateService {
     const item = await this.prisma.certificate.findUnique({
       where: { certificateCode: code },
       include: {
-        class: true,
+        liveClass: true,
         user: { select: { id: true, displayName: true, avatarUrl: true } },
         enrollment: true,
       },

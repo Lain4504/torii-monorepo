@@ -19,13 +19,14 @@ export class ClassAttendanceService {
   ) {}
 
   async findAll(query: ClassAttendanceQueryDto) {
-    const { sessionId, userId, page = 1, limit = 100 } = query;
+    const { sessionId, userId, classId, page = 1, limit = 100 } = query;
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);
 
     const where: any = {};
     if (sessionId) where.sessionId = sessionId;
     if (userId) where.userId = userId;
+    if (classId) where.session = { liveClassId: classId };
 
     const [items, total] = await Promise.all([
       this.prisma.classAttendance.findMany({
@@ -73,23 +74,18 @@ export class ClassAttendanceService {
     const session = await this.prisma.liveScheduleSession.findUnique({
       where: { id: input.sessionId },
       include: {
-        class: true,
+        liveClass: true,
       },
     });
 
     if (!session) throw new NotFoundException('LiveScheduleSession not found');
-    if (session.class.mode !== 'LIVE') {
-      throw new BadRequestException(
-        'Attendance can only be recorded for LIVE classes',
-      );
-    }
 
-    const classId = session.classId;
+    const liveClassId = session.liveClassId;
 
     // 2. Validate userId has an ACTIVE enrollment in this class
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {
-        classId,
+        liveClassId,
         userId: input.userId,
         status: 'ACTIVE',
       },

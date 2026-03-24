@@ -270,25 +270,9 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
 
                             {expandedTopicId === topic.id && (
                                 <CardContent className="pt-0 border-t border-border/10 bg-muted/5 animate-in fade-in duration-500">
-                                    <div className="py-6 px-4 space-y-6">
-                                        {/* Original Question Content */}
-                                        <div className="bg-background rounded-lg p-5 border shadow-sm">
-                                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                                                {topic.content}
-                                            </p>
-                                        </div>
-
-                                        {/* Horizontal Separator */}
-                                        <div className="relative py-2">
-                                            <div className="absolute inset-0 flex items-center">
-                                                <div className="w-full border-t border-border/30"></div>
-                                            </div>
-                                            <div className="relative flex justify-center">
-                                                <span className="px-3 bg-muted text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">Phản hồi</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Replies Section using existing CommentSection */}
+                                    <div className="py-6 px-4">
+                                        {/* Replies Section using existing CommentSection.
+                                            Backend enables self-target by topic.id, so the topic + its nested replies will be returned. */}
                                         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                                             <CommentSection discussionId={topic.id} />
                                         </div>

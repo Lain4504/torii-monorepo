@@ -8,7 +8,6 @@ import type { AxiosError } from 'axios';
 export interface User extends UserResponseDTO {
     permissions: string[];
     avatarUrl?: string | null;
-    staffTemplate?: 'operations_staff' | 'academic_staff';
 }
 
 export interface AuthState {
@@ -186,6 +185,5 @@ export const selectAuthUser = (state: RootState) => state.auth.user;
 export const selectUser = (state: RootState) => state.auth.user;
 export const selectRole = (state: RootState) => state.auth.user?.role;
 export const selectPermissions = (state: RootState) => state.auth.user?.permissions || [];
-export const selectStaffTemplate = (state: RootState) => state.auth.user?.staffTemplate;
 
 export default authSlice.reducer;

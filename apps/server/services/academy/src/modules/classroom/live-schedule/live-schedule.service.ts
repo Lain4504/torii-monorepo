@@ -30,6 +30,7 @@ import {
 } from '@workspace/protocol';
 import { AppConfigService } from '@server/shared';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { isStaffBranchRole, UserRole } from '@workspace/schemas';
 
 @Injectable()
 export class LiveScheduleService {
@@ -54,28 +55,29 @@ export class LiveScheduleService {
     return `${segment(3)}-${segment(3)}-${segment(3)}`;
   }
 
-  private async assertTemplateMutable(classId: string) {
-    const klass = await this.prisma.class.findUnique({
-      where: { id: classId },
-      select: { status: true, mode: true },
+  private async assertTemplateMutable(liveClassId: string) {
+    if (!liveClassId) throw new BadRequestException('liveClassId is required');
+    const klass = await this.prisma.liveClass.findUnique({
+      where: { id: liveClassId },
+      select: { status: true },
     });
-    if (!klass) throw new BadRequestException('Invalid classId');
+    if (!klass) throw new BadRequestException('Invalid liveClassId');
     // After class becomes public, template schedules are frozen; changes must go through session requests.
     const status = String(klass.status);
-    const allowed = status === 'DRAFT' || status === 'PENDING_APPROVAL';
+    const allowed = status === 'DRAFT';
     if (!allowed) {
       throw new BadRequestException(
-        'LiveSchedule is locked after class is published. Please use session change requests.',
+        'LiveSchedule is locked after class is opening. Please use session change requests.',
       );
     }
   }
 
   async findAll(query: LiveScheduleQueryDto) {
     return this.prisma.liveSchedule.findMany({
-      where: { classId: query.classId ?? undefined },
+      where: { liveClassId: query.classId ?? undefined },
       orderBy: [{ weekday: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
       include: {
-        class: {
+        liveClass: {
           select: {
             id: true,
           },
@@ -85,10 +87,11 @@ export class LiveScheduleService {
   }
 
   async findById(id: string) {
+    if (!id) throw new BadRequestException('LiveSchedule id is required');
     const item = await this.prisma.liveSchedule.findUnique({
       where: { id },
       include: {
-        class: {
+        liveClass: {
           select: {
             id: true,
           },
@@ -100,14 +103,17 @@ export class LiveScheduleService {
   }
 
   async create(input: LiveScheduleCreateDto, requesterId = 'SYSTEM') {
-    const klass = await this.prisma.class.findUnique({
+    if (!input.classId) {
+      throw new BadRequestException('classId is required');
+    }
+    const klass = await this.prisma.liveClass.findUnique({
       where: { id: input.classId },
-      include: { term: true },
+      include: { cohort: true },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
     await this.assertTemplateMutable(input.classId);
     await this.assertNoScheduleConflicts({
-      classId: input.classId,
+      liveClassId: input.classId,
       weekday: input.weekday,
       startTime: input.startTime,
       endTime: input.endTime,
@@ -118,7 +124,7 @@ export class LiveScheduleService {
 
     const schedule = await this.prisma.liveSchedule.create({
       data: {
-        classId: input.classId,
+        liveClassId: input.classId,
         weekday: input.weekday,
         startTime: input.startTime,
         endTime: input.endTime,
@@ -128,7 +134,7 @@ export class LiveScheduleService {
 
     // Hybrid: pre-generate instances for near future so UI có data ngay.
     // Migration DB sẽ được chạy sau; nếu bảng chưa tồn tại thì bỏ qua để không chặn tạo template.
-    if (klass.term?.openingDate && klass.term?.closingDate) {
+    if (klass.cohort?.startDate && klass.cohort?.endDate) {
       try {
         await this.generateInstancesForClassRange(input.classId, requesterId);
       } catch (err) {
@@ -143,9 +149,9 @@ export class LiveScheduleService {
       action: 'live_schedule.create',
       entity: 'LiveSchedule',
       entityId: schedule.id,
-      description: `Created live schedule for class: ${klass.name}`,
+      description: `Created live schedule for liveClass: ${klass.name}`,
       newValues: {
-        classId: schedule.classId,
+        liveClassId: schedule.liveClassId,
         weekday: schedule.weekday,
         startTime: schedule.startTime,
       },
@@ -155,12 +161,13 @@ export class LiveScheduleService {
   }
 
   async join(id: string, userId: string, isAdmin = false) {
+    if (!id) throw new BadRequestException('LiveSchedule id is required');
     const schedule = await this.prisma.liveSchedule.findUnique({
       where: { id },
       include: {
-        class: {
+        liveClass: {
           include: {
-            courseProfile: { select: { title: true } },
+            cohort: { include: { courseProfile: { select: { title: true } } } },
             instructor: { select: { id: true } },
           },
         },
@@ -169,7 +176,7 @@ export class LiveScheduleService {
 
     if (!schedule) throw new NotFoundException('Session not found');
 
-    this.assertClassJoinable(schedule.class.status);
+    this.assertClassJoinable(schedule.liveClass.status as any);
     this.assertInJoinWindow(
       {
         weekday: schedule.weekday,
@@ -184,7 +191,7 @@ export class LiveScheduleService {
     const roomId = await this.ensureScheduleRoomId(
       schedule.id,
       schedule.roomId,
-      schedule.classId,
+      schedule.liveClassId,
     );
 
     // 1) Check room active status (contract must match Meet handler: room.isActive)
@@ -205,9 +212,9 @@ export class LiveScheduleService {
       }
 
       const roomTitle =
-        schedule.class.courseProfile?.title || schedule.class.name;
+        schedule.liveClass.cohort?.courseProfile?.title || schedule.liveClass.name;
       const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle, {
-        classId: schedule.classId,
+        liveClassId: schedule.liveClassId,
         weekday: schedule.weekday,
         startTime: schedule.startTime,
       });
@@ -215,7 +222,7 @@ export class LiveScheduleService {
       await this.sendNatsWithRetry({ cmd: 'room.create' }, roomInfo, 2).catch(
         (err) => {
           this.logger.error(
-            `Failed to create room ${roomId} for live class ${schedule.classId}: ${
+            `Failed to create room ${roomId} for live class ${schedule.liveClassId}: ${
               err instanceof Error ? err.message : err
             }`,
           );
@@ -231,7 +238,7 @@ export class LiveScheduleService {
         entity: 'LiveSchedule',
         entityId: schedule.id,
         description: `Created meet room ${roomId} for live schedule`,
-        metadata: { roomId, classId: schedule.classId },
+        metadata: { roomId, liveClassId: schedule.liveClassId },
       });
     }
 
@@ -263,7 +270,7 @@ export class LiveScheduleService {
       description: `User joined live schedule ${schedule.id} as ${isAdmin ? 'lecturer' : 'student'}`,
       metadata: {
         roomId,
-        classId: schedule.classId,
+        liveClassId: schedule.liveClassId,
         role: isAdmin ? 'lecturer' : 'student',
       },
     });
@@ -272,17 +279,18 @@ export class LiveScheduleService {
       token: tokenRes.token,
       roomId,
       userId: userId,
-      roomTitle: schedule.class.courseProfile?.title || schedule.class.name,
+      roomTitle: schedule.liveClass.cohort?.courseProfile?.title || schedule.liveClass.name,
     };
   }
 
   async joinBySessionId(sessionId: string, userId: string, isAdmin = false) {
+    if (!sessionId) throw new BadRequestException('sessionId is required');
     const session = await this.prisma.liveScheduleSession.findUnique({
       where: { id: sessionId },
       include: {
-        class: {
+        liveClass: {
           include: {
-            courseProfile: { select: { title: true } },
+            cohort: { include: { courseProfile: { select: { title: true } } } },
             instructor: { select: { id: true } },
           },
         },
@@ -297,7 +305,7 @@ export class LiveScheduleService {
       );
     }
 
-    this.assertClassJoinable(session.class.status);
+    this.assertClassJoinable(session.liveClass.status);
     this.assertInJoinWindowForSession(
       {
         sessionDate: session.sessionDate,
@@ -312,8 +320,8 @@ export class LiveScheduleService {
     await this.assertJoinPermission(
       {
         id: sessionId,
-        classId: session.classId,
-        class: session.class,
+        liveClassId: session.liveClassId,
+        liveClass: session.liveClass,
       } as any,
       userId,
       isAdmin,
@@ -339,9 +347,9 @@ export class LiveScheduleService {
       }
 
       const roomTitle =
-        session.class.courseProfile?.title || session.class.name;
+        session.liveClass.cohort?.courseProfile?.title || session.liveClass.name;
       const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle, {
-        classId: session.classId,
+        liveClassId: session.liveClassId,
         weekday: new Date(session.sessionDate).getUTCDay(),
         startTime: session.startTime,
       });
@@ -365,7 +373,7 @@ export class LiveScheduleService {
         entity: 'LiveScheduleSession',
         entityId: sessionId,
         description: `Created meet room ${roomId} for live session`,
-        metadata: { roomId, classId: session.classId },
+        metadata: { roomId, liveClassId: session.liveClassId },
       });
     }
 
@@ -396,7 +404,7 @@ export class LiveScheduleService {
       description: `User joined live session ${sessionId} as ${isAdmin ? 'lecturer' : 'student'}`,
       metadata: {
         roomId,
-        classId: session.classId,
+        liveClassId: session.liveClassId,
         role: isAdmin ? 'lecturer' : 'student',
       },
     });
@@ -405,7 +413,7 @@ export class LiveScheduleService {
       token: tokenRes.token,
       roomId,
       userId: userId,
-      roomTitle: session.class.courseProfile?.title || session.class.name,
+      roomTitle: session.liveClass.cohort?.courseProfile?.title || session.liveClass.name,
     };
   }
 
@@ -415,13 +423,13 @@ export class LiveScheduleService {
     requesterId = 'SYSTEM',
   ) {
     const oldSchedule = await this.findById(id);
-    await this.assertTemplateMutable(oldSchedule.classId);
-    const klass = await this.prisma.class.findUnique({
-      where: { id: oldSchedule.classId },
-      include: { term: true },
+    await this.assertTemplateMutable(oldSchedule.liveClassId);
+    const klass = await this.prisma.liveClass.findUnique({
+      where: { id: oldSchedule.liveClassId },
+      include: { cohort: true },
     });
     await this.assertNoScheduleConflicts({
-      classId: oldSchedule.classId,
+      liveClassId: oldSchedule.liveClassId,
       weekday: input.weekday ?? oldSchedule.weekday,
       startTime: input.startTime ?? oldSchedule.startTime,
       endTime: input.endTime ?? oldSchedule.endTime,
@@ -441,10 +449,10 @@ export class LiveScheduleService {
     const actorId = requesterId === 'SYSTEM' ? null : requesterId;
 
     // Hybrid: re-generate horizon gần để reflect thay đổi template
-    if (klass?.term?.openingDate && klass?.term?.closingDate) {
+    if (klass?.cohort?.startDate && klass?.cohort?.endDate) {
       try {
         await this.generateInstancesForClassRange(
-          oldSchedule.classId,
+          oldSchedule.liveClassId,
           requesterId,
         );
       } catch (err) {
@@ -473,10 +481,10 @@ export class LiveScheduleService {
     return updated;
   }
 
-  async listSessionsForClassRange(classId: string, from: Date, to: Date) {
+  async listSessionsForClassRange(liveClassId: string, from: Date, to: Date) {
     return this.prisma.liveScheduleSession.findMany({
       where: {
-        classId,
+        liveClassId,
         sessionDate: {
           gte: this.startOfDay(from),
           lte: this.startOfDay(to),
@@ -486,22 +494,96 @@ export class LiveScheduleService {
     });
   }
 
+  /** Lịch buổi LIVE của học viên trong khoảng ngày + trạng thái điểm danh (nếu có). */
+  async getLearnerScheduleWithAttendance(userId: string, from: Date, to: Date) {
+    const fromDay = this.startOfDay(from);
+    const toDay = this.startOfDay(to);
+
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: {
+        userId,
+        status: 'ACTIVE',
+      },
+      include: {
+        liveClass: {
+          select: {
+            id: true,
+            name: true,
+            cohort: {
+              include: { courseProfile: { select: { title: true, thumbnailUrl: true } } },
+            },
+          },
+        },
+      },
+    });
+
+    const rows: Array<{
+      session: Awaited<
+        ReturnType<LiveScheduleService['listSessionsForClassRange']>
+      >[number];
+      courseTitle: string;
+      courseThumbnail: string | null;
+    }> = [];
+
+    for (const e of enrollments) {
+      if (!e.liveClassId || !e.liveClass) continue;
+      await this.generateInstancesForClassRange(e.liveClassId, 'SYSTEM');
+      const sessions = await this.listSessionsForClassRange(
+        e.liveClassId,
+        fromDay,
+        toDay,
+      );
+      const courseTitle = e.liveClass.cohort?.courseProfile?.title?.trim() || e.liveClass.name;
+      const courseThumbnail = e.liveClass.cohort?.courseProfile?.thumbnailUrl ?? null;
+      for (const s of sessions) {
+        rows.push({ session: s, courseTitle, courseThumbnail });
+      }
+    }
+
+    const sessionIds = [...new Set(rows.map((r) => r.session.id))];
+    const attendances =
+      sessionIds.length > 0
+        ? await this.prisma.classAttendance.findMany({
+            where: { userId, sessionId: { in: sessionIds } },
+            select: { sessionId: true, status: true },
+          })
+        : [];
+    const attMap = new Map(attendances.map((a) => [a.sessionId, a.status]));
+
+    rows.sort((a, b) => {
+      const tA =
+        a.session.sessionDate.getTime() - b.session.sessionDate.getTime();
+      if (tA !== 0) return tA;
+      return (a.session.startTime || '').localeCompare(
+        b.session.startTime || '',
+      );
+    });
+
+    return rows.map((r) => ({
+      ...r.session,
+      courseTitle: r.courseTitle,
+      courseThumbnail: r.courseThumbnail,
+      attendanceStatus: attMap.get(r.session.id) ?? null,
+    }));
+  }
+
   async generateInstancesForClassRange(
-    classId: string,
+    liveClassId: string,
     requesterId = 'SYSTEM',
   ) {
-    const klass = await this.prisma.class.findUnique({
-      where: { id: classId },
-      include: { term: true },
+    if (!liveClassId) throw new BadRequestException('liveClassId is required');
+    const klass = await this.prisma.liveClass.findUnique({
+      where: { id: liveClassId },
+      include: { cohort: true },
     });
-    if (!klass) throw new BadRequestException('Invalid classId');
+    if (!klass) throw new BadRequestException('Invalid liveClassId');
 
     // Clamp the requested range into the Class boundaries
-    const classStart = klass.term?.openingDate
-      ? this.startOfDay(klass.term.openingDate)
+    const classStart = klass.cohort?.startDate
+      ? this.startOfDay(klass.cohort.startDate)
       : null;
-    const classEnd = klass.term?.closingDate
-      ? this.startOfDay(klass.term.closingDate)
+    const classEnd = klass.cohort?.endDate
+      ? this.startOfDay(klass.cohort.endDate)
       : null;
 
     if (!classStart || !classEnd) {
@@ -522,7 +604,7 @@ export class LiveScheduleService {
     }
 
     const templates = await this.prisma.liveSchedule.findMany({
-      where: { classId },
+      where: { liveClassId },
       select: {
         id: true,
         weekday: true,
@@ -562,15 +644,15 @@ export class LiveScheduleService {
         ops.push(
           this.prisma.liveScheduleSession.upsert({
             where: {
-              classId_sessionDate_startTime_endTime: {
-                classId,
+              liveClassId_sessionDate_startTime_endTime: {
+                liveClassId,
                 sessionDate,
                 startTime: t.startTime,
                 endTime: t.endTime,
               },
             },
             create: {
-              classId,
+              liveClassId,
               scheduleId: t.id,
               sessionDate,
               startTime: t.startTime,
@@ -603,7 +685,7 @@ export class LiveScheduleService {
     try {
       await this.prisma.liveScheduleSession.deleteMany({
         where: {
-          classId,
+          liveClassId,
           sessionDate: { gte: start, lte: end },
           scheduleId: { not: null },
           status: 'SCHEDULED',
@@ -628,7 +710,7 @@ export class LiveScheduleService {
     try {
       await this.prisma.liveScheduleSession.deleteMany({
         where: {
-          classId,
+          liveClassId,
           status: 'SCHEDULED',
           scheduleId: { not: null },
           OR: [
@@ -639,7 +721,7 @@ export class LiveScheduleService {
       });
     } catch (err) {
       this.logger.error(
-        `Perimeter cleanup failed for class ${classId}: ${err instanceof Error ? err.message : String(err)}`,
+        `Perimeter cleanup failed for class ${liveClassId}: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
 
@@ -647,10 +729,11 @@ export class LiveScheduleService {
   }
 
   async delete(id: string, requesterId = 'SYSTEM') {
+    if (!id) throw new BadRequestException('LiveSchedule id is required');
     const schedule = await this.prisma.liveSchedule.findUnique({
       where: { id },
       include: {
-        class: {
+        liveClass: {
           select: {
             status: true,
             liveSchedules: { select: { id: true } },
@@ -660,8 +743,8 @@ export class LiveScheduleService {
     });
     if (!schedule) throw new NotFoundException('LiveSchedule not found');
 
-    const { class: klass } = schedule;
-    await this.assertTemplateMutable(schedule.classId);
+    const { liveClass: klass } = schedule;
+    await this.assertTemplateMutable(schedule.liveClassId);
     const isLastSchedule = klass.liveSchedules.length <= 1;
     const isActiveClass = ['OPENING', 'ONGOING'].includes(String(klass.status));
     if (isLastSchedule && isActiveClass) {
@@ -685,7 +768,10 @@ export class LiveScheduleService {
   }
 
   async previewConflict(input: LiveScheduleConflictPreviewDto) {
-    const klass = await this.prisma.class.findUnique({
+    if (!input.classId) {
+      throw new BadRequestException('classId is required');
+    }
+    const klass = await this.prisma.liveClass.findUnique({
       where: { id: input.classId },
       select: { instructorId: true, id: true },
     });
@@ -701,7 +787,7 @@ export class LiveScheduleService {
 
     const inClassCandidates = await this.prisma.liveScheduleSession.findMany({
       where: {
-        classId: input.classId,
+        liveClassId: input.classId,
         sessionDate,
         id: input.excludeSessionId
           ? { not: input.excludeSessionId }
@@ -712,7 +798,7 @@ export class LiveScheduleService {
         id: true,
         startTime: true,
         endTime: true,
-        classId: true,
+        liveClassId: true,
       },
     });
     const inClassConflicts = inClassCandidates.filter((candidate) =>
@@ -728,7 +814,7 @@ export class LiveScheduleService {
       id: string;
       startTime: string;
       endTime: string;
-      classId: string;
+      liveClassId: string;
       classCode: string;
       className: string;
     }> = [];
@@ -740,10 +826,10 @@ export class LiveScheduleService {
           id: input.excludeSessionId
             ? { not: input.excludeSessionId }
             : undefined,
-          class: {
+          liveClass: {
             instructorId: klass.instructorId,
             status: {
-              in: ['DRAFT', 'PUBLISHED', 'OPENING', 'ONGOING'],
+              in: ['DRAFT', 'OPENING', 'ONGOING'],
             },
           },
         },
@@ -751,12 +837,12 @@ export class LiveScheduleService {
           id: true,
           startTime: true,
           endTime: true,
-          class: { select: { id: true, code: true, name: true } },
+          liveClass: { select: { id: true, code: true, name: true } },
         },
       });
 
-      teacherConflicts = teacherCandidates
-        .filter((c) => c.class.id !== input.classId)
+      teacherConflicts = (teacherCandidates as any[])
+        .filter((c) => c.liveClass.id !== input.classId)
         .filter((c) =>
           this.isTimeOverlap(
             input.startTime,
@@ -769,9 +855,9 @@ export class LiveScheduleService {
           id: c.id,
           startTime: c.startTime,
           endTime: c.endTime,
-          classId: c.class.id,
-          classCode: c.class.code,
-          className: c.class.name,
+          liveClassId: c.liveClass.id,
+          classCode: c.liveClass.code,
+          className: c.liveClass.name,
         }));
     }
 
@@ -805,11 +891,11 @@ export class LiveScheduleService {
         session: {
           select: {
             id: true,
-            classId: true,
+            liveClassId: true,
             startTime: true,
             endTime: true,
             sessionDate: true,
-            class: {
+            liveClass: {
               select: {
                 id: true,
               },
@@ -839,10 +925,11 @@ export class LiveScheduleService {
     input: LiveScheduleRequestCreateDto,
     requesterId: string,
   ) {
+    if (!input.sessionId) throw new BadRequestException('sessionId is required');
     const session = await this.prisma.liveScheduleSession.findUnique({
       where: { id: input.sessionId },
       include: {
-        class: {
+        liveClass: {
           select: {
             instructorId: true,
             id: true,
@@ -855,7 +942,7 @@ export class LiveScheduleService {
 
     await this.assertCanCreateScheduleRequest(
       requesterId,
-      session.class.instructorId,
+      session.liveClass.instructorId,
     );
 
     const requestedDate = new Date(session.sessionDate);
@@ -872,7 +959,7 @@ export class LiveScheduleService {
       }
 
       const preview = await this.previewConflict({
-        classId: session.classId,
+        classId: session.liveClassId,
         sessionDate: input.proposedDate,
         startTime: input.proposedStartTime,
         endTime: input.proposedEndTime,
@@ -888,7 +975,7 @@ export class LiveScheduleService {
     const request = await this.prisma.liveScheduleRequest.create({
       data: {
         sessionId: input.sessionId,
-        classId: session.classId,
+        liveClassId: session.liveClassId,
         requestedBy: requesterId,
         type: input.type as any,
         status: 'PENDING' as any,
@@ -923,6 +1010,7 @@ export class LiveScheduleService {
   }
 
   async cancelRequest(id: string, requesterId: string) {
+    if (!id) throw new BadRequestException('LiveScheduleRequest id is required');
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
     });
@@ -955,6 +1043,7 @@ export class LiveScheduleService {
     input: LiveScheduleRequestApproveDto,
     reviewerId: string,
   ) {
+    if (!id) throw new BadRequestException('LiveScheduleRequest id is required');
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
       include: {
@@ -977,7 +1066,7 @@ export class LiveScheduleService {
         );
       }
       const preview = await this.previewConflict({
-        classId: request.session.classId,
+        classId: request.session.liveClassId,
         sessionDate: request.proposedDate.toISOString().slice(0, 10),
         startTime: request.proposedStartTime,
         endTime: request.proposedEndTime,
@@ -1005,7 +1094,7 @@ export class LiveScheduleService {
         const newRoomId = this.buildSessionRoomId();
         const newSession = await tx.liveScheduleSession.create({
           data: {
-            classId: request.session.classId,
+            liveClassId: request.session.liveClassId,
             scheduleId: null,
             sessionDate: request.proposedDate!,
             startTime: request.proposedStartTime!,
@@ -1058,6 +1147,7 @@ export class LiveScheduleService {
     input: LiveScheduleRequestRejectDto,
     reviewerId: string,
   ) {
+    if (!id) throw new BadRequestException('LiveScheduleRequest id is required');
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
     });
@@ -1092,14 +1182,14 @@ export class LiveScheduleService {
     roomId: string | null,
     roomTitle = 'Lớp học trực tuyến',
     extra?: {
-      classId?: string;
+      liveClassId?: string;
       weekday?: number;
       startTime?: string;
     },
   ) {
     return {
       roomId: roomId,
-      classId: extra?.classId,
+      liveClassId: extra?.liveClassId,
       weekday: extra?.weekday,
       startTime: extra?.startTime,
       emptyTimeout: 60 * 60 * 2,
@@ -1336,7 +1426,7 @@ export class LiveScheduleService {
   }
 
   private async assertNoScheduleConflicts(input: {
-    classId: string;
+    liveClassId: string;
     weekday: number;
     startTime: string;
     endTime: string;
@@ -1357,7 +1447,7 @@ export class LiveScheduleService {
   }
 
   private async checkScheduleConflicts(input: {
-    classId: string;
+    liveClassId: string;
     weekday: number;
     startTime: string;
     endTime: string;
@@ -1366,7 +1456,7 @@ export class LiveScheduleService {
   }) {
     const inClassCandidates = await this.prisma.liveSchedule.findMany({
       where: {
-        classId: input.classId,
+        liveClassId: input.liveClassId,
         weekday: input.weekday,
         id: input.excludeScheduleId
           ? { not: input.excludeScheduleId }
@@ -1376,7 +1466,7 @@ export class LiveScheduleService {
         id: true,
         startTime: true,
         endTime: true,
-        classId: true,
+        liveClassId: true,
       },
     });
 
@@ -1393,7 +1483,7 @@ export class LiveScheduleService {
       id: string;
       startTime: string;
       endTime: string;
-      classId: string;
+      liveClassId: string;
       classCode: string;
       className: string;
     }> = [];
@@ -1404,10 +1494,10 @@ export class LiveScheduleService {
           id: input.excludeScheduleId
             ? { not: input.excludeScheduleId }
             : undefined,
-          class: {
+          liveClass: {
             instructorId: input.instructorId,
             status: {
-              in: ['DRAFT', 'PUBLISHED', 'OPENING', 'ONGOING'],
+              in: ['DRAFT', 'OPENING', 'ONGOING'],
             },
           },
         },
@@ -1415,7 +1505,7 @@ export class LiveScheduleService {
           id: true,
           startTime: true,
           endTime: true,
-          class: {
+          liveClass: {
             select: {
               id: true,
               code: true,
@@ -1427,7 +1517,7 @@ export class LiveScheduleService {
 
       teacherConflicts = teacherCandidates
         .filter(
-          (candidate) => !input.classId || candidate.class.id !== input.classId,
+          (candidate: any) => !input.liveClassId || candidate.liveClass.id !== input.liveClassId,
         )
         .filter((candidate) =>
           this.isTimeOverlap(
@@ -1437,13 +1527,13 @@ export class LiveScheduleService {
             candidate.endTime,
           ),
         )
-        .map((candidate) => ({
+        .map((candidate: any) => ({
           id: candidate.id,
           startTime: candidate.startTime,
           endTime: candidate.endTime,
-          classId: candidate.class.id,
-          classCode: candidate.class.code,
-          className: candidate.class.name,
+          liveClassId: candidate.liveClass.id,
+          classCode: candidate.liveClass.code,
+          className: candidate.liveClass.name,
         }));
     }
 
@@ -1459,19 +1549,20 @@ export class LiveScheduleService {
   ) {
     const user = await this.getUserById(requesterId);
     const role = String(user?.role || '').toLowerCase();
-    const isStaffOrAdmin = ['admin', 'staff', 'staff-lms'].includes(role);
+    const isStaffOrAdmin =
+      role === UserRole.ADMIN || isStaffBranchRole(user?.role);
     const isPrimaryTeacher = instructorId === requesterId;
     if (!isStaffOrAdmin && !isPrimaryTeacher) {
       throw new BadRequestException(
-        'Only primary teacher or staff/admin can create schedule requests',
+        'Only primary teacher or internal staff (academic/operations) / admin can create schedule requests',
       );
     }
   }
 
   private async assertJoinPermission(
     schedule: {
-      classId: string;
-      class: {
+      liveClassId: string;
+      liveClass: {
         instructorId?: string | null;
       };
     },
@@ -1480,13 +1571,13 @@ export class LiveScheduleService {
     userRole?: string,
   ) {
     if (isAdmin) {
-      const isPrimaryTeacher = schedule.class.instructorId === userId;
-      const isAdminOverride = ['admin', 'staff', 'staff-lms'].includes(
-        (userRole || '').toLowerCase(),
-      );
+      const isPrimaryTeacher = schedule.liveClass.instructorId === userId;
+      const ur = String(userRole || '');
+      const isAdminOverride =
+        ur.toLowerCase() === UserRole.ADMIN || isStaffBranchRole(ur);
       if (!isPrimaryTeacher && !isAdminOverride) {
         throw new BadRequestException(
-          'Only assigned lecturer or admin/staff can start this live room.',
+          'Only assigned lecturer or admin / internal staff (academic/operations) can start this live room.',
         );
       }
       return;
@@ -1494,7 +1585,7 @@ export class LiveScheduleService {
 
     const activeEnrollment = await this.prisma.enrollment.findFirst({
       where: {
-        classId: schedule.classId,
+        liveClassId: schedule.liveClassId,
         userId,
         status: 'ACTIVE',
       },
@@ -1517,7 +1608,7 @@ export class LiveScheduleService {
   private async ensureScheduleRoomId(
     scheduleId: string,
     roomId: string | null,
-    classId: string,
+    liveClassId: string,
   ) {
     if (roomId?.trim()) {
       return roomId;

@@ -42,7 +42,7 @@ export class SenseiHandler {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     private readonly appConfig: AppConfigService,
-  ) { }
+  ) {}
 
   @Post('grammar-check')
   @UseGuards(GatewayAuthGuard)
@@ -106,7 +106,6 @@ export class SenseiHandler {
       return errorResponse(error.message || 'Failed to create flashcard');
     }
   }
-
 
   @Post('conversation/simulate')
   @UseGuards(GatewayAuthGuard)
@@ -258,7 +257,7 @@ export class SenseiHandler {
       if (!usageResult || usageResult.allowed === false) {
         return errorResponse(
           usageResult?.message ||
-          'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
+            'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
         );
       }
 

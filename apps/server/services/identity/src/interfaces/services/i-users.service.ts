@@ -55,7 +55,7 @@ export interface IUsersService {
   create(dto: UserCreateDTO): Promise<UserResponseDTO>;
 
   /**
-   * Create internal user (LECTURE/STAFF) with invite email
+   * Create internal user (lecturer / staff-academic / staff-operations) with invite email
    * @param dto - Internal user creation data
    * @param adminId - ID of admin creating the user
    * @returns The created user

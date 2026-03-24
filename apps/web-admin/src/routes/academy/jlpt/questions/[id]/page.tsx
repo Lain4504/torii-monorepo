@@ -40,6 +40,19 @@ const SECTIONS = [
   { code: "LISTENING", label: "Nghe hiểu (Listening)" },
 ];
 
+const Q_TYPES = [
+  { code: "VOCAB", label: "Từ vựng" },
+  { code: "GRAMMAR", label: "Ngữ pháp" },
+  { code: "READING", label: "Đọc hiểu" },
+  { code: "LISTENING", label: "Nghe hiểu" },
+];
+
+const DIFFS = [
+  { code: "EASY", label: "Dễ" },
+  { code: "MEDIUM", label: "Trung bình" },
+  { code: "HARD", label: "Khó" },
+];
+
 export default function JlptQuestionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -49,9 +62,14 @@ export default function JlptQuestionDetailPage() {
   const [data, setData] = useState<any>({
     levelCode: "N3",
     sectionCode: "LANGUAGE_VOCAB",
-    questionType: "SINGLE_CHOICE",
+    questionType: "VOCAB",
+    difficulty: "MEDIUM",
+    mondaiCode: "",
     stemText: "",
     contextText: "",
+    explanation: "",
+    audioAssetId: "",
+    imageAssetId: "",
     options: [
       { key: "1", contentText: "", isCorrect: true },
       { key: "2", contentText: "", isCorrect: false },
@@ -61,25 +79,76 @@ export default function JlptQuestionDetailPage() {
   });
 
   useEffect(() => {
-    if (!isNew && id) {
-      // Fetch question data
-      // For now we assume we have a findById or we filter from list
-      // Real implementation would call academyJlptMockApi.findBankQuestionById(id)
-    }
-  }, [id, isNew]);
+    if (isNew || !id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const q = await academyJlptMockApi.findBankQuestionById(id);
+        if (!q || cancelled) return;
+        setData({
+          levelCode: q.levelCode,
+          sectionCode: q.sectionCode,
+          questionType: q.questionType,
+          difficulty: q.difficulty ?? "MEDIUM",
+          mondaiCode: q.mondai?.code ?? "",
+          stemText: q.stemText,
+          contextText: q.contextText ?? "",
+          explanation: q.explanation ?? "",
+          audioAssetId: q.audioAssetId ?? "",
+          imageAssetId: q.imageAssetId ?? "",
+          options:
+            q.options?.length > 0
+              ? q.options.map((o) => ({
+                  key: o.key,
+                  contentText: o.contentText,
+                  isCorrect: o.isCorrect,
+                }))
+              : [
+                  { key: "1", contentText: "", isCorrect: true },
+                  { key: "2", contentText: "", isCorrect: false },
+                  { key: "3", contentText: "", isCorrect: false },
+                  { key: "4", contentText: "", isCorrect: false },
+                ],
+        });
+      } catch {
+        toast.error("Không tải được câu hỏi");
+        navigate("/academy/jlpt/questions");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isNew, navigate]);
 
   const handleSave = async () => {
+    const payloadBase = {
+      questionType: data.questionType,
+      sectionCode: data.sectionCode,
+      mondaiCode: data.mondaiCode?.trim() || undefined,
+      stemText: data.stemText,
+      contextText: data.contextText || undefined,
+      explanation: data.explanation || undefined,
+      difficulty: data.difficulty,
+      options: data.options.map((o: { key: string; contentText: string; isCorrect: boolean }) => ({
+        key: o.key,
+        contentText: o.contentText,
+        isCorrect: o.isCorrect,
+      })),
+    };
     try {
       setSaving(true);
       if (isNew) {
-        await academyJlptMockApi.createBankQuestion(data);
+        await academyJlptMockApi.createBankQuestion({
+          level: data.levelCode,
+          ...payloadBase,
+        });
         toast.success("Đã tạo câu hỏi mới");
       } else {
-        await academyJlptMockApi.updateBankQuestion(id!, data);
+        await academyJlptMockApi.updateBankQuestion(id!, payloadBase);
         toast.success("Đã cập nhật câu hỏi");
       }
       navigate("/academy/jlpt/questions");
-    } catch (error) {
+    } catch {
       toast.error("Không thể lưu câu hỏi");
     } finally {
       setSaving(false);
@@ -271,6 +340,40 @@ export default function JlptQuestionDetailPage() {
                     {SECTIONS.map(s => <SelectItem key={s.code} value={s.code}>{s.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Loại câu</label>
+                <Select value={data.questionType} onValueChange={(val) => setData({...data, questionType: val})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Q_TYPES.map((t) => (
+                      <SelectItem key={t.code} value={t.code}>{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Độ khó</label>
+                <Select value={data.difficulty} onValueChange={(val) => setData({...data, difficulty: val})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DIFFS.map((d) => (
+                      <SelectItem key={d.code} value={d.code}>{d.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mã mondai (tuỳ chọn)</label>
+                <Input
+                  placeholder="Khớp master mondai"
+                  value={data.mondaiCode}
+                  onChange={(e) => setData({ ...data, mondaiCode: e.target.value })}
+                />
               </div>
             </CardContent>
           </Card>

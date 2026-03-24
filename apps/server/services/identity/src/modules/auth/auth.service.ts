@@ -249,7 +249,7 @@ export class AuthService implements IAuthService {
   }
 
   /**
-   * Specialized login for admin portals (ADMIN, STAFF, LECTURER)
+   * Specialized login for admin portals (admin, staff-academic, staff-operations, lecturer)
    * Rejects users with LEARNER role even with valid credentials
    */
   async adminLogin(dto: UserLoginDTO): Promise<LoginResponse> {
@@ -1750,7 +1750,7 @@ export class AuthService implements IAuthService {
   // ========================================
 
   /**
-   * Verify invite token for internal users (LECTURER/STAFF)
+   * Verify invite token for internal users (lecturer / staff-academic / staff-operations)
    * Returns user email and role if token is valid
    */
   async verifyInviteToken(
@@ -1784,7 +1784,7 @@ export class AuthService implements IAuthService {
   /**
    * Set password for invited internal user
    * Allows changing default password to a new password via invite token
-   * Completes the onboarding flow for LECTURER/STAFF
+   * Completes the onboarding flow for lecturer / staff-academic / staff-operations
    */
   async setPassword(token: string, password: string): Promise<void> {
     const userId = await this.redis.get(`invite-token:${token}`);

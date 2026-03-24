@@ -20,7 +20,7 @@ export const staffDashboardApi = {
 
 /**
  * Hook: Get staff dashboard metrics
- * Restricted to ADMIN and STAFF roles
+ * Restricted to admin and staff-branch roles
  */
 export function useStaffDashboard() {
     return useQuery({

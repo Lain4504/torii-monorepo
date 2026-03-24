@@ -89,13 +89,15 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
-            const selectedEnrollment = (enrollments as any[]).find((en: any) => en.classId === values.courseMasterId);
+            const selectedEnrollment = (enrollments as any[]).find(
+                (en: any) => (en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id) === values.courseMasterId,
+            );
 
             await createTicketMutation.mutateAsync({
                 type: values.type,
                 subject: values.subject,
                 description: values.description,
-                classId: values.courseMasterId || undefined,
+                liveClassId: values.courseMasterId || undefined,
                 // OrderId is now auto-resolved by backend, so we don't strictly need to pass it
                 metadata: {
                     courseTitle: selectedEnrollment?.class?.name || selectedEnrollment?.courseTitle,
@@ -155,7 +157,9 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                     <Select
                                         onValueChange={(val) => {
                                             setValue('courseMasterId', val);
-                                            const en = (enrollments as any[]).find((e: any) => e.classId === val);
+                                            const en = (enrollments as any[]).find(
+                                                (e: any) => (e.liveClassId ?? e.classId ?? e.vodPackageId ?? e.courseProfileId ?? e.id) === val,
+                                            );
                                             if (en) {
                                                 setValue('subject', `Hoàn tiền khóa học: ${en.class?.name || en.courseTitle}`);
                                             }
@@ -166,7 +170,10 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                         </SelectTrigger>
                                         <SelectContent>
                                             {enrollments.map((en: any) => (
-                                                <SelectItem key={en.classId} value={en.classId}>
+                                                <SelectItem
+                                                    key={en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id}
+                                                    value={en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id}
+                                                >
                                                     {en.class?.name || en.courseTitle || 'Khóa học không tên'}
                                                 </SelectItem>
                                             ))}

@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
 import { CourseProfileController } from './controllers/course-profile.controller';
-import { CourseOfferingController } from './controllers/course-offering.controller';
+import { CohortController } from './controllers/cohort.controller';
+import { VodPackageController } from './controllers/vod-package.controller';
+import { CourseEditionController } from './controllers/course-edition.controller';
 import { TicketController } from './controllers/ticket.controller';
-import { ClassController } from './controllers/class.controller';
+import { LiveClassController } from './controllers/live-class.controller';
 import { LiveScheduleController } from './controllers/live-schedule.controller';
 import { AssignmentSubmissionController } from './controllers/assignment-submission.controller';
 import { LessonController } from './controllers/lesson.controller';
@@ -12,7 +14,7 @@ import { EnrollmentController } from './controllers/enrollment.controller';
 import { OrderController } from './controllers/order.controller';
 import { CouponController } from './controllers/coupon.controller';
 import { WebhookController } from './controllers/webhook.controller';
-import { ClassReviewController } from './controllers/class-review.controller';
+import { CourseReviewController } from './controllers/course-review.controller';
 import { StudyNoteController } from './controllers/study-note.controller';
 import { StudySetController } from './controllers/study-set.controller';
 import {
@@ -22,7 +24,7 @@ import {
 import { LiveSessionRequestController } from './controllers/live-session-request.controller';
 import { ClassAttendanceController } from './controllers/class-attendance.controller';
 import { ModuleController } from './controllers/module.controller';
-import { ClassAssignmentController } from './controllers/class-assignment.controller';
+import { LiveClassAssignmentController } from './controllers/live-class-assignment.controller';
 import { WalletController } from './controllers/wallet.controller';
 import { CertificateController } from './controllers/certificate.controller';
 import { RefundController } from './controllers/refund.controller';
@@ -32,9 +34,11 @@ import { JlptMockController } from './controllers/jlpt-mock.controller';
   imports: [NatsClientModule],
   controllers: [
     CourseProfileController,
-    CourseOfferingController,
+    CohortController,
+    VodPackageController,
+    CourseEditionController,
     TicketController,
-    ClassController,
+    LiveClassController,
     LiveScheduleController,
     AssignmentSubmissionController,
     LessonController,
@@ -43,7 +47,7 @@ import { JlptMockController } from './controllers/jlpt-mock.controller';
     OrderController,
     CouponController,
     WebhookController,
-    ClassReviewController,
+    CourseReviewController,
     StudyNoteController,
     StudySetController,
     AcademyLiveSessionController,
@@ -51,7 +55,7 @@ import { JlptMockController } from './controllers/jlpt-mock.controller';
     LiveSessionRequestController,
     ClassAttendanceController,
     ModuleController,
-    ClassAssignmentController,
+    LiveClassAssignmentController,
     WalletController,
     CertificateController,
     RefundController,

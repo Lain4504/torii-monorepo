@@ -158,7 +158,7 @@ export class AchievementService {
         return 0;
       }
       case 'REVIEWS_PUBLISHED': {
-        return await this.prisma.classReview.count({
+        return await this.prisma.courseReview.count({
           where: { userId, status: 'PUBLISHED' },
         });
       }

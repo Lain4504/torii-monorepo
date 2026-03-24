@@ -1,8 +1,8 @@
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-    academyClassDuplicateDTOSchema,
-    type AcademyClassDuplicateDTO,
+    academyLiveClassDuplicateDTOSchema,
+    type AcademyLiveClassDuplicateDTO,
 } from "@workspace/schemas"
 import {
     Dialog,
@@ -22,7 +22,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { toast } from "sonner"
-import { useDuplicateAcademyClass, type AcademyClass } from "@/lib/api/services/academy-classes"
+import { useDuplicateAcademyClass, type AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useNavigate } from "react-router-dom"
 
 export function DuplicateClassDialog({
@@ -30,7 +30,7 @@ export function DuplicateClassDialog({
     open,
     onOpenChange,
 }: {
-    sourceClass: AcademyClass
+    sourceClass: AcademyLiveClass
     open: boolean
     onOpenChange: (open: boolean) => void
 }) {
@@ -42,15 +42,15 @@ export function DuplicateClassDialog({
         control,
         formState: { isSubmitting },
     } = useForm<any>({
-        resolver: zodResolver(academyClassDuplicateDTOSchema),
+        resolver: zodResolver(academyLiveClassDuplicateDTOSchema),
         defaultValues: {
             code: "",
             name: `${sourceClass.name} (Bản sao)`,
-            instructorId: (sourceClass as any)?.instructorId ?? sourceClass.liveClass?.instructorId ?? undefined,
+            instructorId: sourceClass.instructorId ?? undefined,
         },
     })
 
-    const onSubmit = async (data: AcademyClassDuplicateDTO) => {
+    const onSubmit = async (data: AcademyLiveClassDuplicateDTO) => {
         try {
             const result = await duplicateMutation.mutateAsync({
                 id: sourceClass.id,
@@ -58,7 +58,7 @@ export function DuplicateClassDialog({
             })
             toast.success("Đã nhân bản lớp học thành công")
             onOpenChange(false)
-            navigate(`/academy/classes/${result.id}`)
+            navigate(`/academy/live-classes/${result.id}`)
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Không thể nhân bản lớp học")
         }

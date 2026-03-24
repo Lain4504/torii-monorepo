@@ -9,12 +9,13 @@ import type {
 
 export type AcademyEnrollment = {
     id: string
-    classId: string
     userId: string
+    liveClassId?: string | null
+    vodPackageId?: string | null
     enrolledAt: string
     expiresAt?: string | null
     status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED'
-    sourceOfferingId?: string | null
+    sourceOrderId?: string | null
     companyId?: string | null
     metadata?: any
     user?: {
@@ -23,7 +24,12 @@ export type AcademyEnrollment = {
         email: string
         avatarUrl?: string
     }
-    class?: {
+    liveClass?: {
+        id: string
+        name: string
+        code: string
+    }
+    vodPackage?: {
         id: string
         name: string
         code: string
@@ -32,33 +38,32 @@ export type AcademyEnrollment = {
 
 export const academyEnrollmentsApi = {
     async findAll(params: AcademyEnrollmentQueryDTO) {
-        const res = await apiClient.get<
-            StandardApiResponse<{ items: AcademyEnrollment[] }>
-        >("/api/academy/enrollments", {
+        const res = await apiClient.get<StandardApiResponse<any>>("/api/academy/enrollments", {
             params,
         })
-        return res.data.data!.items
+
+        // Backend hiện tại có thể trả theo 2 format:
+        // 1) { success: true, data: [...] }
+        // 2) { success: true, data: { items: [...] } }
+        const payload = res.data.data
+        if (Array.isArray(payload)) return payload as AcademyEnrollment[]
+        if (payload?.items && Array.isArray(payload.items)) return payload.items as AcademyEnrollment[]
+        return []
     },
 
     async findById(id: string) {
-        const res = await apiClient.get<
-            StandardApiResponse<{ item: AcademyEnrollment }>
-        >(`/api/academy/enrollments/${id}`)
-        return res.data.data!.item
+        const res = await apiClient.get<StandardApiResponse<any>>(`/api/academy/enrollments/${id}`)
+        return (res.data.data?.item ?? res.data.data) as AcademyEnrollment
     },
 
     async create(input: AcademyEnrollmentCreateDTO) {
-        const res = await apiClient.post<
-            StandardApiResponse<{ item: AcademyEnrollment }>
-        >("/api/academy/enrollments", input)
-        return res.data.data!.item
+        const res = await apiClient.post<StandardApiResponse<any>>("/api/academy/enrollments", input)
+        return (res.data.data?.item ?? res.data.data) as AcademyEnrollment
     },
 
     async update(id: string, input: AcademyEnrollmentUpdateDTO) {
-        const res = await apiClient.put<
-            StandardApiResponse<{ item: AcademyEnrollment }>
-        >(`/api/academy/enrollments/${id}`, input)
-        return res.data.data!.item
+        const res = await apiClient.put<StandardApiResponse<any>>(`/api/academy/enrollments/${id}`, input)
+        return (res.data.data?.item ?? res.data.data) as AcademyEnrollment
     },
 
     async cancel(id: string) {
@@ -66,10 +71,10 @@ export const academyEnrollmentsApi = {
     },
 
     async delete(id: string) {
-        const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+        const res = await apiClient.delete<StandardApiResponse<any>>(
             `/api/academy/enrollments/${id}`,
         )
-        return res.data
+        return res.data.data ?? res.data
     },
 }
 

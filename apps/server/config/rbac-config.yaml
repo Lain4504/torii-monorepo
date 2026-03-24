@@ -7,7 +7,7 @@
 # - Updated to match Academy microservice structure
 # - Standardized academic content, commerce, and delivery permissions
 # - Full compatibility with latest gateway backend controllers
-# - 4 Main Actors: Admin, Staff, Lecturer, Learner
+# - Actors: admin, staff-academic, staff-operations, lecturer, learner
 
 system:
   version: "3.0.0"

@@ -36,15 +36,17 @@ export class ClassReviewService {
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
-   * List published reviews for a class.
-   * Anonymous reviews will have their user info hidden.
+   * List published reviews for a cohort.
    */
-  async listClassReviews(classId: string, query: ClassReviewQueryDto) {
+  async listCourseReviewsByCohort(cohortId: string, query: ClassReviewQueryDto) {
     const status = query.status ?? 'PUBLISHED';
 
     const [items, total] = await this.prisma.$transaction([
-      this.prisma.classReview.findMany({
-        where: { classId, status },
+      this.prisma.courseReview.findMany({
+        where: {
+          cohortId,
+          status,
+        },
         include: {
           user: {
             select: { id: true, displayName: true, avatarUrl: true },
@@ -54,7 +56,86 @@ export class ClassReviewService {
         take: Number(query.limit || 10),
         skip: Number(query.offset || 0),
       }),
-      this.prisma.classReview.count({ where: { classId, status } }),
+      this.prisma.courseReview.count({
+        where: {
+          cohortId,
+          status,
+        },
+      }),
+    ]);
+
+    return {
+      items: items.map((r) => this._maskAnonymous(r)),
+      total,
+      limit: query.limit,
+      offset: query.offset,
+    };
+  }
+
+  /**
+   * List published reviews for a VOD package.
+   */
+  async listCourseReviewsByVodPackage(vodPackageId: string, query: ClassReviewQueryDto) {
+    const status = query.status ?? 'PUBLISHED';
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.courseReview.findMany({
+        where: {
+          vodPackageId,
+          status,
+        },
+        include: {
+          user: {
+            select: { id: true, displayName: true, avatarUrl: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Number(query.limit || 10),
+        skip: Number(query.offset || 0),
+      }),
+      this.prisma.courseReview.count({
+        where: {
+          vodPackageId,
+          status,
+        },
+      }),
+    ]);
+
+    return {
+      items: items.map((r) => this._maskAnonymous(r)),
+      total,
+      limit: query.limit,
+      offset: query.offset,
+    };
+  }
+
+  /**
+   * List published reviews for a class (Legacy helper, keep for now if needed by internal calls).
+   */
+  async listClassReviews(targetId: string, query: ClassReviewQueryDto) {
+    const status = query.status ?? 'PUBLISHED';
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.courseReview.findMany({
+        where: {
+          OR: [{ cohortId: targetId }, { vodPackageId: targetId }],
+          status,
+        },
+        include: {
+          user: {
+            select: { id: true, displayName: true, avatarUrl: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Number(query.limit || 10),
+        skip: Number(query.offset || 0),
+      }),
+      this.prisma.courseReview.count({
+        where: {
+          OR: [{ cohortId: targetId }, { vodPackageId: targetId }],
+          status,
+        },
+      }),
     ]);
 
     return {
@@ -67,13 +148,20 @@ export class ClassReviewService {
 
   /** Return all reviews belonging to the current user */
   async listMyReviews(userId: string) {
-    const items = await this.prisma.classReview.findMany({
+    const items = await this.prisma.courseReview.findMany({
       where: { userId },
       include: {
-        class: {
+        cohort: {
           select: {
             id: true,
             name: true,
+            courseProfile: { select: { title: true, thumbnailUrl: true } },
+          },
+        },
+        vodPackage: {
+          select: {
+            id: true,
+            title: true,
             courseProfile: { select: { title: true, thumbnailUrl: true } },
           },
         },
@@ -89,39 +177,42 @@ export class ClassReviewService {
    * uniqueness per enrollment.
    */
   async createReview(
-    classId: string,
     userId: string,
     dto: ClassReviewCreateDto,
   ) {
     // 1. Fetch enrollment
     const enrollment = await this.prisma.enrollment.findUnique({
       where: { id: dto.enrollmentId },
-      include: { class: { select: { mode: true } } },
+      include: {
+        liveClass: { include: { cohort: true } },
+        vodPackage: true,
+      },
     });
 
     if (!enrollment) throw new NotFoundException('Enrollment not found');
-    if (!enrollment.classId || !enrollment.class) {
-      throw new BadRequestException('Enrollment is not attached to a class');
-    }
     if (enrollment.userId !== userId) {
       throw new ForbiddenException('Enrollment does not belong to you');
     }
-    if (enrollment.classId !== classId) {
-      throw new BadRequestException(
-        'Enrollment classId does not match the target class',
-      );
+
+    // 2. Derive cohortId or vodPackageId
+    const cohortId = enrollment.liveClass?.cohortId || null;
+    const vodPackageId = enrollment.vodPackageId || null;
+    const targetId = (cohortId || vodPackageId) as string;
+
+    if (!targetId) {
+      throw new BadRequestException('Enrollment is not attached to a cohort or vodPackage');
     }
 
-    // 2. Validate enrollment status eligibility
+    // 2b. Validate eligibility
     await this._validateEligibility({
       status: enrollment.status,
-      classId: enrollment.classId,
+      targetId,
       userId: enrollment.userId,
-      class: enrollment.class,
+      type: vodPackageId ? 'VOD' : 'COHORT',
     });
 
     // 3. Ensure no existing review for this enrollment
-    const existing = await this.prisma.classReview.findUnique({
+    const existing = await this.prisma.courseReview.findUnique({
       where: { enrollmentId: dto.enrollmentId },
     });
     if (existing) {
@@ -135,9 +226,10 @@ export class ClassReviewService {
     const publishedAt = status === 'PUBLISHED' ? new Date() : null;
 
     // 5. Create review
-    const review = await this.prisma.classReview.create({
+    const review = await this.prisma.courseReview.create({
       data: {
-        classId,
+        cohortId,
+        vodPackageId,
         enrollmentId: dto.enrollmentId,
         userId,
         rating: dto.rating,
@@ -154,7 +246,7 @@ export class ClassReviewService {
       await this.gamification
         .trackActivity(userId, ActivityType.REVIEW, {
           reviewId: review.id,
-          classId,
+          targetId: cohortId || vodPackageId,
           enrollmentId: dto.enrollmentId,
           rating: dto.rating,
         })
@@ -200,7 +292,7 @@ export class ClassReviewService {
         ? new Date()
         : review.publishedAt;
 
-    return this.prisma.classReview.update({
+    return this.prisma.courseReview.update({
       where: { id },
       data: {
         rating: dto.rating,
@@ -222,7 +314,7 @@ export class ClassReviewService {
       throw new ForbiddenException('Not allowed to delete this review');
     }
 
-    return this.prisma.classReview.update({
+    return this.prisma.courseReview.update({
       where: { id },
       data: { status: 'HIDDEN', publishedAt: null },
     });
@@ -245,14 +337,21 @@ export class ClassReviewService {
     }
 
     const [items, total] = await this.prisma.$transaction([
-      this.prisma.classReview.findMany({
+      this.prisma.courseReview.findMany({
         where,
         include: {
           user: { select: { id: true, displayName: true, email: true } },
-          class: {
+          cohort: {
             select: {
               id: true,
               name: true,
+              courseProfileId: true,
+            },
+          },
+          vodPackage: {
+            select: {
+              id: true,
+              title: true,
               courseProfileId: true,
             },
           },
@@ -261,7 +360,7 @@ export class ClassReviewService {
         take: Number(query.limit || 20),
         skip: Number(query.offset || 0),
       }),
-      this.prisma.classReview.count({ where }),
+      this.prisma.courseReview.count({ where }),
     ]);
 
     return { items, total, limit: query.limit, offset: query.offset };
@@ -292,7 +391,7 @@ export class ClassReviewService {
         break;
     }
 
-    const updated = await this.prisma.classReview.update({
+    const updated = await this.prisma.courseReview.update({
       where: { id },
       data: {
         status: newStatus,
@@ -305,7 +404,7 @@ export class ClassReviewService {
       await this.gamification
         .trackActivity(review.userId, ActivityType.REVIEW, {
           reviewId: review.id,
-          classId: review.classId,
+          targetId: review.cohortId || review.vodPackageId,
           enrollmentId: review.enrollmentId,
           rating: review.rating,
         })
@@ -334,16 +433,16 @@ export class ClassReviewService {
   // ─────────────────────────────────────────────────────────────────────────
 
   private async _findOrThrow(id: string) {
-    const review = await this.prisma.classReview.findUnique({ where: { id } });
+    const review = await this.prisma.courseReview.findUnique({ where: { id } });
     if (!review) throw new NotFoundException('Review not found');
     return review;
   }
 
   private async _validateEligibility(enrollment: {
     status: string;
-    classId: string;
+    targetId: string;
     userId: string;
-    class: { mode: string };
+    type: 'VOD' | 'COHORT';
   }) {
     const VALID_STATUSES = ['ACTIVE', 'COMPLETED'];
 
@@ -354,10 +453,10 @@ export class ClassReviewService {
     }
 
     // For ACTIVE VOD enrollments: require ≥ 70% progress
-    if (enrollment.status === 'ACTIVE' && enrollment.class.mode === 'VOD') {
+    if (enrollment.status === 'ACTIVE' && enrollment.type === 'VOD') {
       const progressData = await this._getProgressPercent(
         enrollment.userId,
-        enrollment.classId,
+        enrollment.targetId,
       );
       if (progressData < 70) {
         throw new BadRequestException(
@@ -369,19 +468,33 @@ export class ClassReviewService {
 
   private async _getProgressPercent(
     userId: string,
-    classId: string,
+    targetId: string,
   ): Promise<number> {
     const totalLessons = await this.prisma.lesson.count({
       where: {
         module: {
-          courseProfile: { classes: { some: { id: classId } } },
+          courseProfile: {
+            OR: [
+              { cohorts: { some: { id: targetId } } },
+              { vodPackages: { some: { id: targetId } } },
+            ],
+          },
         },
       },
     });
     if (totalLessons === 0) return 0;
 
     const completedLessons = await this.prisma.userLessonProgress.count({
-      where: { userId, classId, isCompleted: true },
+      where: {
+        userId,
+        enrollment: {
+          OR: [
+            { liveClass: { cohortId: targetId } },
+            { vodPackageId: targetId },
+          ],
+        },
+        isCompleted: true,
+      },
     });
 
     return Math.round((completedLessons / totalLessons) * 100);

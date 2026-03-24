@@ -37,7 +37,7 @@ import { SectionListEditor } from "@/components/academy/section-list-editor"
 import { KeyValueEditor } from "@/components/academy/key-value-editor"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
-import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useAcademyLiveClasses, type AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useMemo } from "react"
 
 export function ExamForm({
@@ -60,17 +60,17 @@ export function ExamForm({
   const isLecturer = user?.role === UserRole.LECTURER
 
   const { data: profiles = [] } = useAcademyCourseProfiles({})
-  const { data: classes = [] } = useAcademyClasses({})
+  const { data: classes = [] } = useAcademyLiveClasses({})
 
   const allowedCourseProfileIdSet = useMemo(() => {
     if (!isLecturer) return null
     if (!user?.id) return new Set<string>()
 
     const ids = new Set<string>()
-    for (const c of classes) {
-      if (c.mode !== "LIVE") continue
-      if (c.liveClass?.instructorId !== user.id) continue
-      if (c.courseProfileId) ids.add(c.courseProfileId)
+    for (const c of (classes as unknown as AcademyLiveClass[])) {
+      if (c.instructorId !== user.id) continue
+      const profileId = c.cohort?.courseProfileId
+      if (profileId) ids.add(profileId)
     }
     return ids
   }, [classes, isLecturer, user?.id])

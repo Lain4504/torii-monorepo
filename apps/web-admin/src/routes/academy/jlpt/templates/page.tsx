@@ -135,6 +135,26 @@ export default function JlptTemplatesPage() {
     }
   };
 
+  const handlePublish = async (tpl: JlptMockTemplate) => {
+    try {
+      await academyJlptMockApi.updateTemplate(tpl.id, { status: "PUBLISHED" });
+      toast.success("Đã xuất bản đề thi");
+      await fetchTemplates();
+    } catch {
+      toast.error("Không thể xuất bản đề thi");
+    }
+  };
+
+  const handleArchive = async (tpl: JlptMockTemplate) => {
+    try {
+      await academyJlptMockApi.updateTemplate(tpl.id, { status: "ARCHIVED" });
+      toast.success("Đã lưu trữ đề thi");
+      await fetchTemplates();
+    } catch {
+      toast.error("Không thể lưu trữ đề thi");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
@@ -149,14 +169,14 @@ export default function JlptTemplatesPage() {
       />
 
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader>
+        <SheetContent className="flex h-full !w-full flex-col p-0 sm:!max-w-[800px] overflow-y-auto">
+          <SheetHeader className="shrink-0 border-b p-4 sm:p-6">
             <SheetTitle>Tạo đề thi JLPT mới</SheetTitle>
             <SheetDescription>
               Mã đề (code) là duy nhất; cấp độ dùng để chọn profile chấm điểm mặc định trên server.
             </SheetDescription>
           </SheetHeader>
-          <form onSubmit={handleCreate} className="mt-6 space-y-4">
+          <form onSubmit={handleCreate} className="p-6 space-y-4">
             <Field>
               <FieldLabel>Cấp độ</FieldLabel>
               <Select value={newLevel} onValueChange={setNewLevel}>
@@ -322,15 +342,22 @@ export default function JlptTemplatesPage() {
                                 <Edit className="size-4" /> Cấu hình đề (Builder)
                               </Link>
                             </DropdownMenuItem>
-                            {tpl.status === "DRAFT" ? (
-                              <DropdownMenuItem className="gap-2 text-emerald-600">
+                            {tpl.status === "DRAFT" || tpl.status === "READY" ? (
+                              <DropdownMenuItem
+                                className="gap-2 text-emerald-600"
+                                onClick={() => void handlePublish(tpl)}
+                              >
                                 <Play className="size-4" /> Xuất bản (Publish)
                               </DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem className="gap-2 text-amber-600">
-                                <Archive className="size-4" /> Đóng lại (Archive)
+                            ) : null}
+                            {tpl.status === "PUBLISHED" ? (
+                              <DropdownMenuItem
+                                className="gap-2 text-amber-600"
+                                onClick={() => void handleArchive(tpl)}
+                              >
+                                <Archive className="size-4" /> Lưu trữ (Archive)
                               </DropdownMenuItem>
-                            )}
+                            ) : null}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

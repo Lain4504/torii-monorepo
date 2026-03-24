@@ -39,9 +39,9 @@ async function main() {
   const grammar = sections.find((s) => s.code === 'LANGUAGE_GRAMMAR_READING');
   const listening = sections.find((s) => s.code === 'LISTENING');
 
-  const grammarDuration = Number(grammar?.durationMinutes ?? 110);
-  const listeningDuration = Number(listening?.durationMinutes ?? 55);
-  const totalDuration = grammarDuration + listeningDuration;
+  let grammarDuration = Number(grammar?.durationMinutes ?? 110);
+  let listeningDuration = Number(listening?.durationMinutes ?? 55);
+  let totalDuration = grammarDuration + listeningDuration;
 
   const config = loadConfig();
   const prisma = new PrismaClient({
@@ -50,42 +50,36 @@ async function main() {
   await prisma.$connect();
 
   try {
-    // 1) Level
-    const level = await prisma.jlptLevel.upsert({
+    // 1) Level (không upsert vì bạn đã tạo sẵn)
+    const level = await prisma.jlptLevel.findUnique({
       where: { code: 'N1' as any },
-      update: {
-        totalDurationMinutes: totalDuration,
-        nameVi: 'N1',
-        descriptionVi: 'JLPT N1',
-      },
-      create: {
-        code: 'N1' as any,
-        nameVi: 'N1',
-        descriptionVi: 'JLPT N1',
-        totalDurationMinutes: totalDuration,
-      },
+      select: { id: true, code: true },
     });
+    if (!level) {
+      throw new Error('JLPT level N1 not found in DB. Vào `/academy/jlpt/config` tạo Level trước.');
+    }
 
-    // 2) Scoring profile (default)
-    const scoringProfileName = 'Default N1';
-    const profile = await prisma.jlptScoringProfile.findFirst({
-      where: { levelId: level.id, name: scoringProfileName, isActive: true },
+    // Sync duration từ DB (nếu bạn đã config đúng chuẩn trong config page).
+    const grammarSectionFromDb = await prisma.jlptSection.findFirst({
+      where: { levelId: level.id, code: 'LANGUAGE_GRAMMAR_READING' as any },
+      select: { durationMinutes: true },
+    });
+    const listeningSectionFromDb = await prisma.jlptSection.findFirst({
+      where: { levelId: level.id, code: 'LISTENING' as any },
+      select: { durationMinutes: true },
+    });
+    if (grammarSectionFromDb?.durationMinutes != null) grammarDuration = Number(grammarSectionFromDb.durationMinutes);
+    if (listeningSectionFromDb?.durationMinutes != null) listeningDuration = Number(listeningSectionFromDb.durationMinutes);
+    totalDuration = grammarDuration + listeningDuration;
+
+    // 2) Scoring profile đang active (không tự tạo/ghi đè)
+    const scoringProfile = await prisma.jlptScoringProfile.findFirst({
+      where: { levelId: level.id, isActive: true },
       select: { id: true },
     });
-    const scoringProfile = profile
-      ? profile
-      : await prisma.jlptScoringProfile.create({
-          data: {
-            levelId: level.id,
-            name: scoringProfileName,
-            isActive: true,
-            minLanguageScaled: 0,
-            minReadingScaled: 0,
-            minListeningScaled: 0,
-            minTotalScaled: 0,
-          },
-          select: { id: true },
-        });
+    if (!scoringProfile) {
+      throw new Error('Không thấy scoring profile active cho N1. Vào `/academy/jlpt/config` bật active scoring profile trước khi seed.');
+    }
 
     // 3) Template
     const existingTemplate = await prisma.jlptMockExamTemplate.findUnique({

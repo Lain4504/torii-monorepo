@@ -1,6 +1,7 @@
 import { Controller, useForm } from "react-hook-form"
 import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { toast } from "@workspace/ui/components/sonner"
@@ -26,15 +27,37 @@ import {
 } from "@workspace/ui/components/card"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
-    academyClassCreateDTOSchema,
-    academyClassUpdateDTOSchema,
-    type AcademyClassCreateDTO,
-    type AcademyClassUpdateDTO,
     VOD_CLASS_METADATA,
 } from "@workspace/schemas"
-import type { AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles, useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { KeyValueEditor } from "@/components/academy/key-value-editor"
+
+const academyClassCreateDTOSchema = z.object({
+    courseProfileId: z.string().uuid(),
+    code: z.string().min(1).max(150),
+    name: z.string().min(1).max(255),
+    mode: z.literal("VOD"),
+    defaultExpiresMonths: z.coerce.number().int().min(1).optional(),
+    status: z.enum(["DRAFT", "PENDING_APPROVAL", "ENROLLING", "IN_PROGRESS", "COMPLETED", "CANCELLED"]).optional(),
+    settings: z.record(z.unknown()).optional(),
+})
+
+const academyClassUpdateDTOSchema = academyClassCreateDTOSchema.partial()
+
+type AcademyClassCreateDTO = z.infer<typeof academyClassCreateDTOSchema>
+type AcademyClassUpdateDTO = z.infer<typeof academyClassUpdateDTOSchema>
+
+type AcademyClass = {
+    name?: string
+    status?: "DRAFT" | "PENDING_APPROVAL" | "ENROLLING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
+    settings?: Record<string, unknown>
+    courseProfile?: {
+        title?: string
+    } | null
+    vodClass?: {
+        defaultExpiresMonths?: number
+    } | null
+}
 
 export function VodClassForm({
     mode,

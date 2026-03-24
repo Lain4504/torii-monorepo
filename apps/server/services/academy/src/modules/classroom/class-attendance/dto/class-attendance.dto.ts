@@ -27,6 +27,10 @@ export class ClassAttendanceQueryDto {
   userId?: string;
 
   @IsOptional()
+  @IsUUID()
+  classId?: string;
+
+  @IsOptional()
   @IsInt()
   page?: number;
 

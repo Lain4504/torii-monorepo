@@ -21,7 +21,7 @@ export const ticketSchema = z.object({
     status: z.nativeEnum(TicketStatus),
     subject: z.string().min(1).max(255),
     description: z.string().min(1),
-    classId: z.string().uuid().optional().nullable(),
+    liveClassId: z.string().uuid().optional().nullable(),
     orderId: z.string().uuid().optional().nullable(),
     metadata: z.record(z.any()).optional().nullable(),
     refundAmount: z.number().optional().nullable(),

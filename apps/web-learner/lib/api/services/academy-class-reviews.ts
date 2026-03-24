@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
-    AcademyClassReviewCreateDTO,
-    AcademyClassReviewUpdateDTO,
-    AcademyClassReviewQueryDTO,
+    AcademyCourseReviewCreateDTO,
+    AcademyCourseReviewUpdateDTO,
+    AcademyCourseReviewQueryDTO,
 } from '@workspace/schemas';
 import { apiClient } from '../api-client';
 
@@ -47,10 +47,10 @@ export const academyClassReviewsClient = {
     /** Public: List reviews for a class */
     listByClass: async (
         classId: string,
-        query?: AcademyClassReviewQueryDTO,
+        query?: AcademyCourseReviewQueryDTO,
     ) => {
         return apiClient.get<ClassReviewListResponse>(
-            `/api/academy/classes/${classId}/reviews`,
+            `/api/academy/live-classes/${classId}/reviews`,
             { params: query },
         );
     },
@@ -63,15 +63,15 @@ export const academyClassReviewsClient = {
     },
 
     /** Auth: Create review */
-    create: async (classId: string, dto: AcademyClassReviewCreateDTO) => {
+    create: async (classId: string, dto: AcademyCourseReviewCreateDTO) => {
         return apiClient.post<{ data: ClassReview }>(
-            `/api/academy/classes/${classId}/reviews`,
+            `/api/academy/live-classes/${classId}/reviews`,
             dto,
         );
     },
 
     /** Auth: Update review */
-    update: async (id: string, dto: AcademyClassReviewUpdateDTO) => {
+    update: async (id: string, dto: AcademyCourseReviewUpdateDTO) => {
         return apiClient.patch<{ data: ClassReview }>(
             `/api/academy/class-reviews/${id}`,
             dto,
@@ -87,7 +87,7 @@ export const academyClassReviewsClient = {
 };
 
 export const academyClassReviewHooks = {
-    useListByClass: (classId: string, query?: AcademyClassReviewQueryDTO) => {
+    useListByClass: (classId: string, query?: AcademyCourseReviewQueryDTO) => {
         return useQuery({
             queryKey: ['class-reviews', classId, query],
             queryFn: () => academyClassReviewsClient.listByClass(classId, query),
@@ -105,7 +105,7 @@ export const academyClassReviewHooks = {
     useCreateReview: () => {
         const qc = useQueryClient();
         return useMutation({
-            mutationFn: ({ classId, dto }: { classId: string; dto: AcademyClassReviewCreateDTO }) =>
+            mutationFn: ({ classId, dto }: { classId: string; dto: AcademyCourseReviewCreateDTO }) =>
                 academyClassReviewsClient.create(classId, dto),
             onSuccess: (_, variables) => {
                 qc.invalidateQueries({ queryKey: ['class-reviews', variables.classId] });
@@ -117,7 +117,7 @@ export const academyClassReviewHooks = {
     useUpdateReview: () => {
         const qc = useQueryClient();
         return useMutation({
-            mutationFn: ({ id, dto }: { id: string; dto: AcademyClassReviewUpdateDTO }) =>
+            mutationFn: ({ id, dto }: { id: string; dto: AcademyCourseReviewUpdateDTO }) =>
                 academyClassReviewsClient.update(id, dto),
             onSuccess: () => {
                 qc.invalidateQueries({ queryKey: ['class-reviews'] });
