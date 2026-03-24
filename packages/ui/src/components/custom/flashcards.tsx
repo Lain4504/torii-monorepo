@@ -42,6 +42,7 @@ export interface FlashcardsResult {
 
 export interface FlashcardsProps {
     flashcardsData: FlashcardsData
+    onRate?: (rating: FlashcardRating) => void
     onComplete?: (result: FlashcardsResult) => void
     className?: string
     /** Nếu true, ẩn màn hình tổng kết nội bộ để cho phép parent render UI hoàn thành riêng. */
@@ -60,7 +61,7 @@ const DIFFICULTY_CONFIG: Record<
     known: { label: "Nhớ", variant: "default" },
 }
 
-export function Flashcards({ flashcardsData, onComplete, className, hideInternalCompletion }: FlashcardsProps) {
+export function Flashcards({ flashcardsData, onRate, onComplete, className, hideInternalCompletion }: FlashcardsProps) {
     const { title, description, showRatings = true, shuffle = false } = flashcardsData
 
     const cards = React.useMemo(
@@ -83,8 +84,13 @@ export function Flashcards({ flashcardsData, onComplete, className, hideInternal
 
     const handleRate = useCallback(
         (difficulty: FlashcardDifficulty) => {
-            const newRatings = [...ratings, { cardId: card.id, difficulty }]
+            const rating = { cardId: card.id, difficulty }
+            const newRatings = [...ratings, rating]
             setRatings(newRatings)
+            
+            // Call onRate callback if provided
+            onRate?.(rating)
+
             if (index + 1 >= cards.length) {
                 const counts: Record<FlashcardDifficulty, number> = { forgot: 0, known: 0 }
                 for (const r of newRatings) counts[r.difficulty]++
@@ -95,7 +101,7 @@ export function Flashcards({ flashcardsData, onComplete, className, hideInternal
                 setFlipped(false)
             }
         },
-        [ratings, card.id, index, cards.length, onComplete]
+        [ratings, card.id, index, cards.length, onComplete, onRate]
     )
 
     // ── Finished ──────────────────────────────────────────────────────────────

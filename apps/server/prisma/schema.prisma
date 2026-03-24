@@ -714,6 +714,7 @@ model UserGamification {
   totalActiveDays    Int @default(0) @map("total_active_days")
   weeklyActiveCount  Int @default(0) @map("weekly_active_count")
   monthlyActiveCount Int @default(0) @map("monthly_active_count")
+  consecutiveActiveDays Int @default(0) @map("consecutive_active_days") // Số ngày học liên tiếp để hồi phục khiên
 
   // --- UI/UX flags (toast/modal gating) ---
   lastToastShownDate String? @map("last_toast_shown_date") @db.VarChar(10) // YYYY-MM-DD

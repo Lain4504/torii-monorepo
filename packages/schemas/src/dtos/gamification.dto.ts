@@ -54,6 +54,8 @@ export const StreakStatusDTOSchema = z.object({
     currentStreak: z.number().int(),
     longestStreak: z.number().int(),
     freezeCount: z.number().int(),
+    /** true nếu hôm nay streak được nối nhờ tiêu 1 freeze (miss 1 ngày). */
+    streakSavedByFreeze: z.boolean().optional(),
     isActiveToday: z.boolean(),
     willBreakTomorrow: z.boolean(),
     lastActiveDate: z.string().nullable(),
@@ -121,6 +123,7 @@ export const LeaderboardUserDTOSchema = z.object({
     level: z.number().int(),
     rank: z.number().int(),
     currentStreak: z.number().int().optional(),
+    totalActiveDays: z.number().int().optional(),
 });
 
 export type LeaderboardUserDTO = z.infer<typeof LeaderboardUserDTOSchema>;
@@ -129,7 +132,7 @@ export const LeaderboardDTOSchema = z.object({
     users: z.array(LeaderboardUserDTOSchema),
     currentUser: LeaderboardUserDTOSchema.optional(),
     totalUsers: z.number().int(),
-    type: z.enum(['global', 'streak']),
+    type: z.enum(['global', 'streak', 'active']),
 });
 
 export type LeaderboardDTO = z.infer<typeof LeaderboardDTOSchema>;

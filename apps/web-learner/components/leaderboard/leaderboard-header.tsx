@@ -4,8 +4,8 @@ import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Trophy, Star, Flame } from 'lucide-react'
 
 interface LeaderboardHeaderProps {
-    type: 'global' | 'streak'
-    onTypeChange: (type: 'global' | 'streak') => void
+    type: 'global' | 'streak' | 'active'
+    onTypeChange: (type: 'global' | 'streak' | 'active') => void
 }
 
 export function LeaderboardHeader({ type, onTypeChange }: LeaderboardHeaderProps) {
@@ -30,6 +30,10 @@ export function LeaderboardHeader({ type, onTypeChange }: LeaderboardHeaderProps
                     <TabsTrigger value="streak">
                         <Flame className="mr-2 h-4 w-4" />
                         Chuỗi học (Streak)
+                    </TabsTrigger>
+                    <TabsTrigger value="active">
+                        <Trophy className="mr-2 h-4 w-4" />
+                        Năng nổ (Ngày)
                     </TabsTrigger>
                 </TabsList>
             </Tabs>

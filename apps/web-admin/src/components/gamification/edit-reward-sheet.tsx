@@ -34,9 +34,15 @@ import {
 } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Switch } from "@workspace/ui/components/switch"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@workspace/ui/components/tooltip"
 
 import { useUpdateReward } from "@/lib/api/services/gamification"
-import { Star, Gift, Save } from "lucide-react"
+import { Star, Gift, Save, HelpCircle } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 interface EditRewardSheetProps {
@@ -119,9 +125,48 @@ export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetP
                         < Gift className="h-5 w-5 text-primary" />
                         Chỉnh sửa mẫu phần thưởng
                     </SheetTitle>
-                    <SheetDescription>
-                        Cập nhật các thông tin và điều kiện của phần thưởng.
-                    </SheetDescription>
+                    <div className="flex items-center justify-between gap-4">
+                        <SheetDescription>
+                            Cập nhật các thông tin và điều kiện của phần thưởng.
+                        </SheetDescription>
+                        
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/30 shrink-0">
+                                        <HelpCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom" align="end" className="w-80 p-0 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800 shadow-xl z-[100] overflow-hidden">
+                                    <div className="p-4 flex flex-col items-stretch gap-3 text-left">
+                                        <h4 className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-400 border-b border-amber-200/50 pb-2">
+                                            <Star className="h-4 w-4 fill-amber-500" />
+                                            Hướng dẫn quy đổi (Tham khảo)
+                                        </h4>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between items-center text-sm text-amber-900/90 dark:text-amber-100">
+                                                <span className="font-medium">1,000 Points</span>
+                                                <span className="text-amber-600 dark:text-amber-400">≈ 10,000 VND</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm text-amber-900/90 dark:text-amber-100">
+                                                <span className="font-medium">5,000 Points</span>
+                                                <span className="text-amber-600 dark:text-amber-400">≈ 50,000 VND</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-sm text-amber-900/90 dark:text-amber-100">
+                                                <span className="font-medium">10,000 Points</span>
+                                                <span className="text-amber-600 dark:text-amber-400">≈ 100,000 VND</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-1 pt-2 border-t border-amber-200/50">
+                                            <p className="text-[11px] leading-relaxed text-amber-700/80 dark:text-amber-500/80 italic">
+                                                * Lưu ý: Tỷ lệ 10:1 (1 pt = 10đ) là ngưỡng an toàn để tránh bù lỗ cho hệ thống.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                 </SheetHeader>
 
                 <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit as any)} className="flex flex-col flex-1 overflow-hidden" noValidate>

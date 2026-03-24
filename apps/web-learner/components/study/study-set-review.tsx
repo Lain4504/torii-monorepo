@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAcademyStudyCards as useStudyCards } from '@/lib/api/services/academy-study-set-api';
+import { 
+  useAcademyStudyCards as useStudyCards,
+  useReviewAcademyCard as useReviewCard 
+} from '@/lib/api/services/academy-study-set-api';
 import {
   Card,
   CardContent,
@@ -22,6 +25,7 @@ import {
 
 export function StudySetReview({ setId }: { setId: string }) {
   const router = useRouter();
+  const { mutate: reviewCard } = useReviewCard();
 
   const [displayCards, setDisplayCards] = useState<any[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -163,6 +167,13 @@ export function StudySetReview({ setId }: { setId: string }) {
           key={sessionKey}
           flashcardsData={flashcardsData}
           hideInternalCompletion
+          onRate={(rating) => {
+            reviewCard({
+              cardId: rating.cardId,
+              payload: { quality: rating.difficulty === 'known' ? 1 : 0 },
+              setId
+            });
+          }}
           onComplete={(res) => setCompletion(res)}
         />
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { Crown, Star, Flame } from 'lucide-react'
+import { Crown, Star, Flame, CalendarDays } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { formatNumber } from '@/utils/format-utils'
@@ -10,7 +10,7 @@ interface PodiumCardProps {
     user: LeaderboardUserDTO
     rank: number
     isCurrentUser: boolean
-    type: 'global' | 'streak'
+    type: 'global' | 'streak' | 'active'
 }
 
 export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps) {
@@ -75,13 +75,23 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                     'mt-3 flex items-center gap-2 self-center rounded-full border border-border/50 bg-background/50 px-4 py-1.5 backdrop-blur-sm',
                     isFirst && 'border-warning/20 bg-warning/5 shadow-md',
                 )}>
-                    {type === 'global'
-                        ? <Star className="size-4 fill-warning text-warning" />
-                        : <Flame className="size-4 fill-orange-500 text-orange-500" />}
+                    {type === 'global' ? (
+                        <Star className="size-4 fill-warning text-warning" />
+                    ) : type === 'streak' ? (
+                        <Flame className="size-4 fill-orange-500 text-orange-500" />
+                    ) : (
+                        <CalendarDays className="size-4 fill-primary text-primary" />
+                    )}
                     <span className="font-extrabold text-lg tabular-nums">
-                        {type === 'global' ? formatNumber(user.xp) : formatNumber(user.currentStreak ?? 0)}
+                        {type === 'global' 
+                            ? formatNumber(user.xp) 
+                            : type === 'streak' 
+                                ? formatNumber(user.currentStreak ?? 0)
+                                : formatNumber(user.totalActiveDays ?? 0)}
                     </span>
-                    <span className="text-[10px] font-black uppercase text-muted-foreground">{type === 'global' ? 'XP' : 'Ngày'}</span>
+                    <span className="text-[10px] font-black uppercase text-muted-foreground">
+                        {type === 'global' ? 'XP' : 'Ngày'}
+                    </span>
                 </div>
             </div>
         </div>

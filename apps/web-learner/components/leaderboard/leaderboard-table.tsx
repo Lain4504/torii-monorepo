@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { Badge } from '@workspace/ui/components/badge'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table'
-import { Trophy, Star, Flame } from 'lucide-react'
+import { Trophy, Star, Flame, CalendarDays } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { TrendIndicator } from './trend-indicator'
@@ -13,7 +13,7 @@ import { formatNumber } from '@/utils/format-utils'
 interface LeaderboardTableProps {
     users: LeaderboardUserDTO[]
     currentUserId?: string
-    type: 'global' | 'streak'
+    type: 'global' | 'streak' | 'active'
 }
 
 export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTableProps) {
@@ -75,11 +75,17 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                     <div className="flex items-center gap-1.5 justify-end">
                                         {type === 'global' ? (
                                             <Star className="w-4 h-4 text-warning fill-warning" />
-                                        ) : (
+                                        ) : type === 'streak' ? (
                                             <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
+                                        ) : (
+                                            <CalendarDays className="w-4 h-4 text-primary fill-primary/20" />
                                         )}
                                         <span className="font-bold text-lg tabular-nums">
-                                            {type === 'global' ? formatNumber(item.xp) : formatNumber(item.currentStreak ?? 0)}
+                                            {type === 'global' 
+                                                ? formatNumber(item.xp) 
+                                                : type === 'streak' 
+                                                    ? formatNumber(item.currentStreak ?? 0)
+                                                    : formatNumber(item.totalActiveDays ?? 0)}
                                         </span>
                                     </div>
                                 </TableCell>
