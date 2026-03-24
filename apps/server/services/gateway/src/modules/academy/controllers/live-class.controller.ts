@@ -77,6 +77,33 @@ export class LiveClassController {
     return successResponse(items);
   }
 
+  @Public()
+  @Get('public/:id')
+  async findPublicById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query('mode') mode?: 'LIVE' | 'VOD',
+  ) {
+    // Detail page can pass mode explicitly; if missing, fallback LIVE -> VOD.
+    if (mode === 'VOD') {
+      const item = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
+      );
+      return successResponse({ item: { ...item, mode: 'VOD' } });
+    }
+
+    try {
+      const item = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
+      );
+      return successResponse({ item: { ...item, mode: 'LIVE' } });
+    } catch {
+      const item = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
+      );
+      return successResponse({ item: { ...item, mode: 'VOD' } });
+    }
+  }
+
   @Get(':id')
   async findById(
     @Param('id', new ParseUUIDPipe()) id: string,

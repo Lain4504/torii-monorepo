@@ -20,7 +20,7 @@ export class VodPackageService {
     const [items, total] = await Promise.all([
       this.prisma.vodPackage.findMany({
         where,
-        include: { courseProfile: { select: { id: true, title: true, thumbnailUrl: true } } },
+        include: { courseProfile: { select: { id: true, title: true, thumbnailUrl: true, level: true } } },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.vodPackage.count({ where }),

@@ -250,7 +250,7 @@ export function AiChatBot() {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-card border border-border shadow-sm rounded-xl m-4">
+        <div className="flex flex-col h-full overflow-hidden w-full">
             {/* Conversation Area */}
             <Conversation className="flex-1 min-h-0 border-b">
                 <ConversationContent>
@@ -325,78 +325,7 @@ export function AiChatBot() {
                             />
                         </PromptInputBody>
                         <PromptInputFooter>
-                            <PromptInputTools>
-                                <PromptInputActionMenu>
-                                    <PromptInputActionMenuTrigger />
-                                    <PromptInputActionMenuContent>
-                                        <PromptInputActionAddAttachments />
-                                    </PromptInputActionMenuContent>
-                                </PromptInputActionMenu>
-
-                                <PromptInputButton
-                                    onClick={() => setUseMicrophone(!useMicrophone)}
-                                    variant={useMicrophone ? "default" : "ghost"}
-                                >
-                                    <MicIcon size={16} />
-                                    <span className="sr-only">Microphone</span>
-                                </PromptInputButton>
-
-                                <PromptInputButton
-                                    onClick={() => setUseWebSearch(!useWebSearch)}
-                                    variant={useWebSearch ? "default" : "ghost"}
-                                >
-                                    <GlobeIcon size={16} />
-                                    <span>Search</span>
-                                </PromptInputButton>
-
-                                <ModelSelector onOpenChange={setModelSelectorOpen} open={modelSelectorOpen}>
-                                    <ModelSelectorTrigger asChild>
-                                        <PromptInputButton>
-                                            {selectedModelData?.chefSlug && (
-                                                <ModelSelectorLogo provider={selectedModelData.chefSlug as any} />
-                                            )}
-                                            {selectedModelData?.name && (
-                                                <ModelSelectorName className="text-xs">{selectedModelData.name}</ModelSelectorName>
-                                            )}
-                                        </PromptInputButton>
-                                    </ModelSelectorTrigger>
-                                    <ModelSelectorContent>
-                                        <ModelSelectorInput placeholder="Search models..." />
-                                        <ModelSelectorList>
-                                            <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-                                            {["Google", "OpenAI", "Anthropic"].map(chef => (
-                                                <ModelSelectorGroup heading={chef} key={chef}>
-                                                    {models
-                                                        .filter(m => m.chef === chef)
-                                                        .map(m => (
-                                                            <ModelSelectorItem
-                                                                key={m.id}
-                                                                onSelect={() => {
-                                                                    setModel(m.id)
-                                                                    setModelSelectorOpen(false)
-                                                                }}
-                                                                value={m.id}
-                                                            >
-                                                                <ModelSelectorLogo provider={m.chefSlug} />
-                                                                <ModelSelectorName>{m.name}</ModelSelectorName>
-                                                                <ModelSelectorLogoGroup>
-                                                                    {m.providers.map(provider => (
-                                                                        <ModelSelectorLogo key={provider} provider={provider} />
-                                                                    ))}
-                                                                </ModelSelectorLogoGroup>
-                                                                {model === m.id ? (
-                                                                    <CheckIcon className="ml-auto size-4" />
-                                                                ) : (
-                                                                    <div className="ml-auto size-4" />
-                                                                )}
-                                                            </ModelSelectorItem>
-                                                        ))}
-                                                </ModelSelectorGroup>
-                                            ))}
-                                        </ModelSelectorList>
-                                    </ModelSelectorContent>
-                                </ModelSelector>
-                            </PromptInputTools>
+                            <PromptInputTools />
                             <PromptInputSubmit
                                 disabled={!text.trim() || status === "streaming" || status === "submitted"}
                                 status={status === "streaming" || status === "submitted" ? "submitted" : "ready"}

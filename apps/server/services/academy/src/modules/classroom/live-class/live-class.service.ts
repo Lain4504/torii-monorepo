@@ -38,7 +38,16 @@ export class LiveClassService {
     const [items, total] = await Promise.all([
       this.prisma.liveClass.findMany({
         where,
-        include: { instructor: { select: { id: true, displayName: true } }, _count: { select: { enrollments: true } } },
+        include: {
+          instructor: { select: { id: true, displayName: true, avatarUrl: true } },
+          cohort: {
+            include: {
+              courseProfile: { select: { id: true, title: true, thumbnailUrl: true, level: true, description: true } },
+            },
+          },
+          liveSchedules: true,
+          _count: { select: { enrollments: true } },
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.liveClass.count({ where }),
@@ -51,7 +60,15 @@ export class LiveClassService {
       where: { id },
       include: { 
         instructor: { select: { id: true, displayName: true, avatarUrl: true } },
-        cohort: { include: { courseProfile: true } },
+        cohort: {
+          include: {
+            courseProfile: {
+              include: {
+                modules: { include: { lessons: true } },
+              },
+            },
+          },
+        },
         liveSchedules: true,
         _count: { select: { enrollments: true } }
       },

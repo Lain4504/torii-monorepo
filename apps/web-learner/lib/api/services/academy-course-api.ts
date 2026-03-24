@@ -99,7 +99,21 @@ export const academyProductApi = {
   getPublicById: async (id: string, type: 'LIVE' | 'VOD' = 'LIVE'): Promise<any | null> => {
     const endpoint = type === 'LIVE' ? `/api/academy/cohorts/public/${id}` : `/api/academy/vod-packages/public/${id}`;
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(endpoint);
-    return normalizeProductForLearner(response.data.data!.item);
+    const item = response.data.data!.item as any;
+    // Cohort/VOD public detail có thể chưa có field mode từ backend.
+    return normalizeProductForLearner({
+      ...item,
+      mode: item?.mode ?? type,
+      // LIVE detail trả liveClasses, normalize dùng siblingClasses/classes.
+      siblingClasses:
+        type === 'LIVE'
+          ? (Array.isArray(item?.siblingClasses) ? item.siblingClasses : item?.liveClasses ?? [])
+          : item?.siblingClasses,
+      classes:
+        type === 'LIVE'
+          ? (Array.isArray(item?.classes) ? item.classes : item?.liveClasses ?? [])
+          : item?.classes,
+    });
   },
 };
 
@@ -119,11 +133,40 @@ export const academyClassCatalogApi = {
     return response.data.data!;
   },
 
-  getPublicById: async (id: string): Promise<any> => {
+  getPublicById: async (id: string, mode?: 'LIVE' | 'VOD'): Promise<any> => {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(
       `/api/academy/live-classes/public/${id}`,
+      { params: mode ? { mode } : undefined },
     );
-    return response.data.data!.item;
+    const item = response.data.data!.item as any;
+
+    if (item?.mode === 'LIVE') {
+      return {
+        ...item,
+        courseProfile: item.cohort?.courseProfile ?? item.courseProfile,
+        catalogPrice: Number(item.cohort?.price ?? item.catalogPrice ?? 0),
+        term: item.term ?? {
+          openingDate: item.cohort?.startDate ?? item.cohort?.enrollmentOpenAt ?? null,
+          name: item.cohort?.name,
+          code: item.cohort?.code,
+        },
+        liveEnrollment: {
+          maxStudents: item.maxStudents ?? null,
+          activeEnrollmentCount: item._count?.enrollments ?? 0,
+          isFull:
+            item.maxStudents != null
+              ? (item._count?.enrollments ?? 0) >= item.maxStudents
+              : false,
+        },
+      };
+    }
+
+    return {
+      ...item,
+      mode: 'VOD',
+      name: item.title ?? item.name,
+      catalogPrice: Number(item.price ?? item.catalogPrice ?? 0),
+    };
   },
 };
 
@@ -199,10 +242,10 @@ export function useAcademyClassCatalog(params: {
   });
 }
 
-export function useAcademyClassCatalogById(classId?: string) {
+export function useAcademyClassCatalogById(classId?: string, mode?: 'LIVE' | 'VOD') {
   return useQuery({
-    queryKey: ['academy-class-catalog', 'id', classId],
-    queryFn: () => academyClassCatalogApi.getPublicById(classId!),
+    queryKey: ['academy-class-catalog', 'id', classId, mode],
+    queryFn: () => academyClassCatalogApi.getPublicById(classId!, mode),
     enabled: !!classId,
     retry: false,
   });

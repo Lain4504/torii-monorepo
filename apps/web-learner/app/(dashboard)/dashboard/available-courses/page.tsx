@@ -155,9 +155,9 @@ export default function DashboardCoursesPage() {
 function ClassVodCard({ klass }: { klass: any }) {
     const profile = klass.courseProfile
     const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
-    const title = klass.name || profile?.title || 'Khóa học'
+    const title = klass.title || klass.name || profile?.title || 'Khóa học'
     const level = profile?.level || '—'
-    const price = klass.catalogPrice ?? 0
+    const price = Number(klass.price ?? klass.catalogPrice ?? 0)
 
     return (
         <Card>
@@ -189,7 +189,7 @@ function ClassVodCard({ klass }: { klass: any }) {
                     <div className="flex items-center justify-between gap-2 pt-1">
                         <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
                         <Button size="sm" asChild>
-                            <Link href={`/dashboard/available-courses/class/${klass.id}`}>Chi tiết lớp</Link>
+                            <Link href={`/dashboard/available-courses/class/${klass.id}?mode=VOD`}>Chi tiết lớp</Link>
                         </Button>
                     </div>
                 </div>
@@ -199,13 +199,24 @@ function ClassVodCard({ klass }: { klass: any }) {
 }
 
 function ClassLiveCard({ klass }: { klass: any }) {
-    const profile = klass.courseProfile
+    const profile = klass.cohort?.courseProfile ?? klass.courseProfile
     const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
     const title = klass.name || profile?.title || 'Lớp học'
     const level = profile?.level || '—'
-    const price = klass.catalogPrice ?? 0
-    const term = klass.term
+    const price = Number(klass.cohort?.price ?? klass.catalogPrice ?? 0)
+    const term = klass.term ?? (klass.cohort ? {
+        openingDate: klass.cohort.startDate ?? klass.cohort.enrollmentOpenAt ?? null,
+        name: klass.cohort.name,
+        code: klass.cohort.code,
+    } : null)
     const schedules = Array.isArray(klass.liveSchedules) ? klass.liveSchedules : []
+    const activeCount = klass._count?.enrollments ?? 0
+    const maxStudents = klass.maxStudents ?? null
+    const liveEnrollment = maxStudents != null || activeCount > 0 ? {
+        maxStudents,
+        activeEnrollmentCount: activeCount,
+        isFull: maxStudents != null ? activeCount >= maxStudents : false,
+    } : null
 
     return (
         <Card>
@@ -265,13 +276,13 @@ function ClassLiveCard({ klass }: { klass: any }) {
                                     ))}
                                 </ul>
                             )}
-                            {klass.liveEnrollment != null ? (
+                            {liveEnrollment != null ? (
                                 <p className="text-xs flex items-center gap-1 text-muted-foreground">
                                     <Users className="h-3.5 w-3.5" />
-                                    {klass.liveEnrollment.maxStudents == null
-                                        ? `${klass.liveEnrollment.activeEnrollmentCount ?? 0} học viên`
-                                        : `${klass.liveEnrollment.activeEnrollmentCount ?? 0}/${klass.liveEnrollment.maxStudents} học viên`}
-                                    {klass.liveEnrollment.isFull ? ' — Đã đầy' : ''}
+                                    {liveEnrollment.maxStudents == null
+                                        ? `${liveEnrollment.activeEnrollmentCount ?? 0} học viên`
+                                        : `${liveEnrollment.activeEnrollmentCount ?? 0}/${liveEnrollment.maxStudents} học viên`}
+                                    {liveEnrollment.isFull ? ' — Đã đầy' : ''}
                                 </p>
                             ) : null}
                         </CollapsibleContent>
@@ -282,7 +293,7 @@ function ClassLiveCard({ klass }: { klass: any }) {
                     <div className="flex items-center justify-between gap-2">
                         <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
                         <Button size="sm" asChild>
-                            <Link href={`/dashboard/available-courses/class/${klass.id}`}>Chi tiết lớp</Link>
+                            <Link href={`/dashboard/available-courses/class/${klass.id}?mode=LIVE`}>Chi tiết lớp</Link>
                         </Button>
                     </div>
                 </div>

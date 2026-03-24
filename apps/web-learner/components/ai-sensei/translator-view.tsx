@@ -108,7 +108,7 @@ export function TranslatorView() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-8 space-y-6">
+        <div className="w-full space-y-6">
             {/* Language Selector Bar */}
             <div className="flex items-center gap-2 p-1 bg-muted rounded-lg w-fit">
                 <Select value={sourceLang} onValueChange={handleSourceLangChange}>
@@ -139,22 +139,29 @@ export function TranslatorView() {
             {/* Translation Layout (2 Columns) */}
             <div className="grid md:grid-cols-2 gap-4">
                 {/* Source Input */}
-                <Card className="shadow-none border-border overflow-hidden">
-                    <CardContent className="p-0 flex flex-col h-[320px]">
-                        <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+                <div className="bg-background rounded-2xl border border-border overflow-hidden group relative">
+                    <div className="flex flex-col h-[320px]">
+                        <div className="p-4 flex-1 overflow-y-auto custom-scrollbar relative">
+                            {sourceText && (
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="absolute top-4 right-4 h-8 w-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 rounded-full z-10 transition-colors" 
+                                    onClick={() => setSourceText("")}
+                                >
+                                    <X className="size-4" />
+                                </Button>
+                            )}
                             <Textarea
                                 value={sourceText}
                                 onChange={handleTextChange}
                                 placeholder="Nhập văn bản cần dịch..."
-                                className="min-h-full border-none focus-visible:ring-0 p-0 text-xl resize-none shadow-none leading-relaxed bg-transparent"
+                                className="min-h-full border-none focus-visible:ring-0 p-0 pr-10 text-xl resize-none shadow-none leading-relaxed bg-transparent"
                             />
                         </div>
-                        <div className="p-4 border-t bg-muted/50 flex items-center justify-between shrink-0">
+                        <div className="p-4 border-t bg-muted/20 flex items-center justify-between shrink-0">
                             <div className="flex gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Volume2 className="size-4" /></Button>
-                                {sourceText && (
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setSourceText("")}><X className="size-4" /></Button>
-                                )}
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className={cn(
@@ -169,12 +176,12 @@ export function TranslatorView() {
                                 </Button>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
 
                 {/* Target Output */}
-                <Card className="shadow-none border-border bg-muted/30 overflow-hidden">
-                    <CardContent className="p-0 flex flex-col h-[320px]">
+                <div className="bg-background rounded-2xl border border-border/100 overflow-hidden">
+                    <div className="flex flex-col h-[320px]">
                         <div className="p-4 flex-1 text-xl font-medium leading-relaxed overflow-y-auto custom-scrollbar">
                             {isTranslating ? (
                                 <div className="space-y-4 pt-2">
@@ -185,7 +192,7 @@ export function TranslatorView() {
                                 targetText || <span className="text-muted-foreground/30 font-normal italic">Kết quả dịch...</span>
                             )}
                         </div>
-                        <div className="p-4 border-t flex items-center justify-between shrink-0">
+                        <div className="p-4 border-t border-border/30 flex items-center justify-between shrink-0">
                             <div className="flex gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigator.clipboard.writeText(targetText)} disabled={!targetText}><Copy className="size-4" /></Button>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" disabled={!targetText}><Volume2 className="size-4" /></Button>
@@ -201,8 +208,8 @@ export function TranslatorView() {
                                 </div>
                             )}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
 
             {/* Grammar Section */}

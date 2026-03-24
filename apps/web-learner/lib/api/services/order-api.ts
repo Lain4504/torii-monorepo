@@ -10,21 +10,22 @@ import type {
 } from '@workspace/schemas';
 
 export interface OrderPreviewDTO {
-    // Academic products (VOD Packages / Cohorts)
-    productIds?: string[];
+    vodPackageIds?: string[];
+    cohortIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
-    classIdByProduct?: Record<string, string>;
+    liveClassIdByCohort?: Record<string, string>;
 }
 
 export interface OrderCheckoutDTO {
-    productIds?: string[];
+    vodPackageIds?: string[];
+    cohortIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
     paymentMethod: PaymentMethod | string;
     description?: string;
     metadata?: any;
-    classIdByProduct?: Record<string, string>;
+    liveClassIdByCohort?: Record<string, string>;
 }
 
 export interface OrderPreviewResponse {

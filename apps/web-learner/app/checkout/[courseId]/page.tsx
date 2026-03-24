@@ -60,7 +60,8 @@ export default function CheckoutPage() {
     const params = useParams()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const courseId = params.courseId as string
+    const rawCourseId = params.courseId as string
+    const courseId = rawCourseId && rawCourseId !== 'undefined' ? rawCourseId : undefined
     const user = useAppSelector((state) => state.auth.user)
     const type = (searchParams.get('type') as 'LIVE' | 'VOD') || 'LIVE'
 
@@ -127,6 +128,7 @@ export default function CheckoutPage() {
 
     // Debounced Recipient Check
     useEffect(() => {
+        if (!courseId) return
         if (!isGift || !recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
             setRecipientStatus('idle')
             return
@@ -170,10 +172,18 @@ export default function CheckoutPage() {
         }
         try {
             setIsPreviewing(true)
+            const isLiveProduct = product.type === 'LIVE'
+            const checkoutPayload = isLiveProduct
+                ? {
+                    cohortIds: [product.id],
+                    liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
+                  }
+                : {
+                    vodPackageIds: [product.id],
+                  }
             const result = await orderApi.previewOrder({
-                productIds: [product.id],
+                ...checkoutPayload,
                 couponCode: couponCode.trim() || undefined,
-                classIdByProduct: selectedClassId ? { [product.id]: selectedClassId } : undefined
             })
             setPreview(result)
         } catch (error: unknown) {
@@ -209,11 +219,19 @@ export default function CheckoutPage() {
 
         try {
             setIsProcessing(true)
+            const isLiveProduct = product.type === 'LIVE'
+            const checkoutPayload = isLiveProduct
+                ? {
+                    cohortIds: [product.id],
+                    liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
+                  }
+                : {
+                    vodPackageIds: [product.id],
+                  }
             const result = await orderApi.createOrder({
-                productIds: [product.id],
+                ...checkoutPayload,
                 paymentMethod: PaymentMethod.PAYOS,
                 couponCode: couponCode.trim() || undefined,
-                classIdByProduct: selectedClassId ? { [product.id]: selectedClassId } : undefined,
                 metadata: {
                     isGift,
                     recipientEmail: isGift ? recipientEmail : undefined,
@@ -235,7 +253,7 @@ export default function CheckoutPage() {
     }
 
     if (isLoadingProduct) return <PageLoading />
-    if (!product) return null
+    if (!courseId || !product) return null
 
     const displaySubtotal = preview?.subtotal ?? Number(product.price ?? 0)
     const displayTotal = preview?.total ?? displaySubtotal

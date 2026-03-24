@@ -55,6 +55,15 @@ export class CohortController {
     return successResponse(items);
   }
 
+  @Public()
+  @Get('public/:id')
+  async findByIdPublic(@Param('id', new ParseUUIDPipe()) id: string) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.cohort.findById' }, { id }),
+    );
+    return successResponse({ item });
+  }
+
   @Get()
   @Permissions('academy.commerce.read')
   async findAll(
