@@ -195,6 +195,9 @@ export class OrderService {
   }
 
   private async processCoinPayment(userId: string, order: any) {
+    const currentOrder = await this.prisma.order.findUnique({ where: { id: order.id }, select: { status: true } });
+    if (currentOrder?.status === OrderStatus.PAID) return { orderId: order.id, orderCode: order.code, message: 'Đơn hàng đã được thanh toán từ trước', success: true };
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, walletBalance: true },
@@ -203,23 +206,20 @@ export class OrderService {
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
     const total = Number(order.grandTotal);
-    const balance = Number(user.walletBalance);
-
-    if (balance < total) {
-      throw new BadRequestException(
-        'Số dư xu không đủ để thực hiện thanh toán này',
-      );
-    }
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // 1. Deduct balance
-        await tx.user.update({
-          where: { id: userId },
+        // 1. Deduct balance safely (Atomic check)
+        const updatedUser = await tx.user.updateMany({
+          where: { id: userId, walletBalance: { gte: order.grandTotal } },
           data: {
             walletBalance: { decrement: order.grandTotal },
           },
         });
+
+        if (updatedUser.count === 0) {
+          throw new BadRequestException('Số dư xu không đủ để thực hiện thanh toán này');
+        }
 
         // 2. Log Wallet Transaction
         await tx.walletTransaction.create({
@@ -349,11 +349,36 @@ export class OrderService {
   }
 
   public async fulfillAiSubscription(tx: any, targetUserId: string, item: any) {
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 1);
+    const now = new Date();
+    
+    // Find active subscription for stacking logic
+    const activeSub = await tx.aiUserSubscription.findFirst({
+      where: { userId: targetUserId, status: 'ACTIVE' },
+      orderBy: { expiresAt: 'desc' },
+    });
+
+    let newExpiresAt = new Date();
+    newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+
+    if (activeSub && activeSub.expiresAt > now) {
+      // Stack from current expiresAt
+      newExpiresAt = new Date(activeSub.expiresAt);
+      newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+    }
+
+    // Cancel old ones (or update them to EXTENDED/EXPIRED)
     await tx.aiUserSubscription.updateMany({ where: { userId: targetUserId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
+    
+    // Create new one starting from the right point, or just creating a new one that captures the full period
     await tx.aiUserSubscription.create({
-      data: { userId: targetUserId, planId: item.subscriptionPlanId, planCode: item.offeringSnapshot?.code || 'unknown', startedAt: new Date(), expiresAt, status: 'ACTIVE' },
+      data: {
+        userId: targetUserId,
+        planId: item.subscriptionPlanId,
+        planCode: item.offeringSnapshot?.code || 'unknown',
+        startedAt: now,
+        expiresAt: newExpiresAt,
+        status: 'ACTIVE'
+      },
     });
   }
 
