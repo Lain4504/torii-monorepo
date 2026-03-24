@@ -40,6 +40,10 @@ export class OrderCheckoutDto {
 
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
+
+  @IsOptional()
+  @IsString()
+  paymentGateway?: string;
 }
 
 export class OrderPreviewDto {

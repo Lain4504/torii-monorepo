@@ -1,4 +1,5 @@
 import { Injectable, Logger, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentGateway } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
@@ -57,6 +58,11 @@ export class OrderService {
       if (!cohort.enrollmentOpenAt || !cohort.enrollmentCloseAt || new Date(cohort.enrollmentOpenAt) > now || new Date(cohort.enrollmentCloseAt) < now) {
         throw new BadRequestException('Đợt học hiện không trong thời gian đăng ký.');
       }
+
+      const existing = await this.prisma.enrollment.findFirst({
+        where: { userId, status: { in: ['ACTIVE', 'COMPLETED'] }, liveClass: { cohortId: cohort.id } },
+      });
+      if (existing) throw new BadRequestException(`Bạn đã đăng ký đợt học ${cohort.name} rồi`);
 
       const selectedLiveClassId = input.liveClassIdByCohort?.[cohort.id];
       if (!selectedLiveClassId) throw new BadRequestException('Vui lòng chọn lớp Live');
@@ -177,10 +183,109 @@ export class OrderService {
       return { orderId: order.id, orderCode: order.code, paymentUrl: paymentLink.checkoutUrl };
     }
 
-    return { orderId: order.id, orderCode: order.code, message: 'Order created.' };
+    if (input.paymentMethod === PaymentMethod.COIN) {
+      return this.processCoinPayment(order.userId, order);
+    }
+
+    return {
+      orderId: order.id,
+      orderCode: order.code,
+      message: 'Order created. Please proceed with manual payment.',
+    };
   }
 
-  async handlePaymentSuccess(orderCode: string, transactionId?: string, payload?: any) {
+  private async processCoinPayment(userId: string, order: any) {
+    const currentOrder = await this.prisma.order.findUnique({ where: { id: order.id }, select: { status: true } });
+    if (currentOrder?.status === OrderStatus.PAID) return { orderId: order.id, orderCode: order.code, message: 'Đơn hàng đã được thanh toán từ trước', success: true };
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, walletBalance: true },
+    });
+
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+
+    const total = Number(order.grandTotal);
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // 1. Deduct balance safely (Atomic check)
+        const updatedUser = await tx.user.updateMany({
+          where: { id: userId, walletBalance: { gte: order.grandTotal } },
+          data: {
+            walletBalance: { decrement: order.grandTotal },
+          },
+        });
+
+        if (updatedUser.count === 0) {
+          throw new BadRequestException('Số dư xu không đủ để thực hiện thanh toán này');
+        }
+
+        // 2. Log Wallet Transaction
+        await tx.walletTransaction.create({
+          data: {
+            userId,
+            amount: order.grandTotal,
+            type: 'PURCHASE',
+            referenceId: order.id,
+            description: `Thanh toán đơn hàng ${order.code} bằng Xu`,
+          },
+        });
+
+        // 3. Mark Order as PAID
+        await tx.order.update({
+          where: { id: order.id },
+          data: {
+            status: OrderStatus.PAID,
+            paidAt: new Date(),
+          },
+        });
+
+        // 4. Record internal transaction record for bookkeeping
+        await tx.transaction.create({
+          data: {
+            orderId: order.id,
+            gateway: PaymentGateway.INTERNAL,
+            amount: order.grandTotal,
+            status: 'SUCCESS',
+            transactionCode: order.code,
+            responsePayload: { method: 'COIN' } as any,
+          },
+        });
+
+        // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
+        const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
+        for (const item of order.items) {
+          if (item.subscriptionPlanId) {
+            await this.fulfillAiSubscription(tx, targetUserId, item);
+          }
+        }
+      });
+
+      this.logger.log(`Order ${order.code} paid with coins successfully`);
+
+      // Emit order.paid event for external fulfillment (e.g., Course Enrollments)
+      this.natsClient.emit('order.paid', { orderId: order.id });
+
+      return {
+        orderId: order.id,
+        orderCode: order.code,
+        message: 'Thanh toán bằng xu thành công!',
+        success: true,
+      };
+    } catch (err: any) {
+      this.logger.error(
+        `Coin payment failed for order ${order.code}: ${err.message}`,
+      );
+      throw new BadRequestException(`Thanh toán thất bại: ${err.message}`);
+    }
+  }
+
+  async handlePaymentSuccess(
+    orderCode: string,
+    transactionId?: string,
+    payload?: any,
+  ) {
     if (payload) {
       if (!this.payOS.verifyPaymentWebhookData(payload)) throw new BadRequestException('Invalid webhook signature');
       if (payload.success !== true && payload.code !== '00') throw new BadRequestException('Payment not successful');
@@ -224,8 +329,9 @@ export class OrderService {
         },
       });
 
+      const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
       for (const item of order.items) {
-        if (item.subscriptionPlanId) await this.fulfillAiSubscription(tx, order, item);
+        if (item.subscriptionPlanId) await this.fulfillAiSubscription(tx, targetUserId, item);
       }
     });
 
@@ -242,13 +348,55 @@ export class OrderService {
     return { ok: true };
   }
 
-  public async fulfillAiSubscription(tx: any, order: any, item: any) {
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 1);
-    await tx.aiUserSubscription.updateMany({ where: { userId: order.userId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
-    await tx.aiUserSubscription.create({
-      data: { userId: order.userId, planId: item.subscriptionPlanId, planCode: item.offeringSnapshot?.code || 'unknown', startedAt: new Date(), expiresAt, status: 'ACTIVE' },
+  public async fulfillAiSubscription(tx: any, targetUserId: string, item: any) {
+    const now = new Date();
+    
+    // Find active subscription for stacking logic
+    const activeSub = await tx.aiUserSubscription.findFirst({
+      where: { userId: targetUserId, status: 'ACTIVE' },
+      orderBy: { expiresAt: 'desc' },
     });
+
+    let newExpiresAt = new Date();
+    newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+
+    if (activeSub && activeSub.expiresAt > now) {
+      // Stack from current expiresAt
+      newExpiresAt = new Date(activeSub.expiresAt);
+      newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+    }
+
+    // Cancel old ones (or update them to EXTENDED/EXPIRED)
+    await tx.aiUserSubscription.updateMany({ where: { userId: targetUserId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
+    
+    // Create new one starting from the right point, or just creating a new one that captures the full period
+    await tx.aiUserSubscription.create({
+      data: {
+        userId: targetUserId,
+        planId: item.subscriptionPlanId,
+        planCode: item.offeringSnapshot?.code || 'unknown',
+        startedAt: now,
+        expiresAt: newExpiresAt,
+        status: 'ACTIVE'
+      },
+    });
+  }
+
+  public async resolveTargetUserId(buyerId: string, metadata: any): Promise<string> {
+    const md = (metadata ?? {}) as any;
+    if (md.isGift && md.recipientEmail) {
+      try {
+        const response = await firstValueFrom<{ user: { id: string } }>(
+          this.natsClient.send({ cmd: 'identity.users.findByEmail' }, { email: md.recipientEmail }),
+        );
+        if (response?.user?.id) return response.user.id;
+        throw new BadRequestException(`Không tìm thấy người nhận với email ${md.recipientEmail}`);
+      } catch (err: any) {
+        this.logger.error(`Failed to resolve gift recipient: ${err.message}`);
+        throw new BadRequestException(err.message || 'Lỗi khi xác định người nhận quà');
+      }
+    }
+    return buyerId;
   }
 
   // --- Admin CRUD ---
