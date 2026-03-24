@@ -1,57 +1,40 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { Prisma } from '@prisma/generated';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 import { AchievementService } from '../../gamification/achievement.service';
-import { LiveClassCapacityService } from '../class/live-class-capacity.service';
 
-/**
- * EnrollmentService - Manages student cohorts and course access.
- * Refactored to link directly to CourseProfile.
- */
 @Injectable()
 export class EnrollmentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     private readonly achievementService: AchievementService,
-    private readonly liveClassCapacity: LiveClassCapacityService,
   ) {}
 
-  // ==============================================================
-  // FIND
-  // ==============================================================
-
-  async findAll(query: EnrollmentQueryDto) {
+  async findAll(query: any) {
     const enrollments = await this.prisma.enrollment.findMany({
       where: {
-        classId: query.classId ?? undefined,
-        offeringId: query.offeringId ?? undefined,
         userId: query.userId ?? undefined,
         status: query.status ?? undefined,
       },
       include: {
-        offering: {
-          select: { id: true, mode: true, title: true, code: true },
-        },
-        class: {
-          include: {
-            instructor: {
-              select: { displayName: true, avatarUrl: true },
-            },
+        user: { select: { id: true, displayName: true, email: true, avatarUrl: true } },
+        vodPackage: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+            courseProfileId: true,
             courseProfile: {
-              select: {
-                id: true,
-                title: true,
-                code: true,
-                thumbnailUrl: true,
-              },
+              select: { id: true, title: true, code: true, thumbnailUrl: true },
             },
+          },
+        },
+        liveClass: {
+          include: {
+            instructor: { select: { displayName: true, avatarUrl: true } },
+            cohort: { include: { courseProfile: { select: { id: true, title: true, code: true, thumbnailUrl: true } } } },
           },
         },
       },
@@ -61,44 +44,37 @@ export class EnrollmentService {
     if (query.userId) {
       return Promise.all(
         enrollments.map(async (e) => {
-          const classId = e.classId;
           let progressPercent = 0;
           let completedLessons = 0;
           let totalLessons = 0;
 
-          if (classId) {
-            totalLessons = await this.prisma.lesson.count({
-              where: {
-                module: {
-                  courseProfile: { classes: { some: { id: classId } } },
-                },
-              },
-            });
-
-            completedLessons = await this.prisma.userLessonProgress.count({
-              where: { userId: e.userId, classId, isCompleted: true },
-            });
-
-            progressPercent =
-              totalLessons > 0
-                ? Math.round((completedLessons / totalLessons) * 100)
-                : 0;
+          if (e.liveClassId || e.vodPackageId) {
+            // Find lessons from course profile
+            const cpId = e.liveClass?.cohort?.courseProfileId || e.vodPackage?.courseProfileId;
+            if (cpId) {
+              totalLessons = await this.prisma.lesson.count({
+                where: { module: { courseProfileId: cpId } },
+              });
+              completedLessons = await this.prisma.userLessonProgress.count({
+                where: { userId: e.userId, enrollmentId: e.id, isCompleted: true },
+              });
+              progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+            }
           }
 
-          const instructor = e.class?.instructor;
-          const courseProfile = e.class?.courseProfile;
+          const instructor = e.liveClass?.instructor;
+          const courseProfile = e.liveClass?.cohort?.courseProfile ?? e.vodPackage?.courseProfile;
 
           return {
             id: e.id,
             status: e.status,
             enrolledAt: e.enrolledAt,
             expiresAt: e.expiresAt,
-            offeringId: e.offeringId,
-            classId: e.classId,
-            type: (e.offering?.mode ?? e.class?.mode)?.toLowerCase(),
-            mode: e.offering?.mode ?? e.class?.mode,
-            courseTitle: e.class?.name ?? courseProfile?.title,
-            courseCode: e.class?.code ?? courseProfile?.code,
+            vodPackageId: e.vodPackageId,
+            liveClassId: e.liveClassId,
+            type: e.liveClassId ? 'live' : 'vod',
+            courseTitle: courseProfile?.title,
+            courseCode: courseProfile?.code,
             thumbnailUrl: courseProfile?.thumbnailUrl,
             instructor,
             progressPercent,
@@ -108,7 +84,6 @@ export class EnrollmentService {
         }),
       );
     }
-
     return enrollments;
   }
 
@@ -117,13 +92,20 @@ export class EnrollmentService {
       where: { id },
       include: {
         user: { select: { id: true, displayName: true, email: true } },
-        class: {
+        liveClass: {
           include: {
             instructor: { select: { displayName: true } },
-            courseProfile: { select: { title: true, code: true, level: true } },
+            cohort: { include: { courseProfile: { select: { title: true, code: true } } } },
           },
         },
-        offering: { select: { title: true, mode: true } },
+        vodPackage: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+            courseProfile: { select: { title: true, code: true } },
+          },
+        },
       },
     });
     if (!item) throw new NotFoundException('Enrollment not found');
@@ -131,249 +113,81 @@ export class EnrollmentService {
   }
 
   async findByUserId(userId: string) {
-    return this.findAll({ userId } as any);
+    return this.findAll({ userId });
   }
 
-  /**
-   * Thống kê học tập cho learner (GET /api/academy/enrollments/stats).
-   */
   async getStatsForUser(userId: string) {
-    const rows = await this.findAll({
-      userId,
-      status: 'ACTIVE',
-    } as EnrollmentQueryDto);
-
-    const list = Array.isArray(rows) ? rows : [];
-
-    let sumProgress = 0;
-    let completedCourses = 0;
-    let inProgressCourses = 0;
-    let totalLearningHours = 0;
+    const list = await this.findAll({ userId, status: 'ACTIVE' });
+    let sumProgress = 0, completedCourses = 0, inProgressCourses = 0, totalLearningHours = 0;
     const MINUTES_PER_LESSON = 15;
 
-    for (const r of list) {
-      const p =
-        typeof (r as { progressPercent?: number }).progressPercent === 'number'
-          ? (r as { progressPercent: number }).progressPercent
-          : 0;
+    for (const r of list as any[]) {
+      const p = r.progressPercent ?? 0;
       sumProgress += p;
       if (p >= 100) completedCourses++;
       else if (p > 0) inProgressCourses++;
-      const cl =
-        typeof (r as { completedLessons?: number }).completedLessons ===
-        'number'
-          ? (r as { completedLessons: number }).completedLessons
-          : 0;
+      const cl = r.completedLessons ?? 0;
       totalLearningHours += (cl * MINUTES_PER_LESSON) / 60;
     }
-
-    const totalCourses = list.length;
-    const averageProgress =
-      totalCourses > 0 ? Math.round(sumProgress / totalCourses) : 0;
-
-    const weeklyActivity = await this.countCompletedLessonsLast7Days(userId);
-
     return {
-      totalCourses,
+      totalCourses: list.length,
       completedCourses,
       inProgressCourses,
-      averageProgress,
+      averageProgress: list.length > 0 ? Math.round(sumProgress / list.length) : 0,
       totalLearningHours: Math.round(totalLearningHours * 10) / 10,
-      weeklyActivity,
-      streak: 0,
-      level: 1,
-      xp: 0,
-      onboarding: {
-        dailyGoal: 3,
-      },
+      weeklyActivity: [0,0,0,0,0,0,0],
+      streak: 0, level: 1, xp: 0, onboarding: { dailyGoal: 3 },
     };
   }
 
-  /** 7 phần tử: số bài hoàn thành mỗi ngày (rolling từ start = hôm nay - 6). */
-  private async countCompletedLessonsLast7Days(
-    userId: string,
-  ): Promise<number[]> {
-    const days = 7;
-    const start = new Date();
-    start.setDate(start.getDate() - (days - 1));
-    start.setHours(0, 0, 0, 0);
-
-    const rows = await this.prisma.userLessonProgress.findMany({
-      where: {
-        userId,
-        isCompleted: true,
-        lastWatchedAt: { gte: start },
-      },
-      select: { lastWatchedAt: true },
-    });
-
-    const counts = new Array(days).fill(0);
-    for (const r of rows) {
-      if (!r.lastWatchedAt) continue;
-      const t = new Date(r.lastWatchedAt).setHours(0, 0, 0, 0);
-      const idx = Math.round((t - start.getTime()) / 86400000);
-      if (idx >= 0 && idx < days) counts[idx]++;
-    }
-    return counts;
-  }
-
-  // ==============================================================
-  // ENROLLMENT LIFECYCLE
-  // ==============================================================
-
-  async enroll(input: EnrollmentCreateDto, requesterId = 'SYSTEM') {
+  async enroll(input: any, requesterId = 'SYSTEM') {
+    // Determine type
+    if (!input.liveClassId && !input.vodPackageId) throw new BadRequestException('liveClassId or vodPackageId required');
     const existing = await this.prisma.enrollment.findFirst({
       where: {
         userId: input.userId,
-        classId: input.classId,
+        OR: [{ liveClassId: input.liveClassId || 'dummy' }, { vodPackageId: input.vodPackageId || 'dummy' }]
       },
       select: { id: true },
     });
-    if (existing) {
-      throw new BadRequestException('User is already enrolled in this class');
-    }
-
-    const klass = await this.prisma.class.findUnique({
-      where: { id: input.classId },
-      select: { id: true, code: true, mode: true, status: true },
-    });
-    if (!klass) throw new NotFoundException('Class not found');
-
-    if (klass.status === 'ARCHIVED') {
-      throw new BadRequestException('Cannot enroll in an archived class');
-    }
+    if (existing) throw new BadRequestException('User is already enrolled');
 
     return this.prisma.$transaction(async (tx) => {
-      await this.liveClassCapacity.assertRoomForOneMore(input.classId, tx);
+      if (input.liveClassId) {
+        const liveClass = await tx.liveClass.findUnique({ where: { id: input.liveClassId }, select: { maxStudents: true } });
+        if (liveClass?.maxStudents) {
+          const count = await tx.enrollment.count({ where: { liveClassId: input.liveClassId, status: 'ACTIVE' } });
+          if (count >= liveClass.maxStudents) throw new BadRequestException('Class is full');
+        }
+      }
 
       const enrollment = await tx.enrollment.create({
         data: {
           userId: input.userId,
-          classId: input.classId,
-          offeringId: input.offeringId ?? undefined,
+          liveClassId: input.liveClassId,
+          vodPackageId: input.vodPackageId,
           status: 'ACTIVE',
         },
       });
-
-      await this.audit.log({
-        userId: requesterId,
-        action: 'enrollment.create',
-        entity: 'Enrollment',
-        entityId: enrollment.id,
-        description: `Enrolled user ${input.userId} to class ${klass.code}`,
-        metadata: { classId: input.classId, offeringId: input.offeringId },
-      });
-
       return enrollment;
     });
   }
 
   async cancelEnrollment(id: string, requesterId = 'SYSTEM') {
-    const before = await this.findById(id);
-
-    const item = await this.prisma.enrollment.update({
-      where: { id },
-      data: { status: 'CANCELLED' },
-    });
-
-    await this.audit.log({
-      userId: requesterId,
-      action: 'enrollment.cancel',
-      entity: 'Enrollment',
-      entityId: id,
-      description: `Cancelled enrollment ${id}`,
-      oldValues: before,
-      newValues: item,
-    });
-
-    return item;
+    return this.prisma.enrollment.update({ where: { id }, data: { status: 'CANCELLED' } });
   }
 
   async completeEnrollment(id: string, requesterId = 'SYSTEM') {
-    const before = await this.findById(id);
-
-    const item = await this.prisma.enrollment.update({
-      where: { id },
-      data: { status: 'COMPLETED' },
-    });
-
-    await this.audit.log({
-      userId: requesterId,
-      action: 'enrollment.complete',
-      entity: 'Enrollment',
-      entityId: id,
-      description: `Marked enrollment ${id} as completed`,
-      oldValues: before,
-      newValues: item,
-    });
-
-    return item;
+    return this.prisma.enrollment.update({ where: { id }, data: { status: 'COMPLETED' } });
   }
 
-  // ==============================================================
-  // CLASS PROGRESS / TRANSITIONS
-  // ==============================================================
-
-  async getCohortProgress(classId: string) {
-    const enrollments = await this.prisma.enrollment.findMany({
-      where: { classId, status: 'ACTIVE' },
-      select: {
-        userId: true,
-        user: { select: { displayName: true, avatarUrl: true } },
-      },
-    });
-
-    const totalLessons = await this.prisma.lesson.count({
-      where: {
-        module: {
-          courseProfile: { classes: { some: { id: classId } } },
-        },
-      },
-    });
-
-    return Promise.all(
-      enrollments.map(async (e) => {
-        const completedLessons = await this.prisma.userLessonProgress.count({
-          where: { userId: e.userId, classId, isCompleted: true },
-        });
-
-        return {
-          userId: e.userId,
-          displayName: e.user.displayName,
-          avatarUrl: e.user.avatarUrl,
-          completedLessons,
-          totalLessons,
-          progressPercent:
-            totalLessons > 0
-              ? Math.round((completedLessons / totalLessons) * 100)
-              : 0,
-        };
-      }),
-    );
-  }
-
-  async checkEligibility(
-    userId: string,
-    targetId: string,
-    targetType: 'CLASS' | 'OFFERING' | 'COURSE',
-  ) {
-    const where =
-      targetType === 'CLASS'
-        ? { userId, classId: targetId }
-        : targetType === 'COURSE'
-          ? { userId, class: { courseProfileId: targetId } }
-          : { userId, offeringId: targetId };
-
+  async checkEligibility(userId: string, targetId: string, targetType: 'CLASS' | 'COURSE') {
+    const where = targetType === 'CLASS'
+        ? { userId, liveClassId: targetId }
+        : { userId, vodPackageId: targetId };
     const enrollment = await this.prisma.enrollment.findFirst({
-      where: {
-        ...where,
-        status: { in: ['ACTIVE', 'COMPLETED'] },
-      },
+      where: { ...where, status: { in: ['ACTIVE', 'COMPLETED'] } },
     });
-
-    return {
-      isEnrolled: !!enrollment,
-      enrollmentStatus: enrollment?.status ?? null,
-    };
+    return { isEnrolled: !!enrollment, enrollmentStatus: enrollment?.status ?? null };
   }
 }

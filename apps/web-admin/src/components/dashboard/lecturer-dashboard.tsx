@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { StatsCard } from "./stats-card"
 import { useAuth } from "@/hooks/use-auth"
-import { useAcademyClasses, type AcademyClass } from "@/lib/api/services/academy-classes"
+import { useAcademyLiveClasses, type AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import {
     useJoinAcademyLiveSessionAsLecturer,
     academyLiveSessionsApi,
@@ -117,7 +117,7 @@ function LecturerTimetableSessionCard({
                         asChild
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <Link to={`/academy/classes/${session.classId}/schedule`}>Lớp</Link>
+                        <Link to={`/academy/live-classes/${session.classId}/schedule`}>Lớp</Link>
                     </Button>
                 </div>
                 <div>
@@ -140,18 +140,18 @@ export default function LecturerDashboard() {
     const fromDate = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split("T")[0]
     const toDate = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString().split("T")[0]
 
-    const { data: classes = [], isLoading: classesLoading } = useAcademyClasses({
+    const { data: classes = [], isLoading: classesLoading } = useAcademyLiveClasses({
         instructorId: instructorId as any,
     })
 
     const liveClassIds = useMemo(() => {
         return classes
-            .filter((c) => c.mode === "LIVE" && ["ONGOING", "OPENING"].includes(c.status))
+            .filter((c) => ["ONGOING", "PUBLISHED"].includes(c.status))
             .map((c) => c.id)
     }, [classes])
 
     const classMap = useMemo(() => {
-        const m: Record<string, AcademyClass> = {}
+        const m: Record<string, AcademyLiveClass> = {}
         classes.forEach((c) => { m[c.id] = c })
         return m
     }, [classes])
@@ -321,7 +321,7 @@ export default function LecturerDashboard() {
                                     Vào phòng học
                                 </Button>
                                 <Button variant="outline" asChild>
-                                    <Link to={`/academy/classes/${nextSession.classId}/schedule`}>
+                                    <Link to={`/academy/live-classes/${nextSession.classId}/schedule`}>
                                         Lịch & Điểm danh
                                         <ChevronRight className="size-4 ml-1" />
                                     </Link>
@@ -444,7 +444,7 @@ export default function LecturerDashboard() {
                                     </EmptyHeader>
                                     <EmptyContent>
                                         <Button variant="outline" asChild>
-                                            <Link to="/academy/classes">Xem Lớp của tôi</Link>
+                                            <Link to="/academy/live-classes">Xem Lớp của tôi</Link>
                                         </Button>
                                     </EmptyContent>
                                 </Empty>
@@ -544,7 +544,7 @@ export default function LecturerDashboard() {
                                     </div>
 
                                     <Button variant="outline" size="sm" className="w-full" asChild>
-                                        <Link to="/academy/classes">Quản lý tất cả lớp</Link>
+                                        <Link to="/academy/live-classes">Quản lý tất cả lớp</Link>
                                     </Button>
                                 </div>
                             )}
@@ -559,7 +559,7 @@ export default function LecturerDashboard() {
                         </CardHeader>
                         <CardContent className="space-y-2">
                             <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3" asChild>
-                                <Link to="/academy/classes">
+                                <Link to="/academy/live-classes">
                                     <BookOpen className="size-4 shrink-0" />
                                     <span className="text-left">
                                         <span className="block font-medium">Lớp của tôi</span>
@@ -570,7 +570,7 @@ export default function LecturerDashboard() {
                             </Button>
                             {liveClassIds[0] && (
                                 <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3" asChild>
-                                    <Link to={`/academy/classes/${liveClassIds[0]}/schedule`}>
+                                    <Link to={`/academy/live-classes/${liveClassIds[0]}/schedule`}>
                                         <Calendar className="size-4 shrink-0" />
                                         <span className="text-left">
                                             <span className="block font-medium">Lịch & Điểm danh</span>
@@ -581,7 +581,7 @@ export default function LecturerDashboard() {
                                 </Button>
                             )}
                             <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3" asChild>
-                                <Link to="/academy/classes">
+                                <Link to="/academy/live-classes">
                                     <Target className="size-4 shrink-0" />
                                     <span className="text-left">
                                         <span className="block font-medium">Bài tập cần chấm</span>

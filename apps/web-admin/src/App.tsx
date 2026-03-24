@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-
 
 function NavigateToClassTab({ tab }: { tab: string }) {
   const { classId } = useParams<{ classId: string }>()
-  return <Navigate to={`/academy/classes/${classId}/detail?tab=${tab}`} replace />
+  return <Navigate to={`/academy/live-classes/${classId}/detail?tab=${tab}`} replace />
 }
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -46,14 +46,16 @@ import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles-page.tsx'
 import CourseProfileDetailPage from '@/routes/academy/course-profiles/course-profile-detail-page.tsx'
 import CourseEditionsPage from '@/routes/academy/course-editions/course-editions-page'
-import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
-import ClassStudentsPage from '@/routes/academy/classes/class-students-page.tsx'
-import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
-import OfferingDetailPage from '@/routes/academy/offerings/offering-detail-page.tsx'
-import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
-import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
-import CourseOfferingApprovalPreviewPage from '@/routes/academy/approvals/course-offering-preview-page.tsx'
-import ClassApprovalPreviewPage from '@/routes/academy/approvals/class-preview-page.tsx'
+import LiveClassesPage from '@/routes/academy/live-classes/live-classes-page'
+import LiveClassStudentsPage from '@/routes/academy/live-classes/live-class-students-page'
+import CohortsPage from '@/routes/academy/cohorts/cohorts-page'
+import CohortDetailPage from '@/routes/academy/cohorts/cohort-detail-page'
+import VodPackagesPage from '@/routes/academy/vod-packages/vod-packages-page'
+import VodPackageDetailPage from '@/routes/academy/vod-packages/vod-package-detail-page'
+import AssignmentGradingPage from '@/routes/academy/live-classes/assignment-grading-page'
+import ApprovalsPage from '@/routes/academy/approvals/approvals-page'
+import CohortApprovalPreviewPage from '@/routes/academy/approvals/cohort-preview-page'
+import VodPackageApprovalPreviewPage from '@/routes/academy/approvals/vod-package-preview-page'
 import CourseProfileApprovalPreviewPage from '@/routes/academy/approvals/course-profile-preview-page'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
@@ -116,14 +118,16 @@ function App() {
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"]} />}>
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
                     <Route path="academy/course-profiles/:profileId/detail" element={<CourseProfileDetailPage />} />
-                  <Route path="academy/course-editions" element={<CourseEditionsPage />} />
-                    <Route path="academy/classes" element={<ClassesPage />} />
-                    <Route path="academy/classes/:classId/detail" element={<ClassStudentsPage />} />
-                    <Route path="academy/classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
-                    <Route path="academy/classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
-                    <Route path="academy/course-offerings" element={<OfferingsPage />} />
-                    <Route path="academy/course-offerings/:offeringId/detail" element={<OfferingDetailPage />} />
-                    <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
+                    <Route path="academy/course-editions" element={<CourseEditionsPage />} />
+                    <Route path="academy/live-classes" element={<LiveClassesPage />} />
+                    <Route path="academy/live-classes/:classId/detail" element={<LiveClassStudentsPage />} />
+                    <Route path="academy/live-classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
+                    <Route path="academy/live-classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
+                    <Route path="academy/cohorts" element={<CohortsPage />} />
+                    <Route path="academy/cohorts/:cohortId/detail" element={<CohortDetailPage />} />
+                    <Route path="academy/vod-packages" element={<VodPackagesPage />} />
+                    <Route path="academy/vod-packages/:id/detail" element={<VodPackageDetailPage />} />
+                    <Route path="academy/live-classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
 
                     {/* AI Subscriptions */}
                     <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
@@ -138,8 +142,8 @@ function App() {
                   </Route>
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />
-                    <Route path="academy/approvals/course-offerings/:id" element={<CourseOfferingApprovalPreviewPage />} />
-                    <Route path="academy/approvals/classes/:id" element={<ClassApprovalPreviewPage />} />
+                    <Route path="academy/approvals/cohorts/:id" element={<CohortApprovalPreviewPage />} />
+                    <Route path="academy/approvals/vod-packages/:id" element={<VodPackageApprovalPreviewPage />} />
                     <Route
                       path="academy/approvals/course-profiles/:id"
                       element={<CourseProfileApprovalPreviewPage />}

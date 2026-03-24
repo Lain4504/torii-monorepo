@@ -6,12 +6,56 @@ import {
     Users,
     CheckCircle2,
     ArrowUpRight,
-    BookOpen
+    BookOpen,
+    type LucideIcon
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "@/lib/api/services/analytics"
 import { StatsCard } from "./stats-card"
-import { OperationItem } from "./admin-dashboard"
+
+function OperationItem({
+    icon: Icon,
+    title,
+    desc,
+    tag,
+    tagColor,
+    time,
+    link,
+}: {
+    icon: LucideIcon
+    title: string
+    desc: string
+    tag: string
+    tagColor: "rose" | "amber" | "primary"
+    time: string
+    link: string
+}) {
+    const tagClass =
+        tagColor === "rose"
+            ? "bg-rose-500/10 text-rose-500"
+            : tagColor === "amber"
+                ? "bg-amber-500/10 text-amber-600"
+                : "bg-primary/10 text-primary"
+
+    return (
+        <a
+            href={link}
+            className="group flex items-start gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
+        >
+            <div className="mt-0.5 rounded-md bg-primary/10 p-2 text-primary">
+                <Icon className="size-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground truncate">{title}</p>
+                <p className="text-xs text-muted-foreground truncate">{desc}</p>
+            </div>
+            <div className="flex items-center gap-2 pl-2">
+                <span className={cn("rounded px-2 py-0.5 text-[10px] font-semibold", tagClass)}>{tag}</span>
+                <span className="text-[10px] text-muted-foreground">{time}</span>
+            </div>
+        </a>
+    )
+}
 
 function TaskItem({ title, status, code }: { title: string, status: string, code: string }) {
     const isUrgent = status === 'Khẩn cấp';

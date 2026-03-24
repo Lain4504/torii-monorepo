@@ -1,12 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { EnrollmentService } from './enrollment.service';
-import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 
-/**
- * EnrollmentHandler - NATS Message Interface for Student Management.
- * Refactored to remove legacy Syllabus patterns.
- */
 @Controller()
 export class EnrollmentHandler {
   constructor(private readonly enrollments: EnrollmentService) {}
@@ -17,7 +12,7 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.findAll' })
-  findAll(@Payload() query: EnrollmentQueryDto) {
+  findAll(@Payload() query: any) {
     return this.enrollments.findAll(query);
   }
 
@@ -27,7 +22,7 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.create' })
-  enroll(@Payload() data: EnrollmentCreateDto & { requesterId?: string }) {
+  enroll(@Payload() data: any & { requesterId?: string }) {
     const { requesterId, ...input } = data;
     return this.enrollments.enroll(input, requesterId);
   }
@@ -42,18 +37,12 @@ export class EnrollmentHandler {
     return this.enrollments.completeEnrollment(data.id, data.requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.enrollment.getCohortProgress' })
-  getCohortProgress(@Payload() data: { classId: string }) {
-    return this.enrollments.getCohortProgress(data.classId);
-  }
-
-  /** Gateway dùng để kiểm tra user có ghi danh vào class không (markLessonComplete, getAssignments, …). */
   @MessagePattern({ cmd: 'academy.enrollment.check' })
-  check(@Payload() data: { userId: string; classId: string }) {
+  check(@Payload() data: { userId: string; liveClassId?: string; vodPackageId?: string }) {
     return this.enrollments.checkEligibility(
       data.userId,
-      data.classId,
-      'CLASS',
+      data.liveClassId || data.vodPackageId || '',
+      data.liveClassId ? 'CLASS' : 'COURSE',
     );
   }
 
@@ -63,7 +52,7 @@ export class EnrollmentHandler {
     data: {
       userId: string;
       targetId: string;
-      targetType: 'CLASS' | 'OFFERING' | 'COURSE';
+      targetType: 'CLASS' | 'COURSE';
     },
   ) {
     return this.enrollments.checkEligibility(

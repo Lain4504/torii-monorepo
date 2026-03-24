@@ -4,9 +4,9 @@ import type {
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
-import { computeLearnerOfferingDisplay } from '@/lib/utils/learner-offering-display';
+import { computeLearnerProductDisplay } from '@/lib/utils/learner-product-display';
 
-function normalizeOfferingForLearner(item: any) {
+function normalizeProductForLearner(item: any) {
   if (!item) return null;
 
   const primaryClass = item.class ?? null;
@@ -15,8 +15,8 @@ function normalizeOfferingForLearner(item: any) {
     item.class?.courseProfile ||
     item.courseProfile;
 
-  // Map CourseProfile (modules/lessons) → courseEdition.chapters (dùng khi không có edition từ lớp)
-  let courseEdition = primaryClass?.courseEdition;
+  // Map CourseProfile (modules/lessons) → courseEdition.chapters
+  let courseEdition = primaryClass?.courseEdition || primaryClass?.cohort?.courseProfile?.edition;
 
   if (!courseEdition && profile?.modules && Array.isArray(profile.modules)) {
     const chapters = profile.modules.map((mod: any) => ({
@@ -41,7 +41,7 @@ function normalizeOfferingForLearner(item: any) {
         : [];
 
   const siblingClasses = Array.isArray(item.siblingClasses) ? item.siblingClasses : [];
-  // Gói LIVE gắn term: API trả siblingClasses (lớp cùng kỳ), không set item.class
+  // Gói LIVE gắn cohort: API trả siblingClasses (lớp cùng đợt), không set item.class
   if (item.mode === 'LIVE' && siblingClasses.length > 0) {
     classes = siblingClasses;
   }
@@ -61,11 +61,11 @@ function normalizeOfferingForLearner(item: any) {
     return cls;
   });
 
-  const display = computeLearnerOfferingDisplay(item, {
+  const display = computeLearnerProductDisplay(item, {
     isLive,
     primaryClass,
     profile,
-    classesForTerm: normalizedClasses,
+    classesForCohort: normalizedClasses,
   });
 
   return {
@@ -94,13 +94,12 @@ function normalizeOfferingForLearner(item: any) {
   };
 }
 
-/** Chỉ dùng cho checkout/preview theo `offeringId` (gói bán). Khám phá khóa học dùng `academyClassCatalogApi`. */
-export const academyOfferingApi = {
-  getPublicById: async (id: string): Promise<any | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(
-      `/api/academy/course-offerings/public/${id}`
-    );
-    return normalizeOfferingForLearner(response.data.data!.item);
+/** Chỉ dùng cho checkout/preview và chi tiết khóa học. Hỗ trợ cả Cohort (LIVE) và VodPackage (VOD). */
+export const academyProductApi = {
+  getPublicById: async (id: string, type: 'LIVE' | 'VOD' = 'LIVE'): Promise<any | null> => {
+    const endpoint = type === 'LIVE' ? `/api/academy/cohorts/public/${id}` : `/api/academy/vod-packages/public/${id}`;
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(endpoint);
+    return normalizeProductForLearner(response.data.data!.item);
   },
 };
 
@@ -114,7 +113,7 @@ export const academyClassCatalogApi = {
     q?: string;
   }): Promise<{ items: any[] }> => {
     const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
-      '/api/academy/classes/public',
+      '/api/academy/live-classes/public',
       { params },
     );
     return response.data.data!;
@@ -122,7 +121,7 @@ export const academyClassCatalogApi = {
 
   getPublicById: async (id: string): Promise<any> => {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(
-      `/api/academy/classes/public/${id}`,
+      `/api/academy/live-classes/public/${id}`,
     );
     return response.data.data!.item;
   },
@@ -164,12 +163,12 @@ export const academyCourseApi = {
 };
 
 /**
- * Hook: offering theo id (checkout)
+ * Hook: sản phẩm học tập theo id (checkout)
  */
-export function useAcademyOffering(id?: string) {
+export function useAcademyProduct(id?: string, type: 'LIVE' | 'VOD' = 'LIVE') {
   return useQuery({
-    queryKey: ['academy-course-offerings', 'id', id],
-    queryFn: () => academyOfferingApi.getPublicById(id!),
+    queryKey: ['academy-course-products', 'id', id, type],
+    queryFn: () => academyProductApi.getPublicById(id!, type),
     enabled: !!id,
     retry: false,
   });

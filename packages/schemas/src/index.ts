@@ -25,7 +25,8 @@ export * from './dtos/blog.dto';
 export * from './dtos/comment.dto';
 export * from './dtos/staff-dashboard.dto';
 export * from './dtos/academy-course-profile.dto';
-export * from './dtos/academy-course-offering.dto';
+export * from './dtos/academy-vod-package.dto';
+export * from './dtos/academy-cohort.dto';
 export * from './dtos/academy-course-edition.dto';
 export * from './dtos/academy-exam.dto';
 export * from './dtos/academy-question.dto';
@@ -40,8 +41,8 @@ export * from './dtos/ticket.dto';
 export * from './dtos/certificate.dto';
 export * from './dtos/agent.dto';
 export * from './dtos/balance.dto';
-export * from './dtos/academy-class.dto';
-export * from './dtos/academy-class-assignment.dto';
+export * from './dtos/academy-live-class.dto';
+export * from './dtos/academy-live-class-assignment.dto';
 export * from './dtos/refund.dto';
 
 export * from './dtos/academy-live-schedule.dto';
@@ -51,7 +52,7 @@ export * from './dtos/academy-live-session.dto';
 export * from './dtos/academy-assignment-submission.dto';
 export * from './dtos/academy-lesson.dto';
 export * from './dtos/academy-enrollment.dto';
-export * from './dtos/academy-class-review.dto';
+export * from './dtos/academy-course-review.dto';
 
 
 export * from './dtos/academy-class-attendance.dto';

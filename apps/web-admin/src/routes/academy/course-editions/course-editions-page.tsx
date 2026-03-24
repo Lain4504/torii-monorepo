@@ -26,8 +26,12 @@ export default function CourseEditionsPage() {
 
   const { data: editions, isLoading } = useAcademyCourseEditions({
     q: debouncedQ || undefined,
-    isActive: true,
   })
+
+  const activeEditions = useMemo(
+    () => (editions ?? []).filter((edition) => edition.isActive),
+    [editions],
+  )
 
   const openCreate = () => {
     setSelectedEdition(null)
@@ -99,14 +103,14 @@ export default function CourseEditionsPage() {
                   </TableCell>
                 </TableRow>
               ))
-            ) : editions?.length === 0 ? (
+            ) : activeEditions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
                   Không có edition nào phù hợp.
                 </TableCell>
               </TableRow>
             ) : (
-              editions?.map((edition) => (
+              activeEditions.map((edition) => (
                 <TableRow key={edition.id} className="group hover:bg-muted/5 transition-colors">
                   <TableCell className="font-mono font-bold text-xs text-primary">{edition.key}</TableCell>
                   <TableCell className="font-medium">{edition.title ?? '—'}</TableCell>

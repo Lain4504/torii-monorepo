@@ -409,14 +409,15 @@ export class CourseProfileService {
     });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
-    const [classes, modules] = await this.prisma.$transaction([
-      this.prisma.class.count({ where: { courseProfileId: id } }),
+    const [cohorts, vods, modules] = await this.prisma.$transaction([
+      this.prisma.cohort.count({ where: { courseProfileId: id } }),
+      this.prisma.vodPackage.count({ where: { courseProfileId: id } }),
       this.prisma.module.count({ where: { courseProfileId: id } }),
     ]);
 
-    if (classes || modules) {
+    if (cohorts || vods || modules) {
       throw new BadRequestException(
-        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (lớp học hoặc giáo trình).',
+        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan.',
       );
     }
 

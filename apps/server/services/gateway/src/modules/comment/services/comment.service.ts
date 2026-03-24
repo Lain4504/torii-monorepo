@@ -128,7 +128,7 @@ export class CommentService {
     let current = entityId;
     for (let i = 0; i < 5; i++) {
       // 1) entityId is already a class id
-      const klass = await this.prisma.class.findUnique({
+      const klass = await this.prisma.liveClass. findUnique({
         where: { id: current },
         select: { id: true },
       });
@@ -140,8 +140,10 @@ export class CommentService {
         select: { module: { select: { courseProfileId: true } } },
       });
       if (lesson?.module?.courseProfileId) {
-        const classes = await this.prisma.class.findMany({
-          where: { courseProfileId: lesson.module.courseProfileId },
+        const classes = await this.prisma.liveClass.findMany({
+          where: {
+            cohort: { courseProfileId: lesson.module.courseProfileId },
+          },
           select: { id: true },
         });
         if (classes.length) return classes.map((c) => c.id);
@@ -182,7 +184,7 @@ export class CommentService {
       throw new ForbiddenException('Bạn không được phép đăng thảo luận này');
     }
 
-    const classes = await this.prisma.class.findMany({
+    const classes = await this.prisma.liveClass.findMany({
       where: { id: { in: classIds } },
       select: { instructorId: true },
     });

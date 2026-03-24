@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
-  AcademyClassAssignmentCreateDTO,
-  AcademyClassAssignmentUpdateDTO,
+  AcademyLiveClassAssignmentCreateDTO,
+  AcademyLiveClassAssignmentUpdateDTO,
   StandardApiResponse,
 } from "@workspace/schemas"
 
@@ -31,34 +31,34 @@ export const academyClassAssignmentsApi = {
   async findById(id: string) {
     const res = await apiClient.get<
       StandardApiResponse<{ item: AcademyClassAssignment }>
-    >(`/api/academy/class-assignments/${id}`)
+    >(`/api/academy/live-class-assignments/${id}`)
     return res.data.data!.item
   },
 
   async findByClassId(classId: string) {
     const res = await apiClient.get<
       StandardApiResponse<{ items: AcademyClassAssignment[] }>
-    >(`/api/academy/classes/${classId}/assignments`)
+    >(`/api/academy/live-classes/${classId}/assignments`)
     return res.data.data!.items
   },
 
-  async add(classId: string, input: Omit<AcademyClassAssignmentCreateDTO, "classId">) {
+  async add(classId: string, input: Omit<AcademyLiveClassAssignmentCreateDTO, "classId">) {
     const res = await apiClient.post<
       StandardApiResponse<{ item: AcademyClassAssignment }>
-    >(`/api/academy/classes/${classId}/assignments`, { ...input, classId })
+    >(`/api/academy/live-classes/${classId}/assignments`, { ...input, classId })
     return res.data.data!.item
   },
 
-  async update(id: string, input: AcademyClassAssignmentUpdateDTO) {
+  async update(id: string, input: AcademyLiveClassAssignmentUpdateDTO) {
     const res = await apiClient.put<
       StandardApiResponse<{ item: AcademyClassAssignment }>
-    >(`/api/academy/class-assignments/${id}`, input)
+    >(`/api/academy/live-class-assignments/${id}`, input)
     return res.data.data!.item
   },
 
   async remove(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
-      `/api/academy/class-assignments/${id}`,
+      `/api/academy/live-class-assignments/${id}`,
     )
     return res.data
   },
@@ -83,7 +83,7 @@ export function useAcademyClassAssignments(classId: string) {
 export function useAddAcademyClassAssignment(classId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (input: Omit<AcademyClassAssignmentCreateDTO, "classId">) =>
+    mutationFn: (input: Omit<AcademyLiveClassAssignmentCreateDTO, "classId">) =>
       academyClassAssignmentsApi.add(classId, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-class-assignments", classId] }),
   })
@@ -97,7 +97,7 @@ export function useUpdateAcademyClassAssignment(classId: string) {
       input,
     }: {
       id: string
-      input: AcademyClassAssignmentUpdateDTO
+      input: AcademyLiveClassAssignmentUpdateDTO
     }) => academyClassAssignmentsApi.update(id, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-class-assignments", classId] }),
   })

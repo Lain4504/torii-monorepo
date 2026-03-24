@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useParams } from "react-router-dom"
-import { useAcademyClass } from "@/lib/api/services/academy-classes"
+import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyLiveSessions } from "@/lib/api/services/academy-live-sessions"
 import { useAcademyClassAttendances, useCreateAcademyClassAttendance } from "@/lib/api/services/academy-class-attendances"
@@ -26,7 +26,7 @@ import { toast } from "sonner"
 
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import type { AcademyLiveScheduleSessionModel } from "@workspace/schemas"
-import type { AcademyClass } from "@/lib/api/services/academy-classes"
+import type { AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import type { AcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 
 const WEEKDAY_MAP: Record<number, string> = {
@@ -41,7 +41,7 @@ const WEEKDAY_MAP: Record<number, string> = {
 
 interface ClassAttendanceTabProps {
     classId?: string
-    academyClass?: AcademyClass
+    academyClass?: AcademyLiveClass
 }
 
 export function ClassAttendanceTab({ classId: propClassId, academyClass: propAcademyClass }: ClassAttendanceTabProps) {
@@ -57,10 +57,10 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const isLecturer = user?.role === UserRole.LECTURER
     const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
-    const { data: fetchedClass } = useAcademyClass(propAcademyClass ? undefined : classId)
+    const { data: fetchedClass } = useAcademyLiveClass(propAcademyClass ? undefined : classId)
     const academyClass = propAcademyClass || fetchedClass
 
-    const { data: enrollmentsData = [] } = useAcademyEnrollments({ classId, page: 1, limit: 100 })
+    const { data: enrollmentsData = [] } = useAcademyEnrollments({ liveClassId: classId, page: 1, limit: 100 })
     const { data: sessions = [] } = useAcademyLiveSessions({ 
         classId, 
         from: fromDate,

@@ -38,6 +38,9 @@ import { useAcademyCourseEditionsPublic } from '@/lib/api/services/academy-cours
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import { toast } from "sonner"
 import { Loader2, Save, X } from "lucide-react"
+import type { AcademyCourseEditionModel } from "@workspace/schemas"
+
+const UNSET_EDITION_VALUE = "__none__"
 
 const courseProfileSchema = z.object({
   code: z.string().min(2, "Mã profile phải có ít nhất 2 ký tự"),
@@ -65,7 +68,9 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
   const {
     data: editions = [],
     isLoading: editionsLoading,
-  } = useAcademyCourseEditionsPublic({ isActive: true })
+  } = useAcademyCourseEditionsPublic({})
+
+  const activeEditions = editions.filter((edition) => edition.isActive)
 
   const {
     control,
@@ -91,7 +96,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         title: profile.title,
         description: profile.description || "",
         level: profile.level || "",
-          editionKey: (profile as any)?.edition?.key ?? null,
+        editionKey: (profile as any)?.edition?.key ?? null,
         thumbnailUrl: profile.thumbnailUrl || "",
       })
     } else {
@@ -100,7 +105,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         title: "",
         description: "",
         level: "",
-          editionKey: null,
+        editionKey: null,
         thumbnailUrl: "",
       })
     }
@@ -209,21 +214,21 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
                           control={control}
                           render={({ field }) => (
                             <Select
-                              value={(field.value ?? "") as any}
-                              onValueChange={(v) => field.onChange(v || null)}
+                              value={field.value ?? UNSET_EDITION_VALUE}
+                              onValueChange={(v) => field.onChange(v === UNSET_EDITION_VALUE ? null : v)}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Không đặt (null)" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">Không đặt</SelectItem>
+                                <SelectItem value={UNSET_EDITION_VALUE}>Không đặt</SelectItem>
                                 {editionsLoading
                                   ? null
-                                  : editions.map((e: any) => (
-                                      <SelectItem key={e.id} value={e.key}>
-                                        {e.title || e.key}
-                                      </SelectItem>
-                                    ))}
+                                  : activeEditions.map((e: AcademyCourseEditionModel) => (
+                                    <SelectItem key={e.id} value={e.key}>
+                                      {e.title || e.key}
+                                    </SelectItem>
+                                  ))}
                               </SelectContent>
                             </Select>
                           )}

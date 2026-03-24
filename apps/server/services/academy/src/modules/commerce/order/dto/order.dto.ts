@@ -11,7 +11,12 @@ export class OrderCheckoutDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  offeringIds?: string[];
+  vodPackageIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  cohortIds?: string[];
 
   @IsOptional()
   @IsArray()
@@ -31,7 +36,7 @@ export class OrderCheckoutDto {
 
   @IsOptional()
   @IsObject()
-  classIdByOffering?: Record<string, string>;
+  liveClassIdByCohort?: Record<string, string>;
 
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
@@ -41,7 +46,12 @@ export class OrderPreviewDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  offeringIds?: string[];
+  vodPackageIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  cohortIds?: string[];
 
   @IsOptional()
   @IsArray()
@@ -58,5 +68,5 @@ export class OrderPreviewDto {
 
   @IsOptional()
   @IsObject()
-  classIdByOffering?: Record<string, string>;
+  liveClassIdByCohort?: Record<string, string>;
 }

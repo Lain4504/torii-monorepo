@@ -22,7 +22,7 @@ import {
 import { formatNumber } from '@/utils/format-utils'
 import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Clock } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
-import { useAcademyOffering } from '@/lib/api/services/academy-course-api'
+import { useAcademyProduct } from '@/lib/api/services/academy-course-api'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
 import { PaymentMethod } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -62,15 +62,16 @@ export default function CheckoutPage() {
     const searchParams = useSearchParams()
     const courseId = params.courseId as string
     const user = useAppSelector((state) => state.auth.user)
+    const type = (searchParams.get('type') as 'LIVE' | 'VOD') || 'LIVE'
 
-    const { data: offering, isLoading: isLoadingOffering } = useAcademyOffering(courseId)
+    const { data: product, isLoading: isLoadingProduct } = useAcademyProduct(courseId, type)
     const [isProcessing, setIsProcessing] = useState(false)
-    const isLIVE = offering?.type === 'LIVE'
+    const isLIVE = product?.type === 'LIVE'
     
     // Selection state
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
     
-    const selectedClass = (offering?.classes || []).find((c: any) => c.id === selectedClassId) || offering?.class || null
+    const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedClassId) || product?.class || null
     const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
         ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
@@ -95,34 +96,34 @@ export default function CheckoutPage() {
     // Preselect class từ URL (?classId=) khi vào từ trang chi tiết lớp
     useEffect(() => {
         const fromQuery = searchParams.get('classId')
-        if (!fromQuery || !offering || offering.type !== 'LIVE') return
-        const inList = (offering.classes || []).some((c: { id: string }) => c.id === fromQuery)
+        if (!fromQuery || !product || product.type !== 'LIVE') return
+        const inList = (product.classes || []).some((c: { id: string }) => c.id === fromQuery)
         if (inList) setSelectedClassId(fromQuery)
-    }, [searchParams, offering])
+    }, [searchParams, product])
 
     // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong offering.classes (siblingClasses)
     useEffect(() => {
-        if (!offering || selectedClassId) return
-        if (offering.classId) {
+        if (!product || selectedClassId) return
+        if (product.classId) {
             const c =
-                (offering.classes || []).find((x: { id: string }) => x.id === offering.classId) ??
-                offering.class
+                (product.classes || []).find((x: { id: string }) => x.id === product.classId) ??
+                product.class
             if (c && !isLiveClassFull(c)) {
-                setSelectedClassId(offering.classId)
+                setSelectedClassId(product.classId)
             }
             return
         }
         if (
-            offering.type === 'LIVE' &&
-            Array.isArray(offering.classes) &&
-            offering.classes.length === 1
+            product.type === 'LIVE' &&
+            Array.isArray(product.classes) &&
+            product.classes.length === 1
         ) {
-            const c = offering.classes[0]
+            const c = product.classes[0]
             if (!isLiveClassFull(c)) {
                 setSelectedClassId(c.id)
             }
         }
-    }, [offering, selectedClassId])
+    }, [product, selectedClassId])
 
     // Debounced Recipient Check
     useEffect(() => {
@@ -149,19 +150,19 @@ export default function CheckoutPage() {
 
     // Update Preview whenever offering, selected class (LIVE) or coupon changes
     useEffect(() => {
-        if (offering?.id) {
+        if (product?.id) {
             handlePreview()
         }
-    }, [offering?.id, couponCode, selectedClassId])
+    }, [product?.id, couponCode, selectedClassId])
 
     const handlePreview = async () => {
-        if (!offering?.id) return
-        if (offering.type === 'LIVE') {
+        if (!product?.id) return
+        if (product.type === 'LIVE') {
             if (!selectedClassId) {
                 setPreview(null)
                 return
             }
-            const picked = (offering.classes || []).find((x: { id: string }) => x.id === selectedClassId)
+            const picked = (product.classes || []).find((x: { id: string }) => x.id === selectedClassId)
             if (picked && isLiveClassFull(picked)) {
                 setPreview(null)
                 return
@@ -170,9 +171,9 @@ export default function CheckoutPage() {
         try {
             setIsPreviewing(true)
             const result = await orderApi.previewOrder({
-                offeringIds: [offering.id],
+                productIds: [product.id],
                 couponCode: couponCode.trim() || undefined,
-                classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined
+                classIdByProduct: selectedClassId ? { [product.id]: selectedClassId } : undefined
             })
             setPreview(result)
         } catch (error: unknown) {
@@ -189,7 +190,7 @@ export default function CheckoutPage() {
     }
 
     const handlePayment = async () => {
-        if (!offering || !user) return
+        if (!product || !user) return
 
         if (isGift) {
             if (!recipientEmail) return toast.error('Vui lòng nhập email người nhận')
@@ -209,10 +210,10 @@ export default function CheckoutPage() {
         try {
             setIsProcessing(true)
             const result = await orderApi.createOrder({
-                offeringIds: [offering.id],
+                productIds: [product.id],
                 paymentMethod: PaymentMethod.PAYOS,
                 couponCode: couponCode.trim() || undefined,
-                classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined,
+                classIdByProduct: selectedClassId ? { [product.id]: selectedClassId } : undefined,
                 metadata: {
                     isGift,
                     recipientEmail: isGift ? recipientEmail : undefined,
@@ -233,10 +234,10 @@ export default function CheckoutPage() {
         }
     }
 
-    if (isLoadingOffering) return <PageLoading />
-    if (!offering) return null
+    if (isLoadingProduct) return <PageLoading />
+    if (!product) return null
 
-    const displaySubtotal = preview?.subtotal ?? Number(offering.price ?? 0)
+    const displaySubtotal = preview?.subtotal ?? Number(product.price ?? 0)
     const displayTotal = preview?.total ?? displaySubtotal
 
     return (
@@ -267,21 +268,21 @@ export default function CheckoutPage() {
                             <CardContent>
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
-                                        <Image src={offering.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.learnerDisplayTitle || offering.title} fill className="object-cover" />
+                                        <Image src={product.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={product.learnerDisplayTitle || product.name} fill className="object-cover" />
                                     </div>
                                     <div className="flex-1 space-y-3">
-                                        <Badge variant="secondary">{offering.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
-                                        <h3 className="font-bold text-lg">{offering.learnerDisplayTitle || offering.title}</h3>
-                                        {offering.liveContextLine && (
-                                            <p className="text-sm text-muted-foreground">{offering.liveContextLine}</p>
+                                        <Badge variant="secondary">{product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
+                                        <h3 className="font-bold text-lg">{product.learnerDisplayTitle || product.name}</h3>
+                                        {product.liveContextLine && (
+                                            <p className="text-sm text-muted-foreground">{product.liveContextLine}</p>
                                         )}
-                                        {offering.learnerMarketingSubtitle && (
-                                            <p className="text-xs text-muted-foreground">Gói: {offering.learnerMarketingSubtitle}</p>
+                                        {product.learnerMarketingSubtitle && (
+                                            <p className="text-xs text-muted-foreground">Gói: {product.learnerMarketingSubtitle}</p>
                                         )}
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
-                                            <ItemContent><ItemTitle>{formatNumber(offering.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
+                                            <ItemContent><ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
                                             </Item>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
@@ -301,7 +302,7 @@ export default function CheckoutPage() {
                             </CardContent>
                         </Card>
 
-                        {isLIVE && offering.classes && offering.classes.length === 1 && isLiveClassFull(offering.classes[0]) && (
+                        {isLIVE && product.classes && product.classes.length === 1 && isLiveClassFull(product.classes[0]) && (
                             <Card className="border-destructive/50 bg-destructive/5">
                                 <CardContent className="pt-6 text-sm text-destructive">
                                     Lớp LIVE hiện tại đã đủ học viên. Bạn không thể thanh toán gói này cho đến khi có chỗ trống.
@@ -309,12 +310,12 @@ export default function CheckoutPage() {
                             </Card>
                         )}
 
-                        {isLIVE && offering.classes && offering.classes.length > 1 && (
+                        {isLIVE && product.classes && product.classes.length > 1 && (
                             <Card>
-                                <CardHeader><CardTitle className="text-xl">Chọn lớp học (Kỳ học)</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="text-xl">Chọn lớp học (Đợt học)</CardTitle></CardHeader>
                                 <CardContent className="space-y-4">
                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                         {offering.classes.map((cls: any) => {
+                                         {product.classes.map((cls: any) => {
                                              const full = isLiveClassFull(cls)
                                              const cap = liveCapacityLabel(cls)
                                              return (
@@ -341,10 +342,10 @@ export default function CheckoutPage() {
                                                  {cap && (
                                                      <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">{cap}</p>
                                                  )}
-                                                 {cls.term && (
+                                                 {cls.cohort && (
                                                      <p className="text-[10px] text-muted-foreground mt-2 inline-flex items-center gap-1 bg-muted px-1.5 py-0.5 rounded">
                                                          <Clock className="size-3" />
-                                                         Khai giảng: {new Date(cls.term.openingDate).toLocaleDateString()}
+                                                         Khai giảng: {new Date(cls.cohort.startDate).toLocaleDateString()}
                                                      </p>
                                                  )}
                                              </div>

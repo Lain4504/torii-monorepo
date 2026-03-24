@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { academyClassReviewCreateDTOSchema } from "@workspace/schemas"
+import { academyCourseReviewCreateDTOSchema } from "@workspace/schemas"
 import {
     Dialog,
     DialogContent,
@@ -46,7 +46,7 @@ export function ClassReviewDialog({
     const [hoverRating, setHoverRating] = useState(0)
 
     const form = useForm({
-        resolver: zodResolver(academyClassReviewCreateDTOSchema),
+        resolver: zodResolver(academyCourseReviewCreateDTOSchema),
         defaultValues: {
             enrollmentId: enrollmentId,
             rating: existingReview?.rating || 5,

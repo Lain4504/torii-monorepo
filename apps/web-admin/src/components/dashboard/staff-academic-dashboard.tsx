@@ -69,7 +69,7 @@ export default function StaffAcademicDashboard() {
             <QuickAction
               to="/academy/approvals"
               title="Approval Center"
-              description="Duyệt course profile, class, offering theo luồng mới."
+              description="Duyệt profiles, live classes, cohorts theo luồng mới."
             />
             <QuickAction
               to="/academy/course-profiles"
@@ -77,7 +77,7 @@ export default function StaffAcademicDashboard() {
               description="Cập nhật mô tả, module, lesson cho từng profile."
             />
             <QuickAction
-              to="/academy/classes"
+              to="/academy/live-classes"
               title="Lớp học"
               description="Theo dõi trạng thái OPENING/ONGOING, lịch lớp và giảng viên."
             />
@@ -101,7 +101,7 @@ export default function StaffAcademicDashboard() {
               description="Cấu hình kỳ thi, lịch thi và tham số hệ thống."
             />
             <QuickAction
-              to="/academy/classes"
+              to="/academy/live-classes"
               title="Theo dõi lớp theo lịch"
               description="Kiểm soát chất lượng triển khai lớp LIVE/VOD."
             />

@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
-import { LiveSessionStatus, UserRole, isStaffBranchRole } from '@workspace/schemas';
+import { LiveSessionStatus } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
 function formatDuration(seconds: number): string {
@@ -40,7 +40,6 @@ export default function DashboardClientPage() {
     const endDate = new Date();
 
     const mainCourse = courses?.[0];
-    const otherCourses = courses?.slice(1, 3) || [];
 
     // Stats mapping for Academy
     const totalCourses = statsData?.totalCourses ?? courses?.length ?? 0;
@@ -73,8 +72,6 @@ export default function DashboardClientPage() {
 
     const jlptTarget = (user?.userMetadata as Record<string, string>)?.jlptTarget || 'N3';
     const firstName = user?.displayName?.split(' ').at(-1) || 'Học viên';
-    const role = user?.role as string | undefined;
-    const isStaffOrAdmin = role === UserRole.ADMIN || isStaffBranchRole(role);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -163,7 +160,7 @@ export default function DashboardClientPage() {
                                             </div>
                                         </div>
                                         <Link
-                                            href={`/courses/${mainCourse.classId}/learn`}
+                                            href={`/courses/${mainCourse.liveClassId ?? mainCourse.vodPackageId ?? mainCourse.courseProfileId ?? mainCourse.id}/learn`}
                                             className="mt-6 w-full md:max-w-max px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] text-center text-sm"
                                         >
                                             Tiếp tục học tập
@@ -258,64 +255,6 @@ export default function DashboardClientPage() {
                         </div>
                     </section>
 
-                    {/* My Courses List - ẩn cho staff-lms/admin */}
-                    {otherCourses.length > 0 && !isStaffOrAdmin && (
-                        <section className="space-y-4" data-purpose="course-list">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-lg font-bold">Khóa học của tôi</h3>
-                                <Link className="text-primary text-sm font-bold hover:underline" href="/dashboard/my-courses">Xem tất cả</Link>
-                            </div>
-                            <div className="grid grid-cols-1 gap-4">
-                                {otherCourses.map((course) => {
-                                    const circumference = 2 * Math.PI * 16;
-                                    return (
-                                        <Link
-                                            key={course.id}
-                                            href={`/courses/${course.classId}/learn`}
-                                            className="bg-card p-4 rounded-2xl border border-border flex items-center justify-between hover-lift block"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold shrink-0 overflow-hidden">
-                                                    {course.class?.courseProfile?.thumbnailUrl ? (
-                                                        <img src={course.class?.courseProfile?.thumbnailUrl} alt="" className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <BookOpen className="size-5" />
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-sm line-clamp-1">{course.class?.courseProfile?.title}</h4>
-                                                    <p className="text-xs text-muted-foreground">Level: {course.class?.courseProfile?.jlptLevel || 'N/A'}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-4 shrink-0">
-                                                <div className="hidden sm:block">
-                                                    <svg className="w-10 h-10">
-                                                        <circle className="text-muted" cx="20" cy="20" fill="transparent" r="16" stroke="currentColor" strokeWidth="3" />
-                                                        <circle
-                                                            className="text-primary"
-                                                            cx="20" cy="20"
-                                                            fill="transparent"
-                                                            r="16"
-                                                            stroke="currentColor"
-                                                            strokeDasharray={ringCircumference.toFixed(2)}
-                                                            strokeDashoffset={ringCircumference.toFixed(2)} // Reset progress for now
-                                                            strokeLinecap="round"
-                                                            strokeWidth="3"
-                                                            style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
-                                                        />
-                                                    </svg>
-                                                </div>
-                                                <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                                                </svg>
-                                            </div>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </section>
-                    )}
-
                     {/* Upcoming Live Sessions (nếu có) */}
                     {upcomingSessions.length > 0 && (
                         <section className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm" data-purpose="upcoming-sessions">
@@ -381,47 +320,6 @@ export default function DashboardClientPage() {
                             </div>
                         </section>
                     )}
-                    {/* Recent Activity */}
-                    <section className="bg-card p-5 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-base font-bold">Hoạt động gần đây</h3>
-                            <Link href="/dashboard/history" className="text-xs text-primary font-bold hover:underline">Xem tất cả</Link>
-                        </div>
-
-                        {recentHistory.length === 0 ? (
-                            <div className="text-center py-6">
-                                <Clock className="size-8 text-muted-foreground/30 mx-auto mb-2" />
-                                <p className="text-muted-foreground text-xs">Chưa có hoạt động học tập nào.</p>
-                            </div>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-[10px] text-muted-foreground uppercase font-bold border-b border-border">
-                                            <th className="pb-3 font-bold">Bài học</th>
-                                            <th className="pb-3 font-bold text-center">Tiến độ</th>
-                                            <th className="pb-3 font-bold text-right">Thời gian</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="text-xs">
-                                        {recentHistory.map((item: any) => (
-                                            <tr key={item.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                                                <td className="py-3 font-bold">
-                                                    <Link href={`/courses/${item.classId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[180px] block">
-                                                        {item.lessonTitle}
-                                                    </Link>
-                                                </td>
-                                                <td className="py-3 text-muted-foreground text-center">{item.progressPercent}%</td>
-                                                <td className="py-3 text-muted-foreground text-right whitespace-nowrap">
-                                                    {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi })}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </section>
                 </main>
 
                 {/* Sidebar */}
@@ -481,12 +379,12 @@ export default function DashboardClientPage() {
                     {/* Quick Links Grid */}
                     <section className="grid grid-cols-2 gap-3" data-purpose="quick-links">
                         {[
-                            { href: '/dashboard/study-sets', icon: '📇', label: 'Thẻ ghi nhớ' },
-                            { href: '/dashboard/rewards', icon: '🎁', label: 'Quà tặng' },
+                            { href: '/dashboard/flashcards', icon: '📇', label: 'Thẻ ghi nhớ' },
+                            { href: '/dashboard/notes', icon: '📝', label: 'Ghi chú' },
                             { href: '/dashboard/achievements', icon: '🏅', label: 'Thành tựu' },
                             { href: '/dashboard/certificates', icon: '🎓', label: 'Chứng chỉ' },
                             { href: '/dashboard/schedule', icon: '📅', label: 'Lịch học' },
-                            { href: '/dashboard/analytics', icon: '📊', label: 'Thống kê' },
+                            { href: '/analytics', icon: '📊', label: 'Thống kê' },
                         ].map(({ href, icon, label }) => (
                             <Link
                                 key={href}
@@ -500,6 +398,50 @@ export default function DashboardClientPage() {
                     </section>
                 </aside>
             </div>
+
+            {/* Recent Activity */}
+            <section className="bg-card p-6 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold">Hoạt động gần đây</h3>
+                    <Link href="/dashboard/history" className="text-sm text-primary font-bold hover:underline">Xem tất cả</Link>
+                </div>
+
+                {recentHistory.length === 0 ? (
+                    <div className="text-center py-10">
+                        <Clock className="size-10 text-muted-foreground/30 mx-auto mb-3" />
+                        <p className="text-muted-foreground text-sm">Chưa có hoạt động học tập nào.</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="text-[10px] text-muted-foreground uppercase font-bold border-b border-border">
+                                    <th className="pb-4 font-bold">Bài học</th>
+                                    <th className="pb-4 font-bold">Khóa học</th>
+                                    <th className="pb-4 font-bold">Thời gian học</th>
+                                    <th className="pb-4 font-bold text-right">Ngày thực hiện</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm">
+                                {recentHistory.map((item: any) => (
+                                    <tr key={item.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                                        <td className="py-4 font-bold">
+                                            <Link href={`/courses/${item.classId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[220px] block">
+                                                {item.lessonTitle}
+                                            </Link>
+                                        </td>
+                                        <td className="py-4 text-muted-foreground line-clamp-1 max-w-[160px]">{item.courseTitle}</td>
+                                        <td className="py-4 text-muted-foreground">{item.progressPercent}%</td>
+                                        <td className="py-4 text-muted-foreground text-right whitespace-nowrap">
+                                            {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi })}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
 
             <StreakWelcomeModal />
         </div>

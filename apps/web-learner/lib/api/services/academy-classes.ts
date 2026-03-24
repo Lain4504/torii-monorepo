@@ -1,11 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
-  AcademyClassModel,
-  AcademyClassQueryDTO,
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
+
+export type AcademyClassModel = {
+  id: string;
+  code?: string;
+  name?: string;
+  status?: string;
+  [key: string]: any;
+};
+
+export type AcademyClassQueryDTO = {
+  cohortId?: string;
+  instructorId?: string;
+  status?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
+};
 
 export interface CurriculumLesson {
   id: string; // class_content_items.id
@@ -36,7 +51,7 @@ export const academyClassesApi = {
    */
   findAll: async (params: AcademyClassQueryDTO): Promise<PaginatedApiResponse<AcademyClassModel>> => {
     const response = await apiClient.get<StandardApiResponse<{ items: AcademyClassModel[]; total: number; page: number; limit: number; totalPages: number }>>(
-      '/api/academy/classes',
+      '/api/academy/live-classes',
       { params }
     );
     const data = response.data.data!;
@@ -55,7 +70,7 @@ export const academyClassesApi = {
    */
   findById: async (id: string): Promise<AcademyClassModel> => {
     const response = await apiClient.get<StandardApiResponse<{ item: AcademyClassModel }>>(
-      `/api/academy/classes/${id}`,
+      `/api/academy/live-classes/${id}`,
     );
     return response.data.data!.item;
   },
@@ -65,7 +80,7 @@ export const academyClassesApi = {
    */
   getCurriculum: async (id: string): Promise<{ courseId: string; modules: CurriculumModule[] } | null> => {
     const response = await apiClient.get<StandardApiResponse<{ curriculum: any }>>(
-      `/api/academy/classes/${id}/curriculum`
+      `/api/academy/live-classes/${id}/curriculum`
     );
     const data = response.data.data?.curriculum;
     if (!data) return null;

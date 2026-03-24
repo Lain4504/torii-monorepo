@@ -44,7 +44,7 @@ export default function DashboardPage() {
         actions={
           isLecturer ? (
             <Button asChild size="sm" className="font-semibold">
-              <Link to="/academy/classes">Lớp của tôi</Link>
+              <Link to="/academy/live-classes">Lớp của tôi</Link>
             </Button>
           ) : isStaffAcademic ? (
             <div className="flex items-center gap-3">
@@ -53,7 +53,7 @@ export default function DashboardPage() {
                   <Link to="/academy/approvals">Approval Center</Link>
                 </Button>
                 <Button variant="outline" asChild size="sm">
-                  <Link to="/academy/classes">Lớp học</Link>
+                  <Link to="/academy/live-classes">Lớp học</Link>
                 </Button>
               </ButtonGroup>
               <Button size="sm" asChild>

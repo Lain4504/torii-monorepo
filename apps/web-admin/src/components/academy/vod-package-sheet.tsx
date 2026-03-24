@@ -1,0 +1,235 @@
+import { useEffect } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldError,
+  FieldSet,
+  FieldLegend,
+} from "@workspace/ui/components/field"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
+  useCreateAcademyVodPackage,
+  useUpdateAcademyVodPackage,
+  type AcademyVodPackage,
+} from "@/lib/api/services/academy-vod-packages"
+import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+
+const vodPackageSchema = z.object({
+  courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
+  code: z.string().min(2, "Mã gói VOD phải có ít nhất 2 ký tự"),
+  title: z.string().min(3, "Tên gói VOD phải có ít nhất 3 ký tự"),
+  price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  status: z.string().optional(),
+})
+
+type VodPackageFormValues = z.infer<typeof vodPackageSchema>
+
+interface VodPackageSheetProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  vodPackage?: AcademyVodPackage | null
+}
+
+export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSheetProps) {
+  const isEditing = !!vodPackage
+  const createMutation = useCreateAcademyVodPackage()
+  const updateMutation = useUpdateAcademyVodPackage()
+
+  const { data: profiles } = useAcademyCourseProfiles({ status: isEditing ? undefined : 'PUBLISHED' })
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<VodPackageFormValues>({
+    resolver: zodResolver(vodPackageSchema),
+    defaultValues: {
+      courseProfileId: "",
+      code: "",
+      title: "",
+      price: 0,
+      status: "DRAFT",
+    },
+  })
+
+  useEffect(() => {
+    if (vodPackage) {
+      reset({
+        courseProfileId: vodPackage.courseProfileId,
+        code: vodPackage.code,
+        title: vodPackage.title,
+        price: Number(vodPackage.price),
+        status: vodPackage.status ?? "DRAFT",
+      })
+    } else {
+      reset({
+        courseProfileId: "",
+        code: "",
+        title: "",
+        price: 0,
+        status: "DRAFT",
+      })
+    }
+  }, [vodPackage, reset])
+
+  async function onSubmit(values: VodPackageFormValues) {
+    try {
+      const input = {
+        courseProfileId: values.courseProfileId,
+        code: values.code,
+        title: values.title,
+        price: values.price,
+        status: values.status as any,
+      }
+
+      if (isEditing && vodPackage) {
+        await updateMutation.mutateAsync({
+          id: vodPackage.id,
+          input,
+        })
+        toast.success("Cập nhật Gói VOD thành công")
+      } else {
+        await createMutation.mutateAsync(input)
+        toast.success("Tạo Gói VOD thành công")
+      }
+      onOpenChange(false)
+    } catch (error: any) {
+      toast.error(error?.userMessage || error?.message || "Đã xảy ra lỗi")
+    }
+  }
+
+  const isLoading = createMutation.isPending || updateMutation.isPending
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="!w-full sm:!max-w-[600px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-6 py-4 border-b shrink-0">
+          <SheetTitle>{isEditing ? "Chỉnh sửa Gói VOD" : "Tạo Gói VOD mới"}</SheetTitle>
+          <SheetDescription>
+            {isEditing
+              ? "Cập nhật thông tin quản lý cho gói VOD này."
+              : "Khởi tạo một gói VOD mới dựa trên Syllabus."}
+          </SheetDescription>
+        </SheetHeader>
+
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-6">
+            <form id="vod-package-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <FieldGroup>
+                <FieldSet>
+                  <FieldLegend>Syllabus & Định danh</FieldLegend>
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel>Course Profile (Gốc)</FieldLabel>
+                      <Controller
+                        name="courseProfileId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isEditing}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn Course Profile" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(isEditing ? profiles : (profiles?.filter(p => p.status === 'PUBLISHED') || []))?.map((p) => (
+                                <SelectItem key={p.id} value={p.id}>
+                                  {p.title} ({p.code})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      <FieldError errors={[errors.courseProfileId]} />
+                    </Field>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field>
+                        <FieldLabel>Mã Gói (VD: VOD-N4-ALL)</FieldLabel>
+                        <Controller
+                          name="code"
+                          control={control}
+                          render={({ field }) => (
+                            <Input placeholder="Mã định danh" {...field} disabled={isEditing} />
+                          )}
+                        />
+                        <FieldError errors={[errors.code]} />
+                      </Field>
+                      <Field>
+                        <FieldLabel>Tên Gói (VD: Trọn bộ N4 VOD)</FieldLabel>
+                        <Controller
+                          name="title"
+                          control={control}
+                          render={({ field }) => (
+                            <Input placeholder="Tên hiển thị" {...field} />
+                          )}
+                        />
+                        <FieldError errors={[errors.title]} />
+                      </Field>
+                    </div>
+                  </FieldGroup>
+                </FieldSet>
+
+                <FieldSet>
+                  <FieldLegend>Kinh doanh</FieldLegend>
+                  <FieldGroup>
+                    <Field>
+                      <FieldLabel>Giá học phí (VNĐ)</FieldLabel>
+                      <Controller
+                        name="price"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        )}
+                      />
+                      <FieldError errors={[errors.price]} />
+                    </Field>
+                  </FieldGroup>
+                </FieldSet>
+              </FieldGroup>
+            </form>
+          </div>
+        </ScrollArea>
+
+        <div className="px-6 py-4 border-t gap-2 bg-muted/20 flex justify-end shrink-0">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+            Hủy
+          </Button>
+          <Button type="submit" form="vod-package-form" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditing ? "Lưu thay đổi" : "Tạo Gói VOD"}
+          </Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
+}

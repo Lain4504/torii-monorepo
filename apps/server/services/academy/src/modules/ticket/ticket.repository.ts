@@ -19,7 +19,7 @@ export class TicketRepository implements ITicketRepository {
         type: data.type as any,
         subject: data.subject,
         description: data.description,
-        classId: data.classId || null,
+        liveClassId: data.liveClassId || null,
         orderId: data.orderId || null,
         metadata: data.metadata || {},
         status: TicketStatus.PENDING as any,
@@ -54,7 +54,7 @@ export class TicketRepository implements ITicketRepository {
   ): Promise<{ data: any[]; total: number }> {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
-    const { type, status, userId, classId, orderId, search } =
+    const { type, status, userId, liveClassId, orderId, search } =
       query as TicketQueryDTO & { search?: string };
     const skip = (page - 1) * limit;
 
@@ -62,7 +62,7 @@ export class TicketRepository implements ITicketRepository {
     if (type) where.type = type;
     if (status) where.status = status;
     if (userId) where.userId = userId;
-    if (classId) where.classId = classId;
+    if (liveClassId) where.liveClassId = liveClassId;
     if (orderId) where.orderId = orderId;
     if (search) {
       where.OR = [

@@ -50,13 +50,13 @@ export const orderApi = {
         await apiClient.get('/api/academy/orders/export', { params, responseType: 'blob' });
     },
 
-    async getOrdersByOffering(offeringId: string, query?: any): Promise<PaginatedApiResponse<OrderResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>(`/api/academy/course-offerings/${offeringId}/orders`, { params: query });
+    async getOrdersByCohort(cohortId: string, query?: any): Promise<PaginatedApiResponse<OrderResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>(`/api/academy/cohorts/${cohortId}/orders`, { params: query });
         return response.data;
     },
 
-    async getStatsByOffering(offeringId: string): Promise<any> {
-        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/course-offerings/${offeringId}/stats`);
+    async getStatsByCohort(cohortId: string): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/cohorts/${cohortId}/stats`);
         return response.data.data;
     }
 };

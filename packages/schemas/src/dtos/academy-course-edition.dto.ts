@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const academyCourseEditionCreateDTOSchema = z.object({
   key: z.string().min(1).max(50),
-  title: z.string().max(255).optional(),
-  level: z.string().max(50).optional(),
+  title: z.string().max(255).optional().nullable(),
+  level: z.string().max(50).optional().nullable(),
   isActive: z.boolean().optional(),
 });
 
@@ -12,8 +12,8 @@ export type AcademyCourseEditionCreateDTO = z.infer<
 >;
 
 export const academyCourseEditionUpdateDTOSchema = z.object({
-  title: z.string().max(255).optional(),
-  level: z.string().max(50).optional(),
+  title: z.string().max(255).optional().nullable(),
+  level: z.string().max(50).optional().nullable(),
   isActive: z.boolean().optional(),
 });
 

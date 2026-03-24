@@ -34,7 +34,7 @@ const editionSchema = z.object({
   key: z.string().min(1).max(50),
   title: z.string().max(255).optional().nullable(),
   level: z.string().max(50).optional().nullable(),
-  isActive: z.coerce.boolean().optional().default(true),
+  isActive: z.boolean(),
 })
 
 type EditionFormValues = z.infer<typeof editionSchema>
@@ -86,8 +86,8 @@ export function CourseEditionSheet({
         await updateMutation.mutateAsync({
           id: edition.id,
           input: {
-            title: values.title || null,
-            level: values.level || null,
+            title: values.title || undefined,
+            level: values.level || undefined,
             isActive: values.isActive,
           },
         })
@@ -95,8 +95,8 @@ export function CourseEditionSheet({
       } else {
         await createMutation.mutateAsync({
           key: values.key,
-          title: values.title || null,
-          level: values.level || null,
+          title: values.title || undefined,
+          level: values.level || undefined,
           isActive: values.isActive,
         })
         toast.success(`Đã tạo edition ${values.key}`)
@@ -119,7 +119,7 @@ export function CourseEditionSheet({
 
         <ScrollArea className="flex-1 min-h-0">
           <div className="p-6 space-y-6">
-            <form id="course-edition-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form id="course-edition-form" onSubmit={handleSubmit((v) => onSubmit(v as any))} className="space-y-6">
               <FieldGroup>
                 <FieldSet>
                   <FieldLegend>Thông tin</FieldLegend>
@@ -166,7 +166,13 @@ export function CourseEditionSheet({
                     <Controller
                       name="title"
                       control={control}
-                      render={({ field }) => <Input placeholder="VD: JLPT N5 (bản logic)" {...field} />}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="VD: JLPT N5 (bản logic)"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      )}
                     />
                     <FieldDescription>Tuỳ chọn.</FieldDescription>
                     <FieldError errors={[formState.errors.title]} />
@@ -177,7 +183,13 @@ export function CourseEditionSheet({
                     <Controller
                       name="level"
                       control={control}
-                      render={({ field }) => <Input placeholder="VD: N5" {...field} />}
+                      render={({ field }) => (
+                        <Input
+                          placeholder="VD: N5"
+                          {...field}
+                          value={field.value ?? ''}
+                        />
+                      )}
                     />
                     <FieldDescription>Dùng cho hiển thị/filter.</FieldDescription>
                     <FieldError errors={[formState.errors.level]} />

@@ -3,9 +3,9 @@ import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
 import { UserRole } from "@workspace/schemas";
 
-/** Lecturer chỉ dùng LMS qua /academy/classes — chặn URL kho/gói/duyệt/JLPT/AI. */
+/** Lecturer chỉ dùng LMS qua /academy/live-classes — chặn URL kho/gói/duyệt/JLPT/AI. */
 const BLOCKED =
-  /^\/academy\/(course-profiles|course-offerings|approvals|jlpt|ai-subscriptions)(\/|$)/;
+  /^\/academy\/(course-profiles|cohorts|vod-packages|approvals|jlpt|ai-subscriptions)(\/|$)/;
 
 export function LecturerAcademyRedirect() {
   const user = useAppSelector(selectUser);
@@ -14,5 +14,5 @@ export function LecturerAcademyRedirect() {
   if (user?.role !== UserRole.LECTURER) return null;
   if (!BLOCKED.test(pathname)) return null;
 
-  return <Navigate to="/academy/classes" replace />;
+  return <Navigate to="/academy/live-classes" replace />;
 }

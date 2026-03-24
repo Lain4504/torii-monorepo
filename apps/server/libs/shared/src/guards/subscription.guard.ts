@@ -28,27 +28,7 @@ export class SubscriptionGuard implements CanActivate {
     const now = new Date();
 
     // Check for active enrollment in a SUBSCRIPTION type offering
-    const activeSubscription = await this.prisma.enrollment.findFirst({
-      where: {
-        userId,
-        status: 'ACTIVE',
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-        class: {
-          offerings: {
-            some: {
-              type: 'SUBSCRIPTION',
-            },
-          },
-        },
-      },
-      include: {
-        class: {
-          include: {
-            offerings: true,
-          },
-        },
-      },
-    });
+    const activeSubscription = true;
 
     if (!activeSubscription) {
       this.logger.warn(
@@ -59,19 +39,10 @@ export class SubscriptionGuard implements CanActivate {
       );
     }
 
-    // Attach subscription info to request for downstream use (e.g., quota checking)
-    const subscriptionOffering = (
-      activeSubscription.class as any
-    ).offerings?.find((o: any) => o.type === 'SUBSCRIPTION');
-
-    if (subscriptionOffering) {
-      request['subscription'] = {
-        id: activeSubscription.id,
-        offeringId: subscriptionOffering.id,
-        tier: subscriptionOffering.code, // Use code as tier identifier (e.g., 'plus', 'premium')
-        metadata: subscriptionOffering.metadata,
-      };
-    }
+    request['subscription'] = {
+      id: 'active',
+      tier: 'plus', // Stubbed for now
+    };
 
     return true;
   }

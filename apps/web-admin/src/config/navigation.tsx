@@ -48,14 +48,15 @@ export const academicNavItems: NavItem[] = [
     },
     {
         titleKey: "Academy (LMS)",
-        url: "/academy/classes",
+        url: "/academy/live-classes",
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write", "academy.content.approve", "academy.commerce.approve"],
         items: [
-            { titleKey: "Lớp học", url: "/academy/classes", lecturerTitleKey: "Lớp của tôi" },
+            { titleKey: "Lớp học Live", url: "/academy/live-classes", lecturerTitleKey: "Lớp của tôi" },
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["academy.delivery.read", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Đợt khai giảng (Cohorts)", url: "/academy/cohorts", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
             { titleKey: "CourseEdition Groups", url: "/academy/course-editions", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
             { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
         ]
     },

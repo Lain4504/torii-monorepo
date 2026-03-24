@@ -4,29 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add scoring mappings management functionality and improve code formatting">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="new flow">
+      <change afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/vod-package-preview-page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/assignment-submission/assignment-submission.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/assignment-submission/assignment-submission.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/blog/blog.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/blog/blog.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/live-class-capacity.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/live-class-capacity.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/cohort/cohort.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/cohort/cohort.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-class/live-class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-class/live-class.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon-cron.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon-cron.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/jlpt-mock/dto/jlpt-config.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/jlpt-mock/dto/jlpt-config.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/jlpt-mock/jlpt-mock.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/jlpt-mock/jlpt-mock.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/jlpt-mock/jlpt-mock.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/jlpt-mock/jlpt-mock.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/modules/sensei/sensei.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/modules/sensei/sensei.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/modules/sensei/sensei.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/modules/sensei/sensei.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/jlpt-mock.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/jlpt-mock.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/agents/controllers/sensei.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/agents/controllers/sensei.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/test/authorization.service.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/test/authorization.service.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-jlpt-mock.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-jlpt-mock.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/config/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/config/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/vod-package/vod-package.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/vod-package/vod-package.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/fastmcp/fastmcp.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/cohort.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/cohort.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/live-class.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/live-class.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/cohort-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/cohort-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/vod-package-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/vod-package-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-cohorts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-cohorts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-live-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-live-classes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-vod-packages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-vod-packages.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/approvals-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/approvals-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/cohort-preview-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/cohort-preview-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/live-class-preview-page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohort-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohort-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohorts-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohorts-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-class-students-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-class-students-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-classes-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-classes-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-info-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-info-tab.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-package-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-package-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-packages-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-packages-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-cohort.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-cohort.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-vod-package.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-vod-package.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +48,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1729" />
+    <option name="cachedIndexableFilesCount" value="1792" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -155,8 +164,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -378,86 +386,8 @@
       <workItem from="1774010782764" duration="3424000" />
       <workItem from="1774243431625" duration="5970000" />
       <workItem from="1774252089615" duration="38000" />
-    </task>
-    <task id="LOCAL-00986" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772811268905</created>
-      <option name="number" value="00986" />
-      <option name="presentableId" value="LOCAL-00986" />
-      <option name="project" value="LOCAL" />
-      <updated>1772811268906</updated>
-    </task>
-    <task id="LOCAL-00987" summary="build learner success">
-      <option name="closed" value="true" />
-      <created>1772811927188</created>
-      <option name="number" value="00987" />
-      <option name="presentableId" value="LOCAL-00987" />
-      <option name="project" value="LOCAL" />
-      <updated>1772811927189</updated>
-    </task>
-    <task id="LOCAL-00988" summary="feat: add Academy Achievement and Gamification Heatmap specifications">
-      <option name="closed" value="true" />
-      <created>1772939519615</created>
-      <option name="number" value="00988" />
-      <option name="presentableId" value="LOCAL-00988" />
-      <option name="project" value="LOCAL" />
-      <updated>1772939519615</updated>
-    </task>
-    <task id="LOCAL-00989" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
-      <option name="closed" value="true" />
-      <created>1772967944785</created>
-      <option name="number" value="00989" />
-      <option name="presentableId" value="LOCAL-00989" />
-      <option name="project" value="LOCAL" />
-      <updated>1772967944785</updated>
-    </task>
-    <task id="LOCAL-00990" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
-      <option name="closed" value="true" />
-      <created>1772967986104</created>
-      <option name="number" value="00990" />
-      <option name="presentableId" value="LOCAL-00990" />
-      <option name="project" value="LOCAL" />
-      <updated>1772967986104</updated>
-    </task>
-    <task id="LOCAL-00991" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
-      <option name="closed" value="true" />
-      <created>1772968469206</created>
-      <option name="number" value="00991" />
-      <option name="presentableId" value="LOCAL-00991" />
-      <option name="project" value="LOCAL" />
-      <updated>1772968469206</updated>
-    </task>
-    <task id="LOCAL-00992" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
-      <option name="closed" value="true" />
-      <created>1772971081949</created>
-      <option name="number" value="00992" />
-      <option name="presentableId" value="LOCAL-00992" />
-      <option name="project" value="LOCAL" />
-      <updated>1772971081949</updated>
-    </task>
-    <task id="LOCAL-00993" summary="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks">
-      <option name="closed" value="true" />
-      <created>1772977748407</created>
-      <option name="number" value="00993" />
-      <option name="presentableId" value="LOCAL-00993" />
-      <option name="project" value="LOCAL" />
-      <updated>1772977748408</updated>
-    </task>
-    <task id="LOCAL-00994" summary="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks">
-      <option name="closed" value="true" />
-      <created>1772979980804</created>
-      <option name="number" value="00994" />
-      <option name="presentableId" value="LOCAL-00994" />
-      <option name="project" value="LOCAL" />
-      <updated>1772979980804</updated>
-    </task>
-    <task id="LOCAL-00995" summary="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors.">
-      <option name="closed" value="true" />
-      <created>1772987492781</created>
-      <option name="number" value="00995" />
-      <option name="presentableId" value="LOCAL-00995" />
-      <option name="project" value="LOCAL" />
-      <updated>1772987492782</updated>
+      <workItem from="1774275087543" duration="9176000" />
+      <workItem from="1774309461606" duration="4689000" />
     </task>
     <task id="LOCAL-00996" summary="feat(academy): implement class assignment and quiz forms with validation and UI integration">
       <option name="closed" value="true" />
@@ -771,7 +701,87 @@
       <option name="project" value="LOCAL" />
       <updated>1774249516789</updated>
     </task>
-    <option name="localTasksCounter" value="1035" />
+    <task id="LOCAL-01035" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774275221458</created>
+      <option name="number" value="01035" />
+      <option name="presentableId" value="LOCAL-01035" />
+      <option name="project" value="LOCAL" />
+      <updated>1774275221458</updated>
+    </task>
+    <task id="LOCAL-01036" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774275227654</created>
+      <option name="number" value="01036" />
+      <option name="presentableId" value="LOCAL-01036" />
+      <option name="project" value="LOCAL" />
+      <updated>1774275227654</updated>
+    </task>
+    <task id="LOCAL-01037" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774275541501</created>
+      <option name="number" value="01037" />
+      <option name="presentableId" value="LOCAL-01037" />
+      <option name="project" value="LOCAL" />
+      <updated>1774275541501</updated>
+    </task>
+    <task id="LOCAL-01038" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774275726829</created>
+      <option name="number" value="01038" />
+      <option name="presentableId" value="LOCAL-01038" />
+      <option name="project" value="LOCAL" />
+      <updated>1774275726829</updated>
+    </task>
+    <task id="LOCAL-01039" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774276413707</created>
+      <option name="number" value="01039" />
+      <option name="presentableId" value="LOCAL-01039" />
+      <option name="project" value="LOCAL" />
+      <updated>1774276413708</updated>
+    </task>
+    <task id="LOCAL-01040" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774279850177</created>
+      <option name="number" value="01040" />
+      <option name="presentableId" value="LOCAL-01040" />
+      <option name="project" value="LOCAL" />
+      <updated>1774279850177</updated>
+    </task>
+    <task id="LOCAL-01041" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774279859783</created>
+      <option name="number" value="01041" />
+      <option name="presentableId" value="LOCAL-01041" />
+      <option name="project" value="LOCAL" />
+      <updated>1774279859784</updated>
+    </task>
+    <task id="LOCAL-01042" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774280307838</created>
+      <option name="number" value="01042" />
+      <option name="presentableId" value="LOCAL-01042" />
+      <option name="project" value="LOCAL" />
+      <updated>1774280307838</updated>
+    </task>
+    <task id="LOCAL-01043" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774281414499</created>
+      <option name="number" value="01043" />
+      <option name="presentableId" value="LOCAL-01043" />
+      <option name="project" value="LOCAL" />
+      <updated>1774281414499</updated>
+    </task>
+    <task id="LOCAL-01044" summary="new flow">
+      <option name="closed" value="true" />
+      <created>1774282691915</created>
+      <option name="number" value="01044" />
+      <option name="presentableId" value="LOCAL-01044" />
+      <option name="project" value="LOCAL" />
+      <updated>1774282691915</updated>
+    </task>
+    <option name="localTasksCounter" value="1045" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -806,7 +816,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update rich text eidtor" />
     <MESSAGE value="build learner success" />
     <MESSAGE value="refactor: merge logic to new academy service (#268)" />
     <MESSAGE value="feat: add Academy Achievement and Gamification Heatmap specifications" />
@@ -831,7 +840,8 @@
     <MESSAGE value="update web-admin" />
     <MESSAGE value="courser flow end" />
     <MESSAGE value="feat: add JLPT mondai management functionality and update navigation" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add JLPT mondai management functionality and update navigation" />
+    <MESSAGE value="new flow" />
+    <option name="LAST_COMMIT_MESSAGE" value="new flow" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

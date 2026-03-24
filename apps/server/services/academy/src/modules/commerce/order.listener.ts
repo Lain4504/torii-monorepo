@@ -3,7 +3,6 @@ import { EventPattern, Payload } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentService } from '../classroom/enrollment/enrollment.service';
 import { AuditLoggerService } from '../audit-logger.service';
-import { ClassStatus } from '@prisma/generated';
 
 @Controller()
 export class OrderListener {
@@ -19,70 +18,35 @@ export class OrderListener {
 
     const order = await this.prisma.order.findUnique({
       where: { id: data.orderId },
-      include: {
-        items: {
-          include: {
-            offering: {
-              include: {
-                class: true,
-              },
-            },
-          },
-        },
-      },
+      include: { items: true },
     });
 
     if (!order || order.status !== 'PAID') {
-      console.log(
-        `[Academy] Order ${data.orderId} not found or not PAID. Ignoring.`,
-      );
+      console.log(`[Academy] Order ${data.orderId} not found or not PAID. Ignoring.`);
       return;
     }
 
     let enrolledCount = 0;
     for (const item of order.items) {
-      if (!item.offering) continue;
+      const isVod = !!item.vodPackageId;
+      const isCohort = !!item.cohortId;
+
+      if (!isVod && !isCohort) continue;
 
       const snapshot = item.offeringSnapshot as any;
-      const classIdToEnroll =
-        snapshot?.selectedClassId ??
-        snapshot?.classId ??
-        item.offering?.classId;
+      let targetLiveClassId: string | undefined = undefined;
 
-      if (!classIdToEnroll) {
-        console.warn(`[Academy] No classId found for item ${item.id}`);
-        continue;
-      }
-
-      const klass = await this.prisma.class.findUnique({
-        where: { id: classIdToEnroll },
-      });
-
-      if (!klass) {
-        console.warn(
-          `[Academy] Class ${classIdToEnroll} not found for enrollment.`,
-        );
-        continue;
-      }
-
-      // Rule: Enroll only when LIVE class is OPENING or ONGOING, or VOD class is PUBLISHED
-      if (
-        klass.status !== ClassStatus.OPENING &&
-        klass.status !== ClassStatus.ONGOING &&
-        klass.status !== ClassStatus.PUBLISHED
-      ) {
-        console.log(
-          `[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`,
-        );
-        continue;
+      if (isCohort) {
+        targetLiveClassId = snapshot?.selectedClassId;
+        if (!targetLiveClassId) continue;
       }
 
       try {
         await this.enrollments.enroll(
           {
             userId: order.userId,
-            offeringId: item.offeringId ?? undefined,
-            classId: klass.id,
+            vodPackageId: item.vodPackageId ?? undefined,
+            liveClassId: targetLiveClassId,
             status: 'ACTIVE',
             sourceOrderId: order.id,
           },
@@ -90,23 +54,16 @@ export class OrderListener {
         );
         enrolledCount++;
       } catch (err: any) {
-        // Ignore duplicate enrollment error or full class silently or log
-        console.error(
-          `[Academy] Failed to enroll user ${order.userId} in class ${klass.id}:`,
-          err.message,
-        );
+        console.error(`[Academy] Failed to enroll user ${order.userId}:`, err.message);
       }
     }
 
-    console.log(
-      `[Academy] Order ${order.id} paid. Created ${enrolledCount} enrollments.`,
-    );
+    console.log(`[Academy] Order ${order.id} paid. Created ${enrolledCount} enrollments.`);
   }
 
   @EventPattern('order.refunded')
   async handleOrderRefunded(@Payload() data: { orderId: string }) {
     console.log('[Academy] Order refunded event received:', data);
-
     const enrollments = await this.prisma.enrollment.findMany({
       where: { sourceOrderId: data.orderId, status: 'ACTIVE' },
     });
@@ -116,7 +73,6 @@ export class OrderListener {
         where: { id: enrollment.id },
         data: { status: 'CANCELLED' },
       });
-
       await this.audit.log({
         userId: 'SYSTEM',
         action: 'enrollment.refund_revocation',
@@ -125,9 +81,7 @@ export class OrderListener {
         description: `Cancelled enrollment ${enrollment.id} due to order refund ${data.orderId}`,
         metadata: { orderId: data.orderId },
       });
-      console.log(
-        `[Academy] Cancelled enrollment ${enrollment.id} due to refund`,
-      );
+      console.log(`[Academy] Cancelled enrollment ${enrollment.id} due to refund`);
     }
   }
 }
