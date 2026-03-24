@@ -10,22 +10,22 @@ import type {
 } from '@workspace/schemas';
 
 export interface OrderPreviewDTO {
-    // Course offerings (VOD/LIVE)
-    offeringIds?: string[];
-    // AI subscription plans
+    vodPackageIds?: string[];
+    cohortIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
-    classIdByOffering?: Record<string, string>;
+    liveClassIdByCohort?: Record<string, string>;
 }
 
 export interface OrderCheckoutDTO {
-    offeringIds?: string[];
+    vodPackageIds?: string[];
+    cohortIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
     paymentMethod: PaymentMethod | string;
     description?: string;
     metadata?: any;
-    classIdByOffering?: Record<string, string>;
+    liveClassIdByCohort?: Record<string, string>;
 }
 
 export interface OrderPreviewResponse {
@@ -45,8 +45,8 @@ export interface LearnerOrder {
     amount: number;
     description: string;
     items?: Array<{
-        offeringId: string;
-        offering?: { id: string; title: string; code: string };
+        productId: string;
+        product?: { id: string; name: string; code: string };
     }>;
     metadata?: any;
 }
@@ -59,9 +59,9 @@ export interface OrderFulfillmentSummary {
     grandTotal: number | string;
     currency: string;
     items: Array<{
-        offeringId: string;
-        offeringCode: string;
-        offeringTitle: string;
+        productId: string;
+        productCode: string;
+        productName: string;
         expectedClassIds: string[];
         enrolledClassIds: string[];
         missingClassIds: string[];
@@ -87,11 +87,19 @@ export const orderApi = {
             typeof query?.status === 'string'
                 ? (statusMap[query.status.toLowerCase()] ?? query.status.toUpperCase())
                 : query?.status;
-        const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/orders/my', {
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/academy/orders/my', {
             params: { ...query, status: normalizedStatus },
         });
-        const payload = response.data.data!;
-        const mapped = (payload.items ?? []).map((order: any) => ({
+        const raw = response.data.data!;
+        // Hỗ trợ cả array (new flow) và paginated format
+        const items = Array.isArray(raw) ? raw : (raw.items ?? []);
+        const total = Array.isArray(raw) ? raw.length : (raw.total ?? items.length);
+        const page = Array.isArray(raw) ? 1 : (raw.page ?? 1);
+        const limit = Array.isArray(raw) ? raw.length : (raw.limit ?? 10);
+        const totalPages = Array.isArray(raw) ? 1 : (raw.totalPages ?? 1);
+        const getItemTitle = (item: any) =>
+            item.vodPackage?.title ?? item.cohort?.name ?? item.subscriptionPlan?.name ?? (item.offeringSnapshot as any)?.title ?? null;
+        const mapped = items.map((order: any) => ({
             id: order.id,
             transactionId: order.code,
             code: order.code,
@@ -99,17 +107,23 @@ export const orderApi = {
             paymentMethod: order.paymentMethod,
             createdAt: order.createdAt,
             amount: Number(order.grandTotal ?? 0),
-            description: order.items?.map((item: any) => item.offering?.title).filter(Boolean).join(', ') || `Đơn hàng ${order.code}`,
+            description: order.items?.map((it: any) => getItemTitle(it)).filter(Boolean).join(', ') || `Đơn hàng ${order.code}`,
             metadata: order.metadata,
-            items: order.items,
+            items: (order.items ?? []).map((it: any) => ({
+                ...it,
+                productId: it.vodPackageId ?? it.cohortId ?? it.subscriptionPlanId,
+                product: it.vodPackage ? { id: it.vodPackage.id, name: it.vodPackage.title, code: it.vodPackage.code } :
+                    it.cohort ? { id: it.cohort.id, name: it.cohort.name, code: it.cohort.code } :
+                    it.subscriptionPlan ? { id: it.subscriptionPlan.id, name: it.subscriptionPlan.name, code: it.subscriptionPlan.code } : undefined,
+            })),
         }));
         return {
             success: response.data.success,
             data: mapped,
-            total: payload.total,
-            page: payload.page,
-            limit: payload.limit,
-            totalPages: payload.totalPages,
+            total,
+            page,
+            limit,
+            totalPages,
         };
     },
 
@@ -126,7 +140,7 @@ export const orderApi = {
             subtotal: Number(payload.subTotal ?? 0),
             discount: Number(payload.discountTotal ?? 0),
             total: Number(payload.grandTotal ?? 0),
-            items: payload.offerings ?? [],
+            items: payload.products ?? [],
         };
     },
 
@@ -144,9 +158,13 @@ export const orderApi = {
             paymentMethod: order.paymentMethod,
             createdAt: order.createdAt,
             amount: Number(order.grandTotal ?? 0),
-            description: order.items?.map((item: any) => item.offering?.title).filter(Boolean).join(', ') || `Đơn hàng ${order.code}`,
+            description: order.items?.map((item: any) => item.product?.name).filter(Boolean).join(', ') || `Đơn hàng ${order.code}`,
             metadata: order.metadata,
-            items: order.items,
+            items: order.items.map((it: any) => ({
+                ...it,
+                productId: it.productId,
+                product: it.product
+            })),
         };
     },
 
@@ -170,7 +188,8 @@ export const orderApi = {
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to fetch order by code');
         }
-        return response.data.data;
+        const summary = response.data.data;
+        return summary;
     },
 };
 

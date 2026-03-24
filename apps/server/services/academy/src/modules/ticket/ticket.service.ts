@@ -48,9 +48,9 @@ export class TicketService implements ITicketService {
     let ticketMetadata = dto.metadata;
 
     if (dto.type === TicketType.REFUND) {
-      const classId = dto.classId;
+      const liveClassId = (dto as any).liveClassId || (dto as any).classId;
 
-      if (!classId) {
+      if (!liveClassId) {
         throw new BadRequestException('Class ID is required for refund ticket');
       }
 
@@ -58,7 +58,7 @@ export class TicketService implements ITicketService {
         const result = await firstValueFrom(
           this.natsClient.send(
             { cmd: 'academy.enrollment.check' },
-            { userId, classId },
+            { userId, liveClassId },
           ),
         );
 
@@ -89,7 +89,7 @@ export class TicketService implements ITicketService {
         const classResult = await firstValueFrom(
           this.natsClient.send(
             { cmd: 'academy.class.findById' },
-            { id: classId },
+            { id: liveClassId },
           ),
         ).catch(() => null);
 
@@ -179,10 +179,10 @@ export class TicketService implements ITicketService {
       ticket.type === TicketType.REFUND &&
       !refundAmount
     ) {
-      const classId = ticket.classId;
+      const liveClassId = (ticket as any).liveClassId || (ticket as any).classId;
       const userId = ticket.userId;
 
-      if (classId && userId) {
+      if (liveClassId && userId) {
         try {
           // Find order for this enrollment if not specified in ticket
           let orderId = ticket.orderId;
@@ -190,7 +190,7 @@ export class TicketService implements ITicketService {
           const enrollmentResult = await firstValueFrom(
             this.natsClient.send(
               { cmd: 'academy.enrollment.check' },
-              { userId, classId },
+              { userId, liveClassId },
             ),
           ).catch(() => null);
 
@@ -301,7 +301,7 @@ export class TicketService implements ITicketService {
   }
 
   private async handleRefundResolved(ticket: Ticket, handlerId: string) {
-    const { userId, classId, orderId } = ticket;
+    const { userId, liveClassId, orderId } = ticket;
     const refundAmount = (ticket as any).refundAmount;
     const amount = Number(refundAmount || 0);
 
@@ -326,10 +326,10 @@ export class TicketService implements ITicketService {
       });
 
       // 3. Cancel Enrollment
-      if (classId) {
+      if (liveClassId) {
         const enrollment = await tx.enrollment.findUnique({
           where: {
-            userId_classId: { userId, classId },
+            userId_liveClassId: { userId, liveClassId: liveClassId as string },
           },
         });
 

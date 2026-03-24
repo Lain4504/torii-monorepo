@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Save, 
-  Plus, 
-  Trash2, 
-  GripVertical, 
-  Settings2, 
-  ListMusic, 
-  Languages, 
+import {
+  ArrowLeft,
+  Save,
+  Plus,
+  Trash2,
+  GripVertical,
+  Settings2,
+  ListMusic,
+  Languages,
   Layers,
   Search,
-  CheckCircle2
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
@@ -42,6 +43,7 @@ export default function JlptTemplateBuilderPage() {
   const [pickerLoading, setPickerLoading] = useState(false);
   const [selectedBankIds, setSelectedBankIds] = useState<Set<string>>(new Set());
   const [targetSectionId, setTargetSectionId] = useState<string | null>(null);
+  const [assembling, setAssembling] = useState(false);
 
   const fetchTemplate = async () => {
     if (!id) return;
@@ -57,8 +59,11 @@ export default function JlptTemplateBuilderPage() {
     }
   };
 
-  const fetchBankQuestions = async () => {
+  const fetchBankQuestionsForSection = async (sectionId: string) => {
     if (!template) return;
+    const sectionCode = template.sections.find((s: { id: string }) => s.id === sectionId)?.code as
+      | string
+      | undefined;
     try {
       setPickerLoading(true);
       const merged: JlptBankQuestion[] = [];
@@ -68,6 +73,7 @@ export default function JlptTemplateBuilderPage() {
       do {
         const res = await academyJlptMockApi.findAllBankQuestions({
           level: template.levelCode,
+          sectionCode,
           page,
           limit,
         });
@@ -76,7 +82,7 @@ export default function JlptTemplateBuilderPage() {
         page += 1;
       } while (page <= totalPages && page <= 50);
       setPickerQuestions(merged);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải ngân hàng câu hỏi");
     } finally {
       setPickerLoading(false);
@@ -91,24 +97,46 @@ export default function JlptTemplateBuilderPage() {
     setTargetSectionId(sectionId);
     setSelectedBankIds(new Set());
     setIsPickerOpen(true);
-    fetchBankQuestions();
+    void fetchBankQuestionsForSection(sectionId);
   };
 
   const handleAttachQuestions = async () => {
-    if (!id || !targetSectionId) return;
+    if (!id || !targetSectionId || !template) return;
     try {
-      const items = Array.from(selectedBankIds).map((qid, idx) => ({
-        questionId: qid,
-        sectionId: targetSectionId,
-        orderIndex: (template.questions?.length || 0) + idx + 1,
-      }));
-      
+      const baseOrder = template.questions?.length || 0;
+      const items = Array.from(selectedBankIds).map((qid, idx) => {
+        const bank = pickerQuestions.find((p) => p.id === qid);
+        return {
+          questionId: qid,
+          sectionId: targetSectionId,
+          orderIndex: baseOrder + idx + 1,
+          mondaiId: bank?.mondai?.id,
+        };
+      });
+
       await academyJlptMockApi.attachQuestions(id, items);
       toast.success("Đã thêm câu hỏi vào đề thi");
       setIsPickerOpen(false);
       fetchTemplate();
-    } catch (error) {
+    } catch {
       toast.error("Thêm câu hỏi thất bại");
+    }
+  };
+
+  const handleAssembleRandom = async () => {
+    if (!id) return;
+    try {
+      setAssembling(true);
+      const res = await academyJlptMockApi.assembleTemplateRandom(id, {
+        perMondaiCount: 1,
+        clearExisting: false,
+      });
+      toast.success(`Đã random gắn ${res?.attachedCount ?? 0} câu`);
+      await fetchTemplate();
+    } catch {
+      toast.error("Random gắn câu thất bại");
+    } finally {
+      setAssembling(false);
     }
   };
 
@@ -137,6 +165,9 @@ export default function JlptTemplateBuilderPage() {
           </div>
         </div>
                     <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => void handleAssembleRandom()} disabled={assembling}>
+            {assembling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Random gắn câu
+          </Button>
           <Button variant="outline" className="gap-2">
             <Settings2 className="w-4 h-4" /> Cài đặt chung
           </Button>
@@ -202,8 +233,13 @@ export default function JlptTemplateBuilderPage() {
                             <div className="bg-muted rounded w-8 h-8 flex items-center justify-center font-bold text-xs">{idx + 1}</div>
                             <div className="flex-1">
                                <div className="text-sm line-clamp-1" dangerouslySetInnerHTML={{ __html: q.question.stemText }} />
-                               <div className="flex gap-2 mt-1">
+                               <div className="flex gap-2 mt-1 flex-wrap">
                                   <Badge variant="secondary" className="text-[10px] px-1 py-0">{q.question.sectionCode}</Badge>
+                                  {q.mondai?.code && (
+                                    <Badge variant="outline" className="text-[10px] px-1 py-0">
+                                      {q.mondai.code}
+                                    </Badge>
+                                  )}
                                   {q.question.audioAssetId && <Badge variant="outline" className="text-[10px] px-1 py-0 text-blue-500">Audio</Badge>}
                                   {q.question.imageAssetId && <Badge variant="outline" className="text-[10px] px-1 py-0 text-emerald-500">Image</Badge>}
                                </div>
@@ -264,7 +300,10 @@ export default function JlptTemplateBuilderPage() {
                   <Checkbox checked={selectedBankIds.has(q.id)} onCheckedChange={() => {}} />
                   <div className="flex-1">
                     <div className="text-sm font-medium line-clamp-1" dangerouslySetInnerHTML={{ __html: q.stemText }} />
-                    <div className="text-[10px] text-muted-foreground uppercase">{q.sectionCode} · {q.questionType}</div>
+                    <div className="text-[10px] text-muted-foreground uppercase">
+                      {q.sectionCode} · {q.questionType}
+                      {q.mondai?.code ? ` · ${q.mondai.code}` : ""}
+                    </div>
                   </div>
                   <Badge variant="outline">{q.levelCode}</Badge>
                 </div>
@@ -279,8 +318,4 @@ export default function JlptTemplateBuilderPage() {
       </Dialog>
     </div>
   );
-}
-
-function Loader2(props: any) {
-    return <Plus {...props} className={props.className + " animate-spin"} />
 }

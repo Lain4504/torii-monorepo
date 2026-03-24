@@ -73,10 +73,13 @@ describe('AuthorizationService', () => {
       ];
       prisma.rolePermission.findMany.mockResolvedValue(mockPerms);
 
-      const result = await service.getUserPermissions('user-1', 'staff');
+      const result = await service.getUserPermissions(
+        'user-1',
+        'staff-academic',
+      );
       expect(result.permissions).toEqual(['read:users', 'write:users']);
       expect(prisma.rolePermission.findMany).toHaveBeenCalledWith({
-        where: { roleCode: 'staff' },
+        where: { roleCode: 'staff-academic' },
       });
     });
   });
@@ -86,7 +89,11 @@ describe('AuthorizationService', () => {
       prisma.rolePermission.findMany.mockResolvedValue([
         { permissionCode: '*' },
       ]);
-      const result = await service.hasPermission('u1', 'staff', 'any:perm');
+      const result = await service.hasPermission(
+        'u1',
+        'staff-academic',
+        'any:perm',
+      );
       expect(result).toBe(true);
     });
 
@@ -94,7 +101,11 @@ describe('AuthorizationService', () => {
       prisma.rolePermission.findMany.mockResolvedValue([
         { permissionCode: 'read:users' },
       ]);
-      const result = await service.hasPermission('u1', 'staff', 'read:users');
+      const result = await service.hasPermission(
+        'u1',
+        'staff-academic',
+        'read:users',
+      );
       expect(result).toBe(true);
     });
 
@@ -102,20 +113,24 @@ describe('AuthorizationService', () => {
       prisma.rolePermission.findMany.mockResolvedValue([
         { permissionCode: 'read:users' },
       ]);
-      const result = await service.hasPermission('u1', 'staff', 'write:users');
+      const result = await service.hasPermission(
+        'u1',
+        'staff-academic',
+        'write:users',
+      );
       expect(result).toBe(false);
     });
   });
 
   describe('setRolePermissions', () => {
     it('should replace role permissions and emit audit log', async () => {
-      const roleCode = 'staff';
+      const roleCode = 'staff-academic';
       const perms = ['read:users', 'write:users'];
       const context = { actorId: 'admin-1' };
 
       configService.getRoleByCode.mockReturnValue({
-        code: 'staff',
-        name: 'Staff',
+        code: 'staff-academic',
+        name: 'Academic Staff',
       });
       configService.isValidPermission.mockReturnValue(true);
       prisma.rolePermission.findMany.mockResolvedValue([]); // old perms
@@ -150,11 +165,11 @@ describe('AuthorizationService', () => {
       configService.isValidPermission.mockReturnValue(true);
       prisma.rolePermission.upsert.mockResolvedValue({});
 
-      await service.addPermissionToRole('staff', 'new:perm');
+      await service.addPermissionToRole('staff-academic', 'new:perm');
 
       expect(prisma.rolePermission.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
-          create: { roleCode: 'staff', permissionCode: 'new:perm' },
+          create: { roleCode: 'staff-academic', permissionCode: 'new:perm' },
         }),
       );
     });

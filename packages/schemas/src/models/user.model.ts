@@ -5,7 +5,6 @@ export enum UserRole {
     ADMIN = 'admin',
     LECTURER = 'lecturer',
     LEARNER = 'learner',
-    STAFF = 'staff',
     STAFF_ACADEMIC = 'staff-academic',
     STAFF_OPERATIONS = 'staff-operations',
 }
@@ -47,6 +46,7 @@ export const userSchema = z.object({
     linkedMethods: z.array(z.string()).optional(),
     isOnboarded: z.boolean().optional(),
     walletBalance: z.coerce.number().optional().default(0),
+    onboardingSurvey: z.record(z.any()).optional().nullable(),
 });
 
 export type User = z.infer<typeof userSchema>;

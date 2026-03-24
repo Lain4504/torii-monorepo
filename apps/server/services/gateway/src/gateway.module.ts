@@ -17,6 +17,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AcademyModule } from './modules/academy/academy.module';
 import { AgentsModule } from './modules/agents/agents.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 /**
  * API Gateway Module
@@ -55,6 +56,9 @@ import { GamificationModule } from './modules/gamification/gamification.module';
     GamificationModule,
     // Storage Module
     StorageModule,
+
+    // Comments
+    CommentModule,
   ],
   controllers: [],
   providers: [ApiKeyGuard],

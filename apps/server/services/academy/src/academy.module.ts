@@ -12,6 +12,7 @@ import { StorageModule } from '@server/academy/modules/storage/storage.module';
 import { BlogModule } from '@server/academy/modules/blog/blog.module';
 import { GamificationModule } from '@server/academy/modules/gamification/gamification.module';
 import { CourseProfileModule } from '@server/academy/modules/course-profile/course-profile.module';
+import { CourseEditionModule } from '@server/academy/modules/course-edition/course-edition.module';
 import { JlptMockModule } from '@server/academy/modules/jlpt-mock/jlpt-mock.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuditModule } from './modules/audit.module';
@@ -36,6 +37,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     BlogModule,
     GamificationModule,
     CourseProfileModule,
+    CourseEditionModule,
     JlptMockModule,
     InfrastructureModule,
     StudyNoteModule,

@@ -11,7 +11,7 @@ export class GamificationController {
   constructor(
     private readonly gamificationService: GamificationService,
     private readonly achievementService: AchievementService,
-  ) { }
+  ) {}
 
   @MessagePattern('gamification.getProfile')
   async getProfile(@Payload() data: { userId: string }) {

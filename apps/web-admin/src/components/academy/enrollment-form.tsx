@@ -23,7 +23,7 @@ import {
     type AcademyEnrollmentUpdateDTO,
 } from "@workspace/schemas"
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
-import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { useUsers } from "@/lib/api/services/users"
 
 export function EnrollmentForm({
@@ -44,7 +44,7 @@ export function EnrollmentForm({
     defaultClassId?: string
 }) {
     const isEdit = mode === "edit"
-    const { data: classesData = [] } = useAcademyClasses({})
+    const { data: classesData = [] } = useAcademyLiveClasses({})
     const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
 
     const { data: learnersData } = useUsers({ role: "LEARNER", limit: 1000 })
@@ -64,7 +64,7 @@ export function EnrollmentForm({
                 status: initial?.status ?? 'ACTIVE',
             }
             : {
-                classId: defaultClassId ?? "",
+                liveClassId: defaultClassId ?? "",
                 userId: "",
                 status: "ACTIVE",
             }) as any,
@@ -78,7 +78,7 @@ export function EnrollmentForm({
                         <>
                             {!defaultClassId && (
                             <Controller
-                                name={"classId" as any}
+                                name={"liveClassId" as any}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>

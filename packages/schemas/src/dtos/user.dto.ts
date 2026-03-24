@@ -35,13 +35,12 @@ export const userCreateDTOSchema = userSchema
 
 export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
 
-// Admin Create Internal User DTO (for LECTURE/STAFF - no password, invite email)
+// Admin Create Internal User DTO (lecturer / staff-academic / staff-operations — invite email, no password)
 export const adminCreateInternalUserDTOSchema = z.object({
     email: userSchema.shape.email,
     displayName: userSchema.shape.displayName,
     role: z.enum([
         UserRole.LECTURER,
-        UserRole.STAFF,
         UserRole.STAFF_ACADEMIC,
         UserRole.STAFF_OPERATIONS,
     ]),

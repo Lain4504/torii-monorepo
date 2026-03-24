@@ -203,6 +203,7 @@ export class UsersRepository implements IUsersRepository {
         createdAt: true,
         updatedAt: true,
         walletBalance: true,
+        onboardingSurvey: true,
         gamification: {
           select: {
             totalXp: true,

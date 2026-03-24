@@ -131,7 +131,7 @@ export function useCreateUser() {
 }
 
 /**
- * Hook: Create internal user (LECTURE/STAFF) with invite email
+ * Hook: Create internal user (lecturer / staff-academic / staff-operations) with invite email
  */
 export function useCreateInternalUser() {
     const queryClient = useQueryClient();

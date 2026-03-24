@@ -18,16 +18,17 @@ export class ClassReviewListener {
       const enrollment = await this.prisma.enrollment.findUnique({
         where: { id: data.enrollmentId },
         include: {
-          class: true,
+          liveClass: true,
+          vodPackage: true,
           user: true,
         },
       });
 
       if (!enrollment) return;
-      if (!enrollment.class) return;
+      if (!enrollment.liveClass && !enrollment.vodPackage) return;
 
       // Check if a review already exists
-      const existingReview = await this.prisma.classReview.findUnique({
+      const existingReview = await this.prisma.courseReview.findUnique({
         where: { enrollmentId: data.enrollmentId },
       });
 
@@ -38,9 +39,9 @@ export class ClassReviewListener {
         return;
       }
 
-      // TODO: Emit notification event to Notification service for sending CTA to write class review
+      const targetName = enrollment.liveClass?.name || enrollment.vodPackage?.title || 'Unknown';
       this.logger.log(
-        `[CTA] User ${enrollment.user.email} has completed class ${enrollment.class.name}. Should send review CTA.`,
+        `[CTA] User ${enrollment.user.email} has completed ${targetName}. Should send review CTA.`,
       );
     } catch (error) {
       this.logger.error(

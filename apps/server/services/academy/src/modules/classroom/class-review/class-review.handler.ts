@@ -10,36 +10,42 @@ import type {
 } from './dto/class-review.dto';
 
 @Controller()
-export class ClassReviewHandler {
+export class CourseReviewHandler {
   constructor(private readonly reviews: ClassReviewService) {}
 
   // ── Learner ─────────────────────────────────────────────────────────────
 
-  @MessagePattern({ cmd: 'academy.classReview.listByClass' })
-  listByClass(
-    @Payload() data: { classId: string; query: ClassReviewQueryDto },
+  @MessagePattern({ cmd: 'academy.courseReview.listByCohort' })
+  listByCohort(
+    @Payload() data: { cohortId: string; query: ClassReviewQueryDto },
   ) {
-    return this.reviews.listClassReviews(data.classId, data.query);
+    return this.reviews.listCourseReviewsByCohort(data.cohortId, data.query);
   }
 
-  @MessagePattern({ cmd: 'academy.classReview.listMine' })
+  @MessagePattern({ cmd: 'academy.courseReview.listByVodPackage' })
+  listByVodPackage(
+    @Payload() data: { vodPackageId: string; query: ClassReviewQueryDto },
+  ) {
+    return this.reviews.listCourseReviewsByVodPackage(data.vodPackageId, data.query);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseReview.listMine' })
   listMine(@Payload() data: { userId: string }) {
     return this.reviews.listMyReviews(data.userId);
   }
 
-  @MessagePattern({ cmd: 'academy.classReview.create' })
+  @MessagePattern({ cmd: 'academy.courseReview.create' })
   create(
     @Payload()
     data: {
-      classId: string;
       userId: string;
       dto: ClassReviewCreateDto;
     },
   ) {
-    return this.reviews.createReview(data.classId, data.userId, data.dto);
+    return this.reviews.createReview(data.userId, data.dto);
   }
 
-  @MessagePattern({ cmd: 'academy.classReview.update' })
+  @MessagePattern({ cmd: 'academy.courseReview.update' })
   update(
     @Payload()
     data: {
@@ -57,19 +63,19 @@ export class ClassReviewHandler {
     );
   }
 
-  @MessagePattern({ cmd: 'academy.classReview.hide' })
+  @MessagePattern({ cmd: 'academy.courseReview.hide' })
   hide(@Payload() data: { id: string; userId: string }) {
     return this.reviews.hideReview(data.id, data.userId);
   }
 
   // ── Admin ────────────────────────────────────────────────────────────────
 
-  @MessagePattern({ cmd: 'academy.classReview.adminList' })
+  @MessagePattern({ cmd: 'academy.courseReview.adminList' })
   adminList(@Payload() query: ClassReviewAdminQueryDto) {
     return this.reviews.adminListReviews(query);
   }
 
-  @MessagePattern({ cmd: 'academy.classReview.moderate' })
+  @MessagePattern({ cmd: 'academy.courseReview.moderate' })
   moderate(
     @Payload()
     data: {

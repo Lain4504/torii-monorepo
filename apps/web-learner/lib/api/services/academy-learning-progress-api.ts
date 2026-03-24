@@ -22,7 +22,7 @@ export const academyLearningProgressApi = {
      */
     trackProgress: async (payload: { lessonId: string; classId: string }): Promise<any> => {
         const response = await apiClient.post<StandardApiResponse<any>>(
-            `/api/academy/classes/${payload.classId}/lessons/${payload.lessonId}/complete`
+            `/api/academy/live-classes/${payload.classId}/lessons/${payload.lessonId}/complete`
         );
         return response.data.data!;
     },
@@ -39,7 +39,7 @@ export const academyLearningProgressApi = {
      * Get progress detail for a specific class
      */
     getClassProgress: async (classId: string): Promise<any> => {
-        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/classes/${classId}/progress`);
+        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/live-classes/${classId}/progress`);
         return response.data.data!;
     },
 

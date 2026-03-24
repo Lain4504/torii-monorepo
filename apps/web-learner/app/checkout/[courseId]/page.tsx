@@ -22,7 +22,7 @@ import {
 import { formatNumber } from '@/utils/format-utils'
 import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Clock, Coins } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
-import { useAcademyOffering } from '@/lib/api/services/academy-course-api'
+import { useAcademyProduct } from '@/lib/api/services/academy-course-api'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
 import { PaymentMethod } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -42,21 +42,37 @@ import {
     ItemGroup,
 } from "@workspace/ui/components/item"
 
+function isLiveClassFull(cls: { liveEnrollment?: { isFull?: boolean } } | null | undefined): boolean {
+    return !!cls?.liveEnrollment?.isFull
+}
+
+function liveCapacityLabel(cls: { liveEnrollment?: { activeEnrollmentCount?: number; maxStudents?: number | null; spotsLeft?: number | null; isFull?: boolean } } | null | undefined): string | null {
+    const le = cls?.liveEnrollment
+    if (!le) return null
+    const max = le.maxStudents
+    const cur = le.activeEnrollmentCount ?? 0
+    if (max == null) return `${cur} học viên (không giới hạn)`
+    const tail = le.isFull ? ' — Đã đầy' : le.spotsLeft != null ? ` — Còn ${le.spotsLeft} chỗ` : ''
+    return `${cur}/${max} học viên${tail}`
+}
+
 export default function CheckoutPage() {
     const params = useParams()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const courseId = params.courseId as string
+    const rawCourseId = params.courseId as string
+    const courseId = rawCourseId && rawCourseId !== 'undefined' ? rawCourseId : undefined
     const user = useAppSelector((state) => state.auth.user)
+    const type = (searchParams.get('type') as 'LIVE' | 'VOD') || 'LIVE'
 
-    const { data: offering, isLoading: isLoadingOffering } = useAcademyOffering(courseId)
+    const { data: product, isLoading: isLoadingProduct } = useAcademyProduct(courseId, type)
     const [isProcessing, setIsProcessing] = useState(false)
-    const isLIVE = offering?.type === 'LIVE'
+    const isLIVE = product?.type === 'LIVE'
     
     // Selection state
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
     
-    const selectedClass = (offering?.classes || []).find((c: any) => c.id === selectedClassId) || offering?.class || null
+    const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedClassId) || product?.class || null
     const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
         ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
@@ -78,24 +94,41 @@ export default function CheckoutPage() {
     const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
+    // Preselect class từ URL (?classId=) khi vào từ trang chi tiết lớp
+    useEffect(() => {
+        const fromQuery = searchParams.get('classId')
+        if (!fromQuery || !product || product.type !== 'LIVE') return
+        const inList = (product.classes || []).some((c: { id: string }) => c.id === fromQuery)
+        if (inList) setSelectedClassId(fromQuery)
+    }, [searchParams, product])
+
     // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong offering.classes (siblingClasses)
     useEffect(() => {
-        if (!offering || selectedClassId) return
-        if (offering.classId) {
-            setSelectedClassId(offering.classId)
+        if (!product || selectedClassId) return
+        if (product.classId) {
+            const c =
+                (product.classes || []).find((x: { id: string }) => x.id === product.classId) ??
+                product.class
+            if (c && !isLiveClassFull(c)) {
+                setSelectedClassId(product.classId)
+            }
             return
         }
         if (
-            offering.type === 'LIVE' &&
-            Array.isArray(offering.classes) &&
-            offering.classes.length === 1
+            product.type === 'LIVE' &&
+            Array.isArray(product.classes) &&
+            product.classes.length === 1
         ) {
-            setSelectedClassId(offering.classes[0].id)
+            const c = product.classes[0]
+            if (!isLiveClassFull(c)) {
+                setSelectedClassId(c.id)
+            }
         }
-    }, [offering, selectedClassId])
+    }, [product, selectedClassId])
 
     // Debounced Recipient Check
     useEffect(() => {
+        if (!courseId) return
         if (!isGift || !recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
             setRecipientStatus('idle')
             return
@@ -119,23 +152,48 @@ export default function CheckoutPage() {
 
     // Update Preview whenever offering, selected class (LIVE) or coupon changes
     useEffect(() => {
-        if (offering?.id) {
+        if (product?.id) {
             handlePreview()
         }
-    }, [offering?.id, couponCode, selectedClassId])
+    }, [product?.id, couponCode, selectedClassId])
 
     const handlePreview = async () => {
-        if (!offering?.id) return
+        if (!product?.id) return
+        if (product.type === 'LIVE') {
+            if (!selectedClassId) {
+                setPreview(null)
+                return
+            }
+            const picked = (product.classes || []).find((x: { id: string }) => x.id === selectedClassId)
+            if (picked && isLiveClassFull(picked)) {
+                setPreview(null)
+                return
+            }
+        }
         try {
             setIsPreviewing(true)
+            const isLiveProduct = product.type === 'LIVE'
+            const checkoutPayload = isLiveProduct
+                ? {
+                    cohortIds: [product.id],
+                    liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
+                  }
+                : {
+                    vodPackageIds: [product.id],
+                  }
             const result = await orderApi.previewOrder({
-                offeringIds: [offering.id],
+                ...checkoutPayload,
                 couponCode: couponCode.trim() || undefined,
-                classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined
             })
             setPreview(result)
-        } catch (error) {
-            console.error('Preview error:', error)
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } }; message?: string }
+            const msg =
+                err?.response?.data?.message ??
+                err?.message ??
+                'Không thể tính tạm tính đơn hàng.'
+            toast.error(msg)
+            setPreview(null)
         } finally {
             setIsPreviewing(false)
         }
@@ -154,14 +212,26 @@ export default function CheckoutPage() {
             toast.error('Vui lòng chọn một lớp học để tham gia.')
             return
         }
+        if (isLIVE && selectedClass && isLiveClassFull(selectedClass)) {
+            toast.error('Lớp đã đầy. Vui lòng chọn lớp khác hoặc kỳ sau quay lại.')
+            return
+        }
 
         try {
             setIsProcessing(true)
+            const isLiveProduct = product.type === 'LIVE'
+            const checkoutPayload = isLiveProduct
+                ? {
+                    cohortIds: [product.id],
+                    liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
+                  }
+                : {
+                    vodPackageIds: [product.id],
+                  }
             const result = await orderApi.createOrder({
                 offeringIds: [offering.id],
                 paymentMethod: method,
                 couponCode: couponCode.trim() || undefined,
-                classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined,
                 metadata: {
                     isGift,
                     recipientEmail: isGift ? recipientEmail : undefined,
@@ -182,17 +252,23 @@ export default function CheckoutPage() {
         }
     }
 
-    if (isLoadingOffering) return <PageLoading />
-    if (!offering) return null
+    if (isLoadingProduct) return <PageLoading />
+    if (!courseId || !product) return null
 
-    const displaySubtotal = preview?.subtotal ?? Number(offering.price ?? 0)
+    const displaySubtotal = preview?.subtotal ?? Number(product.price ?? 0)
     const displayTotal = preview?.total ?? displaySubtotal
 
     return (
         <div className="min-h-screen bg-background pb-20">
             <div className="container max-w-6xl mx-auto px-4 pt-10">
                 <Button variant="ghost" size="sm" asChild className="mb-6 -ml-2 text-muted-foreground">
-                    <Link href={`/dashboard/available-courses/${courseId}`}>
+                    <Link
+                        href={
+                            searchParams.get('classId')
+                                ? `/dashboard/available-courses/class/${searchParams.get('classId')}`
+                                : '/dashboard/available-courses'
+                        }
+                    >
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại trang khóa học
                     </Link>
@@ -210,54 +286,88 @@ export default function CheckoutPage() {
                             <CardContent>
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
-                                        <Image src={offering.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.learnerDisplayTitle || offering.title} fill className="object-cover" />
+                                        <Image src={product.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={product.learnerDisplayTitle || product.name} fill className="object-cover" />
                                     </div>
                                     <div className="flex-1 space-y-3">
-                                        <Badge variant="secondary">{offering.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
-                                        <h3 className="font-bold text-lg">{offering.learnerDisplayTitle || offering.title}</h3>
-                                        {offering.liveContextLine && (
-                                            <p className="text-sm text-muted-foreground">{offering.liveContextLine}</p>
+                                        <Badge variant="secondary">{product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
+                                        <h3 className="font-bold text-lg">{product.learnerDisplayTitle || product.name}</h3>
+                                        {product.liveContextLine && (
+                                            <p className="text-sm text-muted-foreground">{product.liveContextLine}</p>
                                         )}
-                                        {offering.learnerMarketingSubtitle && (
-                                            <p className="text-xs text-muted-foreground">Gói: {offering.learnerMarketingSubtitle}</p>
+                                        {product.learnerMarketingSubtitle && (
+                                            <p className="text-xs text-muted-foreground">Gói: {product.learnerMarketingSubtitle}</p>
                                         )}
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
-                                            <ItemContent><ItemTitle>{formatNumber(offering.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
+                                            <ItemContent><ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
                                             </Item>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
                                                 <ItemContent><ItemTitle>{formatNumber(lessonCount)} bài học</ItemTitle></ItemContent>
                                             </Item>
+                                            {isLIVE && selectedClass && liveCapacityLabel(selectedClass) && (
+                                                <Item size="sm">
+                                                    <ItemMedia variant="icon"><Users /></ItemMedia>
+                                                    <ItemContent>
+                                                        <ItemTitle>{liveCapacityLabel(selectedClass)}</ItemTitle>
+                                                    </ItemContent>
+                                                </Item>
+                                            )}
                                         </ItemGroup>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {isLIVE && offering.classes && offering.classes.length > 1 && (
+                        {isLIVE && product.classes && product.classes.length === 1 && isLiveClassFull(product.classes[0]) && (
+                            <Card className="border-destructive/50 bg-destructive/5">
+                                <CardContent className="pt-6 text-sm text-destructive">
+                                    Lớp LIVE hiện tại đã đủ học viên. Bạn không thể thanh toán gói này cho đến khi có chỗ trống.
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {isLIVE && product.classes && product.classes.length > 1 && (
                             <Card>
-                                <CardHeader><CardTitle className="text-xl">Chọn lớp học (Kỳ học)</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="text-xl">Chọn lớp học (Đợt học)</CardTitle></CardHeader>
                                 <CardContent className="space-y-4">
                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                         {offering.classes.map((cls: any) => (
-                                             <div key={cls.id} 
-                                                  onClick={() => setSelectedClassId(cls.id)}
-                                                  className={`p-4 border rounded-xl cursor-pointer transition-all ${selectedClassId === cls.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/50'}`}>
-                                                 <div className="flex justify-between items-start mb-2">
+                                         {product.classes.map((cls: any) => {
+                                             const full = isLiveClassFull(cls)
+                                             const cap = liveCapacityLabel(cls)
+                                             return (
+                                             <div key={cls.id}
+                                                  role="button"
+                                                  tabIndex={full ? -1 : 0}
+                                                  onClick={() => { if (!full) setSelectedClassId(cls.id) }}
+                                                  onKeyDown={(e) => {
+                                                      if (full) return
+                                                      if (e.key === 'Enter' || e.key === ' ') {
+                                                          e.preventDefault()
+                                                          setSelectedClassId(cls.id)
+                                                      }
+                                                  }}
+                                                  className={`p-4 border rounded-xl transition-all ${full ? 'opacity-60 cursor-not-allowed border-muted' : 'cursor-pointer hover:border-primary/50'} ${selectedClassId === cls.id && !full ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}>
+                                                 <div className="flex justify-between items-start mb-2 gap-2">
                                                      <span className="font-bold">{cls.name || cls.code}</span>
-                                                     {selectedClassId === cls.id && <CheckCircle2 className="size-4 text-primary" />}
+                                                     <div className="flex items-center gap-1 shrink-0">
+                                                         {full && <Badge variant="destructive" className="text-[10px]">Đã đầy</Badge>}
+                                                         {selectedClassId === cls.id && !full && <CheckCircle2 className="size-4 text-primary" />}
+                                                     </div>
                                                  </div>
                                                  <p className="text-xs text-muted-foreground line-clamp-1">GV: {cls.instructor?.displayName || 'Chưa gán'}</p>
-                                                 {cls.term && (
+                                                 {cap && (
+                                                     <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">{cap}</p>
+                                                 )}
+                                                 {cls.cohort && (
                                                      <p className="text-[10px] text-muted-foreground mt-2 inline-flex items-center gap-1 bg-muted px-1.5 py-0.5 rounded">
                                                          <Clock className="size-3" />
-                                                         Khai giảng: {new Date(cls.term.openingDate).toLocaleDateString()}
+                                                         Khai giảng: {new Date(cls.cohort.startDate).toLocaleDateString()}
                                                      </p>
                                                  )}
                                              </div>
-                                         ))}
+                                         )})}
                                      </div>
                                 </CardContent>
                             </Card>
@@ -328,7 +438,7 @@ export default function CheckoutPage() {
                                             isProcessing ||
                                             isPreviewing ||
                                             (isGift && recipientStatus === 'enrolled') ||
-                                            (isLIVE && !selectedClass)
+                                            (isLIVE && (!selectedClass || isLiveClassFull(selectedClass)))
                                         }
                                     >
                                         {isProcessing ? 'Đang xử lý...' : 'Thanh toán ngay'}

@@ -7,11 +7,11 @@ export const createTicketDTOSchema = ticketSchema.pick({
     type: true,
     subject: true,
     description: true,
-    classId: true,
+    liveClassId: true,
     orderId: true,
     metadata: true,
 }).extend({
-    classId: z.string().uuid().optional(),
+    liveClassId: z.string().uuid().optional(),
     orderId: z.string().uuid().optional(),
     metadata: z.record(z.any()).optional(),
 });
@@ -32,7 +32,7 @@ export const ticketQueryDTOSchema = paginationOptionsDTOSchema.extend({
     type: z.nativeEnum(TicketType).optional(),
     status: z.nativeEnum(TicketStatus).optional(),
     userId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    liveClassId: z.string().uuid().optional(),
     orderId: z.string().uuid().optional(),
 });
 

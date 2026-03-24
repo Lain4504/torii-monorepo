@@ -1,0 +1,156 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import {
+  GatewayAuthGuard,
+  Permissions,
+  PermissionsGuard,
+  ZodValidationPipe,
+  successResponse,
+  ReqWithRequester,
+} from '@server/shared';
+import {
+  academyCourseReviewCreateDTOSchema,
+  academyCourseReviewUpdateDTOSchema,
+  academyCourseReviewQueryDTOSchema,
+  academyCourseReviewAdminQueryDTOSchema,
+  academyCourseReviewModerateDTOSchema,
+} from '@workspace/schemas';
+
+@Controller('api/academy/reviews')
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
+export class CourseReviewController {
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+
+  // ── Public routes ──────────────────────────────────────────────────────────
+
+  @Get('cohorts/:cohortId')
+  async listByCohort(
+    @Param('cohortId', new ParseUUIDPipe()) cohortId: string,
+    @Query(new ZodValidationPipe(academyCourseReviewQueryDTOSchema)) query: any,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseReview.listByCohort' },
+        { cohortId, query },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Get('vod-packages/:vodPackageId')
+  async listByVodPackage(
+    @Param('vodPackageId', new ParseUUIDPipe()) vodPackageId: string,
+    @Query(new ZodValidationPipe(academyCourseReviewQueryDTOSchema)) query: any,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseReview.listByVodPackage' },
+        { vodPackageId, query },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Get('me')
+  async listMine(@Req() req: ReqWithRequester) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseReview.listMine' }, { userId }),
+    );
+    return successResponse(result);
+  }
+
+  // ── Learner write routes ───────────────────────────────────────────────────
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body(new ZodValidationPipe(academyCourseReviewCreateDTOSchema)) dto: any,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseReview.create' },
+        { userId, dto },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Patch(':id')
+  async update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyCourseReviewUpdateDTOSchema)) dto: any,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseReview.update' },
+        { id, userId, dto },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Delete(':id')
+  async hide(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseReview.hide' }, { id, userId }),
+    );
+    return successResponse(result);
+  }
+
+  // ── Admin routes ───────────────────────────────────────────────────────────
+
+  @Get('admin')
+  @Permissions('academy.delivery.admin')
+  async adminList(
+    @Query(new ZodValidationPipe(academyCourseReviewAdminQueryDTOSchema))
+    query: any,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseReview.adminList' }, query),
+    );
+    return successResponse(result);
+  }
+
+  @Post('admin/:id/moderate')
+  @Permissions('academy.delivery.admin')
+  @HttpCode(HttpStatus.OK)
+  async moderate(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyCourseReviewModerateDTOSchema)) dto: any,
+    @Req() req: ReqWithRequester,
+  ) {
+    const moderatorId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseReview.moderate' },
+        { id, moderatorId, dto },
+      ),
+    );
+    return successResponse(result);
+  }
+}

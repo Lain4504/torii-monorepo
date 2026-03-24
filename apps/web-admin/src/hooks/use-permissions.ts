@@ -1,19 +1,17 @@
 import { useAppSelector } from '@/hooks/hooks.ts';
-import { selectPermissions, selectRole, selectStaffTemplate } from '@/store/slices/auth-slice.ts';
+import { selectPermissions, selectRole } from '@/store/slices/auth-slice.ts';
 import { hasPermission, hasAnyPermission, hasAllPermissions } from '@/lib/utils/permissions.ts';
 import { UserRole } from "@workspace/schemas";
 
 export function usePermissions() {
     const permissions = useAppSelector(selectPermissions);
     const role = useAppSelector(selectRole);
-    const staffTemplate = useAppSelector(selectStaffTemplate);
 
     const isAdmin = role === UserRole.ADMIN;
 
     return {
         permissions,
         role,
-        staffTemplate,
         isAdmin,
 
         /**

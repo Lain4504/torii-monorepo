@@ -6,8 +6,8 @@ import { paginationOptionsDTOSchema } from './common.dto';
 
 export const academyEnrollmentCreateDTOSchema = z.object({
   userId: z.string().uuid(),
-  classId: z.string().uuid(),
-  offeringId: z.string().uuid().optional(),
+  liveClassId: z.string().uuid().optional().nullable(),
+  vodPackageId: z.string().uuid().optional().nullable(),
   expiresAt: z.coerce.date().optional(),
   status: z.string().max(20).optional(),
   sourceOrderId: z.string().uuid().optional(),
@@ -25,8 +25,8 @@ export type AcademyEnrollmentUpdateDTO = z.infer<
 >;
 
 export const academyEnrollmentQueryDTOSchema = paginationOptionsDTOSchema.extend({
-  classId: z.string().uuid().optional(),
-  offeringId: z.string().uuid().optional(),
+  liveClassId: z.string().uuid().optional(),
+  vodPackageId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.string().optional(),
 });
@@ -37,16 +37,18 @@ export type AcademyEnrollmentQueryDTO = z.infer<
 // Model dùng cho web-learner (giữ nguyên các field enrich để không phá API hiện tại)
 export const academyEnrollmentModelSchema = z.object({
   id: z.string().uuid(),
-  classId: z.string().uuid(),
   userId: z.string().uuid(),
+  liveClassId: z.string().uuid().nullable().optional(),
+  vodPackageId: z.string().uuid().nullable().optional(),
+  enrolledAt: z.coerce.date(),
   expiresAt: z.coerce.date().nullable(),
   status: z.string(),
-  offeringId: z.string().uuid().nullable().optional(),
   sourceOrderId: z.string().uuid().nullable().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   // Relations
-  class: z.any().optional(),
+  liveClass: z.any().optional(),
+  vodPackage: z.any().optional(),
   user: z.any().optional(),
 
   // Learner View Rich Fields (Calculated by backend for learner portal)

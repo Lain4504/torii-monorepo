@@ -23,12 +23,42 @@ import {
 import {
   AcademyLiveSessionQueryDTO,
   academyLiveSessionQueryDTOSchema,
+  AcademyLiveSessionMyScheduleQueryDTO,
+  academyLiveSessionMyScheduleQueryDTOSchema,
 } from '@workspace/schemas';
 
 @Controller('api/academy/live-sessions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class AcademyLiveSessionController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+
+  @Get('me')
+  @Permissions('academy.delivery.read')
+  async getMyScheduleWithAttendance(
+    @Query(new ZodValidationPipe(academyLiveSessionMyScheduleQueryDTOSchema))
+    query: AcademyLiveSessionMyScheduleQueryDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester?.sub;
+    if (!userId)
+      throw new UnauthorizedException('User ID not found in request');
+
+    const now = new Date();
+    const fromDefault = new Date(now);
+    fromDefault.setDate(fromDefault.getDate() - 14);
+    const toDefault = new Date(now);
+    toDefault.setDate(toDefault.getDate() + 84);
+    const from = query.from ?? fromDefault.toISOString().slice(0, 10);
+    const to = query.to ?? toDefault.toISOString().slice(0, 10);
+
+    const items = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.liveSession.getMyScheduleWithAttendance' },
+        { userId, from, to },
+      ),
+    );
+    return successResponse({ items });
+  }
 
   @Get()
   @Permissions('academy.delivery.read')

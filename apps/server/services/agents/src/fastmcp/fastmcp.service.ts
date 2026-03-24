@@ -285,13 +285,17 @@ export class FastMcpService {
       const enrollments = await this.prisma.enrollment.findMany({
         where: { userId },
         include: {
-          class: {
+          liveClass: {
             include: {
-              courseProfile: {
-                select: {
-                  id: true,
-                  title: true,
-                  level: true,
+              cohort: {
+                include: {
+                  courseProfile: {
+                    select: {
+                      id: true,
+                      title: true,
+                      level: true,
+                    },
+                  },
                 },
               },
             },
@@ -300,12 +304,12 @@ export class FastMcpService {
       });
 
       const courseTitles = (enrollments as any[])
-        .map((e) => e.class?.courseProfile?.title)
+        .map((e) => e.liveClass?.cohort?.courseProfile?.title)
         .filter(Boolean);
       const jlptLevels = [
         ...new Set(
           (enrollments as any[])
-            .map((e) => e.class?.courseProfile?.level)
+            .map((e) => e.liveClass?.cohort?.courseProfile?.level)
             .filter(Boolean),
         ),
       ];

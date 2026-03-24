@@ -42,18 +42,18 @@ export function useOrderPayments(orderId: string) {
     });
 }
 
-export function useOfferingOrders(offeringId: string, params: any) {
+export function useCohortOrders(cohortId: string, params: any) {
     return useQuery({
-        queryKey: ['offering-orders', offeringId, params],
-        queryFn: () => orderApi.getOrdersByOffering(offeringId, params),
-        enabled: !!offeringId,
+        queryKey: ['cohort-orders', cohortId, params],
+        queryFn: () => orderApi.getOrdersByCohort(cohortId, params),
+        enabled: !!cohortId,
     });
 }
 
-export function useOfferingStats(offeringId: string) {
+export function useCohortStats(cohortId: string) {
     return useQuery({
-        queryKey: ['offering-stats', offeringId],
-        queryFn: () => orderApi.getStatsByOffering(offeringId),
-        enabled: !!offeringId,
+        queryKey: ['cohort-stats', cohortId],
+        queryFn: () => orderApi.getStatsByCohort(cohortId),
+        enabled: !!cohortId,
     });
 }

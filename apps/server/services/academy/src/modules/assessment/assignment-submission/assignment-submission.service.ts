@@ -26,10 +26,12 @@ export class AssignmentSubmissionService {
     canViewAll = false,
   ) {
     const effectiveUserId =
-      isExamManager || canViewAll ? query.userId : requesterId ?? query.userId;
+      isExamManager || canViewAll
+        ? query.userId
+        : (requesterId ?? query.userId);
     return this.prisma.assignmentSubmission.findMany({
       where: {
-        classAssignmentId: query.classAssessmentId ?? undefined,
+        liveClassAssignmentId: query.classAssessmentId ?? undefined,
         userId: effectiveUserId ?? undefined,
       },
       include: {
@@ -82,7 +84,7 @@ export class AssignmentSubmissionService {
       );
     }
 
-    const classAssignment = await this.prisma.classAssignment.findUnique({
+    const classAssignment = await this.prisma.liveClassAssignment.findUnique({
       where: { id: input.classAssessmentId },
       select: { id: true },
     });
@@ -92,7 +94,7 @@ export class AssignmentSubmissionService {
 
     const existing = await this.prisma.assignmentSubmission.findFirst({
       where: {
-        classAssignmentId: input.classAssessmentId,
+        liveClassAssignmentId: input.classAssessmentId,
         userId: input.userId,
       },
       select: { id: true },
@@ -106,7 +108,7 @@ export class AssignmentSubmissionService {
 
     const result = await this.prisma.assignmentSubmission.create({
       data: {
-        classAssignmentId: input.classAssessmentId,
+        liveClassAssignmentId: input.classAssessmentId,
         userId: input.userId,
         status: (input.status as any) ?? 'SUBMITTED',
         submittedAt:
@@ -175,7 +177,7 @@ export class AssignmentSubmissionService {
       description: `Deleted assignment submission for user ${submission.userId}`,
       metadata: {
         userId: submission.userId,
-        classAssignmentId: submission.classAssignmentId,
+        classAssignmentId: (submission as any).liveClassAssignmentId || (submission as any).classAssignmentId,
       },
     });
 

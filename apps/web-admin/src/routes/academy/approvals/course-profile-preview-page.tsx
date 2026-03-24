@@ -18,7 +18,7 @@ import {
 import { toast } from "@workspace/ui/components/sonner"
 import { ChevronRight, CheckCircle2, BookOpen } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
+import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { useAcademyCourseProfile, useApproveAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { formatDateTime } from "@/lib/format-utils"
 
@@ -40,9 +40,7 @@ export default function CourseProfileApprovalPreviewPage() {
   const [approveConfirmOpen, setApproveConfirmOpen] = useState(false)
 
   const isStaffOrAdmin =
-    user?.role === UserRole.ADMIN ||
-    user?.role === UserRole.STAFF_ACADEMIC ||
-    user?.role === UserRole.STAFF_OPERATIONS
+    user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
   if (isLoading) {
     return (

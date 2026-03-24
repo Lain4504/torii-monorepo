@@ -60,8 +60,8 @@ export default function PaymentSuccessPage() {
                     {!loading && summary ? (
                         <div className="space-y-2 text-left text-sm">
                             {summary.items.map((item) => (
-                                <div key={item.offeringId} className="rounded border p-2">
-                                    <div className="font-semibold">{item.offeringTitle}</div>
+                                <div key={item.productId} className="rounded border p-2">
+                                    <div className="font-semibold">{item.productName}</div>
                                     {item.missingClassIds.length === 0 ? (
                                         <div className="text-emerald-600">
                                             Ghi danh thành công ({item.enrolledClassIds.length}/{item.expectedClassIds.length} lớp).

@@ -10,6 +10,17 @@ export type AcademyLiveSessionQueryDTO = z.infer<
   typeof academyLiveSessionQueryDTOSchema
 >
 
+const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/
+
+export const academyLiveSessionMyScheduleQueryDTOSchema = z.object({
+  from: z.string().regex(dateOnlyRegex, "from must be yyyy-MM-dd").optional(),
+  to: z.string().regex(dateOnlyRegex, "to must be yyyy-MM-dd").optional(),
+})
+
+export type AcademyLiveSessionMyScheduleQueryDTO = z.infer<
+  typeof academyLiveSessionMyScheduleQueryDTOSchema
+>
+
 export const academyLiveScheduleSessionModelSchema = z.object({
   id: z.string().uuid(),
   classId: z.string().uuid(),

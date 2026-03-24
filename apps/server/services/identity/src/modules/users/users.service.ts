@@ -134,11 +134,7 @@ export class UsersService implements IUsersService {
               ],
             }
           : {},
-        role
-          ? role === 'staff'
-            ? { OR: [{ role: { startsWith: 'staff' } }, { role: 'admin' }] }
-            : { role }
-          : {},
+        role ? { role } : {},
       ],
     };
 
@@ -246,7 +242,7 @@ export class UsersService implements IUsersService {
   }
 
   /**
-   * Create internal user (LECTURE/STAFF) with invite email
+   * Create internal user (lecturer / staff-academic / staff-operations) with invite email
    * Auto-generates random password, hashes it, and sends via email
    */
   async createInternalUser(
@@ -284,7 +280,7 @@ export class UsersService implements IUsersService {
     await this.redis.set(`invite-token:${inviteToken}`, user.id, 'EX', 604800); // 7 days
 
     // Send invite email with password - link to login page
-    // Internal users (staff/lecturer) use web-admin, so use webAdminUrl from config
+    // Lecturer / staff-academic / staff-operations: đăng nhập web-admin — dùng webAdminUrl
     const loginUrl = `${this.appConfig.identity.webAdminUrl.replace(/\/+$/, '')}/login`;
     this.natsClient.emit(
       { cmd: 'send_email' },
@@ -329,8 +325,7 @@ export class UsersService implements IUsersService {
   }
 
   /**
-   * Get user with authorization permissions
-   * Returns user info along with computed role, permissions, and staff template
+   * Get user with authorization permissions (role + permission list từ RBAC)
    */
   async getUserWithPermissions(userId: string): Promise<UserWithPermissions> {
     const user = await this.usersRepository.getUserBasicInfo(userId);

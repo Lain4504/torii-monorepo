@@ -49,6 +49,8 @@ export interface LiveSessionResponseDTO {
     scheduleId: string | null;
     createdAt: Date;
     updatedAt: Date;
+    /** Điểm danh của user hiện tại cho buổi này; null = chưa có bản ghi */
+    attendanceStatus?: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED' | null;
 
     lecturer?: {
         id: string;

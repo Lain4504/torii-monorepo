@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams, Link } from "react-router-dom"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
-import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
@@ -77,7 +77,7 @@ export default function CourseProfileDetailPage() {
   const [profileSheetOpen, setProfileSheetOpen] = useState(false)
   
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(profileId)
-  const { data: classes } = useAcademyClasses({ courseProfileId: profileId } as any)
+  const { data: classes } = useAcademyLiveClasses({ courseProfileId: profileId } as any)
 
   const qc = useQueryClient()
   const deleteModuleMutation = useDeleteAcademyCourseModule()
@@ -392,7 +392,7 @@ export default function CourseProfileDetailPage() {
                                     </TableCell>
                                     <TableCell>
                                         <Badge 
-                                          variant={cls.status === 'PUBLISHED' ? 'default' : cls.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
+                                          variant={(cls.status === 'PUBLISHED' || cls.status === 'OPENING' || cls.status === 'ONGOING') ? 'default' : cls.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
                                           className="text-[10px]"
                                         >
                                             {cls.status}
@@ -405,7 +405,7 @@ export default function CourseProfileDetailPage() {
                                         asChild
                                         className="h-8 gap-2 border-primary/30 text-primary bg-transparent hover:bg-primary/5"
                                       >
-                                        <Link to={`/academy/classes/${cls.id}/detail`} className="flex items-center gap-2">
+                                        <Link to={`/academy/live-classes/${cls.id}/detail`} className="flex items-center gap-2">
                                             <LayoutDashboard className="size-4" />
                                             Quản lý lớp
                                             <ChevronRight className="size-4" />

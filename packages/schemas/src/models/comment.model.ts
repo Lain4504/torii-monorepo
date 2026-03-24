@@ -3,6 +3,7 @@ import { z } from 'zod';
 export enum CommentTargetType {
     BLOG = 'BLOG',
     FEED = 'FEED',
+    DISCUSSION = 'DISCUSSION',
     LESSON = 'LESSON',
 }
 

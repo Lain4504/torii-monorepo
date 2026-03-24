@@ -8,7 +8,7 @@ import { DashboardHeader } from "@/components/layout/dashboard-header"
 export function SenseiLayout({ children }: { children: React.ReactNode }) {
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full overflow-hidden bg-background nhai-blueprint-bg">
+            <div className="flex min-h-screen w-full overflow-hidden bg-background">
                 <AppSidebar />
 
                 <SidebarInset className="relative z-10 flex min-h-0 flex-1 flex-col bg-transparent">

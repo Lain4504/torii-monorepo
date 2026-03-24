@@ -4,9 +4,9 @@ import type {
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
-import { computeLearnerOfferingDisplay } from '@/lib/utils/learner-offering-display';
+import { computeLearnerProductDisplay } from '@/lib/utils/learner-product-display';
 
-function normalizeOfferingForLearner(item: any) {
+function normalizeProductForLearner(item: any) {
   if (!item) return null;
 
   const primaryClass = item.class ?? null;
@@ -15,8 +15,8 @@ function normalizeOfferingForLearner(item: any) {
     item.class?.courseProfile ||
     item.courseProfile;
 
-  // Map CourseProfile (modules/lessons) → courseEdition.chapters (dùng khi không có edition từ lớp)
-  let courseEdition = primaryClass?.courseEdition;
+  // Map CourseProfile (modules/lessons) → courseEdition.chapters
+  let courseEdition = primaryClass?.courseEdition || primaryClass?.cohort?.courseProfile?.edition;
 
   if (!courseEdition && profile?.modules && Array.isArray(profile.modules)) {
     const chapters = profile.modules.map((mod: any) => ({
@@ -41,7 +41,7 @@ function normalizeOfferingForLearner(item: any) {
         : [];
 
   const siblingClasses = Array.isArray(item.siblingClasses) ? item.siblingClasses : [];
-  // Gói LIVE gắn term: API trả siblingClasses (lớp cùng kỳ), không set item.class
+  // Gói LIVE gắn cohort: API trả siblingClasses (lớp cùng đợt), không set item.class
   if (item.mode === 'LIVE' && siblingClasses.length > 0) {
     classes = siblingClasses;
   }
@@ -61,11 +61,11 @@ function normalizeOfferingForLearner(item: any) {
     return cls;
   });
 
-  const display = computeLearnerOfferingDisplay(item, {
+  const display = computeLearnerProductDisplay(item, {
     isLive,
     primaryClass,
     profile,
-    classesForTerm: normalizedClasses,
+    classesForCohort: normalizedClasses,
   });
 
   return {
@@ -94,77 +94,78 @@ function normalizeOfferingForLearner(item: any) {
   };
 }
 
-export const academyOfferingApi = {
-  /**
-   * Get all course offerings with pagination and filters
-   */
-  findAllPublic: async (params: {
-    page?: number;
-    limit?: number;
+/** Chỉ dùng cho checkout/preview và chi tiết khóa học. Hỗ trợ cả Cohort (LIVE) và VodPackage (VOD). */
+export const academyProductApi = {
+  getPublicById: async (id: string, type: 'LIVE' | 'VOD' = 'LIVE'): Promise<any | null> => {
+    const endpoint = type === 'LIVE' ? `/api/academy/cohorts/public/${id}` : `/api/academy/vod-packages/public/${id}`;
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(endpoint);
+    const item = response.data.data!.item as any;
+    // Cohort/VOD public detail có thể chưa có field mode từ backend.
+    return normalizeProductForLearner({
+      ...item,
+      mode: item?.mode ?? type,
+      // LIVE detail trả liveClasses, normalize dùng siblingClasses/classes.
+      siblingClasses:
+        type === 'LIVE'
+          ? (Array.isArray(item?.siblingClasses) ? item.siblingClasses : item?.liveClasses ?? [])
+          : item?.siblingClasses,
+      classes:
+        type === 'LIVE'
+          ? (Array.isArray(item?.classes) ? item.classes : item?.liveClasses ?? [])
+          : item?.classes,
+    });
+  },
+};
+
+/** Lớp học (catalog learner) — không expose CourseOffering như đơn vị hiển thị; chỉ map giá/checkout qua catalogOfferingId. */
+export const academyClassCatalogApi = {
+  findPublic: async (params: {
+    mode: 'LIVE' | 'VOD';
+    level?: string;
+    editionKey?: string;
+    month?: string;
     q?: string;
-    mode?: 'VOD' | 'LIVE';
-    hasEnrollableLiveClass?: boolean;
-  } = {}): Promise<PaginatedApiResponse<any>> => {
-    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>(
-      '/api/academy/course-offerings/public',
-      {
-        params: {
-          ...params,
-          status: 'PUBLISHED',
-        },
-      }
-    );
-
-    const data = response.data.data!;
-    const now = new Date();
-
-    // Filter by validity dates and normalize
-    const normalizedItems = (data.items ?? [])
-      .filter((item: any) => {
-        const fromOk = !item.validFrom || new Date(item.validFrom) <= now;
-        const toOk = !item.validTo || new Date(item.validTo) >= now;
-        return fromOk && toOk;
-      })
-      .map(normalizeOfferingForLearner);
-
-    return {
-      success: response.data.success,
-      data: normalizedItems,
-      total: normalizedItems.length,
-      page: data.page ?? 1,
-      limit: data.limit ?? 10,
-      totalPages: data.totalPages ?? 1,
-    };
-  },
-
-  /**
-   * Get public offering by id (includes curriculum)
-   */
-  getPublicById: async (id: string): Promise<any | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(
-      `/api/academy/course-offerings/public/${id}`
-    );
-    return normalizeOfferingForLearner(response.data.data!.item);
-  },
-
-  /**
-   * Get public offerings by category (JLPT level)
-   */
-  findByCategory: async (category: string): Promise<PaginatedApiResponse<any>> => {
+  }): Promise<{ items: any[] }> => {
     const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
-      `/api/academy/course-offerings/public/category/${category}`
+      '/api/academy/live-classes/public',
+      { params },
     );
-    
-    const data = response.data.data!;
-    const normalizedItems = (data.items ?? []).map(normalizeOfferingForLearner);
+    return response.data.data!;
+  },
+
+  getPublicById: async (id: string, mode?: 'LIVE' | 'VOD'): Promise<any> => {
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(
+      `/api/academy/live-classes/public/${id}`,
+      { params: mode ? { mode } : undefined },
+    );
+    const item = response.data.data!.item as any;
+
+    if (item?.mode === 'LIVE') {
+      return {
+        ...item,
+        courseProfile: item.cohort?.courseProfile ?? item.courseProfile,
+        catalogPrice: Number(item.cohort?.price ?? item.catalogPrice ?? 0),
+        term: item.term ?? {
+          openingDate: item.cohort?.startDate ?? item.cohort?.enrollmentOpenAt ?? null,
+          name: item.cohort?.name,
+          code: item.cohort?.code,
+        },
+        liveEnrollment: {
+          maxStudents: item.maxStudents ?? null,
+          activeEnrollmentCount: item._count?.enrollments ?? 0,
+          isFull:
+            item.maxStudents != null
+              ? (item._count?.enrollments ?? 0) >= item.maxStudents
+              : false,
+        },
+      };
+    }
 
     return {
-      success: response.data.success,
-      data: normalizedItems,
-      total: normalizedItems.length,
-      page: 1,
-      limit: Math.max(normalizedItems.length, 1),
-      totalPages: 1,
+      ...item,
+      mode: 'VOD',
+      name: item.title ?? item.name,
+      catalogPrice: Number(item.price ?? item.catalogPrice ?? 0),
     };
   },
 };
@@ -205,33 +206,12 @@ export const academyCourseApi = {
 };
 
 /**
- * Hook: Get all course offerings with filters
+ * Hook: sản phẩm học tập theo id (checkout)
  */
-export function useAcademyOfferings(params?: any) {
+export function useAcademyProduct(id?: string, type: 'LIVE' | 'VOD' = 'LIVE') {
   return useQuery({
-    queryKey: ['academy-course-offerings', params],
-    queryFn: () => academyOfferingApi.findAllPublic(params),
-  });
-}
-
-/**
- * Hook: Get course offerings by category (JLPT Level)
- */
-export function useAcademyOfferingsByCategory(category: string) {
-  return useQuery({
-    queryKey: ['academy-course-offerings', 'category', category],
-    queryFn: () => academyOfferingApi.findByCategory(category),
-    enabled: !!category,
-  });
-}
-
-/**
- * Hook: Get course offering by ID
- */
-export function useAcademyOffering(id?: string) {
-  return useQuery({
-    queryKey: ['academy-course-offerings', 'id', id],
-    queryFn: () => academyOfferingApi.getPublicById(id!),
+    queryKey: ['academy-course-products', 'id', id, type],
+    queryFn: () => academyProductApi.getPublicById(id!, type),
     enabled: !!id,
     retry: false,
   });
@@ -245,6 +225,28 @@ export function useAcademyCourseById(courseId?: string) {
     queryKey: ['academy-course-profiles', 'id', courseId],
     queryFn: () => academyCourseApi.getCourseById(courseId!),
     enabled: !!courseId,
+    retry: false,
+  });
+}
+
+export function useAcademyClassCatalog(params: {
+  mode: 'LIVE' | 'VOD';
+  level?: string;
+  editionKey?: string;
+  month?: string;
+  q?: string;
+}) {
+  return useQuery({
+    queryKey: ['academy-class-catalog', params],
+    queryFn: () => academyClassCatalogApi.findPublic(params),
+  });
+}
+
+export function useAcademyClassCatalogById(classId?: string, mode?: 'LIVE' | 'VOD') {
+  return useQuery({
+    queryKey: ['academy-class-catalog', 'id', classId, mode],
+    queryFn: () => academyClassCatalogApi.getPublicById(classId!, mode),
+    enabled: !!classId,
     retry: false,
   });
 }

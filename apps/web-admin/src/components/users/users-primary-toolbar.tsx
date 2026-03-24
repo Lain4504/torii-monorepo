@@ -63,6 +63,8 @@ export function UsersPrimaryToolbar({
                         <SelectContent>
                             <SelectItem value="all">Tất cả vai trò</SelectItem>
                             <SelectItem value="admin">Quản trị viên</SelectItem>
+                            <SelectItem value="staff-academic">NV Học vụ</SelectItem>
+                            <SelectItem value="staff-operations">NV Vận hành</SelectItem>
                             <SelectItem value="learner">Học viên</SelectItem>
                             <SelectItem value="lecturer">Giảng viên</SelectItem>
                         </SelectContent>

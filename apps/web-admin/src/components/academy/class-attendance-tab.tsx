@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useParams } from "react-router-dom"
-import { useAcademyClass } from "@/lib/api/services/academy-classes"
+import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyLiveSessions } from "@/lib/api/services/academy-live-sessions"
 import { useAcademyClassAttendances, useCreateAcademyClassAttendance } from "@/lib/api/services/academy-class-attendances"
@@ -20,13 +20,13 @@ import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
 import { ClassRescheduleRequestSheet } from "@/components/academy/class-reschedule-request-sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
+import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { toast } from "sonner"
 
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import type { AcademyLiveScheduleSessionModel } from "@workspace/schemas"
-import type { AcademyClass } from "@/lib/api/services/academy-classes"
+import type { AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import type { AcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 
 const WEEKDAY_MAP: Record<number, string> = {
@@ -41,7 +41,7 @@ const WEEKDAY_MAP: Record<number, string> = {
 
 interface ClassAttendanceTabProps {
     classId?: string
-    academyClass?: AcademyClass
+    academyClass?: AcademyLiveClass
 }
 
 export function ClassAttendanceTab({ classId: propClassId, academyClass: propAcademyClass }: ClassAttendanceTabProps) {
@@ -55,18 +55,22 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
 
     const { user } = useAuth()
     const isLecturer = user?.role === UserRole.LECTURER
-    const isStaffOrAdmin = user?.role === UserRole.STAFF || user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF_ACADEMIC || user?.role === UserRole.STAFF_OPERATIONS
+    const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
-    const { data: fetchedClass } = useAcademyClass(propAcademyClass ? undefined : classId)
+    const { data: fetchedClass } = useAcademyLiveClass(propAcademyClass ? undefined : classId)
     const academyClass = propAcademyClass || fetchedClass
 
-    const { data: enrollmentsData = [] } = useAcademyEnrollments({ classId, page: 1, limit: 100 })
+    const { data: enrollmentsData = [] } = useAcademyEnrollments({ liveClassId: classId, page: 1, limit: 100 })
     const { data: sessions = [] } = useAcademyLiveSessions({ 
         classId, 
         from: fromDate,
         to: toDate
     })
-    const { data: attendanceData } = useAcademyClassAttendances({ page: 1, limit: 1000 })
+    const { data: attendanceData } = useAcademyClassAttendances({
+        page: 1,
+        limit: 100,
+        classId: classId || undefined,
+    })
     const { data: schedules = [] } = useAcademyLiveSchedules({ classId })
     const { data: allRequests = [] } = useAcademyLiveScheduleRequests({})
     const requests = allRequests.filter(r => r.session?.classId === classId || (r as any).classId === classId)

@@ -24,10 +24,10 @@ import { selectUser } from "@/store/slices/auth-slice"
 import { academicNavItems, operationsNavItems, financeNavItems, personnelNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 import { UserRole } from "@workspace/schemas"
 
-// Define Workspace Configuration
+// Define Workspace Configuration — aligned with apps/server/config/rbac-config.yaml (admin, staff-academic, staff-operations, lecturer; learner blocked at login)
 interface Workspace extends Team {
     id: string;
-    roles: string[]; // '*' for all, or specific roles like UserRole.ADMIN
+    roles: string[];
     navItems: { labelKey: string; items: NavItem[] }[];
 }
 
@@ -75,6 +75,11 @@ const WORKSPACES: Workspace[] = [
     },
 ];
 
+function workspaceVisibleForRole(ws: Workspace, userRole: string): boolean {
+    const r = userRole.trim().toLowerCase();
+    return ws.roles.includes(r);
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const user = useAppSelector(selectUser);
 
@@ -82,27 +87,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const availableWorkspaces = useMemo(() => {
         if (!user) return [];
         const userRole = user.role as string;
-
-        // Determine base workspaces based on role
-        let baseWorkspaces: Workspace[] = [];
-        if (userRole === UserRole.ADMIN) {
-            // Special "Universal" workspace for Admin
-            const universalWorkspace: Workspace = {
+        const filtered = WORKSPACES.filter((ws) => workspaceVisibleForRole(ws, userRole));
+        if (userRole.trim().toLowerCase() === UserRole.ADMIN) {
+            const universal: Workspace = {
                 id: "universal",
                 name: "Toàn bộ hệ thống",
                 logo: LayoutGrid,
                 plan: "Toàn quyền quản trị",
                 roles: [UserRole.ADMIN],
-                navItems: [
-                    ...WORKSPACES.flatMap(ws => ws.navItems)
-                ]
+                navItems: WORKSPACES.flatMap((ws) => ws.navItems),
             };
-            baseWorkspaces = [universalWorkspace, ...WORKSPACES];
-        } else {
-            baseWorkspaces = WORKSPACES.filter(ws => ws.roles.includes(userRole));
+            return [universal, ...filtered];
         }
-
-        return baseWorkspaces;
+        return filtered;
     }, [user?.role]);
 
     const [activeWorkspace, setActiveWorkspace] = useState<Workspace | undefined>(undefined);

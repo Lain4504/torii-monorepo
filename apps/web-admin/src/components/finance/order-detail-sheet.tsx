@@ -141,9 +141,9 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                                             <tr key={item.id} className="border-b last:border-0">
                                                 <td className="py-3 px-4">
                                                     <div className="flex flex-col">
-                                                        <span className="font-medium">{item.offeringSnapshot?.title || item.offering?.title || 'Dịch vụ'}</span>
+                                                        <span className="font-medium">{item.cohortSnapshot?.name || item.cohort?.name || item.vodPackageSnapshot?.name || item.vodPackage?.name || 'Sản phẩm học tập'}</span>
                                                         <span className="text-xs text-muted-foreground">
-                                                            Mã: {item.offeringSnapshot?.code || item.offering?.code || '—'}
+                                                            Mã: {item.cohortSnapshot?.code || item.cohort?.code || item.vodPackageSnapshot?.code || item.vodPackage?.code || '—'}
                                                         </span>
                                                     </div>
                                                 </td>

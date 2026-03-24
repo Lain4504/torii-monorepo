@@ -36,7 +36,6 @@ export const academyCourseOfferingCreateDTOSchema = z
         currency: z.string().min(1).max(10),
         mode: z.string().min(1), // ClassMode (VOD / LIVE)
         courseProfileId: z.string().uuid(),
-        termId: optionalUuid,
         classId: optionalUuid,
         status: z.string().max(20).optional(),
         validFrom: optionalMarketingDateTime,
@@ -44,13 +43,12 @@ export const academyCourseOfferingCreateDTOSchema = z
     })
     .refine(
         (data) => {
-            if (data.mode === 'LIVE' && !data.termId) return false;
             if (data.mode === 'VOD' && !data.classId) return false;
             return true;
         },
         {
-            message: 'LIVE mode requires termId, VOD mode requires classId',
-            path: ['termId'],
+            message: 'VOD mode requires classId',
+            path: ['classId'],
         },
     );
 
@@ -64,7 +62,6 @@ export const academyCourseOfferingUpdateDTOSchema = z.object({
     currency: z.string().max(10).optional(),
     mode: z.string().optional(),
     courseProfileId: optionalUuid,
-    termId: optionalUuid,
     classId: optionalUuid,
     status: z.string().max(20).optional(),
     validFrom: optionalMarketingDateTimeNullable,
