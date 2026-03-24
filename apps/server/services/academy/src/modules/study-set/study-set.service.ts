@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import { ActivityType } from '@prisma/generated';
+import { ActivityType, Prisma } from '@prisma/generated';
 import {
   CreateStudySetDto,
   UpdateStudySetDto,
   CreateSetCardDto,
   UpdateSetCardDto,
   ReviewSetCardDto,
+  ClonePublicStudySetDto,
+  ShareStudySetDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
 import { GamificationService } from '../gamification/gamification.service';
@@ -18,12 +20,17 @@ export class StudySetService {
   ) {}
 
   // --- Study Set Methods ---
+  private generateShareToken() {
+    return `ss_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
+  }
 
   async createSet(userId: string, data: CreateStudySetDto) {
     const result = await this.prisma.studySet.create({
       data: {
         ...data,
         userId,
+        sourceType: 'USER',
+        shareToken: null,
       },
       include: {
         _count: { select: { setCards: true } },
@@ -35,7 +42,7 @@ export class StudySetService {
 
   async findAllSets(userId: string) {
     return this.prisma.studySet.findMany({
-      where: { userId },
+      where: { userId, sourceType: 'USER' },
       include: {
         _count: { select: { setCards: true } },
       },
@@ -43,9 +50,88 @@ export class StudySetService {
     });
   }
 
+  async findPublicCatalogSets() {
+    return this.prisma.studySet.findMany({
+      where: { isPublic: true, sourceType: 'SYSTEM' },
+      include: {
+        _count: { select: { setCards: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async findPublicCatalogSetById(id: string) {
+    const set = await this.prisma.studySet.findFirst({
+      where: { id, isPublic: true, sourceType: 'SYSTEM' },
+      include: {
+        setCards: { orderBy: { createdAt: 'desc' } },
+        _count: { select: { setCards: true } },
+      },
+    });
+    if (!set) throw new NotFoundException('Public Study Set not found');
+    return set;
+  }
+
+  async clonePublicSetToUser(userId: string, data: ClonePublicStudySetDto) {
+    const source = await this.findPublicCatalogSetById(data.sourceSetId);
+
+    const existed = await this.prisma.studySet.findFirst({
+      where: {
+        userId,
+        settings: {
+          path: ['clonedFromSetId'],
+          equals: source.id,
+        },
+      },
+      include: { _count: { select: { setCards: true } } },
+    });
+    if (existed) return existed;
+
+    return this.prisma.$transaction(async (tx) => {
+      const clonedSet = await tx.studySet.create({
+        data: {
+          userId,
+          title: data.title || source.title,
+          description: source.description,
+          isPublic: false,
+          sourceType: 'USER',
+          shareToken: null,
+          settings: {
+            clonedFromSetId: source.id,
+            sourceType: 'PUBLIC_CATALOG',
+          },
+        },
+        include: { _count: { select: { setCards: true } } },
+      });
+
+      if (source.setCards.length > 0) {
+        await tx.setCard.createMany({
+          data: source.setCards.map((card) => ({
+            studySetId: clonedSet.id,
+            term: card.term,
+            definition: card.definition,
+            hint: card.hint,
+            mediaUrl: card.mediaUrl,
+            languageDetails:
+              card.languageDetails === null
+                ? Prisma.JsonNull
+                : (card.languageDetails as Prisma.InputJsonValue),
+            tags: card.tags,
+            sourceDocumentId: card.sourceDocumentId,
+          })),
+        });
+      }
+
+      return tx.studySet.findUniqueOrThrow({
+        where: { id: clonedSet.id },
+        include: { _count: { select: { setCards: true } } },
+      });
+    });
+  }
+
   async findSetById(id: string, userId: string) {
     const set = await this.prisma.studySet.findFirst({
-      where: { id, userId },
+      where: { id, userId, sourceType: 'USER' },
       include: {
         setCards: {
           orderBy: { createdAt: 'desc' },
@@ -55,6 +141,79 @@ export class StudySetService {
     });
     if (!set) throw new NotFoundException('Study Set not found');
     return set;
+  }
+
+  async updateSharing(id: string, userId: string, data: ShareStudySetDto) {
+    await this.findSetById(id, userId);
+    const updated = await this.prisma.studySet.update({
+      where: { id },
+      data: {
+        isPublic: data.isPublic,
+        shareToken: data.isPublic ? this.generateShareToken() : null,
+      },
+      include: { _count: { select: { setCards: true } } },
+    });
+    return updated;
+  }
+
+  async findPublicSharedSetByToken(token: string) {
+    const item = await this.prisma.studySet.findFirst({
+      where: {
+        shareToken: token,
+        isPublic: true,
+        sourceType: 'USER',
+      },
+      include: {
+        setCards: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+    });
+    if (!item) throw new NotFoundException('Public shared Study Set not found');
+    return item;
+  }
+
+  async adminFindSystemSets() {
+    return this.prisma.studySet.findMany({
+      where: { sourceType: 'SYSTEM' },
+      include: { _count: { select: { setCards: true } } },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async adminCreateSystemSet(requesterId: string, data: CreateStudySetDto) {
+    return this.prisma.studySet.create({
+      data: {
+        ...data,
+        userId: requesterId,
+        sourceType: 'SYSTEM',
+        isPublic: data.isPublic ?? true,
+      },
+      include: { _count: { select: { setCards: true } } },
+    });
+  }
+
+  async adminUpdateSystemSet(id: string, data: UpdateStudySetDto) {
+    const existed = await this.prisma.studySet.findFirst({
+      where: { id, sourceType: 'SYSTEM' },
+    });
+    if (!existed) throw new NotFoundException('System Study Set not found');
+
+    return this.prisma.studySet.update({
+      where: { id },
+      data,
+      include: { _count: { select: { setCards: true } } },
+    });
+  }
+
+  async adminDeleteSystemSet(id: string) {
+    const existed = await this.prisma.studySet.findFirst({
+      where: { id, sourceType: 'SYSTEM' },
+    });
+    if (!existed) throw new NotFoundException('System Study Set not found');
+
+    await this.prisma.studySet.delete({ where: { id } });
+    return { ok: true };
   }
 
   async updateSet(id: string, userId: string, data: UpdateStudySetDto) {
@@ -84,7 +243,6 @@ export class StudySetService {
       data: {
         ...data,
         studySetId: setId,
-        nextReviewAt: new Date(), // Due immediately
       },
     });
 
@@ -120,18 +278,36 @@ export class StudySetService {
 
   async getStudyCards(setId: string, userId: string) {
     await this.findSetById(setId, userId);
+    const allCards = await this.prisma.setCard.findMany({
+      where: { studySetId: setId },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (allCards.length === 0) return [];
 
-    // Fetch cards that are due for review (nextReviewAt <= now)
-    // Or new cards (never reviewed) -> they have default state/nextReviewAt
-    return this.prisma.setCard.findMany({
+    const progresses = await this.prisma.setCardSrsProgress.findMany({
       where: {
-        studySetId: setId,
-        nextReviewAt: { lte: new Date() },
-      },
-      orderBy: {
-        nextReviewAt: 'asc',
+        userId,
+        setCardId: { in: allCards.map((c) => c.id) },
       },
     });
+    const progressMap = new Map(progresses.map((p) => [p.setCardId, p]));
+    const now = new Date();
+
+    return allCards
+      .filter((card) => {
+        const progress = progressMap.get(card.id);
+        if (!progress) return true;
+        return progress.nextReviewAt <= now;
+      })
+      .map((card) => {
+        const progress = progressMap.get(card.id);
+        return {
+          ...card,
+          srsState: progress?.srsState ?? 'LEARNING',
+          interval: progress?.interval ?? 0,
+          nextReviewAt: progress?.nextReviewAt ?? card.createdAt,
+        };
+      });
   }
 
   async reviewCard(cardId: string, userId: string, data: ReviewSetCardDto) {
@@ -140,14 +316,34 @@ export class StudySetService {
     });
     if (!card) throw new NotFoundException('Card not found');
 
+    const existingProgress = await this.prisma.setCardSrsProgress.findUnique({
+      where: {
+        userId_setCardId: {
+          userId,
+          setCardId: card.id,
+        },
+      },
+    });
+
     const srsUpdates = calculateSrsInterval(
-      card.srsState as any,
-      card.interval,
+      (existingProgress?.srsState as any) ?? 'LEARNING',
+      existingProgress?.interval ?? 0,
       data.quality,
     );
-    const updated = await this.prisma.setCard.update({
-      where: { id: cardId },
-      data: {
+
+    const updatedProgress = await this.prisma.setCardSrsProgress.upsert({
+      where: {
+        userId_setCardId: {
+          userId,
+          setCardId: card.id,
+        },
+      },
+      create: {
+        userId,
+        setCardId: card.id,
+        ...srsUpdates,
+      },
+      update: {
         ...srsUpdates,
       },
     });
@@ -163,7 +359,12 @@ export class StudySetService {
         // Ignore gamification errors for core SRS flow
       });
 
-    return updated;
+    return {
+      ...card,
+      srsState: updatedProgress.srsState,
+      interval: updatedProgress.interval,
+      nextReviewAt: updatedProgress.nextReviewAt,
+    };
   }
 
   // --- Extra Study Modes ---
@@ -232,7 +433,7 @@ export class StudySetService {
   }
 
   async getMatchGame(setId: string, userId: string, count: number = 6) {
-    const set = await this.findSetById(setId, userId); // check exists/ownership
+    await this.findSetById(setId, userId); // check exists/ownership
     const cards = await this.prisma.setCard.findMany({
       where: { studySetId: setId },
     });

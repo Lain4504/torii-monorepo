@@ -44,9 +44,9 @@ export function Header() {
     }
 
     const navLinks = [
-        { href: "/courses", label: "Khóa học" },
-        { href: "/blogs", label: "Blog" },
-        { href: "/faq", label: "Hỗ trợ" },
+        { href: "/dashboard/available-courses", label: "Khóa học" },
+        { href: "/dashboard/blogs", label: "Blog" },
+        { href: "/dashboard/faq", label: "Hỗ trợ" },
     ]
 
     return (

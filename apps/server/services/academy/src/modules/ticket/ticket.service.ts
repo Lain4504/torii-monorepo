@@ -179,7 +179,8 @@ export class TicketService implements ITicketService {
       ticket.type === TicketType.REFUND &&
       !refundAmount
     ) {
-      const liveClassId = (ticket as any).liveClassId || (ticket as any).classId;
+      const liveClassId =
+        (ticket as any).liveClassId || (ticket as any).classId;
       const userId = ticket.userId;
 
       if (liveClassId && userId) {
@@ -329,7 +330,7 @@ export class TicketService implements ITicketService {
       if (liveClassId) {
         const enrollment = await tx.enrollment.findUnique({
           where: {
-            userId_liveClassId: { userId, liveClassId: liveClassId as string },
+            userId_liveClassId: { userId, liveClassId: liveClassId },
           },
         });
 

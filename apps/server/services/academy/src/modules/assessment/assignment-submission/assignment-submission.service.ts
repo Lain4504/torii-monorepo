@@ -177,7 +177,9 @@ export class AssignmentSubmissionService {
       description: `Deleted assignment submission for user ${submission.userId}`,
       metadata: {
         userId: submission.userId,
-        classAssignmentId: (submission as any).liveClassAssignmentId || (submission as any).classAssignmentId,
+        classAssignmentId:
+          (submission as any).liveClassAssignmentId ||
+          (submission as any).classAssignmentId,
       },
     });
 

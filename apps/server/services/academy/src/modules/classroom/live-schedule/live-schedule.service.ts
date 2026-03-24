@@ -212,7 +212,8 @@ export class LiveScheduleService {
       }
 
       const roomTitle =
-        schedule.liveClass.cohort?.courseProfile?.title || schedule.liveClass.name;
+        schedule.liveClass.cohort?.courseProfile?.title ||
+        schedule.liveClass.name;
       const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle, {
         liveClassId: schedule.liveClassId,
         weekday: schedule.weekday,
@@ -279,7 +280,9 @@ export class LiveScheduleService {
       token: tokenRes.token,
       roomId,
       userId: userId,
-      roomTitle: schedule.liveClass.cohort?.courseProfile?.title || schedule.liveClass.name,
+      roomTitle:
+        schedule.liveClass.cohort?.courseProfile?.title ||
+        schedule.liveClass.name,
     };
   }
 
@@ -347,7 +350,8 @@ export class LiveScheduleService {
       }
 
       const roomTitle =
-        session.liveClass.cohort?.courseProfile?.title || session.liveClass.name;
+        session.liveClass.cohort?.courseProfile?.title ||
+        session.liveClass.name;
       const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle, {
         liveClassId: session.liveClassId,
         weekday: new Date(session.sessionDate).getUTCDay(),
@@ -413,7 +417,9 @@ export class LiveScheduleService {
       token: tokenRes.token,
       roomId,
       userId: userId,
-      roomTitle: session.liveClass.cohort?.courseProfile?.title || session.liveClass.name,
+      roomTitle:
+        session.liveClass.cohort?.courseProfile?.title ||
+        session.liveClass.name,
     };
   }
 
@@ -510,7 +516,9 @@ export class LiveScheduleService {
             id: true,
             name: true,
             cohort: {
-              include: { courseProfile: { select: { title: true, thumbnailUrl: true } } },
+              include: {
+                courseProfile: { select: { title: true, thumbnailUrl: true } },
+              },
             },
           },
         },
@@ -533,8 +541,10 @@ export class LiveScheduleService {
         fromDay,
         toDay,
       );
-      const courseTitle = e.liveClass.cohort?.courseProfile?.title?.trim() || e.liveClass.name;
-      const courseThumbnail = e.liveClass.cohort?.courseProfile?.thumbnailUrl ?? null;
+      const courseTitle =
+        e.liveClass.cohort?.courseProfile?.title?.trim() || e.liveClass.name;
+      const courseThumbnail =
+        e.liveClass.cohort?.courseProfile?.thumbnailUrl ?? null;
       for (const s of sessions) {
         rows.push({ session: s, courseTitle, courseThumbnail });
       }
@@ -925,7 +935,8 @@ export class LiveScheduleService {
     input: LiveScheduleRequestCreateDto,
     requesterId: string,
   ) {
-    if (!input.sessionId) throw new BadRequestException('sessionId is required');
+    if (!input.sessionId)
+      throw new BadRequestException('sessionId is required');
     const session = await this.prisma.liveScheduleSession.findUnique({
       where: { id: input.sessionId },
       include: {
@@ -1010,7 +1021,8 @@ export class LiveScheduleService {
   }
 
   async cancelRequest(id: string, requesterId: string) {
-    if (!id) throw new BadRequestException('LiveScheduleRequest id is required');
+    if (!id)
+      throw new BadRequestException('LiveScheduleRequest id is required');
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
     });
@@ -1043,7 +1055,8 @@ export class LiveScheduleService {
     input: LiveScheduleRequestApproveDto,
     reviewerId: string,
   ) {
-    if (!id) throw new BadRequestException('LiveScheduleRequest id is required');
+    if (!id)
+      throw new BadRequestException('LiveScheduleRequest id is required');
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
       include: {
@@ -1147,7 +1160,8 @@ export class LiveScheduleService {
     input: LiveScheduleRequestRejectDto,
     reviewerId: string,
   ) {
-    if (!id) throw new BadRequestException('LiveScheduleRequest id is required');
+    if (!id)
+      throw new BadRequestException('LiveScheduleRequest id is required');
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
     });
@@ -1517,7 +1531,8 @@ export class LiveScheduleService {
 
       teacherConflicts = teacherCandidates
         .filter(
-          (candidate: any) => !input.liveClassId || candidate.liveClass.id !== input.liveClassId,
+          (candidate: any) =>
+            !input.liveClassId || candidate.liveClass.id !== input.liveClassId,
         )
         .filter((candidate) =>
           this.isTimeOverlap(

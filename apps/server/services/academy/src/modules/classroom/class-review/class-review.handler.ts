@@ -26,7 +26,10 @@ export class CourseReviewHandler {
   listByVodPackage(
     @Payload() data: { vodPackageId: string; query: ClassReviewQueryDto },
   ) {
-    return this.reviews.listCourseReviewsByVodPackage(data.vodPackageId, data.query);
+    return this.reviews.listCourseReviewsByVodPackage(
+      data.vodPackageId,
+      data.query,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.courseReview.listMine' })

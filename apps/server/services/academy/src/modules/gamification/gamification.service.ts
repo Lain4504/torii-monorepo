@@ -59,9 +59,19 @@ export class GamificationService {
     currentStreak: number,
     maxStreak: number,
     shieldCount: number,
-  ): { nextStreak: number; nextMax: number; shieldsConsumed: number; resetConsecutive: boolean } {
+  ): {
+    nextStreak: number;
+    nextMax: number;
+    shieldsConsumed: number;
+    resetConsecutive: boolean;
+  } {
     if (!lastActive) {
-      return { nextStreak: 1, nextMax: Math.max(maxStreak, 1), shieldsConsumed: 0, resetConsecutive: false };
+      return {
+        nextStreak: 1,
+        nextMax: Math.max(maxStreak, 1),
+        shieldsConsumed: 0,
+        resetConsecutive: false,
+      };
     }
     if (lastActive === todayStr) {
       return {
@@ -74,21 +84,31 @@ export class GamificationService {
     const diff = this.diffDays(lastActive, todayStr);
     if (diff === 1) {
       const ns = currentStreak + 1;
-      return { nextStreak: ns, nextMax: Math.max(maxStreak, ns), shieldsConsumed: 0, resetConsecutive: false };
-    }
-    
-    // Riki Shield Logic: Nếu nghỉ 1 ngày (diff=2) và còn khiên
-    if (diff === 2 && shieldCount > 0) {
-      return { 
-        nextStreak: currentStreak, // Giữ nguyên streak nhờ khiên
-        nextMax: maxStreak, 
-        shieldsConsumed: 1,
-        resetConsecutive: true // Dùng khiên thì reset đếm ngày liên tiếp hồi khiên
+      return {
+        nextStreak: ns,
+        nextMax: Math.max(maxStreak, ns),
+        shieldsConsumed: 0,
+        resetConsecutive: false,
       };
     }
-    
+
+    // Riki Shield Logic: Nếu nghỉ 1 ngày (diff=2) và còn khiên
+    if (diff === 2 && shieldCount > 0) {
+      return {
+        nextStreak: currentStreak, // Giữ nguyên streak nhờ khiên
+        nextMax: maxStreak,
+        shieldsConsumed: 1,
+        resetConsecutive: true, // Dùng khiên thì reset đếm ngày liên tiếp hồi khiên
+      };
+    }
+
     // Đứt chuỗi hoàn toàn
-    return { nextStreak: 1, nextMax: Math.max(maxStreak, 1), shieldsConsumed: 0, resetConsecutive: true };
+    return {
+      nextStreak: 1,
+      nextMax: Math.max(maxStreak, 1),
+      shieldsConsumed: 0,
+      resetConsecutive: true,
+    };
   }
 
   /**
@@ -96,7 +116,6 @@ export class GamificationService {
    */
   /** `tx`: client trong callback `prisma.$transaction`. */
   private async applyDailyStreakAndSync(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tx: any,
     userId: string,
     dateString: string,
@@ -125,7 +144,7 @@ export class GamificationService {
       create: { userId, date: dateString, status: 'ACTIVE' },
     });
 
-    let streakRow = await tx.streak.findUnique({ where: { userId } });
+    const streakRow = await tx.streak.findUnique({ where: { userId } });
     if (!streakRow) {
       await tx.streak.create({
         data: {
@@ -205,7 +224,7 @@ export class GamificationService {
       const today = new Date(`${dateString}T00:00:00.000Z`);
       const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
       const yesterdayStr = this.getVnDateString(yesterday);
-      
+
       await tx.streakLog.upsert({
         where: { userId_date: { userId, date: yesterdayStr } },
         update: { status: 'FREEZE' },
@@ -262,7 +281,9 @@ export class GamificationService {
     activityType: ActivityType,
     metadata: any = {},
   ) {
-    this.logger.log(`Tracking activity: ${activityType} for user ${userId} with meta: ${JSON.stringify(metadata)}`);
+    this.logger.log(
+      `Tracking activity: ${activityType} for user ${userId} with meta: ${JSON.stringify(metadata)}`,
+    );
     const rule = this.EARNING_RULES[activityType];
     if (!rule) {
       return {
@@ -585,16 +606,15 @@ export class GamificationService {
     });
 
     const isActiveToday = streak.lastActiveDate === todayStr;
-    const willBreakTomorrow =
-      isActiveToday && (streak.currentStreak ?? 0) > 0;
+    const willBreakTomorrow = isActiveToday && (streak.currentStreak ?? 0) > 0;
 
     // Show once/day across devices (persisted)
     const shouldShowToast = profile.lastToastShownDate !== todayStr;
 
     const recent = await this.prisma.streakLog.findMany({
-      where: { 
+      where: {
         userId,
-        status: { in: ['ACTIVE', 'FREEZE'] }
+        status: { in: ['ACTIVE', 'FREEZE'] },
       },
       select: { date: true, status: true },
       orderBy: { date: 'desc' },
@@ -640,8 +660,12 @@ export class GamificationService {
       totalActiveDays,
       weeklyActiveCount,
       monthlyActiveCount,
-      recentActiveDates: recent.filter(r => r.status === 'ACTIVE').map((r) => r.date),
-      recentFreezeDates: recent.filter(r => r.status === 'FREEZE').map((r) => r.date),
+      recentActiveDates: recent
+        .filter((r) => r.status === 'ACTIVE')
+        .map((r) => r.date),
+      recentFreezeDates: recent
+        .filter((r) => r.status === 'FREEZE')
+        .map((r) => r.date),
       shouldShowToast,
     };
   }
@@ -666,7 +690,7 @@ export class GamificationService {
   async getLeaderboard(userId: string, type?: string) {
     const mode = (type || 'global') as 'global' | 'streak' | 'active';
     let orderBy: any = { totalXp: 'desc' };
-    
+
     if (mode === 'streak') {
       orderBy = { currentStreak: 'desc' };
     } else if (mode === 'active') {
@@ -711,7 +735,9 @@ export class GamificationService {
 
     let currentUser: any = null;
     if (current) {
-      const currentRankInTop = users.find((u) => u.id === current.user.id)?.rank;
+      const currentRankInTop = users.find(
+        (u) => u.id === current.user.id,
+      )?.rank;
       currentUser = {
         id: current.user.id,
         displayName: current.user.displayName,

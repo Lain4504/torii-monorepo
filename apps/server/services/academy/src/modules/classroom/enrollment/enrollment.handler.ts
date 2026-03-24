@@ -38,7 +38,14 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.check' })
-  check(@Payload() data: { userId: string; liveClassId?: string; vodPackageId?: string }) {
+  check(
+    @Payload()
+    data: {
+      userId: string;
+      liveClassId?: string;
+      vodPackageId?: string;
+    },
+  ) {
     return this.enrollments.checkEligibility(
       data.userId,
       data.liveClassId || data.vodPackageId || '',

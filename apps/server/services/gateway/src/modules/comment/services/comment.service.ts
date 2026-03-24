@@ -128,7 +128,7 @@ export class CommentService {
     let current = entityId;
     for (let i = 0; i < 5; i++) {
       // 1) entityId is already a class id
-      const klass = await this.prisma.liveClass. findUnique({
+      const klass = await this.prisma.liveClass.findUnique({
         where: { id: current },
         select: { id: true },
       });

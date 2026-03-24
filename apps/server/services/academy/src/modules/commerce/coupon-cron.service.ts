@@ -67,7 +67,9 @@ export class CouponCronService {
                 },
               },
             });
-            this.logger.log(`Notified user ${coupon.ownerId} about expiring coupon ${coupon.code}`);
+            this.logger.log(
+              `Notified user ${coupon.ownerId} about expiring coupon ${coupon.code}`,
+            );
           } catch (e: any) {
             this.logger.error(`Failed to notify expiring coupon: ${e.message}`);
           }

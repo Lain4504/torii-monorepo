@@ -29,10 +29,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
     const isAISenseiPath = pathname?.startsWith('/ai-sensei')
     const logo = useLogo()
-    const { user } = useAppSelector((state) => state.auth)
-    const role = user?.role
+    const { isAuthenticated } = useAppSelector((state) => state.auth)
 
-    const learningItems = React.useMemo(() => learningNav, [])
+    const learningItems = React.useMemo(() => {
+        if (isAuthenticated) return learningNav
+        // Guest: ẩn các mục gắn dữ liệu cá nhân/học tập riêng.
+        return learningNav.filter(
+            (item) =>
+                item.href !== '/dashboard/my-courses' &&
+                item.href !== '/dashboard/schedule'
+        )
+    }, [isAuthenticated])
+
+    const guestProgressItems = React.useMemo(
+        () =>
+            progressNav.filter(
+                (item) =>
+                    item.href !== '/dashboard/history' &&
+                    item.href !== '/dashboard/rewards' &&
+                    item.href !== '/dashboard/achievements' &&
+                    item.href !== '/dashboard/certificates'
+            ),
+        []
+    )
 
     return (
         <Sidebar
@@ -73,9 +92,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent className="scrollbar-none py-2">
                 <NavMain label="Học tập" items={learningItems as any} />
                 <NavMain label="AI Sensei" items={aiSenseiNav as any} />
-                <NavLearning />
-                <NavMain label="Tiến độ" items={progressNav as any} />
-                <NavMain label="Tài khoản" items={accountNav as any} />
+                {isAuthenticated ? <NavLearning /> : null}
+                <NavMain label="Tiến độ" items={(isAuthenticated ? progressNav : guestProgressItems) as any} />
+                {isAuthenticated ? <NavMain label="Tài khoản" items={accountNav as any} /> : null}
 
                 {isAISenseiPath && (
                     <SidebarGroup className="mt-auto group-data-[collapsible=icon]:px-0">

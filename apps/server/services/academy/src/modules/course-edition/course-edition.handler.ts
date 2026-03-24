@@ -22,7 +22,9 @@ export class CourseEditionHandler {
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.create' })
-  create(@Payload() data: AcademyCourseEditionCreateDTO & { requesterId?: string }) {
+  create(
+    @Payload() data: AcademyCourseEditionCreateDTO & { requesterId?: string },
+  ) {
     const { requesterId, ...input } = data;
     return this.editions.create(input, requesterId);
   }
@@ -30,9 +32,12 @@ export class CourseEditionHandler {
   @MessagePattern({ cmd: 'academy.courseEdition.update' })
   update(
     @Payload()
-    data: { id: string; input: AcademyCourseEditionUpdateDTO; requesterId?: string },
+    data: {
+      id: string;
+      input: AcademyCourseEditionUpdateDTO;
+      requesterId?: string;
+    },
   ) {
     return this.editions.update(data.id, data.input, data.requesterId);
   }
 }
-

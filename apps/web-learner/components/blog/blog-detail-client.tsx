@@ -153,7 +153,7 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-foreground mb-2">Không tìm thấy bài viết</h1>
                     <p className="text-muted-foreground mb-4">Bài viết bạn tìm kiếm không tồn tại hoặc đã bị xóa.</p>
-                    <Link href="/blogs">
+                    <Link href="/dashboard/blogs">
                         <Button>Quay lại danh sách</Button>
                     </Link>
                 </div>

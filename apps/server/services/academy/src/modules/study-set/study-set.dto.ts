@@ -27,3 +27,14 @@ export const reviewSetCardSchema = z.object({
   quality: z.number().int().min(0).max(1),
 });
 export type ReviewSetCardDto = z.infer<typeof reviewSetCardSchema>;
+
+export const clonePublicStudySetSchema = z.object({
+  sourceSetId: z.string().uuid(),
+  title: z.string().min(1).optional(),
+});
+export type ClonePublicStudySetDto = z.infer<typeof clonePublicStudySetSchema>;
+
+export const shareStudySetSchema = z.object({
+  isPublic: z.boolean(),
+});
+export type ShareStudySetDto = z.infer<typeof shareStudySetSchema>;

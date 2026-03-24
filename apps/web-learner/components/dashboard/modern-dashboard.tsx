@@ -142,7 +142,7 @@ export default function ModernDashboard() {
                             <h3 className="text-xl font-bold mb-2">Bạn chưa bắt đầu khóa học nào</h3>
                             <p className="text-slate-500 mb-6">Khám phá kho khóa học để bắt đầu hành trình chinh phục tiếng Nhật.</p>
                             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold px-10" asChild>
-                                <Link href="/courses">Browse Courses</Link>
+                                <Link href="/dashboard/available-courses">Browse Courses</Link>
                             </Button>
                         </Card>
                     )}

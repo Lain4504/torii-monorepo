@@ -20,7 +20,7 @@ export function LoginForm() {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { status } = useAppSelector((state) => state.auth)
+    const { status, isAuthenticated } = useAppSelector((state) => state.auth)
     const isLoading = status === 'loading'
     const [showPassword, setShowPassword] = useState(false)
     const googleAuthMutation = useGoogleAuth()
@@ -176,6 +176,13 @@ export function LoginForm() {
             { scope: 'public_profile,email' }
         )
     }
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.replace('/dashboard')
+            return
+        }
+    }, [isAuthenticated, router])
 
     useEffect(() => {
         // Load Google SDK

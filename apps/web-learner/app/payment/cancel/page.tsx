@@ -34,7 +34,7 @@ export default function PaymentCancelPage() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
                     <Button asChild className="w-full">
-                        <Link href="/courses">Quay lại khóa học</Link>
+                        <Link href="/dashboard/available-courses">Quay lại khóa học</Link>
                     </Button>
                     <Button variant="outline" asChild className="w-full">
                         <Link href="/">Về trang chủ</Link>

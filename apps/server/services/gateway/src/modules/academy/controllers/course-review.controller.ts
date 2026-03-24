@@ -86,10 +86,7 @@ export class CourseReviewController {
   ) {
     const userId = req.requester.sub;
     const result = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.courseReview.create' },
-        { userId, dto },
-      ),
+      this.nats.send({ cmd: 'academy.courseReview.create' }, { userId, dto }),
     );
     return successResponse(result);
   }

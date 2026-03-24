@@ -8,4 +8,3 @@ import { CourseEditionService } from './course-edition.service';
   exports: [CourseEditionService],
 })
 export class CourseEditionModule {}
-
