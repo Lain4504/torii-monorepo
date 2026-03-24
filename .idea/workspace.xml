@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SPEC_QUIZ_CO_DINH_VODPACKAGE_LIVECLASS.md" beforeDir="false" afterPath="$PROJECT_DIR$/SPEC_QUIZ_CO_DINH_VODPACKAGE_LIVECLASS.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +18,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1792" />
+    <option name="cachedIndexableFilesCount" value="1782" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -90,7 +90,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "update-landingpage",
+    "git-widget-placeholder": "#308 on update-landingpage",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -358,14 +358,7 @@
       <workItem from="1774252089615" duration="38000" />
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
-    </task>
-    <task id="LOCAL-01019" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773852748478</created>
-      <option name="number" value="01019" />
-      <option name="presentableId" value="LOCAL-01019" />
-      <option name="project" value="LOCAL" />
-      <updated>1773852748480</updated>
+      <workItem from="1774369682844" duration="1071000" />
     </task>
     <task id="LOCAL-01020" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
       <option name="closed" value="true" />
@@ -751,7 +744,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774366576316</updated>
     </task>
-    <option name="localTasksCounter" value="1068" />
+    <task id="LOCAL-01068" summary="update">
+      <option name="closed" value="true" />
+      <created>1774367608672</created>
+      <option name="number" value="01068" />
+      <option name="presentableId" value="LOCAL-01068" />
+      <option name="project" value="LOCAL" />
+      <updated>1774367608672</updated>
+    </task>
+    <option name="localTasksCounter" value="1069" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

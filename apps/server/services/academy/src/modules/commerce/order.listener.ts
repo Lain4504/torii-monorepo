@@ -30,7 +30,10 @@ export class OrderListener {
       return;
     }
 
-    const targetUserId = await this.orderService.resolveTargetUserId(order.userId, order.metadata);
+    const targetUserId = await this.orderService.resolveTargetUserId(
+      order.userId,
+      order.metadata,
+    );
 
     let enrolledCount = 0;
     for (const item of order.items) {
@@ -60,7 +63,10 @@ export class OrderListener {
         );
         enrolledCount++;
       } catch (err: any) {
-        console.error(`[Academy] Failed to enroll user ${targetUserId}:`, err.message);
+        console.error(
+          `[Academy] Failed to enroll user ${targetUserId}:`,
+          err.message,
+        );
       }
     }
 

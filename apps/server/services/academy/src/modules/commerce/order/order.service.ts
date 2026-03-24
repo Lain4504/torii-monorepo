@@ -1,4 +1,10 @@
-import { Injectable, Logger, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+  Inject,
+} from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentGateway } from '@prisma/generated';
@@ -85,9 +91,16 @@ export class OrderService {
       }
 
       const existing = await this.prisma.enrollment.findFirst({
-        where: { userId, status: { in: ['ACTIVE', 'COMPLETED'] }, liveClass: { cohortId: cohort.id } },
+        where: {
+          userId,
+          status: { in: ['ACTIVE', 'COMPLETED'] },
+          liveClass: { cohortId: cohort.id },
+        },
       });
-      if (existing) throw new BadRequestException(`Bạn đã đăng ký đợt học ${cohort.name} rồi`);
+      if (existing)
+        throw new BadRequestException(
+          `Bạn đã đăng ký đợt học ${cohort.name} rồi`,
+        );
 
       const selectedLiveClassId = input.liveClassIdByCohort?.[cohort.id];
       if (!selectedLiveClassId)
@@ -285,8 +298,17 @@ export class OrderService {
   }
 
   private async processCoinPayment(userId: string, order: any) {
-    const currentOrder = await this.prisma.order.findUnique({ where: { id: order.id }, select: { status: true } });
-    if (currentOrder?.status === OrderStatus.PAID) return { orderId: order.id, orderCode: order.code, message: 'Đơn hàng đã được thanh toán từ trước', success: true };
+    const currentOrder = await this.prisma.order.findUnique({
+      where: { id: order.id },
+      select: { status: true },
+    });
+    if (currentOrder?.status === OrderStatus.PAID)
+      return {
+        orderId: order.id,
+        orderCode: order.code,
+        message: 'Đơn hàng đã được thanh toán từ trước',
+        success: true,
+      };
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -308,7 +330,9 @@ export class OrderService {
         });
 
         if (updatedUser.count === 0) {
-          throw new BadRequestException('Số dư xu không đủ để thực hiện thanh toán này');
+          throw new BadRequestException(
+            'Số dư xu không đủ để thực hiện thanh toán này',
+          );
         }
 
         // 2. Log Wallet Transaction
@@ -344,7 +368,10 @@ export class OrderService {
         });
 
         // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
-        const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
+        const targetUserId = await this.resolveTargetUserId(
+          order.userId,
+          order.metadata,
+        );
         for (const item of order.items) {
           if (item.subscriptionPlanId) {
             await this.fulfillAiSubscription(tx, targetUserId, item);
@@ -446,9 +473,13 @@ export class OrderService {
         },
       });
 
-      const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
+      const targetUserId = await this.resolveTargetUserId(
+        order.userId,
+        order.metadata,
+      );
       for (const item of order.items) {
-        if (item.subscriptionPlanId) await this.fulfillAiSubscription(tx, targetUserId, item);
+        if (item.subscriptionPlanId)
+          await this.fulfillAiSubscription(tx, targetUserId, item);
       }
     });
 
@@ -477,7 +508,7 @@ export class OrderService {
 
   public async fulfillAiSubscription(tx: any, targetUserId: string, item: any) {
     const now = new Date();
-    
+
     // Find active subscription for stacking logic
     const activeSub = await tx.aiUserSubscription.findFirst({
       where: { userId: targetUserId, status: 'ACTIVE' },
@@ -494,8 +525,11 @@ export class OrderService {
     }
 
     // Cancel old ones (or update them to EXTENDED/EXPIRED)
-    await tx.aiUserSubscription.updateMany({ where: { userId: targetUserId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
-    
+    await tx.aiUserSubscription.updateMany({
+      where: { userId: targetUserId, status: 'ACTIVE' },
+      data: { status: 'CANCELLED' },
+    });
+
     // Create new one starting from the right point, or just creating a new one that captures the full period
     await tx.aiUserSubscription.create({
       data: {
@@ -504,23 +538,33 @@ export class OrderService {
         planCode: item.offeringSnapshot?.code || 'unknown',
         startedAt: now,
         expiresAt: newExpiresAt,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
       },
     });
   }
 
-  public async resolveTargetUserId(buyerId: string, metadata: any): Promise<string> {
-    const md = (metadata ?? {}) as any;
+  public async resolveTargetUserId(
+    buyerId: string,
+    metadata: any,
+  ): Promise<string> {
+    const md = metadata ?? {};
     if (md.isGift && md.recipientEmail) {
       try {
         const response = await firstValueFrom<{ user: { id: string } }>(
-          this.natsClient.send({ cmd: 'identity.users.findByEmail' }, { email: md.recipientEmail }),
+          this.natsClient.send(
+            { cmd: 'identity.users.findByEmail' },
+            { email: md.recipientEmail },
+          ),
         );
         if (response?.user?.id) return response.user.id;
-        throw new BadRequestException(`Không tìm thấy người nhận với email ${md.recipientEmail}`);
+        throw new BadRequestException(
+          `Không tìm thấy người nhận với email ${md.recipientEmail}`,
+        );
       } catch (err: any) {
         this.logger.error(`Failed to resolve gift recipient: ${err.message}`);
-        throw new BadRequestException(err.message || 'Lỗi khi xác định người nhận quà');
+        throw new BadRequestException(
+          err.message || 'Lỗi khi xác định người nhận quà',
+        );
       }
     }
     return buyerId;
@@ -732,7 +776,11 @@ export class OrderService {
   async repayOrder(userId: string, orderId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { items: { include: { vodPackage: true, cohort: true, subscriptionPlan: true } } },
+      include: {
+        items: {
+          include: { vodPackage: true, cohort: true, subscriptionPlan: true },
+        },
+      },
     });
 
     if (!order || order.userId !== userId) {
@@ -740,7 +788,9 @@ export class OrderService {
     }
 
     if (order.status !== OrderStatus.PENDING) {
-      throw new BadRequestException('Đơn hàng không ở trạng thái chờ thanh toán');
+      throw new BadRequestException(
+        'Đơn hàng không ở trạng thái chờ thanh toán',
+      );
     }
 
     const now = new Date();
@@ -757,9 +807,13 @@ export class OrderService {
     // Re-construct preview data for handlePaymentRedirect
     const preview = {
       grandTotal: Number(order.grandTotal),
-      vodPackages: order.items.filter(i => i.vodPackage).map(i => i.vodPackage),
-      cohorts: order.items.filter(i => i.cohort).map(i => i.cohort),
-      subscriptionPlans: order.items.filter(i => i.subscriptionPlan).map(i => i.subscriptionPlan),
+      vodPackages: order.items
+        .filter((i) => i.vodPackage)
+        .map((i) => i.vodPackage),
+      cohorts: order.items.filter((i) => i.cohort).map((i) => i.cohort),
+      subscriptionPlans: order.items
+        .filter((i) => i.subscriptionPlan)
+        .map((i) => i.subscriptionPlan),
     };
 
     const input = {
@@ -771,7 +825,7 @@ export class OrderService {
 
   async handleOrderAutoCancellation() {
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    
+
     const ordersToCancel = await this.prisma.order.findMany({
       where: {
         status: OrderStatus.PENDING,
@@ -783,10 +837,12 @@ export class OrderService {
     });
 
     if (ordersToCancel.length > 0) {
-      this.logger.log(`Auto-cancelling ${ordersToCancel.length} expired orders`);
+      this.logger.log(
+        `Auto-cancelling ${ordersToCancel.length} expired orders`,
+      );
       await this.prisma.order.updateMany({
         where: {
-          id: { in: ordersToCancel.map(o => o.id) },
+          id: { in: ordersToCancel.map((o) => o.id) },
         },
         data: {
           status: OrderStatus.CANCELLED,
