@@ -1,4 +1,5 @@
 import { Injectable, Logger, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { OrderStatus, PaymentMethod, PaymentGateway } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
@@ -57,6 +58,11 @@ export class OrderService {
       if (!cohort.enrollmentOpenAt || !cohort.enrollmentCloseAt || new Date(cohort.enrollmentOpenAt) > now || new Date(cohort.enrollmentCloseAt) < now) {
         throw new BadRequestException('Đợt học hiện không trong thời gian đăng ký.');
       }
+
+      const existing = await this.prisma.enrollment.findFirst({
+        where: { userId, status: { in: ['ACTIVE', 'COMPLETED'] }, liveClass: { cohortId: cohort.id } },
+      });
+      if (existing) throw new BadRequestException(`Bạn đã đăng ký đợt học ${cohort.name} rồi`);
 
       const selectedLiveClassId = input.liveClassIdByCohort?.[cohort.id];
       if (!selectedLiveClassId) throw new BadRequestException('Vui lòng chọn lớp Live');
@@ -248,9 +254,10 @@ export class OrderService {
         });
 
         // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
+        const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
         for (const item of order.items) {
           if (item.subscriptionPlanId) {
-            await this.fulfillAiSubscription(tx, order, item);
+            await this.fulfillAiSubscription(tx, targetUserId, item);
           }
         }
       });
@@ -322,8 +329,9 @@ export class OrderService {
         },
       });
 
+      const targetUserId = await this.resolveTargetUserId(order.userId, order.metadata);
       for (const item of order.items) {
-        if (item.subscriptionPlanId) await this.fulfillAiSubscription(tx, order, item);
+        if (item.subscriptionPlanId) await this.fulfillAiSubscription(tx, targetUserId, item);
       }
     });
 
@@ -340,13 +348,30 @@ export class OrderService {
     return { ok: true };
   }
 
-  public async fulfillAiSubscription(tx: any, order: any, item: any) {
+  public async fulfillAiSubscription(tx: any, targetUserId: string, item: any) {
     const expiresAt = new Date();
     expiresAt.setMonth(expiresAt.getMonth() + 1);
-    await tx.aiUserSubscription.updateMany({ where: { userId: order.userId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
+    await tx.aiUserSubscription.updateMany({ where: { userId: targetUserId, status: 'ACTIVE' }, data: { status: 'CANCELLED' } });
     await tx.aiUserSubscription.create({
-      data: { userId: order.userId, planId: item.subscriptionPlanId, planCode: item.offeringSnapshot?.code || 'unknown', startedAt: new Date(), expiresAt, status: 'ACTIVE' },
+      data: { userId: targetUserId, planId: item.subscriptionPlanId, planCode: item.offeringSnapshot?.code || 'unknown', startedAt: new Date(), expiresAt, status: 'ACTIVE' },
     });
+  }
+
+  public async resolveTargetUserId(buyerId: string, metadata: any): Promise<string> {
+    const md = (metadata ?? {}) as any;
+    if (md.isGift && md.recipientEmail) {
+      try {
+        const response = await firstValueFrom<{ user: { id: string } }>(
+          this.natsClient.send({ cmd: 'identity.users.findByEmail' }, { email: md.recipientEmail }),
+        );
+        if (response?.user?.id) return response.user.id;
+        throw new BadRequestException(`Không tìm thấy người nhận với email ${md.recipientEmail}`);
+      } catch (err: any) {
+        this.logger.error(`Failed to resolve gift recipient: ${err.message}`);
+        throw new BadRequestException(err.message || 'Lỗi khi xác định người nhận quà');
+      }
+    }
+    return buyerId;
   }
 
   // --- Admin CRUD ---
