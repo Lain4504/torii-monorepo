@@ -2,13 +2,13 @@
 
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { Star, Flame } from 'lucide-react'
+import { Star, Flame, CalendarDays } from 'lucide-react'
 import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { formatNumber } from '@/utils/format-utils'
 
 interface CurrentUserRankProps {
     user: LeaderboardUserDTO
-    type: 'global' | 'streak'
+    type: 'global' | 'streak' | 'active'
 }
 
 export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
@@ -39,16 +39,22 @@ export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
                     </div>
                     <div className="text-center">
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                            {type === 'global' ? 'Kinh Nghiệm' : 'Chuỗi học'}
+                            {type === 'global' ? 'Kinh Nghiệm' : type === 'streak' ? 'Chuỗi học' : 'Hoạt động'}
                         </p>
                         <div className="flex items-center gap-1.5 justify-center">
                             {type === 'global' ? (
                                 <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                            ) : (
+                            ) : type === 'streak' ? (
                                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
+                            ) : (
+                                <CalendarDays className="w-4 h-4 text-primary fill-primary" />
                             )}
                             <p className="text-lg font-extrabold text-foreground">
-                                {type === 'global' ? formatNumber(user.xp) : formatNumber(user.currentStreak ?? 0)}
+                                {type === 'global' 
+                                    ? formatNumber(user.xp) 
+                                    : type === 'streak' 
+                                        ? formatNumber(user.currentStreak ?? 0)
+                                        : formatNumber(user.totalActiveDays ?? 0)}
                             </p>
                         </div>
                     </div>

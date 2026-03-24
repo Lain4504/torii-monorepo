@@ -139,10 +139,9 @@ export class AchievementService {
         return streak?.maxStreak || 0;
       }
       case 'LOGIN_DAYS': {
-        const gamification = await this.prisma.userGamification.findUnique({
-          where: { userId },
+        return await this.prisma.streakLog.count({
+          where: { userId, status: 'ACTIVE' },
         });
-        return gamification?.totalActiveDays || 0;
       }
       case 'LESSONS_COMPLETED': {
         return await this.prisma.userLessonProgress.count({

@@ -43,15 +43,188 @@ export class GamificationService {
     return Math.round((b - a) / (1000 * 60 * 60 * 24));
   }
 
+  /**
+   * Chuỗi ngày liên tiếp: diff=1 → +1; diff=2 + còn freeze → dùng 1 freeze coi như nối được (miss 1 ngày);
+   * diff>2 hoặc hết freeze → reset về 1.
+   */
+  /**
+   * Chuỗi ngày liên tiếp (Phong cách Riki):
+   * - diff=1: Học liên tiếp -> +1 streak.
+   * - diff=2: Bỏ lỡ 1 ngày -> Nếu có Lá chắn (shield), tiêu 1 cái để giữ streak.
+   * - diff>2 hoặc hết khiên: Reset streak về 1.
+   */
+  private computeStreakTransition(
+    lastActive: string | null,
+    todayStr: string,
+    currentStreak: number,
+    maxStreak: number,
+    shieldCount: number,
+  ): { nextStreak: number; nextMax: number; shieldsConsumed: number; resetConsecutive: boolean } {
+    if (!lastActive) {
+      return { nextStreak: 1, nextMax: Math.max(maxStreak, 1), shieldsConsumed: 0, resetConsecutive: false };
+    }
+    if (lastActive === todayStr) {
+      return {
+        nextStreak: currentStreak,
+        nextMax: maxStreak,
+        shieldsConsumed: 0,
+        resetConsecutive: false,
+      };
+    }
+    const diff = this.diffDays(lastActive, todayStr);
+    if (diff === 1) {
+      const ns = currentStreak + 1;
+      return { nextStreak: ns, nextMax: Math.max(maxStreak, ns), shieldsConsumed: 0, resetConsecutive: false };
+    }
+    
+    // Riki Shield Logic: Nếu nghỉ 1 ngày (diff=2) và còn khiên
+    if (diff === 2 && shieldCount > 0) {
+      return { 
+        nextStreak: currentStreak, // Giữ nguyên streak nhờ khiên
+        nextMax: maxStreak, 
+        shieldsConsumed: 1,
+        resetConsecutive: true // Dùng khiên thì reset đếm ngày liên tiếp hồi khiên
+      };
+    }
+    
+    // Đứt chuỗi hoàn toàn
+    return { nextStreak: 1, nextMax: Math.max(maxStreak, 1), shieldsConsumed: 0, resetConsecutive: true };
+  }
+
+  /**
+   * Một nguồn sự thật cho streak: bảng `streaks` + đồng bộ `user_gamification` (leaderboard / profile).
+   */
+  /** `tx`: client trong callback `prisma.$transaction`. */
+  private async applyDailyStreakAndSync(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tx: any,
+    userId: string,
+    dateString: string,
+  ): Promise<{ streakSavedByShield: boolean }> {
+    await tx.userGamification.upsert({
+      where: { userId },
+      update: {},
+      create: {
+        userId,
+        currentXp: 0,
+        totalXp: 0,
+        points: 0,
+        level: 1,
+        currentStreak: 0,
+        longestStreak: 0,
+        consecutiveActiveDays: 0,
+      },
+    });
+
+    const prof = await tx.userGamification.findUnique({ where: { userId } });
+    const shieldCount = prof?.freezeCount ?? 0;
+
+    await tx.streakLog.upsert({
+      where: { userId_date: { userId, date: dateString } },
+      update: { status: 'ACTIVE' },
+      create: { userId, date: dateString, status: 'ACTIVE' },
+    });
+
+    let streakRow = await tx.streak.findUnique({ where: { userId } });
+    if (!streakRow) {
+      await tx.streak.create({
+        data: {
+          userId,
+          currentStreak: 1,
+          maxStreak: 1,
+          lastActiveDate: dateString,
+          freezeUsedToday: false,
+        },
+      });
+      await tx.userGamification.update({
+        where: { userId },
+        data: {
+          currentStreak: 1,
+          longestStreak: 1,
+          lastActiveDate: dateString,
+          consecutiveActiveDays: 1,
+          totalActiveDays: { increment: 1 },
+        },
+      });
+      return { streakSavedByShield: false };
+    }
+
+    if (streakRow.lastActiveDate === dateString) {
+      return { streakSavedByShield: false };
+    }
+
+    const t = this.computeStreakTransition(
+      streakRow.lastActiveDate,
+      dateString,
+      streakRow.currentStreak,
+      streakRow.maxStreak,
+      shieldCount,
+    );
+    const streakSavedByShield = t.shieldsConsumed > 0;
+
+    // Cập nhật đếm ngày liên tiếp (để hồi phục khiên)
+    let newConsecutive = prof?.consecutiveActiveDays || 0;
+    if (t.resetConsecutive) {
+      newConsecutive = 1; // RESET nếu đứt chuỗi hoặc dùng khiên
+    } else {
+      newConsecutive += 1;
+    }
+
+    // Logic hồi phục khiên (Riki: 2 ngày hồi 1, 5 ngày hồi đủ 2)
+    let newShieldCount = shieldCount - t.shieldsConsumed;
+    if (newConsecutive >= 5) {
+      newShieldCount = 2;
+    } else if (newConsecutive >= 2) {
+      newShieldCount = Math.max(newShieldCount, 1);
+    }
+
+    await tx.streak.update({
+      where: { userId },
+      data: {
+        currentStreak: t.nextStreak,
+        maxStreak: t.nextMax,
+        lastActiveDate: dateString,
+        freezeUsedToday: streakSavedByShield,
+      },
+    });
+
+    await tx.userGamification.update({
+      where: { userId },
+      data: {
+        currentStreak: t.nextStreak,
+        longestStreak: t.nextMax,
+        lastActiveDate: dateString,
+        freezeCount: newShieldCount,
+        consecutiveActiveDays: newConsecutive,
+        totalActiveDays: { increment: 1 },
+      },
+    });
+
+    if (streakSavedByShield) {
+      // Ghi nhận ngày được bảo vệ bởi lá chắn là 'FREEZE'
+      const today = new Date(`${dateString}T00:00:00.000Z`);
+      const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+      const yesterdayStr = this.getVnDateString(yesterday);
+      
+      await tx.streakLog.upsert({
+        where: { userId_date: { userId, date: yesterdayStr } },
+        update: { status: 'FREEZE' },
+        create: { userId, date: yesterdayStr, status: 'FREEZE' },
+      });
+    }
+
+    return { streakSavedByShield };
+  }
+
   private readonly EARNING_RULES: Record<
     string,
     { xp: number; points: number }
   > = {
-    [ActivityType.LOGIN]: { xp: 0, points: 5 },
-    [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
-    [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
-    [ActivityType.REVIEW]: { xp: 50, points: 50 },
-    [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
+    [ActivityType.LOGIN]: { xp: 10, points: 5 }, // Riki: Login thưởng 5 pts
+    [ActivityType.LESSON_COMPLETE]: { xp: 20, points: 2 },
+    [ActivityType.EXAM_COMPLETE]: { xp: 150, points: 10 },
+    [ActivityType.REVIEW]: { xp: 5, points: 1 },
+    [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 1 },
     [ActivityType.QUIZ_ANSWER]: { xp: 1, points: 0 },
     [ActivityType.PRACTICE]: { xp: 2, points: 0 },
   };
@@ -74,7 +247,10 @@ export class GamificationService {
 
   private readonly DAILY_POINTS_CAP: Partial<Record<ActivityType, number>> = {
     [ActivityType.LOGIN]: 5,
-    [ActivityType.FLASHCARD_REVIEW]: 20,
+    [ActivityType.LESSON_COMPLETE]: 20,
+    [ActivityType.EXAM_COMPLETE]: 30,
+    [ActivityType.FLASHCARD_REVIEW]: 10,
+    [ActivityType.REVIEW]: 10,
   };
 
   /**
@@ -86,6 +262,7 @@ export class GamificationService {
     activityType: ActivityType,
     metadata: any = {},
   ) {
+    this.logger.log(`Tracking activity: ${activityType} for user ${userId} with meta: ${JSON.stringify(metadata)}`);
     const rule = this.EARNING_RULES[activityType];
     if (!rule) {
       return {
@@ -100,18 +277,17 @@ export class GamificationService {
     let shouldAward = true;
 
     if (activityType === ActivityType.LOGIN) {
-      // LOGIN only awards points once per day
+      // LOGIN chỉ thưởng một lần/ngày (bất kỳ bản ghi EARN nào: XP hoặc POINT)
       const existingLoginAward =
         await this.prisma.gamificationHistory.findFirst({
           where: {
             userId,
             activityType: ActivityType.LOGIN,
+            type: GamificationTransactionType.EARN,
             createdAt: {
               gte: new Date(`${dateString}T00:00:00.000Z`),
               lt: new Date(`${dateString}T23:59:59.999Z`),
             },
-            currency: GamificationCurrency.POINT,
-            type: GamificationTransactionType.EARN,
           },
         });
       if (existingLoginAward) {
@@ -150,73 +326,22 @@ export class GamificationService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // --- Streak log (1 record/day) ---
-      await tx.streakLog.upsert({
-        where: {
-          userId_date: {
-            userId,
-            date: dateString,
-          },
-        },
-        update: { status: 'ACTIVE' },
-        create: {
-          userId,
-          date: dateString,
-          status: 'ACTIVE',
-        },
-      });
-
-      // --- Update streak summary ---
-      const streak = await tx.streak.findUnique({ where: { userId } });
-      if (!streak) {
-        await tx.streak.create({
-          data: {
-            userId,
-            currentStreak: 1,
-            maxStreak: 1,
-            lastActiveDate: dateString,
-            freezeUsedToday: false,
-          },
-        });
-      } else {
-        // already active today -> no change
-        if (streak.lastActiveDate !== dateString) {
-          const last = streak.lastActiveDate
-            ? new Date(streak.lastActiveDate)
-            : null;
-          const today = new Date(dateString);
-          let diffDays = 999;
-          if (last) {
-            last.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-            const diffTime = Math.abs(today.getTime() - last.getTime());
-            diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          }
-
-          const nextStreak = diffDays === 1 ? streak.currentStreak + 1 : 1;
-          const nextMax = Math.max(streak.maxStreak, nextStreak);
-          await tx.streak.update({
-            where: { userId },
-            data: {
-              currentStreak: nextStreak,
-              maxStreak: nextMax,
-              lastActiveDate: dateString,
-              freezeUsedToday: false,
-            },
-          });
-        }
-      }
+      const { streakSavedByShield } = await this.applyDailyStreakAndSync(
+        tx,
+        userId,
+        dateString,
+      );
 
       if (!shouldAward) {
         return {
           xpEarned: 0,
           pointsEarned: 0,
+          streakSavedByShield,
           message:
             'Activity tracked, but rewards already awarded for this item/day.',
         };
       }
 
-      // Retrieve or create UserGamification profile
       let profile = await tx.userGamification.findUnique({ where: { userId } });
       if (!profile) {
         profile = await tx.userGamification.create({
@@ -237,8 +362,8 @@ export class GamificationService {
       // Dedup per object for mini-games (optional metadata keys)
       const dedupKey = metadata?.lessonId
         ? `lesson:${metadata.lessonId}`
-        : metadata?.setId
-          ? `set:${metadata.setId}`
+        : metadata?.setId || metadata?.studySetId
+          ? `set:${metadata.setId || metadata.studySetId}`
           : metadata?.quizId
             ? `quiz:${metadata.quizId}`
             : metadata?.gameId
@@ -259,6 +384,7 @@ export class GamificationService {
           return {
             xpEarned: 0,
             pointsEarned: 0,
+            streakSavedByShield,
             message: 'Duplicate reward for this item today.',
           };
         }
@@ -308,18 +434,24 @@ export class GamificationService {
       };
 
       if (xpAward === 0 && pointsAward === 0) {
-        return { xpEarned: 0, pointsEarned: 0, message: 'Daily cap reached.' };
+        return {
+          xpEarned: 0,
+          pointsEarned: 0,
+          streakSavedByShield,
+          message: 'Daily cap reached.',
+        };
       }
 
-      const newTotalXp = profile.totalXp + xp;
-      const newLevel = Math.floor(newTotalXp / 1000) + 1;
+      const XP_PER_LEVEL = 1000;
+      const newTotalXp = profile.totalXp + xpAward;
+      const newLevel = Math.floor(newTotalXp / XP_PER_LEVEL) + 1;
+      const newCurrentXp = newTotalXp % XP_PER_LEVEL;
 
-      // Update stats
       const updatedProfile = await tx.userGamification.update({
         where: { userId },
         data: {
-          currentXp: { increment: xpAward },
-          totalXp: { increment: xpAward },
+          totalXp: newTotalXp,
+          currentXp: newCurrentXp,
           points: { increment: pointsAward },
           level: newLevel,
         },
@@ -358,6 +490,7 @@ export class GamificationService {
         xpEarned: xpAward,
         pointsEarned: pointsAward,
         newLevel: updatedProfile.level,
+        streakSavedByShield,
       };
 
       // Level up notification (only when level actually increases)
@@ -424,8 +557,8 @@ export class GamificationService {
   }
 
   /**
-   * Read-only streak status for APIs that just need to display it.
-   * Does NOT change streak counters.
+   * Trạng thái streak chỉ đọc (không ghi streak / streak_log).
+   * Streak được cập nhật trong `trackActivity` (LOGIN qua NATS, học bài, …).
    */
   async getStreakStatus(userId: string) {
     let profile = await this.prisma.userGamification.findUnique({
@@ -439,7 +572,7 @@ export class GamificationService {
     }
 
     const todayStr = this.getVnDateString();
-    let streak = await this.prisma.streak.upsert({
+    const streak = await this.prisma.streak.upsert({
       where: { userId },
       update: {},
       create: {
@@ -451,42 +584,21 @@ export class GamificationService {
       },
     });
 
-    // NEW: visiting dashboard counts as daily streak check-in
-    if (streak.lastActiveDate !== todayStr) {
-      const last = streak.lastActiveDate;
-      const diff = last ? this.diffDays(last, todayStr) : 999;
-      const nextStreak = diff === 1 ? (streak.currentStreak ?? 0) + 1 : 1;
-      const nextMax = Math.max(streak.maxStreak ?? 0, nextStreak);
-
-      streak = await this.prisma.streak.update({
-        where: { userId },
-        data: {
-          currentStreak: nextStreak,
-          maxStreak: nextMax,
-          lastActiveDate: todayStr,
-          freezeUsedToday: false,
-        },
-      });
-    }
-
-    // Ensure there's a daily streak log entry
-    await this.prisma.streakLog.upsert({
-      where: { userId_date: { userId, date: todayStr } },
-      update: { status: 'ACTIVE' },
-      create: { userId, date: todayStr, status: 'ACTIVE' },
-    });
-
-    const isActiveToday = true;
-    const willBreakTomorrow = !isActiveToday && (streak.currentStreak ?? 0) > 0;
+    const isActiveToday = streak.lastActiveDate === todayStr;
+    const willBreakTomorrow =
+      isActiveToday && (streak.currentStreak ?? 0) > 0;
 
     // Show once/day across devices (persisted)
     const shouldShowToast = profile.lastToastShownDate !== todayStr;
 
     const recent = await this.prisma.streakLog.findMany({
-      where: { userId, status: 'ACTIVE' },
-      select: { date: true },
+      where: { 
+        userId,
+        status: { in: ['ACTIVE', 'FREEZE'] }
+      },
+      select: { date: true, status: true },
       orderBy: { date: 'desc' },
-      take: 14,
+      take: 31,
     });
 
     // Derive counts from streak logs (DailyActivity removed)
@@ -520,13 +632,16 @@ export class GamificationService {
       currentStreak: streak.currentStreak ?? 0,
       longestStreak: streak.maxStreak ?? 0,
       freezeCount: profile.freezeCount ?? 0,
+      consecutiveActiveDays: profile.consecutiveActiveDays ?? 0,
+      streakSavedByFreeze: streak.freezeUsedToday ?? false,
       isActiveToday,
       willBreakTomorrow,
       lastActiveDate: streak.lastActiveDate ?? null,
       totalActiveDays,
       weeklyActiveCount,
       monthlyActiveCount,
-      recentActiveDates: recent.map((r) => r.date),
+      recentActiveDates: recent.filter(r => r.status === 'ACTIVE').map((r) => r.date),
+      recentFreezeDates: recent.filter(r => r.status === 'FREEZE').map((r) => r.date),
       shouldShowToast,
     };
   }
@@ -549,11 +664,14 @@ export class GamificationService {
   }
 
   async getLeaderboard(userId: string, type?: string) {
-    const mode = (type || 'global') as 'global' | 'streak';
-    const orderBy =
-      mode === 'streak'
-        ? ({ currentStreak: 'desc' } as const)
-        : ({ totalXp: 'desc' } as const);
+    const mode = (type || 'global') as 'global' | 'streak' | 'active';
+    let orderBy: any = { totalXp: 'desc' };
+    
+    if (mode === 'streak') {
+      orderBy = { currentStreak: 'desc' };
+    } else if (mode === 'active') {
+      orderBy = { totalActiveDays: 'desc' };
+    }
 
     const top = await this.prisma.userGamification.findMany({
       orderBy,
@@ -563,17 +681,20 @@ export class GamificationService {
         level: true,
         totalXp: true,
         currentStreak: true,
+        totalActiveDays: true,
         user: { select: { id: true, displayName: true, avatarUrl: true } },
       },
     });
 
-    const users = top.map((g) => ({
+    const users = top.map((g, index) => ({
       id: g.user.id,
       displayName: g.user.displayName,
       avatarUrl: g.user.avatarUrl,
       xp: g.totalXp,
-      streak: g.currentStreak,
+      currentStreak: g.currentStreak,
       level: g.level,
+      totalActiveDays: g.totalActiveDays,
+      rank: index + 1,
     }));
 
     const current = await this.prisma.userGamification.findUnique({
@@ -583,22 +704,29 @@ export class GamificationService {
         level: true,
         totalXp: true,
         currentStreak: true,
+        totalActiveDays: true,
         user: { select: { id: true, displayName: true, avatarUrl: true } },
       },
     });
 
-    const currentUser = current
-      ? {
-          id: current.user.id,
-          displayName: current.user.displayName,
-          avatarUrl: current.user.avatarUrl,
-          xp: current.totalXp,
-          streak: current.currentStreak,
-          level: current.level,
-        }
-      : null;
+    let currentUser: any = null;
+    if (current) {
+      const currentRankInTop = users.find((u) => u.id === current.user.id)?.rank;
+      currentUser = {
+        id: current.user.id,
+        displayName: current.user.displayName,
+        avatarUrl: current.user.avatarUrl,
+        xp: current.totalXp,
+        currentStreak: current.currentStreak,
+        level: current.level,
+        totalActiveDays: current.totalActiveDays,
+        rank: currentRankInTop || 0,
+      };
+    }
 
-    return { users, currentUser };
+    const totalUsers = await this.prisma.userGamification.count();
+
+    return { users, currentUser, totalUsers, type: mode };
   }
 
   async getHistory(userId: string, limit: number = 20, offset: number = 0) {

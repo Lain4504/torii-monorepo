@@ -67,7 +67,7 @@ export const gamificationApi = {
     /**
      * Get leaderboard
      */
-    async getLeaderboard(type: 'global' | 'streak' = 'global'): Promise<LeaderboardDTO> {
+    async getLeaderboard(type: 'global' | 'streak' | 'active' = 'global'): Promise<LeaderboardDTO> {
         const response = await apiClient.get<StandardApiResponse<LeaderboardDTO>>(`/api/gamification/leaderboard?type=${type}`);
         if (response.data.success && response.data.data) {
             return response.data.data;
@@ -143,7 +143,7 @@ export const gamificationApi = {
 /**
  * Hook: Get leaderboard
  */
-export function useLeaderboard(type: 'global' | 'streak' = 'global') {
+export function useLeaderboard(type: 'global' | 'streak' | 'active' = 'global') {
     return useQuery({
         queryKey: ['leaderboard', type],
         queryFn: () => gamificationApi.getLeaderboard(type),

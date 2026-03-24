@@ -9,9 +9,10 @@ import { useMySchedule } from '@/lib/api/services/academy-live-session-api';
 import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { BookOpen, Clock, Calendar, Video, BookMarked, FileText, Award, GraduationCap, BarChart3 } from 'lucide-react';
-import { LiveSessionStatus } from '@workspace/schemas';
+import { BookOpen, Clock, Calendar, Video, Shield, AlertCircle, BookMarked, FileText, Award, GraduationCap, BarChart3 } from 'lucide-react';
+import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
+import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -45,13 +46,15 @@ export default function DashboardClientPage() {
     const totalCourses = statsData?.totalCourses ?? courses?.length ?? 0;
     const totalHours = statsData?.totalLearningHours ?? 0;
     const currentStreak = streak?.currentStreak ?? 0;
+    const streakSavedByFreeze = (streak as any)?.streakSavedByFreeze === true;
     const avgProgress = statsData?.averageProgress ?? 0;
 
     // Level XP
     const level = profile?.level ?? 1;
+    const totalXp = profile?.totalXp ?? 0;
     const points = profile?.points ?? 0;
     const xpForNextLevel = (level) * 1000;
-    const xpProgress = Math.min(100, (points % 1000) / 10);
+    const xpProgress = Math.min(100, (totalXp % 1000) / 10);
 
     // Achievements count
     const achievementCount = achievements?.length ?? 0;
@@ -114,6 +117,15 @@ export default function DashboardClientPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
                 <main className="lg:col-span-2 space-y-8">
+                    {streakSavedByFreeze && (
+                        <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top duration-500">
+                            <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 fill-blue-500/10" />
+                            <AlertTitle className="text-blue-800 dark:text-blue-300 font-bold ml-2">Lá chắn đã được kích hoạt! 🛡️</AlertTitle>
+                            <AlertDescription className="text-blue-700 dark:text-blue-400 ml-2">
+                                Hôm nay chuỗi <strong>{currentStreak} ngày streak</strong> của bạn đã được bảo vệ thành công. Hãy học tập ngay để duy trì phong độ nhé!
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
                     {/* Current Course Card */}
                     <section data-purpose="current-course">
@@ -212,8 +224,12 @@ export default function DashboardClientPage() {
                                         <div className="text-lg font-bold">{totalHours}h</div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase font-bold">Điểm kinh nghiệm (XP)</div>
-                                        <div className="text-lg font-bold">{points.toLocaleString('vi-VN')} XP</div>
+                                        <div className="text-[10px] text-muted-foreground uppercase font-bold">Kinh nghiệm (XP)</div>
+                                        <div className="text-lg font-bold">{totalXp.toLocaleString('vi-VN')} XP</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] text-muted-foreground uppercase font-bold">Điểm thưởng (Point)</div>
+                                        <div className="text-lg font-bold text-primary">{points.toLocaleString('vi-VN')} P</div>
                                     </div>
                                 </div>
                             </div>
@@ -410,7 +426,7 @@ export default function DashboardClientPage() {
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs font-bold">
                                 <span>Đến Lv. {level + 1}</span>
-                                <span>{(points % 1000).toLocaleString('vi-VN')} / 1,000 XP</span>
+                                <span>{(totalXp % 1000).toLocaleString('vi-VN')} / 1,000 XP</span>
                             </div>
                             <div className="w-full bg-muted rounded-full h-2">
                                 <div
