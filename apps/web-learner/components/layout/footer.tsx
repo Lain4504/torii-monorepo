@@ -41,7 +41,7 @@ export function Footer() {
                     <div className="space-y-8">
                         <h4 className="text-foreground font-black text-xs uppercase tracking-[0.2em] font-space">Học tập</h4>
                         <ul className="space-y-4">
-                            <li><Link href="/courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Thư viện VOD JLPT</Link></li>
+                            <li><Link href="/dashboard/available-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Thư viện VOD JLPT</Link></li>
                             <li><Link href="/live-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Lịch khai giảng Live</Link></li>
                             <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Lộ trình học tập</Link></li>
                             <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Tài liệu miễn phí</Link></li>

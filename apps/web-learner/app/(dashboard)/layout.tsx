@@ -8,6 +8,9 @@ import { AppSidebar } from '@/components/layout/app-sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
+import Link from 'next/link'
+import { Button } from '@workspace/ui/components/button'
+import { GuestActionGuard } from '@/components/auth/guest-action-guard'
 
 export default function DashboardLayout({
     children,
@@ -25,10 +28,6 @@ export default function DashboardLayout({
     }, [])
 
     useEffect(() => {
-        if (mounted && status === 'succeeded' && !isAuthenticated) {
-            router.push('/login')
-        }
-
         if (mounted && status === 'succeeded' && isAuthenticated && user && !user.isOnboarded) {
             router.push('/onboarding')
         }
@@ -48,7 +47,28 @@ export default function DashboardLayout({
     }
 
     if (!isAuthenticated) {
-        return null
+        return (
+            <div className="min-h-screen bg-background">
+                <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
+                    <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8">
+                        <Link href="/dashboard" className="text-sm font-semibold text-foreground">
+                            Torii Dashboard
+                        </Link>
+                        <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href="/register">Dang ky</Link>
+                            </Button>
+                            <Button size="sm" asChild>
+                                <Link href="/login">Dang nhap</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </header>
+                <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+                    <GuestActionGuard>{children}</GuestActionGuard>
+                </main>
+            </div>
+        )
     }
 
   return (

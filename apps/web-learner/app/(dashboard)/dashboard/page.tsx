@@ -9,10 +9,12 @@ import { useMySchedule } from '@/lib/api/services/academy-live-session-api';
 import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { BookOpen, Clock, Calendar, Video, Shield, AlertCircle } from 'lucide-react';
+import { BookOpen, Clock, Calendar, Video, Shield, AlertCircle, Lock, Sparkles, ArrowRight } from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
+import { Button } from '@workspace/ui/components/button';
+import { Badge } from '@workspace/ui/components/badge';
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -26,7 +28,90 @@ function formatScheduledAt(date: Date | string): string {
     return d.toLocaleString('vi-VN', { weekday: 'short', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
 }
 
-export default function DashboardClientPage() {
+function GuestDashboardPreview() {
+    const previewItems = [
+        {
+            title: 'AI Sensei',
+            description: 'Chat AI theo luot va che do realtime de luyen giao tiep.',
+        },
+        {
+            title: 'The ghi nho & ghi chu',
+            description: 'Hoc tu vung bang flashcards va quan ly ghi chu ca nhan.',
+        },
+        {
+            title: 'Game hoa hoc tap',
+            description: 'Bang xep hang, thanh tich va thuong de duy tri dong luc.',
+        },
+    ];
+
+    return (
+        <div className="space-y-8">
+            <section className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+                <Badge className="mb-4 rounded-full">Guest Preview</Badge>
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Kham pha Torii Dashboard</h1>
+                <p className="mt-2 max-w-3xl text-sm text-muted-foreground sm:text-base">
+                    Ban co the xem tong quan tinh nang, blog va danh muc khoa hoc. De su dung AI chat, the ghi nho va cong cu hoc tap, vui long dang nhap.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                    <Button asChild>
+                        <Link href="/login">Dang nhap de su dung</Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                        <Link href="/register">Tao tai khoan</Link>
+                    </Button>
+                </div>
+            </section>
+
+            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {previewItems.map((item) => (
+                    <div key={item.title} className="rounded-2xl border border-border bg-card p-5">
+                        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+                            <Lock className="h-3.5 w-3.5" />
+                            Can dang nhap
+                        </div>
+                        <h3 className="font-bold">{item.title}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
+                    </div>
+                ))}
+            </section>
+
+            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Link href="/dashboard/available-courses" className="rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-accent/50">
+                    <div className="mb-3 inline-flex rounded-full bg-primary/10 p-2 text-primary">
+                        <BookOpen className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold">Xem khoa hoc</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">Xem danh muc khoa hoc va lo trinh de lua chon.</p>
+                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                        Mo trang <ArrowRight className="h-4 w-4" />
+                    </div>
+                </Link>
+                <Link href="/dashboard/blogs" className="rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-accent/50">
+                    <div className="mb-3 inline-flex rounded-full bg-primary/10 p-2 text-primary">
+                        <Sparkles className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold">Xem blog</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">Doc bai viet chia se kinh nghiem hoc va tai lieu huu ich.</p>
+                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                        Mo trang <ArrowRight className="h-4 w-4" />
+                    </div>
+                </Link>
+                <Link href="/dashboard/faq" className="rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-accent/50">
+                    <div className="mb-3 inline-flex rounded-full bg-primary/10 p-2 text-primary">
+                        <AlertCircle className="h-4 w-4" />
+                    </div>
+                    <h3 className="font-bold">Ho tro & FAQ</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">Xem cac cau hoi thuong gap va thong tin lien he tu van.</p>
+                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                        Mo trang <ArrowRight className="h-4 w-4" />
+                    </div>
+                </Link>
+            </section>
+        </div>
+    );
+}
+
+function AuthenticatedDashboardPage() {
     const { user } = useAppSelector((state) => state.auth);
 
     const { data: courses, isLoading: coursesLoading } = useAcademyMyCourses();
@@ -462,4 +547,14 @@ export default function DashboardClientPage() {
             <StreakWelcomeModal />
         </div>
     );
+}
+
+export default function DashboardClientPage() {
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+    if (!isAuthenticated) {
+        return <GuestDashboardPreview />;
+    }
+
+    return <AuthenticatedDashboardPage />;
 }
