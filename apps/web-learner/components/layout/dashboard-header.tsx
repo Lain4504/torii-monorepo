@@ -40,9 +40,10 @@ import { QuotaIndicator } from '../ai-sensei/quota-indicator'
 
 type DashboardHeaderProps = {
     onOpenStreakModal?: () => void
+    isGuest?: boolean
 }
 
-export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
+export function DashboardHeader({ onOpenStreakModal, isGuest = false }: DashboardHeaderProps) {
     const { user } = useAppSelector((state) => state.auth)
     const { data: profile } = useGamificationProfile()
     const { data: streak } = useStreak()
@@ -78,7 +79,14 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
                     <SidebarTrigger />
                 </div>
 
-                {/* Right: Actions & Gamification */}
+                {isGuest ? (
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <ModeToggle />
+                        <Button asChild size="sm">
+                            <Link href="/login">Tham gia ngay</Link>
+                        </Button>
+                    </div>
+                ) : (
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                     <div className="flex items-center gap-1">
                         <QuotaIndicator />
@@ -187,6 +195,7 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
+                )}
             </div>
         </header >
     )

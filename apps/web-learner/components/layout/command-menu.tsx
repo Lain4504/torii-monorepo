@@ -3,7 +3,6 @@ import {
     LayoutDashboard,
     BookOpen,
     BrainCircuit,
-    FileText,
     TrendingUp,
     Trophy,
     Gift,
@@ -92,10 +91,6 @@ export function CommandMenu() {
                         <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/flashcards"))}>
                             <BrainCircuit className="mr-2 h-4 w-4" />
                             <span>Kho Thẻ Nhớ</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/study-notes"))}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>Sổ tay từ vựng</span>
                         </CommandItem>
                     </CommandGroup>
 

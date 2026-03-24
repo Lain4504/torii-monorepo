@@ -9,19 +9,10 @@ import {
     usePublicCatalogStudySet,
     useCreateAcademySetCard,
 } from '@/lib/api/services/academy-study-set-api';
-import { useCreateStudyNote } from '@/lib/api/services/academy-study-note-api';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog';
-import { Plus, Volume2 } from 'lucide-react';
+import { Volume2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function StudySetDetailPage() {
@@ -41,13 +32,9 @@ export default function StudySetDetailPage() {
     const set = isCatalogView ? catalogSet.data : privateSet.data;
     const isLoading = isCatalogView ? catalogSet.isLoading : privateSet.isLoading;
     const canLearn = isAuthenticated && !isCatalogView;
-    const canCreateNote = isAuthenticated && !isCatalogView;
     const canCreateCard = isAuthenticated && !isCatalogView;
-    const createStudyNote = useCreateStudyNote();
     const createCard = useCreateAcademySetCard();
     const [page] = useState(1);
-    const [createDialogOpen, setCreateDialogOpen] = useState(false);
-    const [selectedCard, setSelectedCard] = useState<any>(null);
     const [newTerm, setNewTerm] = useState('');
     const [newDefinition, setNewDefinition] = useState('');
 
@@ -68,29 +55,6 @@ export default function StudySetDetailPage() {
     const cards = set?.setCards || [];
     const leftColumn = cards.filter((_, idx) => idx % 2 === 0);
     const rightColumn = cards.filter((_, idx) => idx % 2 !== 0);
-
-    const handleCreateNoteFromCard = async (card: any) => {
-        if (!canCreateNote) return;
-        try {
-            await createStudyNote.mutateAsync({
-                content: `${card.term}\n${card.definition}`,
-                tags: ['study-set', set.title],
-                metadata: {
-                    sourceType: 'study_set_card',
-                    studySetId: set.id,
-                    setCardId: card.id,
-                },
-            });
-            toast.success('Da tao study note tu the');
-        } catch (e: any) {
-            toast.error(e?.message || 'Khong tao duoc study note');
-        }
-    };
-
-    const openCreateDialog = (card: any) => {
-        setSelectedCard(card);
-        setCreateDialogOpen(true);
-    };
 
     const handleCreateCard = async () => {
         if (!canCreateCard || !setId) return;
@@ -123,15 +87,6 @@ export default function StudySetDetailPage() {
                     <p className="text-[22px] text-muted-foreground">{card.definition}</p>
                 </div>
             </div>
-            <button
-                type="button"
-                onClick={() => openCreateDialog(card)}
-                disabled={!canCreateNote || createStudyNote.isPending}
-                data-requires-auth={!canCreateNote ? 'true' : undefined}
-                className="rounded-full p-1.5 text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-            >
-                <Plus className="h-4 w-4" />
-            </button>
         </div>
     );
 
@@ -208,42 +163,6 @@ export default function StudySetDetailPage() {
                 </CardContent>
             </Card>
 
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Tao study note tu the</DialogTitle>
-                        <DialogDescription>
-                            Xac nhan tao study note tu card da chon.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="rounded-lg border bg-muted/30 p-3">
-                        <p className="text-sm font-semibold">{selectedCard?.term || '-'}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">{selectedCard?.definition || '-'}</p>
-                    </div>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                setCreateDialogOpen(false);
-                                setSelectedCard(null);
-                            }}
-                        >
-                            Huy
-                        </Button>
-                        <Button
-                            onClick={async () => {
-                                if (!selectedCard) return;
-                                await handleCreateNoteFromCard(selectedCard);
-                                setCreateDialogOpen(false);
-                                setSelectedCard(null);
-                            }}
-                            disabled={!selectedCard || createStudyNote.isPending}
-                        >
-                            {createStudyNote.isPending ? 'Dang tao...' : 'Tao study note'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

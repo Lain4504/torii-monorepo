@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import {
     AlertDialog,
+    AlertDialogCancel,
     AlertDialogAction,
     AlertDialogContent,
     AlertDialogDescription,
@@ -28,14 +29,6 @@ export function GuestActionGuard({ children }: GuestActionGuardProps) {
         const from = pathname || '/dashboard'
         router.push(`/login?from=${encodeURIComponent(from)}`)
     }
-
-    useEffect(() => {
-        if (!open) return
-        const timer = setTimeout(() => {
-            redirectToLogin()
-        }, 900)
-        return () => clearTimeout(timer)
-    }, [open])
 
     const handleActionAttempt = (
         e: React.MouseEvent<HTMLDivElement> | React.FormEvent<HTMLDivElement>
@@ -71,6 +64,14 @@ export function GuestActionGuard({ children }: GuestActionGuardProps) {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
+                        <AlertDialogCancel
+                            onClick={() => {
+                                setOpen(false)
+                                setRedirecting(false)
+                            }}
+                        >
+                            De sau
+                        </AlertDialogCancel>
                         <AlertDialogAction onClick={redirectToLogin}>
                             Dang nhap ngay
                         </AlertDialogAction>

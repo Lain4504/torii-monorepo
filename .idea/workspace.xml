@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement sharing functionality for study sets with public access" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: remove study note functionality and related components" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -356,46 +356,6 @@
       <workItem from="1774252089615" duration="38000" />
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
-    </task>
-    <task id="LOCAL-01006" summary="new">
-      <option name="closed" value="true" />
-      <created>1773134490587</created>
-      <option name="number" value="01006" />
-      <option name="presentableId" value="LOCAL-01006" />
-      <option name="project" value="LOCAL" />
-      <updated>1773134490587</updated>
-    </task>
-    <task id="LOCAL-01007" summary="new">
-      <option name="closed" value="true" />
-      <created>1773134873644</created>
-      <option name="number" value="01007" />
-      <option name="presentableId" value="LOCAL-01007" />
-      <option name="project" value="LOCAL" />
-      <updated>1773134873644</updated>
-    </task>
-    <task id="LOCAL-01008" summary="new">
-      <option name="closed" value="true" />
-      <created>1773134976915</created>
-      <option name="number" value="01008" />
-      <option name="presentableId" value="LOCAL-01008" />
-      <option name="project" value="LOCAL" />
-      <updated>1773134976915</updated>
-    </task>
-    <task id="LOCAL-01009" summary="new">
-      <option name="closed" value="true" />
-      <created>1773135574427</created>
-      <option name="number" value="01009" />
-      <option name="presentableId" value="LOCAL-01009" />
-      <option name="project" value="LOCAL" />
-      <updated>1773135574427</updated>
-    </task>
-    <task id="LOCAL-01010" summary="new">
-      <option name="closed" value="true" />
-      <created>1773137060054</created>
-      <option name="number" value="01010" />
-      <option name="presentableId" value="LOCAL-01010" />
-      <option name="project" value="LOCAL" />
-      <updated>1773137060055</updated>
     </task>
     <task id="LOCAL-01011" summary="new">
       <option name="closed" value="true" />
@@ -749,7 +709,47 @@
       <option name="project" value="LOCAL" />
       <updated>1774359371307</updated>
     </task>
-    <option name="localTasksCounter" value="1055" />
+    <task id="LOCAL-01055" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359389433</created>
+      <option name="number" value="01055" />
+      <option name="presentableId" value="LOCAL-01055" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359389433</updated>
+    </task>
+    <task id="LOCAL-01056" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359472940</created>
+      <option name="number" value="01056" />
+      <option name="presentableId" value="LOCAL-01056" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359472940</updated>
+    </task>
+    <task id="LOCAL-01057" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359573729</created>
+      <option name="number" value="01057" />
+      <option name="presentableId" value="LOCAL-01057" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359573729</updated>
+    </task>
+    <task id="LOCAL-01058" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774360271191</created>
+      <option name="number" value="01058" />
+      <option name="presentableId" value="LOCAL-01058" />
+      <option name="project" value="LOCAL" />
+      <updated>1774360271192</updated>
+    </task>
+    <task id="LOCAL-01059" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774360722210</created>
+      <option name="number" value="01059" />
+      <option name="presentableId" value="LOCAL-01059" />
+      <option name="project" value="LOCAL" />
+      <updated>1774360722210</updated>
+    </task>
+    <option name="localTasksCounter" value="1060" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -784,7 +784,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(academy): add class attendance module with CRUD operations and UI integration" />
     <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
     <MESSAGE value="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors." />
     <MESSAGE value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
@@ -809,7 +808,8 @@
     <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
     <MESSAGE value="feat: add sharing functionality for study notes with public access" />
     <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement sharing functionality for study sets with public access" />
+    <MESSAGE value="feat: remove study note functionality and related components" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: remove study note functionality and related components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -9,12 +9,20 @@ import { useMySchedule } from '@/lib/api/services/academy-live-session-api';
 import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { BookOpen, Clock, Calendar, Video, Shield, AlertCircle, Lock, Sparkles, ArrowRight } from 'lucide-react';
+import { 
+    BookOpen, Clock, Calendar, Video, Shield, 
+    AlertCircle, Sparkles, ArrowRight, Users, 
+    Trophy, Zap, Newspaper, HelpCircle, GraduationCap,
+    Star, Bot 
+} from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card';
+import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -26,87 +34,179 @@ function formatDuration(seconds: number): string {
 function formatScheduledAt(date: Date | string): string {
     const d = new Date(date);
     return d.toLocaleString('vi-VN', { weekday: 'short', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
-}
-
-function GuestDashboardPreview() {
-    const previewItems = [
-        {
-            title: 'AI Sensei',
-            description: 'Chat AI theo luot va che do realtime de luyen giao tiep.',
-        },
-        {
-            title: 'The ghi nho & ghi chu',
-            description: 'Hoc tu vung bang flashcards va quan ly ghi chu ca nhan.',
-        },
-        {
-            title: 'Game hoa hoc tap',
-            description: 'Bang xep hang, thanh tich va thuong de duy tri dong luc.',
-        },
-    ];
-
+}function GuestDashboardPreview() {
     return (
-        <div className="space-y-8">
-            <section className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-                <Badge className="mb-4 rounded-full">Guest Preview</Badge>
-                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Kham pha Torii Dashboard</h1>
-                <p className="mt-2 max-w-3xl text-sm text-muted-foreground sm:text-base">
-                    Ban co the xem tong quan tinh nang, blog va danh muc khoa hoc. De su dung AI chat, the ghi nho va cong cu hoc tap, vui long dang nhap.
-                </p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                    <Button asChild>
-                        <Link href="/login">Dang nhap de su dung</Link>
+        <div className="space-y-8 animate-in fade-in duration-1000">
+            {/* Minimal Dashboard Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight">Cổng thông tin Torii</h1>
+                    <p className="text-muted-foreground text-sm">Trung tâm Nhật ngữ thông minh hỗ trợ bởi AI Sensei.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href="/login">Đăng nhập</Link>
                     </Button>
-                    <Button variant="outline" asChild>
-                        <Link href="/register">Tao tai khoan</Link>
+                    <Button size="sm" asChild>
+                        <Link href="/register">Tham gia ngay</Link>
                     </Button>
                 </div>
-            </section>
+            </div>
 
-            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                {previewItems.map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-border bg-card p-5">
-                        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
-                            <Lock className="h-3.5 w-3.5" />
-                            Can dang nhap
-                        </div>
-                        <h3 className="font-bold">{item.title}</h3>
-                        <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
-                    </div>
-                ))}
-            </section>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content Area (Matches Dashboard Column 1&2 style) */}
+                <div className="lg:col-span-2 space-y-8">
+                    {/* Welcome Announcement Card */}
+                    <Card className="bg-muted/10 border-primary/20 shadow-none">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center gap-2 text-primary font-bold mb-1">
+                                <Sparkles className="size-4" />
+                                <span className="text-xs uppercase tracking-widest">Tin mới nhất</span>
+                            </div>
+                            <CardTitle className="text-xl">Chào mừng bạn đến với Torii Nihongo!</CardTitle>
+                            <CardDescription>
+                                Khám phá lộ trình học tiếng Nhật toàn diện từ N5 đến N1. Đăng ký tài khoản để bắt đầu lưu lại tiến trình học tập của bạn.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardFooter>
+                            <Button className="font-bold gap-2" variant="ghost" asChild>
+                                <Link href="/dashboard/blogs">Tìm hiểu về lộ trình học <ArrowRight className="size-4" /></Link>
+                            </Button>
+                        </CardFooter>
+                    </Card>
 
-            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Link href="/dashboard/available-courses" className="rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-accent/50">
-                    <div className="mb-3 inline-flex rounded-full bg-primary/10 p-2 text-primary">
-                        <BookOpen className="h-4 w-4" />
+                    {/* Featured Tracks Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="hover:border-primary/50 transition-colors shadow-sm">
+                            <CardHeader>
+                                <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 w-fit mb-2">
+                                    <GraduationCap className="size-5" />
+                                </div>
+                                <CardTitle className="text-lg">Khóa học JLPT</CardTitle>
+                                <CardDescription className="text-xs">Lộ trình được thiết kế chuẩn kỳ thi quốc tế.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="text-sm">
+                                Các khóa học từ sơ cấp đến cao cấp với hơn 500+ bài giảng video chất lượng cao và quiz tương tác.
+                            </CardContent>
+                            <CardFooter>
+                                <Button variant="link" className="p-0 text-primary font-bold h-fit" asChild>
+                                    <Link href="/dashboard/available-courses">Xem danh mục <ArrowRight className="ml-1 size-3" /></Link>
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                        <Card className="hover:border-primary/50 transition-colors shadow-sm">
+                            <CardHeader>
+                                <div className="p-2 rounded-xl bg-primary/10 text-primary w-fit mb-2">
+                                    <Bot className="size-5" />
+                                </div>
+                                <CardTitle className="text-lg">Gia sư AI Sensei</CardTitle>
+                                <CardDescription className="text-xs">Hỗ trợ học tập 24/7 bất kỳ lúc nào.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="text-sm">
+                                Công nghệ AI trí tuệ nhân tạo độc quyền giúp bạn luyện phản xạ giao tiếp và giải đáp ngữ pháp tức thì.
+                            </CardContent>
+                            <CardFooter>
+                                <Button variant="link" className="p-0 text-primary font-bold h-fit" asChild>
+                                    <Link href="/login">Trò chuyện thử <ArrowRight className="ml-1 size-3" /></Link>
+                                </Button>
+                            </CardFooter>
+                        </Card>
                     </div>
-                    <h3 className="font-bold">Xem khoa hoc</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">Xem danh muc khoa hoc va lo trinh de lua chon.</p>
-                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                        Mo trang <ArrowRight className="h-4 w-4" />
+
+                    {/* Simple Data Table (Example Class Schedule) */}
+                    <Card className="shadow-sm">
+                        <CardHeader>
+                            <CardTitle className="text-lg">Lịch khai giảng dự kiến</CardTitle>
+                            <CardDescription>Các lớp học tương tác trực tuyến sắp tới.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="font-bold">Lớp học</TableHead>
+                                        <TableHead className="font-bold">Trình độ</TableHead>
+                                        <TableHead className="font-bold">Khai giảng</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {[
+                                        { class: 'N5 Cấp tốc', level: 'Sơ cấp', start: '01/04/2026' },
+                                        { class: 'N4 Giao tiếp', level: 'Sơ trung', start: '15/04/2026' },
+                                        { class: 'N3 Đọc hiểu', level: 'Trung cấp', start: '20/04/2026' },
+                                    ].map((row, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell className="font-medium">{row.class}</TableCell>
+                                            <TableCell><Badge variant="outline">{row.level}</Badge></TableCell>
+                                            <TableCell className="text-muted-foreground">{row.start}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Sidebar inside Dashboard Content Area */}
+                <div className="space-y-6">
+                    {/* Quick Community Card */}
+                    <Card className="bg-primary text-primary-foreground border-none shadow-xl">
+                        <CardHeader>
+                            <div className="flex items-center justify-between mb-2">
+                                <Users className="size-6 opacity-80" />
+                                <Badge variant="secondary" className="bg-white/20 text-white border-none">5k+ Thành viên</Badge>
+                            </div>
+                            <CardTitle className="text-xl">Tham gia cộng đồng học tập</CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-sm opacity-90 leading-relaxed">
+                            Cùng hàng ngàn học viên chinh phục tiếng Nhật mỗi ngày. Đặc quyền nhận ngay tài liệu học tập miễn phí khi đăng ký!
+                        </CardContent>
+                        <CardFooter>
+                            <Button variant="secondary" className="w-full font-bold shadow-md" asChild>
+                                <Link href="/register">Đăng ký thành viên</Link>
+                            </Button>
+                        </CardFooter>
+                    </Card>
+
+                    {/* Resources List Card */}
+                    <Card className="shadow-sm">
+                        <CardHeader className="pb-3 border-b">
+                            <CardTitle className="text-base font-bold uppercase tracking-wider text-muted-foreground">Tài nguyên công khai</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="divide-y text-sm">
+                                <Link href="/dashboard/blogs" className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        <Newspaper className="size-4 text-muted-foreground" />
+                                        <span>Blog kiến thức</span>
+                                    </div>
+                                    <ArrowRight className="size-3 text-muted-foreground/40" />
+                                </Link>
+                                <Link href="/dashboard/faq" className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        <HelpCircle className="size-4 text-muted-foreground" />
+                                        <span>Giải đáp FAQs</span>
+                                    </div>
+                                    <ArrowRight className="size-3 text-muted-foreground/40" />
+                                </Link>
+                                <Link href="/dashboard/available-courses" className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        <BookOpen className="size-4 text-muted-foreground" />
+                                        <span>Thư viện tài liệu</span>
+                                    </div>
+                                    <ArrowRight className="size-3 text-muted-foreground/40" />
+                                </Link>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Minimal Info Card */}
+                    <div className="mx-2 p-4 rounded-2xl bg-muted/30 border border-dashed flex flex-col items-center text-center gap-1">
+                        <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Cần hỗ trợ?</Badge>
+                        <p className="text-xs text-muted-foreground">Torii Learning Center sẵn sàng giải đáp thắc mắc của bạn.</p>
+                        <Button variant="link" size="sm" className="h-6 p-0 text-xs font-bold">Liên hệ ngay</Button>
                     </div>
-                </Link>
-                <Link href="/dashboard/blogs" className="rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-accent/50">
-                    <div className="mb-3 inline-flex rounded-full bg-primary/10 p-2 text-primary">
-                        <Sparkles className="h-4 w-4" />
-                    </div>
-                    <h3 className="font-bold">Xem blog</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">Doc bai viet chia se kinh nghiem hoc va tai lieu huu ich.</p>
-                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                        Mo trang <ArrowRight className="h-4 w-4" />
-                    </div>
-                </Link>
-                <Link href="/dashboard/faq" className="rounded-2xl border border-border bg-card p-5 transition-colors hover:bg-accent/50">
-                    <div className="mb-3 inline-flex rounded-full bg-primary/10 p-2 text-primary">
-                        <AlertCircle className="h-4 w-4" />
-                    </div>
-                    <h3 className="font-bold">Ho tro & FAQ</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">Xem cac cau hoi thuong gap va thong tin lien he tu van.</p>
-                    <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-                        Mo trang <ArrowRight className="h-4 w-4" />
-                    </div>
-                </Link>
-            </section>
+                </div>
+            </div>
         </div>
     );
 }
@@ -481,7 +581,6 @@ function AuthenticatedDashboardPage() {
                     <section className="grid grid-cols-2 gap-3" data-purpose="quick-links">
                         {[
                             { href: '/dashboard/flashcards', icon: '📇', label: 'Thẻ ghi nhớ' },
-                            { href: '/dashboard/study-notes', icon: '📝', label: 'Ghi chú' },
                             { href: '/dashboard/achievements', icon: '🏅', label: 'Thành tựu' },
                             { href: '/dashboard/certificates', icon: '🎓', label: 'Chứng chỉ' },
                             { href: '/dashboard/schedule', icon: '📅', label: 'Lịch học' },

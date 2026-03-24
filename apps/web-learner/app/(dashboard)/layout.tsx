@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
@@ -16,8 +16,8 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     const { isAuthenticated, status, user } = useAppSelector((state) => state.auth)
-    const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
+    const pathname = usePathname()
     const [mounted, setMounted] = React.useState(false)
     const [streakModalOpen, setStreakModalOpen] = React.useState(false)
 
@@ -48,7 +48,10 @@ export default function DashboardLayout({
         <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-                <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
+                <DashboardHeader
+                    onOpenStreakModal={() => setStreakModalOpen(true)}
+                    isGuest={!isAuthenticated}
+                />
                 <main className="flex-1 overflow-y-auto scrollbar-none">
                     <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                         {children}
@@ -59,7 +62,7 @@ export default function DashboardLayout({
         </SidebarProvider>
     )
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && pathname !== '/dashboard') {
         return <GuestActionGuard>{layoutContent}</GuestActionGuard>
     }
 
