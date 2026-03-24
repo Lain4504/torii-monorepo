@@ -7,6 +7,7 @@ import { useAppSelector } from '@/hooks/hooks';
 import {
     useAcademyStudySets,
     useCreateAcademyStudySet,
+    useShareAcademyStudySet,
     usePublicCatalogStudySets,
 } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
@@ -28,6 +29,7 @@ export function StudySetsList() {
     const { data: mySets, isLoading: mySetsLoading } = useAcademyStudySets({ enabled: isAuthenticated });
     const { data: catalogSets, isLoading: catalogLoading } = usePublicCatalogStudySets();
     const createSet = useCreateAcademyStudySet();
+    const shareSet = useShareAcademyStudySet();
 
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState('');
@@ -41,6 +43,24 @@ export function StudySetsList() {
             setTitle('');
         } catch (error: any) {
             toast.error(error?.message || 'Khong tao duoc so tay');
+        }
+    };
+
+    const handleShareToggle = async (setId: string, makePublic: boolean) => {
+        try {
+            const updated = await shareSet.mutateAsync({
+                id: setId,
+                payload: { isPublic: makePublic },
+            });
+            if (makePublic && updated.shareToken) {
+                const url = `${window.location.origin}/share/study-sets/${updated.shareToken}`;
+                await navigator.clipboard.writeText(url);
+                toast.success('Da bat cong khai va copy link share');
+            } else {
+                toast.success('Da tat cong khai bo the');
+            }
+        } catch (error: any) {
+            toast.error(error?.message || 'Cap nhat chia se that bai');
         }
     };
 
@@ -89,14 +109,38 @@ export function StudySetsList() {
                             <div className="h-24 animate-pulse rounded-xl bg-muted" />
                         ) : (
                             (mySets || []).slice(0, 3).map((set) => (
-                                <Link
-                                    key={set.id}
-                                    href={`/dashboard/study-sets/${set.id}`}
-                                    className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/30"
-                                >
-                                    <p className="line-clamp-1 text-sm font-semibold text-primary">{set.title}</p>
-                                    <p className="mt-1 text-xs text-muted-foreground">({(set as any)._count?.setCards || 0} tu)</p>
-                                </Link>
+                                <div key={set.id} className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/30">
+                                    <Link href={`/dashboard/study-sets/${set.id}`}>
+                                        <p className="line-clamp-1 text-sm font-semibold text-primary">{set.title}</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">({(set as any)._count?.setCards || 0} tu)</p>
+                                    </Link>
+                                    <div className="mt-3 flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant={set.isPublic ? 'outline' : 'default'}
+                                            className="h-7 px-2 text-xs"
+                                            data-requires-auth="true"
+                                            onClick={() => handleShareToggle(set.id, !set.isPublic)}
+                                        >
+                                            {set.isPublic ? 'Tat public' : 'Share public'}
+                                        </Button>
+                                        {set.isPublic && set.shareToken ? (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-7 px-2 text-xs"
+                                                data-requires-auth="true"
+                                                onClick={async () => {
+                                                    const url = `${window.location.origin}/share/study-sets/${set.shareToken}`;
+                                                    await navigator.clipboard.writeText(url);
+                                                    toast.success('Da copy link share');
+                                                }}
+                                            >
+                                                Copy link
+                                            </Button>
+                                        ) : null}
+                                    </div>
+                                </div>
                             ))
                         )}
                     </div>

@@ -13,6 +13,9 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
   GatewayAuthGuard,
+  Permissions,
+  PermissionsGuard,
+  Public,
   ReqWithRequester,
   ZodValidationPipe,
   successResponse,
@@ -26,12 +29,14 @@ import {
   UpdateSetCardDto,
   ReviewSetCardDto,
   ClonePublicStudySetDto,
+  ShareStudySetDto,
   createStudySetSchema,
   updateStudySetSchema,
   createSetCardSchema,
   updateSetCardSchema,
   reviewSetCardSchema,
   clonePublicStudySetSchema,
+  shareStudySetSchema,
 } from '../../../../../academy/src/modules/study-set/study-set.dto';
 
 @Controller('api/academy')
@@ -41,6 +46,7 @@ export class StudySetController {
   ) {}
 
   @Get('study-set-catalogs')
+  @Public()
   async findPublicCatalogSets() {
     try {
       const items = await firstValueFrom(
@@ -52,7 +58,78 @@ export class StudySetController {
     }
   }
 
+  @Get('study-set-catalogs/admin')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.read')
+  async adminFindSystemSets() {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminFindSystemSets', {}),
+      );
+      return successResponse({ items });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Post('study-set-catalogs/admin')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.write')
+  async adminCreateSystemSet(
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(createStudySetSchema))
+    createDto: CreateStudySetDto,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminCreateSystemSet', {
+          requesterId: req.requester.sub,
+          data: createDto,
+        }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Patch('study-set-catalogs/admin/:id')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.write')
+  async adminUpdateSystemSet(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateStudySetSchema))
+    updateDto: UpdateStudySetDto,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminUpdateSystemSet', {
+          id,
+          data: updateDto,
+        }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Delete('study-set-catalogs/admin/:id')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.write')
+  async adminDeleteSystemSet(@Param('id') id: string) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminDeleteSystemSet', { id }),
+      );
+      return successResponse({ result });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
   @Get('study-set-catalogs/:id')
+  @Public()
   async findPublicCatalogSetById(@Param('id') id: string) {
     try {
       const item = await firstValueFrom(
@@ -122,6 +199,43 @@ export class StudySetController {
         }),
       );
       return successResponse({ items });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Patch('study-sets/:id/share')
+  @UseGuards(GatewayAuthGuard)
+  async updateSetSharing(
+    @Param('id') id: string,
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(shareStudySetSchema))
+    shareDto: ShareStudySetDto,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.updateSharing', {
+          id,
+          userId: req.requester.sub,
+          data: shareDto,
+        }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Get('study-sets/public/:token')
+  @Public()
+  async findPublicSharedSetByToken(@Param('token') token: string) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.findPublicSharedSetByToken', {
+          token,
+        }),
+      );
+      return successResponse({ item });
     } catch (error: any) {
       return errorResponse(error.message);
     }

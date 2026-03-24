@@ -8,8 +8,6 @@ import { AppSidebar } from '@/components/layout/app-sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
-import Link from 'next/link'
-import { Button } from '@workspace/ui/components/button'
 import { GuestActionGuard } from '@/components/auth/guest-action-guard'
 
 export default function DashboardLayout({
@@ -46,43 +44,24 @@ export default function DashboardLayout({
         )
     }
 
-    if (!isAuthenticated) {
-        return (
-            <div className="min-h-screen bg-background">
-                <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
-                    <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8">
-                        <Link href="/dashboard" className="text-sm font-semibold text-foreground">
-                            Torii Dashboard
-                        </Link>
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href="/register">Dang ky</Link>
-                            </Button>
-                            <Button size="sm" asChild>
-                                <Link href="/login">Dang nhap</Link>
-                            </Button>
-                        </div>
+    const layoutContent = (
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
+                <main className="flex-1 overflow-y-auto scrollbar-none">
+                    <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                        {children}
                     </div>
-                </header>
-                <main className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-                    <GuestActionGuard>{children}</GuestActionGuard>
                 </main>
-            </div>
-        )
+                <StreakWelcomeModal open={streakModalOpen} onOpenChange={setStreakModalOpen} />
+            </SidebarInset>
+        </SidebarProvider>
+    )
+
+    if (!isAuthenticated) {
+        return <GuestActionGuard>{layoutContent}</GuestActionGuard>
     }
 
-  return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
-            <main className="flex-1 overflow-y-auto scrollbar-none">
-          <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-            {children}
-          </div>
-        </main>
-        <StreakWelcomeModal open={streakModalOpen} onOpenChange={setStreakModalOpen} />
-      </SidebarInset>
-    </SidebarProvider>
-    )
+    return layoutContent
 }

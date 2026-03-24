@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add sharing functionality for study notes with public access">
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-set-review.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-set-review.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement sharing functionality for study sets with public access" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -364,38 +356,6 @@
       <workItem from="1774252089615" duration="38000" />
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
-    </task>
-    <task id="LOCAL-01002" summary="refactor(ui): improve roleplay API handling and update rewards page styling">
-      <option name="closed" value="true" />
-      <created>1773078642574</created>
-      <option name="number" value="01002" />
-      <option name="presentableId" value="LOCAL-01002" />
-      <option name="project" value="LOCAL" />
-      <updated>1773078642574</updated>
-    </task>
-    <task id="LOCAL-01003" summary="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting">
-      <option name="closed" value="true" />
-      <created>1773131963335</created>
-      <option name="number" value="01003" />
-      <option name="presentableId" value="LOCAL-01003" />
-      <option name="project" value="LOCAL" />
-      <updated>1773131963335</updated>
-    </task>
-    <task id="LOCAL-01004" summary="new">
-      <option name="closed" value="true" />
-      <created>1773133214280</created>
-      <option name="number" value="01004" />
-      <option name="presentableId" value="LOCAL-01004" />
-      <option name="project" value="LOCAL" />
-      <updated>1773133214280</updated>
-    </task>
-    <task id="LOCAL-01005" summary="new">
-      <option name="closed" value="true" />
-      <created>1773133281450</created>
-      <option name="number" value="01005" />
-      <option name="presentableId" value="LOCAL-01005" />
-      <option name="project" value="LOCAL" />
-      <updated>1773133281450</updated>
     </task>
     <task id="LOCAL-01006" summary="new">
       <option name="closed" value="true" />
@@ -757,7 +717,39 @@
       <option name="project" value="LOCAL" />
       <updated>1774356088630</updated>
     </task>
-    <option name="localTasksCounter" value="1051" />
+    <task id="LOCAL-01051" summary="feat: add sharing functionality for study notes with public access">
+      <option name="closed" value="true" />
+      <created>1774356765740</created>
+      <option name="number" value="01051" />
+      <option name="presentableId" value="LOCAL-01051" />
+      <option name="project" value="LOCAL" />
+      <updated>1774356765740</updated>
+    </task>
+    <task id="LOCAL-01052" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774357774477</created>
+      <option name="number" value="01052" />
+      <option name="presentableId" value="LOCAL-01052" />
+      <option name="project" value="LOCAL" />
+      <updated>1774357774477</updated>
+    </task>
+    <task id="LOCAL-01053" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774358983148</created>
+      <option name="number" value="01053" />
+      <option name="presentableId" value="LOCAL-01053" />
+      <option name="project" value="LOCAL" />
+      <updated>1774358983148</updated>
+    </task>
+    <task id="LOCAL-01054" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359371307</created>
+      <option name="number" value="01054" />
+      <option name="presentableId" value="LOCAL-01054" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359371307</updated>
+    </task>
+    <option name="localTasksCounter" value="1055" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,7 +784,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add Academy Achievement and Gamification Heatmap specifications" />
     <MESSAGE value="feat(academy): add class attendance module with CRUD operations and UI integration" />
     <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
     <MESSAGE value="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors." />
@@ -817,7 +808,8 @@
     <MESSAGE value="new flow" />
     <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
     <MESSAGE value="feat: add sharing functionality for study notes with public access" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add sharing functionality for study notes with public access" />
+    <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement sharing functionality for study sets with public access" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

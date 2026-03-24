@@ -8,6 +8,7 @@ import {
   UpdateSetCardDto,
   ReviewSetCardDto,
   ClonePublicStudySetDto,
+  ShareStudySetDto,
 } from './study-set.dto';
 
 @Controller()
@@ -34,6 +35,33 @@ export class StudySetHandler {
     return this.studySetService.findPublicCatalogSetById(payload.id);
   }
 
+  @MessagePattern('academy.study-set.adminFindSystemSets')
+  adminFindSystemSets() {
+    return this.studySetService.adminFindSystemSets();
+  }
+
+  @MessagePattern('academy.study-set.adminCreateSystemSet')
+  adminCreateSystemSet(
+    @Payload() payload: { requesterId: string; data: CreateStudySetDto },
+  ) {
+    return this.studySetService.adminCreateSystemSet(
+      payload.requesterId,
+      payload.data,
+    );
+  }
+
+  @MessagePattern('academy.study-set.adminUpdateSystemSet')
+  adminUpdateSystemSet(
+    @Payload() payload: { id: string; data: UpdateStudySetDto },
+  ) {
+    return this.studySetService.adminUpdateSystemSet(payload.id, payload.data);
+  }
+
+  @MessagePattern('academy.study-set.adminDeleteSystemSet')
+  adminDeleteSystemSet(@Payload() payload: { id: string }) {
+    return this.studySetService.adminDeleteSystemSet(payload.id);
+  }
+
   @MessagePattern('academy.study-set.clonePublicSetToUser')
   clonePublicSetToUser(
     @Payload() payload: { userId: string; data: ClonePublicStudySetDto },
@@ -47,6 +75,22 @@ export class StudySetHandler {
   @MessagePattern('academy.study-set.findSetById')
   findSetById(@Payload() payload: { id: string; userId: string }) {
     return this.studySetService.findSetById(payload.id, payload.userId);
+  }
+
+  @MessagePattern('academy.study-set.updateSharing')
+  updateSharing(
+    @Payload() payload: { id: string; userId: string; data: ShareStudySetDto },
+  ) {
+    return this.studySetService.updateSharing(
+      payload.id,
+      payload.userId,
+      payload.data,
+    );
+  }
+
+  @MessagePattern('academy.study-set.findPublicSharedSetByToken')
+  findPublicSharedSetByToken(@Payload() payload: { token: string }) {
+    return this.studySetService.findPublicSharedSetByToken(payload.token);
   }
 
   @MessagePattern('academy.study-set.updateSet')

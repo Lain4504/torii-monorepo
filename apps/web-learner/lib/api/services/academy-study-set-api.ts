@@ -3,7 +3,9 @@ import { apiClient } from "../api-client"
 import type {
     AcademyStudySetCreateDTO,
     AcademyStudySetUpdateDTO,
+    AcademyStudySetShareDTO,
     AcademyClonePublicStudySetDTO,
+    AcademyPublicStudySetModel,
     AcademySetCardCreateDTO,
     AcademySetCardUpdateDTO,
     AcademySetCardReviewDTO,
@@ -73,6 +75,21 @@ export const academyStudySetApi = {
             `/api/academy/study-sets/${id}`,
         )
         return res.data.data!.result
+    },
+
+    async updateSetSharing(id: string, payload: AcademyStudySetShareDTO) {
+        const res = await apiClient.patch<StandardApiResponse<{ item: AcademyStudySetModel }>>(
+            `/api/academy/study-sets/${id}/share`,
+            payload,
+        )
+        return res.data.data!.item
+    },
+
+    async findPublicSharedSetByToken(token: string) {
+        const res = await apiClient.get<StandardApiResponse<{ item: AcademyPublicStudySetModel }>>(
+            `/api/academy/study-sets/public/${token}`,
+        )
+        return res.data.data!.item
     },
 
     // Cards
@@ -207,6 +224,17 @@ export function useDeleteAcademyStudySet() {
     })
 }
 
+export function useShareAcademyStudySet() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: ({ id, payload }: { id: string; payload: AcademyStudySetShareDTO }) =>
+            academyStudySetApi.updateSetSharing(id, payload),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["academy-study-sets"] })
+        },
+    })
+}
+
 export function useCreateAcademySetCard() {
     const qc = useQueryClient()
     return useMutation({
@@ -274,6 +302,15 @@ export function useAcademyMatchGame(setId?: string, count?: number, options?: Om
         enabled: !!setId,
         queryKey: ["academy-study-mode-match", setId, count],
         queryFn: () => academyStudySetApi.getMatchGame(setId!, count),
+        ...options,
+    })
+}
+
+export function usePublicSharedStudySet(token?: string, options?: Omit<UseQueryOptions<AcademyPublicStudySetModel>, "queryKey" | "queryFn">) {
+    return useQuery({
+        enabled: !!token,
+        queryKey: ["academy-public-shared-study-set", token],
+        queryFn: () => academyStudySetApi.findPublicSharedSetByToken(token!),
         ...options,
     })
 }

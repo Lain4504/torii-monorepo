@@ -40,6 +40,11 @@ enum SrsState {
   MASTERED
 }
 
+enum StudySetSourceType {
+  USER
+  SYSTEM
+}
+
 // --- Commerce ---
 
 enum OrderStatus {
@@ -290,6 +295,8 @@ model StudySet {
   title       String  @db.VarChar(255)
   description String? @db.Text
   isPublic    Boolean @default(false) @map("is_public")
+  sourceType  StudySetSourceType @default(USER) @map("source_type")
+  shareToken  String? @unique @map("share_token") @db.VarChar(64)
   settings    Json?   @default("{}") @map("settings") @db.JsonB
   stats       Json?   @default("{\"cardCount\": 0, \"masteredCount\": 0}") @map("stats") @db.JsonB
 
@@ -300,6 +307,7 @@ model StudySet {
   setCards SetCard[]
 
   @@index([userId])
+  @@index([sourceType, isPublic])
   @@map("academy_study_sets")
 }
 

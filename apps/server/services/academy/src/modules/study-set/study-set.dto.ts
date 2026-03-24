@@ -33,3 +33,8 @@ export const clonePublicStudySetSchema = z.object({
   title: z.string().min(1).optional(),
 });
 export type ClonePublicStudySetDto = z.infer<typeof clonePublicStudySetSchema>;
+
+export const shareStudySetSchema = z.object({
+  isPublic: z.boolean(),
+});
+export type ShareStudySetDto = z.infer<typeof shareStudySetSchema>;

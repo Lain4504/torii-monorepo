@@ -36,7 +36,6 @@ import {
     TooltipTrigger,
 } from "@workspace/ui/components/tooltip"
 
-import { CommandMenu } from './command-menu'
 import { QuotaIndicator } from '../ai-sensei/quota-indicator'
 
 type DashboardHeaderProps = {
@@ -74,14 +73,9 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
             <div className="px-4 h-16 flex items-center justify-between gap-4">
-                {/* Left: Trigger & Brand (Mobile) */}
-                <div className="flex items-center gap-4">
+                {/* Left: Trigger */}
+                <div className="flex items-center gap-4 flex-1">
                     <SidebarTrigger />
-                </div>
-
-                {/* Center: Search - hiển thị trên mọi kích thước màn hình */}
-                <div className="flex-1 flex justify-end lg:justify-center min-w-0 max-w-xl">
-                    <CommandMenu />
                 </div>
 
                 {/* Right: Actions & Gamification */}

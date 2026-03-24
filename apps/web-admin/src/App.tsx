@@ -67,6 +67,7 @@ import JlptQuestionDetailPage from '@/routes/academy/jlpt/questions/[id]/page.ts
 import JlptTemplateDetailPage from '@/routes/academy/jlpt/templates/[id]/page.tsx'
 import JlptMondaiMasterPage from '@/routes/academy/jlpt/mondai/page.tsx'
 import JlptConfigPage from '@/routes/academy/jlpt/config/page.tsx'
+import StudySetCatalogsPage from '@/routes/academy/study-set-catalogs/page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -139,6 +140,7 @@ function App() {
                     <Route path="academy/jlpt/questions" element={<JlptQuestionsPage />} />
                     <Route path="academy/jlpt/questions/:id" element={<JlptQuestionDetailPage />} />
                     <Route path="academy/jlpt/mondai" element={<JlptMondaiMasterPage />} />
+                    <Route path="academy/study-set-catalogs" element={<StudySetCatalogsPage />} />
                   </Route>
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />

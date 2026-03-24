@@ -43,11 +43,10 @@ export function GuestActionGuard({ children }: GuestActionGuardProps) {
         const target = e.target as HTMLElement | null
         if (!target) return
 
-        if (target.closest('a[href]')) return
         if (target.closest('[data-guest-allow="true"]')) return
 
         const blockedElement = target.closest(
-            'button, [role="button"], input, textarea, select, [contenteditable="true"], form, [data-requires-auth="true"]'
+            'a[href], button, [role="button"], input, textarea, select, [contenteditable="true"], form, [data-requires-auth="true"]'
         )
 
         if (!blockedElement) return

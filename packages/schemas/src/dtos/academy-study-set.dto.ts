@@ -34,12 +34,21 @@ export const academyClonePublicStudySetDTOSchema = z.object({
 })
 export type AcademyClonePublicStudySetDTO = z.infer<typeof academyClonePublicStudySetDTOSchema>
 
+export const academyStudySetShareDTOSchema = z.object({
+    isPublic: z.boolean(),
+})
+export type AcademyStudySetShareDTO = z.infer<typeof academyStudySetShareDTOSchema>
+
+export type AcademyStudySetSourceType = "USER" | "SYSTEM"
+
 export type AcademyStudySetModel = {
     id: string
     userId: string
     title: string
     description?: string | null
     isPublic: boolean,
+    sourceType?: AcademyStudySetSourceType
+    shareToken?: string | null
     settings?: Record<string, any> | null
     createdAt: string
     updatedAt: string
@@ -47,6 +56,16 @@ export type AcademyStudySetModel = {
         setCards: number
     }
     isCatalog?: boolean
+}
+
+export type AcademyPublicStudySetModel = {
+    id: string
+    title: string
+    description?: string | null
+    shareToken?: string | null
+    setCards: AcademySetCardModel[]
+    createdAt: string
+    updatedAt: string
 }
 
 export type AcademySetCardModel = {
