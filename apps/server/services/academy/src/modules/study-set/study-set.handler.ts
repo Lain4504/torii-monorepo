@@ -7,6 +7,7 @@ import {
   CreateSetCardDto,
   UpdateSetCardDto,
   ReviewSetCardDto,
+  ClonePublicStudySetDto,
 } from './study-set.dto';
 
 @Controller()
@@ -21,6 +22,26 @@ export class StudySetHandler {
   @MessagePattern('academy.study-set.findAllSets')
   findAllSets(@Payload() payload: { userId: string }) {
     return this.studySetService.findAllSets(payload.userId);
+  }
+
+  @MessagePattern('academy.study-set.findPublicCatalogSets')
+  findPublicCatalogSets() {
+    return this.studySetService.findPublicCatalogSets();
+  }
+
+  @MessagePattern('academy.study-set.findPublicCatalogSetById')
+  findPublicCatalogSetById(@Payload() payload: { id: string }) {
+    return this.studySetService.findPublicCatalogSetById(payload.id);
+  }
+
+  @MessagePattern('academy.study-set.clonePublicSetToUser')
+  clonePublicSetToUser(
+    @Payload() payload: { userId: string; data: ClonePublicStudySetDto },
+  ) {
+    return this.studySetService.clonePublicSetToUser(
+      payload.userId,
+      payload.data,
+    );
   }
 
   @MessagePattern('academy.study-set.findSetById')

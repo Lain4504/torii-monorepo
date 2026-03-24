@@ -28,6 +28,12 @@ export const academySetCardReviewDTOSchema = z.object({
 })
 export type AcademySetCardReviewDTO = z.infer<typeof academySetCardReviewDTOSchema>
 
+export const academyClonePublicStudySetDTOSchema = z.object({
+    sourceSetId: z.string().uuid(),
+    title: z.string().min(1).optional(),
+})
+export type AcademyClonePublicStudySetDTO = z.infer<typeof academyClonePublicStudySetDTOSchema>
+
 export type AcademyStudySetModel = {
     id: string
     userId: string
@@ -40,6 +46,7 @@ export type AcademyStudySetModel = {
     _count?: {
         setCards: number
     }
+    isCatalog?: boolean
 }
 
 export type AcademySetCardModel = {

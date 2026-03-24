@@ -23,13 +23,14 @@ import {
 import { firstValueFrom } from 'rxjs';
 import {
   CreateStudyNoteDto,
+  ShareStudyNoteDto,
   UpdateStudyNoteDto,
   createStudyNoteSchema,
+  shareStudyNoteSchema,
   updateStudyNoteSchema,
 } from '../../../../../academy/src/modules/study-note/study-note.dto';
 
 @Controller('api/academy/study-notes')
-@UseGuards(GatewayAuthGuard)
 export class StudyNoteController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -72,6 +73,7 @@ export class StudyNoteController {
   }
 
   @Post()
+  @UseGuards(GatewayAuthGuard)
   async create(
     @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(createStudyNoteSchema))
@@ -98,6 +100,7 @@ export class StudyNoteController {
   }
 
   @Get()
+  @UseGuards(GatewayAuthGuard)
   async findAll(
     @Req() req: ReqWithRequester,
     @Query('lessonId') lessonId?: string,
@@ -122,7 +125,20 @@ export class StudyNoteController {
     }
   }
 
+  @Get('public/:token')
+  async findPublicByToken(@Param('token') token: string) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-note.findPublicByToken', { token }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
   @Get(':id')
+  @UseGuards(GatewayAuthGuard)
   async findOne(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const item = await firstValueFrom(
@@ -147,6 +163,7 @@ export class StudyNoteController {
   }
 
   @Patch(':id')
+  @UseGuards(GatewayAuthGuard)
   async update(
     @Param('id') id: string,
     @Req() req: ReqWithRequester,
@@ -183,6 +200,7 @@ export class StudyNoteController {
   }
 
   @Delete(':id')
+  @UseGuards(GatewayAuthGuard)
   async remove(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const requester = req.requester;
@@ -208,6 +226,28 @@ export class StudyNoteController {
       return successResponse({ result });
     } catch (error: any) {
       if (error instanceof ForbiddenException) throw error;
+      return errorResponse(error.message);
+    }
+  }
+
+  @Patch(':id/share')
+  @UseGuards(GatewayAuthGuard)
+  async updateSharing(
+    @Param('id') id: string,
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(shareStudyNoteSchema))
+    payload: ShareStudyNoteDto,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-note.updateSharing', {
+          id,
+          userId: req.requester.sub,
+          data: payload,
+        }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
       return errorResponse(error.message);
     }
   }

@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@ta
 import { apiClient } from "../api-client"
 import type {
     AcademyStudyNoteCreateDTO as CreateStudyNoteDto,
+    AcademyStudyNoteShareDTO as ShareStudyNoteDto,
+    AcademyPublicStudyNoteModel as PublicStudyNoteModel,
     AcademyStudyNoteUpdateDTO as UpdateStudyNoteDto,
     AcademyStudyNoteModel as StudyNoteModel,
     StandardApiResponse,
@@ -44,6 +46,21 @@ export const studyNoteApi = {
             `/api/academy/study-notes/${id}`,
         )
         return res.data.data!.result
+    },
+
+    async updateSharing(id: string, payload: ShareStudyNoteDto) {
+        const res = await apiClient.patch<StandardApiResponse<{ item: StudyNoteModel & { shareToken?: string | null; isPublic?: boolean } }>>(
+            `/api/academy/study-notes/${id}/share`,
+            payload,
+        )
+        return res.data.data!.item
+    },
+
+    async findPublicByToken(token: string) {
+        const res = await apiClient.get<StandardApiResponse<{ item: PublicStudyNoteModel }>>(
+            `/api/academy/study-notes/public/${token}`,
+        )
+        return res.data.data!.item
     },
 }
 
@@ -94,5 +111,25 @@ export function useDeleteStudyNote() {
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["study-notes"] })
         },
+    })
+}
+
+export function useShareStudyNote() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: ({ id, payload }: { id: string; payload: ShareStudyNoteDto }) =>
+            studyNoteApi.updateSharing(id, payload),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["study-notes"] })
+        },
+    })
+}
+
+export function usePublicStudyNote(token?: string, options?: Omit<UseQueryOptions<PublicStudyNoteModel>, "queryKey" | "queryFn">) {
+    return useQuery({
+        enabled: !!token,
+        queryKey: ["public-study-note", token],
+        queryFn: () => studyNoteApi.findPublicByToken(token!),
+        ...options,
     })
 }

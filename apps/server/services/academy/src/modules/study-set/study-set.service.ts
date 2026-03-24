@@ -7,6 +7,7 @@ import {
   CreateSetCardDto,
   UpdateSetCardDto,
   ReviewSetCardDto,
+  ClonePublicStudySetDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
 import { GamificationService } from '../gamification/gamification.service';
@@ -40,6 +41,81 @@ export class StudySetService {
         _count: { select: { setCards: true } },
       },
       orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async findPublicCatalogSets() {
+    return this.prisma.studySet.findMany({
+      where: { isPublic: true },
+      include: {
+        _count: { select: { setCards: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async findPublicCatalogSetById(id: string) {
+    const set = await this.prisma.studySet.findFirst({
+      where: { id, isPublic: true },
+      include: {
+        setCards: { orderBy: { createdAt: 'desc' } },
+        _count: { select: { setCards: true } },
+      },
+    });
+    if (!set) throw new NotFoundException('Public Study Set not found');
+    return set;
+  }
+
+  async clonePublicSetToUser(userId: string, data: ClonePublicStudySetDto) {
+    const source = await this.findPublicCatalogSetById(data.sourceSetId);
+
+    const existed = await this.prisma.studySet.findFirst({
+      where: {
+        userId,
+        settings: {
+          path: ['clonedFromSetId'],
+          equals: source.id,
+        },
+      },
+      include: { _count: { select: { setCards: true } } },
+    });
+    if (existed) return existed;
+
+    return this.prisma.$transaction(async (tx) => {
+      const clonedSet = await tx.studySet.create({
+        data: {
+          userId,
+          title: data.title || source.title,
+          description: source.description,
+          isPublic: false,
+          settings: {
+            clonedFromSetId: source.id,
+            sourceType: 'PUBLIC_CATALOG',
+          },
+        },
+        include: { _count: { select: { setCards: true } } },
+      });
+
+      if (source.setCards.length > 0) {
+        await tx.setCard.createMany({
+          data: source.setCards.map((card) => ({
+            studySetId: clonedSet.id,
+            term: card.term,
+            definition: card.definition,
+            hint: card.hint,
+            mediaUrl: card.mediaUrl,
+            languageDetails: card.languageDetails as any,
+            tags: card.tags,
+            sourceDocumentId: card.sourceDocumentId,
+            nextReviewAt: new Date(),
+          })),
+        });
+      }
+
+      return tx.studySet.findUniqueOrThrow({
+        where: { id: clonedSet.id },
+        include: { _count: { select: { setCards: true } } },
+      });
     });
   }
 
@@ -84,7 +160,6 @@ export class StudySetService {
       data: {
         ...data,
         studySetId: setId,
-        nextReviewAt: new Date(), // Due immediately
       },
     });
 
@@ -120,18 +195,36 @@ export class StudySetService {
 
   async getStudyCards(setId: string, userId: string) {
     await this.findSetById(setId, userId);
+    const allCards = await this.prisma.setCard.findMany({
+      where: { studySetId: setId },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (allCards.length === 0) return [];
 
-    // Fetch cards that are due for review (nextReviewAt <= now)
-    // Or new cards (never reviewed) -> they have default state/nextReviewAt
-    return this.prisma.setCard.findMany({
+    const progresses = await this.prisma.setCardSrsProgress.findMany({
       where: {
-        studySetId: setId,
-        nextReviewAt: { lte: new Date() },
-      },
-      orderBy: {
-        nextReviewAt: 'asc',
+        userId,
+        setCardId: { in: allCards.map((c) => c.id) },
       },
     });
+    const progressMap = new Map(progresses.map((p) => [p.setCardId, p]));
+    const now = new Date();
+
+    return allCards
+      .filter((card) => {
+        const progress = progressMap.get(card.id);
+        if (!progress) return true;
+        return progress.nextReviewAt <= now;
+      })
+      .map((card) => {
+        const progress = progressMap.get(card.id);
+        return {
+          ...card,
+          srsState: progress?.srsState ?? 'LEARNING',
+          interval: progress?.interval ?? 0,
+          nextReviewAt: progress?.nextReviewAt ?? card.createdAt,
+        };
+      });
   }
 
   async reviewCard(cardId: string, userId: string, data: ReviewSetCardDto) {
@@ -140,14 +233,34 @@ export class StudySetService {
     });
     if (!card) throw new NotFoundException('Card not found');
 
+    const existingProgress = await this.prisma.setCardSrsProgress.findUnique({
+      where: {
+        userId_setCardId: {
+          userId,
+          setCardId: card.id,
+        },
+      },
+    });
+
     const srsUpdates = calculateSrsInterval(
-      card.srsState as any,
-      card.interval,
+      (existingProgress?.srsState as any) ?? 'LEARNING',
+      existingProgress?.interval ?? 0,
       data.quality,
     );
-    const updated = await this.prisma.setCard.update({
-      where: { id: cardId },
-      data: {
+
+    const updatedProgress = await this.prisma.setCardSrsProgress.upsert({
+      where: {
+        userId_setCardId: {
+          userId,
+          setCardId: card.id,
+        },
+      },
+      create: {
+        userId,
+        setCardId: card.id,
+        ...srsUpdates,
+      },
+      update: {
         ...srsUpdates,
       },
     });
@@ -163,7 +276,12 @@ export class StudySetService {
         // Ignore gamification errors for core SRS flow
       });
 
-    return updated;
+    return {
+      ...card,
+      srsState: updatedProgress.srsState,
+      interval: updatedProgress.interval,
+      nextReviewAt: updatedProgress.nextReviewAt,
+    };
   }
 
   // --- Extra Study Modes ---
@@ -232,7 +350,7 @@ export class StudySetService {
   }
 
   async getMatchGame(setId: string, userId: string, count: number = 6) {
-    const set = await this.findSetById(setId, userId); // check exists/ownership
+    await this.findSetById(setId, userId); // check exists/ownership
     const cards = await this.prisma.setCard.findMany({
       where: { studySetId: setId },
     });

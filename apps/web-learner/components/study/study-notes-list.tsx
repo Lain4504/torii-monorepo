@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useStudyNotes, useDeleteStudyNote } from '@/lib/api/services/academy-study-note-api';
+import { useStudyNotes, useDeleteStudyNote, useShareStudyNote } from '@/lib/api/services/academy-study-note-api';
 import { useAcademyStudySets, useCreateAcademySetCard } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
@@ -9,13 +9,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Input } from '@workspace/ui/components/input';
-import { Trash2, PlusCircle, PenTool } from 'lucide-react';
+import { Trash2, PlusCircle, PenTool, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function StudyNotesList() {
     const { data: notes, isLoading: notesLoading } = useStudyNotes(); // Pass undefined to get all notes
     const { data: studySets } = useAcademyStudySets();
     const deleteNote = useDeleteStudyNote();
+    const shareNote = useShareStudyNote();
     const createCard = useCreateAcademySetCard();
 
     const [openConvertDialog, setOpenConvertDialog] = useState(false);
@@ -59,6 +60,31 @@ export function StudyNotesList() {
         }
     };
 
+    const handleShare = async (note: any) => {
+        try {
+            const item = await shareNote.mutateAsync({ id: note.id, payload: { isPublic: true } });
+            const token = (item as any)?.shareToken;
+            if (!token) {
+                toast.error('Khong tao duoc link chia se');
+                return;
+            }
+            const url = `${window.location.origin}/share/study-notes/${token}`;
+            await navigator.clipboard.writeText(url);
+            toast.success('Da sao chep link chia se');
+        } catch (e: any) {
+            toast.error(e.message || 'Loi chia se ghi chu');
+        }
+    };
+
+    const handleUnshare = async (note: any) => {
+        try {
+            await shareNote.mutateAsync({ id: note.id, payload: { isPublic: false } });
+            toast.success('Da tat chia se cong khai');
+        } catch (e: any) {
+            toast.error(e.message || 'Loi tat chia se');
+        }
+    };
+
     return (
         <div className="space-y-6">
             <p className="text-muted-foreground">
@@ -73,21 +99,37 @@ export function StudyNotesList() {
                 </div>
             ) : notes?.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {notes.map((note: any) => (
+                    {notes.map((note: any) => {
+                        const isPublic = !!(note?.metadata as any)?.isPublic;
+                        return (
                         <Card key={note.id} className="group hover:shadow-md transition-shadow flex flex-col h-full bg-card">
                             <CardContent className="flex-1 pt-6 text-sm text-foreground whitespace-pre-wrap leading-relaxed">
                                 {note.content}
+                                {isPublic ? (
+                                    <div className="mt-3 inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+                                        Dang cong khai
+                                    </div>
+                                ) : null}
                             </CardContent>
                             <CardFooter className="pt-4 border-t flex justify-between gap-2 bg-muted/20">
                                 <Button variant="default" size="sm" className="w-full flex-1" onClick={() => handleOpenConvert(note)}>
                                     <PlusCircle className="size-4 mr-2" /> Tạo thẻ
                                 </Button>
+                                <Button variant="outline" size="icon" className="shrink-0" onClick={() => handleShare(note)}>
+                                    <Share2 className="size-4" />
+                                </Button>
+                                {isPublic ? (
+                                    <Button variant="outline" size="sm" className="shrink-0" onClick={() => handleUnshare(note)}>
+                                        Tat cong khai
+                                    </Button>
+                                ) : null}
                                 <Button variant="outline" size="icon" className="shrink-0 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive" onClick={() => handleDelete(note.id)}>
                                     <Trash2 className="size-4" />
                                 </Button>
                             </CardFooter>
                         </Card>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="text-center py-20 bg-muted/30 rounded-2xl border border-dashed">

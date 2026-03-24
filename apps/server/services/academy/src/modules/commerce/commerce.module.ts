@@ -12,15 +12,9 @@ import { EnrollmentModule } from '../classroom/enrollment/enrollment.module';
 import { NatsClientModule } from '@server/shared';
 
 @Module({
-  imports: [
-    
-    EnrollmentModule,
-    
-    NatsClientModule,
-    QuotaModule,
-  ],
+  imports: [EnrollmentModule, NatsClientModule, QuotaModule],
   controllers: [OrderHandler, OrderListener, CouponHandler],
   providers: [OrderService, CouponService, PayOSService, CouponCronService],
-  exports: [OrderService,  CouponService, QuotaModule],
+  exports: [OrderService, CouponService, QuotaModule],
 })
 export class CommerceModule {}

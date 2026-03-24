@@ -12,3 +12,8 @@ export type CreateStudyNoteDto = z.infer<typeof createStudyNoteSchema>;
 export const updateStudyNoteSchema = createStudyNoteSchema.partial();
 
 export type UpdateStudyNoteDto = z.infer<typeof updateStudyNoteSchema>;
+
+export const shareStudyNoteSchema = z.object({
+  isPublic: z.boolean(),
+});
+export type ShareStudyNoteDto = z.infer<typeof shareStudyNoteSchema>;

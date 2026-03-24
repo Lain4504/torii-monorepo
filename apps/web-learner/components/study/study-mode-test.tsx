@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAcademyTestQuiz as useTestQuiz } from '@/lib/api/services/academy-study-set-api';
+import { useAppSelector } from '@/hooks/hooks';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import { StudyModeSelection } from './study-mode-selection';
@@ -21,9 +22,28 @@ interface Question {
 
 export function StudyModeTest({ setId }: { setId: string }) {
     const router = useRouter();
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
     const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
-    const { data: rawQuestions, isLoading, isError, refetch } = useTestQuiz(setId, 10);
+    const authQuiz = useTestQuiz(setId, 10, { enabled: isAuthenticated });
+    const rawQuestions = authQuiz.data;
+    const isLoading = authQuiz.isLoading;
+    const isError = authQuiz.isError;
+    const refetch = authQuiz.refetch;
+
+    if (!isAuthenticated) {
+        return (
+            <div className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+                    <h2 className="text-lg font-semibold">Can dang nhap de lam Trac nghiem</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Tai khoan guest chi duoc xem bo the ben ngoai, khong the vao mode hoc.
+                    </p>
+                    <Button data-requires-auth="true">Dang nhap de tiep tuc</Button>
+                </div>
+            </div>
+        );
+    }
 
     const quizData: QuizData | null = useMemo(() => {
         if (!rawQuestions) return null;
@@ -144,6 +164,7 @@ const TestResultScreen = ({
                     selectedSetId={setId}
                     selectedCount={result.maxScore}
                     activeMode="test"
+                    canAccessLearning={isAuthenticated}
                 />
             </div>
         </div>
@@ -195,6 +216,7 @@ const TestResultScreen = ({
                             selectedSetId={setId}
                             selectedCount={quizData.questions.length}
                             activeMode="test"
+                            canAccessLearning={isAuthenticated}
                         />
                     </div>
                 )}

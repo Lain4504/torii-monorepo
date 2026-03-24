@@ -39,7 +39,8 @@ export class ClassReviewListener {
         return;
       }
 
-      const targetName = enrollment.liveClass?.name || enrollment.vodPackage?.title || 'Unknown';
+      const targetName =
+        enrollment.liveClass?.name || enrollment.vodPackage?.title || 'Unknown';
       this.logger.log(
         `[CTA] User ${enrollment.user.email} has completed ${targetName}. Should send review CTA.`,
       );

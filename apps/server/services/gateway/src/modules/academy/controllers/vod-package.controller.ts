@@ -165,7 +165,10 @@ export class VodPackageController {
   @Permissions('academy.commerce.write')
   async approve(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.vod.update' }, { id, input: { status: 'PUBLISHED' } }),
+      this.nats.send(
+        { cmd: 'academy.vod.update' },
+        { id, input: { status: 'PUBLISHED' } },
+      ),
     );
     return successResponse(item);
   }
@@ -177,7 +180,10 @@ export class VodPackageController {
     @Body() body: { reason: string },
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.vod.update' }, { id, input: { status: 'DRAFT', rejectionReason: body.reason } }),
+      this.nats.send(
+        { cmd: 'academy.vod.update' },
+        { id, input: { status: 'DRAFT', rejectionReason: body.reason } },
+      ),
     );
     return successResponse(item);
   }

@@ -3,6 +3,7 @@ import { apiClient } from "../api-client"
 import type {
     AcademyStudySetCreateDTO,
     AcademyStudySetUpdateDTO,
+    AcademyClonePublicStudySetDTO,
     AcademySetCardCreateDTO,
     AcademySetCardUpdateDTO,
     AcademySetCardReviewDTO,
@@ -30,9 +31,31 @@ export const academyStudySetApi = {
         return res.data.data!.items
     },
 
+    async findPublicCatalogSets() {
+        const res = await apiClient.get<StandardApiResponse<{ items: AcademyStudySetModel[] }>>(
+            "/api/academy/study-set-catalogs",
+        )
+        return (res.data.data!.items || []).map((item) => ({ ...item, isCatalog: true }))
+    },
+
     async findSetById(id: string) {
         const res = await apiClient.get<StandardApiResponse<{ item: AcademyStudySetWithCards }>>(
             `/api/academy/study-sets/${id}`,
+        )
+        return res.data.data!.item
+    },
+
+    async findPublicCatalogSetById(id: string) {
+        const res = await apiClient.get<StandardApiResponse<{ item: AcademyStudySetWithCards }>>(
+            `/api/academy/study-set-catalogs/${id}`,
+        )
+        return { ...res.data.data!.item, isCatalog: true }
+    },
+
+    async clonePublicSet(payload: AcademyClonePublicStudySetDTO) {
+        const res = await apiClient.post<StandardApiResponse<{ item: AcademyStudySetModel }>>(
+            `/api/academy/study-set-catalogs/${payload.sourceSetId}/clone`,
+            { title: payload.title },
         )
         return res.data.data!.item
     },
@@ -119,6 +142,14 @@ export function useAcademyStudySets(options?: Omit<UseQueryOptions<AcademyStudyS
     })
 }
 
+export function usePublicCatalogStudySets(options?: Omit<UseQueryOptions<AcademyStudySetModel[]>, "queryKey" | "queryFn">) {
+    return useQuery({
+        queryKey: ["academy-public-study-set-catalogs"],
+        queryFn: academyStudySetApi.findPublicCatalogSets,
+        ...options,
+    })
+}
+
 export function useAcademyStudySet(id?: string, options?: Omit<UseQueryOptions<AcademyStudySetWithCards>, "queryKey" | "queryFn">) {
     return useQuery({
         enabled: !!id,
@@ -128,11 +159,31 @@ export function useAcademyStudySet(id?: string, options?: Omit<UseQueryOptions<A
     })
 }
 
+export function usePublicCatalogStudySet(id?: string, options?: Omit<UseQueryOptions<AcademyStudySetWithCards>, "queryKey" | "queryFn">) {
+    return useQuery({
+        enabled: !!id,
+        queryKey: ["academy-public-study-set-catalog", id],
+        queryFn: () => academyStudySetApi.findPublicCatalogSetById(id!),
+        ...options,
+    })
+}
+
 export function useCreateAcademyStudySet() {
     const qc = useQueryClient()
     return useMutation({
         mutationFn: academyStudySetApi.createSet,
         onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-study-sets"] }),
+    })
+}
+
+export function useClonePublicStudySet() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: academyStudySetApi.clonePublicSet,
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["academy-study-sets"] })
+            qc.invalidateQueries({ queryKey: ["academy-public-study-set-catalogs"] })
+        },
     })
 }
 
@@ -226,3 +277,4 @@ export function useAcademyMatchGame(setId?: string, count?: number, options?: Om
         ...options,
     })
 }
+

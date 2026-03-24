@@ -1,6 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { AcademyVodPackageCreateDTO, AcademyVodPackageUpdateDTO, AcademyVodPackageQueryDTO } from '@workspace/schemas';
+import {
+  AcademyVodPackageCreateDTO,
+  AcademyVodPackageUpdateDTO,
+  AcademyVodPackageQueryDTO,
+} from '@workspace/schemas';
 
 @Injectable()
 export class VodPackageService {
@@ -16,11 +24,15 @@ export class VodPackageService {
         { title: { contains: query.q, mode: 'insensitive' } },
       ];
     }
-    
+
     const [items, total] = await Promise.all([
       this.prisma.vodPackage.findMany({
         where,
-        include: { courseProfile: { select: { id: true, title: true, thumbnailUrl: true, level: true } } },
+        include: {
+          courseProfile: {
+            select: { id: true, title: true, thumbnailUrl: true, level: true },
+          },
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.vodPackage.count({ where }),
@@ -31,7 +43,9 @@ export class VodPackageService {
   async findById(id: string) {
     const item = await this.prisma.vodPackage.findUnique({
       where: { id },
-      include: { courseProfile: { include: { modules: { include: { lessons: true } } } } },
+      include: {
+        courseProfile: { include: { modules: { include: { lessons: true } } } },
+      },
     });
     if (!item) throw new NotFoundException('VOD Package not found');
     return item;
@@ -44,9 +58,10 @@ export class VodPackageService {
         code: data.code,
         title: data.title,
         price: data.price,
-        status: data.status as any ?? 'DRAFT',
+        status: (data.status as any) ?? 'DRAFT',
         rejectionReason: data.rejectionReason,
-        submittedForApprovalAt: data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
+        submittedForApprovalAt:
+          data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },
     });
   }
@@ -59,7 +74,9 @@ export class VodPackageService {
       });
       if (!pkg) throw new NotFoundException('VOD Package not found');
       if (pkg.courseProfile.status !== 'PUBLISHED') {
-        throw new BadRequestException('Hồ sơ nội dung (Course Profile) cần được xuất bản trước khi gửi duyệt hoặc xuất bản gói VOD');
+        throw new BadRequestException(
+          'Hồ sơ nội dung (Course Profile) cần được xuất bản trước khi gửi duyệt hoặc xuất bản gói VOD',
+        );
       }
     }
 
@@ -71,7 +88,8 @@ export class VodPackageService {
         price: data.price,
         status: data.status as any,
         rejectionReason: data.rejectionReason,
-        submittedForApprovalAt: data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
+        submittedForApprovalAt:
+          data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },
     });
   }

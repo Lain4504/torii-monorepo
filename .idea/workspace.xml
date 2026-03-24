@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: enhance landing page with guest preview and authentication flow">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/payment/cancel/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/payment/cancel/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/modern-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/modern-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add sharing functionality for study notes with public access">
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-set-review.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-set-review.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -360,38 +364,6 @@
       <workItem from="1774252089615" duration="38000" />
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
-    </task>
-    <task id="LOCAL-00998" summary="feat: update LiveKit configuration and add Core LMS implementation checklist">
-      <option name="closed" value="true" />
-      <created>1773019517082</created>
-      <option name="number" value="00998" />
-      <option name="presentableId" value="LOCAL-00998" />
-      <option name="project" value="LOCAL" />
-      <updated>1773019517082</updated>
-    </task>
-    <task id="LOCAL-00999" summary="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions">
-      <option name="closed" value="true" />
-      <created>1773027681481</created>
-      <option name="number" value="00999" />
-      <option name="presentableId" value="LOCAL-00999" />
-      <option name="project" value="LOCAL" />
-      <updated>1773027681481</updated>
-    </task>
-    <task id="LOCAL-01000" summary="fix quiz flow and improve user experience">
-      <option name="closed" value="true" />
-      <created>1773077884637</created>
-      <option name="number" value="01000" />
-      <option name="presentableId" value="LOCAL-01000" />
-      <option name="project" value="LOCAL" />
-      <updated>1773077884637</updated>
-    </task>
-    <task id="LOCAL-01001" summary="fix quiz flow and improve user experience">
-      <option name="closed" value="true" />
-      <created>1773078138652</created>
-      <option name="number" value="01001" />
-      <option name="presentableId" value="LOCAL-01001" />
-      <option name="project" value="LOCAL" />
-      <updated>1773078138652</updated>
     </task>
     <task id="LOCAL-01002" summary="refactor(ui): improve roleplay API handling and update rewards page styling">
       <option name="closed" value="true" />
@@ -753,7 +725,39 @@
       <option name="project" value="LOCAL" />
       <updated>1774353858693</updated>
     </task>
-    <option name="localTasksCounter" value="1047" />
+    <task id="LOCAL-01047" summary="feat: enhance landing page with guest preview and authentication flow">
+      <option name="closed" value="true" />
+      <created>1774354298717</created>
+      <option name="number" value="01047" />
+      <option name="presentableId" value="LOCAL-01047" />
+      <option name="project" value="LOCAL" />
+      <updated>1774354298717</updated>
+    </task>
+    <task id="LOCAL-01048" summary="feat: enhance landing page with guest preview and authentication flow">
+      <option name="closed" value="true" />
+      <created>1774354372941</created>
+      <option name="number" value="01048" />
+      <option name="presentableId" value="LOCAL-01048" />
+      <option name="project" value="LOCAL" />
+      <updated>1774354372941</updated>
+    </task>
+    <task id="LOCAL-01049" summary="feat: add sharing functionality for study notes with public access">
+      <option name="closed" value="true" />
+      <created>1774355383735</created>
+      <option name="number" value="01049" />
+      <option name="presentableId" value="LOCAL-01049" />
+      <option name="project" value="LOCAL" />
+      <updated>1774355383735</updated>
+    </task>
+    <task id="LOCAL-01050" summary="feat: add sharing functionality for study notes with public access">
+      <option name="closed" value="true" />
+      <created>1774356088630</created>
+      <option name="number" value="01050" />
+      <option name="presentableId" value="LOCAL-01050" />
+      <option name="project" value="LOCAL" />
+      <updated>1774356088630</updated>
+    </task>
+    <option name="localTasksCounter" value="1051" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -788,7 +792,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: merge logic to new academy service (#268)" />
     <MESSAGE value="feat: add Academy Achievement and Gamification Heatmap specifications" />
     <MESSAGE value="feat(academy): add class attendance module with CRUD operations and UI integration" />
     <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
@@ -813,7 +816,8 @@
     <MESSAGE value="feat: add JLPT mondai management functionality and update navigation" />
     <MESSAGE value="new flow" />
     <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: enhance landing page with guest preview and authentication flow" />
+    <MESSAGE value="feat: add sharing functionality for study notes with public access" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add sharing functionality for study notes with public access" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

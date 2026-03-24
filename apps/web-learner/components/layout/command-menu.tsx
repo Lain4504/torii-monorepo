@@ -93,7 +93,7 @@ export function CommandMenu() {
                             <BrainCircuit className="mr-2 h-4 w-4" />
                             <span>Kho Thẻ Nhớ</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/notes"))}>
+                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/study-notes"))}>
                             <FileText className="mr-2 h-4 w-4" />
                             <span>Sổ tay từ vựng</span>
                         </CommandItem>

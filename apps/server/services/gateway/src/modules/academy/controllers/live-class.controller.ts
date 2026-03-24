@@ -66,13 +66,19 @@ export class LiveClassController {
     const q = query as any;
     if (q.mode === 'VOD') {
       const items = await firstValueFrom(
-        this.nats.send({ cmd: 'academy.vod.findAll' }, { ...query, status: 'PUBLISHED' }),
+        this.nats.send(
+          { cmd: 'academy.vod.findAll' },
+          { ...query, status: 'PUBLISHED' },
+        ),
       );
       return successResponse(items);
     }
 
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveClass.findAll' }, { ...query, status: 'OPENING' }),
+      this.nats.send(
+        { cmd: 'academy.liveClass.findAll' },
+        { ...query, status: 'OPENING' },
+      ),
     );
     return successResponse(items);
   }
@@ -187,7 +193,10 @@ export class LiveClassController {
   @Permissions('academy.delivery.read')
   async findAssignments(@Param('id', new ParseUUIDPipe()) id: string) {
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveClass.findAssignments' }, { classId: id }),
+      this.nats.send(
+        { cmd: 'academy.liveClass.findAssignments' },
+        { classId: id },
+      ),
     );
     return successResponse({ items });
   }

@@ -11,6 +11,11 @@ export type AcademyStudyNoteCreateDTO = z.infer<typeof academyStudyNoteCreateDTO
 export const academyStudyNoteUpdateDTOSchema = academyStudyNoteCreateDTOSchema.partial()
 export type AcademyStudyNoteUpdateDTO = z.infer<typeof academyStudyNoteUpdateDTOSchema>
 
+export const academyStudyNoteShareDTOSchema = z.object({
+    isPublic: z.boolean(),
+})
+export type AcademyStudyNoteShareDTO = z.infer<typeof academyStudyNoteShareDTOSchema>
+
 export type AcademyStudyNoteModel = {
     id: string
     userId: string
@@ -18,6 +23,14 @@ export type AcademyStudyNoteModel = {
     content: string
     tags: string[]
     metadata?: Record<string, any> | null
+    createdAt: string
+    updatedAt: string
+}
+
+export type AcademyPublicStudyNoteModel = {
+    id: string
+    content: string
+    tags: string[]
     createdAt: string
     updatedAt: string
 }

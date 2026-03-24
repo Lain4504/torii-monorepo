@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAcademyMatchGame as useMatchGame, useAcademyTestQuiz as useTestQuiz } from '@/lib/api/services/academy-study-set-api';
+import { useAcademyMatchGame as useMatchGame } from '@/lib/api/services/academy-study-set-api';
+import { useAppSelector } from '@/hooks/hooks';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, RefreshCw, Trophy, Timer, X } from 'lucide-react';
@@ -18,6 +19,7 @@ interface MatchItem {
 
 export function StudyModeMatch({ setId }: { setId: string }) {
     const router = useRouter();
+    const { isAuthenticated } = useAppSelector((state) => state.auth);
     const [items, setItems] = useState<MatchItem[]>([]);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [matches, setMatches] = useState<string[]>([]); // Array of original card IDs that are matched
@@ -26,7 +28,25 @@ export function StudyModeMatch({ setId }: { setId: string }) {
     const [gameFinished, setGameFinished] = useState(false);
     const [wrongSelection, setWrongSelection] = useState<string | null>(null);
 
-    const { data: pairs, isLoading, isError, refetch } = useMatchGame(setId, 6);
+    const authMatch = useMatchGame(setId, 6, { enabled: isAuthenticated });
+    const pairs = authMatch.data;
+    const isLoading = authMatch.isLoading;
+    const isError = authMatch.isError;
+    const refetch = authMatch.refetch;
+
+    if (!isAuthenticated) {
+        return (
+            <div className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+                    <h2 className="text-lg font-semibold">Can dang nhap de choi Match</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Tai khoan guest chi duoc xem bo the ben ngoai, khong the vao mode hoc.
+                    </p>
+                    <Button data-requires-auth="true">Dang nhap de tiep tuc</Button>
+                </div>
+            </div>
+        );
+    }
 
     const initGame = useCallback(() => {
         if (!pairs) return;
@@ -147,6 +167,7 @@ export function StudyModeMatch({ setId }: { setId: string }) {
                     selectedSetId={setId}
                     selectedCount={pairs.length}
                     activeMode="match"
+                    canAccessLearning={isAuthenticated}
                 />
             </div>
         );
@@ -204,6 +225,7 @@ export function StudyModeMatch({ setId }: { setId: string }) {
                 selectedSetId={setId}
                 selectedCount={pairs.length}
                 activeMode="match"
+                canAccessLearning={isAuthenticated}
             />
         </div>
     );

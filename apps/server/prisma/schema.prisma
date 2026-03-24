@@ -316,23 +316,38 @@ model SetCard {
 
   sourceDocumentId String? @map("source_document_id") @db.Uuid
 
-  srsState     SrsState @default(LEARNING) @map("srs_state")
-  nextReviewAt DateTime @default(now()) @map("next_review_at")
-  interval     Int      @default(0) @map("interval")
-  easeFactor   Decimal  @default(2.5) @map("ease_factor") @db.Decimal(4, 2)
-
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   studySet       StudySet   @relation(fields: [studySetId], references: [id], onDelete: Cascade)
   sourceNote     StudyNote? @relation(fields: [sourceNoteId], references: [id], onDelete: SetNull)
   sourceDocument FileAsset? @relation("SetCardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  srsProgresses  SetCardSrsProgress[]
 
   @@index([studySetId])
   @@index([sourceNoteId])
   @@index([sourceDocumentId])
-  @@index([srsState])
   @@map("academy_set_cards")
+}
+
+model SetCardSrsProgress {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  setCardId    String   @map("set_card_id") @db.Uuid
+  srsState     SrsState @default(LEARNING) @map("srs_state")
+  nextReviewAt DateTime @default(now()) @map("next_review_at")
+  interval     Int      @default(0) @map("interval")
+  easeFactor   Decimal  @default(2.5) @map("ease_factor") @db.Decimal(4, 2)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  setCard SetCard @relation(fields: [setCardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, setCardId])
+  @@index([userId, nextReviewAt])
+  @@index([setCardId])
+  @@map("academy_set_card_srs_progress")
 }
 
 // ==================================================
@@ -392,6 +407,7 @@ model User {
   // History Relations
   gamificationHistories           GamificationHistory[]
   studyNotes                      StudyNote[] // New Study Notes
+  setCardSrsProgresses            SetCardSrsProgress[]
   blogs                           Blog[]
   // Academy V2 relations
   academyEnrollments              Enrollment[]

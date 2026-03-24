@@ -38,7 +38,10 @@ export class ClassReviewService {
   /**
    * List published reviews for a cohort.
    */
-  async listCourseReviewsByCohort(cohortId: string, query: ClassReviewQueryDto) {
+  async listCourseReviewsByCohort(
+    cohortId: string,
+    query: ClassReviewQueryDto,
+  ) {
     const status = query.status ?? 'PUBLISHED';
 
     const [items, total] = await this.prisma.$transaction([
@@ -75,7 +78,10 @@ export class ClassReviewService {
   /**
    * List published reviews for a VOD package.
    */
-  async listCourseReviewsByVodPackage(vodPackageId: string, query: ClassReviewQueryDto) {
+  async listCourseReviewsByVodPackage(
+    vodPackageId: string,
+    query: ClassReviewQueryDto,
+  ) {
     const status = query.status ?? 'PUBLISHED';
 
     const [items, total] = await this.prisma.$transaction([
@@ -176,10 +182,7 @@ export class ClassReviewService {
    * Validates: enrollment ownership, class match, eligibility status,
    * uniqueness per enrollment.
    */
-  async createReview(
-    userId: string,
-    dto: ClassReviewCreateDto,
-  ) {
+  async createReview(userId: string, dto: ClassReviewCreateDto) {
     // 1. Fetch enrollment
     const enrollment = await this.prisma.enrollment.findUnique({
       where: { id: dto.enrollmentId },
@@ -200,7 +203,9 @@ export class ClassReviewService {
     const targetId = (cohortId || vodPackageId) as string;
 
     if (!targetId) {
-      throw new BadRequestException('Enrollment is not attached to a cohort or vodPackage');
+      throw new BadRequestException(
+        'Enrollment is not attached to a cohort or vodPackage',
+      );
     }
 
     // 2b. Validate eligibility

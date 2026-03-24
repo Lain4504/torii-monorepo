@@ -481,7 +481,7 @@ function AuthenticatedDashboardPage() {
                     <section className="grid grid-cols-2 gap-3" data-purpose="quick-links">
                         {[
                             { href: '/dashboard/flashcards', icon: '📇', label: 'Thẻ ghi nhớ' },
-                            { href: '/dashboard/notes', icon: '📝', label: 'Ghi chú' },
+                            { href: '/dashboard/study-notes', icon: '📝', label: 'Ghi chú' },
                             { href: '/dashboard/achievements', icon: '🏅', label: 'Thành tựu' },
                             { href: '/dashboard/certificates', icon: '🎓', label: 'Chứng chỉ' },
                             { href: '/dashboard/schedule', icon: '📅', label: 'Lịch học' },

@@ -25,23 +25,75 @@ import {
   CreateSetCardDto,
   UpdateSetCardDto,
   ReviewSetCardDto,
+  ClonePublicStudySetDto,
   createStudySetSchema,
   updateStudySetSchema,
   createSetCardSchema,
   updateSetCardSchema,
   reviewSetCardSchema,
+  clonePublicStudySetSchema,
 } from '../../../../../academy/src/modules/study-set/study-set.dto';
 
 @Controller('api/academy')
-@UseGuards(GatewayAuthGuard)
 export class StudySetController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
 
+  @Get('study-set-catalogs')
+  async findPublicCatalogSets() {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send('academy.study-set.findPublicCatalogSets', {}),
+      );
+      return successResponse({ items });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Get('study-set-catalogs/:id')
+  async findPublicCatalogSetById(@Param('id') id: string) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.findPublicCatalogSetById', {
+          id,
+        }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Post('study-set-catalogs/:id/clone')
+  @UseGuards(GatewayAuthGuard)
+  async clonePublicSetToUser(
+    @Param('id') sourceSetId: string,
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(clonePublicStudySetSchema.partial()))
+    payload: Partial<ClonePublicStudySetDto>,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.clonePublicSetToUser', {
+          userId: req.requester.sub,
+          data: {
+            sourceSetId,
+            title: payload.title,
+          },
+        }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
   // --- Study Set Endpoints ---
 
   @Post('study-sets')
+  @UseGuards(GatewayAuthGuard)
   async createSet(
     @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(createStudySetSchema))
@@ -61,6 +113,7 @@ export class StudySetController {
   }
 
   @Get('study-sets')
+  @UseGuards(GatewayAuthGuard)
   async findAllSets(@Req() req: ReqWithRequester) {
     try {
       const items = await firstValueFrom(
@@ -75,6 +128,7 @@ export class StudySetController {
   }
 
   @Get('study-sets/:id')
+  @UseGuards(GatewayAuthGuard)
   async findSetById(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const item = await firstValueFrom(
@@ -90,6 +144,7 @@ export class StudySetController {
   }
 
   @Patch('study-sets/:id')
+  @UseGuards(GatewayAuthGuard)
   async updateSet(
     @Param('id') id: string,
     @Req() req: ReqWithRequester,
@@ -111,6 +166,7 @@ export class StudySetController {
   }
 
   @Delete('study-sets/:id')
+  @UseGuards(GatewayAuthGuard)
   async deleteSet(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
@@ -128,6 +184,7 @@ export class StudySetController {
   // --- Set Card Endpoints ---
 
   @Post('study-sets/:id/cards')
+  @UseGuards(GatewayAuthGuard)
   async createCard(
     @Param('id') setId: string,
     @Req() req: ReqWithRequester,
@@ -149,6 +206,7 @@ export class StudySetController {
   }
 
   @Patch('set-cards/:id')
+  @UseGuards(GatewayAuthGuard)
   async updateCard(
     @Param('id') cardId: string,
     @Req() req: ReqWithRequester,
@@ -170,6 +228,7 @@ export class StudySetController {
   }
 
   @Delete('set-cards/:id')
+  @UseGuards(GatewayAuthGuard)
   async deleteCard(@Param('id') cardId: string, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
@@ -187,6 +246,7 @@ export class StudySetController {
   // --- Study Flow / SRS Endpoints ---
 
   @Get('study-sets/:id/study')
+  @UseGuards(GatewayAuthGuard)
   async getStudyCards(
     @Param('id') setId: string,
     @Req() req: ReqWithRequester,
@@ -205,6 +265,7 @@ export class StudySetController {
   }
 
   @Post('set-cards/:id/review')
+  @UseGuards(GatewayAuthGuard)
   async reviewCard(
     @Param('id') cardId: string,
     @Req() req: ReqWithRequester,
@@ -228,6 +289,7 @@ export class StudySetController {
   // --- Extra Study Modes Endpoints ---
 
   @Get('study-sets/:id/study-modes/test')
+  @UseGuards(GatewayAuthGuard)
   async getTestQuiz(
     @Param('id') setId: string,
     @Req() req: ReqWithRequester,
@@ -254,6 +316,7 @@ export class StudySetController {
   }
 
   @Get('study-sets/:id/study-modes/match')
+  @UseGuards(GatewayAuthGuard)
   async getMatchGame(
     @Param('id') setId: string,
     @Req() req: ReqWithRequester,

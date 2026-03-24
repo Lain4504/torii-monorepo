@@ -1,13 +1,21 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { LiveScheduleService } from '../live-schedule/live-schedule.service';
-import { AcademyLiveClassCreateDTO, AcademyLiveClassUpdateDTO, AcademyLiveClassQueryDTO } from '@workspace/schemas';
+import {
+  AcademyLiveClassCreateDTO,
+  AcademyLiveClassUpdateDTO,
+  AcademyLiveClassQueryDTO,
+} from '@workspace/schemas';
 
 @Injectable()
 export class LiveClassService {
   constructor(
     private prisma: PrismaService,
-    private liveSchedules: LiveScheduleService
+    private liveSchedules: LiveScheduleService,
   ) {}
 
   async findAll(query: AcademyLiveClassQueryDTO) {
@@ -34,15 +42,25 @@ export class LiveClassService {
         { name: { contains: query.q, mode: 'insensitive' } },
       ];
     }
-    
+
     const [items, total] = await Promise.all([
       this.prisma.liveClass.findMany({
         where,
         include: {
-          instructor: { select: { id: true, displayName: true, avatarUrl: true } },
+          instructor: {
+            select: { id: true, displayName: true, avatarUrl: true },
+          },
           cohort: {
             include: {
-              courseProfile: { select: { id: true, title: true, thumbnailUrl: true, level: true, description: true } },
+              courseProfile: {
+                select: {
+                  id: true,
+                  title: true,
+                  thumbnailUrl: true,
+                  level: true,
+                  description: true,
+                },
+              },
             },
           },
           liveSchedules: true,
@@ -58,8 +76,10 @@ export class LiveClassService {
   async findById(id: string) {
     const item = await this.prisma.liveClass.findUnique({
       where: { id },
-      include: { 
-        instructor: { select: { id: true, displayName: true, avatarUrl: true } },
+      include: {
+        instructor: {
+          select: { id: true, displayName: true, avatarUrl: true },
+        },
         cohort: {
           include: {
             courseProfile: {
@@ -70,7 +90,7 @@ export class LiveClassService {
           },
         },
         liveSchedules: true,
-        _count: { select: { enrollments: true } }
+        _count: { select: { enrollments: true } },
       },
     });
     if (!item) throw new NotFoundException('Live Class not found');
@@ -85,7 +105,7 @@ export class LiveClassService {
         name: data.name,
         instructorId: data.instructorId,
         maxStudents: data.maxStudents,
-        status: data.status as any ?? 'DRAFT',
+        status: (data.status as any) ?? 'DRAFT',
       },
     });
   }
@@ -108,9 +128,13 @@ export class LiveClassService {
   }
 
   private async validateForPublishing(id: string) {
-    const schedules = await this.prisma.liveSchedule.count({ where: { liveClassId: id } });
+    const schedules = await this.prisma.liveSchedule.count({
+      where: { liveClassId: id },
+    });
     if (schedules === 0) {
-      throw new BadRequestException('Lớp LIVE cần có ít nhất 1 lịch học tuần trước khi xuất bản');
+      throw new BadRequestException(
+        'Lớp LIVE cần có ít nhất 1 lịch học tuần trước khi xuất bản',
+      );
     }
   }
 
