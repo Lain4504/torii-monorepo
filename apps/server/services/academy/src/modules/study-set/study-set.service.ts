@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import { ActivityType } from '@prisma/generated';
+import { ActivityType, Prisma } from '@prisma/generated';
 import {
   CreateStudySetDto,
   UpdateStudySetDto,
@@ -112,7 +112,10 @@ export class StudySetService {
             definition: card.definition,
             hint: card.hint,
             mediaUrl: card.mediaUrl,
-            languageDetails: card.languageDetails,
+            languageDetails:
+              card.languageDetails === null
+                ? Prisma.JsonNull
+                : (card.languageDetails as Prisma.InputJsonValue),
             tags: card.tags,
             sourceDocumentId: card.sourceDocumentId,
           })),

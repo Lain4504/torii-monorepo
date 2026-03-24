@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: remove study note functionality and related components" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -357,70 +359,6 @@
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
     </task>
-    <task id="LOCAL-01011" summary="new">
-      <option name="closed" value="true" />
-      <created>1773137760547</created>
-      <option name="number" value="01011" />
-      <option name="presentableId" value="LOCAL-01011" />
-      <option name="project" value="LOCAL" />
-      <updated>1773137760547</updated>
-    </task>
-    <task id="LOCAL-01012" summary="style (#281)">
-      <option name="closed" value="true" />
-      <created>1773264779424</created>
-      <option name="number" value="01012" />
-      <option name="presentableId" value="LOCAL-01012" />
-      <option name="project" value="LOCAL" />
-      <updated>1773264779424</updated>
-    </task>
-    <task id="LOCAL-01013" summary="feat: add content field to academy lessons and update layout styles">
-      <option name="closed" value="true" />
-      <created>1773498751058</created>
-      <option name="number" value="01013" />
-      <option name="presentableId" value="LOCAL-01013" />
-      <option name="project" value="LOCAL" />
-      <updated>1773498751058</updated>
-    </task>
-    <task id="LOCAL-01014" summary="fix conflict">
-      <option name="closed" value="true" />
-      <created>1773499998120</created>
-      <option name="number" value="01014" />
-      <option name="presentableId" value="LOCAL-01014" />
-      <option name="project" value="LOCAL" />
-      <updated>1773499998120</updated>
-    </task>
-    <task id="LOCAL-01015" summary="fix conflict">
-      <option name="closed" value="true" />
-      <created>1773501001299</created>
-      <option name="number" value="01015" />
-      <option name="presentableId" value="LOCAL-01015" />
-      <option name="project" value="LOCAL" />
-      <updated>1773501001299</updated>
-    </task>
-    <task id="LOCAL-01016" summary="refactor: update live schedule service and class attendance UI for improved functionality and user experience">
-      <option name="closed" value="true" />
-      <created>1773794050861</created>
-      <option name="number" value="01016" />
-      <option name="presentableId" value="LOCAL-01016" />
-      <option name="project" value="LOCAL" />
-      <updated>1773794050862</updated>
-    </task>
-    <task id="LOCAL-01017" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773850013270</created>
-      <option name="number" value="01017" />
-      <option name="presentableId" value="LOCAL-01017" />
-      <option name="project" value="LOCAL" />
-      <updated>1773850013270</updated>
-    </task>
-    <task id="LOCAL-01018" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773850163582</created>
-      <option name="number" value="01018" />
-      <option name="presentableId" value="LOCAL-01018" />
-      <option name="project" value="LOCAL" />
-      <updated>1773850163582</updated>
-    </task>
     <task id="LOCAL-01019" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
       <option name="closed" value="true" />
       <created>1773852748478</created>
@@ -749,7 +687,71 @@
       <option name="project" value="LOCAL" />
       <updated>1774360722210</updated>
     </task>
-    <option name="localTasksCounter" value="1060" />
+    <task id="LOCAL-01060" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774361818141</created>
+      <option name="number" value="01060" />
+      <option name="presentableId" value="LOCAL-01060" />
+      <option name="project" value="LOCAL" />
+      <updated>1774361818141</updated>
+    </task>
+    <task id="LOCAL-01061" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774362939370</created>
+      <option name="number" value="01061" />
+      <option name="presentableId" value="LOCAL-01061" />
+      <option name="project" value="LOCAL" />
+      <updated>1774362939370</updated>
+    </task>
+    <task id="LOCAL-01062" summary="update">
+      <option name="closed" value="true" />
+      <created>1774364061695</created>
+      <option name="number" value="01062" />
+      <option name="presentableId" value="LOCAL-01062" />
+      <option name="project" value="LOCAL" />
+      <updated>1774364061695</updated>
+    </task>
+    <task id="LOCAL-01063" summary="update">
+      <option name="closed" value="true" />
+      <created>1774364860064</created>
+      <option name="number" value="01063" />
+      <option name="presentableId" value="LOCAL-01063" />
+      <option name="project" value="LOCAL" />
+      <updated>1774364860064</updated>
+    </task>
+    <task id="LOCAL-01064" summary="update">
+      <option name="closed" value="true" />
+      <created>1774365775475</created>
+      <option name="number" value="01064" />
+      <option name="presentableId" value="LOCAL-01064" />
+      <option name="project" value="LOCAL" />
+      <updated>1774365775475</updated>
+    </task>
+    <task id="LOCAL-01065" summary="update">
+      <option name="closed" value="true" />
+      <created>1774366227494</created>
+      <option name="number" value="01065" />
+      <option name="presentableId" value="LOCAL-01065" />
+      <option name="project" value="LOCAL" />
+      <updated>1774366227494</updated>
+    </task>
+    <task id="LOCAL-01066" summary="update">
+      <option name="closed" value="true" />
+      <created>1774366561492</created>
+      <option name="number" value="01066" />
+      <option name="presentableId" value="LOCAL-01066" />
+      <option name="project" value="LOCAL" />
+      <updated>1774366561492</updated>
+    </task>
+    <task id="LOCAL-01067" summary="update">
+      <option name="closed" value="true" />
+      <created>1774366576316</created>
+      <option name="number" value="01067" />
+      <option name="presentableId" value="LOCAL-01067" />
+      <option name="project" value="LOCAL" />
+      <updated>1774366576316</updated>
+    </task>
+    <option name="localTasksCounter" value="1068" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -784,7 +786,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
     <MESSAGE value="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors." />
     <MESSAGE value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
     <MESSAGE value="feat: update LiveKit configuration and add Core LMS implementation checklist" />
@@ -809,7 +810,8 @@
     <MESSAGE value="feat: add sharing functionality for study notes with public access" />
     <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
     <MESSAGE value="feat: remove study note functionality and related components" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: remove study note functionality and related components" />
+    <MESSAGE value="update" />
+    <option name="LAST_COMMIT_MESSAGE" value="update" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

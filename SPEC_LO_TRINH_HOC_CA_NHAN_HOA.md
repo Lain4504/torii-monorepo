@@ -1377,7 +1377,256 @@ CREATE TABLE recovery_plan_actions (
 
 ---
 
-## 9) Phụ lục: JSON schema mẫu cho một số object
+## 9) Gamification V2 (đập đi xây lại)
+
+Phần này định nghĩa lại toàn bộ luồng gamification theo mục tiêu: tăng động lực học tập thực chất, giữ nhịp học dài hạn, và bám chặt lộ trình cá nhân hóa.
+
+## 9.1 Nguyên tắc thiết kế
+
+1. Gamification phải phục vụ học thật, không tối ưu cho spam hoạt động.
+2. Điểm thưởng phải gắn với `plan task` và tiến bộ năng lực.
+3. Mọi cơ chế cạnh tranh phải đi kèm fairness và anti-cheat.
+4. Người học luôn thấy mục tiêu ngắn hạn rõ ràng (hôm nay cần làm gì).
+5. Thưởng phải có vòng lặp ngắn (daily dopamine) và vòng lặp dài (mastery milestones).
+
+## 9.2 Trải nghiệm người dùng cốt lõi (Duolingo-like nhưng phù hợp Nhật ngữ)
+
+### A. Daily Loop (vòng lặp hằng ngày)
+
+1. Mở app -> nhận `Daily Mission` (3 nhiệm vụ cá nhân hóa theo roadmap).
+2. Hoàn thành nhiệm vụ -> nhận XP/points + streak progress.
+3. Thấy ngay tiến độ league, trạng thái streak, reward gần đạt.
+4. Nếu bỏ 1 ngày -> cơ chế freeze/recovery mission để quay lại nhịp.
+
+### B. Weekly Loop
+
+1. Cạnh tranh theo league tuần (Bronze/Silver/Gold/...).
+2. Cuối tuần tổng kết:
+   - XP tuần.
+   - Tỷ lệ hoàn thành nhiệm vụ roadmap.
+   - Mức tăng skill snapshot (kanji/grammar/listening/...).
+3. Thăng/hạ hạng theo performance thực + anti-abuse rules.
+
+### C. Mastery Loop
+
+1. Milestone theo năng lực thực (JLPT readiness, listening score, SRS retention).
+2. Badge/achievement mở khóa theo năng lực và consistency.
+3. Phần thưởng có giá trị sử dụng thật trong hệ sinh thái (coupon, AI credits, unlock content).
+
+## 9.3 Luồng gamification mới (business flow)
+
+### 1) Activity Ingestion Layer (chuẩn hóa nguồn sự kiện)
+
+Tất cả hoạt động học phải đi qua pipeline thống nhất:
+
+- `VOD_LESSON_COMPLETED`
+- `LIVE_SESSION_ATTENDED`
+- `ASSIGNMENT_SUBMITTED`
+- `ASSIGNMENT_GRADED`
+- `SRS_REVIEW_COMPLETED`
+- `JLPT_MOCK_SUBMITTED`
+- `AI_PRACTICE_COMPLETED`
+- `DAILY_LOGIN`
+
+Mỗi event bắt buộc có:
+- `user_id`, `event_id`, `event_time`, `source_type`, `source_ref`, `quality_signal`.
+
+### 2) Gamification Rule Engine
+
+Rule Engine quyết định:
+- Award XP/points bao nhiêu.
+- Có tính vào streak hay không.
+- Có tiến triển mission/challenge hay không.
+- Có đủ điều kiện mở achievement hay không.
+
+Rule phải dựa trên:
+- `task_type`, `task_priority` (`must/should/could`).
+- `plan adherence` (đúng/đi chệch roadmap).
+- `quality score` (điểm quiz/mock/chấm assignment).
+- `difficulty`, `time_spent_validated`, `anti-cheat flags`.
+
+### 3) Reward Ledger
+
+Mọi biến động thưởng phải ghi ledger chuẩn:
+- `currency`: XP | POINT | GEM (nếu mở rộng).
+- `type`: EARN | REDEEM | BONUS | PENALTY | EXPIRATION.
+- `reason_code`: PLAN_TASK_COMPLETED, STREAK_BONUS, LEAGUE_PROMOTION...
+- `metadata`: tham chiếu plan/task/enrollment.
+
+### 4) Motivation Orchestrator
+
+Dịch trạng thái học thành can thiệp động lực:
+- Sắp vỡ streak -> push “rescue task 8 phút”.
+- At-risk -> hạ yêu cầu mission, ưu tiên win nhỏ.
+- On-track -> mở challenge tăng tốc.
+
+## 9.4 Thiết kế cơ chế game cụ thể
+
+### 9.4.1 XP & Level
+
+- `XP` phản ánh effort + chất lượng.
+- Level up theo đường cong tăng dần (không tuyến tính).
+- XP cho task roadmap `must` cao hơn `should/could`.
+- Bonus chuỗi hoàn thành task đúng deadline.
+
+### 9.4.2 Points Economy
+
+- `POINT` dùng để đổi quà/coupon/AI credits.
+- Nguồn POINT chính: milestone thật, challenge tuần, achievement.
+- Tránh cho points quá dễ ở hoạt động spam (quiz click nhanh).
+
+### 9.4.3 Streak 2.0
+
+- Streak chỉ tăng khi có “valid learning activity”.
+- Có `freeze` giới hạn để tránh abuse.
+- Có recovery mission nếu vừa đứt streak.
+- Streak bonus nên theo bậc (3-7-14-30 ngày).
+
+### 9.4.4 League & Leaderboard
+
+- League theo tuần, dùng `weekly_xp_valid`.
+- Chia theo bracket để tránh chênh lệch quá lớn.
+- Promotion/demotion rõ ràng và minh bạch.
+- Leaderboard cần filter anti-cheat trước khi xếp hạng.
+
+### 9.4.5 Mission/Challenge
+
+- Daily mission lấy từ roadmap task + điểm yếu skill.
+- Weekly challenge: ví dụ “3 buổi live đúng giờ + 2 bài SRS retention > 80%”.
+- Challenge phải có reward rõ, thời gian rõ, điều kiện pass rõ.
+
+### 9.4.6 Achievement 2.0
+
+- Thành tựu theo:
+  - consistency (streak/attendance),
+  - mastery (JLPT/skill snapshot),
+  - output (assignment quality),
+  - cộng đồng (review/comment chất lượng, nếu cần).
+- Achievement có tier (bronze/silver/gold) để kéo dài động lực.
+
+## 9.5 Refactor kiến trúc backend (khuyến nghị mạnh)
+
+Tách module gamification hiện tại thành 4 module rõ ràng:
+
+1. `gamification-activity-ingestor`
+2. `gamification-rule-engine`
+3. `gamification-ledger-service`
+4. `gamification-achievement-service`
+
+Và thêm 1 module phối hợp:
+5. `motivation-orchestrator` (kết nối roadmap status + can thiệp gamification)
+
+## 9.6 Đề xuất data model mới (hard cutover, không backward compatibility)
+
+Áp dụng chiến lược **đập đi xây lại hoàn toàn** trên code mới nhất:
+
+- Không giữ backward compatibility cho API/DB gamification cũ.
+- Không cần adapter/backfill để tương thích nghiệp vụ cũ.
+- Endpoint cũ bị ngắt sau khi Go-live v2.
+- Dữ liệu lịch sử cần thiết cho UX chỉ giữ ở lớp streak log mới.
+
+Data model v2:
+
+1. `game_profiles` (state tổng: level/xp/points/streak/freeze_count)
+2. `game_ledger_entries` (sổ cái thưởng/phạt)
+3. `game_coupon_rewards` (catalog phần thưởng quy đổi coupon)
+4. `game_coupon_redemptions` (lịch sử đổi coupon theo user)
+5. `game_missions` (định nghĩa mission theo template)
+6. `game_user_missions` (trạng thái mission theo user/ngày/tuần)
+7. `game_leagues` (định nghĩa giải đấu)
+8. `game_league_memberships` (membership theo tuần)
+9. `game_achievements` + `game_user_achievements`
+10. `game_streak_logs` (lịch sử ngày hoạt động để user xem lại chuỗi học)
+
+Không dùng bảng `game_anti_cheat_flags` ở pha này để giữ hệ thống gọn nhẹ.
+
+### 9.6.1 Mô tả nhanh 2 bảng coupon mới
+
+- `game_coupon_rewards`
+  - Mục đích: định nghĩa các gói đổi coupon, thay thế `PointReward` cũ.
+  - Field gợi ý: `id`, `code`, `title`, `description`, `cost_points`, `discount_type`, `discount_value`, `max_discount_amount`, `min_order_value`, `expires_in_days`, `is_active`, `created_at`, `updated_at`.
+
+- `game_coupon_redemptions`
+  - Mục đích: lưu lịch sử user đổi coupon để audit và hiển thị lịch sử redeem.
+  - Field gợi ý: `id`, `user_id`, `reward_id`, `ledger_entry_id`, `coupon_id`, `coupon_code`, `cost_points`, `status` (`CREATED|USED|EXPIRED|CANCELLED`), `redeemed_at`, `used_at`, `expires_at`, `idempotency_key`, `metadata`.
+
+## 9.7 Rule gợi ý cho thưởng (MVP v2)
+
+- `VOD_LESSON_COMPLETED`: 20 XP + 1 điểm base; +bonus nếu đúng roadmap task must.
+- `LIVE_SESSION_ATTENDED`: 40 XP + 2 điểm; +bonus punctuality.
+- `SRS_REVIEW_COMPLETED`: XP theo số card valid + retention.
+- `JLPT_MOCK_SUBMITTED`: thưởng theo completion + scaled score delta.
+- `AI_PRACTICE_COMPLETED`: thưởng theo quality rubric (không chỉ số lượt).
+- `DAILY_LOGIN`: chỉ là trigger nhẹ, không là nguồn điểm chính.
+
+Giới hạn anti-spam:
+- cap theo activity/day.
+- diminishing return khi lặp hoạt động giống nhau.
+- dedup theo object (`lessonId`, `sessionId`, `attemptId`, `missionId`).
+
+## 9.8 Integrity rules (không dùng bảng anti-cheat riêng)
+
+1. Kiểm tra thời lượng tối thiểu hợp lệ trước khi công nhận completion.
+2. Dedup event theo `idempotency_key` + `source_ref`.
+3. Giới hạn cap thưởng theo ngày/loại activity.
+4. Chỉ chấp nhận event có `source_ref` hợp lệ và có entitlement.
+
+## 9.9 API contract mới cho gamification v2
+
+### Endpoint learner
+
+- `GET /api/v2/game/profile`
+- `GET /api/v2/game/daily-missions`
+- `POST /api/v2/game/missions/{mission_id}/claim`
+- `GET /api/v2/game/leaderboard?league=weekly`
+- `GET /api/v2/game/achievements`
+- `GET /api/v2/game/ledger?limit=50`
+- `GET /api/v2/game/coupon-rewards`
+- `POST /api/v2/game/coupon-rewards/{reward_id}/redeem`
+- `GET /api/v2/game/coupon-redemptions?status=CREATED|USED|EXPIRED`
+
+### Endpoint system/internal
+
+- `POST /internal/game/ingest-activity`
+- `POST /internal/game/recompute-user/{user_id}`
+- `POST /internal/game/redemptions/reconcile`
+
+## 9.10 Kế hoạch triển khai (đập đi xây lại)
+
+### Phase 1 - Core rewrite (2-3 sprint)
+- Viết lại ingestion + rule engine + ledger.
+- Mở Daily Mission + XP/points/streak 2.0.
+- Dựng `game_streak_logs` để hiển thị lịch sử ngày học cho user.
+
+### Phase 2 - Engagement (2 sprint)
+- League/leaderboard mới.
+- Achievement 2.0.
+- Reward shop chuẩn hóa.
+
+### Phase 3 - Optimization (liên tục)
+- A/B test nhiệm vụ.
+- Cá nhân hóa reward theo phân khúc.
+- Tối ưu fairness bằng rule config (không thêm bảng anti-cheat riêng).
+
+## 9.12 Chính sách cutover v2 (bắt buộc)
+
+1. Tắt toàn bộ endpoint gamification v1 ngay khi release v2.
+2. Toàn bộ write chỉ đi qua `/api/v2/game/*` và `/internal/game/*`.
+3. Không maintain song song 2 rule engine.
+4. `game_streak_logs` là nguồn sự thật duy nhất cho lịch sử hoạt động theo ngày.
+
+## 9.11 KPI riêng cho gamification
+
+- D7 retention tăng.
+- % user hoàn thành daily mission >= 1.
+- Streak median tăng và ổn định.
+- % user on-track roadmap tăng.
+- Tỷ lệ spam activity giảm.
+- Conversion reward (đổi quà hợp lệ) tăng.
+
+---
+
+## 10) Phụ lục: JSON schema mẫu cho một số object
 
 ### 9.1 Roadmap object
 

@@ -101,10 +101,6 @@ export function CommandMenu() {
                             <Bot className="mr-2 h-4 w-4" />
                             <span>Chat với AI</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/assessment"))}>
-                            <Award className="mr-2 h-4 w-4" />
-                            <span>Đánh giá & Luyện tập</span>
-                        </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/roleplay"))}>
                             <MessagesSquare className="mr-2 h-4 w-4" />
                             <span>Hội thoại nhập vai</span>

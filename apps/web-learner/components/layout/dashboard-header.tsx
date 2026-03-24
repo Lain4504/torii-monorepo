@@ -82,8 +82,12 @@ export function DashboardHeader({ onOpenStreakModal, isGuest = false }: Dashboar
                 {isGuest ? (
                     <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                         <ModeToggle />
-                        <Button asChild size="sm">
-                            <Link href="/login">Tham gia ngay</Link>
+                        <Button
+                            size="sm"
+                            data-guest-allow="true"
+                            onClick={() => router.push('/login')}
+                        >
+                            Tham gia ngay
                         </Button>
                     </div>
                 ) : (

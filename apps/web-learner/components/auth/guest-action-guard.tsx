@@ -36,6 +36,15 @@ export function GuestActionGuard({ children }: GuestActionGuardProps) {
         const target = e.target as HTMLElement | null
         if (!target) return
 
+        const anchor = target.closest('a[href]') as HTMLAnchorElement | null
+        const href = anchor?.getAttribute('href') || ''
+        const isAuthNavigation =
+            href.startsWith('/login') ||
+            href.startsWith('/register') ||
+            href.startsWith('/auth/login') ||
+            href.startsWith('/auth/register')
+
+        if (isAuthNavigation) return
         if (target.closest('[data-guest-allow="true"]')) return
 
         const blockedElement = target.closest(

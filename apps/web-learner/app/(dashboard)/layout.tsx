@@ -62,7 +62,9 @@ export default function DashboardLayout({
         </SidebarProvider>
     )
 
-    if (!isAuthenticated && pathname !== '/dashboard') {
+    const isGuestDashboardHome = pathname === '/dashboard' || pathname === '/dashboard/'
+
+    if (!isAuthenticated && !isGuestDashboardHome) {
         return <GuestActionGuard>{layoutContent}</GuestActionGuard>
     }
 
