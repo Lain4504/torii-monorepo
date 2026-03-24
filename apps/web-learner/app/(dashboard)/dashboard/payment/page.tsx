@@ -8,6 +8,7 @@ import {
     Eye,
     Filter,
     RotateCcw,
+    CreditCard,
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
@@ -36,10 +37,11 @@ import {
     PaginationPrevious,
 } from "@workspace/ui/components/pagination"
 import { cn } from '@workspace/ui/lib/utils'
-import { useOrders, useOrder } from '@/lib/api/services/order-api'
+import { useOrders, useOrder, useRepayOrder } from '@/lib/api/services/order-api'
 import { ComponentLoading } from '@workspace/ui/components/component-loading'
 import { Separator } from '@workspace/ui/components/separator'
 import { formatDateTime, isWithinGracePeriod, formatCurrency } from '@/utils/format-utils'
+import { toast } from 'sonner'
 import {
     Table,
     TableBody,
@@ -79,6 +81,18 @@ export default function PaymentHistoryPage() {
     })
 
     const { data: orderDetails, isLoading: isLoadingDetails } = useOrder(selectedOrderId || '')
+    const repayMutation = useRepayOrder()
+
+    const handleRepay = async (orderId: string) => {
+        try {
+            const result = await repayMutation.mutateAsync(orderId);
+            if (result.paymentUrl) {
+                window.location.href = result.paymentUrl;
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Không thể thực hiện thanh toán lại');
+        }
+    };
 
     const orders = data?.data || []
     const meta = {
@@ -320,15 +334,29 @@ export default function PaymentHistoryPage() {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground border-border/60"
-                                                            onClick={() => handleViewDetail(order.id)}
-                                                        >
-                                                            <Eye className="w-4 h-4" />
-                                                        </Button>
-                                                    </TableCell>
+                                                         <div className="flex justify-end gap-2">
+                                                            {order.status === 'PENDING' && isWithinGracePeriod(order.createdAt, 15) && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="h-8 px-2 rounded-lg text-primary hover:text-primary hover:bg-primary/5 border-primary/20 flex items-center gap-2"
+                                                                    onClick={() => handleRepay(order.id)}
+                                                                    disabled={repayMutation.isPending}
+                                                                >
+                                                                    <CreditCard className="w-3.5 h-3.5" />
+                                                                    <span className="text-xs font-bold">Thanh toán</span>
+                                                                </Button>
+                                                            )}
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground border-border/60"
+                                                                onClick={() => handleViewDetail(order.id)}
+                                                            >
+                                                                <Eye className="w-4 h-4" />
+                                                            </Button>
+                                                         </div>
+                                                     </TableCell>
                                                 </TableRow>
                                             )
                                         }) : (
@@ -516,17 +544,13 @@ export default function PaymentHistoryPage() {
                                 </div>
                             </div>
 
-                            {orderDetails.status === 'pending' && isWithinGracePeriod(orderDetails.createdAt, 30) && (
+                            {orderDetails.status === 'PENDING' && isWithinGracePeriod(orderDetails.createdAt, 15) && (
                                 <Button
                                     className="w-full h-11 rounded-xl font-bold shadow-sm"
-                                    onClick={() => {
-                                        const checkoutUrl = orderDetails.metadata?.checkoutUrl;
-                                        if (checkoutUrl) {
-                                            window.location.href = checkoutUrl;
-                                        }
-                                    }}
+                                    onClick={() => handleRepay(orderDetails.id)}
+                                    disabled={repayMutation.isPending}
                                 >
-                                    Tiếp tục đến trang thanh toán
+                                    {repayMutation.isPending ? 'Đang tạo link thanh toán...' : 'Tiếp tục đến trang thanh toán'}
                                 </Button>
                             )}
 
