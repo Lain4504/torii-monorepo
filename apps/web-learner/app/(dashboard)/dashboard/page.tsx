@@ -9,7 +9,7 @@ import { useMySchedule } from '@/lib/api/services/academy-live-session-api';
 import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
+import { BookOpen, Clock, Calendar, Video, BookMarked, FileText, Award, GraduationCap, BarChart3 } from 'lucide-react';
 import { LiveSessionStatus } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
@@ -320,6 +320,51 @@ export default function DashboardClientPage() {
                             </div>
                         </section>
                     )}
+                    {/* Recent Activity (Moved from bottom to fit on the left of quick links) */}
+                    <section className="bg-card p-5 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-base font-bold">Hoạt động gần đây</h3>
+                            <Link href="/dashboard/history" className="text-xs text-primary font-bold hover:underline">Xem tất cả</Link>
+                        </div>
+
+                        {recentHistory.length === 0 ? (
+                            <div className="text-center py-8">
+                                <Clock className="size-8 text-muted-foreground/30 mx-auto mb-2" />
+                                <p className="text-muted-foreground text-xs">Chưa có hoạt động học tập nào.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="text-[10px] text-muted-foreground uppercase font-bold border-b border-border">
+                                            <th className="pb-3 px-2">Bài học</th>
+                                            <th className="pb-3 px-2">Khóa học</th>
+                                            <th className="pb-3 px-2">Tiến độ</th>
+                                            <th className="pb-3 px-2 text-right">Ngày thực hiện</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="text-xs">
+                                        {recentHistory.map((item: any) => (
+                                            <tr key={item.id} className="border-b last:border-0 border-border hover:bg-muted/50 transition-colors">
+                                                <td className="py-3 px-2 font-bold">
+                                                    <Link href={`/courses/${item.classId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[180px] block">
+                                                        {item.lessonTitle}
+                                                    </Link>
+                                                </td>
+                                                <td className="py-3 px-2 text-muted-foreground">
+                                                    <span className="line-clamp-1 max-w-[120px]">{item.courseTitle}</span>
+                                                </td>
+                                                <td className="py-3 px-2 text-muted-foreground">{item.progressPercent}%</td>
+                                                <td className="py-3 px-2 text-muted-foreground text-right whitespace-nowrap">
+                                                    {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi })}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </section>
                 </main>
 
                 {/* Sidebar */}
@@ -379,12 +424,12 @@ export default function DashboardClientPage() {
                     {/* Quick Links Grid */}
                     <section className="grid grid-cols-2 gap-3" data-purpose="quick-links">
                         {[
-                            { href: '/dashboard/flashcards', icon: '📇', label: 'Thẻ ghi nhớ' },
-                            { href: '/dashboard/notes', icon: '📝', label: 'Ghi chú' },
+                            { href: '/dashboard/study-sets', icon: '📇', label: 'Thẻ ghi nhớ' },
+                            { href: '/dashboard/rewards', icon: '🎁', label: 'Quà tặng' },
                             { href: '/dashboard/achievements', icon: '🏅', label: 'Thành tựu' },
                             { href: '/dashboard/certificates', icon: '🎓', label: 'Chứng chỉ' },
                             { href: '/dashboard/schedule', icon: '📅', label: 'Lịch học' },
-                            { href: '/analytics', icon: '📊', label: 'Thống kê' },
+                            { href: '/dashboard/analytics', icon: '📊', label: 'Thống kê' },
                         ].map(({ href, icon, label }) => (
                             <Link
                                 key={href}
@@ -398,51 +443,6 @@ export default function DashboardClientPage() {
                     </section>
                 </aside>
             </div>
-
-            {/* Recent Activity */}
-            <section className="bg-card p-6 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-bold">Hoạt động gần đây</h3>
-                    <Link href="/dashboard/history" className="text-sm text-primary font-bold hover:underline">Xem tất cả</Link>
-                </div>
-
-                {recentHistory.length === 0 ? (
-                    <div className="text-center py-10">
-                        <Clock className="size-10 text-muted-foreground/30 mx-auto mb-3" />
-                        <p className="text-muted-foreground text-sm">Chưa có hoạt động học tập nào.</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="text-[10px] text-muted-foreground uppercase font-bold border-b border-border">
-                                    <th className="pb-4 font-bold">Bài học</th>
-                                    <th className="pb-4 font-bold">Khóa học</th>
-                                    <th className="pb-4 font-bold">Thời gian học</th>
-                                    <th className="pb-4 font-bold text-right">Ngày thực hiện</th>
-                                </tr>
-                            </thead>
-                            <tbody className="text-sm">
-                                {recentHistory.map((item: any) => (
-                                    <tr key={item.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                                        <td className="py-4 font-bold">
-                                            <Link href={`/courses/${item.classId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[220px] block">
-                                                {item.lessonTitle}
-                                            </Link>
-                                        </td>
-                                        <td className="py-4 text-muted-foreground line-clamp-1 max-w-[160px]">{item.courseTitle}</td>
-                                        <td className="py-4 text-muted-foreground">{item.progressPercent}%</td>
-                                        <td className="py-4 text-muted-foreground text-right whitespace-nowrap">
-                                            {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi })}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </section>
-
             <StreakWelcomeModal />
         </div>
     );
