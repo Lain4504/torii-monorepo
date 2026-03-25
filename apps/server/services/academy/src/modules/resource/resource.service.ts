@@ -193,7 +193,7 @@ export class ResourceService {
             where: {
                 folderId,
                 status: 'ACTIVE',
-                visibility: 'PUBLIC',
+                visibility: { in: ['PUBLIC', 'ENROLLED_ONLY'] },
             },
             include: {
                 fileAsset: true,
@@ -344,9 +344,12 @@ export class ResourceService {
             }
         }
 
-        // SPEC: Resource must be PUBLIC for learners
-        if (resource.visibility !== 'PUBLIC') {
+        // SPEC: Resource must be PUBLIC or ENROLLED_ONLY for learners
+        if (resource.visibility === 'PRIVATE') {
             throw new ForbiddenException('This resource is hidden');
+        }
+        if (resource.visibility === 'ENROLLED_ONLY' && resource.folder.liveClassId) {
+            // enrollment check already done above for class folders
         }
 
         let downloadUrl = resource.fileAsset?.fileUrl;

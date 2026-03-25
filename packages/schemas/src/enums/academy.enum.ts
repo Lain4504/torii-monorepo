@@ -12,7 +12,9 @@ export enum RefundStatus {
 
 export enum AcademyFolderType {
     LIVE_CLASS_SHARED = 'LIVE_CLASS_SHARED',
+    GENERAL = 'GENERAL',
     SHARED = 'SHARED',
+    PRIVATE = 'PRIVATE',
 }
 
 export enum AcademyFolderOwnerType {
