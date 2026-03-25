@@ -39,8 +39,13 @@ export const academyLearningProgressApi = {
      * Get progress detail for a specific class
      */
     getClassProgress: async (classId: string): Promise<any> => {
-        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/live-classes/${classId}/progress`);
-        return response.data.data!;
+        try {
+            const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/live-classes/${classId}/progress`);
+            return response.data.data!;
+        } catch {
+            // Graceful fallback if progress endpoint is missing or fails
+            return { modules: [], lessons: [] };
+        }
     },
 
     /**

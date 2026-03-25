@@ -48,6 +48,8 @@ export const commentResponseDTOSchema: z.ZodType<any> = commentSchema.extend({
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
+    authorRoleLabel: z.enum(['Torii Support', 'Giảng viên', 'Học viên']).optional(),
+    isOfficialReply: z.boolean().optional(),
     replyCount: z.number().optional().default(0),
     likeCount: z.number().optional().default(0),
     isLiked: z.boolean().optional().default(false),
