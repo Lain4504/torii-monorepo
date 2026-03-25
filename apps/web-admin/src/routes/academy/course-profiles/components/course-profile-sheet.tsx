@@ -52,9 +52,10 @@ interface CourseProfileSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   profile?: AcademyCourseProfile | null
+  onSuccessCreate?: (id: string) => void
 }
 
-export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfileSheetProps) {
+export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreate }: CourseProfileSheetProps) {
   const isEditing = !!profile
   const createMutation = useCreateAcademyCourseProfile()
   const updateMutation = useUpdateAcademyCourseProfile()
@@ -113,7 +114,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         })
         toast.success("Cập nhật hồ sơ khóa học thành công")
       } else {
-        await createMutation.mutateAsync({
+        const newProfile = await createMutation.mutateAsync({
           code: payload.code,
           title: payload.title,
           description: payload.description,
@@ -121,10 +122,13 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
           thumbnailUrl: payload.thumbnailUrl,
         })
         toast.success("Tạo hồ sơ khóa học thành công")
+        onOpenChange(false)
+        if (onSuccessCreate) {
+          onSuccessCreate(newProfile.id)
+        }
       }
-      onOpenChange(false)
     } catch (error: any) {
-      toast.error(error.message || "Đã xảy ra lỗi")
+      toast.error(error?.response?.data?.message || error.message || "Đã xảy ra lỗi")
     }
   }
 

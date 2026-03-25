@@ -2,10 +2,11 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, Search, Eye, Pencil } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Rocket } from 'lucide-react';
 import {
-  useAcademyLiveClasses,
-  type AcademyLiveClass,
+    useAcademyLiveClasses,
+    usePublishClassDirectly,
+    type AcademyLiveClass,
 } from '@/lib/api/services/academy-live-classes';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Input } from '@workspace/ui/components/input';
@@ -23,6 +24,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
 import { UserRole, isStaffBranchRole } from "@workspace/schemas";
+import { toast } from 'sonner';
 
 import {
     Dialog,
@@ -42,7 +44,7 @@ export default function LiveClassesPage() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<AcademyLiveClass | null>(null);
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyLiveClass | null>(null);
-    
+
     // Filters
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
@@ -54,6 +56,17 @@ export default function LiveClassesPage() {
         instructorId: isLecturer ? user?.id : undefined,
         status: statusFilter || undefined,
     });
+
+    const publishMutation = usePublishClassDirectly();
+
+    const handlePublish = async (id: string) => {
+        try {
+            await publishMutation.mutateAsync(id);
+            toast.success("Lớp học đã được công khai thành công");
+        } catch (error: any) {
+            toast.error(error?.userMessage || "Lỗi khi công khai lớp học");
+        }
+    };
 
     const handleCreate = () => {
         setSelectedClass(null);
@@ -118,8 +131,8 @@ export default function LiveClassesPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Select 
-                            value={statusFilter || "all"} 
+                        <Select
+                            value={statusFilter || "all"}
                             onValueChange={(val) => setStatusFilter(val === "all" ? undefined : val)}
                         >
                             <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 p-1 rounded-lg">
@@ -136,9 +149,9 @@ export default function LiveClassesPage() {
                         </Select>
 
                         {statusFilter && (
-                            <Button 
-                                variant="ghost" 
-                                size="sm" 
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => {
                                     setStatusFilter(undefined);
                                 }}
@@ -230,23 +243,34 @@ export default function LiveClassesPage() {
                                         </TableCell>
                                         <TableCell className="text-right pr-6">
                                             <div className="flex items-center justify-end gap-1.5">
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm" 
-                                                    className="h-8 gap-2 border-sky-500/30 text-sky-700 bg-transparent hover:bg-sky-50 hover:text-sky-700" 
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-2 border-sky-500/30 text-sky-700 bg-transparent hover:bg-sky-50 hover:text-sky-700"
                                                     onClick={() => navigate(`/academy/live-classes/${cls.id}/detail`)}
                                                 >
                                                     <Eye className="h-3.5 w-3.5" /> Chi tiết
                                                 </Button>
                                                 {isStaff && cls.status === 'DRAFT' && (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
-                                                        onClick={() => handleEdit(cls)}
-                                                    >
-                                                        <Pencil className="h-3.5 w-3.5" /> Chỉnh sửa
-                                                    </Button>
+                                                    <>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                            onClick={() => handleEdit(cls)}
+                                                        >
+                                                            <Pencil className="h-3.5 w-3.5" /> Chỉnh Sửa
+                                                        </Button>
+                                                        <Button
+                                                            variant="default"
+                                                            size="sm"
+                                                            className="h-8 gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+                                                            onClick={() => handlePublish(cls.id)}
+                                                            disabled={publishMutation.isPending}
+                                                        >
+                                                            <Rocket className="h-3.5 w-3.5" /> Công khai
+                                                        </Button>
+                                                    </>
                                                 )}
                                             </div>
                                         </TableCell>

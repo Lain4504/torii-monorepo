@@ -118,16 +118,42 @@ export class LiveClassService {
   }
 
   async create(data: AcademyLiveClassCreateDTO) {
-    return this.prisma.liveClass.create({
+    const dataWithSchedules = data as AcademyLiveClassCreateDTO & { schedules?: any[] };
+    if (dataWithSchedules.schedules?.length) {
+      for (const s of dataWithSchedules.schedules) {
+        await this.liveSchedules.assertNoScheduleConflicts({
+          cohortId: data.cohortId,
+          weekday: s.weekday,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          instructorId: data.instructorId,
+        });
+      }
+    }
+
+    const klass = await this.prisma.liveClass.create({
       data: {
         cohortId: data.cohortId,
         code: data.code,
         name: data.name,
-        instructorId: data.instructorId,
+        instructorId: data.instructorId ?? null,
         maxStudents: data.maxStudents,
         status: (data.status as any) ?? 'DRAFT',
       },
     });
+
+    if (dataWithSchedules.schedules?.length) {
+      for (const s of dataWithSchedules.schedules) {
+        await this.liveSchedules.create({
+          classId: klass.id,
+          weekday: s.weekday,
+          startTime: s.startTime,
+          endTime: s.endTime,
+        }, 'SYSTEM');
+      }
+    }
+
+    return klass;
   }
 
   async update(id: string, data: AcademyLiveClassUpdateDTO) {

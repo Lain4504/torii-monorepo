@@ -29,7 +29,7 @@ export class CourseProfileService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async findAll(query: AcademyCourseProfileQueryDTO) {
     const andFilters: Prisma.CourseProfileWhereInput[] = [];
@@ -165,16 +165,27 @@ export class CourseProfileService {
       );
     }
 
-    // Flow yêu cầu: phải có ít nhất 1 Module và 1 Lesson thì mới được gửi duyệt.
     const moduleCount = await this.prisma.module.count({
       where: { courseProfileId: id },
     });
-    const lessonCount = await this.prisma.lesson.count({
-      where: { module: { courseProfileId: id } },
-    });
-    if (moduleCount === 0 || lessonCount === 0) {
+
+    if (moduleCount === 0) {
       throw new BadRequestException(
-        'CourseProfile cần có Modules and Lessons trước khi gửi duyệt.',
+        'Chương trình học trống. Vui lòng tạo ít nhất một module và thêm bài học trước khi gửi duyệt.',
+      );
+    }
+
+    const emptyModule = await this.prisma.module.findFirst({
+      where: {
+        courseProfileId: id,
+        lessons: { none: {} },
+      },
+      select: { title: true },
+    });
+
+    if (emptyModule) {
+      throw new BadRequestException(
+        `Bạn phải thêm bài học vào bên trong module trước khi gửi duyệt (không được để module trống).`,
       );
     }
 

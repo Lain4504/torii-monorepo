@@ -311,7 +311,7 @@ export default function CourseProfilesPage() {
                                     )
                                     setArchiveDialog({ open: false })
                                 } catch (err: any) {
-                                    toast.error(err.message || 'Không thể lưu trữ hồ sơ.')
+                                    toast.error(err?.response?.data?.message || err.message || 'Không thể lưu trữ hồ sơ.')
                                 }
                             }}
                             disabled={archiveMutation.isPending}
@@ -346,7 +346,7 @@ export default function CourseProfilesPage() {
                                     toast.success(`Đã gửi duyệt hồ sơ ${submitDialog.code}`)
                                     setSubmitDialog({ open: false })
                                 } catch (err: any) {
-                                    toast.error(err.message || 'Không thể gửi duyệt hồ sơ.')
+                                    toast.error(err?.response?.data?.message || err.message || 'Không thể gửi duyệt hồ sơ.')
                                 }
                             }}
                             disabled={submitForApprovalMutation.isPending}
@@ -361,6 +361,10 @@ export default function CourseProfilesPage() {
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
                 profile={selectedProfile}
+                onSuccessCreate={(id) => {
+                    navigate(`/academy/course-profiles/${id}/detail?tab=curriculum`);
+                    setSheetOpen(false);
+                }}
             />
 
             <DuplicateCourseDialog
