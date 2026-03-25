@@ -20,6 +20,7 @@ import {
     MessagesSquare,
     CalendarDays,
     Newspaper,
+    Folder,
 } from 'lucide-react'
 
 export interface NavItem {
