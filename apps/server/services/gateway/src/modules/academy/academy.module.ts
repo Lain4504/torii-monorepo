@@ -29,6 +29,7 @@ import { WalletController } from './controllers/wallet.controller';
 import { CertificateController } from './controllers/certificate.controller';
 import { RefundController } from './controllers/refund.controller';
 import { JlptMockController } from './controllers/jlpt-mock.controller';
+import { AcademyResourceController } from './controllers/academy-resource.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -60,6 +61,7 @@ import { JlptMockController } from './controllers/jlpt-mock.controller';
     CertificateController,
     RefundController,
     JlptMockController,
+    AcademyResourceController,
   ],
 })
-export class AcademyModule {}
+export class AcademyModule { }

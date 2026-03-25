@@ -14,6 +14,7 @@ import {
   Query,
   Req,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -43,7 +44,7 @@ import {
 @Controller('api/academy/live-classes')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LiveClassController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.delivery.read')
@@ -129,7 +130,26 @@ export class LiveClassController {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
     );
-    return successResponse(item);
+    return successResponse({ item });
+  }
+
+  @Get(':id/curriculum')
+  async getCurriculum(@Param('id', new ParseUUIDPipe()) id: string) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
+    );
+
+    const courseProfile = item.cohort?.courseProfile;
+    if (!courseProfile) {
+      throw new NotFoundException('Curriculum not found for this class');
+    }
+
+    return successResponse({
+      curriculum: {
+        id: courseProfile.id,
+        modules: courseProfile.modules || [],
+      },
+    });
   }
 
   @Post()

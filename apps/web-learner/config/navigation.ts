@@ -19,6 +19,7 @@ import {
     Languages,
     MessagesSquare,
     CalendarDays,
+    Folder,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -39,6 +40,7 @@ export const learningNav: NavItem[] = [
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
     { name: 'Thi thử JLPT', href: '/dashboard/jlpt-list-exam', icon: Languages },
     { name: 'Thẻ ghi nhớ', href: '/dashboard/study-sets', icon: BrainCircuit },
+    { name: 'Thư mục của tôi', href: '/dashboard/my-folders', icon: Folder },
 ]
 
 export const progressNav: NavItem[] = [

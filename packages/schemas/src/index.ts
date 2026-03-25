@@ -58,6 +58,7 @@ export * from './dtos/academy-course-review.dto';
 export * from './dtos/academy-class-attendance.dto';
 export * from './dtos/academy-study-set.dto';
 export * from './dtos/academy-study-note.dto';
+export * from './dtos/academy-resource.dto';
 
 
 

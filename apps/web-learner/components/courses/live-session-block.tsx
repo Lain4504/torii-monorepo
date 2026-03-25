@@ -39,6 +39,10 @@ export function LiveSessionBlock({ classId, compact = false, maxSessions = 3, cl
     }, [])
 
     useEffect(() => {
+        if (!classId) {
+            setLoading(false)
+            return
+        }
         let cancelled = false
         liveSessionApi.getSessions(classId).then((data) => {
             if (!cancelled)

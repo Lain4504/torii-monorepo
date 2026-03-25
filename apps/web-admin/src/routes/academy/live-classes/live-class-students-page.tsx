@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import { useParams, Link, useSearchParams } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, Users, CalendarCheck, FileText, Info, MessageSquare } from "lucide-react"
+import { ChevronRight, Users, CalendarCheck, FileText, Info, MessageSquare, Folder } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
@@ -12,12 +12,14 @@ import { ClassStudentsTab } from "./tabs/class-students-tab"
 import { ClassDiscussionTab } from "./tabs/class-discussion-tab"
 import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
 import { ClassAssignmentsTab } from "./tabs/class-assignments-tab"
+import { ClassResourcesTab } from "./tabs/class-resources-tab"
 
 const TAB_INFO = "info"
 const TAB_STUDENTS = "students"
 const TAB_DISCUSSION = "discussion"
 const TAB_SCHEDULE = "schedule"
 const TAB_ASSIGNMENTS = "assignments"
+const TAB_RESOURCES = "resources"
 
 export default function ClassStudentsPage() {
   const { classId } = useParams<{ classId: string }>()
@@ -29,13 +31,11 @@ export default function ClassStudentsPage() {
   const isLecturer = user?.role === UserRole.LECTURER
   const canManageStatus = isStaffOrAdmin || isLecturer
 
-
   const defaultTab = TAB_INFO
-
   const tabParam = searchParams.get("tab") || defaultTab
 
   const availableTabs = useMemo(() => {
-    return { info: true, students: true, discussion: true, schedule: true, assignments: true }
+    return { info: true, students: true, discussion: true, schedule: true, assignments: true, resources: true }
   }, [])
 
   const activeTab = useMemo(() => {
@@ -45,6 +45,7 @@ export default function ClassStudentsPage() {
       tabParam === TAB_INFO ||
       tabParam === TAB_SCHEDULE ||
       tabParam === TAB_ASSIGNMENTS ||
+      tabParam === TAB_RESOURCES ||
       tabParam === TAB_STUDENTS ||
       tabParam === TAB_DISCUSSION
     ) {
@@ -108,9 +109,9 @@ export default function ClassStudentsPage() {
         stats={
           academyClass
             ? [
-                { label: "Mã lớp", value: academyClass.code },
-                { label: "Loại hình", value: "LIVE" },
-              ]
+              { label: "Mã lớp", value: academyClass.code },
+              { label: "Loại hình", value: "LIVE" },
+            ]
             : undefined
         }
       />
@@ -149,6 +150,10 @@ export default function ClassStudentsPage() {
                 Bài tập
               </TabsTrigger>
             )}
+            <TabsTrigger value={TAB_RESOURCES} className="gap-2">
+              <Folder className="size-4" />
+              Tài liệu chia sẻ
+            </TabsTrigger>
           </TabsList>
           <div className="mt-6">
             <TabsContent value={TAB_INFO}>
@@ -177,6 +182,9 @@ export default function ClassStudentsPage() {
                 <ClassAssignmentsTab classId={classId} />
               </TabsContent>
             )}
+            <TabsContent value={TAB_RESOURCES}>
+              <ClassResourcesTab classId={classId} />
+            </TabsContent>
           </div>
         </Tabs>
       )}

@@ -28,14 +28,16 @@ import { Switch } from "@workspace/ui/components/switch"
 export function ClassReviewDialog({
     isOpen,
     setIsOpen,
-    classId,
+    targetId,
+    targetType,
     enrollmentId,
     courseTitle,
     existingReview,
 }: {
     isOpen: boolean
     setIsOpen: (o: boolean) => void
-    classId: string
+    targetId: string
+    targetType: 'COHORT' | 'VOD'
     enrollmentId: string
     courseTitle: string
     existingReview?: any
@@ -83,7 +85,7 @@ export function ClassReviewDialog({
                 await updateMutation.mutateAsync({ id: existingReview.id, dto: data })
                 toast.success("Đã cập nhật đánh giá thành công!")
             } else {
-                await createMutation.mutateAsync({ classId, dto: data })
+                await createMutation.mutateAsync({ targetId, targetType, dto: data })
                 toast.success("Cảm ơn bạn đã gửi đánh giá! Bạn nhận được 50 điểm.")
             }
             setIsOpen(false)

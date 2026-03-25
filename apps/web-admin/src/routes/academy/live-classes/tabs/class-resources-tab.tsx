@@ -1,0 +1,566 @@
+import { useState } from "react"
+import {
+    useAcademyFolders,
+    useCreateAcademyFolder,
+    useAcademyResources,
+    useCreateAcademyResource,
+    useUpdateAcademyResource,
+    useDeleteAcademyResource
+} from "@/lib/api/services/academy-resources"
+import { storageApi } from "@/lib/api/services/storage-api"
+import {
+    Folder,
+    FileText,
+    Link as LinkIcon,
+    Plus,
+    Trash2,
+    ExternalLink,
+    Download,
+    MoreVertical,
+    Eye,
+    EyeOff,
+    ChevronRight,
+    ArrowLeft,
+    Upload
+} from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import { Card, CardContent } from "@workspace/ui/components/card"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Badge } from "@workspace/ui/components/badge"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@workspace/ui/components/dialog"
+import { Input } from "@workspace/ui/components/input"
+import { Label } from "@workspace/ui/components/label"
+import { Textarea } from "@workspace/ui/components/textarea"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@workspace/ui/components/select"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@workspace/ui/components/dropdown-menu"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import { AcademyFolderType, AcademyFolderOwnerType, AcademyResourceType, AcademyResourceVisibility } from "@workspace/schemas"
+import { toast } from "sonner"
+
+interface ClassResourcesTabProps {
+    classId: string
+}
+
+export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
+    const [isAddingResource, setIsAddingResource] = useState(false)
+    const [isAddingFolder, setIsAddingFolder] = useState(false)
+    const [resourceToDelete, setResourceToDelete] = useState<string | null>(null)
+    const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
+    const [newFolderName, setNewFolderName] = useState("")
+
+    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(classId, AcademyFolderOwnerType.LIVE_CLASS)
+
+    const activeFolder = folders?.find(f => f.folderId === activeFolderId)
+    const { data: resources, isLoading: isLoadingResources } = useAcademyResources(activeFolderId || undefined)
+
+    const createFolderMutation = useCreateAcademyFolder()
+    const createResourceMutation = useCreateAcademyResource()
+    const updateResourceMutation = useUpdateAcademyResource()
+    const deleteResourceMutation = useDeleteAcademyResource()
+
+    // Form states
+    const [isUploading, setIsUploading] = useState(false)
+    const [isDragging, setIsDragging] = useState(false)
+    const [newResource, setNewResource] = useState<{
+        title: string;
+        description: string;
+        type: AcademyResourceType;
+        externalUrl: string;
+        fileAssetId: string;
+        visibility: AcademyResourceVisibility;
+    }>({
+        title: "",
+        description: "",
+        type: AcademyResourceType.LINK,
+        externalUrl: "",
+        fileAssetId: "",
+        visibility: AcademyResourceVisibility.PUBLIC
+    })
+
+    const handleCreateFolder = async () => {
+        if (!newFolderName) return toast.error("Vui lòng nhập tên thư mục.")
+        try {
+            await createFolderMutation.mutateAsync({
+                name: newFolderName,
+                type: AcademyFolderType.SHARED,
+                ownerId: classId,
+                ownerType: AcademyFolderOwnerType.LIVE_CLASS
+            })
+            toast.success("Đã tạo thư mục.")
+            setIsAddingFolder(false)
+            setNewFolderName("")
+        } catch (error) {
+            toast.error("Không thể tạo thư mục.")
+        }
+    }
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent) => {
+        let file: File | undefined
+        if ('target' in e && (e.target as HTMLInputElement).files) {
+            file = (e.target as HTMLInputElement).files?.[0]
+        } else if ('dataTransfer' in e) {
+            file = e.dataTransfer.files?.[0]
+        }
+
+        if (!file) return
+
+        setIsUploading(true)
+        try {
+            const result = await storageApi.uploadFile(file, 'academy', { classId })
+            setNewResource(prev => ({
+                ...prev,
+                fileAssetId: result.fileId,
+                title: prev.title || (file ? (file as File).name : "")
+            }))
+            toast.success("Tải lên thành công.")
+        } catch (error) {
+            toast.error("Tải lên thất bại.")
+        } finally {
+            setIsUploading(false)
+            setIsDragging(false)
+        }
+    }
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault()
+        setIsDragging(true)
+    }
+
+    const handleDragLeave = () => {
+        setIsDragging(false)
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        handleFileUpload(e)
+    }
+
+    const handleAddResource = async () => {
+        if (!activeFolderId) return toast.error("Vui lòng chọn thư mục.")
+        if (!newResource.title) return toast.error("Vui lòng nhập tiêu đề.")
+
+        try {
+            await createResourceMutation.mutateAsync({
+                folderId: activeFolderId,
+                title: newResource.title,
+                description: newResource.description,
+                resourceType: newResource.type as any,
+                externalUrl: newResource.type === AcademyResourceType.LINK ? newResource.externalUrl : undefined,
+                fileAssetId: newResource.type === AcademyResourceType.FILE ? (newResource.fileAssetId || undefined) : undefined,
+                visibility: newResource.visibility as any,
+                sortOrder: 0
+            })
+            toast.success("Đã thêm tài liệu thành công.")
+            setIsAddingResource(false)
+            setNewResource({
+                title: "",
+                description: "",
+                type: AcademyResourceType.LINK,
+                externalUrl: "",
+                fileAssetId: "",
+                visibility: AcademyResourceVisibility.PUBLIC
+            })
+        } catch (error) {
+            toast.error("Không thể thêm tài liệu.")
+        }
+    }
+
+    const handleDeleteResource = async () => {
+        if (!resourceToDelete) return
+        try {
+            await deleteResourceMutation.mutateAsync(resourceToDelete)
+            toast.success("Đã xóa tài liệu.")
+            setResourceToDelete(null)
+        } catch (error) {
+            toast.error("Không thể xóa tài liệu.")
+        }
+    }
+
+    const toggleVisibility = async (resource: any) => {
+        const newVisibility = resource.visibility === AcademyResourceVisibility.PUBLIC
+            ? AcademyResourceVisibility.PRIVATE
+            : AcademyResourceVisibility.PUBLIC
+
+        try {
+            await updateResourceMutation.mutateAsync({
+                id: resource.id,
+                input: { visibility: newVisibility }
+            })
+            toast.success("Đã cập nhật trạng thái hiển thị.")
+        } catch (error) {
+            toast.error("Không thể cập nhật trạng thái.")
+        }
+    }
+
+    if (isLoadingFolders) {
+        return <Skeleton className="h-48 w-full rounded-2xl" />
+    }
+
+    if (!folders || folders.length === 0) {
+        return (
+            <Card className="rounded-2xl border-dashed">
+                <CardContent className="py-12 flex flex-col items-center text-center">
+                    <Folder className="size-16 text-muted-foreground/20 mb-4" />
+                    <h3 className="text-xl font-bold mb-2">Chưa có thư mục tài liệu</h3>
+                    <p className="text-muted-foreground mb-6 max-w-sm">
+                        Lớp học này chưa được cấu hình thư mục chia sẻ tài liệu. Hãy khởi tạo ngay để bắt đầu upload tài liệu cho học viên.
+                    </p>
+                    <Button onClick={() => setIsAddingFolder(true)} className="rounded-xl">
+                        Khởi tạo thư mục
+                    </Button>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                        {activeFolderId && (
+                            <Button variant="ghost" size="icon" onClick={() => setActiveFolderId(null)} className="h-8 w-8 rounded-full">
+                                <ArrowLeft className="size-4" />
+                            </Button>
+                        )}
+                        <h3 className="text-lg font-bold flex items-center gap-2">
+                            <Folder className="size-5 text-primary" />
+                            {activeFolder ? activeFolder.folderName : "Thư mục tài liệu"}
+                        </h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        {activeFolder
+                            ? `Quản lý các tài liệu trong thư mục ${activeFolder.folderName}.`
+                            : "Danh sách các thư mục tài liệu chia sẻ trong lớp học."}
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {!activeFolderId ? (
+                        <Dialog open={isAddingFolder} onOpenChange={setIsAddingFolder}>
+                            <DialogTrigger asChild>
+                                <Button variant="outline" className="rounded-xl gap-2">
+                                    <Plus className="size-4" /> Tạo thư mục
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="rounded-3xl">
+                                <DialogHeader>
+                                    <DialogTitle>Tạo thư mục mới</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4 space-y-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="folder-name">Tên thư mục</Label>
+                                        <Input
+                                            id="folder-name"
+                                            placeholder="VD: Tuần 1, Tài liệu N3..."
+                                            value={newFolderName}
+                                            onChange={(e) => setNewFolderName(e.target.value)}
+                                            className="rounded-xl"
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsAddingFolder(false)} className="rounded-xl">Hủy</Button>
+                                    <Button onClick={handleCreateFolder} disabled={createFolderMutation.isPending} className="rounded-xl">
+                                        {createFolderMutation.isPending ? "Đang tạo..." : "Tạo thư mục"}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    ) : (
+                        <Dialog open={isAddingResource} onOpenChange={setIsAddingResource}>
+                            <DialogTrigger asChild>
+                                <Button className="rounded-xl gap-2 shadow-lg shadow-primary/20">
+                                    <Plus className="size-4" /> Thêm tài liệu
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[500px] rounded-3xl">
+                                <DialogHeader>
+                                    <DialogTitle>Thêm tài liệu mới</DialogTitle>
+                                    <DialogDescription>
+                                        Vào thư mục: <strong>{activeFolder?.folderName}</strong>
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="title">Tiêu đề</Label>
+                                        <Input
+                                            id="title"
+                                            placeholder="VD: Tài liệu buổi 1 - Từ vựng N3"
+                                            value={newResource.title}
+                                            onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
+                                            className="rounded-xl"
+                                        />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="description">Mô tả (không bắt buộc)</Label>
+                                        <Textarea
+                                            id="description"
+                                            placeholder="Mô tả ngắn về nội dung tài liệu..."
+                                            value={newResource.description}
+                                            onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
+                                            className="rounded-xl min-h-[100px]"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid gap-2">
+                                            <Label>Loại tài liệu</Label>
+                                            <Select
+                                                value={newResource.type}
+                                                onValueChange={(val) => {
+                                                    const newType = val as AcademyResourceType;
+                                                    setNewResource({
+                                                        ...newResource,
+                                                        type: newType,
+                                                        // Clear the other field when switching
+                                                        externalUrl: newType === AcademyResourceType.LINK ? newResource.externalUrl : "",
+                                                        fileAssetId: newType === AcademyResourceType.FILE ? newResource.fileAssetId : ""
+                                                    })
+                                                }}
+                                            >
+                                                <SelectTrigger className="rounded-xl">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value={AcademyResourceType.LINK}>Liên kết (URL)</SelectItem>
+                                                    <SelectItem value={AcademyResourceType.FILE}>Tệp tin (Upload)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label>Hiển thị</Label>
+                                            <Select
+                                                value={newResource.visibility}
+                                                onValueChange={(val) => setNewResource({ ...newResource, visibility: val as any })}
+                                            >
+                                                <SelectTrigger className="rounded-xl">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value={AcademyResourceVisibility.PUBLIC}>Công khai</SelectItem>
+                                                    <SelectItem value={AcademyResourceVisibility.PRIVATE}>Ẩn</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    {newResource.type === AcademyResourceType.LINK && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="url">Địa chỉ liên kết (URL)</Label>
+                                            <Input
+                                                id="url"
+                                                placeholder="https://example.com/document"
+                                                value={newResource.externalUrl}
+                                                onChange={(e) => setNewResource({ ...newResource, externalUrl: e.target.value })}
+                                                className="rounded-xl"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {newResource.type === AcademyResourceType.FILE && (
+                                        <div className="grid gap-2">
+                                            <Label>Tải lên tập tin</Label>
+                                            {newResource.fileAssetId ? (
+                                                <div className="flex items-center gap-2 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                                                    <FileText className="size-4" />
+                                                    <span className="text-xs font-medium truncate flex-1">{newResource.title}</span>
+                                                    <Button variant="ghost" size="sm" onClick={() => setNewResource({ ...newResource, fileAssetId: "" })} className="h-6 px-2 text-emerald-700 hover:bg-emerald-100">Thay đổi</Button>
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    onDragOver={handleDragOver}
+                                                    onDragLeave={handleDragLeave}
+                                                    onDrop={handleDrop}
+                                                    className={`p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-2 transition-all relative ${isUploading ? 'bg-muted/50 border-muted cursor-not-allowed' : isDragging ? 'bg-primary/10 border-primary scale-[1.02]' : 'hover:bg-primary/5 hover:border-primary/50 border-zinc-200 cursor-pointer'}`}
+                                                    onClick={() => !isUploading && document.getElementById('file-upload-input')?.click()}
+                                                >
+                                                    <input
+                                                        id="file-upload-input"
+                                                        type="file"
+                                                        className="hidden"
+                                                        onChange={handleFileUpload}
+                                                        disabled={isUploading}
+                                                    />
+                                                    {isUploading ? (
+                                                        <>
+                                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                                            <p className="text-xs font-medium text-muted-foreground">Đang tải lên...</p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Upload className={`size-6 transition-colors ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                                                            <p className="text-xs font-medium text-muted-foreground">
+                                                                {isDragging ? 'Thả tệp vào đây' : 'Nhấn để chọn hoặc kéo thả tệp'}
+                                                            </p>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsAddingResource(false)} className="rounded-xl">Hủy</Button>
+                                    <Button onClick={handleAddResource} disabled={createResourceMutation.isPending || isUploading} className="rounded-xl px-8">
+                                        {createResourceMutation.isPending ? "Đang lưu..." : "Lưu tài liệu"}
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+                {isLoadingFolders || isLoadingResources ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-24 w-full rounded-2xl" />
+                    ))
+                ) : !activeFolderId ? (
+                    /* Folder List View */
+                    folders && folders.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {folders.map((f) => (
+                                <Card key={f.folderId} className="rounded-2xl hover:border-primary/50 cursor-pointer group transition-all" onClick={() => setActiveFolderId(f.folderId)}>
+                                    <CardContent className="p-5 flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-3 rounded-xl bg-primary/10 text-primary">
+                                                <Folder className="size-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold group-hover:text-primary transition-colors">{f.folderName}</h4>
+                                                <p className="text-xs text-muted-foreground">{f.resourceCount || 0} tài liệu</p>
+                                            </div>
+                                        </div>
+                                        <ChevronRight className="size-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed">
+                            <Folder className="size-16 text-muted-foreground/10 mx-auto mb-4" />
+                            <h4 className="font-bold">Chưa có thư mục nào</h4>
+                            <p className="text-sm text-muted-foreground">Hãy bắt đầu bằng cách tạo thư mục để tổ chức tài liệu.</p>
+                        </div>
+                    )
+                ) : (
+                    /* Resource List View in Folder */
+                    resources && resources.length > 0 ? (
+                        resources.map((res) => (
+                            <Card key={res.id} className={`rounded-2xl transition-all ${res.visibility === AcademyResourceVisibility.PRIVATE ? 'opacity-60 bg-muted/30' : ''}`}>
+                                <CardContent className="p-5 flex items-center justify-between">
+                                    <div className="flex items-start gap-4">
+                                        <div className={`p-3 rounded-xl ${res.resourceType === 'FILE' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                            {res.resourceType === 'FILE' ? <FileText className="size-5" /> : <LinkIcon className="size-5" />}
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-bold leading-none">{res.title}</h4>
+                                                {res.visibility === AcademyResourceVisibility.PRIVATE && (
+                                                    <Badge variant="secondary" className="text-[9px] uppercase h-4 px-1">Đang ẩn</Badge>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-muted-foreground line-clamp-1">{res.description || 'Không có mô tả.'}</p>
+                                            <div className="flex items-center gap-2 pt-1">
+                                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">{res.resourceType === 'FILE' ? 'Tệp tin' : 'URL'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1">
+                                        {res.resourceType === 'LINK' ? (
+                                            <Button size="icon" variant="ghost" asChild className="rounded-lg">
+                                                <a href={res.externalUrl || '#'} target="_blank" rel="noopener noreferrer">
+                                                    <ExternalLink className="size-4" />
+                                                </a>
+                                            </Button>
+                                        ) : (
+                                            <Button size="icon" variant="ghost" asChild className="rounded-lg">
+                                                <a href={res.downloadUrl} download target="_blank" rel="noopener noreferrer">
+                                                    <Download className="size-4" />
+                                                </a>
+                                            </Button>
+                                        )}
+
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button size="icon" variant="ghost" className="rounded-lg">
+                                                    <MoreVertical className="size-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="rounded-xl">
+                                                <DropdownMenuItem onClick={() => toggleVisibility(res)} className="gap-2">
+                                                    {res.visibility === AcademyResourceVisibility.PUBLIC ? (
+                                                        <><EyeOff className="size-4" /> Ẩn tài liệu</>
+                                                    ) : (
+                                                        <><Eye className="size-4" /> Hiện tài liệu</>
+                                                    )}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => setResourceToDelete(res.id)} className="text-destructive gap-2">
+                                                    <Trash2 className="size-4" /> Xóa tài liệu
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed">
+                            <FileText className="size-16 text-muted-foreground/10 mx-auto mb-4" />
+                            <h4 className="font-bold">Thư mục này trống</h4>
+                            <p className="text-sm text-muted-foreground">Bắt đầu bằng cách thêm tài liệu hoặc liên kết hữu ích.</p>
+                        </div>
+                    )
+                )}
+            </div>
+
+            <AlertDialog open={!!resourceToDelete} onOpenChange={(open) => !open && setResourceToDelete(null)}>
+                ...
+                <AlertDialogContent className="rounded-2xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa tài liệu</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa tài liệu này? Hành động này không thể hoàn tác và tài liệu sẽ được chuyển vào kho lưu trữ (Archive).
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteResource} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">
+                            Xóa tài liệu
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
+    )
+}

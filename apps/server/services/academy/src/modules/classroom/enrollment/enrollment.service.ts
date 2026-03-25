@@ -10,7 +10,7 @@ export class EnrollmentService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     private readonly achievementService: AchievementService,
-  ) {}
+  ) { }
 
   async findAll(query: any) {
     const enrollments = await this.prisma.enrollment.findMany({
@@ -72,6 +72,7 @@ export class EnrollmentService {
             expiresAt: e.expiresAt,
             vodPackageId: e.vodPackageId,
             liveClassId: e.liveClassId,
+            cohortId: e.liveClass?.cohortId,
             type: e.liveClassId ? 'live' : 'vod',
             courseTitle: courseProfile?.title,
             courseCode: courseProfile?.code,
@@ -135,7 +136,7 @@ export class EnrollmentService {
       inProgressCourses,
       averageProgress: list.length > 0 ? Math.round(sumProgress / list.length) : 0,
       totalLearningHours: Math.round(totalLearningHours * 10) / 10,
-      weeklyActivity: [0,0,0,0,0,0,0],
+      weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
       streak: 0, level: 1, xp: 0, onboarding: { dailyGoal: 3 },
     };
   }
@@ -183,8 +184,8 @@ export class EnrollmentService {
 
   async checkEligibility(userId: string, targetId: string, targetType: 'CLASS' | 'COURSE') {
     const where = targetType === 'CLASS'
-        ? { userId, liveClassId: targetId }
-        : { userId, vodPackageId: targetId };
+      ? { userId, liveClassId: targetId }
+      : { userId, vodPackageId: targetId };
     const enrollment = await this.prisma.enrollment.findFirst({
       where: { ...where, status: { in: ['ACTIVE', 'COMPLETED'] } },
     });
