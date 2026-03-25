@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: change to seed jlpt examc config">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="faff">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SPEC_LO_TRINH_HOC_CA_NHAN_HOA.md" beforeDir="false" afterPath="$PROJECT_DIR$/SPEC_LO_TRINH_HOC_CA_NHAN_HOA.md" afterDir="false" />
     </list>
@@ -360,15 +360,7 @@
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
       <workItem from="1774369682844" duration="1071000" />
-      <workItem from="1774409406934" duration="760000" />
-    </task>
-    <task id="LOCAL-01021" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773856168013</created>
-      <option name="number" value="01021" />
-      <option name="presentableId" value="LOCAL-01021" />
-      <option name="project" value="LOCAL" />
-      <updated>1773856168013</updated>
+      <workItem from="1774409406934" duration="2909000" />
     </task>
     <task id="LOCAL-01022" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
       <option name="closed" value="true" />
@@ -754,7 +746,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774373588387</updated>
     </task>
-    <option name="localTasksCounter" value="1070" />
+    <task id="LOCAL-01070" summary="faff">
+      <option name="closed" value="true" />
+      <created>1774410747578</created>
+      <option name="number" value="01070" />
+      <option name="presentableId" value="LOCAL-01070" />
+      <option name="project" value="LOCAL" />
+      <updated>1774410747578</updated>
+    </task>
+    <option name="localTasksCounter" value="1071" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -771,7 +771,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="update-landingpage" />
+                        <option value="user-learning-pathway" />
                       </list>
                     </value>
                   </entry>
@@ -789,8 +789,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: update LiveKit configuration and add Core LMS implementation checklist" />
-    <MESSAGE value="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
     <MESSAGE value="fix quiz flow and improve user experience" />
     <MESSAGE value="refactor(ui): improve roleplay API handling and update rewards page styling" />
     <MESSAGE value="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting" />
@@ -813,8 +811,10 @@
     <MESSAGE value="feat: remove study note functionality and related components" />
     <MESSAGE value="update" />
     <MESSAGE value="seed" />
+    <MESSAGE value="refactor: change to seed jlpt examc config + remove marketing page (#308)" />
     <MESSAGE value="refactor: change to seed jlpt examc config" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: change to seed jlpt examc config" />
+    <MESSAGE value="faff" />
+    <option name="LAST_COMMIT_MESSAGE" value="faff" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

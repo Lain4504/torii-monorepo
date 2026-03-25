@@ -22,6 +22,17 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 - Không tạo task liên quan tới việc dùng AI trong roadmap/replan/recovery (kể cả must/should/could).
 - Domain mặc định là trung tâm Nhật ngữ (JLPT, live class, VOD, SRS, AI practice).
 
+### Nguyên tắc đơn giản hóa MVP (bắt buộc)
+
+- Ưu tiên **ít rule, dễ test**: triển khai được trước, tinh chỉnh sau; tránh engine nhiều tham số ẩn.
+- Lộ trình **có tác dụng** = user thấy rõ mục tiêu theo tuần/tháng + có thể đánh dấu tiến độ, không cần “tối ưu học thuật” ngay từ đầu.
+- Khi lộ trình gắn **course / khóa đã mua**: **không bắt buộc** map từng bài VOD hay cấu trúc module chi tiết. Generator chỉ cần:
+  - chọn **khung thời gian chuẩn** (ví dụ **3 tháng** hoặc **6 tháng**) theo mục tiêu + `target_date` (hoặc preset user chọn),
+  - chia đều theo **tuần** (objective + vài task gợi ý theo loại: live nếu có, VOD “theo tuần”, SRS/JLPT mock đơn giản).
+- Nội dung VOD bên trong course có thể thay đổi; lộ trình vẫn là **khung thời gian + loại hoạt động**, không phụ thuộc số lesson cụ thể.
+- Replan **tối thiểu**: một vài ngưỡng đơn giản (vd completion tuần thấp hơn ngưỡng → giảm số task tuần sau), không bắt buộc nhiều nhánh song song.
+- Progress overview **đơn giản** trước: % task đã hoàn thành theo plan + cờ rủi ro đơn giản (vd không học N ngày); có thể bổ sung công thức phức tạp sau.
+
 ---
 
 ## 2) PRD hoàn chỉnh (Product Requirements Document)
@@ -81,12 +92,12 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 
 ### In-scope cho bản MVP+
 
-1. Onboarding v2 (nhanh + có pre-test).
-2. Roadmap Generator v2 (theo mục tiêu, skill gap, thời gian rảnh).
-3. Adaptive Weekly Planner (replan theo dữ liệu tuần trước).
-4. Progress Intelligence (activity + performance + mastery).
-5. Intervention Engine (nhắc học và recovery plan).
-6. Coach UI dashboard.
+1. Onboarding v2 (nhanh; pre-test **tùy chọn** để giảm ma sát).
+2. Roadmap Generator v2: **khung thời gian chuẩn** (3/6 tháng hoặc theo `target_date`) + chia tuần đơn giản, không yêu cầu map chi tiết từng VOD.
+3. Weekly Planner **đơn giản** (replan tối thiểu theo 1–2 ngưỡng).
+4. Progress: **% hoàn thành task theo plan** + trạng thái on-track/at-risk đơn giản (mở rộng mastery sau).
+5. Intervention: nhắc nhở + recovery ngắn (3 ngày), rule ít.
+6. Coach UI: Today Focus + timeline tuần (Skill map / insight sâu **có thể phase 2**).
 
 ### Out-of-scope giai đoạn đầu
 
@@ -148,89 +159,79 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 - Hoàn thành onboarding <= 3 phút với >70% user.
 - Tỷ lệ bỏ onboarding giảm so với bản cũ >= 20%.
 
-### F2 - Roadmap Generator v2 (bám mô hình Live + VOD + JLPT + SRS)
+### F2 - Roadmap Generator v2 (đơn giản, gắn course / live / VOD ở mức khung)
 
 #### Input
 
-- Learner profile.
-- Mục tiêu người dùng (vd: đỗ JLPT N4 trong 5 tháng).
-- Skill graph theo domain Nhật ngữ (Kanji, Từ vựng, Ngữ pháp, Đọc, Nghe, Nói, Viết).
-- Catalog nội dung học hiện có trong hệ thống:
-  - `CourseProfile`, `Module`, `Lesson` (VOD).
-  - `Cohort`, `LiveClass`, `LiveScheduleSession` (live class).
-  - `SetCard` (SRS flashcard).
-  - `JlptMock*` (mock exam).
+- Learner profile (mục tiêu, `target_date` hoặc chọn preset **3 tháng / 6 tháng**, phút/tuần).
+- Enrollment đang active (để không gợi ý ngoài gói).
+- **Không bắt buộc** skill graph đầy đủ ở MVP; có thể chỉ dùng level mục tiêu JLPT + self-level.
+- Tham chiếu nội dung **thô** (đủ để gắn task, không cần tối ưu từng lesson):
+  - Course / offering user đã mua (để biết “đang học khóa nào”).
+  - Live: lịch cohort nếu có.
+  - VOD: có thể chỉ gắn **theo course hoặc theo tuần** (vd “Tuần 1–4: ôn nền khóa X”), không cần thứ tự lesson cố định trừ khi product muốn siết sau.
+  - SRS / JLPT mock: tùy chọn, task dạng “ôn SRS 15 phút” / “mock 1 section”.
 
 #### Output
 
-- Roadmap theo tuần gồm:
-  - Objective tuần.
-  - Danh sách task Must/Should/Could.
-  - Ước lượng thời gian.
-  - Điều kiện hoàn thành.
-  - Checkpoint đánh giá mastery.
+- Roadmap theo **tuần** trong khung **3 hoặc 6 tháng** (hoặc số tuần = khoảng từ `start_date` đến `target_date`), mỗi tuần:
+  - Objective ngắn (1 câu).
+  - 2–5 task (ưu tiên **must** đơn giản; should/could tùy thời lượng).
+  - Ước lượng phút (có thể chia đều `weekly_available_minutes` cho số task).
+  - Checkpoint **tùy chọn** (vd cuối tháng: quiz/mock) — không bắt buộc mastery phức tạp ở MVP.
 
-#### Quy tắc
+#### Quy tắc (tối thiểu)
 
-- Tôn trọng prerequisite trong skill graph.
-- Tổng effort không vượt quá năng lực thời gian user +/- 10%.
-- Có đường fallback nếu user bị trễ.
-- Không sinh AI task trong mọi trường hợp; roadmap chỉ gồm VOD/live/assignment/SRS/JLPT mock.
+- Tổng phút/tuần không vượt quá `weekly_available_minutes` (có thể làm tròn, không cần +/- 10% phức tạp ở bản đầu).
+- Nếu user gắn **course**: vẫn áp **lộ trình chuẩn 3/6 tháng**; cách “điền” task có thể là placeholder theo tuần (vd “Học VOD khóa đã mua ~X phút”) thay vì list lesson ID chi tiết.
+- Không sinh task AI.
+- Fallback khi trễ: **đẩy phần còn lại sang tuần sau** hoặc giảm số task (replan F3), không cần đồ thị prerequisite phức tạp.
 
-### F3 - Adaptive Weekly Planner
+### F3 - Adaptive Weekly Planner (phiên bản tối thiểu)
 
 #### Trigger
 
-- Chạy định kỳ hàng tuần (vd: Chủ nhật 23:00 theo timezone user).
+- Chạy định kỳ hàng tuần (vd: Chủ nhật 23:00 theo timezone user), hoặc khi user bấm “Cập nhật kế hoạch”.
 
-#### Logic mẫu
+#### Logic mẫu (chỉ nên 2–4 nhánh, đủ để test)
 
-- completion < 60% -> giảm scope 20-30% + bổ sung foundation.
-- quiz/mock accuracy < ngưỡng -> thêm revision/spaced repetition.
-- completion > 90% và accuracy tốt -> tăng độ khó vừa phải.
-- User bận đột xuất -> rebalance tasks và dời milestone phụ.
-- attendance live thấp -> bổ sung review lesson + mini task bù buổi.
-- Recovery mode chỉ dùng task không-AI.
+- Nếu **completion tuần trước dưới 50%** (hoặc ngưỡng config đơn giản): **giảm 1 task** hoặc giảm phút ước lượng tuần sau.
+- Nếu **completion ≥ 80%**: giữ hoặc **thêm tối đa 1 task nhẹ** (SRS/quiz) tuần sau — không bắt buộc tăng độ khó đa chiều.
+- User đổi `weekly_available_minutes`: scale số phút task theo tỷ lệ đơn giản.
+- (Tùy chọn sau MVP) quiz thấp → thêm ôn; attendance live thấp → nhắc xem lại VOD — không bắt buộc giai đoạn 1.
+- Recovery mode chỉ task không-AI.
 
 #### Output
 
-- Tạo `path_version` mới.
-- Lưu diff kế hoạch + lý do điều chỉnh.
+- Tăng `path_version` khi có thay đổi có ý nghĩa.
+- Log ngắn lý do (1 dòng text + JSON tối thiểu).
 
-### F4 - Progress Intelligence
+### F4 - Progress Intelligence (MVP đơn giản)
 
-#### 3 lớp chỉ số
+#### Chỉ số bắt buộc giai đoạn 1
 
-1. Activity: số phiên học, phút focus.
-2. Performance: điểm quiz, tỷ lệ đúng theo kỹ năng.
-3. Mastery: mức độ làm chủ skill theo thời gian.
+- **% task đã hoàn thành** trong plan hiện tại (hoặc tuần hiện tại).
+- **Tuần hiện tại / tổng tuần** của lộ trình (vd “Tuần 8/24”).
 
-#### Chỉ số đặc thù Nhật ngữ (bắt buộc cho dashboard)
-- JLPT readiness theo level mục tiêu (N5..N1).
-- Section score theo `LANGUAGE_VOCAB`, `LANGUAGE_GRAMMAR_READING`, `LISTENING`.
-- SRS retention rate (tỷ lệ nhớ theo mốc 1d/3d/7d/14d).
-- Live attendance quality (present/late/absent).
-
-#### Trạng thái tiến độ
+#### Trạng thái (có thể rút gọn 3 trạng thái)
 
 - On-track
-- Slightly-off
-- At-risk
+- At-risk (vd không hoàn thành tối thiểu hoặc không học ≥ N ngày)
 - Recovering
 
-#### Công thức gợi ý (điều chỉnh bằng config)
+#### Mở rộng sau (không chặn ship MVP)
 
-- `progress_score = 0.25*activity + 0.35*performance + 0.40*mastery`
-- Kèm `confidence_score` để tránh kết luận sai khi dữ liệu ít.
+- JLPT readiness, section score, SRS retention chi tiết, live attendance quality — bổ sung khi có dữ liệu ổn định.
+- Công thức weighted phức tạp — **không bắt buộc** ở MVP; có thể thay bằng `progress_score = completion_rate` (0–1).
 
 ### F5 - Intervention Engine
 
-#### Trigger chính
+#### Trigger chính (MVP: 1–2 trigger là đủ để ship)
 
-- Không học 3 ngày liên tiếp.
-- 2 lần quiz dưới ngưỡng.
-- Dự báo trễ milestone.
-- Vừa đạt milestone (reinforcement).
+- Không học **N** ngày liên tiếp (config một số).
+- (Tùy chọn) completion tuần thấp hơn ngưỡng.
+
+Các trigger khác (quiz thấp, milestone, reinforcement) — **phase 2**.
 
 #### Action
 
@@ -248,13 +249,16 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 
 ### F6 - Coach UI
 
-#### Màn hình cần có
+#### Màn hình bắt buộc MVP
 
-1. Today Focus (1-3 việc quan trọng nhất).
-2. Timeline lộ trình theo tuần.
-3. Skill Progress Map.
-4. Insight cá nhân (khung giờ học hiệu quả, pattern tụt hiệu suất).
-5. Recovery Mode (nút reset kế hoạch tuần).
+1. Today Focus (1–3 việc).
+2. Timeline / danh sách tuần (objective + trạng thái).
+3. Recovery Mode (nút bật plan ngắn).
+
+#### Màn hình có thể phase 2
+
+- Skill Progress Map chi tiết.
+- Insight học theo khung giờ (cần đủ dữ liệu).
 
 ## 2.9 Yêu cầu phi chức năng (NFR)
 
