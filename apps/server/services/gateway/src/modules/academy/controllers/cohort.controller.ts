@@ -49,7 +49,7 @@ export class CohortController {
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.cohort.findAll' },
-        { ...query, status: 'OPENING' },
+        { ...query, status: 'OPENING', onlyAvailable: true },
       ),
     );
     return successResponse(items);

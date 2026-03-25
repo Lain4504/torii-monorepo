@@ -11,15 +11,29 @@ export class CohortService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: AcademyCohortQueryDTO) {
-    const where: any = {};
-    if (query.courseProfileId) where.courseProfileId = query.courseProfileId;
-    if (query.status) where.status = query.status;
-    if (query.q) {
-      where.OR = [
-        { code: { contains: query.q, mode: 'insensitive' } },
-        { name: { contains: query.q, mode: 'insensitive' } },
-      ];
+    const and: any[] = [];
+    if (query.courseProfileId) and.push({ courseProfileId: query.courseProfileId });
+    if (query.status) and.push({ status: query.status });
+
+    if (query.onlyAvailable) {
+      and.push({
+        OR: [
+          { enrollmentCloseAt: null },
+          { enrollmentCloseAt: { gte: new Date() } },
+        ],
+      });
     }
+
+    if (query.q) {
+      and.push({
+        OR: [
+          { code: { contains: query.q, mode: 'insensitive' } },
+          { name: { contains: query.q, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    const where = and.length > 0 ? { AND: and } : {};
 
     const [items, total] = await Promise.all([
       this.prisma.cohort.findMany({
@@ -59,6 +73,10 @@ export class CohortService {
         code: data.code,
         name: data.name,
         price: data.price,
+        discountPrice: data.discountPrice,
+        enrollmentOpenAt: data.enrollmentOpenAt ? new Date(data.enrollmentOpenAt) : null,
+        enrollmentCloseAt: data.enrollmentCloseAt ? new Date(data.enrollmentCloseAt) : null,
+        startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
         status: (data.status as any) ?? 'DRAFT',
         rejectionReason: (data as any).rejectionReason,
@@ -75,6 +93,7 @@ export class CohortService {
         code: data.code,
         name: data.name,
         price: data.price,
+        discountPrice: data.discountPrice,
         status: data.status as any,
         rejectionReason: (data as any).rejectionReason,
         submittedForApprovalAt:

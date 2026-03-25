@@ -81,11 +81,11 @@ export default function CohortsPage() {
     return (
         <div className="flex flex-col gap-8 p-6">
             <PageHeader
-                title="Khóa học (Cohorts)"
+                title="Đợt khai giảng"
                 subtitle="Quản lý các đợt khai giảng, thiết lập giá và ngày học cho các lớp LIVE."
                 actions={
                     <Button size="lg" onClick={handleCreate}>
-                        <Plus className="mr-2 h-4 w-4" /> Tạo Khóa học mới
+                        <Plus className="mr-2 h-4 w-4" /> Tạo Đợt khai giảng mới
                     </Button>
                 }
             />
@@ -123,7 +123,7 @@ export default function CohortsPage() {
                         <TableHeader className="bg-muted/30">
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
-                                <TableHead className="w-[140px]">Mã Đợt (Cohort)</TableHead>
+                                <TableHead className="w-[140px]">Mã Đợt khai giảng</TableHead>
                                 <TableHead>Tên đợt học / Khai giảng</TableHead>
                                 <TableHead>Giá bán (VNĐ)</TableHead>
                                 <TableHead>Trạng thái</TableHead>
@@ -145,7 +145,7 @@ export default function CohortsPage() {
                             ) : !cohorts || cohorts.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                                        Không tìm thấy Khóa học (Cohort) nào.
+                                        Không tìm thấy Đợt khai giảng nào.
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -162,7 +162,22 @@ export default function CohortsPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <span className="font-bold text-sm tracking-tight">{Number(cohort.price).toLocaleString()}₫</span>
+                                            <div className="flex flex-col">
+                                                {cohort.discountPrice ? (
+                                                    <>
+                                                        <span className="font-bold text-sm tracking-tight text-primary">
+                                                            {Number(cohort.discountPrice).toLocaleString()}₫
+                                                        </span>
+                                                        <span className="text-[10px] text-muted-foreground line-through opacity-70">
+                                                            {Number(cohort.price).toLocaleString()}₫
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="font-bold text-sm tracking-tight">
+                                                        {Number(cohort.price).toLocaleString()}₫
+                                                    </span>
+                                                )}
+                                            </div>
                                         </TableCell>
                                         <TableCell>
                                             {cohort.status === 'ARCHIVED' ? (
@@ -187,14 +202,16 @@ export default function CohortsPage() {
                                                 >
                                                     <Eye className="size-3.5" /> Chi tiết
                                                 </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
-                                                    onClick={() => handleEdit(cohort)}
-                                                >
-                                                    <Pencil className="size-3.5" /> Chỉnh sửa
-                                                </Button>
+                                                {(cohort.status === 'DRAFT' || cohort.status === 'PENDING_APPROVAL') && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        onClick={() => handleEdit(cohort)}
+                                                    >
+                                                        <Pencil className="size-3.5" /> Chỉnh sửa
+                                                    </Button>
+                                                )}
 
                                                 {cohort.status === 'DRAFT' && (
                                                     <Button

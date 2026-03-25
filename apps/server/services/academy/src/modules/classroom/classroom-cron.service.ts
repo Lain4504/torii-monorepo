@@ -33,4 +33,24 @@ export class ClassroomCronService {
       this.logger.log(`Expired ${expired.count} enrollments`);
     }
   }
+
+  /**
+   * Auto transition Cohort status to COMPLETED when registration closes.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleCohortRegistrationsClosed() {
+    const now = new Date();
+
+    const expired = await this.prisma.cohort.updateMany({
+      where: {
+        status: 'OPENING',
+        enrollmentCloseAt: { lt: now },
+      },
+      data: { status: 'COMPLETED' },
+    });
+
+    if (expired.count > 0) {
+      this.logger.log(`Auto-completed ${expired.count} closed cohorts`);
+    }
+  }
 }

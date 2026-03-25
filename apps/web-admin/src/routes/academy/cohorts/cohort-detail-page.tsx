@@ -92,7 +92,7 @@ export default function CohortDetailPage() {
   }
 
   if (!cohort) {
-    return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin đợt học (Cohort).</div>
+    return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin Đợt khai giảng.</div>
   }
 
   return (
@@ -107,7 +107,7 @@ export default function CohortDetailPage() {
               Đợt khai giảng
             </Link>
             <ChevronRight className="size-4" />
-            <span>Chi tiết đợt học</span>
+            <span>Chi tiết Đợt khai giảng</span>
           </div>
         }
         subtitle={`Thông tin chi tiết và thống kê kinh doanh cho đợt học #${cohort.code}`}
@@ -138,7 +138,7 @@ export default function CohortDetailPage() {
           </div>
         }
         stats={[
-          { label: "Mã đợt", value: cohort.code },
+          { label: "Mã đợt học", value: cohort.code },
           { label: "Trạng thái", value: cohort.status },
           { label: "Ngày tạo", value: formatDateTime(cohort.createdAt, "dd/MM/yyyy") },
         ]}
@@ -181,7 +181,7 @@ export default function CohortDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">Các lớp đang vận hành dưới đợt học này</p>
+            <p className="text-xs text-muted-foreground">Các lớp đang vận hành dưới đợt khai giảng này</p>
           </CardContent>
         </Card>
       </div>
@@ -222,7 +222,7 @@ export default function CohortDetailPage() {
       <Tabs defaultValue="info" className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="info" className="gap-2">
-            <Info className="size-4" /> Thông tin đợt học
+            <Info className="size-4" /> Thông tin Đợt khai giảng
           </TabsTrigger>
           <TabsTrigger value="orders" className="gap-2">
             <ShoppingCart className="size-4" /> Danh sách đơn hàng ({totalOrders})
@@ -247,8 +247,22 @@ export default function CohortDetailPage() {
                             <p className="text-base font-mono font-bold">{cohort.code}</p>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Giá niêm yết</p>
-                            <p className="text-xl font-bold text-primary">{formatCurrency(cohort.price)}</p>
+                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Giá bán</p>
+                            <div className="flex flex-col">
+                                {cohort.discountPrice ? (
+                                    <>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-xl font-bold text-primary">{formatCurrency(cohort.discountPrice)}</span>
+                                            <Badge variant="destructive" className="text-[10px] h-4 px-1 leading-none uppercase font-bold border-none">Ưu đãi</Badge>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/30 font-medium tabular-nums">
+                                            Gốc: {formatCurrency(cohort.price)}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <p className="text-xl font-bold text-primary">{formatCurrency(cohort.price)}</p>
+                                )}
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trạng thái</p>
@@ -360,7 +374,7 @@ export default function CohortDetailPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>Lịch sử đơn hàng</CardTitle>
-                  <CardDescription>Danh sách học viên đã đăng ký và nộp lệ phí cho đợt học này.</CardDescription>
+                  <CardDescription>Danh sách học viên đã đăng ký và nộp lệ phí cho đợt khai giảng này.</CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="p-0">

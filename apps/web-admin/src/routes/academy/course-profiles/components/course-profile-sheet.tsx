@@ -34,21 +34,15 @@ import {
   useUpdateAcademyCourseProfile,
   type AcademyCourseProfile,
 } from "@/lib/api/services/academy-course-profiles"
-import { useAcademyCourseEditionsPublic } from '@/lib/api/services/academy-course-editions'
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import { toast } from "sonner"
 import { Loader2, Save, X } from "lucide-react"
-import type { AcademyCourseEditionModel } from "@workspace/schemas"
-
-const UNSET_EDITION_VALUE = "__none__"
 
 const courseProfileSchema = z.object({
   code: z.string().min(2, "Mã profile phải có ít nhất 2 ký tự"),
   title: z.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự"),
   description: z.string().optional(),
   level: z.string().optional(),
-  /// Logical VOD edition group key; nullable for backward compatibility.
-  editionKey: z.union([z.string(), z.null()]).optional(),
   thumbnailUrl: z.union([z.string().url(), z.literal("")]).optional(),
 })
 
@@ -58,19 +52,13 @@ interface CourseProfileSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   profile?: AcademyCourseProfile | null
+  onSuccessCreate?: (id: string) => void
 }
 
-export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfileSheetProps) {
+export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreate }: CourseProfileSheetProps) {
   const isEditing = !!profile
   const createMutation = useCreateAcademyCourseProfile()
   const updateMutation = useUpdateAcademyCourseProfile()
-
-  const {
-    data: editions = [],
-    isLoading: editionsLoading,
-  } = useAcademyCourseEditionsPublic({})
-
-  const activeEditions = editions.filter((edition) => edition.isActive)
 
   const {
     control,
@@ -84,7 +72,6 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
       title: "",
       description: "",
       level: "",
-      editionKey: null,
       thumbnailUrl: "",
     },
   })
@@ -96,7 +83,6 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         title: profile.title,
         description: profile.description || "",
         level: profile.level || "",
-        editionKey: (profile as any)?.edition?.key ?? null,
         thumbnailUrl: profile.thumbnailUrl || "",
       })
     } else {
@@ -105,7 +91,6 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         title: "",
         description: "",
         level: "",
-        editionKey: null,
         thumbnailUrl: "",
       })
     }
@@ -124,25 +109,26 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
             title: payload.title,
             description: payload.description,
             level: payload.level,
-            editionKey: payload.editionKey ?? null,
             thumbnailUrl: payload.thumbnailUrl,
           },
         })
         toast.success("Cập nhật hồ sơ khóa học thành công")
       } else {
-        await createMutation.mutateAsync({
+        const newProfile = await createMutation.mutateAsync({
           code: payload.code,
           title: payload.title,
           description: payload.description,
           level: payload.level,
-          editionKey: payload.editionKey ?? null,
           thumbnailUrl: payload.thumbnailUrl,
         })
         toast.success("Tạo hồ sơ khóa học thành công")
+        onOpenChange(false)
+        if (onSuccessCreate) {
+          onSuccessCreate(newProfile.id)
+        }
       }
-      onOpenChange(false)
     } catch (error: any) {
-      toast.error(error.message || "Đã xảy ra lỗi")
+      toast.error(error?.response?.data?.message || error.message || "Đã xảy ra lỗi")
     }
   }
 
@@ -205,37 +191,6 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
                         />
                         <FieldDescription>Cấp độ học thuật (JLPT, v.v.)</FieldDescription>
                         <FieldError errors={[errors.level]} />
-                      </Field>
-
-                      <Field>
-                        <FieldLabel>Nhóm Edition (CourseEdition)</FieldLabel>
-                        <Controller
-                          name="editionKey"
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              value={field.value ?? UNSET_EDITION_VALUE}
-                              onValueChange={(v) => field.onChange(v === UNSET_EDITION_VALUE ? null : v)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Không đặt (null)" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value={UNSET_EDITION_VALUE}>Không đặt</SelectItem>
-                                {editionsLoading
-                                  ? null
-                                  : activeEditions.map((e: AcademyCourseEditionModel) => (
-                                    <SelectItem key={e.id} value={e.key}>
-                                      {e.title || e.key}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FieldDescription>
-                          Dùng cho logic chặn mua trùng VOD theo phiên bản logic.
-                        </FieldDescription>
                       </Field>
                     </div>
 

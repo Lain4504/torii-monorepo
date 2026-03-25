@@ -5,11 +5,6 @@ export const academyCourseProfileCreateDTOSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().optional(),
   level: z.string().max(50).optional(),
-  /**
-   * Logical VOD edition group key (nullable for backward compatibility).
-   * Example: "N5", "N4", ...
-   */
-  editionKey: z.string().max(50).optional().nullable(),
   thumbnailUrl: z.string().url().optional(),
 });
 export type AcademyCourseProfileCreateDTO = z.infer<
@@ -20,11 +15,6 @@ export const academyCourseProfileUpdateDTOSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   description: z.string().optional(),
   level: z.string().max(50).optional(),
-  /**
-   * Logical VOD edition group key (nullable for backward compatibility).
-   * Example: "N5", "N4", ...
-   */
-  editionKey: z.string().max(50).optional().nullable(),
   thumbnailUrl: z.string().url().optional(),
 });
 export type AcademyCourseProfileUpdateDTO = z.infer<
@@ -34,7 +24,6 @@ export type AcademyCourseProfileUpdateDTO = z.infer<
 export const academyCourseProfileQueryDTOSchema = z.object({
   q: z.string().optional(),
   level: z.string().optional(),
-  editionKey: z.string().max(50).optional(),
   status: z.string().optional(),
 });
 export type AcademyCourseProfileQueryDTO = z.infer<

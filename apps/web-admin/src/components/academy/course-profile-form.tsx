@@ -36,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { useAcademyCourseEditionsPublic } from '@/lib/api/services/academy-course-editions'
 
 export function CourseProfileForm({
   mode,
@@ -55,11 +54,6 @@ export function CourseProfileForm({
 }) {
   const isEdit = mode === "edit"
 
-  const {
-    data: editions = [],
-    isLoading: editionsLoading,
-  } = useAcademyCourseEditionsPublic({ isActive: true })
-
   const { handleSubmit, control } = useForm<
     AcademyCourseProfileCreateDTO | AcademyCourseProfileUpdateDTO
   >({
@@ -73,7 +67,6 @@ export function CourseProfileForm({
         title: initial?.title ?? "",
         description: initial?.description ?? undefined,
         level: initial?.level ?? undefined,
-        editionKey: (initial as any)?.edition?.key ?? null,
         thumbnailUrl: initial?.thumbnailUrl ?? undefined,
       }
       : {
@@ -81,7 +74,6 @@ export function CourseProfileForm({
         title: "",
         description: undefined,
         level: "N5",
-        editionKey: null,
         thumbnailUrl: undefined,
       },
   })
@@ -146,35 +138,6 @@ export function CourseProfileForm({
                       <SelectItem value="N1">N1 – Thượng cấp 2</SelectItem>
                       <SelectItem value="Beginner">Cơ bản</SelectItem>
                       <SelectItem value="Intermediate">Trung cấp</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Controller
-              name={"editionKey" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Nhóm Edition (CourseEdition)</FieldLabel>
-                  <Select
-                    value={(field.value ?? "") as any}
-                    onValueChange={(v) => field.onChange(v || null)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Không đặt (null)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Không đặt</SelectItem>
-                      {editionsLoading
-                        ? null
-                        : editions.map((e: any) => (
-                            <SelectItem key={e.id} value={e.key}>
-                              {e.title || e.key}
-                            </SelectItem>
-                          ))}
                     </SelectContent>
                   </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -268,5 +231,3 @@ export function CourseProfileForm({
     </form>
   )
 }
-
-

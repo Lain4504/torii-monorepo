@@ -29,19 +29,13 @@ export class CourseProfileService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async findAll(query: AcademyCourseProfileQueryDTO) {
     const andFilters: Prisma.CourseProfileWhereInput[] = [];
 
     if (query.level) {
       andFilters.push({ level: query.level });
-    }
-
-    if ((query as any).editionKey) {
-      andFilters.push({
-        edition: { key: (query as any).editionKey },
-      });
     }
 
     if ((query as any).status) {
@@ -62,11 +56,6 @@ export class CourseProfileService {
 
     return this.prisma.courseProfile.findMany({
       where,
-      include: {
-        edition: {
-          select: { id: true, key: true, level: true, title: true },
-        },
-      },
       orderBy: [{ createdAt: 'desc' }],
     });
   }
@@ -75,9 +64,6 @@ export class CourseProfileService {
     const item = await this.prisma.courseProfile.findUnique({
       where: { id },
       include: {
-        edition: {
-          select: { id: true, key: true, level: true, title: true },
-        },
         modules: {
           include: {
             lessons: { orderBy: { orderIndex: 'asc' } },
@@ -91,27 +77,6 @@ export class CourseProfileService {
   }
 
   async create(input: AcademyCourseProfileCreateDTO, requesterId?: string) {
-    // NOTE: editionKey is nullable for backward compatibility.
-    // Business rule: do NOT auto-create CourseEdition here.
-    const editionKey = (input as any).editionKey as string | null | undefined;
-    let editionId: string | null | undefined = undefined;
-    if (editionKey !== undefined) {
-      if (!editionKey) {
-        editionId = null;
-      } else {
-        const edition = await this.prisma.courseEdition.findUnique({
-          where: { key: editionKey },
-          select: { id: true },
-        });
-        if (!edition) {
-          throw new BadRequestException(
-            `CourseEdition key '${editionKey}' not found. Please create it first in admin.`,
-          );
-        }
-        editionId = edition.id;
-      }
-    }
-
     const exists = await this.prisma.courseProfile.findUnique({
       where: { code: input.code },
       select: { id: true },
@@ -125,7 +90,6 @@ export class CourseProfileService {
         title: input.title,
         description: input.description ?? null,
         level: input.level ?? null,
-        editionId,
         thumbnailUrl: input.thumbnailUrl ?? null,
         // CourseProfile không nên auto-PUBLISHED khi tạo mới (phải qua trạng thái duyệt theo workflow).
         status: (input as any).status ?? 'DRAFT',
@@ -163,32 +127,12 @@ export class CourseProfileService {
       );
     }
 
-    const editionKey = (input as any).editionKey as string | null | undefined;
-    let editionIdUpdate: string | null | undefined = undefined;
-    if (editionKey !== undefined) {
-      if (!editionKey) {
-        editionIdUpdate = null;
-      } else {
-        const edition = await this.prisma.courseEdition.findUnique({
-          where: { key: editionKey },
-          select: { id: true },
-        });
-        if (!edition) {
-          throw new BadRequestException(
-            `CourseEdition key '${editionKey}' not found. Please create it first in admin.`,
-          );
-        }
-        editionIdUpdate = edition.id;
-      }
-    }
-
     const item = await this.prisma.courseProfile.update({
       where: { id },
       data: {
         title: input.title ?? undefined,
         description: input.description ?? undefined,
         level: input.level ?? undefined,
-        editionId: editionIdUpdate,
         thumbnailUrl: input.thumbnailUrl ?? undefined,
         status: (input as any).status || undefined,
       },
@@ -221,16 +165,27 @@ export class CourseProfileService {
       );
     }
 
-    // Flow yêu cầu: phải có ít nhất 1 Module và 1 Lesson thì mới được gửi duyệt.
     const moduleCount = await this.prisma.module.count({
       where: { courseProfileId: id },
     });
-    const lessonCount = await this.prisma.lesson.count({
-      where: { module: { courseProfileId: id } },
-    });
-    if (moduleCount === 0 || lessonCount === 0) {
+
+    if (moduleCount === 0) {
       throw new BadRequestException(
-        'CourseProfile cần có Modules và Lessons trước khi gửi duyệt.',
+        'Chương trình học trống. Vui lòng tạo ít nhất một module và thêm bài học trước khi gửi duyệt.',
+      );
+    }
+
+    const emptyModule = await this.prisma.module.findFirst({
+      where: {
+        courseProfileId: id,
+        lessons: { none: {} },
+      },
+      select: { title: true },
+    });
+
+    if (emptyModule) {
+      throw new BadRequestException(
+        `Bạn phải thêm bài học vào bên trong module trước khi gửi duyệt (không được để module trống).`,
       );
     }
 
@@ -332,7 +287,6 @@ export class CourseProfileService {
           title: newTitle,
           description: source.description,
           level: source.level,
-          editionId: source.editionId ?? undefined,
           thumbnailUrl: source.thumbnailUrl,
           status: 'DRAFT',
         },

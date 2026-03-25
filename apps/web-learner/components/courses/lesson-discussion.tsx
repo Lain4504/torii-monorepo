@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { useAppSelector } from '@/hooks/hooks'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '@/lib/api/services/comment-api'
@@ -15,7 +16,8 @@ import {
     Clock,
     MessageCircle,
     Send,
-    AlertCircle
+    AlertCircle,
+    Shield
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
@@ -237,9 +239,15 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                         </Avatar>
                                         <div className="space-y-1.5 min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <span className="text-sm font-bold text-foreground/90 truncate">
+                                                <span className={cn("text-sm font-bold truncate", (topic.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE) ? "text-primary" : "text-foreground/90")}>
                                                     {topic.author?.displayName || 'Unknown Student'}
                                                 </span>
+                                                {topic.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE && (
+                                                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-black uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
+                                                        <Shield className="size-2.5 fill-current" />
+                                                        {topic.authorRoleLabel || 'Torii Support'}
+                                                    </Badge>
+                                                )}
                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 flex items-center gap-1.5 shrink-0">
                                                     <Clock className="size-3" />
                                                     {formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })}

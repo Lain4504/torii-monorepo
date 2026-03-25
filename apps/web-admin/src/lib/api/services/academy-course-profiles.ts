@@ -14,14 +14,6 @@ export type AcademyCourseProfile = {
   status: string
   description?: string | null
   level?: string | null
-  /// Logical VOD edition group key (nullable).
-  editionId?: string | null
-  edition?: {
-    id: string
-    key: string
-    level?: string | null
-    title?: string | null
-  } | null
   thumbnailUrl?: string | null
   createdAt: string
   updatedAt: string

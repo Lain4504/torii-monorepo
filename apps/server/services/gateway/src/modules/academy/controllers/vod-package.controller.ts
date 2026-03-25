@@ -77,7 +77,7 @@ export class VodPackageController {
   }
 
   @Get(':id')
-  @Permissions('academy.commerce.read')
+  @Permissions('academy.commerce.read', 'academy.content.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
