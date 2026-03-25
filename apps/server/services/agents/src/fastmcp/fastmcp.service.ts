@@ -401,7 +401,8 @@ export class FastMcpService {
         word: (f.languageDetails as any)?.kanji || f.term,
         reading: (f.languageDetails as any)?.furigana,
         meaning: f.definition,
-        status: f.srsState,
+        // srsState lives on SetCardSrsProgress, not SetCard.
+        status: 'LEARNING',
       }));
 
       // 3. User Gamification (Streak, Level, XP)

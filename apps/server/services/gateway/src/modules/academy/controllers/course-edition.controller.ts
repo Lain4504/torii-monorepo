@@ -40,7 +40,8 @@ export class CourseEditionController {
   @Public()
   @Get('public')
   async findAllPublic(
-    @Query(new ZodValidationPipe(academyCourseEditionQueryDTOSchema)) query: AcademyCourseEditionQueryDTO,
+    @Query(new ZodValidationPipe(academyCourseEditionQueryDTOSchema))
+    query: AcademyCourseEditionQueryDTO,
   ) {
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.courseEdition.findAll' }, query ?? {}),
@@ -51,7 +52,8 @@ export class CourseEditionController {
   @Get()
   @Permissions('academy.content.read')
   async findAll(
-    @Query(new ZodValidationPipe(academyCourseEditionQueryDTOSchema)) query: AcademyCourseEditionQueryDTO,
+    @Query(new ZodValidationPipe(academyCourseEditionQueryDTOSchema))
+    query: AcademyCourseEditionQueryDTO,
   ) {
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.courseEdition.findAll' }, query ?? {}),
@@ -101,4 +103,3 @@ export class CourseEditionController {
     return successResponse({ item });
   }
 }
-

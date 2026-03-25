@@ -4,38 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="new flow">
-      <change afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/vod-package-preview-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/cohort/cohort.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/cohort/cohort.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-class/live-class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-class/live-class.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/vod-package/vod-package.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/vod-package/vod-package.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/fastmcp/fastmcp.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/cohort.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/cohort.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/live-class.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/live-class.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/cohort-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/cohort-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/vod-package-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/vod-package-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-cohorts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-cohorts.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-live-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-live-classes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-vod-packages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-vod-packages.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/approvals-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/approvals-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/cohort-preview-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/cohort-preview-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/approvals/live-class-preview-page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohort-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohort-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohorts-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/cohorts/cohorts-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-class-students-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-class-students-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-classes-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-classes-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-info-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-info-tab.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-package-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-package-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-packages-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-packages-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-cohort.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-cohort.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-vod-package.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-vod-package.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: change to seed jlpt examc config">
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +18,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1792" />
+    <option name="cachedIndexableFilesCount" value="1782" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -120,7 +90,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#302 on legacy-role-update&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#308 on update-landingpage&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -388,206 +358,7 @@
       <workItem from="1774252089615" duration="38000" />
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
-    </task>
-    <task id="LOCAL-00996" summary="feat(academy): implement class assignment and quiz forms with validation and UI integration">
-      <option name="closed" value="true" />
-      <created>1772988183564</created>
-      <option name="number" value="00996" />
-      <option name="presentableId" value="LOCAL-00996" />
-      <option name="project" value="LOCAL" />
-      <updated>1772988183564</updated>
-    </task>
-    <task id="LOCAL-00997" summary="feat: update LiveKit configuration and add Core LMS implementation checklist">
-      <option name="closed" value="true" />
-      <created>1773019468011</created>
-      <option name="number" value="00997" />
-      <option name="presentableId" value="LOCAL-00997" />
-      <option name="project" value="LOCAL" />
-      <updated>1773019468012</updated>
-    </task>
-    <task id="LOCAL-00998" summary="feat: update LiveKit configuration and add Core LMS implementation checklist">
-      <option name="closed" value="true" />
-      <created>1773019517082</created>
-      <option name="number" value="00998" />
-      <option name="presentableId" value="LOCAL-00998" />
-      <option name="project" value="LOCAL" />
-      <updated>1773019517082</updated>
-    </task>
-    <task id="LOCAL-00999" summary="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions">
-      <option name="closed" value="true" />
-      <created>1773027681481</created>
-      <option name="number" value="00999" />
-      <option name="presentableId" value="LOCAL-00999" />
-      <option name="project" value="LOCAL" />
-      <updated>1773027681481</updated>
-    </task>
-    <task id="LOCAL-01000" summary="fix quiz flow and improve user experience">
-      <option name="closed" value="true" />
-      <created>1773077884637</created>
-      <option name="number" value="01000" />
-      <option name="presentableId" value="LOCAL-01000" />
-      <option name="project" value="LOCAL" />
-      <updated>1773077884637</updated>
-    </task>
-    <task id="LOCAL-01001" summary="fix quiz flow and improve user experience">
-      <option name="closed" value="true" />
-      <created>1773078138652</created>
-      <option name="number" value="01001" />
-      <option name="presentableId" value="LOCAL-01001" />
-      <option name="project" value="LOCAL" />
-      <updated>1773078138652</updated>
-    </task>
-    <task id="LOCAL-01002" summary="refactor(ui): improve roleplay API handling and update rewards page styling">
-      <option name="closed" value="true" />
-      <created>1773078642574</created>
-      <option name="number" value="01002" />
-      <option name="presentableId" value="LOCAL-01002" />
-      <option name="project" value="LOCAL" />
-      <updated>1773078642574</updated>
-    </task>
-    <task id="LOCAL-01003" summary="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting">
-      <option name="closed" value="true" />
-      <created>1773131963335</created>
-      <option name="number" value="01003" />
-      <option name="presentableId" value="LOCAL-01003" />
-      <option name="project" value="LOCAL" />
-      <updated>1773131963335</updated>
-    </task>
-    <task id="LOCAL-01004" summary="new">
-      <option name="closed" value="true" />
-      <created>1773133214280</created>
-      <option name="number" value="01004" />
-      <option name="presentableId" value="LOCAL-01004" />
-      <option name="project" value="LOCAL" />
-      <updated>1773133214280</updated>
-    </task>
-    <task id="LOCAL-01005" summary="new">
-      <option name="closed" value="true" />
-      <created>1773133281450</created>
-      <option name="number" value="01005" />
-      <option name="presentableId" value="LOCAL-01005" />
-      <option name="project" value="LOCAL" />
-      <updated>1773133281450</updated>
-    </task>
-    <task id="LOCAL-01006" summary="new">
-      <option name="closed" value="true" />
-      <created>1773134490587</created>
-      <option name="number" value="01006" />
-      <option name="presentableId" value="LOCAL-01006" />
-      <option name="project" value="LOCAL" />
-      <updated>1773134490587</updated>
-    </task>
-    <task id="LOCAL-01007" summary="new">
-      <option name="closed" value="true" />
-      <created>1773134873644</created>
-      <option name="number" value="01007" />
-      <option name="presentableId" value="LOCAL-01007" />
-      <option name="project" value="LOCAL" />
-      <updated>1773134873644</updated>
-    </task>
-    <task id="LOCAL-01008" summary="new">
-      <option name="closed" value="true" />
-      <created>1773134976915</created>
-      <option name="number" value="01008" />
-      <option name="presentableId" value="LOCAL-01008" />
-      <option name="project" value="LOCAL" />
-      <updated>1773134976915</updated>
-    </task>
-    <task id="LOCAL-01009" summary="new">
-      <option name="closed" value="true" />
-      <created>1773135574427</created>
-      <option name="number" value="01009" />
-      <option name="presentableId" value="LOCAL-01009" />
-      <option name="project" value="LOCAL" />
-      <updated>1773135574427</updated>
-    </task>
-    <task id="LOCAL-01010" summary="new">
-      <option name="closed" value="true" />
-      <created>1773137060054</created>
-      <option name="number" value="01010" />
-      <option name="presentableId" value="LOCAL-01010" />
-      <option name="project" value="LOCAL" />
-      <updated>1773137060055</updated>
-    </task>
-    <task id="LOCAL-01011" summary="new">
-      <option name="closed" value="true" />
-      <created>1773137760547</created>
-      <option name="number" value="01011" />
-      <option name="presentableId" value="LOCAL-01011" />
-      <option name="project" value="LOCAL" />
-      <updated>1773137760547</updated>
-    </task>
-    <task id="LOCAL-01012" summary="style (#281)">
-      <option name="closed" value="true" />
-      <created>1773264779424</created>
-      <option name="number" value="01012" />
-      <option name="presentableId" value="LOCAL-01012" />
-      <option name="project" value="LOCAL" />
-      <updated>1773264779424</updated>
-    </task>
-    <task id="LOCAL-01013" summary="feat: add content field to academy lessons and update layout styles">
-      <option name="closed" value="true" />
-      <created>1773498751058</created>
-      <option name="number" value="01013" />
-      <option name="presentableId" value="LOCAL-01013" />
-      <option name="project" value="LOCAL" />
-      <updated>1773498751058</updated>
-    </task>
-    <task id="LOCAL-01014" summary="fix conflict">
-      <option name="closed" value="true" />
-      <created>1773499998120</created>
-      <option name="number" value="01014" />
-      <option name="presentableId" value="LOCAL-01014" />
-      <option name="project" value="LOCAL" />
-      <updated>1773499998120</updated>
-    </task>
-    <task id="LOCAL-01015" summary="fix conflict">
-      <option name="closed" value="true" />
-      <created>1773501001299</created>
-      <option name="number" value="01015" />
-      <option name="presentableId" value="LOCAL-01015" />
-      <option name="project" value="LOCAL" />
-      <updated>1773501001299</updated>
-    </task>
-    <task id="LOCAL-01016" summary="refactor: update live schedule service and class attendance UI for improved functionality and user experience">
-      <option name="closed" value="true" />
-      <created>1773794050861</created>
-      <option name="number" value="01016" />
-      <option name="presentableId" value="LOCAL-01016" />
-      <option name="project" value="LOCAL" />
-      <updated>1773794050862</updated>
-    </task>
-    <task id="LOCAL-01017" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773850013270</created>
-      <option name="number" value="01017" />
-      <option name="presentableId" value="LOCAL-01017" />
-      <option name="project" value="LOCAL" />
-      <updated>1773850013270</updated>
-    </task>
-    <task id="LOCAL-01018" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773850163582</created>
-      <option name="number" value="01018" />
-      <option name="presentableId" value="LOCAL-01018" />
-      <option name="project" value="LOCAL" />
-      <updated>1773850163582</updated>
-    </task>
-    <task id="LOCAL-01019" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773852748478</created>
-      <option name="number" value="01019" />
-      <option name="presentableId" value="LOCAL-01019" />
-      <option name="project" value="LOCAL" />
-      <updated>1773852748480</updated>
-    </task>
-    <task id="LOCAL-01020" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773854927046</created>
-      <option name="number" value="01020" />
-      <option name="presentableId" value="LOCAL-01020" />
-      <option name="project" value="LOCAL" />
-      <updated>1773854927046</updated>
+      <workItem from="1774369682844" duration="1071000" />
     </task>
     <task id="LOCAL-01021" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
       <option name="closed" value="true" />
@@ -781,7 +552,207 @@
       <option name="project" value="LOCAL" />
       <updated>1774282691915</updated>
     </task>
-    <option name="localTasksCounter" value="1045" />
+    <task id="LOCAL-01045" summary="feat: enhance landing page with guest preview and authentication flow">
+      <option name="closed" value="true" />
+      <created>1774353752131</created>
+      <option name="number" value="01045" />
+      <option name="presentableId" value="LOCAL-01045" />
+      <option name="project" value="LOCAL" />
+      <updated>1774353752132</updated>
+    </task>
+    <task id="LOCAL-01046" summary="feat: enhance landing page with guest preview and authentication flow">
+      <option name="closed" value="true" />
+      <created>1774353858693</created>
+      <option name="number" value="01046" />
+      <option name="presentableId" value="LOCAL-01046" />
+      <option name="project" value="LOCAL" />
+      <updated>1774353858693</updated>
+    </task>
+    <task id="LOCAL-01047" summary="feat: enhance landing page with guest preview and authentication flow">
+      <option name="closed" value="true" />
+      <created>1774354298717</created>
+      <option name="number" value="01047" />
+      <option name="presentableId" value="LOCAL-01047" />
+      <option name="project" value="LOCAL" />
+      <updated>1774354298717</updated>
+    </task>
+    <task id="LOCAL-01048" summary="feat: enhance landing page with guest preview and authentication flow">
+      <option name="closed" value="true" />
+      <created>1774354372941</created>
+      <option name="number" value="01048" />
+      <option name="presentableId" value="LOCAL-01048" />
+      <option name="project" value="LOCAL" />
+      <updated>1774354372941</updated>
+    </task>
+    <task id="LOCAL-01049" summary="feat: add sharing functionality for study notes with public access">
+      <option name="closed" value="true" />
+      <created>1774355383735</created>
+      <option name="number" value="01049" />
+      <option name="presentableId" value="LOCAL-01049" />
+      <option name="project" value="LOCAL" />
+      <updated>1774355383735</updated>
+    </task>
+    <task id="LOCAL-01050" summary="feat: add sharing functionality for study notes with public access">
+      <option name="closed" value="true" />
+      <created>1774356088630</created>
+      <option name="number" value="01050" />
+      <option name="presentableId" value="LOCAL-01050" />
+      <option name="project" value="LOCAL" />
+      <updated>1774356088630</updated>
+    </task>
+    <task id="LOCAL-01051" summary="feat: add sharing functionality for study notes with public access">
+      <option name="closed" value="true" />
+      <created>1774356765740</created>
+      <option name="number" value="01051" />
+      <option name="presentableId" value="LOCAL-01051" />
+      <option name="project" value="LOCAL" />
+      <updated>1774356765740</updated>
+    </task>
+    <task id="LOCAL-01052" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774357774477</created>
+      <option name="number" value="01052" />
+      <option name="presentableId" value="LOCAL-01052" />
+      <option name="project" value="LOCAL" />
+      <updated>1774357774477</updated>
+    </task>
+    <task id="LOCAL-01053" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774358983148</created>
+      <option name="number" value="01053" />
+      <option name="presentableId" value="LOCAL-01053" />
+      <option name="project" value="LOCAL" />
+      <updated>1774358983148</updated>
+    </task>
+    <task id="LOCAL-01054" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359371307</created>
+      <option name="number" value="01054" />
+      <option name="presentableId" value="LOCAL-01054" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359371307</updated>
+    </task>
+    <task id="LOCAL-01055" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359389433</created>
+      <option name="number" value="01055" />
+      <option name="presentableId" value="LOCAL-01055" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359389433</updated>
+    </task>
+    <task id="LOCAL-01056" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359472940</created>
+      <option name="number" value="01056" />
+      <option name="presentableId" value="LOCAL-01056" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359472940</updated>
+    </task>
+    <task id="LOCAL-01057" summary="feat: implement sharing functionality for study sets with public access">
+      <option name="closed" value="true" />
+      <created>1774359573729</created>
+      <option name="number" value="01057" />
+      <option name="presentableId" value="LOCAL-01057" />
+      <option name="project" value="LOCAL" />
+      <updated>1774359573729</updated>
+    </task>
+    <task id="LOCAL-01058" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774360271191</created>
+      <option name="number" value="01058" />
+      <option name="presentableId" value="LOCAL-01058" />
+      <option name="project" value="LOCAL" />
+      <updated>1774360271192</updated>
+    </task>
+    <task id="LOCAL-01059" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774360722210</created>
+      <option name="number" value="01059" />
+      <option name="presentableId" value="LOCAL-01059" />
+      <option name="project" value="LOCAL" />
+      <updated>1774360722210</updated>
+    </task>
+    <task id="LOCAL-01060" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774361818141</created>
+      <option name="number" value="01060" />
+      <option name="presentableId" value="LOCAL-01060" />
+      <option name="project" value="LOCAL" />
+      <updated>1774361818141</updated>
+    </task>
+    <task id="LOCAL-01061" summary="feat: remove study note functionality and related components">
+      <option name="closed" value="true" />
+      <created>1774362939370</created>
+      <option name="number" value="01061" />
+      <option name="presentableId" value="LOCAL-01061" />
+      <option name="project" value="LOCAL" />
+      <updated>1774362939370</updated>
+    </task>
+    <task id="LOCAL-01062" summary="update">
+      <option name="closed" value="true" />
+      <created>1774364061695</created>
+      <option name="number" value="01062" />
+      <option name="presentableId" value="LOCAL-01062" />
+      <option name="project" value="LOCAL" />
+      <updated>1774364061695</updated>
+    </task>
+    <task id="LOCAL-01063" summary="update">
+      <option name="closed" value="true" />
+      <created>1774364860064</created>
+      <option name="number" value="01063" />
+      <option name="presentableId" value="LOCAL-01063" />
+      <option name="project" value="LOCAL" />
+      <updated>1774364860064</updated>
+    </task>
+    <task id="LOCAL-01064" summary="update">
+      <option name="closed" value="true" />
+      <created>1774365775475</created>
+      <option name="number" value="01064" />
+      <option name="presentableId" value="LOCAL-01064" />
+      <option name="project" value="LOCAL" />
+      <updated>1774365775475</updated>
+    </task>
+    <task id="LOCAL-01065" summary="update">
+      <option name="closed" value="true" />
+      <created>1774366227494</created>
+      <option name="number" value="01065" />
+      <option name="presentableId" value="LOCAL-01065" />
+      <option name="project" value="LOCAL" />
+      <updated>1774366227494</updated>
+    </task>
+    <task id="LOCAL-01066" summary="update">
+      <option name="closed" value="true" />
+      <created>1774366561492</created>
+      <option name="number" value="01066" />
+      <option name="presentableId" value="LOCAL-01066" />
+      <option name="project" value="LOCAL" />
+      <updated>1774366561492</updated>
+    </task>
+    <task id="LOCAL-01067" summary="update">
+      <option name="closed" value="true" />
+      <created>1774366576316</created>
+      <option name="number" value="01067" />
+      <option name="presentableId" value="LOCAL-01067" />
+      <option name="project" value="LOCAL" />
+      <updated>1774366576316</updated>
+    </task>
+    <task id="LOCAL-01068" summary="update">
+      <option name="closed" value="true" />
+      <created>1774367608672</created>
+      <option name="number" value="01068" />
+      <option name="presentableId" value="LOCAL-01068" />
+      <option name="project" value="LOCAL" />
+      <updated>1774367608672</updated>
+    </task>
+    <task id="LOCAL-01069" summary="refactor: change to seed jlpt examc config">
+      <option name="closed" value="true" />
+      <created>1774373588387</created>
+      <option name="number" value="01069" />
+      <option name="presentableId" value="LOCAL-01069" />
+      <option name="project" value="LOCAL" />
+      <updated>1774373588387</updated>
+    </task>
+    <option name="localTasksCounter" value="1070" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -798,7 +769,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="legacy-role-update" />
+                        <option value="update-landingpage" />
                       </list>
                     </value>
                   </entry>
@@ -816,13 +787,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="build learner success" />
-    <MESSAGE value="refactor: merge logic to new academy service (#268)" />
-    <MESSAGE value="feat: add Academy Achievement and Gamification Heatmap specifications" />
-    <MESSAGE value="feat(academy): add class attendance module with CRUD operations and UI integration" />
-    <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
-    <MESSAGE value="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors." />
-    <MESSAGE value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
     <MESSAGE value="feat: update LiveKit configuration and add Core LMS implementation checklist" />
     <MESSAGE value="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
     <MESSAGE value="fix quiz flow and improve user experience" />
@@ -841,7 +805,14 @@
     <MESSAGE value="courser flow end" />
     <MESSAGE value="feat: add JLPT mondai management functionality and update navigation" />
     <MESSAGE value="new flow" />
-    <option name="LAST_COMMIT_MESSAGE" value="new flow" />
+    <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
+    <MESSAGE value="feat: add sharing functionality for study notes with public access" />
+    <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
+    <MESSAGE value="feat: remove study note functionality and related components" />
+    <MESSAGE value="update" />
+    <MESSAGE value="seed" />
+    <MESSAGE value="refactor: change to seed jlpt examc config" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: change to seed jlpt examc config" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

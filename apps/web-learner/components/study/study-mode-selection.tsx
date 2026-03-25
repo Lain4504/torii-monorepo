@@ -9,9 +9,11 @@ interface StudyModeSelectionProps {
     selectedSetId: string | null;
     selectedCount: number;
     activeMode?: 'review' | 'test' | 'match';
+    canAccessLearning?: boolean;
 }
 
-export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }: StudyModeSelectionProps) {
+export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, canAccessLearning = true }: StudyModeSelectionProps) {
+    const isDisabled = !canAccessLearning || !selectedSetId || selectedCount === 0;
     return (
         <section className="w-full space-y-4 pb-2" data-purpose="study-mode-selection">
             <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
@@ -19,7 +21,9 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                     <AlertCircle className="h-4 w-4" />
                 </div>
                 <p className="text-xs font-medium text-foreground/90">
-                    Nên dùng bộ gõ tiếng Việt hoặc Nhật cho các chế độ luyện gõ để tăng hiệu quả ghi nhớ.
+                    {canAccessLearning
+                        ? 'Nên dùng bộ gõ tiếng Việt hoặc Nhật cho các chế độ luyện gõ để tăng hiệu quả ghi nhớ.'
+                        : 'Ban dang o che do tham quan. Dang nhap de bat dau hoc flashcard, test va match.'}
                 </p>
             </div>
             <div>
@@ -48,7 +52,8 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                             </div>
                             <Button
                                 asChild
-                                disabled={!selectedSetId || selectedCount === 0}
+                                disabled={isDisabled}
+                                data-requires-auth={!canAccessLearning ? 'true' : undefined}
                                 className="mt-4 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/review` : '#'}>
@@ -81,7 +86,8 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                             </div>
                             <Button
                                 asChild
-                                disabled={!selectedSetId || selectedCount === 0}
+                                disabled={isDisabled}
+                                data-requires-auth={!canAccessLearning ? 'true' : undefined}
                                 className="mt-4 w-full rounded-xl bg-orange-500 text-white hover:bg-orange-600"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/test` : '#'}>
@@ -114,7 +120,8 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                             </div>
                             <Button
                                 asChild
-                                disabled={!selectedSetId || selectedCount === 0}
+                                disabled={isDisabled}
+                                data-requires-auth={!canAccessLearning ? 'true' : undefined}
                                 className="mt-4 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/match` : '#'}>

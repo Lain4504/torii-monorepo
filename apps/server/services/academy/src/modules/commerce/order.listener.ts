@@ -3,6 +3,7 @@ import { EventPattern, Payload } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentService } from '../classroom/enrollment/enrollment.service';
 import { AuditLoggerService } from '../audit-logger.service';
+import { OrderService } from './order/order.service';
 
 @Controller()
 export class OrderListener {
@@ -10,6 +11,7 @@ export class OrderListener {
     private readonly prisma: PrismaService,
     private readonly enrollments: EnrollmentService,
     private readonly audit: AuditLoggerService,
+    private readonly orderService: OrderService,
   ) {}
 
   @EventPattern('order.paid')
@@ -22,9 +24,16 @@ export class OrderListener {
     });
 
     if (!order || order.status !== 'PAID') {
-      console.log(`[Academy] Order ${data.orderId} not found or not PAID. Ignoring.`);
+      console.log(
+        `[Academy] Order ${data.orderId} not found or not PAID. Ignoring.`,
+      );
       return;
     }
+
+    const targetUserId = await this.orderService.resolveTargetUserId(
+      order.userId,
+      order.metadata,
+    );
 
     let enrolledCount = 0;
     for (const item of order.items) {
@@ -44,7 +53,7 @@ export class OrderListener {
       try {
         await this.enrollments.enroll(
           {
-            userId: order.userId,
+            userId: targetUserId,
             vodPackageId: item.vodPackageId ?? undefined,
             liveClassId: targetLiveClassId,
             status: 'ACTIVE',
@@ -54,11 +63,16 @@ export class OrderListener {
         );
         enrolledCount++;
       } catch (err: any) {
-        console.error(`[Academy] Failed to enroll user ${order.userId}:`, err.message);
+        console.error(
+          `[Academy] Failed to enroll user ${targetUserId}:`,
+          err.message,
+        );
       }
     }
 
-    console.log(`[Academy] Order ${order.id} paid. Created ${enrolledCount} enrollments.`);
+    console.log(
+      `[Academy] Order ${order.id} paid. Created ${enrolledCount} enrollments.`,
+    );
   }
 
   @EventPattern('order.refunded')
@@ -81,7 +95,9 @@ export class OrderListener {
         description: `Cancelled enrollment ${enrollment.id} due to order refund ${data.orderId}`,
         metadata: { orderId: data.orderId },
       });
-      console.log(`[Academy] Cancelled enrollment ${enrollment.id} due to refund`);
+      console.log(
+        `[Academy] Cancelled enrollment ${enrollment.id} due to refund`,
+      );
     }
   }
 }

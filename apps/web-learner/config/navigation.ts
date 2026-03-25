@@ -19,7 +19,7 @@ import {
     Languages,
     MessagesSquare,
     CalendarDays,
-    Folder,
+    Newspaper,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -36,6 +36,7 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khám phá khóa học', href: '/dashboard/available-courses', icon: BookOpen },
+    { name: 'Blog kiến thức', href: '/dashboard/blogs', icon: Newspaper },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
     { name: 'Thi thử JLPT', href: '/dashboard/jlpt-list-exam', icon: Languages },
@@ -62,7 +63,6 @@ export const accountNav: NavItem[] = [
 
 export const aiSenseiNav: NavItem[] = [
     { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
-    { name: 'Đánh giá & Luyện tập', href: '/dashboard/assessment', icon: Award },
     { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
     { name: 'Gói dịch vụ AI', href: '/dashboard/payment/subscriptions', icon: CreditCard },

@@ -1,14 +1,9 @@
 import { useState, useEffect, useMemo, useRef, Fragment } from "react";
 import {
-  Plus,
   Search,
-  MoreHorizontal,
-  Edit,
-  Trash2,
   FileAudio,
   Image as ImageIcon,
 } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
 import {
   Table,
   TableBody,
@@ -20,26 +15,12 @@ import {
 import { Badge } from "@workspace/ui/components/badge";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
-import {
   Empty,
   EmptyContent,
   EmptyMedia,
   EmptyTitle,
   EmptyDescription,
 } from "@workspace/ui/components/empty";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@workspace/ui/components/sheet";
-import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { PageHeader } from "@/components/common/page-header";
 import {
   JlptQuestionsToolbar,
@@ -51,7 +32,6 @@ import {
   type JlptMondaiOption,
 } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
-import { JlptQuestionForm } from "@/components/academy/jlpt/jlpt-question-form";
 import { SmartPagination } from "@/components/common/smart-pagination";
 import { toast } from "sonner";
 
@@ -71,9 +51,6 @@ export default function JlptQuestionsPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
 
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState<JlptBankQuestion | null>(null);
-  const [sheetNonce, setSheetNonce] = useState(0);
 
   const prevFilters = useRef({
     level,
@@ -166,18 +143,6 @@ export default function JlptQuestionsPage() {
     setMondaiCode("all");
   };
 
-  const openAdd = () => {
-    setEditingQuestion(null);
-    setSheetNonce((x) => x + 1);
-    setIsSheetOpen(true);
-  };
-
-  const openEdit = (question: JlptBankQuestion) => {
-    setEditingQuestion(question);
-    setSheetNonce((x) => x + 1);
-    setIsSheetOpen(true);
-  };
-
   /** Nhóm theo phần thi (section) — đúng với cấu trúc JLPT: mỗi section chứa nhiều mondai/câu. */
   const questionsBySection = useMemo(() => {
     const map = new Map<string, JlptBankQuestion[]>();
@@ -201,40 +166,8 @@ export default function JlptQuestionsPage() {
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
         title="Ngân hàng Câu hỏi JLPT"
-        subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe; chi tiết từng dạng (漢字読み, 内容理解…) lọc bằng Mondai."
-        actions={
-          <Button className="gap-2" size="lg" onClick={openAdd}>
-            <Plus className="size-4" />
-            Thêm câu hỏi
-          </Button>
-        }
+        subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe; trang đang ở chế độ chỉ xem (read-only)."
       />
-
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="flex h-full !w-full flex-col p-0 sm:!max-w-[800px]">
-          <SheetHeader className="shrink-0 border-b p-4 sm:p-6">
-            <SheetTitle>{editingQuestion ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}</SheetTitle>
-            <SheetDescription>
-              Nhập nội dung câu hỏi, tùy chọn ngữ cảnh / media và các đáp án.
-            </SheetDescription>
-          </SheetHeader>
-          <ScrollArea className="min-h-0 flex-1">
-            <div className="p-3 pb-6 sm:p-6">
-              <JlptQuestionForm
-                key={`${editingQuestion?.id ?? "new"}-${level}-${section}-${sheetNonce}`}
-                initialData={editingQuestion}
-                presetLevelCode={level === "all" ? undefined : level}
-                presetSectionCode={section === "all" ? undefined : section}
-                onSuccess={() => {
-                  setIsSheetOpen(false);
-                  fetchQuestions();
-                }}
-                onCancel={() => setIsSheetOpen(false)}
-              />
-            </div>
-          </ScrollArea>
-        </SheetContent>
-      </Sheet>
 
       <div className="space-y-4">
         <JlptQuestionsToolbar
@@ -268,7 +201,7 @@ export default function JlptQuestionsPage() {
                   <TableHead className="w-[200px]">Mondai</TableHead>
                   <TableHead className="w-[88px]">Độ khó</TableHead>
                   <TableHead className="w-[72px]">Media</TableHead>
-                  <TableHead className="w-[88px] text-right">Lệnh</TableHead>
+                  <TableHead className="w-[88px] text-right">Trạng thái</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -372,28 +305,7 @@ export default function JlptQuestionsPage() {
                               {q.imageAssetId && <ImageIcon className="size-4 text-emerald-500" />}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 gap-1 border-slate-500/30 bg-transparent px-2 text-slate-700 hover:bg-slate-50 hover:text-slate-700 sm:gap-2 sm:px-3"
-                                >
-                                  <MoreHorizontal className="size-4 shrink-0" />
-                                  <span className="hidden sm:inline">Thao tác</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem className="gap-2" onClick={() => openEdit(q)}>
-                                  <Edit className="size-4" /> Sửa
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="gap-2 text-destructive">
-                                  <Trash2 className="size-4" /> Xóa
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+                          <TableCell className="text-right text-xs text-muted-foreground">Read-only</TableCell>
                         </TableRow>
                       ))}
                     </Fragment>

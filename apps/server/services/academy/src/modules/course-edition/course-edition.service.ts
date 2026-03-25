@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../audit-logger.service';
 import {
@@ -15,7 +19,9 @@ export class CourseEditionService {
     private readonly audit: AuditLoggerService,
   ) {}
 
-  async findAll(query: AcademyCourseEditionQueryDTO): Promise<AcademyCourseEditionModel[]> {
+  async findAll(
+    query: AcademyCourseEditionQueryDTO,
+  ): Promise<AcademyCourseEditionModel[]> {
     const q = query.q?.trim();
 
     const where: any = {};
@@ -46,7 +52,9 @@ export class CourseEditionService {
       select: { id: true },
     });
     if (exists) {
-      throw new BadRequestException(`CourseEdition key '${input.key}' already exists`);
+      throw new BadRequestException(
+        `CourseEdition key '${input.key}' already exists`,
+      );
     }
 
     const item = await this.prisma.courseEdition.create({
@@ -72,8 +80,14 @@ export class CourseEditionService {
     return item;
   }
 
-  async update(id: string, input: AcademyCourseEditionUpdateDTO, requesterId?: string) {
-    const before = await this.prisma.courseEdition.findUnique({ where: { id } });
+  async update(
+    id: string,
+    input: AcademyCourseEditionUpdateDTO,
+    requesterId?: string,
+  ) {
+    const before = await this.prisma.courseEdition.findUnique({
+      where: { id },
+    });
     if (!before) throw new NotFoundException('CourseEdition not found');
 
     const item = await this.prisma.courseEdition.update({
@@ -100,4 +114,3 @@ export class CourseEditionService {
     return item;
   }
 }
-

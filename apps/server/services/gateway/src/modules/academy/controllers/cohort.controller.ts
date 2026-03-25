@@ -165,7 +165,10 @@ export class CohortController {
   @Permissions('academy.commerce.write')
   async approve(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.cohort.update' }, { id, input: { status: 'OPENING' } }),
+      this.nats.send(
+        { cmd: 'academy.cohort.update' },
+        { id, input: { status: 'OPENING' } },
+      ),
     );
     return successResponse(item);
   }
@@ -177,7 +180,10 @@ export class CohortController {
     @Body() body: { reason: string },
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.cohort.update' }, { id, input: { status: 'DRAFT', rejectionReason: body.reason } }),
+      this.nats.send(
+        { cmd: 'academy.cohort.update' },
+        { id, input: { status: 'DRAFT', rejectionReason: body.reason } },
+      ),
     );
     return successResponse(item);
   }

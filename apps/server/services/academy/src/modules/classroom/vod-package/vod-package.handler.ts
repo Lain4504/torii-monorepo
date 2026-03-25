@@ -7,17 +7,27 @@ export class VodPackageHandler {
   constructor(private readonly service: VodPackageService) {}
 
   @MessagePattern({ cmd: 'academy.vod.findAll' })
-  findAll(@Payload() query: any) { return this.service.findAll(query); }
+  findAll(@Payload() query: any) {
+    return this.service.findAll(query);
+  }
 
   @MessagePattern({ cmd: 'academy.vod.findById' })
-  findById(@Payload() data: { id: string }) { return this.service.findById(data.id); }
+  findById(@Payload() data: { id: string }) {
+    return this.service.findById(data.id);
+  }
 
   @MessagePattern({ cmd: 'academy.vod.create' })
-  create(@Payload() data: any) { return this.service.create(data); }
+  create(@Payload() data: any) {
+    return this.service.create(data);
+  }
 
   @MessagePattern({ cmd: 'academy.vod.update' })
-  update(@Payload() data: any) { return this.service.update(data.id, data.input); }
+  update(@Payload() data: any) {
+    return this.service.update(data.id, data.input);
+  }
 
   @MessagePattern({ cmd: 'academy.vod.delete' })
-  delete(@Payload() data: { id: string }) { return this.service.delete(data.id); }
+  delete(@Payload() data: { id: string }) {
+    return this.service.delete(data.id);
+  }
 }

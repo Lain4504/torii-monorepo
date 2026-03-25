@@ -121,7 +121,7 @@ export function BlogListClient() {
                                                 </p>
                                             )}
                                             <Link
-                                                href={`/blogs/${blog.slug}`}
+                                                href={`/dashboard/blogs/${blog.slug}`}
                                                 className="text-foreground text-xs font-black uppercase tracking-widest flex items-center gap-2 mt-auto pt-4 w-fit group/link"
                                             >
                                                 Đọc chi tiết

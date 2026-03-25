@@ -24,13 +24,15 @@ export class GamificationActivityListener {
       return;
     }
     if (!this.isActivityType(data.activityType)) {
-      this.logger.warn(`Bỏ qua activity type không hợp lệ: ${data.activityType}`);
+      this.logger.warn(
+        `Bỏ qua activity type không hợp lệ: ${data.activityType}`,
+      );
       return;
     }
     try {
       await this.gamification.trackActivity(
         data.userId,
-        data.activityType as ActivityType,
+        data.activityType,
         data.meta ?? {},
       );
     } catch (e: unknown) {

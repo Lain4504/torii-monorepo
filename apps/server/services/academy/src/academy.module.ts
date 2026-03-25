@@ -16,7 +16,6 @@ import { CourseEditionModule } from '@server/academy/modules/course-edition/cour
 import { JlptMockModule } from '@server/academy/modules/jlpt-mock/jlpt-mock.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuditModule } from './modules/audit.module';
-import { StudyNoteModule } from './modules/study-note/study-note.module';
 import { StudySetModule } from './modules/study-set/study-set.module';
 import { LessonModule } from './modules/lesson/lesson.module';
 import { WalletModule } from './modules/wallet/wallet.module';
@@ -41,7 +40,6 @@ import { ResourceModule } from './modules/resource/resource.module';
     CourseEditionModule,
     JlptMockModule,
     InfrastructureModule,
-    StudyNoteModule,
     StudySetModule,
     LessonModule,
     WalletModule,

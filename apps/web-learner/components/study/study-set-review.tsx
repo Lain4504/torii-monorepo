@@ -6,6 +6,7 @@ import {
   useAcademyStudyCards as useStudyCards,
   useReviewAcademyCard as useReviewCard 
 } from '@/lib/api/services/academy-study-set-api';
+import { useAppSelector } from '@/hooks/hooks';
 import {
   Card,
   CardContent,
@@ -25,6 +26,7 @@ import {
 
 export function StudySetReview({ setId }: { setId: string }) {
   const router = useRouter();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { mutate: reviewCard } = useReviewCard();
 
   const [displayCards, setDisplayCards] = useState<any[]>([]);
@@ -41,7 +43,19 @@ export function StudySetReview({ setId }: { setId: string }) {
   }, [setId]);
 
   // Lấy danh sách thẻ đến hạn ôn
-  const { data: cards, isLoading, isError, refetch } = useStudyCards(setId);
+  const { data: cards, isLoading, isError, refetch } = useStudyCards(setId, { enabled: isAuthenticated });
+
+  if (!isAuthenticated) {
+    return (
+      <Card className="flex-1 flex flex-col items-center justify-center text-center">
+        <CardContent className="space-y-4 py-8">
+          <h2 className="text-lg font-semibold">Can dang nhap de hoc Flashcard</h2>
+          <p className="text-sm text-muted-foreground">Ban co the xem bo the, nhung che do hoc chi danh cho tai khoan da dang nhap.</p>
+          <Button data-requires-auth="true">Dang nhap de tiep tuc</Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   useEffect(() => {
     if (cards && !isInitialized) {
@@ -142,6 +156,7 @@ export function StudySetReview({ setId }: { setId: string }) {
             selectedSetId={setId}
             selectedCount={0}
             activeMode="review"
+          canAccessLearning={isAuthenticated}
           />
         </div>
       </div>
@@ -168,6 +183,7 @@ export function StudySetReview({ setId }: { setId: string }) {
           flashcardsData={flashcardsData}
           hideInternalCompletion
           onRate={(rating) => {
+            if (!isAuthenticated) return;
             reviewCard({
               cardId: rating.cardId,
               payload: { quality: rating.difficulty === 'known' ? 1 : 0 },
@@ -215,6 +231,7 @@ export function StudySetReview({ setId }: { setId: string }) {
           selectedSetId={setId}
           selectedCount={flashcardsData.cards.length}
           activeMode="review"
+          canAccessLearning={isAuthenticated}
         />
       </div>
     </div>

@@ -56,7 +56,7 @@ export function subtractDays(date: Date | string | number, amount: number): Date
  * @param minutes Threshold in minutes
  * @returns boolean
  */
-export const isWithinGracePeriod = (createdAt: string | Date, minutes: number = 30) => {
+export const isWithinGracePeriod = (createdAt: string | Date, minutes: number = 15) => {
     if (!createdAt) return false;
     try {
         const expirationTime = addMinutes(new Date(createdAt), minutes);
@@ -72,7 +72,7 @@ export const isWithinGracePeriod = (createdAt: string | Date, minutes: number = 
  * @param minutes Threshold in minutes
  * @returns number of seconds remaining
  */
-export const getRemainingSeconds = (createdAt: string | Date, minutes: number = 30) => {
+export const getRemainingSeconds = (createdAt: string | Date, minutes: number = 15) => {
     if (!createdAt) return 0;
     try {
         const expirationTime = addMinutes(new Date(createdAt), minutes);

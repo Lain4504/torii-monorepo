@@ -28,18 +28,44 @@ export const academySetCardReviewDTOSchema = z.object({
 })
 export type AcademySetCardReviewDTO = z.infer<typeof academySetCardReviewDTOSchema>
 
+export const academyClonePublicStudySetDTOSchema = z.object({
+    sourceSetId: z.string().uuid(),
+    title: z.string().min(1).optional(),
+})
+export type AcademyClonePublicStudySetDTO = z.infer<typeof academyClonePublicStudySetDTOSchema>
+
+export const academyStudySetShareDTOSchema = z.object({
+    isPublic: z.boolean(),
+})
+export type AcademyStudySetShareDTO = z.infer<typeof academyStudySetShareDTOSchema>
+
+export type AcademyStudySetSourceType = "USER" | "SYSTEM"
+
 export type AcademyStudySetModel = {
     id: string
     userId: string
     title: string
     description?: string | null
     isPublic: boolean,
+    sourceType?: AcademyStudySetSourceType
+    shareToken?: string | null
     settings?: Record<string, any> | null
     createdAt: string
     updatedAt: string
     _count?: {
         setCards: number
     }
+    isCatalog?: boolean
+}
+
+export type AcademyPublicStudySetModel = {
+    id: string
+    title: string
+    description?: string | null
+    shareToken?: string | null
+    setCards: AcademySetCardModel[]
+    createdAt: string
+    updatedAt: string
 }
 
 export type AcademySetCardModel = {

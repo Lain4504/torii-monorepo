@@ -15,7 +15,6 @@ import { OrderController } from './controllers/order.controller';
 import { CouponController } from './controllers/coupon.controller';
 import { WebhookController } from './controllers/webhook.controller';
 import { CourseReviewController } from './controllers/course-review.controller';
-import { StudyNoteController } from './controllers/study-note.controller';
 import { StudySetController } from './controllers/study-set.controller';
 import {
   AcademyLiveSessionController,
@@ -49,7 +48,6 @@ import { AcademyResourceController } from './controllers/academy-resource.contro
     CouponController,
     WebhookController,
     CourseReviewController,
-    StudyNoteController,
     StudySetController,
     AcademyLiveSessionController,
     LiveSessionJoinController,

@@ -2,12 +2,13 @@
 
 import * as React from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
+import { GuestActionGuard } from '@/components/auth/guest-action-guard'
 
 export default function DashboardLayout({
     children,
@@ -15,8 +16,8 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     const { isAuthenticated, status, user } = useAppSelector((state) => state.auth)
-    const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
+    const pathname = usePathname()
     const [mounted, setMounted] = React.useState(false)
     const [streakModalOpen, setStreakModalOpen] = React.useState(false)
 
@@ -25,10 +26,6 @@ export default function DashboardLayout({
     }, [])
 
     useEffect(() => {
-        if (mounted && status === 'succeeded' && !isAuthenticated) {
-            router.push('/login')
-        }
-
         if (mounted && status === 'succeeded' && isAuthenticated && user && !user.isOnboarded) {
             router.push('/onboarding')
         }
@@ -47,22 +44,29 @@ export default function DashboardLayout({
         )
     }
 
-    if (!isAuthenticated) {
-        return null
+    const layoutContent = (
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+                <DashboardHeader
+                    onOpenStreakModal={() => setStreakModalOpen(true)}
+                    isGuest={!isAuthenticated}
+                />
+                <main className="flex-1 overflow-y-auto scrollbar-none">
+                    <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                        {children}
+                    </div>
+                </main>
+                <StreakWelcomeModal open={streakModalOpen} onOpenChange={setStreakModalOpen} />
+            </SidebarInset>
+        </SidebarProvider>
+    )
+
+    const isGuestDashboardHome = pathname === '/dashboard' || pathname === '/dashboard/'
+
+    if (!isAuthenticated && !isGuestDashboardHome) {
+        return <GuestActionGuard>{layoutContent}</GuestActionGuard>
     }
 
-  return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
-            <main className="flex-1 overflow-y-auto scrollbar-none">
-          <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-            {children}
-          </div>
-        </main>
-        <StreakWelcomeModal open={streakModalOpen} onOpenChange={setStreakModalOpen} />
-      </SidebarInset>
-    </SidebarProvider>
-    )
+    return layoutContent
 }

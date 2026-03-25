@@ -104,4 +104,9 @@ export class OrderHandler {
   findOneForUser(@Payload() data: { userId: string; id: string }) {
     return this.orderService.findOneForUser(data.userId, data.id);
   }
+
+  @MessagePattern({ cmd: 'academy.order.repay' })
+  repay(@Payload() data: { userId: string; orderId: string }) {
+    return this.orderService.repayOrder(data.userId, data.orderId);
+  }
 }
