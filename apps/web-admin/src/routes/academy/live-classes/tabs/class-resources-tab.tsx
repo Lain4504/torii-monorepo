@@ -224,25 +224,9 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
         return <Skeleton className="h-48 w-full rounded-2xl" />
     }
 
-    if (!folders || folders.length === 0) {
-        return (
-            <Card className="rounded-2xl border-dashed">
-                <CardContent className="py-12 flex flex-col items-center text-center">
-                    <Folder className="size-16 text-muted-foreground/20 mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Chưa có thư mục tài liệu</h3>
-                    <p className="text-muted-foreground mb-6 max-w-sm">
-                        Lớp học này chưa được cấu hình thư mục chia sẻ tài liệu. Hãy khởi tạo ngay để bắt đầu upload tài liệu cho học viên.
-                    </p>
-                    <Button onClick={() => setIsAddingFolder(true)} className="rounded-xl">
-                        Khởi tạo thư mục
-                    </Button>
-                </CardContent>
-            </Card>
-        )
-    }
-
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Header section with Create Folder/Resource Dialogs */}
             <div className="flex items-center justify-between">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -469,7 +453,10 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
                         <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed">
                             <Folder className="size-16 text-muted-foreground/10 mx-auto mb-4" />
                             <h4 className="font-bold">Chưa có thư mục nào</h4>
-                            <p className="text-sm text-muted-foreground">Hãy bắt đầu bằng cách tạo thư mục để tổ chức tài liệu.</p>
+                            <p className="text-sm text-muted-foreground mb-6">Hãy bắt đầu bằng cách tạo thư mục để tổ chức tài liệu.</p>
+                            <Button onClick={() => setIsAddingFolder(true)} className="rounded-xl">
+                                Khởi tạo thư mục
+                            </Button>
                         </div>
                     )
                 ) : (
