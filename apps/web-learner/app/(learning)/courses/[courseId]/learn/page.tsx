@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo, type SyntheticEvent } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAcademyClass, useCurriculum, type CurriculumLesson, type CurriculumModule } from '@/lib/api/services/academy-classes';
+import { useAcademyVodPackage, useAcademyVodCurriculum, useAcademyVodEnrollmentCheck, useAcademyVodCompletedLessonIds, academyVodLearningProgressApi } from '@/lib/api/services/academy-vod';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
 import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/api/services/academy-learning-progress-api';
 import { useAcademyLesson } from '@/lib/api/services/academy-lesson-api';
@@ -310,14 +311,31 @@ export default function CourseLearnPage() {
     const queryClient = useQueryClient();
     const hasHandledForbiddenRef = useRef(false);
 
-    // ── API ────────────────────────────────────────────────────────────────
-    // 1. Fetch the class (V2 Class model)
-    const { data: classData, isLoading: classLoading, error: classError } = useAcademyClass(classId);
+    // ── API (Smart Bridge) ────────────────────────────────────────────────
+    // 1. Try to fetch as a Live Class
+    const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(classId);
+    const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(classId);
+    
+    // 2. Try to fetch as a VOD Package if Live Class is not found (404)
+    const isVodCandidate = (liveClassError as any)?.response?.status === 404 || (liveCurriculumError as any)?.response?.status === 404;
+    
+    const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
+    const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
 
-    // 2. Fetch curriculum & enrollment / progress based on classId
-    const { data: curriculum, isLoading: curriculumLoading, error: curriculumError } = useCurriculum(classId);
+    // 3. Consolidated Data
+    const classData = liveClassData || vodPackageData;
+    const curriculum = liveCurriculum || vodCurriculum;
+    const isLoading = (liveClassLoading && liveCurriculumLoading) || (isVodCandidate && (vodLoading || vodCurriculumLoading));
+
+    // 4. Enrollment & Progress
+    // We use the original enrollment check as it handles both adequately via query param (which backend ignores but returns all)
     const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
-    const { data: completedContentItemIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
+    
+    // For completed lessons, we use a smart selection
+    // Original hook doesn't support options object, so we call it simply
+    const { data: liveCompletedIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
+    const { data: vodCompletedIds = [] } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
+    const completedContentItemIds = isVodCandidate ? vodCompletedIds : liveCompletedIds;
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -327,7 +345,7 @@ export default function CourseLearnPage() {
     const [activeTab, setActiveTab] = useState<'content' | 'discussion'>('content');
 
     useEffect(() => {
-        const err = (classError || curriculumError || enrollmentError) as any;
+        const err = (liveClassError || liveCurriculumError || enrollmentError) as any;
         const status = err?.response?.status;
         if (!hasHandledForbiddenRef.current && status === 403) {
             hasHandledForbiddenRef.current = true;
@@ -420,13 +438,23 @@ export default function CourseLearnPage() {
         }
         if (completedIds.has(lessonProgressId(currentLesson))) { toast.info('Nội dung này đã được hoàn thành!'); return; }
         try {
-            await academyLearningProgressApi.trackProgress({
-                lessonId: currentLesson.id,
-                classId: classId!,
-            });
-            await queryClient.invalidateQueries({
-                queryKey: ['academy-learning', 'completed-lessons', classId],
-            });
+            if (isVodCandidate) {
+                await academyVodLearningProgressApi.trackProgress({
+                    lessonId: currentLesson.id,
+                    packageId: classId!,
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: ['academy-vod-learning', 'completed-lessons', classId],
+                });
+            } else {
+                await academyLearningProgressApi.trackProgress({
+                    lessonId: currentLesson.id,
+                    classId: classId!,
+                });
+                await queryClient.invalidateQueries({
+                    queryKey: ['academy-learning', 'completed-lessons', classId],
+                });
+            }
             toast.success('Đã hoàn thành nội dung! 🎉');
         } catch (e: any) {
             toast.error(e?.userMessage || 'Không thể cập nhật tiến độ.');
@@ -466,7 +494,7 @@ export default function CourseLearnPage() {
         completedIds.has(lessonProgressId(currentLesson));
 
     // ── Loading ────────────────────────────────────────────────────────────
-    if (classLoading || curriculumLoading) {
+    if (isLoading) {
         return (
             <div className="bg-background h-screen flex flex-col">
                 <div className="h-16 border-b border-border bg-card flex items-center px-6 gap-4">
@@ -488,7 +516,7 @@ export default function CourseLearnPage() {
     }
 
     // If forbidden handled, avoid flicker / crashes while redirecting
-    const firstError: any = (classError || curriculumError || enrollmentError) as any;
+    const firstError: any = (liveClassError || liveCurriculumError || enrollmentError) as any;
     if (firstError?.response?.status === 403) {
         return (
             <div className="h-screen flex items-center justify-center bg-background">

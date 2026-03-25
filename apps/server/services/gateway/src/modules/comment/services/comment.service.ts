@@ -40,12 +40,46 @@ export class CommentService {
     comment: any,
     currentUserId?: string,
     replyCountOverride?: number,
+    requesterPermissions?: string[],
+    isVODContext: boolean = false,
   ): CommentResponseDTO {
     const likes = Array.isArray(comment.likes) ? comment.likes : [];
     const isLiked = !!currentUserId && likes.length > 0;
 
     const replyCount = replyCountOverride ?? comment?._count?.replies ?? 0;
     const likeCount = comment?._count?.likes ?? 0;
+
+    // --- Official Reply Logic (SPEC VOD Discussion) ---
+    const userRole = comment.user?.role;
+    const isInstructor = userRole === 'instructor';
+    const isAdminOrStaff = userRole === 'admin' || userRole === 'staff';
+
+    // Official if the author has an internal role (Instructor/Staff/Admin)
+    const isOfficialReply = isAdminOrStaff || isInstructor;
+
+    // Mapping labels according to SPEC:
+    // Staff/Admin/Instructor -> 'Torii Support'
+    // Fallback -> 'Học viên'
+    let authorRoleLabel: 'Torii Support' | 'Giảng viên' | 'Học viên' = 'Học viên';
+    
+    if (isOfficialReply) {
+      // Per SPEC: INSTRUCTOR, STAFF, ADMIN all get 'Torii Support' label
+      authorRoleLabel = 'Torii Support';
+    }
+
+    const authorData = comment.user
+      ? {
+          id: comment.user.id,
+          displayName:
+            isOfficialReply && isVODContext
+              ? 'Torii Support'
+              : comment.user.displayName,
+          avatarUrl:
+            isOfficialReply && isVODContext
+              ? undefined
+              : (comment.user.avatarUrl ?? undefined),
+        }
+      : undefined;
 
     return {
       id: comment.id,
@@ -55,24 +89,22 @@ export class CommentService {
       status: comment.status,
       createdAt: comment.createdAt,
       updatedAt: comment.updatedAt,
-      author: comment.user
-        ? {
-            id: comment.user.id,
-            displayName: comment.user.displayName,
-            avatarUrl: comment.user.avatarUrl ?? undefined,
-          }
-        : undefined,
+      author: authorData,
+      authorRoleLabel,
+      isOfficialReply,
       replyCount,
       likeCount,
       isLiked,
       replies: [],
-    } as any;
+    };
   }
 
   private async buildNestedReplies(
     parentId: string,
     depth: number,
     currentUserId?: string,
+    requesterPermissions?: string[],
+    isVODContext: boolean = false,
   ): Promise<CommentResponseDTO[]> {
     if (depth <= 0) return [];
 
@@ -97,11 +129,19 @@ export class CommentService {
 
     return Promise.all(
       replies.map(async (reply: any) => {
-        const dto = this.toCommentDTO(reply, currentUserId);
+        const dto = this.toCommentDTO(
+          reply,
+          currentUserId,
+          undefined,
+          requesterPermissions,
+          isVODContext,
+        );
         dto.replies = await this.buildNestedReplies(
           reply.id,
           depth - 1,
           currentUserId,
+          requesterPermissions,
+          isVODContext,
         );
         return dto;
       }),
@@ -276,10 +316,17 @@ export class CommentService {
     const data: CommentResponseDTO[] = await Promise.all(
       rootComments.map(async (comment: any) => {
         const replyCount = comment?._count?.replies ?? 0;
-        const dto = this.toCommentDTO(comment, currentUserId);
+        const isVODContext = String(query.targetType) === 'DISCUSSION';
+        const dto = this.toCommentDTO(
+          comment,
+          currentUserId,
+          undefined,
+          requesterPermissions,
+          isVODContext,
+        );
 
         // For lesson-discussion: show "ANSWERED" badge when there are answers.
-        if (String(query.targetType) === 'DISCUSSION' && replyCount > 0) {
+        if (isVODContext && replyCount > 0) {
           dto.status = 'ANSWERED' as any;
         }
 
@@ -287,6 +334,8 @@ export class CommentService {
           comment.id,
           depth - 1,
           currentUserId,
+          requesterPermissions,
+          isVODContext,
         );
         return dto;
       }),
@@ -327,6 +376,7 @@ export class CommentService {
       include: {
         user: true,
         _count: { select: { replies: true, likes: true } },
+        targets: true,
         ...(currentUserId
           ? { likes: { where: { userId: currentUserId } } }
           : {}),
@@ -337,11 +387,22 @@ export class CommentService {
       throw new NotFoundException('Comment not found');
     }
 
-    const dto = this.toCommentDTO(comment, currentUserId);
+    const isVODContext = comment.targets.some(
+      (t: any) => t.targetType === 'DISCUSSION',
+    );
+    const dto = this.toCommentDTO(
+      comment,
+      currentUserId,
+      undefined,
+      requesterPermissions,
+      isVODContext,
+    );
     dto.replies = await this.buildNestedReplies(
       comment.id,
       Math.max(0, depth - 1),
       currentUserId,
+      requesterPermissions,
+      isVODContext,
     );
     return dto;
   }
@@ -381,7 +442,14 @@ export class CommentService {
         },
       });
 
-      const dtoOut = this.toCommentDTO(comment as any, requesterId, 0);
+      const isVODContext = String(targetType) === 'DISCUSSION';
+      const dtoOut = this.toCommentDTO(
+        comment as any,
+        requesterId,
+        0,
+        requesterPermissions,
+        isVODContext,
+      );
       dtoOut.replies = [];
       return dtoOut;
     }
@@ -421,7 +489,14 @@ export class CommentService {
       return created;
     });
 
-    const dtoOut = this.toCommentDTO(comment as any, requesterId, 0);
+    const isVODContext = String(targetType) === 'DISCUSSION';
+    const dtoOut = this.toCommentDTO(
+      comment as any,
+      requesterId,
+      0,
+      requesterPermissions,
+      isVODContext,
+    );
     dtoOut.replies = [];
     return dtoOut;
   }

@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { commentApi } from '@/lib/api/services/comment-api'
 import type { CommentResponseDTO } from '@workspace/schemas'
-import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash, MessageSquare } from 'lucide-react'
+import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash, MessageSquare, Shield } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@workspace/ui/components/dropdown-menu'
 import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
 import { formatDistanceToNow } from 'date-fns'
+import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { vi } from 'date-fns/locale'
 import { formatNumber } from '@/utils/format-utils'
 import Link from 'next/link'
@@ -329,9 +330,15 @@ function CommentItem({
                 <div className="flex-1 space-y-2">
                     {/* Author & Time */}
                     <div className="flex items-center gap-2">
-                        <Link href={`/user/${comment.author?.id}`} className="font-bold text-sm hover:text-primary transition-colors">
+                        <Link href={comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE ? '#' : `/user/${comment.author?.id}`} className={cn("font-bold text-sm transition-colors", comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE ? "text-primary hover:text-primary cursor-default" : "hover:text-primary")}>
                             {comment.author?.displayName || 'Unknown User'}
                         </Link>
+                        {comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE && (
+                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-black uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
+                                <Shield className="size-2.5 fill-current" />
+                                {comment.authorRoleLabel || 'Torii Support'}
+                            </Badge>
+                        )}
                         <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
                             • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
                         </span>

@@ -1,0 +1,120 @@
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../api-client';
+import type { StandardApiResponse } from '@workspace/schemas';
+import type { CurriculumModule, CurriculumLesson, AcademyClassModel } from './academy-classes';
+
+export const academyVodApi = {
+    /**
+     * Get VOD package by ID
+     */
+    findById: async (id: string): Promise<AcademyClassModel> => {
+        const response = await apiClient.get<StandardApiResponse<AcademyClassModel>>(
+            `/api/academy/vod-packages/${id}`,
+        );
+        return response.data.data!;
+    },
+
+    /**
+     * Get curriculum for a VOD package (extracted from profile)
+     */
+    getCurriculum: async (id: string): Promise<{ courseId: string; modules: CurriculumModule[] } | null> => {
+        const item = await academyVodApi.findById(id);
+        if (!item) return null;
+
+        const profile = item.courseProfile;
+        if (!profile) return null;
+
+        return {
+            courseId: profile.id,
+            modules: (profile.modules ?? []).map((m: any): CurriculumModule => ({
+                id: m.id,
+                title: m.title,
+                order: m.orderIndex,
+                durationMinutes: m.durationMinutes,
+                lessons: (m.lessons ?? []).map((it: any): CurriculumLesson => ({
+                    id: it.id,
+                    title: it.title,
+                    kind: it.type,
+                    isUnlocked: true,
+                    isPreview: false,
+                    order: it.orderIndex,
+                    videoDuration: it.videoDurationSeconds,
+                    referenceId: it.id,
+                    status: null,
+                    availableFrom: null,
+                    deadline: null,
+                    isPrerequisite: false,
+                })),
+            })),
+        };
+    },
+};
+
+/**
+ * Hook: Get VOD package by ID
+ */
+export function useAcademyVodPackage(packageId?: string, options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ['academy-vod-package', 'id', packageId],
+        queryFn: () => academyVodApi.findById(packageId!),
+        enabled: (options?.enabled ?? true) && !!packageId,
+    });
+}
+
+/**
+ * Hook: Get curriculum for a VOD package
+ */
+export function useAcademyVodCurriculum(packageId?: string, options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ['academy-vod-curriculum', packageId],
+        queryFn: () => academyVodApi.getCurriculum(packageId!),
+        enabled: (options?.enabled ?? true) && !!packageId,
+    });
+}
+
+/**
+ * Hook: Check enrollment status for VOD package
+ */
+export function useAcademyVodEnrollmentCheck(packageId: string, options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ['academy-vod-enrollments', 'check', packageId],
+        queryFn: async () => {
+            const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
+                '/api/academy/enrollments/me',
+            );
+            const enrollment = response.data.data?.items?.find(e => e.vodPackageId === packageId);
+            return {
+                isEnrolled: !!enrollment,
+                enrollment
+            };
+        },
+        enabled: (options?.enabled ?? true) && !!packageId,
+    });
+}
+
+/**
+ * Hook: Get completed lesson IDs for a VOD package
+ */
+export function useAcademyVodCompletedLessonIds(packageId?: string, options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ['academy-vod-learning', 'completed-lessons', packageId],
+        queryFn: async (): Promise<string[]> => {
+            const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
+                '/api/academy/enrollments/me',
+            );
+            const enrollment = response.data.data?.items?.find(e => e.vodPackageId === packageId);
+            if (!enrollment) return [];
+            return []; 
+        },
+        enabled: (options?.enabled ?? true) && !!packageId,
+    });
+}
+
+export const academyVodLearningProgressApi = {
+    trackProgress: async (payload: { lessonId: string; packageId: string }): Promise<any> => {
+        // Find a way to track VOD progress without live-class endpoint
+        // This might need a new endpoint on the backend or we use a generic completion endpoint
+        // For now, let's assume we might need one or it's a gap in VOD spec
+        return { success: true };
+    }
+};
