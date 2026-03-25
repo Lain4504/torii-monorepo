@@ -222,15 +222,17 @@ export default function CourseProfilesPage() {
                                                     <Eye className="h-3.5 w-3.5" />
                                                     <span>Chi tiết</span>
                                                 </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
-                                                    onClick={() => handleEdit(profile)}
-                                                >
-                                                    <Pencil className="h-3.5 w-3.5" />
-                                                    <span>Chỉnh sửa</span>
-                                                </Button>
+                                                {((profile as any).status === 'DRAFT' || (profile as any).status === 'PENDING_APPROVAL') && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        onClick={() => handleEdit(profile)}
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                        <span>Chỉnh sửa</span>
+                                                    </Button>
+                                                )}
 
                                                 {(profile as any).status === 'DRAFT' && (
                                                     <Button

@@ -177,14 +177,16 @@ export default function VodPackagesPage() {
                                                 >
                                                     <Eye className="size-3.5" /> Chi tiết
                                                 </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
-                                                    onClick={() => handleEdit(pkg)}
-                                                >
-                                                    <Pencil className="size-3.5" /> Chỉnh sửa
-                                                </Button>
+                                                {(pkg.status === 'DRAFT' || pkg.status === 'PENDING_APPROVAL') && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        onClick={() => handleEdit(pkg)}
+                                                    >
+                                                        <Pencil className="size-3.5" /> Chỉnh sửa
+                                                    </Button>
+                                                )}
 
                                                 {pkg.status === 'DRAFT' && (
                                                     <Button

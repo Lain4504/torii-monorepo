@@ -40,7 +40,7 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
 const liveClassSchema = z.object({
-  cohortId: z.string().uuid("Vui lòng chọn Khóa học (Cohort)"),
+  cohortId: z.string().uuid("Vui lòng chọn Đợt khai giảng"),
   code: z.string().min(2, "Mã lớp phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên lớp phải có ít nhất 3 ký tự"),
   instructorId: z.string().uuid().optional().nullable(),
@@ -144,7 +144,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin vận hành cho lớp học này."
-              : "Khởi tạo một lớp học LIVE mới thuộc về một Khóa học (Cohort)."}
+              : "Khởi tạo một lớp học LIVE mới thuộc về một Đợt khai giảng."}
           </SheetDescription>
         </SheetHeader>
 
@@ -156,7 +156,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                   <FieldLegend>Liên kết cấu trúc</FieldLegend>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>Khóa học / Cohort (Sesssion Group)</FieldLabel>
+                      <FieldLabel>Đợt khai giảng (Session Group)</FieldLabel>
                       <Controller
                         name="cohortId"
                         control={control}
@@ -167,7 +167,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                             disabled={isEditing}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Chọn Khóa học (Cohort)" />
+                              <SelectValue placeholder="Chọn Đợt khai giảng" />
                             </SelectTrigger>
                             <SelectContent>
                               {cohorts?.map((c) => (
