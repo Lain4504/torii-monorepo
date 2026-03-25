@@ -19,6 +19,7 @@ import { AuditModule } from './modules/audit.module';
 import { StudySetModule } from './modules/study-set/study-set.module';
 import { LessonModule } from './modules/lesson/lesson.module';
 import { WalletModule } from './modules/wallet/wallet.module';
+import { GamificationV2Module } from './modules/gamification-v2/gamification-v2.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     StudySetModule,
     LessonModule,
     WalletModule,
+    GamificationV2Module,
   ],
   providers: [
     {

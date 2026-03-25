@@ -164,6 +164,12 @@ export const authSlice = createSlice({
             state.status = 'idle';
             state.error = null;
         },
+        // Used for onboarding v2 skeleton: mark user as onboarded locally
+        // until backend fully supports `PUT /api/v1/learners/me/profile`.
+        markOnboardedLocal: (state, action) => {
+            if (!state.user) return;
+            (state.user as any).isOnboarded = action.payload;
+        },
     },
     extraReducers: (builder) => {
         // Login
@@ -263,6 +269,6 @@ export const authSlice = createSlice({
     },
 });
 
-export const { clearError, resetAuth } = authSlice.actions;
+export const { clearError, resetAuth, markOnboardedLocal } = authSlice.actions;
 
 export default authSlice.reducer;

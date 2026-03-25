@@ -73,8 +73,10 @@ export const academyLearningProgressApi = {
      */
     getHistory: async (): Promise<any[]> => {
         // Redirection to gamification history as a fallback or if unified
-        const response = await apiClient.get<StandardApiResponse<any>>('/api/gamification/history');
-        return (response.data.data?.items ?? []).map((it: any) => ({
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/v2/game/history');
+        const payload = response.data?.data;
+        const items = payload?.items ?? (Array.isArray(payload) ? payload : []);
+        return items.map((it: any) => ({
             id: it.id,
             userId: it.userId,
             classId: it.metadata?.classId,

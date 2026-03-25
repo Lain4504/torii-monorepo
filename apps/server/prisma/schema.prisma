@@ -847,6 +847,358 @@ model GamificationHistory {
 }
 
 // ==================================================
+// PLANNING LAYER (Learning Path)
+// ==================================================
+
+model PersonalLearningPlan {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+
+  targetJlptLevel String? @map("target_jlpt_level") @db.VarChar(10)
+  planType String @map("plan_type") @default("ADAPTIVE") @db.VarChar(30) // ADAPTIVE|RECOVERY|INTENSIVE
+  status String @map("status") @default("ACTIVE") @db.VarChar(20) // ACTIVE|PAUSED|COMPLETED|ARCHIVED
+
+  currentVersion Int @map("current_version") @default(1)
+  startedAt DateTime @map("started_at") @default(now())
+  endedAt DateTime? @map("ended_at")
+
+  goalSnapshot Json @map("goal_snapshot") @default("{}") @db.JsonB
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@index([userId, status])
+  @@map("personal_learning_plans")
+}
+
+model PersonalLearningPlanWeek {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  planId String @map("plan_id") @db.Uuid
+  version Int @map("version")
+  weekIndex Int @map("week_index")
+
+  weekStartDate DateTime @map("week_start_date")
+  weekEndDate DateTime @map("week_end_date")
+
+  objective String @db.VarChar(255)
+  estimatedMinutes Int @map("estimated_minutes") @default(0)
+  status String @map("status") @default("PENDING") @db.VarChar(20) // PENDING|IN_PROGRESS|COMPLETED|SKIPPED
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@unique([planId, version, weekIndex])
+  @@index([planId, status])
+  @@map("personal_learning_plan_weeks")
+}
+
+model PersonalLearningPlanTask {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  planWeekId String @map("plan_week_id") @db.Uuid
+
+  taskType String @map("task_type") @db.VarChar(40) // VOD_LESSON|LIVE_ATTENDANCE|ASSIGNMENT_SUBMIT|SRS_REVIEW|JLPT_MOCK_SECTION
+  priority String @map("priority") @default("must") @db.VarChar(10) // must|should|could
+
+  title String @map("title") @db.VarChar(255)
+
+  estimatedMinutes Int @map("estimated_minutes") @default(0)
+  actualMinutes Int? @map("actual_minutes")
+
+  status String @map("status") @default("PENDING") @db.VarChar(20) // PENDING|IN_PROGRESS|COMPLETED|SKIPPED
+
+  dueAt DateTime? @map("due_at")
+  completedAt DateTime? @map("completed_at")
+
+  sourceType String? @map("source_type") @db.VarChar(40) // LESSON|LIVE_SESSION|ASSIGNMENT|SET_CARD|JLPT_TEMPLATE
+
+  sourceEnrollmentId String? @map("source_enrollment_id") @db.Uuid
+  sourceLessonId String? @map("source_lesson_id") @db.Uuid
+  sourceLiveSessionId String? @map("source_live_session_id") @db.Uuid
+  sourceAssignmentId String? @map("source_assignment_id") @db.Uuid
+  sourceStudySetId String? @map("source_study_set_id") @db.Uuid
+  sourceJlptTemplateId String? @map("source_jlpt_template_id") @db.Uuid
+
+  explanation String? @db.Text
+  metadata Json @map("metadata") @default("{}") @db.JsonB
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@index([planWeekId, status])
+  @@index([sourceEnrollmentId])
+  @@map("personal_learning_plan_tasks")
+}
+
+model PersonalLearningSkillSnapshot {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  planId String? @map("plan_id") @db.Uuid
+
+  snapshotDate DateTime @map("snapshot_date")
+  skillKey String @map("skill_key") @db.VarChar(64)
+  jlptLevel String? @map("jlpt_level") @db.VarChar(10)
+
+  score Decimal @map("score") @db.Decimal(5, 4)
+  confidenceScore Decimal @map("confidence_score") @default(0.5) @db.Decimal(5, 4)
+
+  sourceBreakdown Json @map("source_breakdown") @default("{}") @db.JsonB
+
+  createdAt DateTime @map("created_at") @default(now())
+
+  @@unique([userId, snapshotDate, skillKey])
+  @@index([userId, snapshotDate(sort: Desc)])
+  @@map("personal_learning_skill_snapshots")
+}
+
+model PersonalLearningReplanLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  planId String @map("plan_id") @db.Uuid
+
+  fromVersion Int @map("from_version")
+  toVersion Int @map("to_version")
+
+  triggerType String @map("trigger_type") @db.VarChar(50)
+  reasonContext Json @map("reason_context") @default("{}") @db.JsonB
+  changesSummary Json @map("changes_summary") @default("[]") @db.JsonB
+
+  createdAt DateTime @map("created_at") @default(now())
+
+  @@map("personal_learning_replan_logs")
+}
+
+// ==================================================
+// GAMIFICATION V2 (Hard Cutover)
+// ==================================================
+
+model GameProfile {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid @unique
+
+  level Int @default(1)
+  currentXp Int @map("current_xp") @default(0)
+  totalXp Int @map("total_xp") @default(0)
+
+  points Int @default(0)
+
+  currentStreak Int @map("current_streak") @default(0)
+  longestStreak Int @map("longest_streak") @default(0)
+  freezeCount Int @map("freeze_count") @default(0)
+
+  totalActiveDays Int @map("total_active_days") @default(0)
+
+  // Used by streak UI gating (avoid re-showing modal more than once/day).
+  lastToastShownDate String? @map("last_toast_shown_date") @db.VarChar(10) // YYYY-MM-DD
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@map("game_profiles")
+}
+
+model GameLedgerEntry {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  amount Int
+  currency GamificationCurrency @default(POINT)
+  type GamificationTransactionType
+
+  reasonCode String? @map("reason_code") @db.VarChar(100)
+
+  sourceType String? @map("source_type") @db.VarChar(50)
+  sourceRefKey String? @map("source_ref_key") @db.VarChar(200)
+  idempotencyKey String @map("idempotency_key") @db.VarChar(200)
+
+  metadata Json @map("metadata") @default("{}") @db.JsonB
+
+  createdAt DateTime @map("created_at") @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@unique([idempotencyKey, sourceRefKey])
+  @@map("game_ledger_entries")
+}
+
+model GameCouponReward {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code String @unique @map("code") @db.VarChar(50)
+
+  title String @db.VarChar(255)
+  description String? @db.Text
+
+  costPoints Int @map("cost_points")
+
+  discountType String @map("discount_type")
+  discountValue Decimal @map("discount_value") @db.Decimal(12, 2)
+  maxDiscountAmount Decimal? @map("max_discount_amount") @db.Decimal(12, 2)
+  minOrderValue Decimal? @map("min_order_value") @db.Decimal(12, 2)
+
+  expiresInDays Int? @map("expires_in_days")
+  isActive Boolean @map("is_active") @default(true)
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@map("game_coupon_rewards")
+}
+
+model GameCouponRedemption {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+
+  rewardId String? @map("reward_id") @db.Uuid
+  ledgerEntryId String? @map("ledger_entry_id") @db.Uuid
+
+  couponId String? @map("coupon_id") @db.Uuid
+  couponCode String? @map("coupon_code") @db.VarChar(50)
+
+  costPoints Int @map("cost_points")
+
+  status String @db.VarChar(20) // CREATED|USED|EXPIRED|CANCELLED
+  redeemedAt DateTime? @map("redeemed_at")
+  usedAt DateTime? @map("used_at")
+  expiresAt DateTime? @map("expires_at")
+
+  idempotencyKey String @map("idempotency_key") @db.VarChar(200)
+  metadata Json @map("metadata") @default("{}") @db.JsonB
+
+  createdAt DateTime @map("created_at") @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@map("game_coupon_redemptions")
+}
+
+model GameMission {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code String @unique @db.VarChar(64)
+
+  title String @db.VarChar(255)
+  description String? @db.Text
+  windowType String @map("window_type") @db.VarChar(30) // DAILY|WEEKLY
+  isActive Boolean @map("is_active") @default(true)
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@map("game_missions")
+}
+
+model GameUserMission {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  missionId String @map("mission_id") @db.Uuid
+
+  periodKey String @map("period_key") @db.VarChar(20) // YYYY-MM-DD or YYYY-W## (weekly)
+
+  status String @map("status") @default("PENDING") @db.VarChar(20)
+  progress Int @map("progress") @default(0)
+  target Int @map("target") @default(1)
+
+  completedAt DateTime? @map("completed_at")
+  claimedAt DateTime? @map("claimed_at")
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@unique([userId, missionId, periodKey])
+  @@index([userId, periodKey])
+  @@map("game_user_missions")
+}
+
+model GameLeague {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code String @unique @db.VarChar(64)
+
+  title String @db.VarChar(255)
+  seasonStartAt DateTime? @map("season_start_at")
+  seasonEndAt DateTime? @map("season_end_at")
+  status String @map("status") @default("ACTIVE") @db.VarChar(20)
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@map("game_leagues")
+}
+
+model GameLeagueMembership {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  leagueId String @map("league_id") @db.Uuid
+
+  weeklyXpValid Int @map("weekly_xp_valid") @default(0)
+  rank Int? @db.Integer
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@unique([userId, leagueId])
+  @@index([leagueId, weeklyXpValid(sort: Desc)])
+  @@map("game_league_memberships")
+}
+
+model GameAchievement {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code String @unique @db.VarChar(64)
+
+  tier String @db.VarChar(20) // bronze/silver/gold...
+  category String @db.VarChar(32)
+
+  title String @db.VarChar(255)
+  description String? @db.Text
+
+  requirements Json @map("requirements") @default("{}") @db.JsonB
+  rewards Json @map("rewards") @default("{}") @db.JsonB
+  isActive Boolean @map("is_active") @default(true)
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@map("game_achievements")
+}
+
+model GameUserAchievement {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  achievementId String @map("achievement_id") @db.Uuid
+
+  isUnlocked Boolean @map("is_unlocked") @default(false)
+  progress Json @map("progress") @default("{}") @db.JsonB
+  unlockedAt DateTime? @map("unlocked_at")
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@unique([userId, achievementId])
+  @@index([achievementId])
+  @@map("game_user_achievements")
+}
+
+model GameStreakLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  date String @map("date") @db.VarChar(10) // YYYY-MM-DD
+  status String @map("status") @db.VarChar(20) // ACTIVE|FREEZE|INACTIVE
+
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @default(now()) @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+  @@map("game_streak_logs")
+}
+
+// ==================================================
 // 10. CONTENT & SOCIAL  (Blog / Discussion / Notification)
 // ==================================================
 

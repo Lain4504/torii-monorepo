@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
+import { TodayFocus } from '@/components/learning-path/today-focus';
+import { RecoveryModePanel } from '@/components/learning-path/recovery-mode-panel';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
@@ -521,6 +523,12 @@ function AuthenticatedDashboardPage() {
                             </div>
                         </section>
                     )}
+                    {/* Recovery Mode */}
+                    <RecoveryModePanel />
+
+                    {/* Today Focus (Learning Path v2) */}
+                    <TodayFocus />
+
                     {/* Recent Activity (Moved from bottom to fit on the left of quick links) */}
                     <section className="bg-card p-5 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
                         <div className="flex justify-between items-center mb-4">

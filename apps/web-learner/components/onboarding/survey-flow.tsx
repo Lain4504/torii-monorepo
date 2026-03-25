@@ -21,8 +21,8 @@ import { cn } from '@workspace/ui/lib/utils'
 import { apiClient } from '@/lib/api/api-client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { fetchProfile } from '@/store/slices/authSlice'
 import { useAppDispatch } from '@/hooks/hooks'
+import { markOnboardedLocal } from '@/store/slices/authSlice'
 
 const STEPS = [
   'Welcome',
@@ -160,27 +160,34 @@ export function SurveyFlow() {
   const handleFinish = async () => {
     setIsSubmitting(true)
     try {
+      const targetLevelMap: Record<string, string> = {
+        'Chưa biết gì': 'N5',
+        'Biết bảng chữ cái Hiragana/Katakana': 'N5',
+        'Đã học cơ bản (N5–N4)': 'N3',
+        'Trung cấp (N3)': 'N2',
+        'Nâng cao (N2–N1)': 'N1+',
+      }
+
       const payload = {
-        // Match backend DTO/schema fields
-        targetCompletionTime:
-          formData.learningTarget === 'No deadline'
-            ? undefined
-            : formData.learningTarget,
-        purpose: formData.learningPurpose,
-        jlptTargetDate:
+        goal_type: formData.learningPurpose === 'JLPT' ? 'jlpt_exam' : 'general',
+        // Spec dùng `target_date` (ISO). UI chỉ có ngày JLPT nếu purpose=JLPT.
+        target_date:
           formData.learningPurpose === 'JLPT'
             ? monthYearToISODate(formData.jlptExamDate)
             : null,
-        studyFrequency: 'Daily',
-        studyTimePerSession: `${formData.dailyStudyTime} minutes`,
-        currentLevel: mapCurrentLevel(formData.currentLevel),
+        // MVP skeleton: lấy target level từ mapping UI hiện có.
+        target_jlpt_level: targetLevelMap[formData.currentLevel] ?? 'N5',
+        weekly_available_minutes: formData.dailyStudyTime * 7,
+        self_assessed_level: mapCurrentLevel(formData.currentLevel) ?? 'N5',
+        preferred_learning_modes: ['practice', 'video'],
+        preferred_study_slots: [],
+        constraints: {},
       }
 
-      const response = await apiClient.post('/api/onboarding/survey', payload)
-
+      const response = await apiClient.put('/api/v1/learners/me/profile', payload)
       if (response.data.success) {
         toast.success('Cập nhật lộ trình thành công!')
-        await dispatch(fetchProfile()) // Refresh user state to update isOnboarded
+        dispatch(markOnboardedLocal(true))
         router.push('/dashboard')
       }
     } catch (error) {

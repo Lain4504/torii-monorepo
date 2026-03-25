@@ -16,7 +16,7 @@ export const gamificationApi = {
      * Get user achievements
      */
     async getAchievements(): Promise<UserAchievementDTO[]> {
-        const response = await apiClient.get<StandardApiResponse<{ achievements: UserAchievementDTO[] }>>('/api/gamification/achievements');
+        const response = await apiClient.get<StandardApiResponse<{ achievements: UserAchievementDTO[] }>>('/api/v2/game/achievements');
         if (response.data.success && response.data.data) {
             return response.data.data.achievements;
         }
@@ -27,7 +27,7 @@ export const gamificationApi = {
      * Get user streak status
      */
     async getStreak(): Promise<StreakStatusDTO> {
-        const response = await apiClient.get<StandardApiResponse<StreakStatusDTO>>('/api/gamification/streak');
+        const response = await apiClient.get<StandardApiResponse<StreakStatusDTO>>('/api/v2/game/streak');
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -38,10 +38,13 @@ export const gamificationApi = {
      * Record user activity
      */
     async recordActivity(activityType: string, meta?: any): Promise<any> {
-        const response = await apiClient.post<StandardApiResponse<any>>('/api/gamification/record-activity', {
-            activityType,
-            meta
-        });
+        const response = await apiClient.post<StandardApiResponse<any>>(
+            '/api/v2/game/ingest-activity',
+            {
+                activityType,
+                meta,
+            },
+        );
         return response.data;
     },
 
@@ -49,7 +52,7 @@ export const gamificationApi = {
      * Mark streak toast as shown for today
      */
     async markToastShown(): Promise<any> {
-        const response = await apiClient.post<StandardApiResponse<any>>('/api/gamification/mark-toast-shown');
+        const response = await apiClient.post<StandardApiResponse<any>>('/api/v2/game/mark-toast-shown');
         return response.data;
     },
 
@@ -57,7 +60,7 @@ export const gamificationApi = {
      * Get user's full gamification profile
      */
     async getGamificationProfile(): Promise<UserGamificationDTO> {
-        const response = await apiClient.get<StandardApiResponse<UserGamificationDTO>>('/api/gamification/profile');
+        const response = await apiClient.get<StandardApiResponse<UserGamificationDTO>>('/api/v2/game/profile');
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -68,7 +71,7 @@ export const gamificationApi = {
      * Get leaderboard
      */
     async getLeaderboard(type: 'global' | 'streak' | 'active' = 'global'): Promise<LeaderboardDTO> {
-        const response = await apiClient.get<StandardApiResponse<LeaderboardDTO>>(`/api/gamification/leaderboard?type=${type}`);
+        const response = await apiClient.get<StandardApiResponse<LeaderboardDTO>>(`/api/v2/game/leaderboard?type=${type}`);
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -81,35 +84,34 @@ export const gamificationApi = {
     async getHistory(
         params: { page?: number; limit?: number; type?: string } = {}
     ): Promise<GamificationHistoryPaginatedResponseDTO> {
-        const queryParams = new URLSearchParams();
+        // MVP: v2 history trả `{ items }`, không trả pagination DTO giống v1.
+        const limit = params.limit ?? 20;
+        const offset = params.page ? (params.page - 1) * limit : 0;
+        const response = await apiClient.get<
+            StandardApiResponse<{ items: any[] }>
+        >(`/api/v2/game/history?limit=${limit}&offset=${offset}`);
 
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.limit) queryParams.append('limit', params.limit.toString());
-        if (params.type) queryParams.append('type', params.type);
-
-        const response =
-            await apiClient.get<
-                StandardApiResponse<GamificationHistoryPaginatedResponseDTO>
-            >(`/api/gamification/history?${queryParams.toString()}`);
-
-        if (response.data.success && response.data.data) {
-            return response.data.data;
+        if (response.data.success) {
+            const items = response.data.data?.items ?? [];
+            return {
+                data: items,
+                total: items.length,
+                page: params.page ?? 1,
+                limit,
+                totalPages: 1,
+            } as any;
         }
 
-        throw new Error(
-            response.data.message || 'Failed to fetch gamification history'
-        );
+        throw new Error(response.data.message || 'Failed to fetch gamification history');
     },
 
     /**
      * Get available point redemption rewards
      */
     async getRewards(): Promise<any[]> {
-        const response =
-            await apiClient.get<StandardApiResponse<any[]>>(
-                '/api/gamification/rewards'
-            );
-
+        const response = await apiClient.get<StandardApiResponse<any[]>>(
+            '/api/v2/game/coupon-rewards',
+        );
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -123,11 +125,10 @@ export const gamificationApi = {
      * Redeem points for a reward
      */
     async redeemPoints(rewardId: string): Promise<any> {
-        const response =
-            await apiClient.post<StandardApiResponse<any>>(
-                '/api/gamification/redeem',
-                { rewardId }
-            );
+        const response = await apiClient.post<StandardApiResponse<any>>(
+            `/api/v2/game/coupon-rewards/${rewardId}/redeem`,
+            {},
+        );
 
         if (response.data.success && response.data.data) {
             return response.data.data;
@@ -280,13 +281,8 @@ export function useCheckIn() {
             // Simulate a check-in action by refetching streak
             // In reality, users need to complete a learning activity to update streak
             await queryClient.invalidateQueries({ queryKey: ['streak'] });
-
-            // Return mock success
-            return {
-                streakUpdated: false,
-                currentStreak: 0,
-                achievementsUnlocked: [],
-            };
+            // No backend mutation here: streak is updated by real learning activity events.
+            return { ok: true };
         },
         onMutate: async () => {
             toast.info('📚 Complete a lesson to check in!', {

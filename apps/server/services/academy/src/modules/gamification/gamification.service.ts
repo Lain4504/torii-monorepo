@@ -346,7 +346,7 @@ export class GamificationService {
       }
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const { streakSavedByShield } = await this.applyDailyStreakAndSync(
         tx,
         userId,
@@ -553,6 +553,28 @@ export class GamificationService {
 
       return result;
     });
+
+    // Emit learning activity to GV2 ingestion layer for streak/ledger updates.
+    // MVP: best-effort emit (do not break main transaction).
+    try {
+      this.natsClient.emit('user.activity', {
+        userId,
+        activityType,
+        timestamp: new Date().toISOString(),
+        meta: {
+          ...(metadata ?? {}),
+          // Hint so GV2 can keep streak correctly with freeze shield.
+          ...(result?.streakSavedByShield ? { streakSavedByShield: true } : {}),
+        },
+      });
+    } catch (e: unknown) {
+      const err = e as Error;
+      this.logger.error(
+        `GV2 ingest emit failed for user=${userId}, activityType=${activityType}: ${err.message}`,
+      );
+    }
+
+    return result;
   }
 
   /**
