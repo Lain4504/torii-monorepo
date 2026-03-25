@@ -101,25 +101,25 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
               </p>
               <div className="flex flex-wrap gap-2">
                 {academyClass.status === "DRAFT" && (
-                    <Button
-                      size="sm"
-                      variant="default"
-                      className="gap-2 bg-green-600 hover:bg-green-700 shadow-none"
-                      onClick={async () => {
-                        if (confirm("Xác nhận mở đăng ký lớp học này?")) {
-                          try {
-                            await publishMutation.mutateAsync(classId)
-                            toast.success("Đã mở đăng ký lớp học thành công! 🚀")
-                          } catch (err: any) {
-                            toast.error(err?.message || "Không thể mở đăng ký")
-                          }
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="gap-2 bg-green-600 hover:bg-green-700 shadow-none"
+                    onClick={async () => {
+                      if (confirm("Xác nhận mở đăng ký lớp học này?")) {
+                        try {
+                          await publishMutation.mutateAsync(classId)
+                          toast.success("Đã mở đăng ký lớp học thành công! 🚀")
+                        } catch (err: any) {
+                          toast.error(err?.message || "Không thể mở đăng ký")
                         }
-                      }}
-                      disabled={publishMutation.isPending}
-                    >
-                      <Rocket className="size-4" />
-                      Công khai & Mở đăng ký
-                    </Button>
+                      }
+                    }}
+                    disabled={publishMutation.isPending}
+                  >
+                    <Rocket className="size-4" />
+                    Công khai & Mở đăng ký
+                  </Button>
                 )}
                 <Button variant="outline" size="sm" asChild>
                   <Link to={`/academy/approvals/live-classes/${classId}`}>
@@ -145,34 +145,34 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <p className="text-xs text-muted-foreground">Ngày bắt đầu</p>
-                  <p className="font-medium">{formatDate(academyClass.startDate)}</p>
+                <p className="font-medium">{formatDate(academyClass.startDate)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Ngày kết thúc</p>
-                  <p className="font-medium">{formatDate(academyClass.endDate)}</p>
+                <p className="font-medium">{formatDate(academyClass.endDate)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Mở đăng ký</p>
-                  <p className="font-medium">{formatDate((cohort as any)?.enrollmentOpenAt)}</p>
+                <p className="font-medium">{formatDate((cohort as any)?.enrollmentOpenAt)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
-                  <p className="font-medium">{formatDate((cohort as any)?.enrollmentCloseAt)}</p>
+                <p className="font-medium">{formatDate((cohort as any)?.enrollmentCloseAt)}</p>
               </div>
-                <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-3">
-                  <Users className="size-4 text-muted-foreground shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Sĩ số (đang học / tối đa)</p>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium tabular-nums">
-                        {(academyClass as any)._count?.enrollments ?? 0}
-                        {academyClass.maxStudents != null
-                          ? ` / ${academyClass.maxStudents}`
-                          : " (∞)"}
-                      </p>
-                    </div>
+              <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-3">
+                <Users className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">Sĩ số (đang học / tối đa)</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium tabular-nums">
+                      {(academyClass as any)._count?.enrollments ?? 0}
+                      {academyClass.maxStudents != null
+                        ? ` / ${academyClass.maxStudents}`
+                        : " (∞)"}
+                    </p>
                   </div>
                 </div>
+              </div>
             </div>
           </CardContent>
         </Card>

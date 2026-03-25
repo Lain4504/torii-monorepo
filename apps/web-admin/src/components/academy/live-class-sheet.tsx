@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
@@ -14,9 +14,10 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
   Field,
+  FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
-  FieldError,
   FieldSet,
   FieldLegend,
 } from "@workspace/ui/components/field"
@@ -37,15 +38,23 @@ import { useAcademyCohorts } from "@/lib/api/services/academy-cohorts"
 import { useUsers } from "@/lib/api/services/users"
 import { UserRole } from "@workspace/schemas"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus, Trash2, Calendar, Zap } from "lucide-react"
+import { useCreateAcademyLiveSchedule } from "@/lib/api/services/academy-live-schedules"
+
+const scheduleItemSchema = z.object({
+  weekday: z.number().int().min(0).max(6),
+  startTime: z.string().min(1, "Bắt đầu không được để trống"),
+  endTime: z.string().min(1, "Kết thúc không được để trống"),
+})
 
 const liveClassSchema = z.object({
-  cohortId: z.string().uuid("Vui lòng chọn Khóa học (Cohort)"),
+  cohortId: z.string().uuid("Vui lòng chọn Đợt khai giảng"),
   code: z.string().min(2, "Mã lớp phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên lớp phải có ít nhất 3 ký tự"),
-  instructorId: z.string().uuid().optional().nullable(),
+  instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
   status: z.string().optional(),
   maxStudents: z.number().int().min(1).optional().nullable(),
+  schedules: z.array(scheduleItemSchema).optional(),
 })
 
 type LiveClassFormValues = z.infer<typeof liveClassSchema>
@@ -61,6 +70,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
   const isEditing = !!academyClass
   const createMutation = useCreateAcademyLiveClass()
   const updateMutation = useUpdateAcademyLiveClass()
+  const createScheduleMutation = useCreateAcademyLiveSchedule()
 
   const { data: cohorts } = useAcademyCohorts({})
   const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
@@ -76,11 +86,27 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
       cohortId: "",
       code: "",
       name: "",
-      instructorId: null,
+      instructorId: "",
       status: "DRAFT",
       maxStudents: null,
+      schedules: [],
     },
   })
+
+  const { fields, append, remove, replace } = useFieldArray({
+    control,
+    name: "schedules",
+  })
+
+  const WEEKDAYS = [
+    { value: "1", label: "Thứ Hai" },
+    { value: "2", label: "Thứ Ba" },
+    { value: "3", label: "Thứ Tư" },
+    { value: "4", label: "Thứ Năm" },
+    { value: "5", label: "Thứ Sáu" },
+    { value: "6", label: "Thứ Bảy" },
+    { value: "0", label: "Chủ Nhật" },
+  ]
 
   useEffect(() => {
     if (academyClass) {
@@ -97,12 +123,13 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         cohortId: defaultCohortId ?? "",
         code: "",
         name: "",
-        instructorId: null,
+        instructorId: "",
         status: "DRAFT",
         maxStudents: null,
+        schedules: [],
       })
     }
-  }, [academyClass, reset])
+  }, [academyClass, reset, defaultCohortId])
 
   async function onSubmit(values: LiveClassFormValues) {
     try {
@@ -111,7 +138,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           id: academyClass.id,
           input: {
             name: values.name,
-            instructorId: values.instructorId === null ? undefined : values.instructorId,
+            instructorId: values.instructorId,
             status: values.status as any,
             maxStudents: values.maxStudents === null ? undefined : values.maxStudents,
           },
@@ -122,11 +149,13 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           cohortId: values.cohortId,
           code: values.code,
           name: values.name,
-          instructorId: values.instructorId === null ? undefined : values.instructorId,
+          instructorId: values.instructorId,
           status: values.status as any,
           maxStudents: values.maxStudents === null ? undefined : values.maxStudents,
-        })
-        toast.success("Tạo Lớp học LIVE thành công")
+          schedules: values.schedules,
+        } as any)
+
+        toast.success("Tạo Lớp học LIVE và thiết lập lịch học thành công")
       }
       onOpenChange(false)
     } catch (error: any) {
@@ -134,7 +163,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
     }
   }
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = createMutation.isPending || updateMutation.isPending || createScheduleMutation.isPending
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -144,7 +173,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin vận hành cho lớp học này."
-              : "Khởi tạo một lớp học LIVE mới thuộc về một Khóa học (Cohort)."}
+              : "Khởi tạo một lớp học LIVE mới thuộc về một Đợt khai giảng."}
           </SheetDescription>
         </SheetHeader>
 
@@ -156,7 +185,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                   <FieldLegend>Liên kết cấu trúc</FieldLegend>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>Khóa học / Cohort (Sesssion Group)</FieldLabel>
+                      <FieldLabel>Đợt khai giảng (Session Group)</FieldLabel>
                       <Controller
                         name="cohortId"
                         control={control}
@@ -167,7 +196,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                             disabled={isEditing}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Chọn Khóa học (Cohort)" />
+                              <SelectValue placeholder="Chọn Đợt khai giảng" />
                             </SelectTrigger>
                             <SelectContent>
                               {cohorts?.map((c) => (
@@ -228,36 +257,159 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                       <FieldError errors={[errors.instructorId]} />
                     </Field>
 
-                    <Field>
-                      <FieldLabel>Số học viên tối đa</FieldLabel>
-                      <Controller
-                        name="maxStudents"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            type="number"
-                            min={1}
-                            placeholder="Để trống = không giới hạn"
-                            value={field.value ?? ""}
-                            onChange={(e) => {
-                              const raw = e.target.value
-                              if (raw === "") {
-                                field.onChange(null)
-                                return
-                              }
-                              const n = parseInt(raw, 10)
-                              field.onChange(isNaN(n) ? null : n)
-                            }}
-                          />
-                        )}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Khi đủ chỗ, học viên không thể đăng ký thêm vào lớp này.
-                      </p>
-                      <FieldError errors={[errors.maxStudents]} />
-                    </Field>
+                    <div className="grid grid-cols-1">
+                      <Field>
+                        <FieldLabel>Số học viên tối đa</FieldLabel>
+                        <Controller
+                          name="maxStudents"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              min={1}
+                              placeholder="Không giới hạn"
+                              value={field.value ?? ""}
+                              onChange={(e) => {
+                                const raw = e.target.value
+                                if (raw === "") {
+                                  field.onChange(null)
+                                  return
+                                }
+                                const n = parseInt(raw, 10)
+                                field.onChange(isNaN(n) ? null : n)
+                              }}
+                              className="h-10"
+                            />
+                          )}
+                        />
+                        <FieldError errors={[errors.maxStudents]} />
+                      </Field>
+                    </div>
                   </FieldGroup>
                 </FieldSet>
+
+                {!isEditing && (
+                  <FieldSet>
+                    <div className="flex items-center justify-between">
+                      <FieldLegend>Thiết lập lịch học tuần</FieldLegend>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-[10px] uppercase font-bold gap-1.5"
+                          onClick={() => replace([
+                            { weekday: 1, startTime: "18:00", endTime: "20:00" },
+                            { weekday: 3, startTime: "18:00", endTime: "20:00" },
+                            { weekday: 5, startTime: "18:00", endTime: "20:00" }
+                          ])}
+                        >
+                          <Zap className="size-3 text-amber-500 fill-amber-500" />
+                          Mẫu 2-4-6
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 text-[10px] uppercase font-bold gap-1.5"
+                          onClick={() => replace([
+                            { weekday: 2, startTime: "18:00", endTime: "20:00" },
+                            { weekday: 4, startTime: "18:00", endTime: "20:00" },
+                            { weekday: 6, startTime: "18:00", endTime: "20:00" }
+                          ])}
+                        >
+                          <Zap className="size-3 text-sky-500 fill-sky-500" />
+                          Mẫu 3-5-7
+                        </Button>
+                      </div>
+                    </div>
+                    <FieldDescription>
+                      Quy định khung giờ học định kỳ để hệ thống tự động sinh buổi học.
+                    </FieldDescription>
+
+                    <FieldGroup className="mt-4">
+                      {fields.length === 0 && (
+                        <div
+                          className="flex flex-col items-center justify-center py-8 border-2 border-dashed rounded-xl text-muted-foreground bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer"
+                          onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
+                        >
+                          <Calendar className="size-8 opacity-20 mb-2" />
+                          <p className="text-xs font-medium">Chưa có lịch. Click để thêm khung giờ.</p>
+                        </div>
+                      )}
+
+                      <div className="space-y-4">
+                        {fields.map((field, index) => (
+                          <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-background/50 p-3 rounded-lg border shadow-sm relative group">
+                            <div className="md:col-span-4">
+                              <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Thứ</FieldLabel>
+                              <Controller
+                                name={`schedules.${index}.weekday`}
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    onValueChange={(val) => field.onChange(parseInt(val, 10))}
+                                    value={field.value?.toString() ?? ""}
+                                  >
+                                    <SelectTrigger className="h-8 text-xs">
+                                      <SelectValue placeholder="Chọn thứ" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {WEEKDAYS.map((day) => (
+                                        <SelectItem key={day.value} value={day.value}>
+                                          {day.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              />
+                            </div>
+                            <div className="md:col-span-3">
+                              <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Bắt đầu</FieldLabel>
+                              <Input
+                                type="time"
+                                className="h-8 text-xs"
+                                {...control.register(`schedules.${index}.startTime`)}
+                              />
+                            </div>
+                            <div className="md:col-span-3">
+                              <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Kết thúc</FieldLabel>
+                              <Input
+                                type="time"
+                                className="h-8 text-xs"
+                                {...control.register(`schedules.${index}.endTime`)}
+                              />
+                            </div>
+                            <div className="md:col-span-2 flex justify-end">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => remove(index)}
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {fields.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full border-dashed border h-8 text-xs gap-2"
+                          onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
+                        >
+                          <Plus className="size-3" /> Thêm khung giờ
+                        </Button>
+                      )}
+                    </FieldGroup>
+                  </FieldSet>
+                )}
               </FieldGroup>
             </form>
           </div>
@@ -276,5 +428,3 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
     </Sheet>
   )
 }
-
-

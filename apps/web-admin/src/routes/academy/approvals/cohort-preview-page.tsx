@@ -61,7 +61,7 @@ export default function CohortApprovalPreviewPage() {
   if (!cohort) {
     return (
       <div className="p-8 text-center text-muted-foreground">
-        Không tìm thấy đợt học (Cohort).
+        Không tìm thấy Đợt khai giảng.
       </div>
     )
   }
@@ -82,7 +82,7 @@ export default function CohortApprovalPreviewPage() {
               Approval Center
             </Link>
             <ChevronRight className="size-4" />
-            <span>Xem trước Đợt học</span>
+            <span>Xem trước Đợt khai giảng</span>
           </div>
         }
         subtitle={`Phê duyệt đợt khai giảng #${cohort.code}`}
@@ -137,7 +137,7 @@ export default function CohortApprovalPreviewPage() {
                 <p className="font-bold text-lg text-primary">{formatCurrency(cohort.price)}</p>
               </div>
               <div className="sm:col-span-2 space-y-1">
-                <p className="text-xs text-muted-foreground">Tên đợt học / Khóa học</p>
+                <p className="text-xs text-muted-foreground">Tên Đợt khai giảng</p>
                 <p className="font-semibold text-xl">{cohort.name}</p>
               </div>
               {cohort.description && (
@@ -243,7 +243,7 @@ export default function CohortApprovalPreviewPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận phê duyệt</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn phê duyệt đợt học "{cohort.name}"? 
+              Bạn có chắc chắn muốn phê duyệt đợt khai giảng "{cohort.name}"? 
               Sau khi duyệt, dữ liệu sẽ được ghi nhận là hợp lệ để mở bán (nếu trạng thái là OPENING).
             </AlertDialogDescription>
           </AlertDialogHeader>

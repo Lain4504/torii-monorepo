@@ -73,8 +73,8 @@ export default function CheckoutPage() {
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
     
     const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedClassId) || product?.class || null
-    const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
-        ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
+    const lessonCount = Array.isArray(selectedClass?.curriculum?.chapters)
+        ? selectedClass.curriculum.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
             return acc + chapterItems.length
         }, 0)

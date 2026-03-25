@@ -19,29 +19,49 @@ export class LiveClassService {
   ) {}
 
   async findAll(query: AcademyLiveClassQueryDTO) {
-    const where: any = {};
-    if (query.cohortId) where.cohortId = query.cohortId;
-    if (query.status) where.status = query.status;
-    if (query.instructorId) where.instructorId = query.instructorId;
+    const and: any[] = [];
+    if (query.cohortId) and.push({ cohortId: query.cohortId });
+    if (query.status) and.push({ status: query.status });
+    if (query.instructorId) and.push({ instructorId: query.instructorId });
+
     const q = query as any;
+    const cohortConditions: any[] = [];
+
     if (q.month) {
       const [year, month] = q.month.split('-').map(Number);
       const start = new Date(Date.UTC(year, month - 1, 1));
       const end = new Date(Date.UTC(year, month, 0, 23, 59, 59));
-      where.cohort = {
+      cohortConditions.push({
         startDate: {
           gte: start,
           lte: end,
         },
-      };
+      });
+    }
+
+    if (q.onlyAvailable) {
+      cohortConditions.push({
+        OR: [
+          { enrollmentCloseAt: null },
+          { enrollmentCloseAt: { gte: new Date() } },
+        ],
+      });
+    }
+
+    if (cohortConditions.length > 0) {
+      and.push({ cohort: { AND: cohortConditions } });
     }
 
     if (query.q) {
-      where.OR = [
-        { code: { contains: query.q, mode: 'insensitive' } },
-        { name: { contains: query.q, mode: 'insensitive' } },
-      ];
+      and.push({
+        OR: [
+          { code: { contains: query.q, mode: 'insensitive' } },
+          { name: { contains: query.q, mode: 'insensitive' } },
+        ],
+      });
     }
+
+    const where = and.length > 0 ? { AND: and } : {};
 
     const [items, total] = await Promise.all([
       this.prisma.liveClass.findMany({
@@ -98,16 +118,42 @@ export class LiveClassService {
   }
 
   async create(data: AcademyLiveClassCreateDTO) {
-    return this.prisma.liveClass.create({
+    const dataWithSchedules = data as AcademyLiveClassCreateDTO & { schedules?: any[] };
+    if (dataWithSchedules.schedules?.length) {
+      for (const s of dataWithSchedules.schedules) {
+        await this.liveSchedules.assertNoScheduleConflicts({
+          cohortId: data.cohortId,
+          weekday: s.weekday,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          instructorId: data.instructorId,
+        });
+      }
+    }
+
+    const klass = await this.prisma.liveClass.create({
       data: {
         cohortId: data.cohortId,
         code: data.code,
         name: data.name,
-        instructorId: data.instructorId,
+        instructorId: data.instructorId ?? null,
         maxStudents: data.maxStudents,
         status: (data.status as any) ?? 'DRAFT',
       },
     });
+
+    if (dataWithSchedules.schedules?.length) {
+      for (const s of dataWithSchedules.schedules) {
+        await this.liveSchedules.create({
+          classId: klass.id,
+          weekday: s.weekday,
+          startTime: s.startTime,
+          endTime: s.endTime,
+        }, 'SYSTEM');
+      }
+    }
+
+    return klass;
   }
 
   async update(id: string, data: AcademyLiveClassUpdateDTO) {

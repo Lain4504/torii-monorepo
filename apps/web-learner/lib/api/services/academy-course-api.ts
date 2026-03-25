@@ -15,10 +15,10 @@ function normalizeProductForLearner(item: any) {
     item.class?.courseProfile ||
     item.courseProfile;
 
-  // Map CourseProfile (modules/lessons) → courseEdition.chapters
-  let courseEdition = primaryClass?.courseEdition || primaryClass?.cohort?.courseProfile?.edition;
+  // Map CourseProfile (modules/lessons) → curriculum.chapters
+  let curriculum = null;
 
-  if (!courseEdition && profile?.modules && Array.isArray(profile.modules)) {
+  if (profile?.modules && Array.isArray(profile.modules)) {
     const chapters = profile.modules.map((mod: any) => ({
       id: mod.id,
       title: mod.title,
@@ -30,7 +30,7 @@ function normalizeProductForLearner(item: any) {
       })),
       estimatedMinutes: null,
     }));
-    courseEdition = { chapters };
+    curriculum = { chapters };
   }
 
   let classes =
@@ -52,11 +52,11 @@ function normalizeProductForLearner(item: any) {
   const parsedPrice = Number(rawPrice);
 
   const normalizedClasses = classes.map((cls: any) => {
-    if (courseEdition && !Array.isArray(cls.courseEdition?.chapters)) {
-      return { ...cls, courseEdition };
+    if (curriculum && !Array.isArray(cls.curriculum?.chapters)) {
+      return { ...cls, curriculum };
     }
-    if (cls === primaryClass && courseEdition) {
-      return { ...cls, courseEdition };
+    if (cls === primaryClass && curriculum) {
+      return { ...cls, curriculum };
     }
     return cls;
   });
@@ -74,7 +74,7 @@ function normalizeProductForLearner(item: any) {
     class: primaryClass,
     siblingClasses,
     /** Luôn có khi curriculum lấy từ courseProfile (kể cả LIVE không có class 1:1) */
-    courseEdition: courseEdition ?? null,
+    curriculum: curriculum ?? null,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item.thumbnailUrl ||
@@ -122,7 +122,6 @@ export const academyClassCatalogApi = {
   findPublic: async (params: {
     mode: 'LIVE' | 'VOD';
     level?: string;
-    editionKey?: string;
     month?: string;
     q?: string;
   }): Promise<{ items: any[] }> => {
@@ -232,7 +231,6 @@ export function useAcademyCourseById(courseId?: string) {
 export function useAcademyClassCatalog(params: {
   mode: 'LIVE' | 'VOD';
   level?: string;
-  editionKey?: string;
   month?: string;
   q?: string;
 }) {

@@ -78,7 +78,7 @@ export class LiveClassController {
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.findAll' },
-        { ...query, status: 'OPENING' },
+        { ...query, status: 'OPENING', onlyAvailable: true },
       ),
     );
     return successResponse(items);

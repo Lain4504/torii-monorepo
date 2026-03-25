@@ -3,7 +3,6 @@ import { NatsClientModule } from '@server/shared';
 import { CourseProfileController } from './controllers/course-profile.controller';
 import { CohortController } from './controllers/cohort.controller';
 import { VodPackageController } from './controllers/vod-package.controller';
-import { CourseEditionController } from './controllers/course-edition.controller';
 import { TicketController } from './controllers/ticket.controller';
 import { LiveClassController } from './controllers/live-class.controller';
 import { LiveScheduleController } from './controllers/live-schedule.controller';
@@ -36,7 +35,6 @@ import { AcademyResourceController } from './controllers/academy-resource.contro
     CourseProfileController,
     CohortController,
     VodPackageController,
-    CourseEditionController,
     TicketController,
     LiveClassController,
     LiveScheduleController,

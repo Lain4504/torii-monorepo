@@ -63,29 +63,27 @@ export function LessonMediaUploader({
       <FieldLabel>{label}</FieldLabel>
       <Card>
         <CardContent className="space-y-4 p-4">
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={uploading}
-              onClick={() => {
-                const input = document.createElement("input")
-                input.type = "file"
-                if (accept) {
-                  input.accept = accept
-                }
-                input.onchange = (ev: Event) => handleFileChange(ev as unknown as React.ChangeEvent<HTMLInputElement>)
-                input.click()
-              }}
-            >
-              {uploading ? "Đang upload..." : "Chọn file"}
-            </Button>
-            {value && !uploading && (
-              <span className="text-sm text-muted-foreground truncate">
-                {value}
-              </span>
-            )}
-          </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploading}
+                  className="shrink-0"
+                  onClick={() => {
+                    const input = document.createElement("input")
+                    input.type = "file"
+                    if (accept) {
+                      input.accept = accept
+                    }
+                    input.onchange = (ev: Event) => handleFileChange(ev as unknown as React.ChangeEvent<HTMLInputElement>)
+                    input.click()
+                  }}
+                >
+                  {uploading ? "Đang upload..." : "Chọn file"}
+                </Button>
+              </div>
+            </div>
 
           {uploading && (
             <div className="space-y-2">

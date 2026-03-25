@@ -41,7 +41,7 @@ export class LiveScheduleService {
     private readonly appConfig: AppConfigService,
     @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   private buildSessionRoomId() {
     // Generate a short, concise roomId similar to Google Meet (e.g., abc-defg-hij)
@@ -114,6 +114,7 @@ export class LiveScheduleService {
     await this.assertTemplateMutable(input.classId);
     await this.assertNoScheduleConflicts({
       liveClassId: input.classId,
+      cohortId: klass.cohortId,
       weekday: input.weekday,
       startTime: input.startTime,
       endTime: input.endTime,
@@ -223,8 +224,7 @@ export class LiveScheduleService {
       await this.sendNatsWithRetry({ cmd: 'room.create' }, roomInfo, 2).catch(
         (err) => {
           this.logger.error(
-            `Failed to create room ${roomId} for live class ${schedule.liveClassId}: ${
-              err instanceof Error ? err.message : err
+            `Failed to create room ${roomId} for live class ${schedule.liveClassId}: ${err instanceof Error ? err.message : err
             }`,
           );
           throw new BadRequestException(
@@ -361,8 +361,7 @@ export class LiveScheduleService {
       await this.sendNatsWithRetry({ cmd: 'room.create' }, roomInfo, 2).catch(
         (err) => {
           this.logger.error(
-            `Failed to create room ${roomId} for live session ${sessionId}: ${
-              err instanceof Error ? err.message : err
+            `Failed to create room ${roomId} for live session ${sessionId}: ${err instanceof Error ? err.message : err
             }`,
           );
           throw new BadRequestException(
@@ -436,6 +435,7 @@ export class LiveScheduleService {
     });
     await this.assertNoScheduleConflicts({
       liveClassId: oldSchedule.liveClassId,
+      cohortId: klass?.cohortId,
       weekday: input.weekday ?? oldSchedule.weekday,
       startTime: input.startTime ?? oldSchedule.startTime,
       endTime: input.endTime ?? oldSchedule.endTime,
@@ -554,9 +554,9 @@ export class LiveScheduleService {
     const attendances =
       sessionIds.length > 0
         ? await this.prisma.classAttendance.findMany({
-            where: { userId, sessionId: { in: sessionIds } },
-            select: { sessionId: true, status: true },
-          })
+          where: { userId, sessionId: { in: sessionIds } },
+          select: { sessionId: true, status: true },
+        })
         : [];
     const attMap = new Map(attendances.map((a) => [a.sessionId, a.status]));
 
@@ -892,9 +892,9 @@ export class LiveScheduleService {
         requestedDate:
           fromDate || toDate
             ? {
-                ...(fromDate ? { gte: fromDate } : {}),
-                ...(toDate ? { lte: toDate } : {}),
-              }
+              ...(fromDate ? { gte: fromDate } : {}),
+              ...(toDate ? { lte: toDate } : {}),
+            }
             : undefined,
       },
       include: {
@@ -1439,8 +1439,9 @@ export class LiveScheduleService {
     return aStart < bEnd && bStart < aEnd;
   }
 
-  private async assertNoScheduleConflicts(input: {
-    liveClassId: string;
+  async assertNoScheduleConflicts(input: {
+    liveClassId?: string;
+    cohortId?: string;
     weekday: number;
     startTime: string;
     endTime: string;
@@ -1455,20 +1456,43 @@ export class LiveScheduleService {
     }
     if (conflict.teacherConflicts.length > 0) {
       throw new BadRequestException(
-        'Primary teacher has a conflicting schedule in another live class',
+        'Giảng viên chính bị trùng lịch với một lớp học trực tuyến khác.',
       );
     }
   }
 
-  private async checkScheduleConflicts(input: {
-    liveClassId: string;
+  async checkScheduleConflicts(input: {
+    liveClassId?: string;
+    cohortId?: string;
     weekday: number;
     startTime: string;
     endTime: string;
     instructorId?: string | null;
     excludeScheduleId?: string;
   }) {
-    const inClassCandidates = await this.prisma.liveSchedule.findMany({
+    let targetStart: Date | null = null;
+    let targetEnd: Date | null = null;
+    let targetCohortId: string | null = input.cohortId || null;
+
+    if (!targetCohortId && input.liveClassId) {
+      const k = await this.prisma.liveClass.findUnique({
+        where: { id: input.liveClassId },
+        select: { cohortId: true, cohort: { select: { startDate: true, endDate: true } } },
+      });
+      if (k) {
+        targetCohortId = k.cohortId;
+        targetStart = k.cohort?.startDate || null;
+        targetEnd = k.cohort?.endDate || null;
+      }
+    } else if (targetCohortId) {
+      const c = await this.prisma.cohort.findUnique({
+        where: { id: targetCohortId },
+        select: { startDate: true, endDate: true },
+      });
+      targetStart = c?.startDate || null;
+      targetEnd = c?.endDate || null;
+    }
+    const inClassCandidates = input.liveClassId ? await this.prisma.liveSchedule.findMany({
       where: {
         liveClassId: input.liveClassId,
         weekday: input.weekday,
@@ -1482,7 +1506,7 @@ export class LiveScheduleService {
         endTime: true,
         liveClassId: true,
       },
-    });
+    }) : [];
 
     const inClassConflicts = inClassCandidates.filter((candidate) =>
       this.isTimeOverlap(
@@ -1524,6 +1548,13 @@ export class LiveScheduleService {
               id: true,
               code: true,
               name: true,
+              cohortId: true,
+              cohort: {
+                select: {
+                  startDate: true,
+                  endDate: true,
+                },
+              },
             },
           },
         },
@@ -1534,7 +1565,21 @@ export class LiveScheduleService {
           (candidate: any) =>
             !input.liveClassId || candidate.liveClass.id !== input.liveClassId,
         )
-        .filter((candidate) =>
+        .filter((candidate: any) => {
+          if (targetCohortId && candidate.liveClass.cohortId && targetCohortId !== candidate.liveClass.cohortId) {
+            const cStart = candidate.liveClass.cohort?.startDate;
+            const cEnd = candidate.liveClass.cohort?.endDate;
+            if (targetStart && targetEnd && cStart && cEnd) {
+              if (targetStart > cEnd || targetEnd < cStart) {
+                return false;
+              }
+            } else {
+              return false;
+            }
+          }
+          return true;
+        })
+        .filter((candidate: any) =>
           this.isTimeOverlap(
             input.startTime,
             input.endTime,

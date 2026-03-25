@@ -7,6 +7,11 @@ export const academyLiveClassCreateDTOSchema = z.object({
   instructorId: z.string().uuid().optional(),
   maxStudents: z.coerce.number().int().min(1).optional().nullable(),
   status: z.enum(['DRAFT', 'OPENING', 'ONGOING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
+  schedules: z.array(z.object({
+    weekday: z.number().int().min(0).max(6),
+    startTime: z.string(),
+    endTime: z.string(),
+  })).optional(),
 });
 export type AcademyLiveClassCreateDTO = z.infer<typeof academyLiveClassCreateDTOSchema>;
 
@@ -20,6 +25,7 @@ export const academyLiveClassQueryDTOSchema = z.object({
   q: z.string().optional(),
   mode: z.string().optional(), // 'LIVE' | 'VOD'
   month: z.string().optional(), // 'yyyy-MM'
+  onlyAvailable: z.coerce.boolean().optional(),
 });
 export type AcademyLiveClassQueryDTO = z.infer<typeof academyLiveClassQueryDTOSchema>;
 

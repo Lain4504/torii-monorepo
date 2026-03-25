@@ -27,7 +27,6 @@ export * from './dtos/staff-dashboard.dto';
 export * from './dtos/academy-course-profile.dto';
 export * from './dtos/academy-vod-package.dto';
 export * from './dtos/academy-cohort.dto';
-export * from './dtos/academy-course-edition.dto';
 export * from './dtos/academy-exam.dto';
 export * from './dtos/academy-question.dto';
 export * from './dtos/academy-question-pool.dto';

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { useParams, Link } from "react-router-dom"
-import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
+import { useParams, Link, useSearchParams } from "react-router-dom"
+import { useAcademyCourseProfile, useSubmitAcademyCourseProfileForApproval } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText } from "lucide-react"
+import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import {
   Dialog,
@@ -75,8 +75,13 @@ export default function CourseProfileDetailPage() {
 
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
   const [profileSheetOpen, setProfileSheetOpen] = useState(false)
+  const [submitDialog, setSubmitDialog] = useState(false)
+  
+  const [searchParams] = useSearchParams()
+  const defaultTab = searchParams.get('tab') || 'info'
   
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(profileId)
+  const submitForApprovalMutation = useSubmitAcademyCourseProfileForApproval()
   const { data: classes } = useAcademyLiveClasses({ courseProfileId: profileId } as any)
 
   const qc = useQueryClient()
@@ -149,11 +154,22 @@ export default function CourseProfileDetailPage() {
              >
                Chỉnh sửa Profile
              </Button>
+
+             {profile.status === 'DRAFT' && (
+                <Button
+                   disabled={isLocked || submitForApprovalMutation.isPending}
+                   onClick={() => setSubmitDialog(true)}
+                   className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                   <Send className="size-4" />
+                   Gửi duyệt giáo trình
+                </Button>
+             )}
           </div>
         }
       />
 
-      <Tabs defaultValue="info" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="bg-muted/50 p-1 rounded-lg overflow-x-auto max-w-full">
           <TabsTrigger value="info" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
             <BookOpen className="size-4" /> Thông tin chi tiết
@@ -501,6 +517,42 @@ export default function CourseProfileDetailPage() {
         onOpenChange={setProfileSheetOpen}
         profile={profile as any}
       />
+
+      <Dialog open={submitDialog} onOpenChange={setSubmitDialog}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận gửi duyệt hồ sơ</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc muốn gửi duyệt hồ sơ <strong>{profile.code}</strong>?
+              Sau khi gửi duyệt, curriculum sẽ bị khóa để tránh thay đổi ngẫu nhiên.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setSubmitDialog(false)}
+              disabled={submitForApprovalMutation.isPending}
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700"
+              onClick={async () => {
+                try {
+                  await submitForApprovalMutation.mutateAsync(profile.id)
+                  toast.success(`Đã gửi duyệt hồ sơ ${profile.code} thành công`)
+                  setSubmitDialog(false)
+                } catch (err: any) {
+                  toast.error(err?.response?.data?.message || err.message || "Không thể gửi duyệt hồ sơ.")
+                }
+              }}
+              disabled={submitForApprovalMutation.isPending}
+            >
+              Xác nhận gửi duyệt
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={deleteModuleConfirm.open}

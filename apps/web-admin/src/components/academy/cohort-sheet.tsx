@@ -41,11 +41,20 @@ const cohortSchema = z.object({
   code: z.string().min(2, "Mã khóa học phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên khóa học phải có ít nhất 3 ký tự"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   status: z.string().optional(),
   enrollmentOpenAt: z.string().optional().nullable(),
   enrollmentCloseAt: z.string().optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
+}).refine((data) => {
+  if (data.enrollmentCloseAt && data.startDate) {
+    return new Date(data.enrollmentCloseAt) < new Date(data.startDate);
+  }
+  return true;
+}, {
+  message: "Thời hạn đóng đăng ký phải trước ngày khai giảng",
+  path: ["enrollmentCloseAt"],
 })
 
 type CohortFormValues = z.infer<typeof cohortSchema>
@@ -75,6 +84,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
       code: "",
       name: "",
       price: 0,
+      discountPrice: null,
       status: "DRAFT",
       enrollmentOpenAt: null,
       enrollmentCloseAt: null,
@@ -90,6 +100,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         code: cohort.code,
         name: cohort.name,
         price: Number(cohort.price),
+        discountPrice: cohort.discountPrice ? Number(cohort.discountPrice) : null,
         status: cohort.status ?? "DRAFT",
         enrollmentOpenAt: cohort.enrollmentOpenAt
           ? new Date(cohort.enrollmentOpenAt).toISOString().slice(0, 10)
@@ -110,6 +121,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         code: "",
         name: "",
         price: 0,
+        discountPrice: null,
         status: "DRAFT",
         enrollmentOpenAt: null,
         enrollmentCloseAt: null,
@@ -126,6 +138,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         code: values.code,
         name: values.name,
         price: values.price,
+        discountPrice: values.discountPrice ?? undefined,
         status: values.status as any,
         enrollmentOpenAt: values.enrollmentOpenAt ? new Date(values.enrollmentOpenAt) : undefined,
         enrollmentCloseAt: values.enrollmentCloseAt ? new Date(values.enrollmentCloseAt) : undefined,
@@ -138,10 +151,10 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
           id: cohort.id,
           input,
         })
-        toast.success("Cập nhật Khóa học (Cohort) thành công")
+        toast.success("Cập nhật Đợt khai giảng thành công")
       } else {
         await createMutation.mutateAsync(input)
-        toast.success("Tạo Khóa học (Cohort) thành công")
+        toast.success("Tạo Đợt khai giảng thành công")
       }
       onOpenChange(false)
     } catch (error: any) {
@@ -155,7 +168,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="!w-full sm:!max-w-[700px] max-h-screen p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-6 py-4 border-b shrink-0">
-          <SheetTitle>{isEditing ? "Chỉnh sửa Khóa học (Cohort)" : "Tạo Khóa học mới"}</SheetTitle>
+          <SheetTitle>{isEditing ? "Chỉnh sửa Đợt khai giảng" : "Tạo Đợt khai giảng mới"}</SheetTitle>
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin quản lý cho đợt học này."
@@ -198,7 +211,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                     </Field>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel>Mã Cohort (VD: JLPT-N3-2407)</FieldLabel>
+                        <FieldLabel>Mã Đợt khai giảng (VD: JLPT-N3-2407)</FieldLabel>
                         <Controller
                           name="code"
                           control={control}
@@ -209,7 +222,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                         <FieldError errors={[errors.code]} />
                       </Field>
                       <Field>
-                        <FieldLabel>Tên Cohort (VD: Khóa N3 Tháng 7/2024)</FieldLabel>
+                        <FieldLabel>Tên Đợt (VD: Khóa N3 Tháng 7/2024)</FieldLabel>
                         <Controller
                           name="name"
                           control={control}
@@ -226,21 +239,39 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                 <FieldSet>
                   <FieldLegend>Kinh doanh & Thời gian</FieldLegend>
                   <FieldGroup>
-                    <Field>
-                      <FieldLabel>Giá học phí (VNĐ)</FieldLabel>
-                      <Controller
-                        name="price"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        )}
-                      />
-                      <FieldError errors={[errors.price]} />
-                    </Field>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field>
+                        <FieldLabel>Giá học phí (VNĐ)</FieldLabel>
+                        <Controller
+                          name="price"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          )}
+                        />
+                        <FieldError errors={[errors.price]} />
+                      </Field>
+                      <Field>
+                        <FieldLabel>Giá giảm giá (VNĐ)</FieldLabel>
+                        <Controller
+                          name="discountPrice"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              placeholder="Không giảm"
+                              value={field.value ?? ""}
+                              onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                            />
+                          )}
+                        />
+                        <FieldError errors={[errors.discountPrice]} />
+                      </Field>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
@@ -252,6 +283,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                             <Input type="date" value={field.value || ""} onChange={field.onChange} />
                           )}
                         />
+                        <FieldError errors={[errors.enrollmentOpenAt]} />
                       </Field>
                       <Field>
                         <FieldLabel>Đóng đăng ký</FieldLabel>
@@ -262,6 +294,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                             <Input type="date" value={field.value || ""} onChange={field.onChange} />
                           )}
                         />
+                        <FieldError errors={[errors.enrollmentCloseAt]} />
                       </Field>
                       <Field>
                         <FieldLabel>Ngày khai giảng</FieldLabel>
@@ -272,6 +305,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                             <Input type="date" value={field.value || ""} onChange={field.onChange} />
                           )}
                         />
+                        <FieldError errors={[errors.startDate]} />
                       </Field>
                       <Field>
                         <FieldLabel>Ngày kết thúc</FieldLabel>
@@ -282,6 +316,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                             <Input type="date" value={field.value || ""} onChange={field.onChange} />
                           )}
                         />
+                        <FieldError errors={[errors.endDate]} />
                       </Field>
                     </div>
                   </FieldGroup>
@@ -297,7 +332,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
           </Button>
           <Button type="submit" form="cohort-form" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Lưu thay đổi" : "Tạo Khóa học"}
+            {isEditing ? "Lưu thay đổi" : "Tạo Đợt khai giảng"}
           </Button>
         </div>
       </SheetContent>

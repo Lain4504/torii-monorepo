@@ -14,6 +14,7 @@ export type AcademyCohort = {
   name: string
   description?: string | null
   price: number
+  discountPrice?: number | null
   status: string
   enrollmentOpenAt?: string | null
   enrollmentCloseAt?: string | null

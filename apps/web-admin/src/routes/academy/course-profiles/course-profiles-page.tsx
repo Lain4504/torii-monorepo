@@ -222,15 +222,17 @@ export default function CourseProfilesPage() {
                                                     <Eye className="h-3.5 w-3.5" />
                                                     <span>Chi tiết</span>
                                                 </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
-                                                    onClick={() => handleEdit(profile)}
-                                                >
-                                                    <Pencil className="h-3.5 w-3.5" />
-                                                    <span>Chỉnh sửa</span>
-                                                </Button>
+                                                {((profile as any).status === 'DRAFT' || (profile as any).status === 'PENDING_APPROVAL') && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        onClick={() => handleEdit(profile)}
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                        <span>Chỉnh sửa</span>
+                                                    </Button>
+                                                )}
 
                                                 {(profile as any).status === 'DRAFT' && (
                                                     <Button
@@ -309,7 +311,7 @@ export default function CourseProfilesPage() {
                                     )
                                     setArchiveDialog({ open: false })
                                 } catch (err: any) {
-                                    toast.error(err.message || 'Không thể lưu trữ hồ sơ.')
+                                    toast.error(err?.response?.data?.message || err.message || 'Không thể lưu trữ hồ sơ.')
                                 }
                             }}
                             disabled={archiveMutation.isPending}
@@ -344,7 +346,7 @@ export default function CourseProfilesPage() {
                                     toast.success(`Đã gửi duyệt hồ sơ ${submitDialog.code}`)
                                     setSubmitDialog({ open: false })
                                 } catch (err: any) {
-                                    toast.error(err.message || 'Không thể gửi duyệt hồ sơ.')
+                                    toast.error(err?.response?.data?.message || err.message || 'Không thể gửi duyệt hồ sơ.')
                                 }
                             }}
                             disabled={submitForApprovalMutation.isPending}
@@ -359,6 +361,10 @@ export default function CourseProfilesPage() {
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
                 profile={selectedProfile}
+                onSuccessCreate={(id) => {
+                    navigate(`/academy/course-profiles/${id}/detail?tab=curriculum`);
+                    setSheetOpen(false);
+                }}
             />
 
             <DuplicateCourseDialog
