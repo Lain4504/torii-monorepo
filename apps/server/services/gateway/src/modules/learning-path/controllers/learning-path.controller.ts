@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Inject,
   Get,
   Logger,
   Patch,
@@ -11,6 +12,7 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import {
   ReqWithRequester,
   GatewayAuthGuard,
@@ -18,6 +20,7 @@ import {
   successResponse,
   PrismaService,
 } from '@server/shared';
+import { ActivityType } from '@prisma/generated';
 
 @Controller('api/v1')
 @UseGuards(GatewayAuthGuard)
@@ -27,7 +30,10 @@ export class LearningPathController {
   // NOTE: MVP dùng Prisma schema mới; trong một số môi trường dev Prisma client
   // có thể chưa được generate đầy đủ model typing ngay lập tức.
   // Ép kiểu `Record<string, any>` để tránh TS compile/lint block cho phần ingestor/planning.
-  constructor(private readonly prisma: PrismaService & Record<string, any>) {}
+  constructor(
+    private readonly prisma: PrismaService & Record<string, any>,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+  ) {}
 
   private addDaysUTC(date: Date, days: number) {
     const d = new Date(date);
@@ -54,7 +60,7 @@ export class LearningPathController {
   }
 
   private async getUserLastActiveDateString(userId: string) {
-    const last = await this.prisma.streakLog.findFirst({
+    const last = await this.prisma.gameStreakLog.findFirst({
       where: { userId, status: { in: ['ACTIVE', 'FREEZE'] } },
       orderBy: { date: 'desc' },
       select: { date: true },
@@ -739,6 +745,7 @@ export class LearningPathController {
     @Body() body: any,
   ) {
     try {
+      const userId = req.requester.sub;
       const status = this.normalizeTaskStatus(body?.status ?? body?.state);
       const actualMinutes =
         body?.actual_minutes ?? body?.actualMinutes ?? null;
@@ -755,6 +762,46 @@ export class LearningPathController {
           completedAt,
         },
       });
+
+      // GV2 ingest: emit learning activity when task is completed.
+      // This is required after removing Gamification v1; streak/at-risk/recovery must rely on GV2 logs.
+      if (status === 'COMPLETED') {
+        const taskType = (updated as any)?.taskType as string | undefined;
+        const activityType =
+          taskType === 'VOD_LESSON'
+            ? ActivityType.LESSON_COMPLETE
+            : taskType === 'LIVE_ATTENDANCE'
+              ? ActivityType.VIDEO_WATCH
+              : taskType === 'ASSIGNMENT_SUBMIT'
+                ? ActivityType.PRACTICE
+                : taskType === 'SRS_REVIEW'
+                  ? ActivityType.REVIEW
+                  : taskType === 'JLPT_MOCK_SECTION'
+                    ? ActivityType.QUIZ_ANSWER
+                    : null;
+
+        if (activityType) {
+          const eventTime = completedAt ?? new Date();
+          try {
+            this.natsClient.emit('user.activity', {
+              userId,
+              activityType,
+              timestamp: eventTime.toISOString(),
+              meta: {
+                attemptId: updated.id,
+                // Best-effort: provide stable identifiers for dedup.
+                lessonId: (updated as any)?.sourceLessonId ?? null,
+                studySetId: (updated as any)?.sourceStudySetId ?? null,
+              },
+            });
+          } catch (e: unknown) {
+            const err = e as Error;
+            this.logger.error(
+              `Failed to emit GV2 activity for task=${updated.id}: ${err.message}`,
+            );
+          }
+        }
+      }
 
       // MVP RecoveryMode exit: when all "Recovery:" tasks are completed, switch plan back to ADAPTIVE.
       if (
@@ -877,7 +924,8 @@ export class LearningPathController {
       if (totalTasks === 0) risk_flags.push('empty_week_tasks');
       if (isRecovering) risk_flags.push('in_recovery_mode');
 
-      const streak = await this.prisma.streak.findUnique({
+      // GV2: streak/profile được tính từ game_profiles + game_streak_logs
+      const gameProfile = await this.prisma.gameProfile.findUnique({
         where: { userId },
         select: { currentStreak: true },
       });
@@ -888,7 +936,7 @@ export class LearningPathController {
         progress_score,
         confidence_score,
         status,
-        activity: { weekly_minutes, streak_days: streak?.currentStreak ?? 0 },
+        activity: { weekly_minutes, streak_days: gameProfile?.currentStreak ?? 0 },
         performance: { avg_quiz_score: 0 },
         mastery: { skills_mastered: 0, skills_in_progress: 0 },
         risk_flags,
@@ -1308,7 +1356,7 @@ export class LearningPathController {
       }
 
       return successResponse({
-        planId: 'rp_generated_now',
+        planId: plan.id,
         windowDays,
         dailyActions,
         expectedOutcome: atRisk

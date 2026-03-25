@@ -16,7 +16,6 @@ import { StorageModule } from './modules/storage/storage.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AcademyModule } from './modules/academy/academy.module';
 import { AgentsModule } from './modules/agents/agents.module';
-import { GamificationModule } from './modules/gamification/gamification.module';
 import { LearningPathModule } from './modules/learning-path/learning-path.module';
 import { GameV2Module } from './modules/game-v2/game-v2.module';
 import { CommentModule } from './modules/comment/comment.module';
@@ -54,8 +53,6 @@ import { CommentModule } from './modules/comment/comment.module';
     IdentityModule,
     // Academy Module - New core LMS via NATS
     AcademyModule,
-    // Gamification Module
-    GamificationModule,
 
     // Learning Path + Gamification V2 (skeleton routes)
     LearningPathModule,

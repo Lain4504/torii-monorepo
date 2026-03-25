@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { ActivityType, Prisma } from '@prisma/generated';
+import { ClientProxy } from '@nestjs/microservices';
 import {
   CreateStudySetDto,
   UpdateStudySetDto,
@@ -11,12 +12,11 @@ import {
   ShareStudySetDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
-import { GamificationService } from '../gamification/gamification.service';
 @Injectable()
 export class StudySetService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly gamification: GamificationService,
+    @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
   ) {}
 
   // --- Study Set Methods ---
@@ -348,16 +348,18 @@ export class StudySetService {
       },
     });
 
-    // Gamification hook: flashcard review
-    this.gamification
-      .trackActivity(userId, ActivityType.FLASHCARD_REVIEW, {
+    // Gamification V2 hook: emit user.activity for streak/XP/points.
+    // GV2 ingestor will handle caps/idempotency.
+    this.nats.emit('user.activity', {
+      userId,
+      activityType: ActivityType.FLASHCARD_REVIEW,
+      timestamp: new Date().toISOString(),
+      meta: {
         studySetId: card.studySetId,
         cardId: card.id,
         quality: data.quality,
-      })
-      .catch(() => {
-        // Ignore gamification errors for core SRS flow
-      });
+      },
+    });
 
     return {
       ...card,

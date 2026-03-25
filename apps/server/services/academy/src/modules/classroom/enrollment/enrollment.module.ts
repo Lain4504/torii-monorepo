@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { EnrollmentHandler } from './enrollment.handler';
 import { EnrollmentService } from './enrollment.service';
-import { GamificationModule } from '../../gamification/gamification.module';
+import { PrismaModule } from '@server/shared/prisma/prisma.module';
 
 @Module({
-  imports: [GamificationModule],
+  imports: [PrismaModule],
   providers: [EnrollmentService],
   controllers: [EnrollmentHandler],
   exports: [EnrollmentService],

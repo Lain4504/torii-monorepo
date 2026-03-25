@@ -4,17 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="faff">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement Learning Path v2 with gamification integration and recovery mode">
+      <change afterPath="$PROJECT_DIR$/file.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/academy.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/achievement.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification-activity.listener.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/gateway.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/onboarding/survey-flow.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/onboarding/survey-flow.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/gamification-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/gamification-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/store/slices/authSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/store/slices/authSlice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/gamification/controllers/gamification.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/gamification/gamification.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/controllers/onboarding.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/identity.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning-path/controllers/learning-path.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning-path/controllers/learning-path.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +37,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1782" />
+    <option name="cachedIndexableFilesCount" value="1788" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -369,15 +379,8 @@
       <workItem from="1774309461606" duration="4689000" />
       <workItem from="1774369682844" duration="1071000" />
       <workItem from="1774409406934" duration="2909000" />
-      <workItem from="1774428336516" duration="5391000" />
-    </task>
-    <task id="LOCAL-01022" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773856436017</created>
-      <option name="number" value="01022" />
-      <option name="presentableId" value="LOCAL-01022" />
-      <option name="project" value="LOCAL" />
-      <updated>1773856436017</updated>
+      <workItem from="1774428336516" duration="8433000" />
+      <workItem from="1774447037617" duration="758000" />
     </task>
     <task id="LOCAL-01023" summary="refactor: simplify class handling in offerings and remove legacy code">
       <option name="closed" value="true" />
@@ -763,7 +766,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774410747578</updated>
     </task>
-    <option name="localTasksCounter" value="1071" />
+    <task id="LOCAL-01071" summary="feat: implement Learning Path v2 with gamification integration and recovery mode">
+      <option name="closed" value="true" />
+      <created>1774440047435</created>
+      <option name="number" value="01071" />
+      <option name="presentableId" value="LOCAL-01071" />
+      <option name="project" value="LOCAL" />
+      <updated>1774440047437</updated>
+    </task>
+    <option name="localTasksCounter" value="1072" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -798,7 +809,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix quiz flow and improve user experience" />
     <MESSAGE value="refactor(ui): improve roleplay API handling and update rewards page styling" />
     <MESSAGE value="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting" />
     <MESSAGE value="new" />
@@ -823,7 +833,8 @@
     <MESSAGE value="refactor: change to seed jlpt examc config + remove marketing page (#308)" />
     <MESSAGE value="refactor: change to seed jlpt examc config" />
     <MESSAGE value="faff" />
-    <option name="LAST_COMMIT_MESSAGE" value="faff" />
+    <MESSAGE value="feat: implement Learning Path v2 with gamification integration and recovery mode" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement Learning Path v2 with gamification integration and recovery mode" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

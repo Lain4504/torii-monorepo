@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '@server/shared/prisma/prisma.module';
 import { ClassReviewService } from './class-review.service';
 import { CourseReviewHandler } from './class-review.handler';
-import { GamificationModule } from '../../gamification/gamification.module';
+import { NatsClientModule } from '@server/shared';
 import { ClassReviewListener } from './class-review.listener';
 
 @Module({
-  imports: [PrismaModule, GamificationModule],
+  imports: [PrismaModule, NatsClientModule],
   providers: [ClassReviewService],
   controllers: [CourseReviewHandler, ClassReviewListener],
   exports: [ClassReviewService],

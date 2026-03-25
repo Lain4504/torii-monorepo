@@ -6,7 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { GamificationService } from '../../gamification/gamification.service';
+import { Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { AuditLoggerService } from '../../audit-logger.service';
 import type {
   ClassReviewCreateDto,
@@ -27,7 +28,7 @@ export class ClassReviewService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly gamification: GamificationService,
+    @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
     private readonly audit: AuditLoggerService,
   ) {}
 
@@ -248,19 +249,24 @@ export class ClassReviewService {
 
     // 6. Award gamification points if review is immediately PUBLISHED
     if (status === 'PUBLISHED') {
-      await this.gamification
-        .trackActivity(userId, ActivityType.REVIEW, {
-          reviewId: review.id,
-          targetId: cohortId || vodPackageId,
-          enrollmentId: dto.enrollmentId,
-          rating: dto.rating,
-        })
-        .catch((err) => {
-          this.logger.error(
-            `Failed to award gamification for review ${review.id}`,
-            err,
-          );
+      // GV2 ingest: emit learning activity as `user.activity`
+      try {
+        this.nats.emit('user.activity', {
+          userId,
+          activityType: ActivityType.REVIEW,
+          timestamp: new Date().toISOString(),
+          meta: {
+            reviewId: review.id,
+            targetId: cohortId || vodPackageId,
+            enrollmentId: dto.enrollmentId,
+            rating: dto.rating,
+          },
         });
+      } catch (err: any) {
+        this.logger.error(
+          `Failed to emit GV2 activity for review ${review.id}: ${err?.message ?? err}`,
+        );
+      }
     }
 
     return review;
@@ -406,19 +412,24 @@ export class ClassReviewService {
 
     // If review is being published for the first time (was PENDING), award gamification
     if (dto.action === 'publish' && review.status === 'PENDING') {
-      await this.gamification
-        .trackActivity(review.userId, ActivityType.REVIEW, {
-          reviewId: review.id,
-          targetId: review.cohortId || review.vodPackageId,
-          enrollmentId: review.enrollmentId,
-          rating: review.rating,
-        })
-        .catch((err) => {
-          this.logger.error(
-            `Failed to award gamification for review ${review.id}`,
-            err,
-          );
+      // GV2 ingest: emit learning activity as `user.activity`
+      try {
+        this.nats.emit('user.activity', {
+          userId: review.userId,
+          activityType: ActivityType.REVIEW,
+          timestamp: new Date().toISOString(),
+          meta: {
+            reviewId: review.id,
+            targetId: review.cohortId || review.vodPackageId,
+            enrollmentId: review.enrollmentId,
+            rating: review.rating,
+          },
         });
+      } catch (err: any) {
+        this.logger.error(
+          `Failed to emit GV2 activity for review ${review.id}: ${err?.message ?? err}`,
+        );
+      }
     }
 
     await this.audit.log({
