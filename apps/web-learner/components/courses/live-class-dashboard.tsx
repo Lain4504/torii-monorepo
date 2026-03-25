@@ -14,10 +14,12 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Calendar, Clock, Video, BookOpen, Users, ChevronRight, PlayCircle, MoreHorizontal } from "lucide-react"
+import { Calendar, Clock, Video, BookOpen, Users, ChevronRight, PlayCircle, MoreHorizontal, FileText } from "lucide-react"
 import { format, isSameDay, startOfWeek, addDays, isPast } from "date-fns"
 import { vi } from "date-fns/locale"
 import { CourseCurriculum } from "@/components/courses/course-curriculum"
+import { AcademyResourceList } from "./academy-resource-list"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useCurriculum } from "@/lib/api/services/academy-classes"
 import { toast } from "sonner"
 
@@ -29,6 +31,7 @@ export function LiveClassDashboard() {
     const { data: schedule, isLoading: scheduleLoading } = useClassSchedule(classId);
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
     const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(classId);
+    const [activeTab, setActiveTab] = useState("curriculum");
 
     const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
 
@@ -238,25 +241,44 @@ export function LiveClassDashboard() {
                     </div>
 
                     <div className="pt-8">
-                        <h2 className="text-2xl font-black flex items-center gap-3 mb-6">
-                            <BookOpen className="size-6 text-primary" />
-                            Nội dung học tập
-                        </h2>
-                        <Card className="rounded-[32px] overflow-hidden border-zinc-100 shadow-sm">
-                            <div className="p-6 md:p-10">
-                                {curriculum ? (
-                                    <CourseCurriculum
-                                        curriculum={{ modules: curriculum.modules }}
-                                        courseSlug={classId}
-                                    />
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                                        <p className="mt-4 text-zinc-500 font-medium">Đang tải học liệu...</p>
-                                    </div>
-                                )}
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                <h2 className="text-2xl font-black flex items-center gap-3">
+                                    {activeTab === 'curriculum' ? (
+                                        <BookOpen className="size-6 text-primary" />
+                                    ) : (
+                                        <FileText className="size-6 text-primary" />
+                                    )}
+                                    {activeTab === 'curriculum' ? 'Nội dung học tập' : 'Tài liệu lớp học'}
+                                </h2>
+                                <TabsList variant="line" className="w-full sm:w-auto">
+                                    <TabsTrigger value="curriculum" className="flex-1 sm:flex-none">Nội dung</TabsTrigger>
+                                    <TabsTrigger value="resources" className="flex-1 sm:flex-none">Tài liệu</TabsTrigger>
+                                </TabsList>
                             </div>
-                        </Card>
+
+                            <TabsContent value="curriculum">
+                                <Card className="rounded-[32px] overflow-hidden border-zinc-100 shadow-sm">
+                                    <div className="p-6 md:p-10">
+                                        {curriculum ? (
+                                            <CourseCurriculum
+                                                curriculum={{ modules: curriculum.modules }}
+                                                courseSlug={classId}
+                                            />
+                                        ) : (
+                                            <div className="text-center py-12">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                                                <p className="mt-4 text-zinc-500 font-medium">Đang tải học liệu...</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            </TabsContent>
+
+                            <TabsContent value="resources">
+                                <AcademyResourceList classId={classId} />
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </div>
 

@@ -46,11 +46,11 @@ interface ClassReviewMyListResponse {
 export const academyClassReviewsClient = {
     /** Public: List reviews for a class */
     listByClass: async (
-        classId: string,
+        cohortId: string,
         query?: AcademyCourseReviewQueryDTO,
     ) => {
         return apiClient.get<ClassReviewListResponse>(
-            `/api/academy/live-classes/${classId}/reviews`,
+            `/api/academy/reviews/cohorts/${cohortId}`,
             { params: query },
         );
     },
@@ -58,7 +58,7 @@ export const academyClassReviewsClient = {
     /** Auth: List current user's reviews */
     listMine: async () => {
         return apiClient.get<ClassReviewMyListResponse>(
-            '/api/academy/me/class-reviews',
+            '/api/academy/reviews/me',
         );
     },
 
@@ -73,7 +73,7 @@ export const academyClassReviewsClient = {
     /** Auth: Update review */
     update: async (id: string, dto: AcademyCourseReviewUpdateDTO) => {
         return apiClient.patch<{ data: ClassReview }>(
-            `/api/academy/class-reviews/${id}`,
+            `/api/academy/reviews/${id}`,
             dto,
         );
     },
@@ -81,7 +81,7 @@ export const academyClassReviewsClient = {
     /** Auth: Hide review */
     hide: async (id: string) => {
         return apiClient.delete<{ data: ClassReview }>(
-            `/api/academy/class-reviews/${id}`,
+            `/api/academy/reviews/${id}`,
         );
     },
 };
@@ -105,10 +105,16 @@ export const academyClassReviewHooks = {
     useCreateReview: () => {
         const qc = useQueryClient();
         return useMutation({
-            mutationFn: ({ classId, dto }: { classId: string; dto: AcademyCourseReviewCreateDTO }) =>
-                academyClassReviewsClient.create(classId, dto),
+            mutationFn: ({ targetId, targetType, dto }: { targetId: string; targetType: 'COHORT' | 'VOD'; dto: AcademyCourseReviewCreateDTO }) => {
+                const payload = {
+                    ...dto,
+                    cohortId: targetType === 'COHORT' ? targetId : undefined,
+                    vodPackageId: targetType === 'VOD' ? targetId : undefined
+                };
+                return apiClient.post<{ data: ClassReview }>('/api/academy/reviews', payload);
+            },
             onSuccess: (_, variables) => {
-                qc.invalidateQueries({ queryKey: ['class-reviews', variables.classId] });
+                qc.invalidateQueries({ queryKey: ['class-reviews', variables.targetId] });
                 qc.invalidateQueries({ queryKey: ['my-class-reviews'] });
             },
         });

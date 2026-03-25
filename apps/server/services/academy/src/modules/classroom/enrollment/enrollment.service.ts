@@ -14,7 +14,7 @@ export class EnrollmentService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     private readonly achievementService: AchievementService,
-  ) {}
+  ) { }
 
   async findAll(query: any) {
     const enrollments = await this.prisma.enrollment.findMany({
@@ -99,6 +99,7 @@ export class EnrollmentService {
             expiresAt: e.expiresAt,
             vodPackageId: e.vodPackageId,
             liveClassId: e.liveClassId,
+            cohortId: e.liveClass?.cohortId,
             type: e.liveClassId ? 'live' : 'vod',
             courseTitle: courseProfile?.title,
             courseCode: courseProfile?.code,

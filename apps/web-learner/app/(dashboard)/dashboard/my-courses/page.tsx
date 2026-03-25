@@ -42,11 +42,12 @@ export default function MyCoursesPage() {
 
     const [reviewDialogProps, setReviewDialogProps] = useState<{
         isOpen: boolean;
-        classId: string;
+        targetId: string;
+        targetType: 'COHORT' | 'VOD';
         enrollmentId: string;
         courseTitle: string;
         existingReview?: any;
-    }>({ isOpen: false, classId: '', enrollmentId: '', courseTitle: '' })
+    }>({ isOpen: false, targetId: '', targetType: 'COHORT', enrollmentId: '', courseTitle: '' })
 
     const { data: respCourses, isLoading: loadingCourses } = useAcademyMyCourses();
     const { data: respStats, isLoading: loadingStats } = useAcademyLearningStats();
@@ -235,7 +236,7 @@ export default function MyCoursesPage() {
 
                             {course.type?.toLowerCase() === 'live' && (
                                 <div className="rounded-xl border border-border bg-muted/20 p-3">
-                                    <LiveSessionBlock classId={course.classId} compact maxSessions={2} />
+                                    <LiveSessionBlock classId={course.liveClassId} compact maxSessions={2} />
                                 </div>
                             )}
 
@@ -255,7 +256,7 @@ export default function MyCoursesPage() {
                                 ) : (
                                     <div className="flex gap-2">
                                         <Link
-                                            href={course.type?.toLowerCase() === 'live' ? `/courses/${course.classId}` : `/courses/${course.classId}/learn`}
+                                            href={course.type?.toLowerCase() === 'live' ? `/courses/${course.liveClassId}` : `/courses/${course.liveClassId}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -265,7 +266,10 @@ export default function MyCoursesPage() {
                                             </Button>
                                         </Link>
                                         {course.progress >= 100 && (() => {
-                                            const existingReview = myReviews.find((r: any) => r.class?.id === course.classId);
+                                            const existingReview = myReviews.find((r: any) =>
+                                                (r.cohortId && r.cohortId === course.cohortId) ||
+                                                (r.vodPackageId && r.vodPackageId === course.vodPackageId)
+                                            );
                                             return (
                                                 <Button
                                                     className={`text-xs shrink-0 flex-1 ${!existingReview && "bg-amber-500 hover:bg-amber-600 text-white"}`}
@@ -274,7 +278,8 @@ export default function MyCoursesPage() {
                                                         e.stopPropagation();
                                                         setReviewDialogProps({
                                                             isOpen: true,
-                                                            classId: course.classId,
+                                                            targetId: course.cohortId || course.vodPackageId,
+                                                            targetType: course.type?.toLowerCase() === 'live' ? 'COHORT' : 'VOD',
                                                             enrollmentId: course.id,
                                                             courseTitle: course.courseTitle || "",
                                                             existingReview
@@ -318,7 +323,8 @@ export default function MyCoursesPage() {
             <ClassReviewDialog
                 isOpen={reviewDialogProps.isOpen}
                 setIsOpen={(isOpen) => setReviewDialogProps(prev => ({ ...prev, isOpen }))}
-                classId={reviewDialogProps.classId}
+                targetId={reviewDialogProps.targetId}
+                targetType={reviewDialogProps.targetType}
                 enrollmentId={reviewDialogProps.enrollmentId}
                 courseTitle={reviewDialogProps.courseTitle}
                 existingReview={reviewDialogProps.existingReview}

@@ -177,6 +177,32 @@ enum GamificationCurrency {
   XP
 }
 
+enum AcademyFolderType {
+  LIVE_CLASS_SHARED
+  GENERAL
+  SHARED
+  PRIVATE
+}
+
+enum AcademyFolderOwnerType {
+  SYSTEM
+  LECTURER
+  LIVE_CLASS
+  COURSE_VOD
+  USER
+}
+
+enum AcademyResourceType {
+  FILE
+  LINK
+}
+
+enum AcademyResourceVisibility {
+  ENROLLED_ONLY
+  PUBLIC
+  PRIVATE
+}
+
 // ==================================================
 // 1. COURSE BLUEPRINT (LEGACY) — REMOVED
 // ==================================================
@@ -411,6 +437,7 @@ model User {
   walletBalance                   Decimal                @default(0) @map("wallet_balance") @db.Decimal(12, 2)
   walletTransactions              WalletTransaction[]
   deviceTokens                    UserDeviceToken[]
+  academyResourcesCreated         AcademyResource[]      @relation("AcademyResourceCreator")
 
   // JLPT Mock (isolated)
   jlptMockAttempts JlptMockAttempt[] @relation("JlptMockAttemptUser")
@@ -875,7 +902,8 @@ model FileAsset {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  setCardSourceDocs SetCard[] @relation("SetCardSourceDocument")
+  setCardSourceDocs SetCard[]         @relation("SetCardSourceDocument")
+  academyResources  AcademyResource[]
 
   @@index([ownerId])
   @@index([fileUrl])
@@ -1266,6 +1294,7 @@ model LiveClass {
   liveScheduleSessions LiveScheduleSession[]
   tickets              Ticket[]
   certificates         Certificate[]
+  academySharedFolders AcademyFolder[]
 
   @@index([cohortId])
   @@map("academy_live_classes")
@@ -1571,6 +1600,51 @@ model WalletTransaction {
 
   @@index([userId])
   @@map("wallet_transactions")
+}
+
+// ==================================================
+// 12.5. ACADEMY RESOURCES & FOLDERS
+// ==================================================
+
+model AcademyFolder {
+  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String                 @db.VarChar(255)
+  type        AcademyFolderType      @default(LIVE_CLASS_SHARED)
+  liveClassId String?                @map("live_class_id") @db.Uuid
+  ownerType   AcademyFolderOwnerType @default(SYSTEM) @map("owner_type")
+  createdAt   DateTime               @default(now()) @map("created_at")
+  updatedAt   DateTime               @default(now()) @updatedAt @map("updated_at")
+
+  liveClass LiveClass?        @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
+  resources AcademyResource[]
+
+  @@index([liveClassId])
+  @@index([type, liveClassId])
+  @@map("academy_folders")
+}
+
+model AcademyResource {
+  id           String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  folderId     String                    @map("folder_id") @db.Uuid
+  fileAssetId  String?                   @map("file_asset_id") @db.Uuid
+  externalUrl  String?                   @map("external_url") @db.Text
+  title        String                    @db.VarChar(255)
+  description  String?                   @db.Text
+  resourceType AcademyResourceType       @map("resource_type")
+  visibility   AcademyResourceVisibility @default(ENROLLED_ONLY)
+  status       String                    @default("ACTIVE") @db.VarChar(20) // ACTIVE, ARCHIVED
+  sortOrder    Int                       @default(0) @map("sort_order")
+  createdBy    String                    @map("created_by") @db.Uuid
+  createdAt    DateTime                  @default(now()) @map("created_at")
+  updatedAt    DateTime                  @default(now()) @updatedAt @map("updated_at")
+
+  folder    AcademyFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  fileAsset FileAsset?    @relation(fields: [fileAssetId], references: [id], onDelete: SetNull)
+  creator   User          @relation("AcademyResourceCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([folderId, status, sortOrder])
+  @@index([createdAt(sort: Desc)])
+  @@map("academy_resources")
 }
 
 // ==================================================

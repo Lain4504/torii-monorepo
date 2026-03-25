@@ -19,6 +19,7 @@ import { AuditModule } from './modules/audit.module';
 import { StudySetModule } from './modules/study-set/study-set.module';
 import { LessonModule } from './modules/lesson/lesson.module';
 import { WalletModule } from './modules/wallet/wallet.module';
+import { ResourceModule } from './modules/resource/resource.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     StudySetModule,
     LessonModule,
     WalletModule,
+    ResourceModule,
   ],
   providers: [
     {
@@ -50,4 +52,4 @@ import { WalletModule } from './modules/wallet/wallet.module';
     },
   ],
 })
-export class AcademyModule {}
+export class AcademyModule { }
