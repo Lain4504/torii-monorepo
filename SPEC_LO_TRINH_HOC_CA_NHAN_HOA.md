@@ -15,9 +15,11 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 3. DB schema (PostgreSQL) + event schema (analytics).
 4. User stories + test case QA theo format có thể import sang Jira/TestRail.
 
-**Lưu ý cập nhật v2 (theo backend hiện tại của dự án):**
+**Lưu ý cập nhật v3 (chốt theo quyết định kiến trúc mới nhất):**
 - Tài liệu này đã được hiệu chỉnh để bám kiến trúc Prisma hiện có tại `torii-monorepo/apps/server/prisma/schema.prisma`.
-- Trọng tâm triển khai là thêm **planning layer** cho lộ trình cá nhân hóa, không làm lại LMS/commerce/gamification đã có.
+- Trọng tâm triển khai là thêm **planning layer** cho lộ trình cá nhân hóa và **gamification v2 hard cutover**.
+- Không giữ backward compatibility cho onboarding survey cũ và gamification v1.
+- Không tạo task liên quan tới việc dùng AI trong roadmap/replan/recovery (kể cả must/should/could).
 - Domain mặc định là trung tâm Nhật ngữ (JLPT, live class, VOD, SRS, AI practice).
 
 ---
@@ -173,6 +175,7 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 - Tôn trọng prerequisite trong skill graph.
 - Tổng effort không vượt quá năng lực thời gian user +/- 10%.
 - Có đường fallback nếu user bị trễ.
+- Không sinh AI task trong mọi trường hợp; roadmap chỉ gồm VOD/live/assignment/SRS/JLPT mock.
 
 ### F3 - Adaptive Weekly Planner
 
@@ -187,6 +190,7 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 - completion > 90% và accuracy tốt -> tăng độ khó vừa phải.
 - User bận đột xuất -> rebalance tasks và dời milestone phụ.
 - attendance live thấp -> bổ sung review lesson + mini task bù buổi.
+- Recovery mode chỉ dùng task không-AI.
 
 #### Output
 
@@ -234,6 +238,7 @@ Tài liệu đã gộp đầy đủ 4 phần theo yêu cầu:
 - Gợi ý “next best action” 5-15 phút.
 - Recovery plan 3 ngày khi user đứt chuỗi học.
 - Ưu tiên action theo entitlement hiện có (`Enrollment` active) để tránh gợi ý ngoài gói đã mua.
+- Không đưa action/task dùng AI vào lộ trình bắt buộc hoặc recovery.
 
 #### Quy tắc thông điệp
 
@@ -718,14 +723,14 @@ Phần này định nghĩa theo nguyên tắc **không thay thế** các bảng 
 
 ### 4.0.1 Các bảng hiện có sẽ được tái sử dụng trực tiếp
 
-- Hồ sơ và mục tiêu ban đầu: `User`, `OnboardingSurvey`.
+- Hồ sơ và mục tiêu ban đầu: `User` (không dùng `OnboardingSurvey` ở kiến trúc mới).
 - Nội dung và tiến độ học: `CourseProfile`, `Module`, `Lesson`, `UserLessonProgress`.
 - Live class: `Cohort`, `LiveClass`, `LiveScheduleSession`, `ClassAttendance`.
 - Bài tập và chấm điểm: `LiveClassAssignment`, `AssignmentSubmission`.
 - SRS/flashcard: `StudySet`, `SetCard`.
-- Gamification: `UserGamification`, `Streak`, `GamificationHistory`.
+- Gamification/commercial tích hợp: `Coupon`, `CouponUsage`, `Order`, `OrderItem`, `Enrollment`.
 - JLPT đánh giá năng lực: `JlptMockAttempt` và các bảng liên quan.
-- Entitlement và thương mại: `Enrollment`, `Order`, `OrderItem`, `AiUserSubscription`.
+- Subscription trả phí: `AiUserSubscription`.
 
 ### 4.0.2 Bảng mới cần thêm cho planning layer (MVP)
 
@@ -742,25 +747,29 @@ Phần này định nghĩa theo nguyên tắc **không thay thế** các bảng 
 - Quality bài tập: từ `academy_assignment_submissions.grade`.
 - Năng lực JLPT: từ `jlpt_mock_attempts` (scaled/raw score).
 - Retention trí nhớ: từ `academy_set_cards` (`srs_state`, `next_review_at`).
-- Consistency và động lực: từ `user_gamification`, `streaks`.
+- Consistency và động lực: từ `game_streak_logs` + `game_ledger_entries` (sau cutover v2).
 
-## 4.1 Mô hình dữ liệu tổng quan
+## 4.1 Mô hình dữ liệu tổng quan (sau cutover)
 
-### Nhóm transactional
+### Nhóm transactional cốt lõi
 
 - users
-- learner_profiles
-- goals
-- roadmaps
-- roadmap_weeks
-- roadmap_tasks
-- learning_sessions
-- assessments
-- assessment_results
-- skill_mastery_snapshots
-- interventions
-- recovery_plans
-- recovery_plan_actions
+- personal_learning_plans
+- personal_learning_plan_weeks
+- personal_learning_plan_tasks
+- personal_learning_skill_snapshots
+- personal_learning_replan_logs
+- game_profiles
+- game_ledger_entries
+- game_coupon_rewards
+- game_coupon_redemptions
+- game_missions
+- game_user_missions
+- game_leagues
+- game_league_memberships
+- game_achievements
+- game_user_achievements
+- game_streak_logs
 
 ### Nhóm analytics (event stream + warehouse)
 
@@ -779,7 +788,6 @@ Phần này định nghĩa theo nguyên tắc **không thay thế** các bảng 
 CREATE TABLE personal_learning_plans (
   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id                  UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  onboarding_survey_id     UUID REFERENCES onboarding_surveys(id) ON DELETE SET NULL,
   target_jlpt_level        VARCHAR(10), -- N5..N1
   plan_type                VARCHAR(30) NOT NULL DEFAULT 'ADAPTIVE', -- ADAPTIVE|RECOVERY|INTENSIVE
   status                   VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE|PAUSED|COMPLETED|ARCHIVED
@@ -811,7 +819,7 @@ CREATE TABLE personal_learning_plan_weeks (
 CREATE TABLE personal_learning_plan_tasks (
   id                       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   plan_week_id             UUID NOT NULL REFERENCES personal_learning_plan_weeks(id) ON DELETE CASCADE,
-  task_type                VARCHAR(40) NOT NULL, -- VOD_LESSON|LIVE_ATTENDANCE|ASSIGNMENT_SUBMIT|SRS_REVIEW|JLPT_MOCK_SECTION|AI_PRACTICE_CHAT
+  task_type                VARCHAR(40) NOT NULL, -- VOD_LESSON|LIVE_ATTENDANCE|ASSIGNMENT_SUBMIT|SRS_REVIEW|JLPT_MOCK_SECTION
   priority                 VARCHAR(10) NOT NULL DEFAULT 'must', -- must|should|could
   title                    VARCHAR(255) NOT NULL,
   estimated_minutes        INT NOT NULL CHECK (estimated_minutes >= 0),
@@ -819,7 +827,7 @@ CREATE TABLE personal_learning_plan_tasks (
   status                   VARCHAR(20) NOT NULL DEFAULT 'PENDING', -- PENDING|IN_PROGRESS|COMPLETED|SKIPPED
   due_at                   TIMESTAMP,
   completed_at             TIMESTAMP,
-  source_type              VARCHAR(40), -- LESSON|LIVE_SESSION|ASSIGNMENT|SET_CARD|JLPT_TEMPLATE|AI_TOOL
+  source_type              VARCHAR(40), -- LESSON|LIVE_SESSION|ASSIGNMENT|SET_CARD|JLPT_TEMPLATE
   source_enrollment_id     UUID REFERENCES academy_enrollments(id) ON DELETE SET NULL,
   source_lesson_id         UUID REFERENCES academy_lessons(id) ON DELETE SET NULL,
   source_live_session_id   UUID REFERENCES academy_live_schedule_sessions(id) ON DELETE SET NULL,
@@ -860,190 +868,6 @@ CREATE TABLE personal_learning_replan_logs (
   reason_context           JSONB NOT NULL DEFAULT '{}'::jsonb,
   changes_summary          JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at               TIMESTAMP NOT NULL DEFAULT NOW()
-);
-```
-
-```sql
-CREATE TABLE users (
-  id                  VARCHAR(64) PRIMARY KEY,
-  email               VARCHAR(255) UNIQUE NOT NULL,
-  timezone            VARCHAR(64) NOT NULL DEFAULT 'UTC',
-  created_at          TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at          TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE learner_profiles (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  version                     INT NOT NULL DEFAULT 1,
-  goal_type                   VARCHAR(64) NOT NULL,
-  goal_title                  VARCHAR(255) NOT NULL,
-  target_date                 DATE NOT NULL,
-  weekly_available_minutes    INT NOT NULL CHECK (weekly_available_minutes > 0),
-  self_assessed_level         VARCHAR(32) NOT NULL,
-  preferred_learning_modes    JSONB NOT NULL DEFAULT '[]'::jsonb,
-  preferred_study_slots       JSONB NOT NULL DEFAULT '[]'::jsonb,
-  constraints_json            JSONB NOT NULL DEFAULT '{}'::jsonb,
-  completeness_score          NUMERIC(5,4) NOT NULL DEFAULT 0,
-  is_active                   BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_learner_profiles_user_active
-ON learner_profiles(user_id, is_active);
-
-CREATE TABLE goals (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  learner_profile_id          VARCHAR(64) REFERENCES learner_profiles(id),
-  title                       VARCHAR(255) NOT NULL,
-  description                 TEXT,
-  target_date                 DATE NOT NULL,
-  status                      VARCHAR(32) NOT NULL DEFAULT 'active',
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE roadmaps (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  goal_id                     VARCHAR(64) NOT NULL REFERENCES goals(id),
-  path_version                INT NOT NULL DEFAULT 1,
-  generation_mode             VARCHAR(32) NOT NULL DEFAULT 'balanced',
-  status                      VARCHAR(32) NOT NULL DEFAULT 'active',
-  start_date                  DATE NOT NULL,
-  end_date                    DATE NOT NULL,
-  explanation_json            JSONB NOT NULL DEFAULT '[]'::jsonb,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  UNIQUE (user_id, goal_id, path_version)
-);
-
-CREATE INDEX idx_roadmaps_user_status
-ON roadmaps(user_id, status);
-
-CREATE TABLE roadmap_weeks (
-  id                          VARCHAR(64) PRIMARY KEY,
-  roadmap_id                  VARCHAR(64) NOT NULL REFERENCES roadmaps(id),
-  week_index                  INT NOT NULL,
-  objective                   VARCHAR(255) NOT NULL,
-  estimated_minutes           INT NOT NULL CHECK (estimated_minutes >= 0),
-  checkpoint_assessment_id    VARCHAR(64),
-  checkpoint_target_score     NUMERIC(5,4),
-  status                      VARCHAR(32) NOT NULL DEFAULT 'pending',
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  UNIQUE (roadmap_id, week_index)
-);
-
-CREATE TABLE roadmap_tasks (
-  id                          VARCHAR(64) PRIMARY KEY,
-  roadmap_week_id             VARCHAR(64) NOT NULL REFERENCES roadmap_weeks(id),
-  task_type                   VARCHAR(32) NOT NULL,
-  title                       VARCHAR(255) NOT NULL,
-  description                 TEXT,
-  priority                    VARCHAR(16) NOT NULL,
-  estimated_minutes           INT NOT NULL CHECK (estimated_minutes >= 0),
-  actual_minutes              INT CHECK (actual_minutes >= 0),
-  status                      VARCHAR(32) NOT NULL DEFAULT 'pending',
-  skill_targets_json          JSONB NOT NULL DEFAULT '[]'::jsonb,
-  due_at                      TIMESTAMP,
-  completed_at                TIMESTAMP,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_roadmap_tasks_week_status
-ON roadmap_tasks(roadmap_week_id, status);
-
-CREATE TABLE learning_sessions (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  roadmap_id                  VARCHAR(64) REFERENCES roadmaps(id),
-  started_at                  TIMESTAMP NOT NULL,
-  ended_at                    TIMESTAMP,
-  focused_minutes             INT CHECK (focused_minutes >= 0),
-  distractions_count          INT NOT NULL DEFAULT 0,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE assessments (
-  id                          VARCHAR(64) PRIMARY KEY,
-  code                        VARCHAR(128) UNIQUE NOT NULL,
-  title                       VARCHAR(255) NOT NULL,
-  assessment_type             VARCHAR(32) NOT NULL,
-  max_score                   NUMERIC(6,2) NOT NULL,
-  metadata_json               JSONB NOT NULL DEFAULT '{}'::jsonb,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE assessment_results (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  assessment_id               VARCHAR(64) NOT NULL REFERENCES assessments(id),
-  roadmap_id                  VARCHAR(64) REFERENCES roadmaps(id),
-  score                       NUMERIC(6,2) NOT NULL,
-  normalized_score            NUMERIC(5,4) NOT NULL,
-  duration_seconds            INT CHECK (duration_seconds >= 0),
-  skill_scores_json           JSONB NOT NULL DEFAULT '[]'::jsonb,
-  submitted_at                TIMESTAMP NOT NULL,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_assessment_results_user_time
-ON assessment_results(user_id, submitted_at DESC);
-
-CREATE TABLE skill_mastery_snapshots (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  roadmap_id                  VARCHAR(64) REFERENCES roadmaps(id),
-  skill_id                    VARCHAR(64) NOT NULL,
-  mastery_score               NUMERIC(5,4) NOT NULL,
-  confidence_score            NUMERIC(5,4) NOT NULL,
-  decay_risk_score            NUMERIC(5,4) NOT NULL DEFAULT 0,
-  computed_at                 TIMESTAMP NOT NULL,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_skill_mastery_user_skill_time
-ON skill_mastery_snapshots(user_id, skill_id, computed_at DESC);
-
-CREATE TABLE interventions (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  roadmap_id                  VARCHAR(64) REFERENCES roadmaps(id),
-  intervention_type           VARCHAR(32) NOT NULL,
-  trigger_type                VARCHAR(64) NOT NULL,
-  channel                     VARCHAR(32) NOT NULL,
-  payload_json                JSONB NOT NULL DEFAULT '{}'::jsonb,
-  status                      VARCHAR(32) NOT NULL DEFAULT 'sent',
-  user_feedback               VARCHAR(32),
-  acted                       BOOLEAN,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE recovery_plans (
-  id                          VARCHAR(64) PRIMARY KEY,
-  user_id                     VARCHAR(64) NOT NULL REFERENCES users(id),
-  roadmap_id                  VARCHAR(64) REFERENCES roadmaps(id),
-  window_days                 INT NOT NULL CHECK (window_days BETWEEN 1 AND 14),
-  expected_outcome            VARCHAR(255),
-  status                      VARCHAR(32) NOT NULL DEFAULT 'active',
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at                  TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE recovery_plan_actions (
-  id                          VARCHAR(64) PRIMARY KEY,
-  recovery_plan_id            VARCHAR(64) NOT NULL REFERENCES recovery_plans(id),
-  day_index                   INT NOT NULL CHECK (day_index >= 1),
-  action_title                VARCHAR(255) NOT NULL,
-  estimated_minutes           INT NOT NULL CHECK (estimated_minutes >= 0),
-  status                      VARCHAR(32) NOT NULL DEFAULT 'pending',
-  completed_at                TIMESTAMP,
-  created_at                  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ```
 
@@ -1540,6 +1364,22 @@ Data model v2:
 
 Không dùng bảng `game_anti_cheat_flags` ở pha này để giữ hệ thống gọn nhẹ.
 
+## 9.6.2 Danh sách bảng legacy bị remove hoàn toàn khi cutover
+
+- `onboarding_surveys`
+- `user_gamification`
+- `streaks`
+- `streak_logs`
+- `point_rewards`
+- `gamification_histories`
+- `achievements`
+- `user_achievements`
+
+Ghi chú:
+- Không chạy song song v1/v2.
+- Không duy trì API cũ.
+- `academy_coupons` và `academy_coupon_usages` vẫn giữ để phục vụ commerce/checkout, và được cấp coupon từ `game_coupon_redemptions`.
+
 ### 9.6.1 Mô tả nhanh 2 bảng coupon mới
 
 - `game_coupon_rewards`
@@ -1563,6 +1403,13 @@ Giới hạn anti-spam:
 - cap theo activity/day.
 - diminishing return khi lặp hoạt động giống nhau.
 - dedup theo object (`lessonId`, `sessionId`, `attemptId`, `missionId`).
+
+### Rule task không-AI (đã chốt)
+
+1. Roadmap/replan/recovery không được sinh bất kỳ task nào yêu cầu dùng AI.
+2. Task list chỉ gồm nội dung thuộc entitlement học tập: live/VOD/assignment/SRS/JLPT mock.
+3. `plan_completion_rate` và milestone chỉ tính trên task không-AI.
+4. AI Sensei vẫn là tính năng trả phí độc lập, không gắn vào nghĩa vụ hoàn thành lộ trình.
 
 ## 9.8 Integrity rules (không dùng bảng anti-cheat riêng)
 
@@ -1608,13 +1455,6 @@ Giới hạn anti-spam:
 - Cá nhân hóa reward theo phân khúc.
 - Tối ưu fairness bằng rule config (không thêm bảng anti-cheat riêng).
 
-## 9.12 Chính sách cutover v2 (bắt buộc)
-
-1. Tắt toàn bộ endpoint gamification v1 ngay khi release v2.
-2. Toàn bộ write chỉ đi qua `/api/v2/game/*` và `/internal/game/*`.
-3. Không maintain song song 2 rule engine.
-4. `game_streak_logs` là nguồn sự thật duy nhất cho lịch sử hoạt động theo ngày.
-
 ## 9.11 KPI riêng cho gamification
 
 - D7 retention tăng.
@@ -1624,11 +1464,18 @@ Giới hạn anti-spam:
 - Tỷ lệ spam activity giảm.
 - Conversion reward (đổi quà hợp lệ) tăng.
 
+## 9.12 Chính sách cutover v2 (bắt buộc)
+
+1. Tắt toàn bộ endpoint gamification v1 ngay khi release v2.
+2. Toàn bộ write chỉ đi qua `/api/v2/game/*` và `/internal/game/*`.
+3. Không maintain song song 2 rule engine.
+4. `game_streak_logs` là nguồn sự thật duy nhất cho lịch sử hoạt động theo ngày.
+
 ---
 
 ## 10) Phụ lục: JSON schema mẫu cho một số object
 
-### 9.1 Roadmap object
+### 10.1 Roadmap object
 
 ```json
 {
@@ -1662,7 +1509,7 @@ Giới hạn anti-spam:
 }
 ```
 
-### 9.2 Progress overview object
+### 10.2 Progress overview object
 
 ```json
 {
