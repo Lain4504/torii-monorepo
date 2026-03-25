@@ -109,6 +109,27 @@ export class ResourceService {
         return folder;
     }
 
+    async deleteFolder(id: string, userId: string) {
+        const folder = await this.prisma.academyFolder.findUnique({ where: { id } });
+        if (!folder) throw new NotFoundException('Folder not found');
+
+        await this.prisma.academyFolder.delete({
+            where: { id },
+        });
+
+        await this.audit.log({
+            userId,
+            action: 'DELETE_FOLDER',
+            entity: 'AcademyFolder',
+            entityId: id,
+            description: `Deleted folder: ${folder.name}`,
+            oldValues: folder,
+        });
+
+        return { ok: true };
+    }
+
+
     // --- Resource Management ---
 
     async createResource(data: AcademyResourceCreateDTO, creatorId: string) {
@@ -172,7 +193,7 @@ export class ResourceService {
             where: {
                 folderId,
                 status: 'ACTIVE',
-                visibility: 'PUBLIC',
+                visibility: { in: ['PUBLIC', 'ENROLLED_ONLY'] },
             },
             include: {
                 fileAsset: true,
@@ -323,9 +344,12 @@ export class ResourceService {
             }
         }
 
-        // SPEC: Resource must be PUBLIC for learners
-        if (resource.visibility !== 'PUBLIC') {
+        // SPEC: Resource must be PUBLIC or ENROLLED_ONLY for learners
+        if (resource.visibility === 'PRIVATE') {
             throw new ForbiddenException('This resource is hidden');
+        }
+        if (resource.visibility === 'ENROLLED_ONLY' && resource.folder.liveClassId) {
+            // enrollment check already done above for class folders
         }
 
         let downloadUrl = resource.fileAsset?.fileUrl;

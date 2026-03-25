@@ -5,7 +5,8 @@ import {
     useAcademyResources,
     useCreateAcademyResource,
     useUpdateAcademyResource,
-    useDeleteAcademyResource
+    useDeleteAcademyResource,
+    useDeleteAcademyFolder
 } from "@/lib/api/services/academy-resources"
 import { storageApi } from "@/lib/api/services/storage-api"
 import {
@@ -73,6 +74,7 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
     const [isAddingResource, setIsAddingResource] = useState(false)
     const [isAddingFolder, setIsAddingFolder] = useState(false)
     const [resourceToDelete, setResourceToDelete] = useState<string | null>(null)
+    const [folderToDelete, setFolderToDelete] = useState<string | null>(null)
     const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
     const [newFolderName, setNewFolderName] = useState("")
 
@@ -85,6 +87,7 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
     const createResourceMutation = useCreateAcademyResource()
     const updateResourceMutation = useUpdateAcademyResource()
     const deleteResourceMutation = useDeleteAcademyResource()
+    const deleteFolderMutation = useDeleteAcademyFolder()
 
     // Form states
     const [isUploading, setIsUploading] = useState(false)
@@ -201,6 +204,17 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
             setResourceToDelete(null)
         } catch (error) {
             toast.error("Không thể xóa tài liệu.")
+        }
+    }
+
+    const handleDeleteFolder = async () => {
+        if (!folderToDelete) return
+        try {
+            await deleteFolderMutation.mutateAsync(folderToDelete)
+            toast.success("Đã xóa thư mục.")
+            setFolderToDelete(null)
+        } catch (error) {
+            toast.error("Không thể xóa thư mục.")
         }
     }
 
@@ -444,7 +458,27 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
                                                 <p className="text-xs text-muted-foreground">{f.resourceCount || 0} tài liệu</p>
                                             </div>
                                         </div>
-                                        <ChevronRight className="size-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                                        <div className="flex items-center gap-2">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                    <Button size="icon" variant="ghost" className="rounded-lg h-8 w-8">
+                                                        <MoreVertical className="size-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="rounded-xl">
+                                                    <DropdownMenuItem
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setFolderToDelete(f.folderId)
+                                                        }}
+                                                        className="text-destructive gap-2"
+                                                    >
+                                                        <Trash2 className="size-4" /> Xóa thư mục
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                            <ChevronRight className="size-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                                        </div>
                                     </CardContent>
                                 </Card>
                             ))}
@@ -544,6 +578,25 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
                         <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDeleteResource} className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl">
                             Xóa tài liệu
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog open={!!folderToDelete} onOpenChange={(open) => !open && setFolderToDelete(null)}>
+                <AlertDialogContent className="rounded-2xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa thư mục</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa thư mục này? Hành động này sẽ xóa vĩnh viễn thư mục và <strong>tất cả tài liệu bên trong</strong>. Thao tác này không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteFolder}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
+                        >
+                            Xóa thư mục
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

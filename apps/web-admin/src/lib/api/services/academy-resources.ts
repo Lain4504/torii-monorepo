@@ -60,6 +60,13 @@ export const academyResourcesApi = {
         )
         return res.data
     },
+
+    async deleteFolder(id: string) {
+        const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+            `/api/academy/folders/${id}`,
+        )
+        return res.data
+    },
 }
 
 /**
@@ -118,6 +125,15 @@ export function useDeleteAcademyResource() {
         mutationFn: (id: string) => academyResourcesApi.deleteResource(id),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["academy-resources"] })
+        },
+    })
+}
+export function useDeleteAcademyFolder() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => academyResourcesApi.deleteFolder(id),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ["academy-folders"] })
         },
     })
 }

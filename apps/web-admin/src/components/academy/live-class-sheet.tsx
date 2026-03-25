@@ -114,7 +114,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         cohortId: academyClass.cohortId ?? "",
         code: academyClass.code,
         name: academyClass.name,
-        instructorId: academyClass.instructorId ?? null,
+        instructorId: academyClass.instructorId ?? "",
         status: academyClass.status ?? "DRAFT",
         maxStudents: academyClass.maxStudents ?? null,
       })

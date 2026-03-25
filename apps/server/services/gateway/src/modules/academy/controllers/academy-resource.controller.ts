@@ -149,14 +149,15 @@ export class AcademyResourceController {
 
 
     @Get('folders/:folderId/resources')
-    @Permissions('academy.delivery.read')
     async getResourcesByFolder(
         @Param('folderId', new ParseUUIDPipe()) folderId: string,
+        @Req() req: ReqWithRequester,
     ) {
+        // Learners use the learner-specific logic (checks enrollment & visibility)
         const resources = await firstValueFrom(
             this.nats.send(
-                { cmd: 'academy.resource.getResourcesByFolder' },
-                { folderId },
+                { cmd: 'academy.resource.getResourcesForLearner' },
+                { folderId, userId: req.requester.sub },
             ),
         );
         return successResponse(resources);
@@ -187,5 +188,19 @@ export class AcademyResourceController {
             this.nats.send({ cmd: 'academy.resource.createFolder' }, dto),
         );
         return successResponse(item);
+    }
+    @Delete('folders/:folderId')
+    @Permissions('academy.delivery.write')
+    async deleteFolder(
+        @Param('folderId', new ParseUUIDPipe()) folderId: string,
+        @Req() req: ReqWithRequester,
+    ) {
+        const result = await firstValueFrom(
+            this.nats.send(
+                { cmd: 'academy.resource.deleteFolder' },
+                { id: folderId, userId: req.requester.sub },
+            ),
+        );
+        return successResponse(result);
     }
 }

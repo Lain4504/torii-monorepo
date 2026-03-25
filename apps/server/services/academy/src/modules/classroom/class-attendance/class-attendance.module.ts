@@ -3,7 +3,8 @@ import { ClassAttendanceService } from './class-attendance.service';
 import { ClassAttendanceHandler } from './class-attendance.handler';
 
 @Module({
-  providers: [ClassAttendanceService, ClassAttendanceHandler],
+  providers: [ClassAttendanceService],
+  controllers: [ClassAttendanceHandler],
   exports: [ClassAttendanceService],
 })
-export class ClassAttendanceModule {}
+export class ClassAttendanceModule { }

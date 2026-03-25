@@ -38,6 +38,12 @@ export class ResourceHandler {
     }
 
 
+    @MessagePattern({ cmd: 'academy.resource.deleteFolder' })
+    deleteFolder(@Payload() data: { id: string; userId: string }) {
+        return this.service.deleteFolder(data.id, data.userId);
+    }
+
+
     @MessagePattern({ cmd: 'academy.resource.getFoldersByOwner' })
     getFoldersByOwner(@Payload() data: { ownerId: string; ownerType: string }) {
         return this.service.getFoldersByOwner(data.ownerId, data.ownerType);
