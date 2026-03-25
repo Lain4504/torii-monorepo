@@ -188,4 +188,18 @@ export class AcademyResourceController {
         );
         return successResponse(item);
     }
+    @Delete('folders/:folderId')
+    @Permissions('academy.delivery.write')
+    async deleteFolder(
+        @Param('folderId', new ParseUUIDPipe()) folderId: string,
+        @Req() req: ReqWithRequester,
+    ) {
+        const result = await firstValueFrom(
+            this.nats.send(
+                { cmd: 'academy.resource.deleteFolder' },
+                { id: folderId, userId: req.requester.sub },
+            ),
+        );
+        return successResponse(result);
+    }
 }

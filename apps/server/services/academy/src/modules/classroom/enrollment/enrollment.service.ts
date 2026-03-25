@@ -186,10 +186,8 @@ export class EnrollmentService {
     const existing = await this.prisma.enrollment.findFirst({
       where: {
         userId: input.userId,
-        OR: [
-          { liveClassId: input.liveClassId || 'dummy' },
-          { vodPackageId: input.vodPackageId || 'dummy' },
-        ],
+        liveClassId: input.liveClassId || undefined,
+        vodPackageId: input.vodPackageId || undefined,
       },
       select: { id: true },
     });
@@ -252,5 +250,39 @@ export class EnrollmentService {
       isEnrolled: !!enrollment,
       enrollmentStatus: enrollment?.status ?? null,
     };
+  }
+
+  async updateStatus(id: string, status: string, requesterId = 'SYSTEM') {
+    const enrollment = await this.prisma.enrollment.update({
+      where: { id },
+      data: { status },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'enrollment.update_status',
+      entity: 'Enrollment',
+      entityId: id,
+      description: `Updated enrollment status to ${status}`,
+      newValues: { status },
+    });
+
+    return enrollment;
+  }
+
+  async delete(id: string, requesterId = 'SYSTEM') {
+    const enrollment = await this.findById(id);
+    await this.prisma.enrollment.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'enrollment.delete',
+      entity: 'Enrollment',
+      entityId: id,
+      description: `Deleted enrollment for user ${enrollment.userId}`,
+      metadata: { userId: enrollment.userId, liveClassId: enrollment.liveClassId, vodPackageId: enrollment.vodPackageId },
+    });
+
+    return { ok: true };
   }
 }

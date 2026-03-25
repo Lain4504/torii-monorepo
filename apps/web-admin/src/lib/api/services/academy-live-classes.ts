@@ -52,10 +52,10 @@ export const academyLiveClassesApi = {
   },
 
   async findById(id: string) {
-    const res = await apiClient.get<StandardApiResponse<AcademyLiveClass>>(
+    const res = await apiClient.get<StandardApiResponse<{ item: AcademyLiveClass }>>(
       `/api/academy/live-classes/${id}`,
     )
-    return res.data.data!
+    return res.data.data?.item ?? (res.data.data as any)
   },
 
   async create(input: AcademyLiveClassCreateDTO) {

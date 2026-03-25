@@ -4,7 +4,7 @@ import { EnrollmentService } from './enrollment.service';
 
 @Controller()
 export class EnrollmentHandler {
-  constructor(private readonly enrollments: EnrollmentService) {}
+  constructor(private readonly enrollments: EnrollmentService) { }
 
   @MessagePattern({ cmd: 'academy.enrollment.getStats' })
   getStats(@Payload() data: { userId: string }) {
@@ -67,5 +67,22 @@ export class EnrollmentHandler {
       data.targetId,
       data.targetType,
     );
+  }
+
+  @MessagePattern({ cmd: 'academy.enrollment.updateStatus' })
+  updateStatus(
+    @Payload()
+    data: {
+      id: string;
+      status: string;
+      requesterId?: string;
+    },
+  ) {
+    return this.enrollments.updateStatus(data.id, data.status, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.enrollment.delete' })
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.enrollments.delete(data.id, data.requesterId);
   }
 }
