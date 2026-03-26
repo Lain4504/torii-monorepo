@@ -256,7 +256,7 @@ export default function MyCoursesPage() {
                                 ) : (
                                     <div className="flex gap-2">
                                         <Link
-                                            href={course.type?.toLowerCase() === 'live' ? `/courses/${course.liveClassId}` : `/courses/${course.liveClassId}/learn`}
+                                            href={course.type?.toLowerCase() === 'live' ? `/courses/${course.liveClassId}` : `/courses/${course.liveClassId ?? course.vodPackageId ?? course.courseProfileId ?? course.id}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >

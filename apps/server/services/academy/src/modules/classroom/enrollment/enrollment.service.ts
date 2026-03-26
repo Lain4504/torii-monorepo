@@ -252,6 +252,63 @@ export class EnrollmentService {
     };
   }
 
+  async trackLessonProgress(userId: string, targetId: string, lessonId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        OR: [{ vodPackageId: targetId }, { liveClassId: targetId }],
+        status: { in: ['ACTIVE', 'COMPLETED'] },
+      },
+    });
+
+    if (!enrollment) {
+      throw new BadRequestException('User is not enrolled or enrollment is inactive');
+    }
+
+    const progress = await this.prisma.userLessonProgress.upsert({
+      where: {
+        enrollmentId_lessonId: {
+          enrollmentId: enrollment.id,
+          lessonId,
+        },
+      },
+      update: {
+        isCompleted: true,
+        lastWatchedAt: new Date(),
+      },
+      create: {
+        userId,
+        enrollmentId: enrollment.id,
+        lessonId,
+        isCompleted: true,
+        lastWatchedAt: new Date(),
+      },
+    });
+
+    return { success: true, progress };
+  }
+
+  async getCompletedLessons(userId: string, targetId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        OR: [{ vodPackageId: targetId }, { liveClassId: targetId }],
+      },
+    });
+
+    if (!enrollment) return [];
+
+    const completed = await this.prisma.userLessonProgress.findMany({
+      where: {
+        enrollmentId: enrollment.id,
+        isCompleted: true,
+      },
+      select: { lessonId: true },
+    });
+
+    return completed.map(c => c.lessonId);
+  }
+
   async updateStatus(id: string, status: string, requesterId = 'SYSTEM') {
     const enrollment = await this.prisma.enrollment.update({
       where: { id },
