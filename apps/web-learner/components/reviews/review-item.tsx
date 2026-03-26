@@ -79,12 +79,32 @@ export function ReviewItem({ review, className, onDelete }: ReviewItemProps) {
                 </div>
             </div>
 
-            <div className="mt-4 relative z-10">
+            <div className="mt-4 relative z-10 flex flex-wrap items-center gap-2">
                 {review.courseTitle && (
-                    <Badge variant="secondary" className="mb-2">
+                    <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/10">
                         {review.courseTitle}
                     </Badge>
                 )}
+
+                {/* Contextual Badge */}
+                {review.cohortId ? (
+                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-bold border-blue-200 text-blue-600 bg-blue-50/50">
+                        Học Live
+                    </Badge>
+                ) : review.vodPackageId ? (
+                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-bold border-orange-200 text-orange-600 bg-orange-50/50">
+                        Học VOD
+                    </Badge>
+                ) : null}
+
+                {review.class?.name && review.class.name !== review.courseTitle && (
+                    <span className="text-[11px] text-muted-foreground italic">
+                        &bull; {review.class.name}
+                    </span>
+                )}
+            </div>
+
+            <div className="mt-3 relative z-10">
                 <p className="text-muted-foreground text-sm leading-relaxed">
                     {review.content}
                 </p>

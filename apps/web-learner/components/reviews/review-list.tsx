@@ -33,10 +33,12 @@ export function ReviewList({ learnerId }: ReviewListProps) {
             try {
                 // Use listMine as it's specifically for the current user
                 const response = await reviewApi.listMine()
-                const data = response.data.data || []
+                const data = (response.data.data || []).map((r: any) => ({
+                    ...r,
+                    courseTitle: r.class?.courseProfile?.title || 'Khóa học',
+                }))
 
-                // Map the data if structure is slightly different
-                setReviews(data as any)
+                setReviews(data)
             } catch (error) {
                 console.error("Failed to fetch reviews", error)
             } finally {
