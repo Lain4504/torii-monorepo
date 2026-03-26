@@ -32,6 +32,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Lê Thanh Phương &lt;147789009+thanhphuongne@users.noreply.github.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="user-learning-pathway" />
@@ -363,14 +368,6 @@
       <workItem from="1774275087543" duration="9176000" />
       <workItem from="1774309461606" duration="4689000" />
       <workItem from="1774369682844" duration="1071000" />
-    </task>
-    <task id="LOCAL-01021" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
-      <option name="closed" value="true" />
-      <created>1773856168013</created>
-      <option name="number" value="01021" />
-      <option name="presentableId" value="LOCAL-01021" />
-      <option name="project" value="LOCAL" />
-      <updated>1773856168013</updated>
     </task>
     <task id="LOCAL-01022" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
       <option name="closed" value="true" />
@@ -756,7 +753,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774373588387</updated>
     </task>
-    <option name="localTasksCounter" value="1070" />
+    <task id="LOCAL-01070" summary="feat: add staff admin to view resource (#316)">
+      <option name="closed" value="true" />
+      <created>1774517641766</created>
+      <option name="number" value="01070" />
+      <option name="presentableId" value="LOCAL-01070" />
+      <option name="project" value="LOCAL" />
+      <updated>1774517641766</updated>
+    </task>
+    <option name="localTasksCounter" value="1071" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -773,7 +778,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="update-landingpage" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -791,8 +796,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: update LiveKit configuration and add Core LMS implementation checklist" />
-    <MESSAGE value="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
     <MESSAGE value="fix quiz flow and improve user experience" />
     <MESSAGE value="refactor(ui): improve roleplay API handling and update rewards page styling" />
     <MESSAGE value="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting" />
@@ -816,7 +819,9 @@
     <MESSAGE value="update" />
     <MESSAGE value="seed" />
     <MESSAGE value="refactor: change to seed jlpt examc config" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: change to seed jlpt examc config" />
+    <MESSAGE value="feat: implement Learning Path v2 with gamification integration and recovery mode" />
+    <MESSAGE value="feat: add staff admin to view resource (#316)" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add staff admin to view resource (#316)" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

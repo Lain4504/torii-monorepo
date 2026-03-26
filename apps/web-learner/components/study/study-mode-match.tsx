@@ -38,11 +38,11 @@ export function StudyModeMatch({ setId }: { setId: string }) {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4 max-w-sm text-center">
-                    <h2 className="text-lg font-semibold">Can dang nhap de choi Match</h2>
+                    <h2 className="text-lg font-semibold">Bạn cần đăng nhập để chơi Match</h2>
                     <p className="text-sm text-muted-foreground">
-                        Tai khoan guest chi duoc xem bo the ben ngoai, khong the vao mode hoc.
+                        Tài khoản guest chỉ được xem bộ thẻ bên ngoài, không thể vào chế độ học.
                     </p>
-                    <Button data-requires-auth="true">Dang nhap de tiep tuc</Button>
+                    <Button data-requires-auth="true">Đăng nhập để tiếp tục</Button>
                 </div>
             </div>
         );

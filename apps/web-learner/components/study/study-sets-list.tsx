@@ -38,11 +38,11 @@ export function StudySetsList() {
         if (!title.trim()) return;
         try {
             await createSet.mutateAsync({ title });
-            toast.success('Da tao so tay moi');
+            toast.success('Đã tạo sổ tay mới');
             setOpen(false);
             setTitle('');
         } catch (error: any) {
-            toast.error(error?.message || 'Khong tao duoc so tay');
+            toast.error(error?.message || 'Không tạo được sổ tay');
         }
     };
 
@@ -55,12 +55,12 @@ export function StudySetsList() {
             if (makePublic && updated.shareToken) {
                 const url = `${window.location.origin}/share/study-sets/${updated.shareToken}`;
                 await navigator.clipboard.writeText(url);
-                toast.success('Da bat cong khai va copy link share');
+                toast.success('Đã bật công khai và sao chép liên kết chia sẻ');
             } else {
-                toast.success('Da tat cong khai bo the');
+                toast.success('Đã tắt công khai bộ thẻ');
             }
         } catch (error: any) {
-            toast.error(error?.message || 'Cap nhat chia se that bai');
+            toast.error(error?.message || 'Cập nhật chia sẻ thất bại');
         }
     };
 
@@ -69,9 +69,9 @@ export function StudySetsList() {
             <Card>
                 <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-xl">So tay</CardTitle>
+                        <CardTitle className="text-xl">Sổ tay</CardTitle>
                         <Link href="/dashboard/study-sets" className="text-sm text-primary hover:underline">
-                            Xem them
+                            Xem thêm
                         </Link>
                     </div>
                 </CardHeader>
@@ -87,19 +87,19 @@ export function StudySetsList() {
                                     <div className="mb-2 inline-flex rounded-full bg-primary/10 p-1 text-primary">
                                         <Plus className="h-4 w-4" />
                                     </div>
-                                    <p className="text-sm font-semibold text-primary">Tao so tay moi</p>
+                                    <p className="text-sm font-semibold text-primary">Tạo sổ tay mới</p>
                                 </button>
                             </DialogTrigger>
                             <DialogContent>
                                 <DialogHeader>
-                                    <DialogTitle>Tao so tay moi</DialogTitle>
-                                    <DialogDescription>Nhap ten bo the ban muon tao.</DialogDescription>
+                                    <DialogTitle>Tạo sổ tay mới</DialogTitle>
+                                    <DialogDescription>Nhập tên bộ thẻ bạn muốn tạo.</DialogDescription>
                                 </DialogHeader>
                                 <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: 50 bai Minna no Nihongo" />
                                 <DialogFooter>
-                                    <Button variant="outline" onClick={() => setOpen(false)}>Huy</Button>
+                                    <Button variant="outline" onClick={() => setOpen(false)}>Hủy</Button>
                                     <Button data-requires-auth="true" onClick={handleCreateNotebook} disabled={createSet.isPending || !title.trim()}>
-                                        {createSet.isPending ? 'Dang tao...' : 'Tao'}
+                                        {createSet.isPending ? 'Đang tạo...' : 'Tạo'}
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>
@@ -112,7 +112,7 @@ export function StudySetsList() {
                                 <div key={set.id} className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/30">
                                     <Link href={`/dashboard/study-sets/${set.id}`}>
                                         <p className="line-clamp-1 text-sm font-semibold text-primary">{set.title}</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">({(set as any)._count?.setCards || 0} tu)</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">({(set as any)._count?.setCards || 0} thẻ)</p>
                                     </Link>
                                     <div className="mt-3 flex gap-2">
                                         <Button
@@ -122,7 +122,7 @@ export function StudySetsList() {
                                             data-requires-auth="true"
                                             onClick={() => handleShareToggle(set.id, !set.isPublic)}
                                         >
-                                            {set.isPublic ? 'Tat public' : 'Share public'}
+                                            {set.isPublic ? 'Tắt công khai' : 'Bật công khai'}
                                         </Button>
                                         {set.isPublic && set.shareToken ? (
                                             <Button
@@ -133,10 +133,10 @@ export function StudySetsList() {
                                                 onClick={async () => {
                                                     const url = `${window.location.origin}/share/study-sets/${set.shareToken}`;
                                                     await navigator.clipboard.writeText(url);
-                                                    toast.success('Da copy link share');
+                                                    toast.success('Đã sao chép liên kết chia sẻ');
                                                 }}
                                             >
-                                                Copy link
+                                                Sao chép liên kết
                                             </Button>
                                         ) : null}
                                     </div>
@@ -150,9 +150,9 @@ export function StudySetsList() {
             <Card>
                 <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-xl">Kham pha</CardTitle>
+                        <CardTitle className="text-xl">Khám phá</CardTitle>
                         <Link href="/dashboard/study-sets" className="text-sm text-primary hover:underline">
-                            Xem them
+                            Xem thêm
                         </Link>
                     </div>
                 </CardHeader>
@@ -172,10 +172,10 @@ export function StudySetsList() {
                                     className="rounded-xl border bg-muted/30 p-4 transition-colors hover:bg-muted/50"
                                 >
                                     <p className="line-clamp-1 text-sm font-semibold text-primary">{set.title}</p>
-                                    <p className="mt-1 text-xs text-muted-foreground">({(set as any)._count?.setCards || 0} tu)</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">({(set as any)._count?.setCards || 0} thẻ)</p>
                                     <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                                        <span className="inline-flex items-center gap-1"><UserCircle2 className="h-3.5 w-3.5" /> He thong</span>
-                                        <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> Public</span>
+                                        <span className="inline-flex items-center gap-1"><UserCircle2 className="h-3.5 w-3.5" /> Hệ thống</span>
+                                        <span className="inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> Công khai</span>
                                     </div>
                                 </Link>
                             ))}
