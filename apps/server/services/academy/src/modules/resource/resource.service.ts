@@ -38,18 +38,33 @@ export class ResourceService {
         });
     }
 
-    async getFoldersForLearner(userId: string, classId?: string) {
-        // Get active/completed enrollments
-        const enrollments = await this.prisma.enrollment.findMany({
-            where: {
-                userId,
-                status: { in: ['ACTIVE', 'COMPLETED'] },
-                liveClassId: classId || { not: null },
-            },
-            select: { liveClassId: true },
-        });
+    async getFoldersForLearner(userId: string, role?: string, classId?: string) {
+        // Privileged roles can see all class folders
+        const isPrivileged = role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(role);
 
-        const liveClassIds = enrollments.map((e) => e.liveClassId as string);
+        let liveClassIds: string[] = [];
+
+        if (isPrivileged) {
+            if (classId) {
+                liveClassIds = [classId];
+            } else {
+                // If no classId, privileged users see folders for all classes
+                const classes = await this.prisma.liveClass.findMany({ select: { id: true } });
+                liveClassIds = classes.map(c => c.id);
+            }
+        } else {
+            // Get active/completed enrollments
+            const enrollments = await this.prisma.enrollment.findMany({
+                where: {
+                    userId,
+                    status: { in: ['ACTIVE', 'COMPLETED'] },
+                    liveClassId: classId || { not: null },
+                },
+                select: { liveClassId: true },
+            });
+
+            liveClassIds = enrollments.map((e) => e.liveClassId as string);
+        }
 
         const folders = await this.prisma.academyFolder.findMany({
             where: {
@@ -87,7 +102,7 @@ export class ResourceService {
             },
             include: {
                 _count: {
-                    select: { resources: true },
+                    select: { resources: { where: { status: 'ACTIVE' } } },
                 },
             },
         });
@@ -160,7 +175,7 @@ export class ResourceService {
     }
 
 
-    async getResourcesForLearner(data: { folderId?: string; classId?: string; userId: string }) {
+    async getResourcesForLearner(data: { folderId?: string; classId?: string; userId: string; role?: string }) {
         let folderId = data.folderId;
 
         if (!folderId && data.classId) {
@@ -176,7 +191,9 @@ export class ResourceService {
         const folder = await this.getFolderById(folderId);
 
         // Check enrollment if folder is linked to a live class
-        if (folder.liveClassId) {
+        const isPrivileged = data.role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(data.role);
+
+        if (folder.liveClassId && !isPrivileged) {
             const enrollment = await this.prisma.enrollment.findFirst({
                 where: {
                     userId: data.userId,
@@ -319,7 +336,7 @@ export class ResourceService {
     }
 
 
-    async getResourceDetail(id: string, userId: string): Promise<AcademyResourceResponseDTO> {
+    async getResourceDetail(id: string, userId: string, role?: string): Promise<AcademyResourceResponseDTO> {
         const resource = await this.prisma.academyResource.findUnique({
             where: { id },
             include: {
@@ -331,7 +348,9 @@ export class ResourceService {
         if (!resource) throw new NotFoundException('Resource not found');
 
         // Check enrollment if folder is linked to a live class
-        if (resource.folder.liveClassId) {
+        const isPrivileged = role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(role);
+
+        if (resource.folder.liveClassId && !isPrivileged) {
             const enrollment = await this.prisma.enrollment.findFirst({
                 where: {
                     userId,

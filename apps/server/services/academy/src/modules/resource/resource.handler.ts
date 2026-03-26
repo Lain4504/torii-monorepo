@@ -7,8 +7,8 @@ export class ResourceHandler {
     constructor(private readonly service: ResourceService) { }
 
     @MessagePattern({ cmd: 'academy.resource.getFoldersForLearner' })
-    getFoldersForLearner(@Payload() data: { userId: string; classId?: string }) {
-        return this.service.getFoldersForLearner(data.userId, data.classId);
+    getFoldersForLearner(@Payload() data: { userId: string; role?: string; classId?: string }) {
+        return this.service.getFoldersForLearner(data.userId, data.role, data.classId);
     }
 
     @MessagePattern({ cmd: 'academy.resource.getResourcesForLearner' })
@@ -55,7 +55,7 @@ export class ResourceHandler {
     }
 
     @MessagePattern({ cmd: 'academy.resource.getResourceDetail' })
-    getResourceDetail(@Payload() data: { id: string; userId: string }) {
-        return this.service.getResourceDetail(data.id, data.userId);
+    getResourceDetail(@Payload() data: { id: string; userId: string; role?: string }) {
+        return this.service.getResourceDetail(data.id, data.userId, data.role);
     }
 }
