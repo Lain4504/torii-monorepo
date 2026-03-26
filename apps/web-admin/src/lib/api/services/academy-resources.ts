@@ -104,6 +104,7 @@ export function useCreateAcademyResource() {
         mutationFn: academyResourcesApi.createResource,
         onSuccess: (_, variables) => {
             qc.invalidateQueries({ queryKey: ["academy-resources", variables.folderId] })
+            qc.invalidateQueries({ queryKey: ["academy-folders"] })
         },
     })
 }
@@ -115,6 +116,7 @@ export function useUpdateAcademyResource() {
             academyResourcesApi.updateResource(id, input),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["academy-resources"] })
+            qc.invalidateQueries({ queryKey: ["academy-folders"] })
         },
     })
 }
@@ -125,6 +127,7 @@ export function useDeleteAcademyResource() {
         mutationFn: (id: string) => academyResourcesApi.deleteResource(id),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["academy-resources"] })
+            qc.invalidateQueries({ queryKey: ["academy-folders"] })
         },
     })
 }
