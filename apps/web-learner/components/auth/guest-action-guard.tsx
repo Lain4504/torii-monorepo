@@ -67,9 +67,9 @@ export function GuestActionGuard({ children }: GuestActionGuardProps) {
             <AlertDialog open={open} onOpenChange={setOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Tinh nang nay can dang nhap</AlertDialogTitle>
+                        <AlertDialogTitle>Tính năng này cần đăng nhập</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Ban dang o che do xem truoc. Vui long dang nhap de tiep tuc su dung tinh nang nay.
+                            Bạn đang ở chế độ xem trước. Vui lòng đăng nhập để tiếp tục sử dụng tính năng này.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -79,10 +79,10 @@ export function GuestActionGuard({ children }: GuestActionGuardProps) {
                                 setRedirecting(false)
                             }}
                         >
-                            De sau
+                            Để sau
                         </AlertDialogCancel>
                         <AlertDialogAction onClick={redirectToLogin}>
-                            Dang nhap ngay
+                            Đăng nhập ngay
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

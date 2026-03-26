@@ -23,7 +23,7 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
                 <p className="text-xs font-medium text-foreground/90">
                     {canAccessLearning
                         ? 'Nên dùng bộ gõ tiếng Việt hoặc Nhật cho các chế độ luyện gõ để tăng hiệu quả ghi nhớ.'
-                        : 'Ban dang o che do tham quan. Dang nhap de bat dau hoc flashcard, test va match.'}
+                        : 'Bạn đang ở chế độ tham quan. Đăng nhập để bắt đầu học flashcard, trắc nghiệm và match.'}
                 </p>
             </div>
             <div>
