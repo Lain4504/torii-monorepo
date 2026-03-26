@@ -67,25 +67,31 @@ export function EditCourseModuleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
-        <DialogHeader>
-          <DialogTitle>Chỉnh sửa Module</DialogTitle>
-          <DialogDescription>Thay đổi tiêu đề module.</DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-6 pb-0 shrink-0">
+          <DialogHeader>
+            <DialogTitle>Chỉnh sửa Module</DialogTitle>
+            <DialogDescription>Thay đổi tiêu đề module.</DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Tiêu đề module</FieldLabel>
-              <Input
-                placeholder="VD: Module 1"
-                {...form.register("title")}
-                disabled={updateMutation.isPending}
-              />
-              <FieldError>{form.formState.errors.title?.message}</FieldError>
-            </Field>
-          </FieldGroup>
+        <div className="flex-1 overflow-y-auto p-6">
+          <form id="edit-module-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Tiêu đề module</FieldLabel>
+                <Input
+                  placeholder="VD: Module 1"
+                  {...form.register("title")}
+                  disabled={updateMutation.isPending}
+                />
+                <FieldError>{form.formState.errors.title?.message}</FieldError>
+              </Field>
+            </FieldGroup>
+          </form>
+        </div>
 
+        <div className="p-6 pt-4 border-t bg-muted/20 shrink-0">
           <DialogFooter>
             <Button
               type="button"
@@ -95,12 +101,12 @@ export function EditCourseModuleDialog({
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={updateMutation.isPending} className="gap-2">
+            <Button type="submit" form="edit-module-form" disabled={updateMutation.isPending} className="gap-2">
               <Plus className="size-4" />
               {updateMutation.isPending ? "Đang cập nhật..." : "Lưu thay đổi"}
             </Button>
           </DialogFooter>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

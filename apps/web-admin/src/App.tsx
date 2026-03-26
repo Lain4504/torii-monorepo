@@ -68,6 +68,10 @@ import JlptMondaiMasterPage from '@/routes/academy/jlpt/mondai/page.tsx'
 import JlptConfigPage from '@/routes/academy/jlpt/config/page.tsx'
 import StudySetCatalogsPage from '@/routes/academy/study-set-catalogs/page.tsx'
 
+import AcademyExamsPage from '@/routes/academy/assessment/exams/exams-page'
+import AcademyExamEditorPage from '@/routes/academy/assessment/exams/exam-editor-page'
+import AcademyQuestionsPage from '@/routes/academy/assessment/questions/questions-page'
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -139,6 +143,12 @@ function App() {
                     <Route path="academy/jlpt/questions/:id" element={<JlptQuestionDetailPage />} />
                     <Route path="academy/jlpt/mondai" element={<JlptMondaiMasterPage />} />
                     <Route path="academy/study-set-catalogs" element={<StudySetCatalogsPage />} />
+
+                    {/* Academy Assessment (Fixed Quiz) */}
+                    <Route path="academy/assessment/exams" element={<AcademyExamsPage />} />
+                    <Route path="academy/assessment/exams/new" element={<AcademyExamEditorPage />} />
+                    <Route path="academy/assessment/exams/:id" element={<AcademyExamEditorPage />} />
+                    <Route path="academy/assessment/questions" element={<AcademyQuestionsPage />} />
                   </Route>
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />

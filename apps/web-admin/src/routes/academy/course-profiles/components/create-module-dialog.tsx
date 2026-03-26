@@ -59,27 +59,33 @@ export function CreateCourseModuleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px]">
-        <DialogHeader>
-          <DialogTitle>Tạo Module mới</DialogTitle>
-          <DialogDescription>
-            Module sẽ được tự động gán thứ tự tiếp theo trong chương trình học của khóa.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-6 pb-0 shrink-0">
+          <DialogHeader>
+            <DialogTitle>Tạo Module mới</DialogTitle>
+            <DialogDescription>
+              Module sẽ được tự động gán thứ tự tiếp theo trong chương trình học của khóa.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Tiêu đề module</FieldLabel>
-              <Input
-                placeholder="VD: Module 1 - JLPT N5"
-                {...form.register("title")}
-                disabled={createMutation.isPending}
-              />
-              <FieldError>{form.formState.errors.title?.message}</FieldError>
-            </Field>
-          </FieldGroup>
+        <div className="flex-1 overflow-y-auto p-6">
+          <form id="create-module-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Tiêu đề module</FieldLabel>
+                <Input
+                  placeholder="VD: Module 1 - JLPT N5"
+                  {...form.register("title")}
+                  disabled={createMutation.isPending}
+                />
+                <FieldError>{form.formState.errors.title?.message}</FieldError>
+              </Field>
+            </FieldGroup>
+          </form>
+        </div>
 
+        <div className="p-6 pt-4 border-t bg-muted/20 shrink-0">
           <DialogFooter>
             <Button
               type="button"
@@ -89,12 +95,12 @@ export function CreateCourseModuleDialog({
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={createMutation.isPending} className="gap-2">
+            <Button type="submit" form="create-module-form" disabled={createMutation.isPending} className="gap-2">
               <Plus className="size-4" />
               {createMutation.isPending ? "Đang tạo..." : "Tạo module"}
             </Button>
           </DialogFooter>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

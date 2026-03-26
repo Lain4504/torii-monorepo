@@ -1,0 +1,348 @@
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useAcademyExam, useStartAcademyExamAttempt, useSaveAcademyExamDraft, useSubmitAcademyExamAttempt, useAcademyExamAttempt } from '@/lib/api/services/academy-exam-api';
+import { Button } from '@workspace/ui/components/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
+import { Progress } from '@workspace/ui/components/progress';
+import { RadioGroup, RadioGroupItem } from '@workspace/ui/components/radio-group';
+import { Checkbox } from '@workspace/ui/components/checkbox';
+import { Label } from '@workspace/ui/components/label';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Timer, 
+  Send, 
+  CheckCircle2, 
+  X, 
+  Award,
+  HelpCircle,
+  History,
+  AlertTriangle
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+export default function ExamRunnerPage() {
+  const { examId } = useParams() as { examId: string };
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const attemptIdFromQuery = params?.get('attemptId');
+  const router = useRouter();
+
+  const { data: exam, isLoading: isLoadingExam } = useAcademyExam(examId);
+  const startAttemptMutation = useStartAcademyExamAttempt();
+  const saveDraftMutation = useSaveAcademyExamDraft();
+  const submitMutation = useSubmitAcademyExamAttempt();
+
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (attemptIdFromQuery) {
+      setAttemptId(attemptIdFromQuery);
+    }
+  }, [attemptIdFromQuery]);
+
+  const { data: attempt, isLoading: isLoadingAttempt } = useAcademyExamAttempt(attemptId || undefined);
+
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-start or load attempt
+  useEffect(() => {
+    if (exam && !attemptId && !startAttemptMutation.isPending) {
+       startAttemptMutation.mutate({ examId }, {
+         onSuccess: (data) => setAttemptId(data.id)
+       });
+    }
+  }, [exam, attemptId, examId, startAttemptMutation]);
+
+  // Sync answers from draft
+  useEffect(() => {
+    if (attempt?.draftAnswers) {
+      setAnswers(attempt.draftAnswers);
+    }
+    if (attempt?.status === 'SUBMITTED') {
+      // already submitted, show results
+    }
+  }, [attempt]);
+
+  // Timer logic
+  useEffect(() => {
+    if (attempt && attempt.status === 'IN_PROGRESS' && exam?.totalTimeLimitMinutes) {
+      const startTime = new Date(attempt.startedAt).getTime();
+      const endTime = startTime + (exam.totalTimeLimitMinutes * 60 * 1000);
+      
+      const updateTimer = () => {
+         const now = Date.now();
+         const diff = Math.max(0, Math.floor((endTime - now) / 1000));
+         setTimeLeft(diff);
+         if (diff === 0) {
+            handleAutoSubmit();
+         }
+      };
+
+      updateTimer();
+      timerRef.current = setInterval(updateTimer, 1000);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [attempt, exam]);
+
+  const handleAutoSubmit = useCallback(() => {
+     if (attemptId && !submitMutation.isPending) {
+        submitMutation.mutate({ attemptId: attemptId! });
+        toast.warning("Thời gian đã hết! Bài làm đã được tự động nộp.");
+     }
+  }, [attemptId, submitMutation]);
+
+  const saveAnswer = async (questionId: string, value: any) => {
+    const newAnswers = { ...answers, [questionId]: value };
+    setAnswers(newAnswers);
+    
+    // Throttle draft saving if needed, for now just save
+    try {
+      await saveDraftMutation.mutateAsync({ attemptId: attemptId!, draftAnswers: newAnswers });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (confirm("Bạn có chắc chắn muốn nộp bài không?")) {
+      try {
+        await submitMutation.mutateAsync({ attemptId: attemptId! });
+        toast.success("Đã nộp bài thành công!");
+      } catch (error: any) {
+        toast.error("Không thể nộp bài: " + error.message);
+      }
+    }
+  }
+
+  if (isLoadingExam || isLoadingAttempt || startAttemptMutation.isPending) {
+    return (
+       <div className="flex flex-col items-center justify-center h-screen bg-slate-50">
+          <Progress value={45} className="w-[300px] mb-4" />
+          <p className="text-slate-500 animate-pulse">Đang chuẩn bị đề thi...</p>
+       </div>
+    );
+  }
+
+  if (attempt?.status === 'SUBMITTED') {
+    return (
+      <div className="max-w-4xl mx-auto py-12 px-6">
+         <Card className="text-center overflow-hidden border-none shadow-xl">
+           <CardHeader className="bg-primary text-white py-10">
+              <Award className="w-16 h-16 mx-auto mb-4" />
+              <CardTitle className="text-3xl font-bold">Kết quả bài thi</CardTitle>
+              <CardDescription className="text-primary-foreground/80 mt-2">
+                 {exam?.title}
+              </CardDescription>
+           </CardHeader>
+           <CardContent className="py-12 space-y-8">
+              <div className="flex justify-center gap-12">
+                 <div className="text-center">
+                    <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">Điểm số</p>
+                    <p className="text-5xl font-black text-primary">{Math.round(attempt.score || 0)}/{attempt.maxScore}</p>
+                 </div>
+                 <div className="text-center">
+                    <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">Kết quả</p>
+                    {attempt.isPassed ? (
+                      <p className="text-5xl font-black text-emerald-500">ĐẠT</p>
+                    ) : (
+                      <p className="text-5xl font-black text-red-500">TRƯỢT</p>
+                    )}
+                 </div>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-xl border max-w-lg mx-auto">
+                 <p className="text-sm text-slate-600 mb-2">Chúc mừng bạn đã hoàn thành bài thi!</p>
+                 <p className="text-xs text-slate-400 italic">Hệ thống đã ghi nhận kết quả và cập nhật tiến độ học tập của bạn.</p>
+              </div>
+
+              <div className="flex justify-center gap-4 pt-4">
+                 <Button variant="outline" onClick={() => router.back()}>Quay lại bài học</Button>
+                 {!attempt.isPassed && (
+                    <Button onClick={() => setAttemptId(null)}>Thi lại</Button>
+                 )}
+              </div>
+           </CardContent>
+         </Card>
+      </div>
+    );
+  }
+
+  // Question Runner UI
+  const sections = exam?.sections || [];
+  const allExamQuestions = sections.flatMap((s: any) => s.examQuestions || []);
+  const currentExamQuestion = allExamQuestions[currentQuestionIndex];
+  const question = currentExamQuestion?.question;
+
+  if (!question) {
+    return <div className="p-20 text-center">Không tìm thấy câu hỏi</div>;
+  }
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+       <header className="bg-white border-b h-16 flex items-center justify-between px-6 sticky top-0 z-50">
+          <div className="flex items-center gap-4">
+             <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                <ChevronLeft className="w-5 h-5" />
+             </Button>
+             <div>
+                <h1 className="font-bold text-slate-800 line-clamp-1">{exam?.title}</h1>
+                <p className="text-xs text-slate-500">Câu {currentQuestionIndex + 1} / {allExamQuestions.length}</p>
+             </div>
+          </div>
+
+          <div className="flex items-center gap-6">
+             {timeLeft !== null && (
+                <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${timeLeft < 60 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-slate-50 text-slate-700'}`}>
+                   <Timer className="w-4 h-4" />
+                   <span className="font-mono font-bold">{formatTime(timeLeft)}</span>
+                </div>
+             )}
+             <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSubmit}>
+                <Send className="w-4 h-4 mr-2" />
+                Nộp bài
+             </Button>
+          </div>
+       </header>
+
+       <div className="flex-1 max-w-5xl w-full mx-auto p-6 flex gap-8">
+          <div className="flex-1 space-y-6">
+             <Card className="border-none shadow-sm">
+                <CardHeader>
+                   <CardDescription className="text-xs text-primary font-bold uppercase tracking-wider">
+                      {currentExamQuestion.section?.title || "Câu hỏi"} | {question.difficulty}
+                   </CardDescription>
+                   <div className="text-lg font-medium text-slate-800 pt-2 whitespace-pre-wrap">
+                      {question.stem}
+                   </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                   {question.questionType === 'SINGLE_CHOICE' && (
+                      <RadioGroup 
+                        value={answers[question.id] || ""} 
+                        onValueChange={(v) => saveAnswer(question.id, v)}
+                        className="space-y-3"
+                      >
+                         {question.options?.map((opt: any) => (
+                            <div key={opt.optionKey} className={`flex items-center gap-3 p-4 border rounded-xl transition-all hover:bg-slate-50 ${answers[question.id] === opt.optionKey ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'bg-white'}`}>
+                               <RadioGroupItem value={opt.optionKey} id={opt.optionKey} />
+                               <Label htmlFor={opt.optionKey} className="flex-1 cursor-pointer font-medium">{opt.optionKey}. {opt.content}</Label>
+                            </div>
+                         ))}
+                      </RadioGroup>
+                   )}
+
+                   {question.questionType === 'MULTIPLE_CHOICE' && (
+                      <div className="space-y-3">
+                         {question.options?.map((opt: any) => (
+                            <div key={opt.optionKey} className="flex items-center gap-3 p-4 border rounded-xl bg-white hover:bg-slate-50 transition-all">
+                               <Checkbox 
+                                 id={opt.optionKey}
+                                 checked={(answers[question.id] || []).includes(opt.optionKey)}
+                                 onCheckedChange={(checked) => {
+                                    const current = answers[question.id] || [];
+                                    const next = checked 
+                                      ? [...current, opt.optionKey]
+                                      : current.filter((v: string) => v !== opt.optionKey);
+                                    saveAnswer(question.id, next);
+                                 }}
+                               />
+                               <Label htmlFor={opt.optionKey} className="flex-1 cursor-pointer font-medium">{opt.optionKey}. {opt.content}</Label>
+                            </div>
+                         ))}
+                      </div>
+                   )}
+
+                   {question.questionType === 'TRUE_FALSE' && (
+                      <div className="flex gap-4">
+                         {['TRUE', 'FALSE'].map(v => (
+                            <Button 
+                              key={v}
+                              variant={answers[question.id] === v ? 'default' : 'outline'}
+                              className="flex-1 h-14 text-lg font-bold"
+                              onClick={() => saveAnswer(question.id, v)}
+                            >
+                               {v === 'TRUE' ? 'ĐÚNG' : 'SAI'}
+                            </Button>
+                         ))}
+                      </div>
+                   )}
+                </CardContent>
+             </Card>
+
+             <div className="flex justify-between items-center">
+                <Button 
+                  variant="outline" 
+                  disabled={currentQuestionIndex === 0}
+                  onClick={() => setCurrentQuestionIndex(i => i - 1)}
+                >
+                   <ChevronLeft className="w-4 h-4 mr-2" /> Câu trước
+                </Button>
+                
+                <div className="text-sm text-slate-400 bg-white px-4 py-1.5 rounded-full border">
+                   Đã trả lời {Object.keys(answers).length} / {allExamQuestions.length}
+                </div>
+
+                <Button 
+                  onClick={() => currentQuestionIndex < allExamQuestions.length - 1 ? setCurrentQuestionIndex(i => i + 1) : handleSubmit()}
+                  className={currentQuestionIndex === allExamQuestions.length - 1 ? 'bg-emerald-600' : ''}
+                >
+                   {currentQuestionIndex === allExamQuestions.length - 1 ? "Kết thúc bài thi" : "Câu tiếp theo"}
+                   <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+             </div>
+          </div>
+
+          <aside className="w-[300px] hidden lg:block space-y-6">
+             <Card className="border-none shadow-sm h-[calc(100vh-140px)] flex flex-col">
+                <CardHeader>
+                   <CardTitle className="text-sm flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-primary" />
+                      Danh sách câu hỏi
+                   </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-y-auto p-4 pt-0">
+                   <div className="grid grid-cols-5 gap-2">
+                      {allExamQuestions.map((_, i) => (
+                         <button
+                           key={i}
+                           onClick={() => setCurrentQuestionIndex(i)}
+                           className={`h-9 w-9 rounded-lg text-xs font-bold transition-all border
+                             ${currentQuestionIndex === i ? 'bg-primary text-white border-primary border-2 scale-110 shadow-md' : 
+                               answers[allExamQuestions[i].questionId] ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
+                               'bg-white text-slate-400 hover:bg-slate-50'}
+                           `}
+                         >
+                            {i + 1}
+                         </button>
+                      ))}
+                   </div>
+                </CardContent>
+                <div className="p-4 bg-slate-50 border-t">
+                   <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                         <div className="h-3 w-3 rounded bg-emerald-50 border border-emerald-200"></div>
+                         <span>Đã làm</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                         <div className="h-3 w-3 rounded bg-white border"></div>
+                         <span>Chưa làm</span>
+                      </div>
+                   </div>
+                </div>
+             </Card>
+          </aside>
+       </div>
+    </div>
+  );
+}

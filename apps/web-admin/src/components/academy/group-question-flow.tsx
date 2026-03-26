@@ -11,6 +11,7 @@ import {
     academyQuestionUpdateDTOSchema,
     type AcademyQuestionCreateDTO,
     type AcademyQuestionUpdateDTO,
+    AcademyQuestionType,
 } from "@workspace/schemas"
 import {
     academyQuestionsApi,
@@ -70,31 +71,32 @@ export function GroupQuestionFlow({
         ),
         defaultValues: isParentCreated
             ? {
-                content: parent.content,
+                stem: parent.stem || parent.content || "",
                 mediaUrl: parent.mediaUrl ?? undefined,
-                questionType: "GROUP_PARENT",
-                level: parent.level ?? undefined,
-                category: parent.category ?? undefined,
+                questionType: AcademyQuestionType.GROUP_PARENT,
+                difficulty: parent.level || parent.difficulty || undefined,
+                categoryIds: parent.categoryIds || (parent.category ? [parent.category] : []),
                 metadata: parent.metadata ?? undefined,
             }
             : {
-                content: "",
+                stem: "",
                 mediaUrl: undefined,
-                questionType: "GROUP_PARENT",
-                level: "N5",
-                category: "READING",
+                questionType: AcademyQuestionType.GROUP_PARENT,
+                difficulty: "N5",
+                categoryIds: ["READING"],
                 metadata: undefined,
             },
     })
 
     const onParentSubmit = async (data: any) => {
         try {
+            const mappedData = { ...data, stem: data.content }
             if (isParentCreated) {
-                const result = await update.mutateAsync({ id: parent.id, input: data })
+                const result = await update.mutateAsync({ id: parent.id, dto: mappedData })
                 setParent(result)
                 toast.success("Đã cập nhật đoạn văn")
             } else {
-                const result = await create.mutateAsync({ ...data, questionType: "GROUP_PARENT" })
+                const result = await create.mutateAsync({ ...mappedData, questionType: AcademyQuestionType.GROUP_PARENT })
                 setParent(result)
                 toast.success("Đã tạo câu hỏi cha. Bây giờ hãy thêm câu hỏi con.")
             }
@@ -148,9 +150,12 @@ export function GroupQuestionFlow({
                                             </DialogHeader>
                                             <ScrollArea className="max-h-[80vh] pr-4">
                                                 <QuestionPreview
-                                                    content={currentParentValues.content || ""}
-                                                    questionType="GROUP_PARENT"
-                                                    childrenQuestions={children}
+                                                    content={currentParentValues.stem || ""}
+                                                    questionType={AcademyQuestionType.GROUP_PARENT}
+                                                    childrenQuestions={children.map(c => ({
+                                                        ...c,
+                                                        content: c.stem || c.content || ""
+                                                    })) as any}
                                                 />
                                             </ScrollArea>
                                         </DialogContent>
@@ -230,7 +235,7 @@ export function GroupQuestionFlow({
                                                         <Badge variant="secondary" className="text-[10px]">{child.questionType}</Badge>
                                                     </div>
                                                     <p className="text-sm font-medium line-clamp-2 leading-relaxed">
-                                                        {stripHtml(child.content) || "Trống"}
+                                                        {stripHtml(child.stem || child.content || "") || "Trống"}
                                                     </p>
                                                 </div>
                                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -256,7 +261,7 @@ export function GroupQuestionFlow({
                             {editingChild === "new" ? "Thêm câu hỏi con" : "Chỉnh sửa câu hỏi con"}
                         </SheetTitle>
                         <SheetDescription>
-                            Thiết lập nội dung và đáp án cho câu con. Kế thừa Level: <b>{parent?.level}</b>.
+                            Thiết lập nội dung và đáp án cho câu con. Kế thừa Level: <b>{parent?.level || parent?.difficulty}</b>.
                         </SheetDescription>
                     </SheetHeader>
                     <ScrollArea className="flex-1 min-h-0">
@@ -266,7 +271,7 @@ export function GroupQuestionFlow({
                                     mode={editingChild === "new" ? "create" : "edit"}
                                     initial={editingChild === "new" ? undefined : editingChild}
                                     parentId={parent?.id}
-                                    fixedLevel={parent?.level ?? undefined}
+                                    fixedLevel={parent?.level || parent?.difficulty || undefined}
                                     hideQuestionTypeField={true}
                                     onSuccess={() => {
                                         refetchChildren()

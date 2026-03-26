@@ -21,7 +21,7 @@ import { StringListEditor } from "./string-list-editor"
 import { KeyValueEditor } from "./key-value-editor"
 import { QuestionOptionsEditor } from "./question-options-editor"
 import { LessonMediaUploader } from "./lesson-media-uploader"
-import type { AcademyQuestionCreateDTO, AcademyQuestionUpdateDTO } from "@workspace/schemas"
+import { AcademyQuestionType, type AcademyQuestionCreateDTO, type AcademyQuestionUpdateDTO } from "@workspace/schemas"
 
 interface QuestionFormLayoutProps {
     form: UseFormReturn<AcademyQuestionCreateDTO | AcademyQuestionUpdateDTO | any>
@@ -48,7 +48,7 @@ export function QuestionFormLayout({
 }: QuestionFormLayoutProps) {
     const { control, watch, setValue } = form
     const questionType = watch("questionType")
-    const isGroupParent = questionType === "GROUP_PARENT"
+    const isGroupParent = questionType === AcademyQuestionType.GROUP_PARENT
 
     return (
         <div className="space-y-12">
@@ -67,7 +67,7 @@ export function QuestionFormLayout({
                                         value={field.value}
                                         onSelect={(id) => field.onChange(id || undefined)}
                                         placeholder="Chọn GROUP_PARENT nếu đây là câu hỏi con..."
-                                        questionTypeFilter="GROUP_PARENT"
+                                        questionTypeFilter={AcademyQuestionType.GROUP_PARENT}
                                         allowClear
                                     />
                                     <FieldDescription>Nếu để trống, đây sẽ là câu hỏi đơn lập.</FieldDescription>
@@ -88,7 +88,7 @@ export function QuestionFormLayout({
                                         <Select value={field.value} onValueChange={(val) => {
                                             field.onChange(val)
                                             // Clear answers if switching to GROUP_PARENT
-                                            if (val === "GROUP_PARENT") {
+                                            if (val === AcademyQuestionType.GROUP_PARENT) {
                                                 setValue("options", undefined)
                                                 setValue("correctAnswer", undefined)
                                                 setValue("parentId", undefined)
@@ -98,11 +98,11 @@ export function QuestionFormLayout({
                                                 <SelectValue placeholder="Chọn loại..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="SINGLE_CHOICE">Một đáp án</SelectItem>
-                                                <SelectItem value="MULTIPLE_CHOICE">Nhiều đáp án</SelectItem>
-                                                <SelectItem value="SHORT_ANSWER">Trả lời ngắn</SelectItem>
-                                                <SelectItem value="TRUE_FALSE">Đúng/Sai</SelectItem>
-                                                <SelectItem value="GROUP_PARENT">Đoạn văn (Group Parent)</SelectItem>
+                                                <SelectItem value={AcademyQuestionType.SINGLE_CHOICE}>Một đáp án</SelectItem>
+                                                <SelectItem value={AcademyQuestionType.MULTIPLE_CHOICE}>Nhiều đáp án</SelectItem>
+                                                <SelectItem value={AcademyQuestionType.SHORT_ANSWER}>Trả lời ngắn</SelectItem>
+                                                <SelectItem value={AcademyQuestionType.TRUE_FALSE}>Đúng/Sai</SelectItem>
+                                                <SelectItem value={AcademyQuestionType.GROUP_PARENT}>Đoạn văn (Group Parent)</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FieldError>{fieldState.error?.message}</FieldError>
@@ -153,12 +153,15 @@ export function QuestionFormLayout({
 
                         {!hideCategoryField && (
                             <Controller
-                                name="category"
+                                name="categoryIds"
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
                                         <FieldLabel>Danh mục</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
+                                        <Select 
+                                            value={Array.isArray(field.value) ? field.value[0] : field.value} 
+                                            onValueChange={(val) => field.onChange([val])}
+                                        >
                                             <SelectTrigger className="h-11 shadow-sm">
                                                 <SelectValue placeholder="Chọn danh mục..." />
                                             </SelectTrigger>
@@ -184,7 +187,7 @@ export function QuestionFormLayout({
                 <FieldLegend>Nội dung</FieldLegend>
                 <FieldGroup>
                     <Controller
-                        name="content"
+                        name="stem"
                         control={control}
                         render={({ field, fieldState }) => (
                             <Field>

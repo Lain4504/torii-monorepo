@@ -28,6 +28,10 @@ import { CertificateController } from './controllers/certificate.controller';
 import { RefundController } from './controllers/refund.controller';
 import { JlptMockController } from './controllers/jlpt-mock.controller';
 import { AcademyResourceController } from './controllers/academy-resource.controller';
+import { AcademyExamController } from './controllers/academy-exam.controller';
+import { AcademyQuestionController } from './controllers/academy-question.controller';
+import { AcademyExamAttemptController } from './controllers/academy-exam-attempt.controller';
+import { AcademyAssessmentPlanController } from './controllers/academy-assessment-plan.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -58,6 +62,10 @@ import { AcademyResourceController } from './controllers/academy-resource.contro
     RefundController,
     JlptMockController,
     AcademyResourceController,
+    AcademyExamController,
+    AcademyQuestionController,
+    AcademyExamAttemptController,
+    AcademyAssessmentPlanController,
   ],
 })
 export class AcademyModule { }

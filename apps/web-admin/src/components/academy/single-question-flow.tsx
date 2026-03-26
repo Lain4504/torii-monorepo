@@ -8,6 +8,7 @@ import {
     academyQuestionUpdateDTOSchema,
     type AcademyQuestionCreateDTO,
     type AcademyQuestionUpdateDTO,
+    AcademyQuestionType,
 } from "@workspace/schemas"
 import {
     useCreateAcademyQuestion,
@@ -58,26 +59,26 @@ export function SingleQuestionFlow({
         ),
         defaultValues: isEdit
             ? {
-                content: initial?.content ?? "",
+                stem: initial?.stem || initial?.content || "",
                 mediaUrl: initial?.mediaUrl ?? undefined,
-                questionType: initial?.questionType ?? "SINGLE_CHOICE",
+                questionType: initial?.questionType ?? AcademyQuestionType.SINGLE_CHOICE,
                 options: initial?.options ?? undefined,
                 correctAnswer: initial?.correctAnswer ?? undefined,
                 explanation: initial?.explanation ?? undefined,
-                level: fixedLevel ?? initial?.level ?? undefined,
-                category: initial?.category ?? undefined,
+                difficulty: fixedLevel ?? initial?.level ?? initial?.difficulty ?? undefined,
+                categoryIds: initial?.categoryIds || (initial?.category ? [initial?.category] : []),
                 metadata: initial?.metadata ?? undefined,
             }
             : {
                 parentId: parentId ?? undefined,
-                content: "",
+                stem: "",
                 mediaUrl: undefined,
-                questionType: "SINGLE_CHOICE",
+                questionType: AcademyQuestionType.SINGLE_CHOICE,
                 options: undefined,
                 correctAnswer: undefined,
                 explanation: undefined,
-                level: fixedLevel ?? "N5",
-                category: undefined,
+                difficulty: fixedLevel ?? "N5",
+                categoryIds: [],
                 metadata: undefined,
             },
     })
@@ -87,7 +88,7 @@ export function SingleQuestionFlow({
             if (isEdit && initial) {
                 await update.mutateAsync({
                     id: initial.id,
-                    input: data as AcademyQuestionUpdateDTO,
+                    dto: data as AcademyQuestionUpdateDTO,
                 })
                 toast.success("Đã cập nhật câu hỏi")
                 onSuccess?.(initial.id)
@@ -111,7 +112,7 @@ export function SingleQuestionFlow({
                 form={form as any}
                 isEdit={isEdit}
                 hideQuestionTypeField={hideQuestionTypeField}
-                lockQuestionType={isEdit && initial?.questionType === "GROUP_PARENT"}
+                lockQuestionType={isEdit && initial?.questionType === AcademyQuestionType.GROUP_PARENT}
                 hideParentPicker={!!parentId}
                 hideLevelField={!!fixedLevel}
             />
@@ -131,10 +132,10 @@ export function SingleQuestionFlow({
                             </DialogHeader>
                             <ScrollArea className="max-h-[70vh] pr-4">
                                 <QuestionPreview
-                                    content={currentValues.content || ""}
-                                    questionType={currentValues.questionType || "SINGLE_CHOICE"}
-                                    options={currentValues.options}
-                                    correctAnswer={currentValues.correctAnswer}
+                                    content={(currentValues as any).stem || ""}
+                                    questionType={(currentValues as any).questionType || AcademyQuestionType.SINGLE_CHOICE}
+                                    options={(currentValues as any).options}
+                                    correctAnswer={(currentValues as any).correctAnswer}
                                     explanation={currentValues.explanation}
                                 />
                             </ScrollArea>

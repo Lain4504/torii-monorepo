@@ -16,6 +16,7 @@ import {
     PopoverTrigger,
 } from "@workspace/ui/components/popover"
 import { useAcademyQuestions } from "@/lib/api/services/academy-questions"
+import { AcademyQuestionType } from "@workspace/schemas"
 import { Search } from "lucide-react"
 
 interface QuestionPickerProps {
@@ -24,7 +25,7 @@ interface QuestionPickerProps {
     placeholder?: string
     label?: string
     disabled?: boolean
-    questionTypeFilter?: string
+    questionTypeFilter?: AcademyQuestionType
     allowClear?: boolean
 }
 
@@ -56,7 +57,7 @@ export function QuestionPicker({
                 >
                     {selectedQuestion ? (
                         <span className="truncate max-w-[300px]">
-                            {stripHtml(selectedQuestion.content).substring(0, 100)}...
+                            {stripHtml(selectedQuestion.stem || selectedQuestion.content || "").substring(0, 100)}...
                         </span>
                     ) : (
                         <span className="text-muted-foreground">{placeholder}</span>
@@ -85,10 +86,10 @@ export function QuestionPicker({
                             {isLoading ? (
                                 <CommandItem disabled>Đang tải...</CommandItem>
                             ) : (
-                                questions.map((q) => (
+                                (questions as any).map((q: any) => (
                                     <CommandItem
                                         key={q.id}
-                                        value={`${stripHtml(q.content)} ${q.id}`}
+                                        value={`${stripHtml(q.stem || q.content || "")} ${q.id}`}
                                         onSelect={() => {
                                             onSelect(q.id)
                                             setOpen(false)
@@ -101,9 +102,9 @@ export function QuestionPicker({
                                             )}
                                         />
                                         <div className="flex flex-col gap-1 overflow-hidden">
-                                            <span className="truncate font-medium">{stripHtml(q.content)}</span>
+                                            <span className="truncate font-medium">{stripHtml(q.stem || q.content || "")}</span>
                                             <span className="text-xs text-muted-foreground">
-                                                ID: {q.id.substring(0, 8)} | Loai: {q.questionType} | Level: {q.level || "N/A"}
+                                                ID: {q.id.substring(0, 8)} | Loai: {q.questionType} | Level: {q.level || q.difficulty || "N/A"}
                                             </span>
                                         </div>
                                     </CommandItem>
