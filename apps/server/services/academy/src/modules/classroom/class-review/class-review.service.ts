@@ -157,24 +157,53 @@ export class ClassReviewService {
     const items = await this.prisma.courseReview.findMany({
       where: { userId },
       include: {
+        user: {
+          select: { id: true, displayName: true, avatarUrl: true },
+        },
         cohort: {
           select: {
             id: true,
             name: true,
-            courseProfile: { select: { title: true, thumbnailUrl: true } },
+            courseProfile: {
+              select: { id: true, title: true, thumbnailUrl: true },
+            },
           },
         },
         vodPackage: {
           select: {
             id: true,
             title: true,
-            courseProfile: { select: { title: true, thumbnailUrl: true } },
+            courseProfile: {
+              select: { id: true, title: true, thumbnailUrl: true },
+            },
           },
         },
       },
       orderBy: { createdAt: 'desc' },
     });
-    return items;
+
+    // Map to unified structure for frontend to simplify UI logic
+    return items.map((r) => {
+      const unifiedClass = r.cohort
+        ? {
+            id: r.cohort.id,
+            name: r.cohort.name,
+            courseProfile: r.cohort.courseProfile,
+          }
+        : r.vodPackage
+          ? {
+              id: r.vodPackage.id,
+              name: r.vodPackage.title,
+              courseProfile: r.vodPackage.courseProfile,
+            }
+          : null;
+
+      const { cohort, vodPackage, ...rest } = r;
+      return {
+        ...rest,
+        class: unifiedClass,
+      };
+    });
   }
 
   /**
@@ -197,7 +226,7 @@ export class ClassReviewService {
       throw new ForbiddenException('Enrollment does not belong to you');
     }
 
-    // 2. Derive cohortId or vodPackageId
+    // 2. Derive cohortId or vodPackageId from enrollment
     const cohortId = enrollment.liveClass?.cohortId || null;
     const vodPackageId = enrollment.vodPackageId || null;
     const targetId = (cohortId || vodPackageId) as string;

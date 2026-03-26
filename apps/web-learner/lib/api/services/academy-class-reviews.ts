@@ -15,6 +15,8 @@ export interface ClassReview {
     createdAt: string;
     updatedAt: string;
     publishedAt?: string;
+    cohortId?: string | null;
+    vodPackageId?: string | null;
     user: {
         id: string | null;
         displayName: string;
@@ -24,6 +26,7 @@ export interface ClassReview {
         id: string;
         name: string;
         courseProfile?: {
+            id: string;
             title: string;
             thumbnailUrl?: string;
         };
