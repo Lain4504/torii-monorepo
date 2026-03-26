@@ -7,6 +7,7 @@ import { useAcademyVodPackage, useAcademyVodCurriculum, useAcademyVodEnrollmentC
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
 import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/api/services/academy-learning-progress-api';
 import { useAcademyLesson } from '@/lib/api/services/academy-lesson-api';
+import { useAcademyLearnerAssessmentStatus, type AcademyAssessmentStatus } from '@/lib/api/services/academy-assessment-plan-api';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -224,8 +225,55 @@ function ArticleViewer({
 
 
 
+function MilestoneItem({
+    milestone,
+    onClick
+}: {
+    milestone: AcademyAssessmentStatus;
+    onClick: () => void;
+}) {
+    const isLocked = milestone.status === 'LOCKED';
+    const isPassed = milestone.status === 'PASSED';
+    const isInProgress = milestone.status === 'IN_PROGRESS';
+
+    return (
+        <Button
+            variant="ghost"
+            disabled={isLocked}
+            onClick={() => !isLocked && onClick()}
+            className={`w-full h-auto rounded-none px-5 py-4 flex items-center gap-3 text-left font-normal border-l-4 transition-all
+                ${isInProgress ? 'border-amber-500 bg-amber-50/50' : isPassed ? 'border-emerald-500 bg-emerald-50/30' : 'border-transparent hover:bg-muted/30'}
+                ${isLocked ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer'}
+            `}
+        >
+            <div className={`p-2 rounded-lg shrink-0 ${isPassed ? 'bg-emerald-100 text-emerald-600' : isLocked ? 'bg-slate-100 text-slate-400' : 'bg-primary/10 text-primary'}`}>
+                {isPassed ? <Trophy className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
+            </div>
+            <div className="flex-1 min-w-0">
+                <p className={`text-sm font-bold truncate ${isPassed ? 'text-emerald-700' : isLocked ? 'text-slate-500' : 'text-slate-800'}`}>
+                    [KIỂM TRA] {milestone.examTitle || 'Bài kiểm tra'}
+                </p>
+                <div className="flex items-center gap-2 mt-1 text-[11px]">
+                    {isLocked ? (
+                        <span className="text-slate-400 flex items-center gap-1"><Lock className="h-3 w-3" /> Hoàn thành bài trước để mở</span>
+                    ) : isPassed ? (
+                        <span className="text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Đã vượt qua ({Math.round(milestone.score || 0)}đ)</span>
+                    ) : isInProgress ? (
+                        <span className="text-amber-600 font-bold flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Đang làm dở</span>
+                    ) : (
+                        <span className="text-primary font-bold">Sẵn sàng để thi</span>
+                    )}
+                </div>
+            </div>
+            {!isLocked && !isPassed && (
+                <ChevronRight className="h-4 w-4 text-slate-300" />
+            )}
+        </Button>
+    );
+}
+
 function ModuleItem({
-    mod, isExpanded, onToggle, currentLessonId, completedIds, onSelectLesson, isLessonUnlocked
+    mod, isExpanded, onToggle, currentLessonId, completedIds, onSelectLesson, isLessonUnlocked, milestones, onSelectMilestone
 }: {
     mod: CurriculumModule;
     isExpanded: boolean;
@@ -234,6 +282,8 @@ function ModuleItem({
     completedIds: Set<string>;
     onSelectLesson: (l: CurriculumLesson) => void;
     isLessonUnlocked: (l: CurriculumLesson) => boolean;
+    milestones?: AcademyAssessmentStatus[];
+    onSelectMilestone?: (m: AcademyAssessmentStatus) => void;
 }) {
     const hasActive = mod.lessons.some(l => l.id === currentLessonId);
     const trackableInMod = mod.lessons.filter((l) => isTrackableLessonKind(l.kind));
@@ -268,33 +318,52 @@ function ModuleItem({
                         const isDone = isTrackableLessonKind(lesson.kind)
                             ? completedIds.has(lessonProgressId(lesson))
                             : false;
+                        
+                        const lessonMilestones = milestones?.filter(m => m.triggerLessonId === lesson.id) || [];
+
                         return (
-                            <Button
-                                key={lesson.id}
-                                variant="ghost"
-                                disabled={!unlocked}
-                                onClick={() => unlocked && onSelectLesson(lesson)}
-                                className={`w-full h-auto rounded-none px-5 py-3 flex items-center gap-3 text-left font-normal border-l-4 transition-colors
-                                    ${isActive ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/30'}
-                                    ${!unlocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                                `}
-                            >
-                                <LessonIcon lesson={lesson} isActive={isActive} isCompleted={isDone} unlocked={unlocked} />
-                                <div className="flex-1 min-w-0">
-                                    <p className={`text-sm truncate ${isActive ? 'font-bold text-foreground' : isDone ? 'text-muted-foreground' : 'text-foreground/80'}`}>
-                                        {lesson.title}
-                                    </p>
-                                    <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
-                                        {isActive && <span className="text-primary font-semibold">Đang học</span>}
-                                        {isDone && !isActive && <span className="text-emerald-500">Hoàn thành</span>}
-                                        {!isActive && !isDone && unlocked && <span>Chưa học</span>}
-                                        {!unlocked && <span>Đã khóa</span>}
-                                        {lesson.videoDuration && <span>· {fmtDuration(lesson.videoDuration)}</span>}
+                            <div key={lesson.id}>
+                                <Button
+                                    variant="ghost"
+                                    disabled={!unlocked}
+                                    onClick={() => unlocked && onSelectLesson(lesson)}
+                                    className={`w-full h-auto rounded-none px-5 py-3 flex items-center gap-3 text-left font-normal border-l-4 transition-colors
+                                        ${isActive ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/30'}
+                                        ${!unlocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                    `}
+                                >
+                                    <LessonIcon lesson={lesson} isActive={isActive} isCompleted={isDone} unlocked={unlocked} />
+                                    <div className="flex-1 min-w-0">
+                                        <p className={`text-sm truncate ${isActive ? 'font-bold text-foreground' : isDone ? 'text-muted-foreground' : 'text-foreground/80'}`}>
+                                            {lesson.title}
+                                        </p>
+                                        <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+                                            {isActive && <span className="text-primary font-semibold">Đang học</span>}
+                                            {isDone && !isActive && <span className="text-emerald-500">Hoàn thành</span>}
+                                            {!isActive && !isDone && unlocked && <span>Chưa học</span>}
+                                            {!unlocked && <span>Đã khóa</span>}
+                                            {lesson.videoDuration && <span>· {fmtDuration(lesson.videoDuration)}</span>}
+                                        </div>
                                     </div>
-                                </div>
-                            </Button>
+                                </Button>
+                                {lessonMilestones.map(m => (
+                                    <MilestoneItem 
+                                        key={m.assessmentId} 
+                                        milestone={m} 
+                                        onClick={() => onSelectMilestone?.(m)} 
+                                    />
+                                ))}
+                            </div>
                         );
                     })}
+                    
+                    {milestones?.filter(m => !m.triggerLessonId).map(m => (
+                        <MilestoneItem 
+                            key={m.assessmentId} 
+                            milestone={m} 
+                            onClick={() => onSelectMilestone?.(m)} 
+                        />
+                    ))}
                 </div>
             )}
         </div>
@@ -336,6 +405,9 @@ export default function CourseLearnPage() {
     const { data: liveCompletedIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
     const { data: vodCompletedIds = [] } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
     const completedContentItemIds = isVodCandidate ? vodCompletedIds : liveCompletedIds;
+
+    // ── Milestones ────────────────────────────────────────────────────────
+    const { data: milestones = [] } = useAcademyLearnerAssessmentStatus({ classId });
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -756,7 +828,17 @@ export default function CourseLearnPage() {
                                 currentLessonId={currentLesson?.id ?? null}
                                 completedIds={completedIds}
                                 isLessonUnlocked={effectiveLessonUnlocked}
+                                milestones={milestones.filter(m => m.moduleId === mod.id)}
+                                onSelectMilestone={m => router.push(`/learning/exams/${m.examId}`)}
                                 onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
+                            />
+                        ))}
+                        {/* Final Exams at the bottom */}
+                        {milestones.filter(m => m.kind === 'FINAL_EXAM').map(m => (
+                            <MilestoneItem 
+                                key={m.assessmentId} 
+                                milestone={m} 
+                                onClick={() => router.push(`/learning/exams/${m.examId}`)} 
                             />
                         ))}
                     </div>

@@ -13,6 +13,7 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { useAcademyExams, useAcademyExam } from "@/lib/api/services/academy-exams"
+import { AcademyExamStatus } from "@workspace/schemas"
 import { AlertCircle, ExternalLink, PlusCircle } from "lucide-react"
 
 interface ClassQuizSourcePickerProps {
@@ -29,7 +30,9 @@ export function ClassQuizSourcePicker({
     error,
 }: ClassQuizSourcePickerProps) {
     const { data: exams = [], isLoading } = useAcademyExams(
-        courseProfileId ? { courseProfileId, status: "PUBLISHED" } : { status: "PUBLISHED" }
+        courseProfileId 
+            ? { courseProfileId, status: AcademyExamStatus.PUBLISHED } 
+            : { status: AcademyExamStatus.PUBLISHED }
     )
 
     const { data: selectedExamDetail } = useAcademyExam(examId)

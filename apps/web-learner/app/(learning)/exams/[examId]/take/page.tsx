@@ -108,7 +108,7 @@ export default function TakeExamPage() {
                     examId,
                     userId,
                     classId,
-                    classAssessmentId,
+                    assessmentId: classAssessmentId,
                 })
                 setSessionId(attempt.id)
 

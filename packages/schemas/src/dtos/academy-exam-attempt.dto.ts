@@ -1,12 +1,13 @@
 import { z } from 'zod';
+import { AcademyAttemptStatus } from '../enums/academy.enum';
 
 export const academyExamAttemptStartDTOSchema = z.object({
   examId: z.string().uuid(),
   classId: z.string().uuid().optional(),
+  enrollmentId: z.string().uuid().optional(),
+  assessmentId: z.string().uuid().optional(),
   // For learner flows, userId is derived from requester token at gateway.
-  // exam.manage callers may still provide userId explicitly.
   userId: z.string().uuid().optional(),
-  classAssessmentId: z.string().uuid().optional(),
 });
 export type AcademyExamAttemptStartDTO = z.infer<
   typeof academyExamAttemptStartDTOSchema
@@ -31,37 +32,34 @@ export const academyExamAttemptQueryDTOSchema = z.object({
   examId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   classId: z.string().uuid().optional(),
-  classAssessmentId: z.string().uuid().optional(),
-  status: z.string().optional(),
+  enrollmentId: z.string().uuid().optional(),
+  status: z.nativeEnum(AcademyAttemptStatus).optional(),
   latestOnly: z.coerce.boolean().optional(),
 });
 export type AcademyExamAttemptQueryDTO = z.infer<
   typeof academyExamAttemptQueryDTOSchema
 >;
 
-export type AcademyExamAttemptModel = {
+export type AcademyExamAttemptModelDTO = {
   id: string;
   examId: string;
   userId: string;
+  enrollmentId?: string | null;
   classId?: string | null;
-  classAssessmentId?: string | null;
-  status: string; // IN_PROGRESS, SUBMITTED
+  status: AcademyAttemptStatus;
   score?: number | null;
   maxScore?: number | null;
   percentage?: number | null;
-  deadlineAt?: string | null;
-  draftAnswers?: Record<string, any> | null;
-  metadata?: Record<string, any> | null;
+  isPassed?: boolean | null;
   startedAt: string;
   submittedAt?: string | null;
   completedAt?: string | null;
-  isPassed?: boolean | null;
+  deadlineAt?: string | null;
   timeTakenSeconds?: number | null;
+  draftAnswers?: Record<string, any> | null;
   resultMetadata?: any | null;
   exam?: any | null;
-  details?: any[] | null;
-  quizTitle?: string | null;
+  answers?: any[] | null;
   createdAt: string;
   updatedAt: string;
 };
-

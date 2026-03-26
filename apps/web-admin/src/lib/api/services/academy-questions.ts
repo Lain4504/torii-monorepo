@@ -4,21 +4,29 @@ import type {
   AcademyQuestionCreateDTO,
   AcademyQuestionQueryDTO,
   AcademyQuestionUpdateDTO,
+  AcademyQuestionCategoryDTO,
   StandardApiResponse,
+  AcademyQuestionType,
+  AcademyQuestionReviewStatus,
 } from "@workspace/schemas"
 
 export type AcademyQuestion = {
   id: string
   parentId?: string | null
-  content: string
-  mediaUrl?: string | null
-  questionType: string
-  options?: unknown | null
-  correctAnswer?: unknown | null
+  stem: string
   explanation?: string | null
-  level?: string | null
-  category?: string | null
-  metadata?: unknown | null
+  questionType: AcademyQuestionType
+  difficulty: string
+  reviewStatus: AcademyQuestionReviewStatus
+  options?: any[]
+  correctAnswer?: any
+  categoryLinks?: any[]
+  metadata?: any
+  content?: string
+  mediaUrl?: string
+  level?: string
+  category?: string
+  categoryIds?: string[]
   createdAt: string
   updatedAt: string
 }
@@ -47,10 +55,10 @@ export const academyQuestionsApi = {
     return res.data.data!.item
   },
 
-  async update(id: string, input: AcademyQuestionUpdateDTO) {
+  async update({ id, dto }: { id: string; dto: AcademyQuestionUpdateDTO }) {
     const res = await apiClient.put<StandardApiResponse<{ item: AcademyQuestion }>>(
       `/api/academy/questions/${id}`,
-      input,
+      dto,
     )
     return res.data.data!.item
   },
@@ -60,6 +68,21 @@ export const academyQuestionsApi = {
       `/api/academy/questions/${id}`,
     )
     return res.data
+  },
+
+  async getCategories() {
+    const res = await apiClient.get<StandardApiResponse<any[]>>(
+      "/api/academy/questions/categories",
+    )
+    return res.data.data!
+  },
+
+  async createCategory(input: AcademyQuestionCategoryDTO) {
+    const res = await apiClient.post<StandardApiResponse<any>>(
+      "/api/academy/questions/categories",
+      input,
+    )
+    return res.data.data!
   },
 }
 
@@ -89,9 +112,11 @@ export function useCreateAcademyQuestion() {
 export function useUpdateAcademyQuestion() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: AcademyQuestionUpdateDTO }) =>
-      academyQuestionsApi.update(id, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-questions"] }),
+    mutationFn: academyQuestionsApi.update,
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["academy-questions"] })
+      qc.invalidateQueries({ queryKey: ["academy-question", variables.id] })
+    },
   })
 }
 
@@ -103,3 +128,17 @@ export function useDeleteAcademyQuestion() {
   })
 }
 
+export function useAcademyQuestionCategories() {
+  return useQuery({
+    queryKey: ["academy-question-categories"],
+    queryFn: () => academyQuestionsApi.getCategories(),
+  })
+}
+
+export function useCreateAcademyQuestionCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: academyQuestionsApi.createCategory,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
+  })
+}

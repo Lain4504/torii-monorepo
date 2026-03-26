@@ -18,6 +18,48 @@ datasource db {
 // ENUMS
 // ==================================================
 
+// --- Academy Quiz/Exam (NEW) ---
+
+enum AcademyExamType {
+  QUIZ
+  MODULE_TEST
+  FINAL_EXAM
+}
+
+enum AcademyExamStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AcademyQuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_TEXT
+  SHORT_ANSWER
+  GROUP_PARENT
+}
+
+enum AcademyQuestionReviewStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum AcademyAssessmentKind {
+  LESSON_CHECKPOINT
+  MODULE_CHECKPOINT
+  FINAL_EXAM
+}
+
+enum AcademyAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  CANCELLED
+}
+
 // --- Assessment ---
 
 enum AssignmentType {
@@ -438,6 +480,7 @@ model User {
   walletTransactions              WalletTransaction[]
   deviceTokens                    UserDeviceToken[]
   academyResourcesCreated         AcademyResource[]      @relation("AcademyResourceCreator")
+  academyExamAttempts             AcademyExamAttempt[]
 
   // JLPT Mock (isolated)
   jlptMockAttempts JlptMockAttempt[] @relation("JlptMockAttemptUser")
@@ -1123,9 +1166,11 @@ model CourseProfile {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  modules     Module[]
-  vodPackages VodPackage[]
-  cohorts     Cohort[]
+  modules                  Module[]
+  vodPackages              VodPackage[]
+  cohorts                  Cohort[]
+  academyExams             AcademyExam[]
+  academyAssessmentPlans   AcademyCourseProfileAssessment[]
 
   @@index([level])
   @@map("academy_course_profiles")
@@ -1144,8 +1189,9 @@ model Module {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
 
-  courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  lessons       Lesson[]
+  courseProfile      CourseProfile                    @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  lessons            Lesson[]
+  academyAssessments AcademyCourseProfileAssessment[]
 
   @@unique([courseProfileId, orderIndex])
   @@index([courseProfileId])
@@ -1165,8 +1211,9 @@ model Lesson {
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @default(now()) @updatedAt @map("updated_at")
 
-  module     Module               @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress   UserLessonProgress[]
+  module             Module                           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress           UserLessonProgress[]
+  academyAssessments AcademyCourseProfileAssessment[]
 
   @@unique([moduleId, orderIndex])
   @@index([moduleId])
@@ -1267,6 +1314,7 @@ model LiveClass {
   tickets              Ticket[]
   certificates         Certificate[]
   academySharedFolders AcademyFolder[]
+  academyExamAttempts  AcademyExamAttempt[]
 
   @@index([cohortId])
   @@map("academy_live_classes")
@@ -1458,6 +1506,7 @@ model Enrollment {
   certificate    Certificate?
   review         CourseReview?
   lessonProgress UserLessonProgress[]
+  academyExamAttempts AcademyExamAttempt[]
 
   @@unique([userId, vodPackageId])
   @@unique([userId, liveClassId])
@@ -2003,4 +2052,224 @@ model JlptMockAnswer {
   @@index([attemptId])
   @@index([questionId])
   @@map("jlpt_mock_answers")
+}
+
+// ==================================================
+// 14. ACADEMY FIXED QUIZ SYSTEM (NEW)
+// ==================================================
+
+model AcademyExam {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseProfileId       String?           @map("course_profile_id") @db.Uuid
+  title                 String            @db.VarChar(255)
+  description           String?           @db.Text
+  examType              AcademyExamType   @map("exam_type")
+  level                 String?           @db.VarChar(50)
+  totalTimeLimitMinutes Int?              @map("total_time_limit_minutes")
+  status                AcademyExamStatus @default(DRAFT)
+  settings              Json?             @default("{}") @db.JsonB
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at")
+
+  courseProfile            CourseProfile?                   @relation(fields: [courseProfileId], references: [id], onDelete: SetNull)
+  sections                 AcademyExamSection[]
+  questions                AcademyExamQuestion[]
+  attempts                 AcademyExamAttempt[]
+  courseProfileAssessments AcademyCourseProfileAssessment[]
+
+  @@index([courseProfileId])
+  @@index([status])
+  @@map("academy_exams")
+}
+
+model AcademyExamSection {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  examId            String   @map("exam_id") @db.Uuid
+  title             String   @db.VarChar(255)
+  instruction       String?  @db.Text
+  sectionType       String?  @map("section_type") @db.VarChar(50)
+  timeLimitSeconds  Int?     @map("time_limit_seconds")
+  orderIndex        Int      @map("order_index")
+  metadata          Json?    @default("{}") @db.JsonB
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  exam      AcademyExam           @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questions AcademyExamQuestion[]
+
+  @@index([examId])
+  @@map("academy_exam_sections")
+}
+
+model AcademyQuestion {
+  id           String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionType AcademyQuestionType         @map("question_type")
+  stem         String                      @db.Text
+  explanation  String?                     @db.Text
+  difficulty   String?                     @db.VarChar(50)
+  metadata     Json?                       @default("{}") @db.JsonB
+  reviewStatus AcademyQuestionReviewStatus @default(DRAFT) @map("review_status")
+  reviewedBy   String?                     @map("reviewed_by") @db.Uuid
+  reviewedAt   DateTime?                   @map("reviewed_at")
+  reviewNote   String?                     @map("review_note") @db.Text
+  parentId     String?                     @map("parent_id") @db.Uuid
+  mediaUrl     String?                     @map("media_url") @db.Text
+  correctAnswer String?                    @map("correct_answer") @db.Text
+  createdAt    DateTime                    @default(now()) @map("created_at")
+  updatedAt    DateTime                    @default(now()) @updatedAt @map("updated_at")
+
+  options        AcademyQuestionOption[]
+  categoryLinks  AcademyQuestionCategoryLink[]
+  examQuestions  AcademyExamQuestion[]
+  attemptAnswers AcademyExamAttemptAnswer[]
+  
+  parent         AcademyQuestion?            @relation("QuestionHierarchy", fields: [parentId], references: [id])
+  children       AcademyQuestion[]           @relation("QuestionHierarchy")
+
+  @@index([questionType])
+  @@map("academy_questions")
+}
+
+model AcademyQuestionCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String   @unique @db.VarChar(100)
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  parentId    String?  @map("parent_id") @db.Uuid
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  parent   AcademyQuestionCategory?      @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children AcademyQuestionCategory[]     @relation("CategoryHierarchy")
+  links    AcademyQuestionCategoryLink[]
+
+  @@map("academy_question_categories")
+}
+
+model AcademyQuestionOption {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String   @map("question_id") @db.Uuid
+  optionKey  String   @map("option_key") @db.VarChar(10) // A, B, C, D...
+  content    String   @db.Text
+  isCorrect  Boolean  @default(false) @map("is_correct")
+  orderIndex Int      @map("order_index")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  question       AcademyQuestion            @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attemptAnswers AcademyExamAttemptAnswer[]
+
+  @@index([questionId])
+  @@map("academy_question_options")
+}
+
+model AcademyQuestionCategoryLink {
+  questionId String   @map("question_id") @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question AcademyQuestion         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  category AcademyQuestionCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, categoryId])
+  @@index([categoryId])
+  @@map("academy_question_category_links")
+}
+
+model AcademyExamQuestion {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  examId     String   @map("exam_id") @db.Uuid
+  sectionId  String   @map("section_id") @db.Uuid
+  questionId String   @map("question_id") @db.Uuid
+  orderIndex Int      @map("order_index")
+  points     Decimal? @db.Decimal(5, 2)
+  metadata   Json?    @default("{}") @db.JsonB
+
+  exam     AcademyExam        @relation(fields: [examId], references: [id], onDelete: Cascade)
+  section  AcademyExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  question AcademyQuestion    @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  attemptAnswers AcademyExamAttemptAnswer[]
+
+  @@unique([examId, orderIndex])
+  @@index([examId])
+  @@index([sectionId])
+  @@map("academy_exam_questions")
+}
+
+model AcademyExamAttempt {
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  examId         String               @map("exam_id") @db.Uuid
+  userId         String               @map("user_id") @db.Uuid
+  enrollmentId   String?              @map("enrollment_id") @db.Uuid
+  classId        String?              @map("class_id") @db.Uuid
+  status         AcademyAttemptStatus @default(IN_PROGRESS)
+  score          Decimal?             @db.Decimal(6, 2)
+  maxScore       Decimal?             @map("max_score") @db.Decimal(6, 2)
+  percentage     Decimal?             @db.Decimal(5, 2)
+  isPassed       Boolean?             @map("is_passed")
+  startedAt      DateTime             @default(now()) @map("started_at")
+  submittedAt    DateTime?            @map("submitted_at")
+  completedAt    DateTime?            @map("completed_at")
+  draftAnswers   Json?                @map("draft_answers") @db.JsonB
+  resultMetadata Json?                @map("result_metadata") @db.JsonB
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @default(now()) @updatedAt @map("updated_at")
+
+  exam       AcademyExam @relation(fields: [examId], references: [id], onDelete: Restrict)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollment Enrollment? @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
+  class      LiveClass?  @relation(fields: [classId], references: [id], onDelete: SetNull)
+
+  answers AcademyExamAttemptAnswer[]
+
+  @@index([examId, userId, startedAt(sort: Desc)])
+  @@index([userId])
+  @@map("academy_exam_attempts")
+}
+
+model AcademyExamAttemptAnswer {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId        String   @map("attempt_id") @db.Uuid
+  examQuestionId   String   @map("exam_question_id") @db.Uuid
+  questionId       String   @map("question_id") @db.Uuid
+  selectedOptionId String?  @map("selected_option_id") @db.Uuid
+  answerPayload    Json?    @map("answer_payload") @db.JsonB
+  isCorrect        Boolean? @map("is_correct")
+  scoreAwarded     Decimal? @map("score_awarded") @db.Decimal(5, 2)
+  answeredAt       DateTime @default(now()) @map("answered_at")
+
+  attempt         AcademyExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  examQuestion    AcademyExamQuestion @relation(fields: [examQuestionId], references: [id], onDelete: Cascade)
+  question        AcademyQuestion     @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  selectedOption  AcademyQuestionOption? @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
+
+  @@unique([attemptId, examQuestionId])
+  @@index([attemptId])
+  @@map("academy_exam_attempt_answers")
+}
+
+model AcademyCourseProfileAssessment {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseProfileId String                @map("course_profile_id") @db.Uuid
+  examId          String                @map("exam_id") @db.Uuid
+  assessmentKind  AcademyAssessmentKind @map("assessment_kind")
+  moduleId        String?               @map("module_id") @db.Uuid
+  triggerLessonId String?               @map("trigger_lesson_id") @db.Uuid
+  orderIndex      Int                   @map("order_index")
+  isRequired      Boolean               @default(true) @map("is_required")
+  isActive        Boolean               @default(true) @map("is_active")
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @default(now()) @updatedAt @map("updated_at")
+
+  courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  exam          AcademyExam   @relation(fields: [examId], references: [id], onDelete: Restrict)
+  module        Module?       @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  triggerLesson Lesson?       @relation(fields: [triggerLessonId], references: [id], onDelete: SetNull)
+
+  @@unique([courseProfileId, assessmentKind, triggerLessonId], map: "idx_assessment_lesson_unique")
+  @@unique([courseProfileId, assessmentKind, moduleId], map: "idx_assessment_module_unique")
+  @@index([courseProfileId, isActive, orderIndex])
+  @@map("academy_course_profile_assessments")
 }

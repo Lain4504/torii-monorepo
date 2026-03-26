@@ -30,6 +30,8 @@ import {
   academyExamUpdateDTOSchema,
   type AcademyExamCreateDTO,
   type AcademyExamUpdateDTO,
+  AcademyExamStatus,
+  AcademyExamType,
 } from "@workspace/schemas"
 import type { AcademyExam } from "@/lib/api/services/academy-exams"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
@@ -108,10 +110,10 @@ export function ExamForm({
         courseProfileId: scopedDefaultCourseProfileId,
         title: "",
         description: undefined,
-        examType: "COURSE",
+        examType: AcademyExamType.QUIZ,
         level: undefined,
         totalTimeLimitMinutes: undefined,
-        status: "DRAFT",
+        status: AcademyExamStatus.DRAFT,
         settings: undefined,
         sections: [],
       },

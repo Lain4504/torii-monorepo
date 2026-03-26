@@ -1,14 +1,9 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query"
 import { apiClient } from "../api-client"
 import type {
-    AcademyExamCreateDTO,
-    AcademyExamQueryDTO,
-    AcademyExamUpdateDTO,
     AcademyExamAttemptStartDTO,
     AcademyExamAttemptSaveAnswersDTO,
     AcademyExamAttemptSubmitDTO,
-    AcademyExamAttemptQueryDTO,
-    AcademyExamAttemptModel,
     StandardApiResponse,
 } from "@workspace/schemas"
 
@@ -21,28 +16,35 @@ export type AcademyExam = {
     level?: string | null
     totalTimeLimitMinutes?: number | null
     status?: string | null
-    settings?: unknown | null
+    settings?: any
     sections?: any[]
     examQuestions?: any[]
     createdAt: string
     updatedAt: string
 }
 
-export const academyExamsApi = {
-    /**
-     * Get exams with optional search/filter
-     */
-    async findAll(params: AcademyExamQueryDTO) {
-        const res = await apiClient.get<StandardApiResponse<{ items: AcademyExam[] }>>(
-            "/api/academy/exams",
-            { params },
-        )
-        return res.data.data!.items
-    },
+export type AcademyExamAttempt = {
+    id: string
+    examId: string
+    userId: string
+    status: string
+    score?: number
+    maxScore?: number
+    percentage?: number
+    isPassed?: boolean
+    draftAnswers?: any
+    startedAt: string
+    submittedAt?: string
+    completedAt?: string
+    deadlineAt?: string
+    timeTakenSeconds?: number
+    exam: AcademyExam
+    answers?: any[]
+    details?: any[]
+    quizTitle?: string
+}
 
-    /**
-     * Get exam detail by ID
-     */
+export const academyExamsApi = {
     async findById(id: string) {
         const res = await apiClient.get<StandardApiResponse<{ item: AcademyExam }>>(
             `/api/academy/exams/${id}`,
@@ -50,68 +52,44 @@ export const academyExamsApi = {
         return res.data.data!.item
     },
 
-    /**
-     * Start an exam attempt
-     */
     async startAttempt(dto: AcademyExamAttemptStartDTO) {
-        const res = await apiClient.post<StandardApiResponse<{ item: AcademyExamAttemptModel }>>(
+        const res = await apiClient.post<StandardApiResponse<{ item: AcademyExamAttempt }>>(
             "/api/academy/exam-attempts/start",
             dto,
         )
         return res.data.data!.item
     },
 
-    /**
-     * Save attempt answers
-     */
     async saveAnswers(dto: AcademyExamAttemptSaveAnswersDTO) {
-        const res = await apiClient.post<StandardApiResponse<{ item: AcademyExamAttemptModel }>>(
-            "/api/academy/exam-attempts/save-answers",
+        const res = await apiClient.post<StandardApiResponse<{ item: AcademyExamAttempt }>>(
+            "/api/academy/exam-attempts/save-draft",
             dto,
         )
         return res.data.data!.item
     },
 
-    /**
-     * Submit attempt for grading
-     */
     async submitAttempt(dto: AcademyExamAttemptSubmitDTO) {
-        const res = await apiClient.post<StandardApiResponse<{ item: AcademyExamAttemptModel }>>(
+        const res = await apiClient.post<StandardApiResponse<{ item: AcademyExamAttempt }>>(
             "/api/academy/exam-attempts/submit",
             dto,
         )
         return res.data.data!.item
     },
 
-    /**
-     * Get user attempts
-     */
-    async findAttempts(params: AcademyExamAttemptQueryDTO) {
-        const res = await apiClient.get<StandardApiResponse<{ items: AcademyExamAttemptModel[] }>>(
+    async findAttemptById(id: string) {
+        const res = await apiClient.get<StandardApiResponse<{ item: AcademyExamAttempt }>>(
+            `/api/academy/exam-attempts/${id}`,
+        )
+        return res.data.data!.item
+    },
+
+    async findAttempts(params?: { examId?: string; status?: string; userId?: string }) {
+        const res = await apiClient.get<StandardApiResponse<{ items: AcademyExamAttempt[] }>>(
             "/api/academy/exam-attempts",
             { params },
         )
         return res.data.data!.items
     },
-
-    /**
-     * Get attempt details
-     */
-    async findAttemptById(id: string) {
-        const res = await apiClient.get<StandardApiResponse<{ item: AcademyExamAttemptModel }>>(
-            `/api/academy/exam-attempts/${id}`,
-        )
-        return res.data.data!.item
-    },
-}
-
-// Hooks
-export function useAcademyExams(params: AcademyExamQueryDTO, options?: Omit<UseQueryOptions<AcademyExam[]>, "queryKey" | "queryFn">) {
-    return useQuery({
-        queryKey: ["academy-exams", params],
-        queryFn: () => academyExamsApi.findAll(params),
-        ...options,
-    })
 }
 
 export function useAcademyExam(id?: string) {
@@ -126,13 +104,13 @@ export function useStartAcademyExamAttempt() {
     const qc = useQueryClient()
     return useMutation({
         mutationFn: academyExamsApi.startAttempt,
-        onSuccess: (data) => {
+        onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["academy-exam-attempts"] })
         },
     })
 }
 
-export function useSaveAcademyExamAnswers() {
+export function useSaveAcademyExamDraft() {
     return useMutation({
         mutationFn: academyExamsApi.saveAnswers,
     })
@@ -149,17 +127,17 @@ export function useSubmitAcademyExamAttempt() {
     })
 }
 
-export function useAcademyExamAttempts(params: AcademyExamAttemptQueryDTO) {
-    return useQuery({
-        queryKey: ["academy-exam-attempts", params],
-        queryFn: () => academyExamsApi.findAttempts(params),
-    })
-}
-
 export function useAcademyExamAttempt(id?: string) {
     return useQuery({
         enabled: !!id,
         queryKey: ["academy-exam-attempt", id],
         queryFn: () => academyExamsApi.findAttemptById(id!),
+    })
+}
+
+export function useAcademyExamAttempts(params?: { examId?: string; status?: string; userId?: string }) {
+    return useQuery({
+        queryKey: ["academy-exam-attempts", params],
+        queryFn: () => academyExamsApi.findAttempts(params),
     })
 }

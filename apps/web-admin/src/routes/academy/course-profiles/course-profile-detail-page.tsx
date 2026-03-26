@@ -48,6 +48,8 @@ import { useDeleteAcademyCourseModule } from "@/lib/api/services/academy-course-
 import { useDeleteAcademyLesson } from "@/lib/api/services/academy-lessons"
 import { toast } from "sonner"
 import { CourseProfileSheet } from "./components/course-profile-sheet"
+import { AssessmentPlanTab } from "./components/assessment-plan-tab"
+import { Trophy } from "lucide-react"
 
 export default function CourseProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>()
@@ -179,6 +181,9 @@ export default function CourseProfileDetailPage() {
           </TabsTrigger>
           <TabsTrigger value="classes" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
             <Users className="size-4" /> Danh sách lớp học
+          </TabsTrigger>
+          <TabsTrigger value="assessment" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
+            <Trophy className="size-4" /> Kế hoạch đánh giá
           </TabsTrigger>
         </TabsList>
 
@@ -441,6 +446,13 @@ export default function CourseProfileDetailPage() {
                     </Table>
                 </CardContent>
              </Card>
+          </TabsContent>
+
+          <TabsContent value="assessment">
+             <AssessmentPlanTab 
+               courseProfileId={profileId as string} 
+               modules={profile.modules || []} 
+             />
           </TabsContent>
 
           <TabsContent value="info">
