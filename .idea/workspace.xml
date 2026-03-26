@@ -5,25 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement Learning Path v2 with gamification integration and recovery mode">
-      <change afterPath="$PROJECT_DIR$/file.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/academy.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-review/class-review.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/achievement.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification-activity.listener.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/gamification/gamification.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/gateway.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/gateway.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/gamification/controllers/gamification.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/gamification/gamification.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/controllers/onboarding.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/identity.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/identity.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning-path/controllers/learning-path.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning-path/controllers/learning-path.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -380,15 +361,7 @@
       <workItem from="1774369682844" duration="1071000" />
       <workItem from="1774409406934" duration="2909000" />
       <workItem from="1774428336516" duration="8433000" />
-      <workItem from="1774447037617" duration="758000" />
-    </task>
-    <task id="LOCAL-01023" summary="refactor: simplify class handling in offerings and remove legacy code">
-      <option name="closed" value="true" />
-      <created>1773910987047</created>
-      <option name="number" value="01023" />
-      <option name="presentableId" value="LOCAL-01023" />
-      <option name="project" value="LOCAL" />
-      <updated>1773910987048</updated>
+      <workItem from="1774447037617" duration="1148000" />
     </task>
     <task id="LOCAL-01024" summary="feat: add JLPT mock exam module with related services and DTOs">
       <option name="closed" value="true" />
@@ -774,7 +747,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774440047437</updated>
     </task>
-    <option name="localTasksCounter" value="1072" />
+    <task id="LOCAL-01072" summary="feat: implement Learning Path v2 with gamification integration and recovery mode">
+      <option name="closed" value="true" />
+      <created>1774447841147</created>
+      <option name="number" value="01072" />
+      <option name="presentableId" value="LOCAL-01072" />
+      <option name="project" value="LOCAL" />
+      <updated>1774447841147</updated>
+    </task>
+    <option name="localTasksCounter" value="1073" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

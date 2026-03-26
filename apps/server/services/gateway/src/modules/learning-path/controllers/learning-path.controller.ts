@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import {
   ReqWithRequester,
   GatewayAuthGuard,
@@ -31,7 +32,7 @@ export class LearningPathController {
   // có thể chưa được generate đầy đủ model typing ngay lập tức.
   // Ép kiểu `Record<string, any>` để tránh TS compile/lint block cho phần ingestor/planning.
   constructor(
-    private readonly prisma: PrismaService & Record<string, any>,
+    @Inject(PrismaService) private readonly prisma: PrismaService & Record<string, any>,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
 
@@ -174,8 +175,8 @@ export class LearningPathController {
               status: 'ACTIVE',
               currentVersion: existingPlan.currentVersion ?? 1,
               goalSnapshot: {
-                ...(existingPlan.goalSnapshot ?? {}),
-                ...(body ?? {}),
+                ...(((existingPlan.goalSnapshot ?? {}) as Record<string, any>)),
+                ...(((body ?? {}) as Record<string, any>)),
               },
             },
           })
@@ -783,17 +784,20 @@ export class LearningPathController {
         if (activityType) {
           const eventTime = completedAt ?? new Date();
           try {
-            this.natsClient.emit('user.activity', {
-              userId,
-              activityType,
-              timestamp: eventTime.toISOString(),
-              meta: {
-                attemptId: updated.id,
-                // Best-effort: provide stable identifiers for dedup.
-                lessonId: (updated as any)?.sourceLessonId ?? null,
-                studySetId: (updated as any)?.sourceStudySetId ?? null,
-              },
-            });
+            // Use internal request/response to guarantee ingestion.
+            await firstValueFrom(
+              this.natsClient.send('internal.game.ingest-activity', {
+                userId,
+                activityType,
+                eventTime: eventTime.toISOString(),
+                meta: {
+                  attemptId: updated.id,
+                  // Best-effort: provide stable identifiers for dedup.
+                  lessonId: (updated as any)?.sourceLessonId ?? null,
+                  studySetId: (updated as any)?.sourceStudySetId ?? null,
+                },
+              }),
+            );
           } catch (e: unknown) {
             const err = e as Error;
             this.logger.error(

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { NatsClientModule } from '@server/shared';
+import { NatsClientModule, PrismaModule } from '@server/shared';
 import { LearningPathController } from './controllers/learning-path.controller';
 
 @Module({
-  imports: [NatsClientModule],
+  imports: [NatsClientModule, PrismaModule],
   controllers: [LearningPathController],
   providers: [],
 })

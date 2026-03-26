@@ -22,7 +22,7 @@ export class GameV2Controller {
   private readonly logger = new Logger(GameV2Controller.name);
 
   constructor(
-    private readonly prisma: PrismaService & Record<string, any>,
+    @Inject(PrismaService) private readonly prisma: PrismaService & Record<string, any>,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
 
