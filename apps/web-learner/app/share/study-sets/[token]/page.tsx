@@ -22,7 +22,7 @@ export default function PublicStudySetPage() {
             <div className="mx-auto max-w-5xl p-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Khong tim thay bo the chia se</CardTitle>
+                        <CardTitle>Không tìm thấy bộ thẻ chia sẻ</CardTitle>
                     </CardHeader>
                 </Card>
             </div>
@@ -36,14 +36,14 @@ export default function PublicStudySetPage() {
                     <CardTitle>{data.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-muted-foreground">{data.description || 'Khong co mo ta'}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">{data.setCards?.length || 0} the</p>
+                    <p className="text-sm text-muted-foreground">{data.description || 'Không có mô tả'}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">{data.setCards?.length || 0} thẻ</p>
                 </CardContent>
             </Card>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Noi dung bo the</CardTitle>
+                    <CardTitle>Nội dung bộ thẻ</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid gap-3 md:grid-cols-2">

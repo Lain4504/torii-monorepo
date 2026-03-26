@@ -63,9 +63,17 @@ export default function PaymentSuccessPage() {
                                 <div key={item.productId} className="rounded border p-2">
                                     <div className="font-semibold">{item.productName}</div>
                                     {item.missingClassIds.length === 0 ? (
-                                        <div className="text-emerald-600">
-                                            Ghi danh thành công ({item.enrolledClassIds.length}/{item.expectedClassIds.length} lớp).
-                                        </div>
+                                        <>
+                                            {item.expectedClassIds.length === 0 ? (
+                                                <div className="text-emerald-600">
+                                                    Kích hoạt thành công.
+                                                </div>
+                                            ) : (
+                                                <div className="text-emerald-600">
+                                                    Ghi danh thành công ({item.enrolledClassIds.length}/{item.expectedClassIds.length} lớp).
+                                                </div>
+                                            )}
+                                        </>
                                     ) : (
                                         <div className="text-amber-600">
                                             Một số lớp chưa ghi danh ({item.enrolledClassIds.length}/{item.expectedClassIds.length} lớp). Vui lòng liên hệ hỗ trợ.

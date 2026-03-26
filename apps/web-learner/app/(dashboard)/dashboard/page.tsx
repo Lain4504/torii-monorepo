@@ -10,10 +10,10 @@ import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { 
-    BookOpen, Clock, Calendar, Video, Shield, 
-    AlertCircle, Sparkles, ArrowRight, Users, 
-    Trophy, Zap, Newspaper, HelpCircle, GraduationCap,
-    Star, Bot 
+    BookOpen, Clock, Calendar, CalendarDays, Video, Shield,
+    Sparkles, ArrowRight, Users,
+    Trophy, Newspaper, HelpCircle, GraduationCap,
+    Star, Bot, HandWave, Flame, BookMarked, Gift, Medal, Award, BarChart3
 } from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
@@ -272,7 +272,9 @@ function AuthenticatedDashboardPage() {
             {/* Welcome Header */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6" data-purpose="welcome-section">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight">Chào mừng trở lại, {firstName}! 👋</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        Chào mừng trở lại, {firstName}! <HandWave className="inline-block size-6 translate-y-0.5" />
+                    </h1>
                     <p className="text-muted-foreground">Hôm nay là một ngày tuyệt vời để học tiếng Nhật.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
@@ -287,7 +289,10 @@ function AuthenticatedDashboardPage() {
                     {currentStreak > 0 && (
                         <div className="bg-card px-4 py-2 rounded-full border border-border flex items-center gap-2 shadow-sm">
                             <span className="w-2 h-2 rounded-full bg-red-500" />
-                            <span className="text-sm font-semibold">🔥 {currentStreak} Ngày liên tiếp</span>
+                            <span className="text-sm font-semibold flex items-center gap-2">
+                                <Flame className="size-4 text-red-500" />
+                                {currentStreak} Ngày liên tiếp
+                            </span>
                         </div>
                     )}
                     {avgProgress > 0 && (
@@ -305,7 +310,7 @@ function AuthenticatedDashboardPage() {
                     {streakSavedByFreeze && (
                         <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 rounded-2xl animate-in slide-in-from-top duration-500">
                             <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 fill-blue-500/10" />
-                            <AlertTitle className="text-blue-800 dark:text-blue-300 font-bold ml-2">Lá chắn đã được kích hoạt! 🛡️</AlertTitle>
+                            <AlertTitle className="text-blue-800 dark:text-blue-300 font-bold ml-2">Lá chắn đã được kích hoạt!</AlertTitle>
                             <AlertDescription className="text-blue-700 dark:text-blue-400 ml-2">
                                 Hôm nay chuỗi <strong>{currentStreak} ngày streak</strong> của bạn đã được bảo vệ thành công. Hãy học tập ngay để duy trì phong độ nhé!
                             </AlertDescription>
@@ -573,7 +578,9 @@ function AuthenticatedDashboardPage() {
                     {/* AI Sensei CTA */}
                     <section className="bg-gradient-to-br from-primary to-primary/80 p-6 rounded-3xl text-primary-foreground shadow-xl shadow-primary/20" data-purpose="ai-sensei">
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl">🤖</div>
+                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                                <Bot className="size-6" />
+                            </div>
                             <div>
                                 <h3 className="font-bold">Trợ lý AI Sensei</h3>
                                 <p className="text-xs text-white/80">Giải đáp ngữ pháp 24/7</p>
@@ -593,17 +600,23 @@ function AuthenticatedDashboardPage() {
                         <h3 className="font-bold mb-6">Thành tích học tập</h3>
                         <div className="flex justify-between mb-8">
                             <div className="text-center group cursor-pointer">
-                                <div className="w-12 h-12 mx-auto bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">🔥</div>
+                                <div className="w-12 h-12 mx-auto bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <Flame className="size-5 text-orange-600 dark:text-orange-300" />
+                                </div>
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">Chuỗi</span>
                                 <p className="font-bold">{currentStreak} Ngày</p>
                             </div>
                             <div className="text-center group cursor-pointer">
-                                <div className="w-12 h-12 mx-auto bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">⭐</div>
+                                <div className="w-12 h-12 mx-auto bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <Star className="size-5 text-yellow-600 dark:text-yellow-300" />
+                                </div>
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">Cấp độ</span>
                                 <p className="font-bold">Lv. {level}</p>
                             </div>
                             <div className="text-center group cursor-pointer">
-                                <div className="w-12 h-12 mx-auto bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">🏆</div>
+                                <div className="w-12 h-12 mx-auto bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <Trophy className="size-5 text-blue-600 dark:text-blue-300" />
+                                </div>
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">Danh hiệu</span>
                                 <p className="font-bold">{achievementCount}</p>
                             </div>
@@ -625,19 +638,19 @@ function AuthenticatedDashboardPage() {
                     {/* Quick Links Grid */}
                     <section className="grid grid-cols-2 gap-3" data-purpose="quick-links">
                         {[
-                            { href: '/dashboard/study-sets', icon: '📇', label: 'Thẻ ghi nhớ' },
-                            { href: '/dashboard/rewards', icon: '🎁', label: 'Quà tặng' },
-                            { href: '/dashboard/achievements', icon: '🏅', label: 'Thành tựu' },
-                            { href: '/dashboard/certificates', icon: '🎓', label: 'Chứng chỉ' },
-                            { href: '/dashboard/schedule', icon: '📅', label: 'Lịch học' },
-                            { href: '/dashboard/analytics', icon: '📊', label: 'Thống kê' },
-                        ].map(({ href, icon, label }) => (
+                            { href: '/dashboard/study-sets', Icon: BookMarked, label: 'Thẻ ghi nhớ' },
+                            { href: '/dashboard/rewards', Icon: Gift, label: 'Quà tặng' },
+                            { href: '/dashboard/achievements', Icon: Medal, label: 'Thành tựu' },
+                            { href: '/dashboard/certificates', Icon: Award, label: 'Chứng chỉ' },
+                            { href: '/dashboard/schedule', Icon: CalendarDays, label: 'Lịch học' },
+                            { href: '/dashboard/analytics', Icon: BarChart3, label: 'Thống kê' },
+                        ].map(({ href, Icon, label }) => (
                             <Link
                                 key={href}
                                 href={href}
                                 className="flex flex-col items-center justify-center p-4 bg-card border border-border rounded-2xl hover:bg-accent transition-colors group"
                             >
-                                <span className="text-xl mb-2 group-hover:scale-110 transition-transform">{icon}</span>
+                                <Icon className="size-5 mb-2 text-primary group-hover:scale-110 transition-transform" />
                                 <span className="text-xs font-bold">{label}</span>
                             </Link>
                         ))}

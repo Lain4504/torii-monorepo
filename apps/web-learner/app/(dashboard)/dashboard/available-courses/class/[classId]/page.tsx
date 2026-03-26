@@ -15,6 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@workspace/ui/components/accordion'
+import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api'
 import {
   ArrowLeft,
   ArrowRight,
@@ -26,6 +27,7 @@ import {
   Users,
 } from 'lucide-react'
 import { formatNumber } from '@/utils/format-utils'
+import { useAppSelector } from '@/hooks/hooks'
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
@@ -36,8 +38,14 @@ export default function ClassCatalogDetailPage() {
   const modeParam = (searchParams.get('mode') || '').toUpperCase()
   const mode = modeParam === 'LIVE' || modeParam === 'VOD' ? (modeParam as 'LIVE' | 'VOD') : undefined
   const { data: klass, isLoading } = useAcademyClassCatalogById(classId, mode)
+  const { isAuthenticated } = useAppSelector((state) => state.auth)
+
+  // Kiểm tra người dùng đã ghi danh/chưa (đã mua) cho class này
+  const enrollmentCheckClassId = isAuthenticated && classId ? classId : ''
+  const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(enrollmentCheckClassId)
 
   const isLIVE = klass?.mode === 'LIVE'
+  const isVOD = mode === 'VOD' || klass?.mode === 'VOD'
   const profile = klass?.courseProfile
   const chapters = Array.isArray(profile?.modules)
     ? profile.modules.map((mod: any) => ({
@@ -100,6 +108,57 @@ export default function ClassCatalogDetailPage() {
   const jlptLevel = profile?.level
   const title = klass.name || klass.title || profile?.title || 'Khóa học'
   const subtitle = profile?.title && title !== profile.title ? profile.title : null
+
+  const isEnrolled = !!enrollmentData?.isEnrolled
+
+  const ctaButton = (() => {
+    if (isVOD) {
+      if (enrollmentLoading) {
+        return (
+          <Button className="w-full" size="lg" disabled>
+            Đang kiểm tra...
+          </Button>
+        )
+      }
+
+      if (isEnrolled) {
+        return (
+          <Button className="w-full" size="lg" asChild>
+            <Link href={classId ? `/courses/${classId}/learn` : '#'}>
+              Tiếp tục học <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        )
+      }
+
+      return (
+        <Button
+          className="w-full"
+          size="lg"
+          asChild
+          data-requires-auth={!isAuthenticated ? 'true' : undefined}
+        >
+          <Link href={checkoutHref}>
+            Mua khóa học <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      )
+    }
+
+    // LIVE: giữ nguyên luồng hiện tại (dẫn tới checkout hoặc luồng phù hợp)
+    return (
+      <Button
+        className="w-full"
+        size="lg"
+        asChild
+        data-requires-auth={!isAuthenticated ? 'true' : undefined}
+      >
+        <Link href={checkoutHref}>
+          Bắt đầu học <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    )
+  })()
 
   return (
     <div className="w-full space-y-8">
@@ -205,11 +264,7 @@ export default function ClassCatalogDetailPage() {
               <Image src={thumb} alt={title} fill className="object-cover" />
             </div>
             <CardContent className="p-4 space-y-4">
-              <Button className="w-full" size="lg" asChild>
-                <Link href={checkoutHref}>
-                  Bắt đầu học <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              {ctaButton}
               <div className="rounded-md border p-3 text-sm space-y-2">
                 <div className="font-semibold">Khóa học có:</div>
                 <div className="flex items-center gap-2 text-muted-foreground">
