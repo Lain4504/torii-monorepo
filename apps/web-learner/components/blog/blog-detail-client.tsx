@@ -44,82 +44,134 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
     };
 
     const getReadingTime = (content: string) => {
+        const raw = (content ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        const trimmed = raw.trim();
+
+        // 1) Nếu content là JSON blocks (editor), lấy text từ các block để tính thời gian đọc
         try {
-            const parsed = JSON.parse(content);
-            const text = parsed.blocks?.map((b: any) => b.data.text || '').join(' ') || '';
-            const words = text.split(/\s+/).length;
-            const minutes = Math.ceil(words / 200);
-            return `${minutes} phút đọc`;
+            const parsed = JSON.parse(trimmed);
+            const blocks = Array.isArray(parsed) ? parsed : parsed?.blocks;
+            if (Array.isArray(blocks)) {
+                const text = blocks
+                    .map((b: any) => {
+                        const data = b?.data ?? {};
+                        return (
+                            data?.text ??
+                            data?.caption ??
+                            data?.code ??
+                            (Array.isArray(data?.items) ? data.items.join(' ') : '') ??
+                            ''
+                        );
+                    })
+                    .join(' ');
+
+                const words = text.split(/\s+/).filter(Boolean).length;
+                const minutes = Math.max(1, Math.ceil(words / 200));
+                return `${minutes} phút đọc`;
+            }
         } catch {
-            return '5 phút đọc';
+            // ignore -> fallback sang text thuần phía dưới
         }
+
+        // 2) Fallback: content là text/markdown thuần
+        const words = trimmed.split(/\s+/).filter(Boolean).length;
+        const minutes = Math.max(1, Math.ceil(words / 200));
+        return `${minutes} phút đọc`;
     };
 
     const renderContent = (content: string) => {
+        const raw = (content ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        const trimmed = raw.trim();
+
+        // 1) Cố parse JSON blocks (format của editor)
         try {
-            const parsed = JSON.parse(content);
-            return (
-                <div className="prose prose-lg max-w-none">
-                    {parsed.blocks?.map((block: any, index: number) => {
-                        switch (block.type) {
-                            case 'header': {
-                                const level = block.data.level as 1 | 2 | 3 | 4 | 5 | 6;
-                                const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-                                return <Tag key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
-                            }
-                            case 'paragraph':
-                                return <p key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
-                            case 'list': {
-                                const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul';
-                                return (
-                                    <ListTag key={index}>
-                                        {block.data.items?.map((item: string, i: number) => (
-                                            <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
-                                        ))}
-                                    </ListTag>
-                                );
-                            }
-                            case 'quote':
-                                return (
-                                    <blockquote key={index}>
-                                        <p dangerouslySetInnerHTML={{ __html: block.data.text }} />
-                                        {block.data.caption && <cite>{block.data.caption}</cite>}
-                                    </blockquote>
-                                );
-                            case 'code':
-                                return <pre key={index}><code>{block.data.code}</code></pre>;
-                            case 'image':
-                                return (
-                                    <figure key={index}>
-                                        <img src={block.data.file?.url} alt={block.data.caption || ''} />
-                                        {block.data.caption && <figcaption>{block.data.caption}</figcaption>}
-                                    </figure>
-                                );
-                            case 'delimiter':
-                                return <hr key={index} />;
-                            case 'table':
-                                return (
-                                    <table key={index}>
-                                        <tbody>
-                                            {block.data.content?.map((row: string[], i: number) => (
-                                                <tr key={i}>
-                                                    {row.map((cell: string, j: number) => (
-                                                        <td key={j} dangerouslySetInnerHTML={{ __html: cell }} />
-                                                    ))}
-                                                </tr>
+            const parsed = JSON.parse(trimmed);
+            const blocks = Array.isArray(parsed) ? parsed : parsed?.blocks;
+            if (Array.isArray(blocks)) {
+                return (
+                    <div className="prose prose-lg max-w-none">
+                        {blocks.map((block: any, index: number) => {
+                            const data = block?.data ?? {};
+                            switch (block?.type) {
+                                case 'header': {
+                                    const level = (data?.level ?? 2) as 1 | 2 | 3 | 4 | 5 | 6;
+                                    const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+                                    return <Tag key={index} dangerouslySetInnerHTML={{ __html: data?.text ?? '' }} />;
+                                }
+                                case 'paragraph':
+                                    return <p key={index} dangerouslySetInnerHTML={{ __html: data?.text ?? '' }} />;
+                                case 'list': {
+                                    const ListTag = data?.style === 'ordered' ? 'ol' : 'ul';
+                                    return (
+                                        <ListTag key={index}>
+                                            {Array.isArray(data?.items) && data.items.map((item: string, i: number) => (
+                                                <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
                                             ))}
-                                        </tbody>
-                                    </table>
-                                );
-                            default:
-                                return null;
-                        }
-                    })}
-                </div>
-            );
+                                        </ListTag>
+                                    );
+                                }
+                                case 'quote':
+                                    return (
+                                        <blockquote key={index}>
+                                            <p dangerouslySetInnerHTML={{ __html: data?.text ?? '' }} />
+                                            {data?.caption && <cite>{data.caption}</cite>}
+                                        </blockquote>
+                                    );
+                                case 'code':
+                                    return <pre key={index}><code>{data?.code ?? ''}</code></pre>;
+                                case 'image':
+                                    return (
+                                        <figure key={index}>
+                                            <img src={data?.file?.url ?? ''} alt={data?.caption || ''} />
+                                            {data?.caption && <figcaption>{data.caption}</figcaption>}
+                                        </figure>
+                                    );
+                                case 'delimiter':
+                                    return <hr key={index} />;
+                                case 'table':
+                                    return (
+                                        <table key={index}>
+                                            <tbody>
+                                                {Array.isArray(data?.content) && data.content.map((row: string[], i: number) => (
+                                                    <tr key={i}>
+                                                        {Array.isArray(row) && row.map((cell: string, j: number) => (
+                                                            <td key={j} dangerouslySetInnerHTML={{ __html: cell }} />
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    );
+                                default:
+                                    return null;
+                            }
+                        })}
+                    </div>
+                );
+            }
         } catch {
-            return <p>Lỗi hiển thị nội dung</p>;
+            // ignore -> fallback sang render text thuần
         }
+
+        // 2) Fallback: content là text/markdown thuần.
+        // Render theo block tách bởi khoảng trắng dòng đôi để giữ cấu trúc đoạn văn.
+        const paragraphs = trimmed.length > 0 ? trimmed.split(/\n{2,}/) : [];
+        return (
+            <div className="prose prose-lg max-w-none">
+                {paragraphs.length > 0
+                    ? paragraphs.map((p, i) => (
+                        <p key={i}>
+                            {p.split('\n').map((line, j, arr) => (
+                                <span key={j}>
+                                    {line}
+                                    {j < arr.length - 1 ? <br /> : null}
+                                </span>
+                            ))}
+                        </p>
+                    ))
+                    : null}
+            </div>
+        );
     };
 
     if (isLoading) {

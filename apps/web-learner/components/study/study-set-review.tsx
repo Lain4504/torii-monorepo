@@ -49,9 +49,11 @@ export function StudySetReview({ setId }: { setId: string }) {
     return (
       <Card className="flex-1 flex flex-col items-center justify-center text-center">
         <CardContent className="space-y-4 py-8">
-          <h2 className="text-lg font-semibold">Can dang nhap de hoc Flashcard</h2>
-          <p className="text-sm text-muted-foreground">Ban co the xem bo the, nhung che do hoc chi danh cho tai khoan da dang nhap.</p>
-          <Button data-requires-auth="true">Dang nhap de tiep tuc</Button>
+          <h2 className="text-lg font-semibold">Bạn cần đăng nhập để học Flashcard</h2>
+          <p className="text-sm text-muted-foreground">
+            Bạn có thể xem bộ thẻ, nhưng chế độ học chỉ dành cho tài khoản đã đăng nhập.
+          </p>
+          <Button data-requires-auth="true">Đăng nhập để tiếp tục</Button>
         </CardContent>
       </Card>
     );
