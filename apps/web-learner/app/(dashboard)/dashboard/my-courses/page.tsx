@@ -255,8 +255,29 @@ export default function MyCoursesPage() {
                                     </Button>
                                 ) : (
                                     <div className="flex gap-2">
+                                        {(() => {
+                                            const courseType = course.type?.toLowerCase();
+                                            const isLive = courseType === 'live';
+                                            const courseMasterId = isLive
+                                                ? course.liveClassId
+                                                : (course.vodPackageId ?? course.courseProfileId ?? course.id);
+
+                                            if (!courseMasterId) {
+                                                return (
+                                                    <Button
+                                                        className="w-full text-xs"
+                                                        variant="outline"
+                                                        disabled
+                                                    >
+                                                        Không đủ thông tin khóa học
+                                                        <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
+                                                    </Button>
+                                                );
+                                            }
+
+                                            return (
                                         <Link
-                                            href={course.type?.toLowerCase() === 'live' ? `/courses/${course.liveClassId}` : `/courses/${course.liveClassId ?? course.vodPackageId ?? course.courseProfileId ?? course.id}/learn`}
+                                            href={isLive ? `/courses/${courseMasterId}` : `/courses/${courseMasterId}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -265,6 +286,8 @@ export default function MyCoursesPage() {
                                                 <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                             </Button>
                                         </Link>
+                                            );
+                                        })()}
                                         {course.progress >= 100 && (() => {
                                             const existingReview = myReviews.find((r: any) =>
                                                 (r.cohortId && r.cohortId === course.cohortId) ||

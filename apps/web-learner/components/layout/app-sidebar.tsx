@@ -81,7 +81,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
                                 <span className="truncate text-sm md:text-base font-semibold text-muted-foreground font-sans">
-                                    Cổng học viên
+                                    Torii Nihongo
                                 </span>
                             </div>
                         </SidebarMenuButton>

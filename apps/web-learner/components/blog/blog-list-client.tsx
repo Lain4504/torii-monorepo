@@ -39,7 +39,7 @@ export function BlogListClient() {
     const totalPages = data?.totalPages || 1;
 
     return (
-        <main className="pt-24 pb-16">
+        <main className="pb-16">
             <div className="container mx-auto px-4 lg:px-8">
                 <div className="max-w-6xl mx-auto space-y-16">
                     <div className="text-center space-y-4">

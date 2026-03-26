@@ -618,9 +618,6 @@ export function InteractiveRoleplay() {
                                 {isLoading ? <Spinner className="mr-2" /> : null}
                                 Bắt đầu hội thoại
                             </Button>
-                            <p className="text-[10px] text-muted-foreground italic text-center w-full mt-4">
-                                * Tính năng này đang được thử nghiệm.
-                            </p>
                         </div>
 
                         <div className="pt-6 border-t border-border/30">
