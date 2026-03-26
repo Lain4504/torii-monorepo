@@ -42,17 +42,6 @@ export default function JlptConfigPage() {
   const [activeProfile, setActiveProfile] = useState<JlptScoringProfile | null>(null);
 
   const [loading, setLoading] = useState(false);
-  const [ensuring, setEnsuring] = useState(false);
-  const [creatingProfile, setCreatingProfile] = useState(false);
-
-  const [levelNameVi, setLevelNameVi] = useState<string>("N5");
-
-  const [profileName, setProfileName] = useState<string>("Default N5");
-  const [minLanguageScaled, setMinLanguageScaled] = useState<number>(0);
-  const [minReadingScaled, setMinReadingScaled] = useState<number>(0);
-  const [minListeningScaled, setMinListeningScaled] = useState<number>(0);
-  const [minTotalScaled, setMinTotalScaled] = useState<number>(0);
-  const [isActive, setIsActive] = useState<boolean>(true);
 
   const [savingMappings, setSavingMappings] = useState<boolean>(false);
 
@@ -92,28 +81,6 @@ export default function JlptConfigPage() {
     return result;
   }, [mappingRowsByDomain]);
 
-  const getJlptPassDefaults = (levelCode: string) => {
-    // Theo guideline JLPT (pass marks ở phần "Scoring sections, pass or fail").
-    // Hệ thống của repo đang chấm riêng LANGUAGE/READING/LISTENING (mỗi domain 0..60),
-    // nhưng với N4/N5 thì pass phần "Language+Reading" sẽ được check theo tổng (xem backend).
-    if (levelCode === "N1") {
-      return { minLanguageScaled: 19, minReadingScaled: 19, minListeningScaled: 19, minTotalScaled: 100 };
-    }
-    if (levelCode === "N2") {
-      return { minLanguageScaled: 19, minReadingScaled: 19, minListeningScaled: 19, minTotalScaled: 90 };
-    }
-    if (levelCode === "N3") {
-      return { minLanguageScaled: 19, minReadingScaled: 19, minListeningScaled: 19, minTotalScaled: 95 };
-    }
-    if (levelCode === "N4") {
-      // N4: Language+Reading sectional pass = 38/120, Listening pass = 19/60, Total pass = 90/180.
-      // Vì UI/backend vẫn lưu tách LANGUAGE/READING, ta set 19 + 19 = 38.
-      return { minLanguageScaled: 19, minReadingScaled: 19, minListeningScaled: 19, minTotalScaled: 90 };
-    }
-    // N5
-    return { minLanguageScaled: 19, minReadingScaled: 19, minListeningScaled: 19, minTotalScaled: 80 };
-  };
-
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
@@ -131,16 +98,8 @@ export default function JlptConfigPage() {
   }, [selectedLevel]);
 
   useEffect(() => {
-    // Sync display defaults when switching level.
+    // Đổi level thì quay về bước 1 để người dùng xem lại danh sách/sections.
     reset();
-    setLevelNameVi(selectedLevel);
-    setProfileName(`Default ${selectedLevel}`);
-    const d = getJlptPassDefaults(selectedLevel);
-    setMinLanguageScaled(d.minLanguageScaled);
-    setMinReadingScaled(d.minReadingScaled);
-    setMinListeningScaled(d.minListeningScaled);
-    setMinTotalScaled(d.minTotalScaled);
-    setIsActive(true);
   }, [selectedLevel]);
 
   useEffect(() => {
@@ -183,45 +142,6 @@ export default function JlptConfigPage() {
 
     void loadMappings();
   }, [activeProfile?.id]);
-
-  const handleEnsure = async () => {
-    setEnsuring(true);
-    try {
-      await academyJlptMockApi.ensureLevelConfig({
-        level: selectedLevel,
-        nameVi: levelNameVi || undefined,
-      });
-      toast.success("Đã tạo/đồng bộ cấu trúc Level + Section");
-      await loadAll();
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : undefined;
-      toast.error(msg ?? "Tạo Level thất bại");
-    } finally {
-      setEnsuring(false);
-    }
-  };
-
-  const handleCreateProfile = async () => {
-    setCreatingProfile(true);
-    try {
-      await academyJlptMockApi.createScoringProfile({
-        level: selectedLevel,
-        name: profileName.trim() || `Default ${selectedLevel}`,
-        isActive,
-        minLanguageScaled,
-        minReadingScaled,
-        minListeningScaled,
-        minTotalScaled,
-      });
-      toast.success("Đã tạo scoring profile (active cho template)");
-      await loadAll();
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : undefined;
-      toast.error(msg ?? "Tạo scoring profile thất bại");
-    } finally {
-      setCreatingProfile(false);
-    }
-  };
 
   const handleSaveMappings = async () => {
     if (!activeProfile?.id) {
@@ -280,7 +200,7 @@ export default function JlptConfigPage() {
   const handleNext = () => {
     if (currentStep === 1) {
       if (!canGoStep2) {
-        toast.error("Hãy tạo/đồng bộ Level + Sections trước khi sang bước 2.");
+        toast.error("Không có sections cho level này.");
         return;
       }
       goToNextStep();
@@ -291,8 +211,8 @@ export default function JlptConfigPage() {
   return (
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
-        title="JLPT Config (từ số 0)"
-        subtitle="Tạo Level + Section global và ScoringProfile để có thể tạo Template đề thi JLPT."
+        title="JLPT Config"
+        subtitle="Xem cấu hình JLPT + scoring profile (seed) - read-only"
       />
 
       <div className="flex flex-col gap-4">
@@ -339,7 +259,7 @@ export default function JlptConfigPage() {
                     </div>
                   ) : levels.length === 0 ? (
                     <div className="h-24 text-center text-muted-foreground text-sm">
-                      Chưa có JLPT Level trong DB. Bấm “Tạo/đồng bộ Level + Sections”.
+                      Chưa có JLPT Level trong DB. Vui lòng kiểm tra seed/config JLPT ở backend.
                     </div>
                   ) : (
                     <Table>
@@ -376,7 +296,7 @@ export default function JlptConfigPage() {
               <Card className="border-2">
                 <CardHeader>
                   <CardTitle>Sections theo Level</CardTitle>
-                  <CardDescription>Backend sẽ tự tạo theo chuẩn N5/N4/... (duration/order/isListening).</CardDescription>
+                  <CardDescription>Hiển thị sections theo chuẩn N5/N4/... (duration/order/isListening) từ seed/config.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {loading ? (
@@ -429,37 +349,17 @@ export default function JlptConfigPage() {
                   </SelectContent>
                 </Select>
               </Field>
-
-              <Field className="min-w-[260px] flex-1">
-                <FieldLabel>Tên tiếng Việt (tuỳ chọn)</FieldLabel>
-                <Input
-                  value={levelNameVi}
-                  onChange={(e) => setLevelNameVi(e.target.value)}
-                  placeholder="Ví dụ: N5"
-                />
-              </Field>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="gap-2"
-                onClick={() => void handleEnsure()}
-                disabled={ensuring}
-              >
-                {ensuring ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-                Tạo/đồng bộ Level + Sections
-              </Button>
             </div>
           </>
         ) : null}
 
         {currentStep === 2 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <Card className="border-2">
               <CardHeader>
                 <CardTitle>Active scoring profile</CardTitle>
                 <CardDescription>
-                  Template tạo mới sẽ tự dùng scoring profile đang `isActive=true` của Level này.
+                  Scoring profile đang `isActive=true` cho level này (seed/config đã có).
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -491,82 +391,9 @@ export default function JlptConfigPage() {
                   </div>
                 ) : (
                   <div className="h-24 flex items-center justify-center text-muted-foreground text-sm">
-                    Chưa có active scoring profile cho level này. Hãy tạo ở bên phải.
+                    Chưa có active scoring profile cho level này. Vui lòng kiểm tra seed/scoring profile ở backend.
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle>Tạo scoring profile</CardTitle>
-                <CardDescription>
-                Các trường `min*Scaled` là ngưỡng pass (theo scaled score) cho từng domain và tổng.
-                {selectedLevel === "N4" || selectedLevel === "N5"
-                  ? " Riêng N4/N5: criteria phần Language+Reading được check theo tổng (Language + Reading), tương đương 38/120."
-                  : ""}
-                {" "}
-                Ở trang này mình ẩn bước cấu hình `scoring mappings` (bước 3). Nếu mapping chưa được khai báo, backend sẽ tự fallback theo tỉ lệ `raw/maxRaw`.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input value={profileName} onChange={(e) => setProfileName(e.target.value)} />
-                </Field>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel>minLanguageScaled</FieldLabel>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={60}
-                      value={minLanguageScaled}
-                      onChange={(e) => setMinLanguageScaled(Number(e.target.value) || 0)}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>minReadingScaled</FieldLabel>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={60}
-                      value={minReadingScaled}
-                      onChange={(e) => setMinReadingScaled(Number(e.target.value) || 0)}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>minListeningScaled</FieldLabel>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={60}
-                      value={minListeningScaled}
-                      onChange={(e) => setMinListeningScaled(Number(e.target.value) || 0)}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>minTotalScaled</FieldLabel>
-                    <Input
-                      type="number"
-                      min={0}
-                      max={180}
-                      value={minTotalScaled}
-                      onChange={(e) => setMinTotalScaled(Number(e.target.value) || 0)}
-                    />
-                  </Field>
-                </div>
-
-                <Button
-                  type="button"
-                  onClick={() => void handleCreateProfile()}
-                  disabled={creatingProfile}
-                  className="w-full"
-                >
-                  {creatingProfile ? <Loader2 className="size-4 animate-spin mr-2" /> : null}
-                  {creatingProfile ? "Đang tạo..." : "Tạo scoring profile"}
-                </Button>
               </CardContent>
             </Card>
           </div>

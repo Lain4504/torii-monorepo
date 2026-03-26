@@ -53,7 +53,7 @@ export class AcademyResourceController {
         const folders = await firstValueFrom(
             this.nats.send(
                 { cmd: 'academy.resource.getFoldersForLearner' },
-                { userId: req.requester.sub, classId },
+                { userId: req.requester.sub, role: req.requester.role, classId },
             ),
         );
         return successResponse(folders);
@@ -64,18 +64,10 @@ export class AcademyResourceController {
         @Param('classId', new ParseUUIDPipe()) classId: string,
         @Req() req: ReqWithRequester,
     ) {
-        // Note: The service already checks enrollment if folderId is passed.
-        // Here we might need to find the folderId first or change the handler to accept classId.
-        // For simplicity, let's assume we use the handler that checks enrollment.
-        // I'll update the service to have a specific method for this if needed, 
-        // but the service I wrote already has getResourcesForLearner(folderId, userId).
-        // Let's first get the folder for this class.
-
-        // Actually, I'll add a command for this.
         const resources = await firstValueFrom(
             this.nats.send(
                 { cmd: 'academy.resource.getResourcesForLearner' },
-                { classId, userId: req.requester.sub },
+                { classId, userId: req.requester.sub, role: req.requester.role },
             ),
         );
         return successResponse(resources);
@@ -89,7 +81,7 @@ export class AcademyResourceController {
         const resource = await firstValueFrom(
             this.nats.send(
                 { cmd: 'academy.resource.getResourceDetail' },
-                { id: resourceId, userId: req.requester.sub },
+                { id: resourceId, userId: req.requester.sub, role: req.requester.role },
             ),
         );
         return successResponse(resource);
@@ -157,7 +149,7 @@ export class AcademyResourceController {
         const resources = await firstValueFrom(
             this.nats.send(
                 { cmd: 'academy.resource.getResourcesForLearner' },
-                { folderId, userId: req.requester.sub },
+                { folderId, userId: req.requester.sub, role: req.requester.role },
             ),
         );
         return successResponse(resources);
