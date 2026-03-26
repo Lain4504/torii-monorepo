@@ -13,7 +13,7 @@ import {
     BookOpen, Clock, Calendar, CalendarDays, Video, Shield,
     Sparkles, ArrowRight, Users,
     Trophy, Newspaper, HelpCircle, GraduationCap,
-    Star, Bot, HandWave, Flame, BookMarked, Gift, Medal, Award, BarChart3
+    Star, Bot, Hand, Flame, BookMarked, Gift, Medal, Award, BarChart3
 } from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
@@ -273,7 +273,7 @@ function AuthenticatedDashboardPage() {
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6" data-purpose="welcome-section">
                 <div className="space-y-1">
                     <h1 className="text-3xl font-bold tracking-tight">
-                        Chào mừng trở lại, {firstName}! <HandWave className="inline-block size-6 translate-y-0.5" />
+                        Chào mừng trở lại, {firstName}! <Hand className="inline-block size-6 translate-y-0.5" />
                     </h1>
                     <p className="text-muted-foreground">Hôm nay là một ngày tuyệt vời để học tiếng Nhật.</p>
                 </div>

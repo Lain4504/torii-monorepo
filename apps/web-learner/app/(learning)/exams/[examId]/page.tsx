@@ -121,9 +121,9 @@ export default function ExamRunnerPage() {
 
   if (isLoadingExam || isLoadingAttempt || startAttemptMutation.isPending) {
     return (
-       <div className="flex flex-col items-center justify-center h-screen bg-slate-50">
+       <div className="flex flex-col items-center justify-center h-screen bg-background">
           <Progress value={45} className="w-[300px] mb-4" />
-          <p className="text-slate-500 animate-pulse">Đang chuẩn bị đề thi...</p>
+          <p className="text-muted-foreground animate-pulse">Đang chuẩn bị đề thi...</p>
        </div>
     );
   }
@@ -155,9 +155,9 @@ export default function ExamRunnerPage() {
                  </div>
               </div>
 
-              <div className="bg-slate-50 p-6 rounded-xl border max-w-lg mx-auto">
-                 <p className="text-sm text-slate-600 mb-2">Chúc mừng bạn đã hoàn thành bài thi!</p>
-                 <p className="text-xs text-slate-400 italic">Hệ thống đã ghi nhận kết quả và cập nhật tiến độ học tập của bạn.</p>
+              <div className="bg-muted/50 p-6 rounded-xl border max-w-lg mx-auto">
+                 <p className="text-sm text-foreground mb-2">Chúc mừng bạn đã hoàn thành bài thi!</p>
+                 <p className="text-xs text-muted-foreground italic">Hệ thống đã ghi nhận kết quả và cập nhật tiến độ học tập của bạn.</p>
               </div>
 
               <div className="flex justify-center gap-4 pt-4">
@@ -174,7 +174,7 @@ export default function ExamRunnerPage() {
 
   // Question Runner UI
   const sections = exam?.sections || [];
-  const allExamQuestions = sections.flatMap((s: any) => s.examQuestions || []);
+  const allExamQuestions = sections.flatMap((s: any) => s.questions || s.examQuestions || []);
   const currentExamQuestion = allExamQuestions[currentQuestionIndex];
   const question = currentExamQuestion?.question;
 
@@ -189,21 +189,21 @@ export default function ExamRunnerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-       <header className="bg-white border-b h-16 flex items-center justify-between px-6 sticky top-0 z-50">
+    <div className="min-h-screen bg-muted/20 flex flex-col">
+       <header className="bg-background border-b h-16 flex items-center justify-between px-6 sticky top-0 z-50">
           <div className="flex items-center gap-4">
              <Button variant="ghost" size="icon" onClick={() => router.back()}>
                 <ChevronLeft className="w-5 h-5" />
              </Button>
              <div>
-                <h1 className="font-bold text-slate-800 line-clamp-1">{exam?.title}</h1>
-                <p className="text-xs text-slate-500">Câu {currentQuestionIndex + 1} / {allExamQuestions.length}</p>
+                <h1 className="font-bold text-foreground line-clamp-1">{exam?.title}</h1>
+                <p className="text-xs text-muted-foreground">Câu {currentQuestionIndex + 1} / {allExamQuestions.length}</p>
              </div>
           </div>
 
           <div className="flex items-center gap-6">
              {timeLeft !== null && (
-                <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${timeLeft < 60 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-slate-50 text-slate-700'}`}>
+                 <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full border ${timeLeft < 60 ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50' : 'bg-muted text-foreground'}`}>
                    <Timer className="w-4 h-4" />
                    <span className="font-mono font-bold">{formatTime(timeLeft)}</span>
                 </div>
@@ -222,7 +222,7 @@ export default function ExamRunnerPage() {
                    <CardDescription className="text-xs text-primary font-bold uppercase tracking-wider">
                       {currentExamQuestion.section?.title || "Câu hỏi"} | {question.difficulty}
                    </CardDescription>
-                   <div className="text-lg font-medium text-slate-800 pt-2 whitespace-pre-wrap">
+                   <div className="text-lg font-medium text-foreground pt-2 whitespace-pre-wrap">
                       {question.stem}
                    </div>
                 </CardHeader>
@@ -234,7 +234,7 @@ export default function ExamRunnerPage() {
                         className="space-y-3"
                       >
                          {question.options?.map((opt: any) => (
-                            <div key={opt.optionKey} className={`flex items-center gap-3 p-4 border rounded-xl transition-all hover:bg-slate-50 ${answers[question.id] === opt.optionKey ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'bg-white'}`}>
+                            <div key={opt.optionKey} className={`flex items-center gap-3 p-4 border rounded-xl transition-all hover:bg-muted ${answers[question.id] === opt.optionKey ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'bg-background'}`}>
                                <RadioGroupItem value={opt.optionKey} id={opt.optionKey} />
                                <Label htmlFor={opt.optionKey} className="flex-1 cursor-pointer font-medium">{opt.optionKey}. {opt.content}</Label>
                             </div>
@@ -245,7 +245,7 @@ export default function ExamRunnerPage() {
                    {question.questionType === 'MULTIPLE_CHOICE' && (
                       <div className="space-y-3">
                          {question.options?.map((opt: any) => (
-                            <div key={opt.optionKey} className="flex items-center gap-3 p-4 border rounded-xl bg-white hover:bg-slate-50 transition-all">
+                            <div key={opt.optionKey} className="flex items-center gap-3 p-4 border rounded-xl bg-background hover:bg-muted transition-all">
                                <Checkbox 
                                  id={opt.optionKey}
                                  checked={(answers[question.id] || []).includes(opt.optionKey)}
@@ -289,7 +289,7 @@ export default function ExamRunnerPage() {
                    <ChevronLeft className="w-4 h-4 mr-2" /> Câu trước
                 </Button>
                 
-                <div className="text-sm text-slate-400 bg-white px-4 py-1.5 rounded-full border">
+                <div className="text-sm text-muted-foreground bg-background px-4 py-1.5 rounded-full border">
                    Đã trả lời {Object.keys(answers).length} / {allExamQuestions.length}
                 </div>
 
@@ -319,8 +319,8 @@ export default function ExamRunnerPage() {
                            onClick={() => setCurrentQuestionIndex(i)}
                            className={`h-9 w-9 rounded-lg text-xs font-bold transition-all border
                              ${currentQuestionIndex === i ? 'bg-primary text-white border-primary border-2 scale-110 shadow-md' : 
-                               answers[allExamQuestions[i].questionId] ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
-                               'bg-white text-slate-400 hover:bg-slate-50'}
+                               answers[allExamQuestions[i].questionId] ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50' : 
+                               'bg-background text-muted-foreground hover:bg-muted'}
                            `}
                          >
                             {i + 1}
@@ -328,14 +328,14 @@ export default function ExamRunnerPage() {
                       ))}
                    </div>
                 </CardContent>
-                <div className="p-4 bg-slate-50 border-t">
+                <div className="p-4 bg-muted/30 border-t">
                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                         <div className="h-3 w-3 rounded bg-emerald-50 border border-emerald-200"></div>
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                         <div className="h-3 w-3 rounded bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50"></div>
                          <span>Đã làm</span>
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                         <div className="h-3 w-3 rounded bg-white border"></div>
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                         <div className="h-3 w-3 rounded bg-background border"></div>
                          <span>Chưa làm</span>
                       </div>
                    </div>

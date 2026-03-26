@@ -64,8 +64,15 @@ export class AssessmentPlanService {
         where: { id: classId },
         include: { cohort: true },
       });
-      if (!cls) throw new NotFoundException('Class not found');
-      courseProfileId = cls.cohort.courseProfileId;
+      if (cls) {
+        courseProfileId = cls.cohort.courseProfileId;
+      } else {
+        const pkg = await this.prisma.vodPackage.findUnique({
+          where: { id: classId },
+        });
+        if (!pkg) throw new NotFoundException('Class or VOD package not found');
+        courseProfileId = pkg.courseProfileId;
+      }
     } else if (enrollmentId) {
       const enr = await this.prisma.enrollment.findUnique({
         where: { id: enrollmentId },
@@ -112,6 +119,9 @@ export class AssessmentPlanService {
         examId: p.examId,
         kind: p.assessmentKind as AcademyAssessmentKind,
         status,
+        moduleId: p.moduleId ?? undefined,
+        triggerLessonId: p.triggerLessonId ?? undefined,
+        examTitle: p.exam?.title ?? undefined,
         latestAttemptId: latestAttempt?.id,
         score: latestAttempt?.score ? Number(latestAttempt.score) : undefined,
         isPassed: latestAttempt?.isPassed ?? undefined,

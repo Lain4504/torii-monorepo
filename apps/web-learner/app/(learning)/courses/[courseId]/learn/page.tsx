@@ -828,8 +828,11 @@ export default function CourseLearnPage() {
                                 currentLessonId={currentLesson?.id ?? null}
                                 completedIds={completedIds}
                                 isLessonUnlocked={effectiveLessonUnlocked}
-                                milestones={milestones.filter(m => m.moduleId === mod.id)}
-                                onSelectMilestone={m => router.push(`/learning/exams/${m.examId}`)}
+                                milestones={milestones.filter(m => 
+                                    m.moduleId === mod.id || 
+                                    (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
+                                )}
+                                onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
                                 onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
                             />
                         ))}
@@ -838,7 +841,7 @@ export default function CourseLearnPage() {
                             <MilestoneItem 
                                 key={m.assessmentId} 
                                 milestone={m} 
-                                onClick={() => router.push(`/learning/exams/${m.examId}`)} 
+                                onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)} 
                             />
                         ))}
                     </div>

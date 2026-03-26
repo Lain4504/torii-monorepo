@@ -98,22 +98,43 @@ export class ExamAttemptService {
     for (const section of attempt.exam.sections) {
       for (const examQ of section.questions) {
         const question = examQ.question;
-        const userAnswer = draftAnswers[examQ.id];
+        const userAnswer = draftAnswers[question.id] || draftAnswers[examQ.id];
         const points = Number(examQ.points || 0);
         maxPossibleScore += points;
 
         let isCorrect = false;
         let scoreAwarded = 0;
 
-        if (userAnswer) {
-          // Simplistic logic for SINGLE_CHOICE for now
-          // In real scenarios, support more types
-          if (typeof userAnswer === 'string') { // optionKey or OptionId
-             const selectedOption = question.options.find(o => o.id === userAnswer || o.optionKey === userAnswer);
-             if (selectedOption?.isCorrect) {
-               isCorrect = true;
-               scoreAwarded = points;
-             }
+        if (userAnswer !== undefined && userAnswer !== null) {
+          const qType = question.questionType as string;
+          if (qType === 'SINGLE_CHOICE' || qType === 'TRUE_FALSE') {
+            const userStr = String(userAnswer);
+            const selectedOption = question.options.find((o: any) => o.id === userStr || o.optionKey === userStr);
+            if (selectedOption?.isCorrect) {
+              isCorrect = true;
+            } else if (question.correctAnswer === userStr || (Array.isArray(question.correctAnswer) && (question.correctAnswer as any[]).includes(userStr))) {
+              isCorrect = true;
+            }
+          } else if (qType === 'MULTIPLE_CHOICE') {
+            let correctKeys: string[] = [];
+            if (question.correctAnswer) {
+              correctKeys = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
+            } else {
+              correctKeys = question.options.filter((o: any) => o.isCorrect).map((o: any) => o.optionKey);
+            }
+            if (Array.isArray(userAnswer)) {
+              if (userAnswer.length === correctKeys.length && userAnswer.every((v) => correctKeys.includes(v))) {
+                isCorrect = true;
+              }
+            }
+          }
+          // Generic fallback
+          if (!isCorrect && question.correctAnswer && JSON.stringify(userAnswer) === JSON.stringify(question.correctAnswer)) {
+            isCorrect = true;
+          }
+
+          if (isCorrect) {
+            scoreAwarded = points;
           }
         }
 
@@ -188,11 +209,12 @@ export class ExamAttemptService {
       );
       const userKey =
         userOpt?.optionKey ||
-        (typeof ans.answerPayload === 'string' ? ans.answerPayload : '');
+        (Array.isArray(ans.answerPayload) ? ans.answerPayload.join(', ') : (typeof ans.answerPayload === 'string' ? ans.answerPayload : ''));
 
       // Find correct answer key
-      const correctOpt = ans.question.options.find((o) => o.isCorrect);
-      const correctKey = correctOpt?.optionKey;
+      const correctOpt = ans.question.options.find((o: any) => o.isCorrect);
+      let correctKey = correctOpt?.optionKey || ans.question.correctAnswer;
+      if (Array.isArray(correctKey)) correctKey = correctKey.join(', ');
 
       return {
         id: ans.id,

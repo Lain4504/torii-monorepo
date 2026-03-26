@@ -123,6 +123,7 @@ export function useSubmitAcademyExamAttempt() {
         onSuccess: (data) => {
             qc.invalidateQueries({ queryKey: ["academy-exam-attempts"] })
             qc.invalidateQueries({ queryKey: ["academy-exam-attempt", data.id] })
+            qc.invalidateQueries({ queryKey: ["academy-learner-assessment-status"] })
         },
     })
 }
