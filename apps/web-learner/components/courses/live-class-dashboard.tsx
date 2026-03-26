@@ -170,7 +170,7 @@ export function LiveClassDashboard() {
                             <Button
                                 variant="outline"
                                 className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md font-bold"
-                                onClick={() => router.push(`/courses/${classId}/learn`)}
+                                onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
                             >
                                 <BookOpen className="mr-2 size-4" />
                                 Truy cập Kho VOD

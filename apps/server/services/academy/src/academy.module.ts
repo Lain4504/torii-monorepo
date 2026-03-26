@@ -19,6 +19,7 @@ import { StudySetModule } from './modules/study-set/study-set.module';
 import { LessonModule } from './modules/lesson/lesson.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { ResourceModule } from './modules/resource/resource.module';
+import { AnalyticsOverviewModule } from './modules/analytics/analytics-overview/analytics-overview.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ResourceModule } from './modules/resource/resource.module';
     LessonModule,
     WalletModule,
     ResourceModule,
+    AnalyticsOverviewModule,
   ],
   providers: [
     {

@@ -377,6 +377,7 @@ export default function CourseLearnPage() {
     const classId = params.courseId;
     const router = useRouter();
     const searchParams = useSearchParams();
+    const requestedMode = searchParams.get('mode')?.toUpperCase();
     const queryClient = useQueryClient();
     const hasHandledForbiddenRef = useRef(false);
 
@@ -386,7 +387,15 @@ export default function CourseLearnPage() {
     const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(classId);
     
     // 2. Try to fetch as a VOD Package if Live Class is not found (404)
-    const isVodCandidate = (liveClassError as any)?.response?.status === 404 || (liveCurriculumError as any)?.response?.status === 404;
+    const liveMode = String((liveClassData as any)?.mode ?? '').toUpperCase();
+    const isVodCandidateAuto =
+        liveMode === 'VOD' ||
+        (liveClassError as any)?.response?.status === 404 ||
+        (liveCurriculumError as any)?.response?.status === 404;
+    // `?mode=LIVE`/`?mode=VOD` chỉ để điều khiển nhánh hiển thị/progress trên FE.
+    // Khi user đang học LIVE mà vẫn muốn xem video “VOD”, ta giữ `courseId` là liveClassId
+    // và ép mode LIVE để không gọi các API VOD entitlement.
+    const isVodCandidate = requestedMode === 'LIVE' ? false : isVodCandidateAuto;
     
     const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
     const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
@@ -531,7 +540,7 @@ export default function CourseLearnPage() {
         } catch (e: any) {
             toast.error(e?.userMessage || 'Không thể cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, queryClient, classId]);
+    }, [currentLesson, completedIds, queryClient, classId, isVodCandidate]);
 
     // ── Nav ────────────────────────────────────────────────────────────────
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
@@ -828,8 +837,11 @@ export default function CourseLearnPage() {
                                 currentLessonId={currentLesson?.id ?? null}
                                 completedIds={completedIds}
                                 isLessonUnlocked={effectiveLessonUnlocked}
-                                milestones={milestones.filter(m => m.moduleId === mod.id)}
-                                onSelectMilestone={m => router.push(`/learning/exams/${m.examId}`)}
+                                milestones={milestones.filter(m => 
+                                    m.moduleId === mod.id || 
+                                    (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
+                                )}
+                                onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
                                 onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
                             />
                         ))}
@@ -838,7 +850,7 @@ export default function CourseLearnPage() {
                             <MilestoneItem 
                                 key={m.assessmentId} 
                                 milestone={m} 
-                                onClick={() => router.push(`/learning/exams/${m.examId}`)} 
+                                onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)} 
                             />
                         ))}
                     </div>

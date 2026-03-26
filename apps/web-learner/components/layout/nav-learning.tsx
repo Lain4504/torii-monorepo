@@ -31,7 +31,9 @@ export function NavLearning() {
                         if (isExpired) {
                             setShowExpiredModal(true)
                         } else {
-                            window.location.href = `/courses/${activeCourse.liveClassId ?? activeCourse.vodPackageId ?? activeCourse.courseProfileId ?? activeCourse.id}/learn`
+                            const targetId = activeCourse.liveClassId ?? activeCourse.vodPackageId ?? activeCourse.courseProfileId ?? activeCourse.id
+                            const mode = activeCourse.liveClassId ? 'VOD' : null
+                            window.location.href = mode ? `/courses/${targetId}/learn?mode=${mode}` : `/courses/${targetId}/learn`
                         }
                     }}
                     className={cn(

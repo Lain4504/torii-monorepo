@@ -44,7 +44,7 @@ export class AnalyticsController {
           })),
           firstValueFrom(
             this.natsClient.send(
-              { cmd: 'communication.analytics.tickets' },
+              { cmd: 'academy.analytics.tickets' },
               {},
             ),
           ).catch(() => ({ pendingCount: 0, refundCount: 0 })),

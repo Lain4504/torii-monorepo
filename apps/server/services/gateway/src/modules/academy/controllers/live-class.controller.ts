@@ -122,40 +122,80 @@ export class LiveClassController {
       requester.permissions?.includes('*');
 
     if (!hasReadPerm) {
-      const result = await firstValueFrom(
+      // Nếu user không có quyền đọc trực tiếp thì cần check enrollment theo đúng loại:
+      // - LIVE: liveClassId
+      // - VOD: vodPackageId
+      const liveResult = await firstValueFrom(
         this.nats.send(
           { cmd: 'academy.enrollment.check' },
           { userId: requester.sub, liveClassId: id },
         ),
       );
-      if (!result?.isEnrolled) {
-        throw new ForbiddenException('You are not enrolled in this class');
+      if (!liveResult?.isEnrolled) {
+        const vodResult = await firstValueFrom(
+          this.nats.send(
+            { cmd: 'academy.enrollment.check' },
+            { userId: requester.sub, vodPackageId: id },
+          ),
+        );
+        if (!vodResult?.isEnrolled) {
+          throw new ForbiddenException('You are not enrolled in this class');
+        }
       }
     }
 
-    const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
-    );
-    return successResponse({ item });
+    // Endpoint này được dùng cho cả LIVE class và VOD package.
+    // Nếu lookup LIVE không thấy thì fallback sang VOD.
+    try {
+      const item = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
+      );
+      return successResponse({ item });
+    } catch {
+      const vodItem = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
+      );
+      return successResponse({ item: { ...vodItem, mode: 'VOD' } });
+    }
   }
 
   @Get(':id/curriculum')
   async getCurriculum(@Param('id', new ParseUUIDPipe()) id: string) {
-    const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
-    );
+    try {
+      const item = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.liveClass.findById' }, { id }),
+      );
 
-    const courseProfile = item.cohort?.courseProfile;
-    if (!courseProfile) {
-      throw new NotFoundException('Curriculum not found for this class');
+      const courseProfile = item.cohort?.courseProfile;
+      if (!courseProfile) {
+        throw new NotFoundException('Curriculum not found for this class');
+      }
+
+      return successResponse({
+        curriculum: {
+          id: courseProfile.id,
+          modules: courseProfile.modules || [],
+        },
+      });
+    } catch {
+      const vodItem = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
+      );
+
+      const courseProfile = vodItem.courseProfile;
+      if (!courseProfile) {
+        throw new NotFoundException(
+          'Curriculum not found for this VOD package',
+        );
+      }
+
+      return successResponse({
+        curriculum: {
+          id: courseProfile.id,
+          modules: courseProfile.modules || [],
+        },
+      });
     }
-
-    return successResponse({
-      curriculum: {
-        id: courseProfile.id,
-        modules: courseProfile.modules || [],
-      },
-    });
   }
 
   @Post()

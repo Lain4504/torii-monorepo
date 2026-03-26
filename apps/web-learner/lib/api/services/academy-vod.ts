@@ -99,12 +99,10 @@ export function useAcademyVodCompletedLessonIds(packageId?: string, options?: { 
     return useQuery({
         queryKey: ['academy-vod-learning', 'completed-lessons', packageId],
         queryFn: async (): Promise<string[]> => {
-            const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
-                '/api/academy/enrollments/me',
+            const response = await apiClient.get<StandardApiResponse<string[]>>(
+                `/api/academy/vod-packages/${packageId}/completed-lessons`,
             );
-            const enrollment = response.data.data?.items?.find(e => e.vodPackageId === packageId);
-            if (!enrollment) return [];
-            return []; 
+            return response.data.data ?? [];
         },
         enabled: (options?.enabled ?? true) && !!packageId,
     });
@@ -112,9 +110,9 @@ export function useAcademyVodCompletedLessonIds(packageId?: string, options?: { 
 
 export const academyVodLearningProgressApi = {
     trackProgress: async (payload: { lessonId: string; packageId: string }): Promise<any> => {
-        // Find a way to track VOD progress without live-class endpoint
-        // This might need a new endpoint on the backend or we use a generic completion endpoint
-        // For now, let's assume we might need one or it's a gap in VOD spec
-        return { success: true };
+        const response = await apiClient.post<StandardApiResponse<any>>(
+            `/api/academy/vod-packages/${payload.packageId}/lessons/${payload.lessonId}/complete`
+        );
+        return response.data.data!;
     }
 };

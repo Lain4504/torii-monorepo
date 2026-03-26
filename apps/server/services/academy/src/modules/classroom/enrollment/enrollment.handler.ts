@@ -85,4 +85,27 @@ export class EnrollmentHandler {
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.enrollments.delete(data.id, data.requesterId);
   }
+
+  @MessagePattern({ cmd: 'academy.enrollment.trackLessonProgress' })
+  trackLessonProgress(
+    @Payload()
+    data: {
+      userId: string;
+      targetId: string;
+      lessonId: string;
+    },
+  ) {
+    return this.enrollments.trackLessonProgress(data.userId, data.targetId, data.lessonId);
+  }
+
+  @MessagePattern({ cmd: 'academy.enrollment.getCompletedLessons' })
+  getCompletedLessons(
+    @Payload()
+    data: {
+      userId: string;
+      targetId: string;
+    },
+  ) {
+    return this.enrollments.getCompletedLessons(data.userId, data.targetId);
+  }
 }
