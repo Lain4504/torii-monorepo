@@ -783,7 +783,7 @@ export class LiveScheduleService {
     }
     const klass = await this.prisma.liveClass.findUnique({
       where: { id: input.classId },
-      select: { instructorId: true, id: true },
+      select: { instructorId: true, id: true, cohortId: true },
     });
     if (!klass) {
       throw new BadRequestException('Invalid classId');
@@ -838,6 +838,7 @@ export class LiveScheduleService {
             : undefined,
           liveClass: {
             instructorId: klass.instructorId,
+            cohortId: klass.cohortId,
             status: {
               in: ['DRAFT', 'OPENING', 'ONGOING'],
             },
@@ -847,20 +848,22 @@ export class LiveScheduleService {
           id: true,
           startTime: true,
           endTime: true,
-          liveClass: { select: { id: true, code: true, name: true } },
+          liveClass: {
+            select: { id: true, code: true, name: true, cohortId: true },
+          },
         },
       });
 
       teacherConflicts = (teacherCandidates as any[])
         .filter((c) => c.liveClass.id !== input.classId)
-        .filter((c) =>
-          this.isTimeOverlap(
+        .filter((c: any) => {
+          return this.isTimeOverlap(
             input.startTime,
             input.endTime,
             c.startTime,
             c.endTime,
-          ),
-        )
+          );
+        })
         .map((c) => ({
           id: c.id,
           startTime: c.startTime,
@@ -1534,6 +1537,7 @@ export class LiveScheduleService {
             : undefined,
           liveClass: {
             instructorId: input.instructorId,
+            cohortId: targetCohortId || undefined,
             status: {
               in: ['DRAFT', 'OPENING', 'ONGOING'],
             },
@@ -1566,17 +1570,6 @@ export class LiveScheduleService {
             !input.liveClassId || candidate.liveClass.id !== input.liveClassId,
         )
         .filter((candidate: any) => {
-          if (targetCohortId && candidate.liveClass.cohortId && targetCohortId !== candidate.liveClass.cohortId) {
-            const cStart = candidate.liveClass.cohort?.startDate;
-            const cEnd = candidate.liveClass.cohort?.endDate;
-            if (targetStart && targetEnd && cStart && cEnd) {
-              if (targetStart > cEnd || targetEnd < cStart) {
-                return false;
-              }
-            } else {
-              return false;
-            }
-          }
           return true;
         })
         .filter((candidate: any) =>

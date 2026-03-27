@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class ClassAttendanceHandler {
-  constructor(private readonly attendanceService: ClassAttendanceService) {}
+  constructor(private readonly attendanceService: ClassAttendanceService) { }
 
   @MessagePattern({ cmd: 'academy.classAttendance.findAll' })
   findAll(@Payload() query: ClassAttendanceQueryDto) {
@@ -22,9 +22,15 @@ export class ClassAttendanceHandler {
   }
 
   @MessagePattern({ cmd: 'academy.classAttendance.create' })
-  create(@Payload() data: ClassAttendanceCreateDto & { requesterId?: string }) {
-    const { requesterId, ...input } = data;
-    return this.attendanceService.create(input, requesterId);
+  create(
+    @Payload()
+    data: ClassAttendanceCreateDto & {
+      requesterId?: string;
+      requesterRole?: string;
+    },
+  ) {
+    const { requesterId, requesterRole, ...input } = data;
+    return this.attendanceService.create(input, requesterId, requesterRole);
   }
 
   @MessagePattern({ cmd: 'academy.classAttendance.update' })
@@ -34,9 +40,15 @@ export class ClassAttendanceHandler {
       id: string;
       input: ClassAttendanceUpdateDto;
       requesterId?: string;
+      requesterRole?: string;
     },
   ) {
-    return this.attendanceService.update(data.id, data.input, data.requesterId);
+    return this.attendanceService.update(
+      data.id,
+      data.input,
+      data.requesterId,
+      data.requesterRole,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.classAttendance.delete' })

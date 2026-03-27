@@ -36,7 +36,7 @@ import {
 @Controller('api/academy/questions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class AcademyQuestionController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.content.read')
@@ -48,6 +48,28 @@ export class AcademyQuestionController {
       this.nats.send({ cmd: 'academy.question.findAll' }, query),
     );
     return successResponse({ items: result });
+  }
+
+  // NOTE: 'categories' route MUST be before ':id' to avoid NestJS routing conflict
+  @Get('categories')
+  @Permissions('academy.content.read')
+  async getCategories() {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.question.getCategories' }, {}),
+    );
+    return successResponse(result);
+  }
+
+  @Post('categories')
+  @Permissions('academy.content.write')
+  async createCategory(
+    @Body(new ZodValidationPipe(academyQuestionCategorySchema))
+    dto: AcademyQuestionCategoryDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.question.createCategory' }, dto),
+    );
+    return successResponse({ item });
   }
 
   @Get(':id')
@@ -92,26 +114,5 @@ export class AcademyQuestionController {
       this.nats.send({ cmd: 'academy.question.delete' }, { id }),
     );
     return successResponse(result);
-  }
-
-  @Get('categories')
-  @Permissions('academy.content.read')
-  async getCategories() {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.question.getCategories' }, {}),
-    );
-    return successResponse(result);
-  }
-
-  @Post('categories')
-  @Permissions('academy.content.write')
-  async createCategory(
-    @Body(new ZodValidationPipe(academyQuestionCategorySchema))
-    dto: AcademyQuestionCategoryDTO,
-  ) {
-    const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.question.createCategory' }, dto),
-    );
-    return successResponse({ item });
   }
 }

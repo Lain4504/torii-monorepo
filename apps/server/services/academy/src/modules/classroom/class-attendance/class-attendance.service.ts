@@ -16,7 +16,7 @@ export class ClassAttendanceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async findAll(query: ClassAttendanceQueryDto) {
     const { sessionId, userId, classId, page = 1, limit = 100 } = query;
@@ -69,7 +69,11 @@ export class ClassAttendanceService {
     return item;
   }
 
-  async create(input: ClassAttendanceCreateDto, requesterId = 'SYSTEM') {
+  async create(
+    input: ClassAttendanceCreateDto,
+    requesterId = 'SYSTEM',
+    requesterRole?: string,
+  ) {
     // 1. Validate session exists and is for a LIVE class
     const session = await this.prisma.liveScheduleSession.findUnique({
       where: { id: input.sessionId },
@@ -80,9 +84,32 @@ export class ClassAttendanceService {
 
     if (!session) throw new NotFoundException('LiveScheduleSession not found');
 
+    // 2. Validate session date (Must be TODAY for non-admins)
+    const isAdminOrStaff =
+      requesterRole === 'admin' ||
+      requesterRole === 'staff-academic' ||
+      requesterRole === 'staff-operations';
+
+    if (!isAdminOrStaff) {
+      const now = new Date();
+      const sessionDate = new Date(session.sessionDate);
+
+      // Simple same-day check (ignoring time)
+      const isSameDay =
+        now.getUTCFullYear() === sessionDate.getUTCFullYear() &&
+        now.getUTCMonth() === sessionDate.getUTCMonth() &&
+        now.getUTCDate() === sessionDate.getUTCDate();
+
+      if (!isSameDay) {
+        throw new BadRequestException(
+          'Attendance can only be recorded on the day of the session',
+        );
+      }
+    }
+
     const liveClassId = session.liveClassId;
 
-    // 2. Validate userId has an ACTIVE enrollment in this class
+    // 3. Validate userId has an ACTIVE enrollment in this class
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {
         liveClassId,
@@ -136,8 +163,36 @@ export class ClassAttendanceService {
     id: string,
     input: ClassAttendanceUpdateDto,
     requesterId = 'SYSTEM',
+    requesterRole?: string,
   ) {
-    const existing = await this.findById(id);
+    const existing = await this.prisma.classAttendance.findUnique({
+      where: { id },
+      include: { session: true },
+    });
+
+    if (!existing) throw new NotFoundException('Attendance record not found');
+
+    // Validate session date (Must be TODAY for non-admins)
+    const isAdminOrStaff =
+      requesterRole === 'admin' ||
+      requesterRole === 'staff-academic' ||
+      requesterRole === 'staff-operations';
+
+    if (!isAdminOrStaff && existing.session) {
+      const now = new Date();
+      const sessionDate = new Date(existing.session.sessionDate);
+
+      const isSameDay =
+        now.getUTCFullYear() === sessionDate.getUTCFullYear() &&
+        now.getUTCMonth() === sessionDate.getUTCMonth() &&
+        now.getUTCDate() === sessionDate.getUTCDate();
+
+      if (!isSameDay) {
+        throw new BadRequestException(
+          'Attendance can only be updated on the day of the session',
+        );
+      }
+    }
 
     const updated = await this.prisma.classAttendance.update({
       where: { id },

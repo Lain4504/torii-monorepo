@@ -27,7 +27,7 @@ export class CourseModuleService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async create(input: CourseModuleCreateDto, requesterId?: string) {
     const profile = await this.prisma.courseProfile.findUnique({
@@ -152,6 +152,52 @@ export class CourseModuleService {
         entityId: id,
         description: `Xóa module "${before.title}" (bao gồm ${before._count.lessons} lessons) khỏi CourseProfile ${before.courseProfile.code}`,
         oldValues: before,
+      });
+    }
+    return { ok: true };
+  }
+
+  async reorder(
+    courseProfileId: string,
+    moduleIds: string[],
+    requesterId?: string,
+  ) {
+    const profile = await this.prisma.courseProfile.findUnique({
+      where: { id: courseProfileId },
+      select: { status: true, code: true },
+    });
+    if (!profile) throw new NotFoundException('CourseProfile not found');
+    if (profile.status !== 'DRAFT') {
+      throw new BadRequestException(
+        'Chỉ có thể thay đổi thứ tự khi CourseProfile ở trạng thái DRAFT.',
+      );
+    }
+
+    await this.prisma.$transaction([
+      // Pass 1: Set temporary negative orderIndex to avoid unique constraint violation
+      ...moduleIds.map((id, index) =>
+        this.prisma.module.update({
+          where: { id, courseProfileId },
+          data: { orderIndex: -(index + 1) },
+        }),
+      ),
+      // Pass 2: Set final positive orderIndex
+      ...moduleIds.map((id, index) =>
+        this.prisma.module.update({
+          where: { id, courseProfileId },
+          data: { orderIndex: index + 1 },
+        }),
+      ),
+    ]);
+
+    if (requesterId) {
+      await this.audit.log({
+        userId: requesterId,
+        action: 'module.reorder',
+        entity: 'Module',
+        entityId: courseProfileId,
+        description: `Thay đổi thứ tự các module trong CourseProfile ${profile.code}`,
+        metadata: { moduleIds },
       });
     }
 

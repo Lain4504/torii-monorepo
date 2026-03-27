@@ -12,7 +12,7 @@ import { Separator } from "@workspace/ui/components/separator"
 export default function DashboardLayout() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background font-sans selection:bg-primary/10 selection:text-primary overflow-hidden relative">
+      <div className="flex h-svh w-full bg-background font-sans selection:bg-primary/10 selection:text-primary overflow-hidden relative">
 
         {/* Subtle ambient background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -22,7 +22,7 @@ export default function DashboardLayout() {
 
         <AppSidebar />
 
-        <SidebarInset className="relative z-10 flex flex-col min-w-0 bg-transparent">
+        <SidebarInset className="relative z-10 flex flex-col min-w-0 bg-transparent overflow-hidden">
           {/* Sticky Header */}
           <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 bg-background/80 px-4 md:px-6 backdrop-blur-xl border-b border-border/10">
             <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-muted hover:text-primary transition-colors shrink-0" />

@@ -23,7 +23,7 @@ import {
 @Controller('api/academy/course-profiles/:courseProfileId/modules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ModuleController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Post()
   @Permissions('academy.content.write')
@@ -67,6 +67,22 @@ export class ModuleController {
       this.nats.send(
         { cmd: 'academy.module.delete' },
         { id, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Post('reorder')
+  @Permissions('academy.content.write')
+  async reorder(
+    @Param('courseProfileId', new ParseUUIDPipe()) courseProfileId: string,
+    @Body() dto: { moduleIds: string[] },
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.module.reorder' },
+        { ...dto, courseProfileId, requesterId: req.requester?.sub },
       ),
     );
     return successResponse(result);

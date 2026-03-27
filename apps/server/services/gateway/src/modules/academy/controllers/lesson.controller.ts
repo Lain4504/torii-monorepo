@@ -37,7 +37,7 @@ import {
 @Controller('api/academy/lessons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LessonController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   async findAll(
@@ -168,6 +168,21 @@ export class LessonController {
       this.nats.send(
         { cmd: 'academy.lesson.delete' },
         { id, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Post('reorder')
+  @Permissions('academy.content.write')
+  async reorder(
+    @Body() dto: { moduleId: string; lessonIds: string[] },
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.lesson.reorder' },
+        { ...dto, requesterId: req.requester?.sub },
       ),
     );
     return successResponse(result);

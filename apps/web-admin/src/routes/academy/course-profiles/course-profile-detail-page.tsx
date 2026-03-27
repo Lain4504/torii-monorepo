@@ -1,10 +1,28 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useParams, Link, useSearchParams } from "react-router-dom"
 import { useAcademyCourseProfile, useSubmitAcademyCourseProfileForApproval } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send } from "lucide-react"
+import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical } from "lucide-react"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import {
   Dialog,
@@ -33,23 +51,58 @@ import {
 } from "@workspace/ui/components/table"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { formatDateTime } from "@/lib/format-utils"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@workspace/ui/components/dropdown-menu"
 import { CreateCourseModuleDialog } from "./components/create-module-dialog"
 import { EditCourseModuleDialog } from "./components/edit-module-dialog"
 import { CreateLessonDialog } from "./components/create-lesson-sheet"
 import { EditLessonDialog } from "./components/edit-lesson-sheet"
-import { useDeleteAcademyCourseModule } from "@/lib/api/services/academy-course-modules"
-import { useDeleteAcademyLesson } from "@/lib/api/services/academy-lessons"
+import { useDeleteAcademyCourseModule, useReorderAcademyCourseModules } from "@/lib/api/services/academy-course-modules"
+import { useDeleteAcademyLesson, useReorderAcademyLessons } from "@/lib/api/services/academy-lessons"
 import { toast } from "sonner"
 import { CourseProfileSheet } from "./components/course-profile-sheet"
 import { AssessmentPlanTab } from "./components/assessment-plan-tab"
 import { Trophy } from "lucide-react"
+
+interface SortableItemProps {
+  id: string;
+  children: (props: {
+    attributes: any;
+    listeners: any;
+    isDragging: boolean;
+  }) => React.ReactNode;
+  disabled?: boolean;
+}
+
+function SortableItem({ id, children, disabled }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+    position: 'relative' as const,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children({ attributes, listeners, isDragging })}
+    </div>
+  );
+}
 
 export default function CourseProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>()
@@ -78,10 +131,10 @@ export default function CourseProfileDetailPage() {
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
   const [profileSheetOpen, setProfileSheetOpen] = useState(false)
   const [submitDialog, setSubmitDialog] = useState(false)
-  
+
   const [searchParams] = useSearchParams()
   const defaultTab = searchParams.get('tab') || 'info'
-  
+
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(profileId)
   const submitForApprovalMutation = useSubmitAcademyCourseProfileForApproval()
   const { data: classes } = useAcademyLiveClasses({ courseProfileId: profileId } as any)
@@ -89,6 +142,60 @@ export default function CourseProfileDetailPage() {
   const qc = useQueryClient()
   const deleteModuleMutation = useDeleteAcademyCourseModule()
   const deleteLessonMutation = useDeleteAcademyLesson()
+  const reorderModulesMutation = useReorderAcademyCourseModules()
+  const reorderLessonsMutation = useReorderAcademyLessons()
+
+
+
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const onDragEndModules = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !profileId) return;
+
+    const oldIndex = modules.findIndex((m) => m.id === active.id);
+    const newIndex = modules.findIndex((m) => m.id === over.id);
+
+    const newModules = arrayMove(modules, oldIndex, newIndex);
+    const moduleIds = newModules.map((m) => m.id);
+
+    try {
+      await reorderModulesMutation.mutateAsync({ courseProfileId: profileId, moduleIds });
+      toast.success("Đã thay đổi thứ tự module");
+    } catch (err: any) {
+      toast.error(err.message || "Không thể thay đổi thứ tự module");
+    }
+  };
+
+  const onDragEndLessons = async (event: DragEndEvent, moduleId: string) => {
+    const { active, over } = event;
+    const targetModule = modules.find(m => m.id === moduleId);
+    if (!over || active.id === over.id || !targetModule?.lessons) return;
+
+    const lessons = targetModule.lessons;
+    const oldIndex = lessons.findIndex((l: any) => l.id === active.id);
+    const newIndex = lessons.findIndex((l: any) => l.id === over.id);
+
+    const newLessons = arrayMove(lessons, oldIndex, newIndex);
+    const lessonIds = newLessons.map((l: any) => l.id);
+
+    try {
+      await reorderLessonsMutation.mutateAsync({ moduleId, lessonIds });
+      toast.success("Đã thay đổi thứ tự bài học");
+    } catch (err: any) {
+      toast.error(err.message || "Không thể thay đổi thứ tự bài học");
+    }
+  };
 
   useEffect(() => {
     const mods = profile?.modules ?? []
@@ -149,24 +256,24 @@ export default function CourseProfileDetailPage() {
         ]}
         actions={
           <div className="flex gap-2">
-             <Button
-               variant="outline"
-               disabled={isLocked}
-               onClick={() => setProfileSheetOpen(true)}
-             >
-               Chỉnh sửa Profile
-             </Button>
+            <Button
+              variant="outline"
+              disabled={isLocked}
+              onClick={() => setProfileSheetOpen(true)}
+            >
+              Chỉnh sửa Profile
+            </Button>
 
-             {profile.status === 'DRAFT' && (
-                <Button
-                   disabled={isLocked || submitForApprovalMutation.isPending}
-                   onClick={() => setSubmitDialog(true)}
-                   className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                   <Send className="size-4" />
-                   Gửi duyệt giáo trình
-                </Button>
-             )}
+            {profile.status === 'DRAFT' && (
+              <Button
+                disabled={isLocked || submitForApprovalMutation.isPending}
+                onClick={() => setSubmitDialog(true)}
+                className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                <Send className="size-4" />
+                Gửi duyệt giáo trình
+              </Button>
+            )}
           </div>
         }
       />
@@ -189,305 +296,368 @@ export default function CourseProfileDetailPage() {
 
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <TabsContent value="curriculum" className="space-y-6">
-             <div className="flex items-center justify-between">
-                <div>
-                   <h3 className="text-lg font-bold">Quản lý chương trình</h3>
-                   <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các Module và Bài giảng (Lessons).</p>
-                </div>
-                <div className="flex gap-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold">Quản lý chương trình</h3>
+                <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các Module và Bài giảng (Lessons).</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium"
+                  onClick={() => setCreateModuleOpen(true)}
+                  disabled={isLocked}
+                >
+                  <Plus className="size-4" /> Thêm Module mới
+                </Button>
+              </div>
+            </div>
+
+            {(modules.length === 0) ? (
+              <Card className="border-dashed shadow-none">
+                <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                  <Layers className="size-12 mb-4 opacity-10" />
+                  <p className="font-medium text-balance text-center max-w-xs">Hồ sơ khóa học này chưa có chương trình học nào.</p>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium"
+                    className="mt-4"
                     onClick={() => setCreateModuleOpen(true)}
                     disabled={isLocked}
                   >
-                    <Plus className="size-4" /> Thêm Module mới
+                    Khởi tạo Module đầu tiên
                   </Button>
-                </div>
-             </div>
-
-             {(modules.length === 0) ? (
-                <Card className="border-dashed shadow-none">
-                   <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-                      <Layers className="size-12 mb-4 opacity-10" />
-                      <p className="font-medium text-balance text-center max-w-xs">Hồ sơ khóa học này chưa có chương trình học nào.</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-4"
-                        onClick={() => setCreateModuleOpen(true)}
-                        disabled={isLocked}
-                      >
-                        Khởi tạo Module đầu tiên
-                      </Button>
-                   </CardContent>
-                </Card>
-             ) : (
-                <div className="space-y-4">
-                  {modules.map((module) => {
-                    const isExpanded = !!expandedModules[module.id]
-                    return (
-                      <Card key={module.id} className="overflow-hidden">
-                        <div className="flex items-center justify-between gap-3 p-4">
-                          <button
-                            type="button"
-                            className="flex-1 min-w-0 text-left flex items-center gap-3"
-                            onClick={() => {
-                              setExpandedModules((prev) => ({
-                                ...prev,
-                                [module.id]: !prev[module.id],
-                              }))
-                            }}
-                          >
-                            <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">
-                              {module.orderIndex}
-                            </div>
-                            <div className="min-w-0">
-                              <CardTitle className="text-base font-semibold truncate">
-                                {module.title}
-                              </CardTitle>
-                              <CardDescription className="text-xs">
-                                {module.lessons?.length || 0} bài giảng
-                              </CardDescription>
-                            </div>
-                          </button>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  disabled={isLocked}
-                                  className="h-8 w-8"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <MoreHorizontal className="size-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  className="gap-2"
-                                  disabled={isLocked}
-                                  onClick={() => {
-                                    setEditingModule(module)
-                                    setEditModuleOpen(true)
-                                  }}
-                                >
-                                  <Pencil className="size-4" /> Chỉnh sửa
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  className="gap-2 text-destructive"
-                                  disabled={isLocked}
-                                  onClick={() => {
-                                    setDeleteModuleConfirm({
-                                      open: true,
-                                      moduleId: module.id,
-                                      moduleTitle: module.title,
-                                    })
-                                  }}
-                                >
-                                  <Trash2 className="size-4" /> Xóa Module
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-
-                            {isExpanded ? (
-                              <ChevronUp className="size-4 text-muted-foreground" />
-                            ) : (
-                              <ChevronDown className="size-4 text-muted-foreground" />
-                            )}
-                          </div>
-                        </div>
-
-                        {isExpanded && (
-                          <CardContent className="pt-0">
-                            <div className="space-y-1 p-2">
-                              {module.lessons?.map((lesson: any) => (
-                                <div
-                                  key={lesson.id}
-                                  className="flex items-center justify-between gap-3 rounded-md px-3 py-2 hover:bg-muted/30"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0">
-                                    {lesson.type === "VIDEO" ? (
-                                      <Video className="size-4 text-blue-500 shrink-0" />
-                                    ) : (
-                                      <FileText className="size-4 text-orange-500 shrink-0" />
-                                    )}
-                                    <div className="min-w-0">
-                                      <p className="text-sm font-medium truncate">{lesson.title}</p>
-                                      <p className="text-[10px] text-muted-foreground uppercase">
-                                        {lesson.type}
-                                      </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={onDragEndModules}
+                modifiers={[restrictToVerticalAxis]}
+              >
+                <SortableContext
+                  items={modules.map(m => m.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {modules.map((module) => {
+                      const isExpanded = !!expandedModules[module.id]
+                      return (
+                        <SortableItem key={module.id} id={module.id} disabled={isLocked}>
+                          {({ attributes, listeners, isDragging }) => (
+                            <Card className={`overflow-hidden transition-all ${isDragging ? "ring-2 ring-primary shadow-lg scale-[1.01] z-50 bg-background" : ""}`}>
+                              <div className="flex items-center justify-between gap-3 p-4">
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  {!isLocked && (
+                                    <div
+                                      {...attributes}
+                                      {...listeners}
+                                      className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground/40 hover:text-muted-foreground transition-colors"
+                                    >
+                                      <GripVertical className="size-4" />
                                     </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-1">
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      className="h-8 w-8"
-                                      disabled={isLocked}
-                                      onClick={() => {
-                                        setEditingLesson(lesson)
-                                        setEditLessonOpen(true)
-                                      }}
-                                    >
-                                      <Pencil className="size-4" />
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      className="h-8 w-8"
-                                      disabled={isLocked}
-                                      onClick={() => {
-                                        setDeleteLessonConfirm({
-                                          open: true,
-                                          lessonId: lesson.id,
-                                          lessonTitle: lesson.title,
-                                        })
-                                      }}
-                                    >
-                                      <Trash2 className="size-4" />
-                                    </Button>
-                                  </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    className="flex-1 min-w-0 text-left flex items-center gap-3"
+                                    onClick={() => {
+                                      setExpandedModules((prev) => ({
+                                        ...prev,
+                                        [module.id]: !prev[module.id],
+                                      }))
+                                    }}
+                                  >
+                                    <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shrink-0">
+                                      {module.orderIndex}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <CardTitle className="text-base font-semibold truncate">
+                                        {module.title}
+                                      </CardTitle>
+                                      <CardDescription className="text-xs">
+                                        {module.lessons?.length || 0} bài giảng
+                                      </CardDescription>
+                                    </div>
+                                  </button>
                                 </div>
-                              ))}
 
-                              {(!module.lessons || module.lessons.length === 0) && (
-                                <div className="py-8 text-center text-xs text-muted-foreground italic">
-                                  Chưa có bài giảng.
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        disabled={isLocked}
+                                        className="h-8 w-8"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <MoreHorizontal className="size-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        className="gap-2"
+                                        disabled={isLocked}
+                                        onClick={() => {
+                                          setEditingModule(module)
+                                          setEditModuleOpen(true)
+                                        }}
+                                      >
+                                        <Pencil className="size-4" /> Chỉnh sửa
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        className="gap-2 text-destructive"
+                                        disabled={isLocked}
+                                        onClick={() => {
+                                          setDeleteModuleConfirm({
+                                            open: true,
+                                            moduleId: module.id,
+                                            moduleTitle: module.title,
+                                          })
+                                        }}
+                                      >
+                                        <Trash2 className="size-4" /> Xóa Module
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => {
+                                      setExpandedModules((prev) => ({
+                                        ...prev,
+                                        [module.id]: !prev[module.id],
+                                      }))
+                                    }}
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronUp className="size-4 text-muted-foreground" />
+                                    ) : (
+                                      <ChevronDown className="size-4 text-muted-foreground" />
+                                    )}
+                                  </Button>
                                 </div>
+                              </div>
+
+                              {isExpanded && (
+                                <CardContent className="pt-0">
+                                  <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={(event) => onDragEndLessons(event, module.id)}
+                                    modifiers={[restrictToVerticalAxis]}
+                                  >
+                                    <SortableContext
+                                      items={module.lessons?.map((l: any) => l.id) || []}
+                                      strategy={verticalListSortingStrategy}
+                                    >
+                                      <div className="space-y-1 p-2">
+                                        {module.lessons?.map((lesson: any) => (
+                                          <SortableItem key={lesson.id} id={lesson.id} disabled={isLocked}>
+                                            {({ attributes: lAttrs, listeners: lListeners, isDragging: lIsDragging }) => (
+                                              <div
+                                                className={`flex items-center justify-between gap-3 rounded-md px-3 py-2 transition-all ${lIsDragging ? "bg-muted shadow-sm ring-1 ring-primary/20 scale-[1.01] z-50" : "hover:bg-muted/30"}`}
+                                              >
+                                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                  {!isLocked && (
+                                                    <div
+                                                      {...lAttrs}
+                                                      {...lListeners}
+                                                      className="cursor-grab active:cursor-grabbing p-1 hover:bg-background rounded text-muted-foreground/30 hover:text-muted-foreground transition-colors"
+                                                    >
+                                                      <GripVertical className="size-3.5" />
+                                                    </div>
+                                                  )}
+                                                  {lesson.type === "VIDEO" ? (
+                                                    <Video className="size-4 text-blue-500 shrink-0" />
+                                                  ) : (
+                                                    <FileText className="size-4 text-orange-500 shrink-0" />
+                                                  )}
+                                                  <div className="min-w-0">
+                                                    <p className="text-sm font-medium truncate">{lesson.title}</p>
+                                                    <p className="text-[10px] text-muted-foreground uppercase">
+                                                      {lesson.type}
+                                                    </p>
+                                                  </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-1">
+                                                  <Button
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                    disabled={isLocked}
+                                                    onClick={() => {
+                                                      setEditingLesson(lesson)
+                                                      setEditLessonOpen(true)
+                                                    }}
+                                                  >
+                                                    <Pencil className="size-4" />
+                                                  </Button>
+                                                  <Button
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                    disabled={isLocked}
+                                                    onClick={() => {
+                                                      setDeleteLessonConfirm({
+                                                        open: true,
+                                                        lessonId: lesson.id,
+                                                        lessonTitle: lesson.title,
+                                                      })
+                                                    }}
+                                                  >
+                                                    <Trash2 className="size-4" />
+                                                  </Button>
+                                                </div>
+                                              </div>
+                                            )}
+                                          </SortableItem>
+                                        ))}
+
+                                        {(!module.lessons || module.lessons.length === 0) && (
+                                          <div className="py-8 text-center text-xs text-muted-foreground italic">
+                                            Chưa có bài giảng.
+                                          </div>
+                                        )}
+
+                                        <Button
+                                          variant="ghost"
+                                          className="w-full justify-start gap-2 mt-2"
+                                          disabled={isLocked}
+                                          onClick={() => {
+                                            setCreateLessonModuleId(module.id)
+                                            setCreateLessonOpen(true)
+                                          }}
+                                        >
+                                          <Plus className="size-4" />
+                                          Thêm bài học mới
+                                        </Button>
+                                      </div>
+                                    </SortableContext>
+                                  </DndContext>
+                                </CardContent>
                               )}
-
-                              <Button
-                                variant="ghost"
-                                className="w-full justify-start gap-2 mt-2"
-                                disabled={isLocked}
-                                onClick={() => {
-                                  setCreateLessonModuleId(module.id)
-                                  setCreateLessonOpen(true)
-                                }}
-                              >
-                                <Plus className="size-4" />
-                                Thêm bài học mới
-                              </Button>
-                            </div>
-                          </CardContent>
-                        )}
-                      </Card>
-                    )
-                  })}
-                </div>
-             )}
+                            </Card>
+                          )}
+                        </SortableItem>
+                      )
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
           </TabsContent>
 
           <TabsContent value="classes">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Các lớp học thuộc hồ sơ này</CardTitle>
-                    <CardDescription>Mọi lớp học được tạo từ hồ sơ này sẽ sử dụng chung chương trình học trên.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader className="bg-muted/50">
-                            <TableRow className="hover:bg-transparent">
-                                <TableHead className="w-12 px-6">STT</TableHead>
-                                <TableHead>Mã lớp</TableHead>
-                                <TableHead>Tên lớp</TableHead>
-                                <TableHead>Hình thức</TableHead>
-                                <TableHead>Trạng thái</TableHead>
-                                <TableHead className="text-right px-6">Thao tác</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {classes?.map((cls, index) => (
-                                <TableRow key={cls.id} className="group transition-colors">
-                                    <TableCell className="px-6 text-muted-foreground tabular-nums">{index + 1}</TableCell>
-                                    <TableCell className="font-mono text-xs font-bold text-primary">{cls.code}</TableCell>
-                                    <TableCell className="font-medium">{cls.name}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className="uppercase font-mono text-[10px]">{cls.mode}</Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge 
-                                          variant={(cls.status === 'PUBLISHED' || cls.status === 'OPENING' || cls.status === 'ONGOING') ? 'default' : cls.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
-                                          className="text-[10px]"
-                                        >
-                                            {cls.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right px-6">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        asChild
-                                        className="h-8 gap-2 border-primary/30 text-primary bg-transparent hover:bg-primary/5"
-                                      >
-                                        <Link to={`/academy/live-classes/${cls.id}/detail`} className="flex items-center gap-2">
-                                            <LayoutDashboard className="size-4" />
-                                            Quản lý lớp
-                                            <ChevronRight className="size-4" />
-                                            </Link>
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {(!classes || classes.length === 0) && (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
-                                        Chưa có lớp học nào được tạo từ hồ sơ này.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-             </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Các lớp học thuộc hồ sơ này</CardTitle>
+                <CardDescription>Mọi lớp học được tạo từ hồ sơ này sẽ sử dụng chung chương trình học trên.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="w-12 px-6">STT</TableHead>
+                      <TableHead>Mã lớp</TableHead>
+                      <TableHead>Tên lớp</TableHead>
+                      <TableHead>Hình thức</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className="text-right px-6">Thao tác</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {classes?.map((cls, index) => (
+                      <TableRow key={cls.id} className="group transition-colors">
+                        <TableCell className="px-6 text-muted-foreground tabular-nums">{index + 1}</TableCell>
+                        <TableCell className="font-mono text-xs font-bold text-primary">{cls.code}</TableCell>
+                        <TableCell className="font-medium">{cls.name}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="uppercase font-mono text-[10px]">{cls.mode}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={(cls.status === 'PUBLISHED' || cls.status === 'OPENING' || cls.status === 'ONGOING') ? 'default' : cls.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
+                            className="text-[10px]"
+                          >
+                            {cls.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right px-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="h-8 gap-2 border-primary/30 text-primary bg-transparent hover:bg-primary/5"
+                          >
+                            <Link to={`/academy/live-classes/${cls.id}/detail`} className="flex items-center gap-2">
+                              <LayoutDashboard className="size-4" />
+                              Quản lý lớp
+                              <ChevronRight className="size-4" />
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!classes || classes.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
+                          Chưa có lớp học nào được tạo từ hồ sơ này.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="assessment">
-             <AssessmentPlanTab 
-               courseProfileId={profileId as string} 
-               modules={profile.modules || []} 
-             />
+            <AssessmentPlanTab
+              courseProfileId={profileId as string}
+              modules={profile.modules || []}
+            />
           </TabsContent>
 
           <TabsContent value="info">
             <Card>
-                <CardHeader>
-                    <CardTitle>Thông tin định danh</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Tên khóa học</p>
-                            <p className="text-sm font-semibold">{profile.title}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã hồ sơ (Code)</p>
-                            <p className="text-sm font-mono font-bold text-primary">{profile.code}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trình độ tương đương</p>
-                            <p className="text-sm font-medium">{profile.level || 'Chưa xác định'}</p>
-                        </div>
-                    </div>
-                    
-                    <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả học thuật</p>
-                        <p className="text-sm text-balance leading-relaxed">
-                          {profile.description || 'Chưa có thông tin mô tả chi tiết cho hồ sơ khóa học này.'}
-                        </p>
-                    </div>
+              <CardHeader>
+                <CardTitle>Thông tin định danh</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Tên khóa học</p>
+                    <p className="text-sm font-semibold">{profile.title}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã hồ sơ (Code)</p>
+                    <p className="text-sm font-mono font-bold text-primary">{profile.code}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trình độ tương đương</p>
+                    <p className="text-sm font-medium">{profile.level || 'Chưa xác định'}</p>
+                  </div>
+                </div>
 
-                    <div className="pt-4 border-t flex items-center justify-between text-[11px] text-muted-foreground">
-                       <span>Ngày tạo: {formatDateTime(profile.createdAt, "HH:mm dd/MM/yyyy")}</span>
-                       <span>Cập nhật cuối: {formatDateTime(profile.updatedAt, "HH:mm dd/MM/yyyy")}</span>
-                    </div>
-                </CardContent>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả học thuật</p>
+                  <p className="text-sm text-balance leading-relaxed">
+                    {profile.description || 'Chưa có thông tin mô tả chi tiết cho hồ sơ khóa học này.'}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>Ngày tạo: {formatDateTime(profile.createdAt, "HH:mm dd/MM/yyyy")}</span>
+                  <span>Cập nhật cuối: {formatDateTime(profile.updatedAt, "HH:mm dd/MM/yyyy")}</span>
+                </div>
+              </CardContent>
             </Card>
           </TabsContent>
         </div>

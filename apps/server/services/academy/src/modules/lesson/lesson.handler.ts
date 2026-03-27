@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class LessonHandler {
-  constructor(private readonly lessons: LessonService) {}
+  constructor(private readonly lessons: LessonService) { }
 
   @MessagePattern({ cmd: 'academy.lesson.findAll' })
   findAll(@Payload() query: LessonQueryDto) {
@@ -42,5 +42,21 @@ export class LessonHandler {
   @MessagePattern({ cmd: 'academy.lesson.delete' })
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.lessons.delete(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.lesson.reorder' })
+  reorder(
+    @Payload()
+    data: {
+      moduleId: string;
+      lessonIds: string[];
+      requesterId?: string;
+    },
+  ) {
+    return this.lessons.reorder(
+      data.moduleId,
+      data.lessonIds,
+      data.requesterId,
+    );
   }
 }

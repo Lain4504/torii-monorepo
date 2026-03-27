@@ -4,6 +4,7 @@ import {
   LayoutTemplate,
   RefreshCw,
   Loader2,
+  Plus,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
@@ -72,7 +73,13 @@ export default function JlptTemplatesPage() {
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
         title="Quản lý Đề thi JLPT (Templates)"
-        subtitle="Danh sách đề thi JLPT ở chế độ chỉ xem (read-only)."
+        subtitle="Danh sách đề thi JLPT."
+        actions={
+          <Button onClick={() => toast.info("Tính năng tạo đề thi mới đang được phát triển")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Tạo đề thi
+          </Button>
+        }
       />
 
       <div className="space-y-4">
