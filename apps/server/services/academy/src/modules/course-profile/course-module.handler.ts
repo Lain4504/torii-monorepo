@@ -12,7 +12,7 @@ import {
  */
 @Controller()
 export class CourseModuleHandler {
-  constructor(private readonly modules: CourseModuleService) {}
+  constructor(private readonly modules: CourseModuleService) { }
 
   @MessagePattern({ cmd: 'academy.module.create' })
   create(
@@ -38,5 +38,21 @@ export class CourseModuleHandler {
   @MessagePattern({ cmd: 'academy.module.delete' })
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.modules.delete(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.module.reorder' })
+  reorder(
+    @Payload()
+    data: {
+      courseProfileId: string;
+      moduleIds: string[];
+      requesterId?: string;
+    },
+  ) {
+    return this.modules.reorder(
+      data.courseProfileId,
+      data.moduleIds,
+      data.requesterId,
+    );
   }
 }

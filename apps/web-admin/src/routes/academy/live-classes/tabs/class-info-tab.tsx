@@ -1,7 +1,5 @@
-import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { Button } from "@workspace/ui/components/button"
 import {
   BookOpen,
   Video,
@@ -11,10 +9,8 @@ import {
   Hash,
   FileText,
 } from "lucide-react"
-import { usePublishClassDirectly, type AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
+import { type AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { formatDate } from "@/lib/format-utils"
-import { toast } from "@workspace/ui/components/sonner"
-import { Rocket } from "lucide-react"
 
 interface ClassInfoTabProps {
   academyClass: AcademyLiveClass | null | undefined
@@ -31,8 +27,9 @@ const STATUS_LABELS: Record<string, string> = {
   ARCHIVED: "Lưu trữ",
 }
 
-export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassInfoTabProps) {
-  const publishMutation = usePublishClassDirectly()
+const WEEKDAY_LABELS = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]
+
+export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
 
   if (!academyClass) {
     return (
@@ -43,7 +40,6 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
   }
 
   const isLive = true // AcademyLiveClass is always live now
-  const cohort = academyClass.cohort
 
   return (
     <div className="space-y-6">
@@ -94,88 +90,124 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
               </div>
             </div>
           </div>
-          {canManageStatus && (
-            <div className="mt-4 pt-4 border-t space-y-3">
-              <p className="text-xs text-muted-foreground font-medium">
-                Thao tác nhanh trạng thái lớp học:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {academyClass.status === "DRAFT" && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    className="gap-2 bg-green-600 hover:bg-green-700 shadow-none"
-                    onClick={async () => {
-                      if (confirm("Xác nhận mở đăng ký lớp học này?")) {
-                        try {
-                          await publishMutation.mutateAsync(classId)
-                          toast.success("Đã mở đăng ký lớp học thành công! 🚀")
-                        } catch (err: any) {
-                          toast.error(err?.message || "Không thể mở đăng ký")
-                        }
-                      }
-                    }}
-                    disabled={publishMutation.isPending}
-                  >
-                    <Rocket className="size-4" />
-                    Công khai & Mở đăng ký
-                  </Button>
-                )}
-                <Button variant="outline" size="sm" asChild>
-                  <Link to={`/academy/approvals/live-classes/${classId}`}>
-                    Trang xem trước
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
       {isLive && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Video className="size-5" />
-              Thông tin lớp học trực tiếp (LIVE)
-            </CardTitle>
-            <CardDescription>Lịch kỳ học và thời gian mở/đóng đăng ký</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <p className="text-xs text-muted-foreground">Ngày bắt đầu</p>
-                <p className="font-medium">{formatDate(academyClass.startDate)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Ngày kết thúc</p>
-                <p className="font-medium">{formatDate(academyClass.endDate)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Mở đăng ký</p>
-                <p className="font-medium">{formatDate((cohort as any)?.enrollmentOpenAt)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
-                <p className="font-medium">{formatDate((cohort as any)?.enrollmentCloseAt)}</p>
-              </div>
-              <div className="flex items-start gap-3 sm:col-span-2 lg:col-span-3">
-                <Users className="size-4 text-muted-foreground shrink-0 mt-0.5" />
-                <div className="space-y-1">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Video className="size-4" />
+                Thời gian & Tuyển sinh
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Ngày bắt đầu</p>
+                  <p className="font-medium">{formatDate(academyClass.cohort?.startDate || academyClass.startDate)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Ngày kết thúc</p>
+                  <p className="font-medium">{formatDate(academyClass.cohort?.endDate || academyClass.endDate)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Mở đăng ký</p>
+                  <p className="font-medium">{formatDate(academyClass.cohort?.enrollmentOpenAt)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
+                  <p className="font-medium">{formatDate(academyClass.cohort?.enrollmentCloseAt)}</p>
+                </div>
+                <div className="sm:col-span-2">
                   <p className="text-xs text-muted-foreground">Sĩ số (đang học / tối đa)</p>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium tabular-nums">
-                      {(academyClass as any)._count?.enrollments ?? 0}
-                      {academyClass.maxStudents != null
-                        ? ` / ${academyClass.maxStudents}`
-                        : " (∞)"}
-                    </p>
-                  </div>
+                  <p className="font-medium">
+                    {academyClass._count?.enrollments ?? 0}
+                    {academyClass.maxStudents != null
+                      ? ` / ${academyClass.maxStudents}`
+                      : " (Không giới hạn)"}
+                  </p>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Calendar className="size-4" />
+                  Lịch học tuần (Lý thuyết)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {academyClass.liveSchedules && academyClass.liveSchedules.length > 0 ? (
+                  <div className="space-y-2">
+                    {academyClass.liveSchedules.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between text-sm py-1 border-b last:border-0">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{WEEKDAY_LABELS[s.weekday]}</span>
+                          {s.roomId && (
+                            <span className="text-[10px] font-mono text-primary font-bold">
+                              Room: {s.roomId}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-muted-foreground">{s.startTime} - {s.endTime}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">Chưa thiết lập lịch học tuần.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <GraduationCap className="size-4" />
+                  Học phần & Giảng viên
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <BookOpen className="size-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Hồ sơ khóa học</p>
+                    <p className="font-medium">{academyClass.cohort?.courseProfile?.title || "N/A"}</p>
+                    {academyClass.cohort?.courseProfile?.level && (
+                      <Badge variant="outline" className="mt-1 text-[10px] h-4">
+                        {academyClass.cohort.courseProfile.level}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 border-t pt-4">
+                  <Users className="size-4 text-muted-foreground mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Giảng viên phụ trách</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      {academyClass.instructor?.avatarUrl ? (
+                        <img
+                          src={academyClass.instructor.avatarUrl}
+                          alt={academyClass.instructor.displayName}
+                          className="size-6 rounded-full"
+                        />
+                      ) : (
+                        <div className="size-6 rounded-full bg-secondary flex items-center justify-center text-[10px]">
+                          {academyClass.instructor?.displayName?.charAt(0) || "?"}
+                        </div>
+                      )}
+                      <p className="font-medium">{academyClass.instructor?.displayName || "Chưa phân công"}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       )}
 
     </div>

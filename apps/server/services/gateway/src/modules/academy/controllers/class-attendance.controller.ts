@@ -36,7 +36,7 @@ import {
 @Controller('api/academy/class-attendances')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ClassAttendanceController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.delivery.read')
@@ -70,7 +70,11 @@ export class ClassAttendanceController {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.classAttendance.create' },
-        { ...dto, requesterId: req.requester?.sub },
+        {
+          ...dto,
+          requesterId: req.requester?.sub,
+          requesterRole: req.requester?.role,
+        },
       ),
     );
     return successResponse({ item });
@@ -87,7 +91,12 @@ export class ClassAttendanceController {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.classAttendance.update' },
-        { id, input: dto, requesterId: req.requester?.sub },
+        {
+          id,
+          input: dto,
+          requesterId: req.requester?.sub,
+          requesterRole: req.requester?.role,
+        },
       ),
     );
     return successResponse({ item });

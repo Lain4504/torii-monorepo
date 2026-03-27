@@ -15,6 +15,11 @@ export type AcademyLiveClass = {
   name: string
   status: string
   instructorId?: string | null
+  instructor?: {
+    id: string
+    displayName: string
+    avatarUrl?: string | null
+  } | null
   maxStudents?: number | null
   startDate?: string | null
   endDate?: string | null
@@ -22,14 +27,31 @@ export type AcademyLiveClass = {
   updatedAt: string
   mode: "LIVE" | "VOD"
   _count?: {
-    liveSchedules: number
+    liveSchedules?: number
+    enrollments?: number
   }
+  liveSchedules?: Array<{
+    id: string
+    weekday: number
+    startTime: string
+    endTime: string
+    roomId?: string | null
+  }> | null
   submittedForApprovalAt?: string | null
   rejectionReason?: string | null
   cohort?: {
     id: string
     name: string
     courseProfileId: string
+    startDate?: string | null
+    endDate?: string | null
+    enrollmentOpenAt?: string | null
+    enrollmentCloseAt?: string | null
+    courseProfile?: {
+      id: string
+      title: string
+      level?: string | null
+    } | null
   } | null
 }
 

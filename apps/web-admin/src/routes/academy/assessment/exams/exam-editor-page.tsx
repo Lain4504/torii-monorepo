@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useAcademyExam, useCreateAcademyExam, useUpdateAcademyExam, useAddQuestionsToExam, useRemoveQuestionFromExam } from "@/lib/api/services/academy-exams"
-import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@workspace/ui/components/select"
 import { toast } from "sonner"
-import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Save, Plus, Trash2, Check, Clock, Info, Layout } from "lucide-react"
 import { QuestionPickerModal } from "./components/question-picker-modal"
 import { Badge } from "@workspace/ui/components/badge"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { Label } from "@workspace/ui/components/label"
 
 export default function AcademyExamEditorPage() {
   const { id } = useParams<{ id: string }>()
@@ -25,12 +26,13 @@ export default function AcademyExamEditorPage() {
   const { data: exam, isLoading: isFetching } = useAcademyExam(isEditing ? id : undefined)
   const createMutation = useCreateAcademyExam()
   const updateMutation = useUpdateAcademyExam()
-  
+
   const addQuestionsMutation = useAddQuestionsToExam()
   const removeQuestionMutation = useRemoveQuestionFromExam()
 
   const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
+  const [isSaved, setIsSaved] = useState(false)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -54,12 +56,16 @@ export default function AcademyExamEditorPage() {
 
   const handleAddQuestions = async (questionIds: string[]) => {
     if (!selectedSectionId) return
-    await addQuestionsMutation.mutateAsync({
-      sectionId: selectedSectionId,
-      questionIds,
-      points: 1, // Default points
-    })
-    toast.success("Đã thêm câu hỏi vào bài thi")
+    try {
+      await addQuestionsMutation.mutateAsync({
+        sectionId: selectedSectionId,
+        questionIds,
+        points: 1,
+      })
+      toast.success("Đã thêm câu hỏi vào bài thi")
+    } catch (err: any) {
+      toast.error(err.message || "Lỗi khi thêm câu hỏi")
+    }
   }
 
   const handleRemoveQuestion = async (examQuestionId: string) => {
@@ -73,9 +79,9 @@ export default function AcademyExamEditorPage() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+
     try {
       if (isEditing) {
         await updateMutation.mutateAsync({
@@ -84,6 +90,8 @@ export default function AcademyExamEditorPage() {
             ...formData,
           } as any,
         })
+        setIsSaved(true)
+        setTimeout(() => setIsSaved(false), 3000)
         toast.success("Cập nhật đề thi thành công")
       } else {
         const res = await createMutation.mutateAsync({
@@ -104,148 +112,248 @@ export default function AcademyExamEditorPage() {
     }
   }
 
+  const isPending = createMutation.isPending || updateMutation.isPending
+
   if (isEditing && isFetching) {
-    return <div className="p-8 text-center text-slate-500">Đang tải biểu mẫu...</div>
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
+        <p className="text-slate-500 font-medium">Đang tải dữ liệu bài thi...</p>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4 mb-2">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/academy/assessment/exams")}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <PageHeader 
-          title={isEditing ? "Chỉnh sửa bài thi" : "Tạo bài thi mới"}
-          subtitle="Quản lý thông tin chi tiết của bài thi"
-          actions={
-            <Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>
-              <Save className="w-4 h-4 mr-2" />
-              Lưu thay đổi
-            </Button>
-          }
-        />
-      </div>
-
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm max-w-3xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tên bài thi</label>
-            <Input 
-              value={formData.title} 
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })} 
-              placeholder="VD: Bài kiểm tra đầu vào..."
-              required 
-            />
+    <div className="max-w-6xl mx-auto pb-20">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate("/academy/assessment/exams")} className="rounded-full">
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              {isEditing ? `Sửa: ${formData.title || "Bài thi"}` : "Tạo bài thi mới"}
+            </h1>
+            <p className="text-sm text-slate-500">Thiết lập thông tin và cấu trúc câu hỏi cho bài kiểm tra.</p>
           </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Mô tả chi tiết</label>
-            <Textarea 
-              value={formData.description} 
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
-              placeholder="Nhập mô tả cho bài thi..."
-              rows={4}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Loại bài thi</label>
-              <Select value={formData.examType} onValueChange={(val) => setFormData({ ...formData, examType: val })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="QUIZ">Quiz ngắn</SelectItem>
-                  <SelectItem value="MODULE_TEST">Kiểm tra Module</SelectItem>
-                  <SelectItem value="FINAL_EXAM">Thi cuối kỳ</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Trạng thái</label>
-              <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Bản nháp</SelectItem>
-                  <SelectItem value="PUBLISHED">Đã xuất bản (Hoạt động)</SelectItem>
-                  <SelectItem value="ARCHIVED">Lưu trữ</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Thời gian thi (Phút)</label>
-              <Input 
-                type="number" 
-                value={formData.totalTimeLimitMinutes} 
-                onChange={(e) => setFormData({ ...formData, totalTimeLimitMinutes: parseInt(e.target.value) || 0 })} 
-                min={0}
-              />
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {isEditing && exam?.sections && (
-        <div className="space-y-6 max-w-3xl">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Cấu trúc bài thi & Câu hỏi</h3>
-          </div>
-
-          {exam.sections.map((section: any) => (
-            <div key={section.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-              <div className="flex items-center justify-between p-4 border-b bg-slate-50 dark:bg-slate-800/50">
-                <div>
-                  <h4 className="font-semibold">{section.title}</h4>
-                  {section.instruction && <p className="text-sm text-slate-500">{section.instruction}</p>}
-                </div>
-                <Button size="sm" onClick={() => { setSelectedSectionId(section.id); setPickerOpen(true); }}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Thêm câu hỏi
-                </Button>
-              </div>
-              
-              <div className="p-0">
-                {(!section.questions || section.questions.length === 0) ? (
-                  <div className="p-8 text-center text-slate-500">
-                    Chưa có câu hỏi nào trong phần này.
-                  </div>
-                ) : (
-                  <div className="divide-y border-t-0">
-                    {section.questions.map((eq: any, idx: number) => (
-                      <div key={eq.id} className="flex p-4 gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <div className="font-medium text-slate-400 mt-1">{idx + 1}.</div>
-                        <div className="flex-1 space-y-2">
-                          <div className="font-medium text-sm">{eq.question?.stem}</div>
-                          <div className="flex gap-2 items-center">
-                            <Badge variant="outline" className="text-[10px] uppercase h-5">{eq.question?.questionType}</Badge>
-                            <Badge variant="secondary" className="text-[10px] h-5">{eq.points} điểm</Badge>
-                          </div>
-                        </div>
-                        <div>
-                          <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50" onClick={() => handleRemoveQuestion(eq.id)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-
-          <QuestionPickerModal 
-            open={pickerOpen}
-            onOpenChange={setPickerOpen}
-            onConfirm={handleAddQuestions}
-          />
         </div>
-      )}
+        <div className="flex items-center gap-3">
+          <Button
+            variant={isSaved ? "outline" : "default"}
+            size="lg"
+            onClick={() => handleSubmit()}
+            disabled={isPending}
+            className={`min-w-[140px] transition-all duration-300 ${isSaved ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20' : 'bg-sky-600 hover:bg-sky-700'}`}
+          >
+            {isPending ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Đang lưu...
+              </>
+            ) : isSaved ? (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Đã lưu thành công!
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Lưu bài thi
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Info Column */}
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-sky-100 dark:bg-sky-900/30 rounded-lg text-sky-600 dark:text-sky-400">
+                  <Info className="w-4 h-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Thông tin cơ bản</CardTitle>
+                  <CardDescription>Tiêu đề và nội dung giới thiệu bài thi</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tên bài thi *</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="VD: Bài kiểm tra General English 1..."
+                  className="text-lg font-medium h-12 focus-visible:ring-sky-500"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Mô tả/Hướng dẫn</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Nhập mô tả hoặc hướng dẫn làm bài cho học viên..."
+                  rows={6}
+                  className="resize-none focus-visible:ring-sky-500"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {isEditing && exam?.sections && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 px-1">
+                <Layout className="w-5 h-5 text-slate-400" />
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Cấu trúc đề thi</h3>
+              </div>
+
+              {exam.sections.map((section: any) => (
+                <Card key={section.id} className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border-b">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border text-sm font-bold shadow-sm">
+                        {section.orderIndex + 1}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white">{section.title}</h4>
+                        <p className="text-xs text-slate-500">{section.questions?.length || 0} câu hỏi</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setSelectedSectionId(section.id); setPickerOpen(true); }}
+                      className="h-9 border-sky-200 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Thêm câu hỏi
+                    </Button>
+                  </div>
+
+                  <CardContent className="p-0">
+                    {(!section.questions || section.questions.length === 0) ? (
+                      <div className="p-12 text-center">
+                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Plus className="w-6 h-6 text-slate-300" />
+                        </div>
+                        <p className="text-sm text-slate-400">Chưa có câu hỏi nào. Bấm "Thêm câu hỏi" để bắt đầu.</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {section.questions.map((eq: any, idx: number) => (
+                          <div key={eq.id} className="group flex p-4 gap-4 hover:bg-sky-50/30 dark:hover:bg-sky-900/10 transition-colors items-start">
+                            <div className="font-bold text-slate-300 group-hover:text-sky-400 transition-colors pt-1 min-w-[20px]">
+                              {idx + 1}.
+                            </div>
+                            <div className="flex-1 space-y-1.5">
+                              <div className="font-medium text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+                                {eq.question?.stem}
+                              </div>
+                              <div className="flex gap-2 items-center">
+                                <Badge variant="secondary" className="text-[10px] h-5 py-0 font-normal bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-none uppercase">
+                                  {eq.question?.questionType?.replace('_', ' ')}
+                                </Badge>
+                                <Badge className="text-[10px] h-5 py-0 font-bold bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400">
+                                  {eq.points} điểm
+                                </Badge>
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition-all"
+                              onClick={() => handleRemoveQuestion(eq.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Sidebar Settings Column */}
+        <div className="space-y-6">
+          <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+            <CardHeader className="pb-3 border-b bg-slate-50/30 dark:bg-slate-900/30">
+              <CardTitle className="text-sm font-bold flex items-center gap-2">
+                <Clock className="w-4 h-4 text-slate-400" />
+                Thiết lập bài thi
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 space-y-6">
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-slate-500 uppercase">Loại bài thi</Label>
+                <Select value={formData.examType} onValueChange={(val) => setFormData({ ...formData, examType: val })}>
+                  <SelectTrigger className="h-10 bg-white dark:bg-slate-950">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="QUIZ">Quiz ngắn</SelectItem>
+                    <SelectItem value="MODULE_TEST">Kiểm tra Module</SelectItem>
+                    <SelectItem value="FINAL_EXAM">Thi cuối kỳ</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-slate-500 uppercase">Trạng thái</Label>
+                <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
+                  <SelectTrigger className="h-10 bg-white dark:bg-slate-950">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DRAFT">Bản nháp</SelectItem>
+                    <SelectItem value="PUBLISHED">Hoạt động (Published)</SelectItem>
+                    <SelectItem value="ARCHIVED">Lưu trữ (Archived)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-slate-500 uppercase">Thời gian làm bài (Phút)</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    value={formData.totalTimeLimitMinutes}
+                    onChange={(e) => setFormData({ ...formData, totalTimeLimitMinutes: parseInt(e.target.value) || 0 })}
+                    min={0}
+                    className="h-10 pr-12 focus-visible:ring-sky-500"
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-medium">phút</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="p-5 rounded-2xl bg-sky-50 border border-sky-100 dark:bg-sky-900/10 dark:border-sky-900/20">
+            <h4 className="text-sm font-bold text-sky-800 dark:text-sky-300 mb-2 flex items-center gap-2">
+              💡 Mẹo nhỏ
+            </h4>
+            <ul className="text-xs text-sky-700/80 dark:text-sky-400/80 space-y-1.5 list-disc pl-4">
+              <li>Đặt thời gian 0 để không giới hạn.</li>
+              <li>Nên thêm câu hỏi sau khi đã lưu thông tin cơ bản.</li>
+              <li>Sử dụng trạng thái "Bản nháp" khi đang biên soạn đề.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <QuestionPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onConfirm={handleAddQuestions}
+      />
     </div>
   )
 }

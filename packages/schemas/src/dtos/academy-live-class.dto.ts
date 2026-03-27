@@ -26,6 +26,7 @@ export const academyLiveClassQueryDTOSchema = z.object({
   mode: z.string().optional(), // 'LIVE' | 'VOD'
   month: z.string().optional(), // 'yyyy-MM'
   onlyAvailable: z.coerce.boolean().optional(),
+  upcomingRegistration: z.coerce.boolean().optional(),
 });
 export type AcademyLiveClassQueryDTO = z.infer<typeof academyLiveClassQueryDTOSchema>;
 

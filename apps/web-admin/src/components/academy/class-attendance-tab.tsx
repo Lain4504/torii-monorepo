@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Calendar, Clock, CheckCircle2, XCircle, AlertCircle, Bookmark, ChevronRight, Settings2, CalendarSync, Video, Plus } from "lucide-react"
-import { format } from "date-fns"
+import { format, isSameDay } from "date-fns"
 import { vi } from "date-fns/locale"
 import { cn } from "@workspace/ui/lib/utils"
 import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
@@ -47,7 +47,7 @@ interface ClassAttendanceTabProps {
 export function ClassAttendanceTab({ classId: propClassId, academyClass: propAcademyClass }: ClassAttendanceTabProps) {
     const params = useParams()
     const classId = propClassId || params.classId || ""
-    
+
     // Dynamic date range for sessions (past 6 months to future 1 year)
     const now = new Date()
     const fromDate = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().split("T")[0]
@@ -61,8 +61,8 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const academyClass = propAcademyClass || fetchedClass
 
     const { data: enrollmentsData = [] } = useAcademyEnrollments({ liveClassId: classId, page: 1, limit: 100 })
-    const { data: sessions = [] } = useAcademyLiveSessions({ 
-        classId, 
+    const { data: sessions = [] } = useAcademyLiveSessions({
+        classId,
         from: fromDate,
         to: toDate
     })
@@ -74,7 +74,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const { data: schedules = [] } = useAcademyLiveSchedules({ classId })
     const { data: allRequests = [] } = useAcademyLiveScheduleRequests({})
     const requests = allRequests.filter(r => r.session?.classId === classId || (r as any).classId === classId)
-    
+
     const enrollments = enrollmentsData as AcademyEnrollment[]
     const attendances = attendanceData?.items || []
     const createAttendanceMutation = useCreateAcademyClassAttendance()
@@ -143,10 +143,10 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
 
     return (
         <div className="space-y-6">
-            <ClassScheduleSheet 
-                open={scheduleSheetOpen} 
-                onOpenChange={setScheduleSheetOpen} 
-                classId={classId} 
+            <ClassScheduleSheet
+                open={scheduleSheetOpen}
+                onOpenChange={setScheduleSheetOpen}
+                classId={classId}
             />
 
             {selectedSessionForReschedule && (
@@ -177,7 +177,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                     </TabsList>
 
                     <div className="flex items-center gap-2">
-                         <Badge variant="outline" className="font-mono text-[10px] px-2.5 py-0.5 bg-background border-primary/30 text-primary uppercase tracking-tighter shadow-sm">
+                        <Badge variant="outline" className="font-mono text-[10px] px-2.5 py-0.5 bg-background border-primary/30 text-primary uppercase tracking-tighter shadow-sm">
                             {academyClass?.code}
                         </Badge>
                         <Badge variant="secondary" className="flex items-center gap-1.5 px-2.5 py-0.5 font-bold bg-primary/10 text-primary border-primary/20 border">
@@ -299,6 +299,10 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                 <TableBody>
                                                     {activeEnrollments.length ? (
                                                         activeEnrollments.map((en: any) => {
+                                                            const selectedSession = sessions.find((s: any) => s.id === selectedSessionId)
+                                                            const isTodaySession = selectedSession ? isSameDay(new Date(selectedSession.sessionDate), new Date()) : false
+                                                            const canMarkAttendance = isStaffOrAdmin || isTodaySession
+
                                                             const attendance = attendances.find((a: any) => a.userId === en.userId && a.sessionId === selectedSessionId)
                                                             return (
                                                                 <TableRow key={en.id} className="group hover:bg-muted/10 transition-colors border-b last:border-0">
@@ -317,11 +321,12 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                                         <Select
                                                                             value={attendance?.status || ""}
                                                                             onValueChange={(val) => handleStatusChange(en.userId, selectedSessionId, val)}
-                                                                            disabled={createAttendanceMutation.isPending}
+                                                                            disabled={createAttendanceMutation.isPending || !canMarkAttendance}
                                                                         >
                                                                             <SelectTrigger className={cn(
                                                                                 "h-9 w-full shadow-sm hover:border-primary/50 transition-colors",
-                                                                                !attendance?.status && "text-muted-foreground italic border-dashed bg-muted/20"
+                                                                                !attendance?.status && "text-muted-foreground italic border-dashed bg-muted/20",
+                                                                                !canMarkAttendance && "bg-muted/50 cursor-not-allowed opacity-70"
                                                                             )}>
                                                                                 <SelectValue placeholder="Chưa điểm danh" />
                                                                             </SelectTrigger>
@@ -350,13 +355,13 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                     )}
                                                 </TableBody>
                                             </Table>
-                                            </div>
-                                        </ScrollArea>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
+                                        </div>
+                                    </ScrollArea>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
 
                 <TabsContent value="requests" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
                     <Card className="shadow-md border-primary/5 overflow-hidden">

@@ -3,7 +3,9 @@ import {
   Search,
   FileAudio,
   Image as ImageIcon,
+  Plus,
 } from "lucide-react";
+import { Button } from "@workspace/ui/components/button";
 import {
   Table,
   TableBody,
@@ -166,7 +168,13 @@ export default function JlptQuestionsPage() {
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
         title="Ngân hàng Câu hỏi JLPT"
-        subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe; trang đang ở chế độ chỉ xem (read-only)."
+        subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe."
+        actions={
+          <Button onClick={() => toast.info("Tính năng thêm câu hỏi mới đang được phát triển")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm câu hỏi
+          </Button>
+        }
       />
 
       <div className="space-y-4">

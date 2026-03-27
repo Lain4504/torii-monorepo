@@ -50,12 +50,19 @@ export const academyLessonsApi = {
     )
     return res.data.data!.item
   },
-
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/lessons/${id}`,
     )
     return res.data
+  },
+
+  async reorder(moduleId: string, lessonIds: string[]) {
+    const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
+      "/api/academy/lessons/reorder",
+      { moduleId, lessonIds },
+    )
+    return res.data.data
   },
 }
 
@@ -96,5 +103,17 @@ export function useDeleteAcademyLesson() {
   return useMutation({
     mutationFn: (id: string) => academyLessonsApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-lessons"] }),
+  })
+}
+
+export function useReorderAcademyLessons() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ moduleId, lessonIds }: { moduleId: string; lessonIds: string[] }) =>
+      academyLessonsApi.reorder(moduleId, lessonIds),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profile"] })
+      qc.invalidateQueries({ queryKey: ["academy-lessons"] })
+    },
   })
 }

@@ -4,7 +4,7 @@ import { LiveClassService } from './live-class.service';
 
 @Controller()
 export class LiveClassHandler {
-  constructor(private readonly service: LiveClassService) {}
+  constructor(private readonly service: LiveClassService) { }
 
   @MessagePattern({ cmd: 'academy.liveClass.findAll' })
   findAll(@Payload() query: any) {
@@ -39,5 +39,20 @@ export class LiveClassHandler {
   @MessagePattern({ cmd: 'academy.liveClass.addAssignment' })
   addAssignment(@Payload() data: any) {
     return this.service.addAssignment(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.liveClass.getAssignmentById' })
+  getAssignmentById(@Payload() data: { id: string }) {
+    return this.service.getAssignmentById(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.liveClass.updateAssignment' })
+  updateAssignment(@Payload() data: { id: string; input: any }) {
+    return this.service.updateAssignment(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.liveClass.removeAssignment' })
+  removeAssignment(@Payload() data: { id: string }) {
+    return this.service.removeAssignment(data.id);
   }
 }

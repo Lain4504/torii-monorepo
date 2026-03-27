@@ -40,10 +40,18 @@ export const academyCourseModulesApi = {
 
     return res.data.data!.item
   },
-
   async delete(courseProfileId: string, moduleId: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/course-profiles/${courseProfileId}/modules/${moduleId}`,
+    )
+
+    return res.data.data
+  },
+
+  async reorder(courseProfileId: string, moduleIds: string[]) {
+    const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/course-profiles/${courseProfileId}/modules/reorder`,
+      { moduleIds },
     )
 
     return res.data.data
@@ -80,6 +88,18 @@ export function useDeleteAcademyCourseModule() {
   return useMutation({
     mutationFn: ({ courseProfileId, moduleId }: { courseProfileId: string; moduleId: string }) =>
       academyCourseModulesApi.delete(courseProfileId, moduleId),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", variables.courseProfileId] })
+    },
+  })
+}
+
+export function useReorderAcademyCourseModules() {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ courseProfileId, moduleIds }: { courseProfileId: string; moduleIds: string[] }) =>
+      academyCourseModulesApi.reorder(courseProfileId, moduleIds),
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: ["academy-course-profile", variables.courseProfileId] })
     },

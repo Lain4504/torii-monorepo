@@ -2188,7 +2188,7 @@ model AcademyExamQuestion {
 
   exam     AcademyExam        @relation(fields: [examId], references: [id], onDelete: Cascade)
   section  AcademyExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  question AcademyQuestion    @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  question AcademyQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   attemptAnswers AcademyExamAttemptAnswer[]
 

@@ -11,6 +11,7 @@ import {
     Trophy,
     Bot,
     Languages,
+    BookOpen,
 } from "lucide-react";
 import { UserRole } from "@workspace/schemas";
 
@@ -52,14 +53,23 @@ export const academicNavItems: NavItem[] = [
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write", "academy.content.approve", "academy.commerce.approve"],
         items: [
-            { titleKey: "Lớp học Live", url: "/academy/live-classes", lecturerTitleKey: "Lớp của tôi" },
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["academy.delivery.read", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
             { titleKey: "Đợt khai giảng (Cohorts)", url: "/academy/cohorts", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Ngân hàng câu hỏi", url: "/academy/assessment/questions", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Danh sách bài thi", url: "/academy/assessment/exams", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Study Set Catalogs", url: "/academy/study-set-catalogs", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Lớp học Live", url: "/academy/live-classes", lecturerTitleKey: "Lớp của tôi" },
+            { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["academy.delivery.read", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
             { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
+        ]
+    },
+    {
+        titleKey: "Ngân hàng & Đánh giá",
+        url: "/academy/assessment/questions",
+        icon: BookOpen,
+        excludeRoles: [UserRole.LECTURER],
+        anyPermission: ["academy.content.read", "academy.content.write"],
+        items: [
+            { titleKey: "Ngân hàng câu hỏi", url: "/academy/assessment/questions" },
+            { titleKey: "Danh sách bài thi", url: "/academy/assessment/exams" },
+            { titleKey: "Study Set Catalogs", url: "/academy/study-set-catalogs" },
         ]
     },
     {
