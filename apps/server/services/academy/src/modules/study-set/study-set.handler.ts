@@ -13,7 +13,7 @@ import {
 
 @Controller()
 export class StudySetHandler {
-  constructor(private readonly studySetService: StudySetService) {}
+  constructor(private readonly studySetService: StudySetService) { }
 
   @MessagePattern('academy.study-set.createSet')
   createSet(@Payload() payload: { userId: string; data: CreateStudySetDto }) {
@@ -26,8 +26,8 @@ export class StudySetHandler {
   }
 
   @MessagePattern('academy.study-set.findPublicCatalogSets')
-  findPublicCatalogSets() {
-    return this.studySetService.findPublicCatalogSets();
+  findPublicCatalogSets(@Payload() data: { q?: string }) {
+    return this.studySetService.findPublicCatalogSets(data.q);
   }
 
   @MessagePattern('academy.study-set.findPublicCatalogSetById')

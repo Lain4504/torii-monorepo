@@ -43,14 +43,15 @@ import {
 export class StudySetController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get('study-set-catalogs')
   @Public()
-  async findPublicCatalogSets() {
+  async findPublicCatalogSets(@Req() req: any) {
     try {
+      const q = req.query.q as string | undefined;
       const items = await firstValueFrom(
-        this.natsClient.send('academy.study-set.findPublicCatalogSets', {}),
+        this.natsClient.send('academy.study-set.findPublicCatalogSets', { q }),
       );
       return successResponse({ items });
     } catch (error: any) {

@@ -38,7 +38,7 @@ export class TicketService implements ITicketService {
     private readonly emailService: EmailService,
     private readonly audit: AuditLoggerService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   async createTicket(
     userId: string,
@@ -49,28 +49,30 @@ export class TicketService implements ITicketService {
 
     if (dto.type === TicketType.REFUND) {
       const liveClassId = (dto as any).liveClassId || (dto as any).classId;
+      const vodPackageId = (dto as any).vodPackageId || (dto as any).courseId;
 
-      if (!liveClassId) {
-        throw new BadRequestException('Class ID is required for refund ticket');
+      if (!liveClassId && !vodPackageId) {
+        throw new BadRequestException('Class or Course ID is required for refund ticket');
       }
 
       try {
         const result = await firstValueFrom(
           this.natsClient.send(
             { cmd: 'academy.enrollment.check' },
-            { userId, liveClassId },
+            { userId, liveClassId, vodPackageId },
           ),
         );
 
         if (!result || !result.isEnrolled) {
           throw new BadRequestException(
-            'You are not enrolled in this course run or enrollment is not active',
+            'Bạn chưa đăng ký khóa học này hoặc đăng ký không còn hiệu lực.',
           );
         }
 
-        const enrollmentDate = new Date(result.enrollment.enrollmentDate);
+        const enrollment = result.enrollment;
+        const enrolledAt = new Date(enrollment.enrolledAt || enrollment.enrollmentDate);
         const now = new Date();
-        const diffTime = Math.abs(now.getTime() - enrollmentDate.getTime());
+        const diffTime = Math.abs(now.getTime() - enrolledAt.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays > 14) {
@@ -79,36 +81,51 @@ export class TicketService implements ITicketService {
           );
         }
 
-        const progress = result.enrollment?.completionPercentage || 0;
+        const progress = enrollment.progress ?? enrollment.completionPercentage ?? 0;
         if (progress > 20) {
           throw new BadRequestException(
-            'Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành hơn 20% nội dung.',
+            `Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành ${progress}% nội dung (giới hạn là 20%).`,
           );
         }
 
-        const classResult = await firstValueFrom(
-          this.natsClient.send(
-            { cmd: 'academy.class.findById' },
-            { id: liveClassId },
-          ),
-        ).catch(() => null);
+        let courseTitle = 'Khóa học';
+        if (liveClassId) {
+          const classResult = await firstValueFrom(
+            this.natsClient.send(
+              { cmd: 'academy.class.findById' },
+              { id: liveClassId },
+            ),
+          ).catch(() => null);
+          courseTitle = classResult?.name || courseTitle;
+        } else if (vodPackageId) {
+          const vodResult = await firstValueFrom(
+            this.natsClient.send(
+              { cmd: 'academy.vod.findById' },
+              { id: vodPackageId },
+            ),
+          ).catch(() => null);
+          courseTitle = vodResult?.title || courseTitle;
+        }
 
         // Auto-resolve orderId for the ticket if it's a refund
-        const orderId = result.enrollment?.sourceOrderId;
+        const orderId = enrollment.sourceOrderId;
 
         ticketMetadata = {
           ...dto.metadata,
           progress,
-          enrollmentDate: result.enrollment.enrollmentDate,
-          courseTitle: classResult?.name || 'Unknown Class',
-          originalOrderId: orderId, // Store in metadata as well for record
+          enrolledAt,
+          courseTitle,
+          liveClassId,
+          vodPackageId,
+          originalOrderId: orderId,
         };
 
         // Create the ticket with the resolved orderId
         return this.ticketRepository.create({
           ...dto,
           userId,
-          orderId: (dto as any).orderId || orderId, // Prioritize DTO but fallback to enrollment order
+          liveClassId: liveClassId || undefined,
+          orderId: (dto as any).orderId || orderId,
           metadata: ticketMetadata,
         });
       } catch (error) {
@@ -181,9 +198,10 @@ export class TicketService implements ITicketService {
     ) {
       const liveClassId =
         (ticket as any).liveClassId || (ticket as any).classId;
+      const vodPackageId = (ticket as any).metadata?.vodPackageId;
       const userId = ticket.userId;
 
-      if (liveClassId && userId) {
+      if ((liveClassId || vodPackageId) && userId) {
         try {
           // Find order for this enrollment if not specified in ticket
           let orderId = ticket.orderId;
@@ -191,7 +209,7 @@ export class TicketService implements ITicketService {
           const enrollmentResult = await firstValueFrom(
             this.natsClient.send(
               { cmd: 'academy.enrollment.check' },
-              { userId, liveClassId },
+              { userId, liveClassId, vodPackageId },
             ),
           ).catch(() => null);
 
@@ -327,11 +345,15 @@ export class TicketService implements ITicketService {
       });
 
       // 3. Cancel Enrollment
-      if (liveClassId) {
+      const vodPackageId = (ticket.metadata as any)?.vodPackageId;
+
+      if (liveClassId || vodPackageId) {
+        const where = liveClassId
+          ? { userId_liveClassId: { userId, liveClassId } }
+          : { userId_vodPackageId: { userId, vodPackageId } };
+
         const enrollment = await tx.enrollment.findUnique({
-          where: {
-            userId_liveClassId: { userId, liveClassId: liveClassId },
-          },
+          where: where as any,
         });
 
         if (enrollment) {
@@ -340,7 +362,7 @@ export class TicketService implements ITicketService {
             data: { status: 'CANCELLED' },
           });
           this.logger.log(
-            `Enrollment ${enrollment.id} cancelled for refund ticket ${ticket.id}`,
+            `Enrollment ${enrollment.id} (${liveClassId ? 'Live' : 'VOD'}) cancelled for refund ticket ${ticket.id}`,
           );
         }
       }

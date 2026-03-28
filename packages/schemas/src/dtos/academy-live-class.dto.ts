@@ -23,6 +23,7 @@ export const academyLiveClassQueryDTOSchema = z.object({
   instructorId: z.string().uuid().optional(),
   status: z.string().optional(),
   q: z.string().optional(),
+  level: z.string().optional(),
   mode: z.string().optional(), // 'LIVE' | 'VOD'
   month: z.string().optional(), // 'yyyy-MM'
   onlyAvailable: z.coerce.boolean().optional(),

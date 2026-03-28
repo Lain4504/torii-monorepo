@@ -53,8 +53,12 @@ export default function StudySetDetailPage() {
 
     const set = isCatalogView ? catalogSet.data : privateSet.data;
     const isLoading = isCatalogView ? catalogSet.isLoading : privateSet.isLoading;
-    const canLearn = isAuthenticated && !isCatalogView;
-    const canCreateCard = isAuthenticated && !isCatalogView;
+
+    const { user: currentUser } = useAppSelector((state) => state.auth);
+    const isOwner = set?.userId === currentUser?.id;
+
+    const canLearn = isAuthenticated;
+    const canCreateCard = isAuthenticated && !isCatalogView && isOwner;
     const createCard = useCreateAcademySetCard();
     const updateCard = useUpdateAcademySetCard();
     const deleteCard = useDeleteAcademySetCard();
@@ -170,8 +174,8 @@ export default function StudySetDetailPage() {
         <div className="rounded-xl border border-border/70 bg-card p-4 transition-colors hover:bg-muted/20">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                <p className="text-lg font-semibold">{card.term}</p>
-                <p className="text-[22px] text-muted-foreground">{card.definition}</p>
+                    <p className="text-lg font-semibold">{card.term}</p>
+                    <p className="text-[22px] text-muted-foreground">{card.definition}</p>
                 </div>
                 {canCreateCard ? (
                     <div className="flex items-center gap-1">
@@ -205,10 +209,10 @@ export default function StudySetDetailPage() {
                 canAccessLearning={canLearn}
             />
 
-            {!canLearn ? (
+            {!isAuthenticated ? (
                 <Card className="border-primary/30 bg-primary/5">
                     <CardContent className="py-3 text-sm text-primary">
-                        Bạn đang xem bộ thẻ khám phá. Chỉ được xem bên ngoài, không thể vào chế độ học.
+                        Bạn đang ở chế độ tham quan. Đăng nhập để bắt đầu học flashcard, trắc nghiệm và match.
                     </CardContent>
                 </Card>
             ) : null}

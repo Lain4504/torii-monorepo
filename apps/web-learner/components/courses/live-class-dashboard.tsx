@@ -87,26 +87,26 @@ export function LiveClassDashboard() {
                                 {academyClass.code}
                             </span>
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-zinc-900 leading-tight">
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
                             {academyClass.name}
                         </h1>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div className="bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm flex flex-col gap-1">
-                            <span className="text-xs font-bold text-zinc-400 uppercase">Thời lượng</span>
+                        <div className="bg-card p-4 rounded-2xl border border-border shadow-sm flex flex-col gap-1">
+                            <span className="text-xs font-bold text-muted-foreground uppercase">Thời lượng</span>
                             <span className="text-lg font-bold">{(academyClass as any).durationDays || 0} ngày</span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm flex flex-col gap-1">
-                            <span className="text-xs font-bold text-zinc-400 uppercase">Buổi Live</span>
+                        <div className="bg-card p-4 rounded-2xl border border-border shadow-sm flex flex-col gap-1">
+                            <span className="text-xs font-bold text-muted-foreground uppercase">Buổi Live</span>
                             <span className="text-lg font-bold">{sessions.length} buổi</span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm flex flex-col gap-1">
-                            <span className="text-xs font-bold text-zinc-400 uppercase">Giảng viên</span>
+                        <div className="bg-card p-4 rounded-2xl border border-border shadow-sm flex flex-col gap-1">
+                            <span className="text-xs font-bold text-muted-foreground uppercase">Giảng viên</span>
                             <span className="text-lg font-bold">{(academyClass as any).courseProfile?.instructorName || "Torii Instructor"}</span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm flex flex-col gap-1">
-                            <span className="text-xs font-bold text-zinc-400 uppercase">Trình độ</span>
+                        <div className="bg-card p-4 rounded-2xl border border-border shadow-sm flex flex-col gap-1">
+                            <span className="text-xs font-bold text-muted-foreground uppercase">Trình độ</span>
                             <span className="text-lg font-bold">{(academyClass as any).courseProfile?.level || "JLPT"}</span>
                         </div>
                     </div>
@@ -132,7 +132,7 @@ export function LiveClassDashboard() {
                             <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6">
                                 <div className="space-y-1">
                                     <h3 className="text-xl font-bold">{ongoingSession.title}</h3>
-                                    <div className="flex items-center gap-3 text-sm font-semibold text-zinc-600">
+                                    <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
                                         <span className="flex items-center gap-1.5">
                                             <Calendar className="size-4" />
                                             {format(new Date(ongoingSession.scheduledAt), "eeee, dd/MM", { locale: vi })}
@@ -156,7 +156,7 @@ export function LiveClassDashboard() {
                     )}
                 </div>
 
-                <div className="lg:col-span-1 border border-zinc-100 bg-white shadow-xl rounded-[32px] overflow-hidden">
+                <div className="lg:col-span-1 border border-border bg-card shadow-xl rounded-[32px] overflow-hidden">
                     <div className="aspect-[4/5] relative">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -169,7 +169,7 @@ export function LiveClassDashboard() {
                             <h3 className="text-2xl font-black mb-4">Chào mừng bạn đến với lớp {academyClass.code}!</h3>
                             <Button
                                 variant="outline"
-                                className="bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md font-bold"
+                                className="bg-card/10 border-white/20 text-white hover:bg-card/20 backdrop-blur-md font-bold"
                                 onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
                             >
                                 <BookOpen className="mr-2 size-4" />
@@ -190,7 +190,7 @@ export function LiveClassDashboard() {
                         </h2>
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>Trước</Button>
-                            <h3 className="text-sm font-bold bg-zinc-100 px-3 py-1 rounded-full">
+                            <h3 className="text-sm font-bold bg-muted px-3 py-1 rounded-full">
                                 {format(currentWeekStart, "dd/MM")} - {format(addDays(currentWeekStart, 6), "dd/MM")}
                             </h3>
                             <Button variant="ghost" size="sm" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>Sau</Button>
@@ -205,13 +205,13 @@ export function LiveClassDashboard() {
                             return (
                                 <div
                                     key={idx}
-                                    className={`flex flex-col min-h-[180px] rounded-3xl border transition-all ${isToday ? 'border-primary bg-primary/5 shadow-inner' : 'border-zinc-100 bg-white'}`}
+                                    className={`flex flex-col min-h-[180px] rounded-3xl border transition-all ${isToday ? 'border-primary bg-primary/5 shadow-inner' : 'border-border bg-card'}`}
                                 >
-                                    <div className={`p-3 text-center border-b ${isToday ? 'border-primary/10' : 'border-zinc-50'}`}>
-                                        <div className={`text-[10px] font-black uppercase tracking-tighter ${isToday ? 'text-primary' : 'text-zinc-400'}`}>
+                                    <div className={`p-3 text-center border-b ${isToday ? 'border-primary/10' : 'border-border'}`}>
+                                        <div className={`text-[10px] font-black uppercase tracking-tighter ${isToday ? 'text-primary' : 'text-muted-foreground'}`}>
                                             {format(day, "eee", { locale: vi })}
                                         </div>
-                                        <div className={`text-xl font-black ${isToday ? 'text-primary' : 'text-zinc-900'}`}>
+                                        <div className={`text-xl font-black ${isToday ? 'text-primary' : 'text-foreground'}`}>
                                             {format(day, "dd")}
                                         </div>
                                     </div>
@@ -219,7 +219,7 @@ export function LiveClassDashboard() {
                                         {daySessions.map((session: any, sIdx: number) => (
                                             <div
                                                 key={sIdx}
-                                                className={`p-2 rounded-xl text-[10px] font-bold leading-tight cursor-pointer hover:scale-105 transition-transform ${isToday ? 'bg-primary text-white' : 'bg-zinc-100 text-zinc-600'}`}
+                                                className={`p-2 rounded-xl text-[10px] font-bold leading-tight cursor-pointer hover:scale-105 transition-transform ${isToday ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}
                                                 title={session.title}
                                             >
                                                 <div className="flex items-center gap-1 mb-1">
@@ -258,7 +258,7 @@ export function LiveClassDashboard() {
                             </div>
 
                             <TabsContent value="curriculum">
-                                <Card className="rounded-[32px] overflow-hidden border-zinc-100 shadow-sm">
+                                <Card className="rounded-[32px] overflow-hidden border-border shadow-sm">
                                     <div className="p-6 md:p-10">
                                         {curriculum ? (
                                             <CourseCurriculum
@@ -268,7 +268,7 @@ export function LiveClassDashboard() {
                                         ) : (
                                             <div className="text-center py-12">
                                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                                                <p className="mt-4 text-zinc-500 font-medium">Đang tải học liệu...</p>
+                                                <p className="mt-4 text-muted-foreground font-medium">Đang tải học liệu...</p>
                                             </div>
                                         )}
                                     </div>
@@ -284,7 +284,7 @@ export function LiveClassDashboard() {
 
                 {/* Column 2: Upcoming sessions & Stats */}
                 <div className="xl:col-span-4 space-y-6">
-                    <Card className="rounded-[32px] overflow-hidden border-zinc-100 shadow-xl bg-zinc-900 text-white">
+                    <Card className="rounded-[32px] overflow-hidden border-border shadow-xl bg-zinc-900 text-white">
                         <CardHeader className="border-b border-white/10 pb-6">
                             <CardTitle className="flex items-center gap-2 text-xl font-black tracking-tight">
                                 <Video className="size-5 text-primary" />
@@ -297,7 +297,7 @@ export function LiveClassDashboard() {
                                     {upcomingSessions.length > 0 ? (
                                         upcomingSessions.slice(0, 5).map((session, idx) => (
                                             <div key={idx} className="group cursor-pointer">
-                                                <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all">
+                                                <div className="flex items-start gap-4 p-4 rounded-2xl bg-card/5 border border-white/5 hover:bg-card/10 hover:border-white/10 transition-all">
                                                     <div className="size-12 rounded-xl bg-primary/20 flex flex-col items-center justify-center text-primary shrink-0">
                                                         <span className="text-[10px] font-black uppercase leading-none">{format(new Date(session.scheduledAt), "MMM")}</span>
                                                         <span className="text-lg font-black leading-none">{format(new Date(session.scheduledAt), "dd")}</span>
@@ -321,38 +321,38 @@ export function LiveClassDashboard() {
                                 </div>
                             </ScrollArea>
                             <div className="p-6 pt-0">
-                                <Button className="w-full bg-white text-zinc-900 hover:bg-zinc-200 font-black h-12 rounded-2xl">
+                                <Button className="w-full bg-card text-foreground hover:bg-zinc-200 font-black h-12 rounded-2xl">
                                     Xem toàn bộ lịch học
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="rounded-[32px] overflow-hidden shadow-sm border-zinc-100">
+                    <Card className="rounded-[32px] overflow-hidden shadow-sm border-border">
                         <CardHeader>
                             <CardTitle className="text-lg font-black tracking-tight">Thông tin lớp học</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="flex items-center gap-4">
-                                <div className="size-12 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-600">
+                                <div className="size-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
                                     <Users className="size-6" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Học viên</div>
+                                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Học viên</div>
                                     <div className="text-base font-black">24 bạn đang học</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
-                                <div className="size-12 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-600">
+                                <div className="size-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground">
                                     <PlayCircle className="size-6" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Trạng thái</div>
+                                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Trạng thái</div>
                                     <Badge className="bg-green-500/10 text-green-600 border-green-500/20">Đang hoạt động</Badge>
                                 </div>
                             </div>
-                            <div className="pt-4 border-t border-zinc-50">
-                                <Button variant="ghost" className="w-full justify-between font-bold text-zinc-500 hover:text-primary p-0 h-auto">
+                            <div className="pt-4 border-t border-border">
+                                <Button variant="ghost" className="w-full justify-between font-bold text-muted-foreground hover:text-primary p-0 h-auto">
                                     Hỗ trợ học tập
                                     <ChevronRight className="size-4" />
                                 </Button>

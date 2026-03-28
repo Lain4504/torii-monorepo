@@ -17,7 +17,7 @@ export class StudySetService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gamification: GamificationService,
-  ) {}
+  ) { }
 
   // --- Study Set Methods ---
   private generateShareToken() {
@@ -50,19 +50,37 @@ export class StudySetService {
     });
   }
 
-  async findPublicCatalogSets() {
+  async findPublicCatalogSets(q?: string) {
+    const where: Prisma.StudySetWhereInput = {
+      isPublic: true,
+    };
+
+    if (q?.trim()) {
+      where.OR = [
+        { title: { contains: q.trim(), mode: 'insensitive' } },
+        { description: { contains: q.trim(), mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.studySet.findMany({
-      where: { isPublic: true, sourceType: 'SYSTEM' },
+      where,
       include: {
+        user: {
+          select: { id: true, displayName: true, avatarUrl: true },
+        },
         _count: { select: { setCards: true } },
       },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [
+        { sourceType: 'asc' }, // SYSTEM (0) first, then USER (1)? Wait, it's an enum.
+        { updatedAt: 'desc' },
+      ],
+      take: 50,
     });
   }
 
   async findPublicCatalogSetById(id: string) {
     const set = await this.prisma.studySet.findFirst({
-      where: { id, isPublic: true, sourceType: 'SYSTEM' },
+      where: { id, isPublic: true },
       include: {
         setCards: { orderBy: { createdAt: 'desc' } },
         _count: { select: { setCards: true } },
@@ -131,7 +149,13 @@ export class StudySetService {
 
   async findSetById(id: string, userId: string) {
     const set = await this.prisma.studySet.findFirst({
-      where: { id, userId, sourceType: 'USER' },
+      where: {
+        id,
+        OR: [
+          { userId },
+          { isPublic: true },
+        ],
+      },
       include: {
         setCards: {
           orderBy: { createdAt: 'desc' },
@@ -312,7 +336,15 @@ export class StudySetService {
 
   async reviewCard(cardId: string, userId: string, data: ReviewSetCardDto) {
     const card = await this.prisma.setCard.findFirst({
-      where: { id: cardId, studySet: { userId } },
+      where: {
+        id: cardId,
+        studySet: {
+          OR: [
+            { userId },
+            { isPublic: true },
+          ],
+        },
+      },
     });
     if (!card) throw new NotFoundException('Card not found');
 

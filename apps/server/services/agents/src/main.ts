@@ -10,7 +10,7 @@ async function bootstrap() {
   // Create NATS microservice (connection only, no HTTP server)
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AgentsModule,
-    createNatsServiceConfig(),
+    createNatsServiceConfig('agents_queue'),
   );
 
   // Enable validation for NATS incoming messages

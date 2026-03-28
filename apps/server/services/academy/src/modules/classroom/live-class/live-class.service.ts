@@ -39,6 +39,14 @@ export class LiveClassService {
       });
     }
 
+    if (q.level) {
+      cohortConditions.push({
+        courseProfile: {
+          level: q.level,
+        },
+      });
+    }
+
     if (q.onlyAvailable) {
       cohortConditions.push({
         OR: [

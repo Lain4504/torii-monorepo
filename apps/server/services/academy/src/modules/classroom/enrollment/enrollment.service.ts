@@ -1,12 +1,17 @@
+import { ClientProxy } from '@nestjs/microservices';
 import {
   BadRequestException,
+  Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 import { AchievementService } from '../../gamification/achievement.service';
+import { GamificationService } from '../../gamification/gamification.service';
+import { ActivityType } from '@prisma/generated';
 
 @Injectable()
 export class EnrollmentService {
@@ -14,13 +19,19 @@ export class EnrollmentService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     private readonly achievementService: AchievementService,
+    private readonly gamificationService: GamificationService,
+    @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
   ) { }
+
+  private readonly logger = new Logger(EnrollmentService.name);
 
   async findAll(query: any) {
     const enrollments = await this.prisma.enrollment.findMany({
       where: {
         userId: query.userId ?? undefined,
         status: query.status ?? undefined,
+        liveClassId: query.liveClassId || query.classId || undefined,
+        vodPackageId: query.vodPackageId || query.courseId || undefined,
       },
       include: {
         user: {
@@ -92,6 +103,9 @@ export class EnrollmentService {
           const courseProfile =
             e.liveClass?.cohort?.courseProfile ?? e.vodPackage?.courseProfile;
 
+          // Use specific instance title if available, otherwise fallback to course profile title
+          const courseTitle = e.liveClass?.name || e.vodPackage?.title || courseProfile?.title;
+
           return {
             id: e.id,
             status: e.status,
@@ -101,10 +115,11 @@ export class EnrollmentService {
             liveClassId: e.liveClassId,
             cohortId: e.liveClass?.cohortId,
             type: e.liveClassId ? 'live' : 'vod',
-            courseTitle: courseProfile?.title,
+            courseTitle,
             courseCode: courseProfile?.code,
             thumbnailUrl: courseProfile?.thumbnailUrl,
             instructor,
+            progress: progressPercent,
             progressPercent,
             completedLessons,
             totalLessons,
@@ -149,7 +164,10 @@ export class EnrollmentService {
   }
 
   async getStatsForUser(userId: string) {
-    const list = await this.findAll({ userId, status: 'ACTIVE' });
+    const list = await this.findAll({
+      userId,
+      status: { in: ['ACTIVE', 'COMPLETED'] },
+    });
     let sumProgress = 0,
       completedCourses = 0,
       inProgressCourses = 0,
@@ -157,13 +175,71 @@ export class EnrollmentService {
     const MINUTES_PER_LESSON = 15;
 
     for (const r of list as any[]) {
-      const p = r.progressPercent ?? 0;
+      let p = r.progressPercent ?? 0;
+
+      // Self-healing: If ACTIVE but 100%, transition to COMPLETED
+      if (r.status === 'ACTIVE' && p >= 100) {
+        try {
+          await this.prisma.enrollment.update({
+            where: { id: r.id },
+            data: { status: 'COMPLETED' },
+          });
+          r.status = 'COMPLETED'; // Update local object for stats
+          // Emit event to trigger certificate generation
+          this.nats.emit('enrollment.completed', { enrollmentId: r.id });
+          this.logger.log(`Self-healed enrollment ${r.id} to COMPLETED`);
+        } catch (err) {
+          this.logger.error(`Failed to self-heal enrollment ${r.id}:`, err);
+        }
+      }
+
       sumProgress += p;
-      if (p >= 100) completedCourses++;
+      if (r.status === 'COMPLETED' || p >= 100) completedCourses++;
       else if (p > 0) inProgressCourses++;
+
       const cl = r.completedLessons ?? 0;
       totalLearningHours += (cl * MINUTES_PER_LESSON) / 60;
     }
+
+    // Fetch real gamification data
+    const gProfile = await this.gamificationService.getProfile(userId);
+    const gStreak = await this.gamificationService.getStreakStatus(userId);
+
+    // Calculate weekly activity (last 7 days)
+    const weeklyActivity = [0, 0, 0, 0, 0, 0, 0];
+    const today = new Date();
+    // In Vietnam time (Asia/Ho_Chi_Minh)
+    const vnToday = new Date(
+      today.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }),
+    );
+
+    // Get the Monday of the current week
+    const dayOfWeek = vnToday.getDay(); // 0 (Sun) to 6 (Sat)
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(vnToday);
+    monday.setDate(vnToday.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dStr = d.toISOString().split('T')[0];
+      if (gStreak.recentActiveDates.includes(dStr)) {
+        // Count how many lessons completed on this day in history
+        const count = await this.prisma.gamificationHistory.count({
+          where: {
+            userId,
+            activityType: ActivityType.LESSON_COMPLETE,
+            createdAt: {
+              gte: new Date(`${dStr}T00:00:00.000Z`),
+              lte: new Date(`${dStr}T23:59:59.999Z`),
+            },
+          },
+        });
+        weeklyActivity[i] = count;
+      }
+    }
+
     return {
       totalCourses: list.length,
       completedCourses,
@@ -171,10 +247,10 @@ export class EnrollmentService {
       averageProgress:
         list.length > 0 ? Math.round(sumProgress / list.length) : 0,
       totalLearningHours: Math.round(totalLearningHours * 10) / 10,
-      weeklyActivity: [0, 0, 0, 0, 0, 0, 0],
-      streak: 0,
-      level: 1,
-      xp: 0,
+      weeklyActivity,
+      streak: gStreak.currentStreak,
+      level: gProfile.level,
+      xp: gProfile.totalXp,
       onboarding: { dailyGoal: 3 },
     };
   }
@@ -245,10 +321,39 @@ export class EnrollmentService {
         : { userId, vodPackageId: targetId };
     const enrollment = await this.prisma.enrollment.findFirst({
       where: { ...where, status: { in: ['ACTIVE', 'COMPLETED'] } },
+      include: {
+        liveClass: { include: { cohort: true } },
+        vodPackage: true,
+      },
     });
+
+    if (!enrollment) {
+      return { isEnrolled: false, enrollment: null };
+    }
+
+    // Calculate progress for metadata
+    const cpId = enrollment.liveClass?.cohort?.courseProfileId || enrollment.vodPackage?.courseProfileId;
+    let progress = 0;
+    if (cpId) {
+      const totalLessons = await this.prisma.lesson.count({
+        where: { module: { courseProfileId: cpId } },
+      });
+      const completedCount = await this.prisma.userLessonProgress.count({
+        where: {
+          enrollmentId: enrollment.id,
+          isCompleted: true,
+        },
+      });
+      progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+    }
+
     return {
-      isEnrolled: !!enrollment,
-      enrollmentStatus: enrollment?.status ?? null,
+      isEnrolled: true,
+      enrollment: {
+        ...enrollment,
+        progress,
+        enrollmentDate: enrollment.enrolledAt, // Alias for legacy ticket service compatibility
+      },
     };
   }
 
@@ -258,6 +363,10 @@ export class EnrollmentService {
         userId,
         OR: [{ vodPackageId: targetId }, { liveClassId: targetId }],
         status: { in: ['ACTIVE', 'COMPLETED'] },
+      },
+      include: {
+        liveClass: { include: { cohort: true } },
+        vodPackage: true,
       },
     });
 
@@ -284,6 +393,65 @@ export class EnrollmentService {
         lastWatchedAt: new Date(),
       },
     });
+
+    // Fetch title for history
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { title: true },
+    });
+
+    let courseTitle = 'Khóa học';
+    if (enrollment.liveClassId) {
+      const liveClass = await this.prisma.liveClass.findUnique({
+        where: { id: enrollment.liveClassId },
+        select: { name: true },
+      });
+      courseTitle = liveClass?.name || courseTitle;
+    } else if (enrollment.vodPackageId) {
+      const vod = await this.prisma.vodPackage.findUnique({
+        where: { id: enrollment.vodPackageId },
+        select: { title: true },
+      });
+      courseTitle = vod?.title || courseTitle;
+    }
+
+    // Award XP and update streak via GamificationService
+    await this.gamificationService.trackActivity(
+      userId,
+      ActivityType.LESSON_COMPLETE,
+      {
+        lessonId,
+        lessonTitle: lesson?.title,
+        courseTitle,
+        enrollmentId: enrollment.id,
+        targetId,
+      },
+    );
+
+    // Recalculate progress to check for completion
+    const cpId = enrollment.liveClass?.cohort?.courseProfileId || enrollment.vodPackage?.courseProfileId;
+    if (cpId) {
+      const totalLessons = await this.prisma.lesson.count({
+        where: { module: { courseProfileId: cpId } },
+      });
+      const completedCount = await this.prisma.userLessonProgress.count({
+        where: {
+          enrollmentId: enrollment.id,
+          isCompleted: true,
+        },
+      });
+
+      if (totalLessons > 0 && completedCount >= totalLessons && enrollment.status !== 'COMPLETED') {
+        // Mark enrollment as completed
+        await this.prisma.enrollment.update({
+          where: { id: enrollment.id },
+          data: { status: 'COMPLETED' },
+        });
+
+        // Emit enrollment.completed event to trigger certificate generation
+        this.nats.emit('enrollment.completed', { enrollmentId: enrollment.id });
+      }
+    }
 
     return { success: true, progress };
   }

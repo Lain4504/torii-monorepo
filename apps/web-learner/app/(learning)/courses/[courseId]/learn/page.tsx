@@ -318,7 +318,7 @@ function ModuleItem({
                         const isDone = isTrackableLessonKind(lesson.kind)
                             ? completedIds.has(lessonProgressId(lesson))
                             : false;
-                        
+
                         const lessonMilestones = milestones?.filter(m => m.triggerLessonId === lesson.id) || [];
 
                         return (
@@ -347,21 +347,21 @@ function ModuleItem({
                                     </div>
                                 </Button>
                                 {lessonMilestones.map(m => (
-                                    <MilestoneItem 
-                                        key={m.assessmentId} 
-                                        milestone={m} 
-                                        onClick={() => onSelectMilestone?.(m)} 
+                                    <MilestoneItem
+                                        key={m.assessmentId}
+                                        milestone={m}
+                                        onClick={() => onSelectMilestone?.(m)}
                                     />
                                 ))}
                             </div>
                         );
                     })}
-                    
+
                     {milestones?.filter(m => !m.triggerLessonId).map(m => (
-                        <MilestoneItem 
-                            key={m.assessmentId} 
-                            milestone={m} 
-                            onClick={() => onSelectMilestone?.(m)} 
+                        <MilestoneItem
+                            key={m.assessmentId}
+                            milestone={m}
+                            onClick={() => onSelectMilestone?.(m)}
                         />
                     ))}
                 </div>
@@ -381,22 +381,29 @@ export default function CourseLearnPage() {
     const queryClient = useQueryClient();
     const hasHandledForbiddenRef = useRef(false);
 
+    const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
+
     // ── API (Smart Bridge) ────────────────────────────────────────────────
     // 1. Try to fetch as a Live Class
     const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(classId);
     const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(classId);
-    
-    // 2. Try to fetch as a VOD Package if Live Class is not found (404)
+
+    // 2. Determine mode (VOD vs LIVE)
+    // - Check Gateway's Smart Bridge fallback (returns mode: 'VOD' for liveClassId)
+    // - Check explicit enrollment type
+    // - Check for 404/403 errors that suggest the class is not of this type
     const liveMode = String((liveClassData as any)?.mode ?? '').toUpperCase();
     const isVodCandidateAuto =
         liveMode === 'VOD' ||
+        enrollmentData?.enrollment?.type === 'vod' ||
         (liveClassError as any)?.response?.status === 404 ||
-        (liveCurriculumError as any)?.response?.status === 404;
-    // `?mode=LIVE`/`?mode=VOD` chỉ để điều khiển nhánh hiển thị/progress trên FE.
-    // Khi user đang học LIVE mà vẫn muốn xem video “VOD”, ta giữ `courseId` là liveClassId
-    // và ép mode LIVE để không gọi các API VOD entitlement.
-    const isVodCandidate = requestedMode === 'LIVE' ? false : isVodCandidateAuto;
-    
+        (liveClassError as any)?.response?.status === 403 ||
+        (liveCurriculumError as any)?.response?.status === 404 ||
+        (liveCurriculumError as any)?.response?.status === 403;
+
+    // `?mode=LIVE`/`?mode=VOD` override
+    const isVodCandidate = requestedMode === 'LIVE' ? false : (requestedMode === 'VOD' ? true : isVodCandidateAuto);
+
     const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
     const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
 
@@ -405,11 +412,7 @@ export default function CourseLearnPage() {
     const curriculum = liveCurriculum || vodCurriculum;
     const isLoading = (liveClassLoading && liveCurriculumLoading) || (isVodCandidate && (vodLoading || vodCurriculumLoading));
 
-    // 4. Enrollment & Progress
-    // We use the original enrollment check as it handles both adequately via query param (which backend ignores but returns all)
-    const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
-    
-    // For completed lessons, we use a smart selection
+    // 4. Completed Lessons check
     // Original hook doesn't support options object, so we call it simply
     const { data: liveCompletedIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
     const { data: vodCompletedIds = [] } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
@@ -426,21 +429,28 @@ export default function CourseLearnPage() {
     const [activeTab, setActiveTab] = useState<'content' | 'discussion'>('content');
 
     useEffect(() => {
-        const err = (liveClassError || liveCurriculumError || enrollmentError) as any;
-        const status = err?.response?.status;
-        if (!hasHandledForbiddenRef.current && status === 403) {
+        // Handle explicit forbidden/unauthorized from enrollment check
+        const isForbiddenEnrollment = (enrollmentError as any)?.response?.status === 403 ||
+            (!isLoading && enrollmentData && !enrollmentData.isEnrolled);
+
+        if (!hasHandledForbiddenRef.current && isForbiddenEnrollment) {
             hasHandledForbiddenRef.current = true;
-            toast.error(err?.userMessage || 'Bạn không có quyền truy cập nội dung lớp học này.');
+            toast.error('Bạn không có quyền truy cập hoặc chưa được ghi danh vào lớp học này.');
             router.replace('/dashboard/my-courses');
             return;
         }
 
-        if (!hasHandledForbiddenRef.current && enrollmentData && !enrollmentData.isEnrolled) {
+        // Handle case where course is truly not found in both modes (only if not loading)
+        const isNotFound = !isLoading && !classData &&
+            (liveClassError as any)?.response?.status === 404 &&
+            (isVodCandidate ? (vodLoading || !vodPackageData) : true);
+
+        if (!hasHandledForbiddenRef.current && isNotFound) {
             hasHandledForbiddenRef.current = true;
-            toast.error('Bạn chưa được ghi danh vào lớp học này.');
+            toast.error('Không tìm thấy thông tin lớp học.');
             router.replace('/dashboard/my-courses');
         }
-    }, [enrollmentData, router]);
+    }, [enrollmentData, enrollmentError, liveClassError, isLoading, classData, isVodCandidate, vodLoading, vodPackageData, router]);
 
     const completedIds = useMemo(() => new Set(completedContentItemIds), [completedContentItemIds]);
 
@@ -536,6 +546,12 @@ export default function CourseLearnPage() {
                     queryKey: ['academy-learning', 'completed-lessons', classId],
                 });
             }
+            // Refresh My Courses progress bar & stats after lesson completion
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['academy-learning', 'my-courses'] }),
+                queryClient.invalidateQueries({ queryKey: ['academy-learning', 'stats'] }),
+                queryClient.invalidateQueries({ queryKey: ['academy-enrollments', 'me'] }),
+            ]);
             toast.success('Đã hoàn thành nội dung! 🎉');
         } catch (e: any) {
             toast.error(e?.userMessage || 'Không thể cập nhật tiến độ.');
@@ -640,10 +656,10 @@ export default function CourseLearnPage() {
                     <Button variant="ghost" size="icon-sm" className="shrink-0 rounded-full" onClick={() => router.back()} title="Quay lại">
                         <ChevronLeft className="h-5 w-5 text-foreground" />
                     </Button>
-                            <div className="hidden sm:block min-w-0">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
-                                    {classData?.name}
-                                </p>
+                    <div className="hidden sm:block min-w-0">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
+                            {classData?.name}
+                        </p>
                         {currentLesson && <p className="text-sm font-bold text-foreground truncate">{currentLesson.title}</p>}
                     </div>
                 </div>
@@ -770,7 +786,7 @@ export default function CourseLearnPage() {
                             onNext={() => goTo(nextLesson)}
                             navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
                             navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
-                        courseClassId={classId as string}
+                            courseClassId={classId as string}
                         />
                     )}
 
@@ -837,8 +853,8 @@ export default function CourseLearnPage() {
                                 currentLessonId={currentLesson?.id ?? null}
                                 completedIds={completedIds}
                                 isLessonUnlocked={effectiveLessonUnlocked}
-                                milestones={milestones.filter(m => 
-                                    m.moduleId === mod.id || 
+                                milestones={milestones.filter(m =>
+                                    m.moduleId === mod.id ||
                                     (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
                                 )}
                                 onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
@@ -847,10 +863,10 @@ export default function CourseLearnPage() {
                         ))}
                         {/* Final Exams at the bottom */}
                         {milestones.filter(m => m.kind === 'FINAL_EXAM').map(m => (
-                            <MilestoneItem 
-                                key={m.assessmentId} 
-                                milestone={m} 
-                                onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)} 
+                            <MilestoneItem
+                                key={m.assessmentId}
+                                milestone={m}
+                                onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
                             />
                         ))}
                     </div>

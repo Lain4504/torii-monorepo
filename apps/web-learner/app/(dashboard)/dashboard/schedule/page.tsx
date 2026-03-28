@@ -63,10 +63,46 @@ function attendanceBadgeLabel(status: LiveSessionResponseDTO['attendanceStatus']
     return 'Chưa có điểm danh'
 }
 
+const TIME_SLOTS = [
+    { no: 1, start: '07:00', end: '09:15' },
+    { no: 2, start: '09:30', end: '11:45' },
+    { no: 3, start: '12:30', end: '14:45' },
+    { no: 4, start: '15:00', end: '17:15' },
+    { no: 5, start: '17:30', end: '19:45' },
+    { no: 6, start: '20:00', end: '22:15' },
+]
+
+function getSlotIndex(scheduledAt: Date | string): number {
+    const date = new Date(scheduledAt)
+    const h = date.getHours()
+    const m = date.getMinutes()
+    const totalMinutes = h * 60 + m
+
+    for (let i = 0; i < TIME_SLOTS.length; i++) {
+        const [slotH, slotM] = TIME_SLOTS[i].start.split(':').map(Number)
+        const slotStartMinutes = slotH * 60 + slotM
+        // If the session starts within 45 minutes of the slot start
+        if (Math.abs(totalMinutes - slotStartMinutes) <= 45) {
+            return i
+        }
+    }
+
+    // Fallback: finding the slot it fits into based on time range
+    for (let i = 0; i < TIME_SLOTS.length; i++) {
+        const [startH, startM] = TIME_SLOTS[i].start.split(':').map(Number)
+        const [endH, endM] = TIME_SLOTS[i].end.split(':').map(Number)
+        const startMin = startH * 60 + startM
+        const endMin = endH * 60 + endM
+        if (totalMinutes >= startMin && totalMinutes < endMin) {
+            return i
+        }
+    }
+
+    return -1
+}
+
 function sessionsForDay(sessions: ScheduleSession[], day: Date) {
-    return sessions
-        .filter((s) => isSameDay(new Date(s.scheduledAt), day))
-        .sort((a, b) => +new Date(a.scheduledAt) - +new Date(b.scheduledAt))
+    return sessions.filter((s) => isSameDay(new Date(s.scheduledAt), day))
 }
 
 function CompactSessionCard({
@@ -242,8 +278,19 @@ export default function SchedulePage() {
     const selectedYear = weekStart.getFullYear()
     const visibleWeekOptions = weekOptions.filter((o) => o.year === selectedYear)
 
-    const slotsCount = 7
-    const sessionsByDay = days.map((day) => sessionsForDay(weekSessions as any, day))
+    const slotsCount = TIME_SLOTS.length
+    const sessionsByDaySlot = days.map((day) => {
+        const daySessions = sessionsForDay(weekSessions as any, day)
+        const slots: (ScheduleSession | undefined)[] = Array(TIME_SLOTS.length).fill(undefined)
+
+        daySessions.forEach((session) => {
+            const slotIdx = getSlotIndex(session.scheduledAt)
+            if (slotIdx !== -1) {
+                slots[slotIdx] = session
+            }
+        })
+        return slots
+    })
 
     function getSessionEndAt(s: ScheduleSession) {
         const start = new Date(s.scheduledAt)
@@ -427,16 +474,19 @@ export default function SchedulePage() {
                             </thead>
 
                             <tbody>
-                                {Array.from({ length: slotsCount }, (_, slotIdx) => {
-                                    const slotNo = slotIdx + 1
+                                {TIME_SLOTS.map((slot, slotIdx) => {
+                                    const slotNo = slot.no
                                     return (
                                         <tr key={slotNo}>
-                                            <th className="border border-border/60 bg-white p-2 align-top text-left text-[11px] font-bold text-muted-foreground">
-                                                Slot {slotNo}
+                                            <th className="border border-border/60 bg-transparent p-2 align-top text-left">
+                                                <div className="text-[11px] font-bold text-muted-foreground">Slot {slotNo}</div>
+                                                <div className="text-[9px] font-medium text-muted-foreground/60 leading-none mt-1">
+                                                    {slot.start} - {slot.end}
+                                                </div>
                                             </th>
                                             {days.map((d, dayIdx) => {
-                                                const daySessions = sessionsByDay[dayIdx] ?? []
-                                                const session = daySessions[slotIdx] as ScheduleSession | undefined
+                                                const daySessionsSlot = sessionsByDaySlot[dayIdx] ?? []
+                                                const session = daySessionsSlot[slotIdx] as ScheduleSession | undefined
 
                                                 if (!session) {
                                                     return (
