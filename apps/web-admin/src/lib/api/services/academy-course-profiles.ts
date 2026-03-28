@@ -88,6 +88,14 @@ export const academyCourseProfilesApi = {
     return res.data.data!.item
   },
 
+  async reject(id: string, reason: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/reject`,
+      { reason },
+    )
+    return res.data.data!.item
+  },
+
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/course-profiles/${id}`,
@@ -155,6 +163,18 @@ export function useApproveAcademyCourseProfile() {
   return useMutation({
     mutationFn: (id: string) => academyCourseProfilesApi.approve(id),
     onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
+    },
+  })
+}
+
+export function useRejectAcademyCourseProfile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      academyCourseProfilesApi.reject(id, reason),
+    onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
       qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
     },

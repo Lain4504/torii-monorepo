@@ -5,6 +5,7 @@ import type {
   AcademyQuestionQueryDTO,
   AcademyQuestionUpdateDTO,
   AcademyQuestionCategoryDTO,
+  AcademyQuestionCategoryUpdateDTO,
   StandardApiResponse,
   AcademyQuestionType,
   AcademyQuestionReviewStatus,
@@ -84,6 +85,21 @@ export const academyQuestionsApi = {
     )
     return res.data.data!
   },
+
+  async updateCategory({ id, dto }: { id: string; dto: AcademyQuestionCategoryUpdateDTO }) {
+    const res = await apiClient.put<StandardApiResponse<any>>(
+      `/api/academy/questions/categories/${id}`,
+      dto,
+    )
+    return res.data.data!
+  },
+
+  async deleteCategory(id: string) {
+    const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/questions/categories/${id}`,
+    )
+    return res.data
+  },
 }
 
 export function useAcademyQuestions(params: AcademyQuestionQueryDTO) {
@@ -139,6 +155,22 @@ export function useCreateAcademyQuestionCategory() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: academyQuestionsApi.createCategory,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
+  })
+}
+
+export function useUpdateAcademyQuestionCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: academyQuestionsApi.updateCategory,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
+  })
+}
+
+export function useDeleteAcademyQuestionCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyQuestionsApi.deleteCategory(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
   })
 }

@@ -210,7 +210,7 @@ export class ResourceService {
             where: {
                 folderId,
                 status: 'ACTIVE',
-                visibility: { in: ['PUBLIC', 'ENROLLED_ONLY'] },
+                visibility: isPrivileged ? undefined : { in: ['PUBLIC', 'ENROLLED_ONLY'] },
             },
             include: {
                 fileAsset: true,
@@ -364,7 +364,7 @@ export class ResourceService {
         }
 
         // SPEC: Resource must be PUBLIC or ENROLLED_ONLY for learners
-        if (resource.visibility === 'PRIVATE') {
+        if (resource.visibility === 'PRIVATE' && !isPrivileged) {
             throw new ForbiddenException('This resource is hidden');
         }
         if (resource.visibility === 'ENROLLED_ONLY' && resource.folder.liveClassId) {

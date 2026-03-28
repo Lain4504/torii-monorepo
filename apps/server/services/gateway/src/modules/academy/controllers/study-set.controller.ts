@@ -129,6 +129,70 @@ export class StudySetController {
     }
   }
 
+  @Get('study-set-catalogs/admin/:id')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.read')
+  async adminFindSystemSetById(@Param('id') id: string) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminFindSystemSetById', { id }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Post('study-set-catalogs/admin/:id/cards')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.write')
+  async adminCreateCard(
+    @Param('id') setId: string,
+    @Body(new ZodValidationPipe(createSetCardSchema))
+    createDto: CreateSetCardDto,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminCreateCard', { setId, data: createDto }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Patch('study-set-catalogs/admin/cards/:cardId')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.write')
+  async adminUpdateCard(
+    @Param('cardId') cardId: string,
+    @Body(new ZodValidationPipe(updateSetCardSchema))
+    updateDto: UpdateSetCardDto,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminUpdateCard', { cardId, data: updateDto }),
+      );
+      return successResponse({ item });
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
+  @Delete('study-set-catalogs/admin/cards/:cardId')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy.content.write')
+  async adminDeleteCard(@Param('cardId') cardId: string) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('academy.study-set.adminDeleteCard', { cardId }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      return errorResponse(error.message);
+    }
+  }
+
   @Get('study-set-catalogs/:id')
   @Public()
   async findPublicCatalogSetById(@Param('id') id: string) {

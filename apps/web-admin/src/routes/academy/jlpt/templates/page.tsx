@@ -5,6 +5,8 @@ import {
   RefreshCw,
   Loader2,
   Plus,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
@@ -32,18 +34,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { PageHeader } from "@/components/common/page-header";
 import { academyJlptMockApi, type JlptMockTemplate } from "@/lib/api/services/academy-jlpt-mock";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const LEVELS = ["N1", "N2", "N3", "N4", "N5"];
 
 export default function JlptTemplatesPage() {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<JlptMockTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState<string>("all");
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const fetchTemplates = async () => {
     try {
@@ -69,13 +83,25 @@ export default function JlptTemplatesPage() {
     fetchTemplates();
   };
 
+  const handleDelete = async () => {
+    if (!deleteTargetId) return;
+    try {
+      // Lưu ý: Hiện tại API mock chưa có deleteTemplate
+      toast.info("Chức năng xóa đề thi đang được cập nhật");
+    } catch {
+      toast.error("Không thể xóa đề thi");
+    } finally {
+      setDeleteTargetId(null);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
         title="Quản lý Đề thi JLPT (Templates)"
-        subtitle="Danh sách đề thi JLPT."
+        subtitle="Danh sách các bản mẫu đề thi JLPT."
         actions={
-          <Button onClick={() => toast.info("Tính năng tạo đề thi mới đang được phát triển")}>
+          <Button onClick={() => navigate("/academy/jlpt/templates/new")}>
             <Plus className="mr-2 h-4 w-4" />
             Tạo đề thi
           </Button>
@@ -116,14 +142,14 @@ export default function JlptTemplatesPage() {
 
         <div className="-mx-1 overflow-hidden rounded-md border bg-background sm:mx-0">
           <div className="overflow-x-auto">
-            <Table className="min-w-[720px] w-full">
+            <Table className="min-w-[800px] w-full">
               <TableHeader className="bg-muted/50">
                 <TableRow>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
                   <TableHead>Thông tin đề thi</TableHead>
                   <TableHead className="w-[120px]">Trạng thái</TableHead>
-                  <TableHead className="w-[150px]">Tổng thời gian</TableHead>
-                  <TableHead className="w-[100px] text-right">Trạng thái</TableHead>
+                  <TableHead className="w-[150px]">Thời gian</TableHead>
+                  <TableHead className="w-[120px] text-right pr-4">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -163,22 +189,37 @@ export default function JlptTemplatesPage() {
                       </TableCell>
                       <TableCell>
                         <div className="font-semibold">{tpl.title}</div>
-                        <div className="mt-1 font-mono text-xs uppercase tracking-tight text-muted-foreground">
-                          CODE: {tpl.code}
+                        <div className="mt-1 font-mono text-[10px] uppercase tracking-tight text-muted-foreground">
+                          {tpl.code}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={tpl.status === "PUBLISHED" ? "default" : "secondary"}>
+                        <Badge variant={tpl.status === "PUBLISHED" ? "default" : "secondary"} className="text-[10px]">
                           {tpl.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm font-medium">{tpl.totalDurationMinutes ?? "?"} phút</span>
+                        <span className="text-sm">{tpl.totalDurationMinutes ?? "?"} phút</span>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/academy/jlpt/templates/${tpl.id}`}>Xem</Link>
-                        </Button>
+                      <TableCell className="text-right pr-4">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                            onClick={() => navigate(`/academy/jlpt/templates/${tpl.id}`)}
+                          >
+                            <Edit2 className="size-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                            onClick={() => setDeleteTargetId(tpl.id)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -188,6 +229,26 @@ export default function JlptTemplatesPage() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={!!deleteTargetId} onOpenChange={(o) => !o && setDeleteTargetId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa đề thi JLPT?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa bản mẫu đề thi này? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Xác nhận xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

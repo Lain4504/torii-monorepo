@@ -62,6 +62,26 @@ export class StudySetHandler {
     return this.studySetService.adminDeleteSystemSet(payload.id);
   }
 
+  @MessagePattern('academy.study-set.adminFindSystemSetById')
+  adminFindSystemSetById(@Payload() payload: { id: string }) {
+    return this.studySetService.adminFindSystemSetById(payload.id);
+  }
+
+  @MessagePattern('academy.study-set.adminCreateCard')
+  adminCreateCard(@Payload() payload: { setId: string; data: CreateSetCardDto }) {
+    return this.studySetService.adminCreateCard(payload.setId, payload.data);
+  }
+
+  @MessagePattern('academy.study-set.adminUpdateCard')
+  adminUpdateCard(@Payload() payload: { cardId: string; data: UpdateSetCardDto }) {
+    return this.studySetService.adminUpdateCard(payload.cardId, payload.data);
+  }
+
+  @MessagePattern('academy.study-set.adminDeleteCard')
+  adminDeleteCard(@Payload() payload: { cardId: string }) {
+    return this.studySetService.adminDeleteCard(payload.cardId);
+  }
+
   @MessagePattern('academy.study-set.clonePublicSetToUser')
   clonePublicSetToUser(
     @Payload() payload: { userId: string; data: ClonePublicStudySetDto },

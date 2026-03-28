@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Switch } from '@workspace/ui/components/switch'
@@ -32,6 +33,7 @@ import { toast } from 'sonner'
 
 export default function StudySetCatalogsPage() {
   const { data, isLoading } = useAcademyStudySetCatalogs()
+  const navigate = useNavigate()
   const createCatalog = useCreateAcademyStudySetCatalog()
   const updateCatalog = useUpdateAcademyStudySetCatalog()
   const deleteCatalog = useDeleteAcademyStudySetCatalog()
@@ -160,6 +162,10 @@ export default function StudySetCatalogsPage() {
                   <TableCell>{item._count?.setCards ?? 0}</TableCell>
                   <TableCell className="text-right pr-6">
                     <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => navigate(`/academy/study-set-catalogs/${item.id}`)}>
+                        <BookOpen className="h-3.5 w-3.5 mr-1" />
+                        Quản lý thẻ
+                      </Button>
                       <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>

@@ -12,9 +12,10 @@ export class ResourceHandler {
     }
 
     @MessagePattern({ cmd: 'academy.resource.getResourcesForLearner' })
-    getResourcesForLearner(@Payload() data: { folderId?: string; classId?: string; userId: string }) {
+    getResourcesForLearner(@Payload() data: { folderId?: string; classId?: string; userId: string; role?: string }) {
         return this.service.getResourcesForLearner(data);
     }
+
 
     @MessagePattern({ cmd: 'academy.resource.createFolder' })
     createFolder(@Payload() data: any) {

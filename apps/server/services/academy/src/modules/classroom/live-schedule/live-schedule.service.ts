@@ -756,7 +756,7 @@ export class LiveScheduleService {
     const { liveClass: klass } = schedule;
     await this.assertTemplateMutable(schedule.liveClassId);
     const isLastSchedule = klass.liveSchedules.length <= 1;
-    const isActiveClass = ['OPENING', 'ONGOING'].includes(String(klass.status));
+    const isActiveClass = ['OPENING'].includes(String(klass.status));
     if (isLastSchedule && isActiveClass) {
       throw new BadRequestException(
         'Cannot delete the last schedule of an active class. Cancel the class first.',
@@ -840,7 +840,7 @@ export class LiveScheduleService {
             instructorId: klass.instructorId,
             cohortId: klass.cohortId,
             status: {
-              in: ['DRAFT', 'OPENING', 'ONGOING'],
+              in: ['DRAFT', 'OPENING'],
             },
           },
         },
@@ -889,6 +889,7 @@ export class LiveScheduleService {
     const toDate = query.toDate ? new Date(query.toDate) : undefined;
     return this.prisma.liveScheduleRequest.findMany({
       where: {
+        liveClassId: query.classId,
         sessionId: query.sessionId,
         status: query.status as any,
         requestedBy: query.requestedBy,
@@ -900,6 +901,7 @@ export class LiveScheduleService {
             }
             : undefined,
       },
+
       include: {
         session: {
           select: {
@@ -1293,7 +1295,7 @@ export class LiveScheduleService {
   }
 
   private assertClassJoinable(classStatus: string) {
-    if (classStatus !== 'OPENING' && classStatus !== 'ONGOING') {
+    if (classStatus !== 'OPENING') {
       throw new BadRequestException(
         'Class is not available for live sessions in current status.',
       );
@@ -1539,7 +1541,7 @@ export class LiveScheduleService {
             instructorId: input.instructorId,
             cohortId: targetCohortId || undefined,
             status: {
-              in: ['DRAFT', 'OPENING', 'ONGOING'],
+              in: ['DRAFT', 'OPENING'],
             },
           },
         },

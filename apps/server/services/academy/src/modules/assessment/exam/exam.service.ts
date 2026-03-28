@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import {
   AcademyExamCreateDTO,
@@ -119,6 +119,59 @@ export class ExamService {
   }
 
   async deleteExam(id: string) {
+    // Check if used in Course Profile Assessments (connected to Live Classes via Cohorts)
+    const assessments = await this.prisma.academyCourseProfileAssessment.findMany({
+      where: { examId: id },
+      include: {
+        courseProfile: {
+          include: {
+            cohorts: {
+              include: {
+                liveClasses: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const liveClassesInPlans = assessments.flatMap((a) =>
+      a.courseProfile.cohorts.flatMap((c) => c.liveClasses.map((lc) => lc.name))
+    );
+
+    // Check if there are direct attempts in any LiveClass
+    const attemptsWithClass = await this.prisma.academyExamAttempt.findMany({
+      where: { examId: id, classId: { not: null } },
+      include: { class: true },
+    });
+
+    const liveClassesInAttempts = attemptsWithClass
+      .map((a) => a.class?.name)
+      .filter(Boolean) as string[];
+
+    // Collect all unique live class names
+    const allClassNameSet = new Set([...liveClassesInPlans, ...liveClassesInAttempts]);
+    const allClassNames = Array.from(allClassNameSet);
+
+    if (allClassNames.length > 0) {
+      throw new BadRequestException(
+        `Bài thi này đang được sử dụng trong các lớp: ${allClassNames.join(
+          ', '
+        )}. Vui lòng gỡ bỏ khỏi kế hoạch học tập hoặc xóa các lượt thi trước khi xóa bài thi.`
+      );
+    }
+
+    // Check for any other attempts (general usage / historical data)
+    const totalAttempts = await this.prisma.academyExamAttempt.count({
+      where: { examId: id },
+    });
+
+    if (totalAttempts > 0) {
+      throw new BadRequestException(
+        `Bài thi này đã có ${totalAttempts} lượt làm bài của học viên. Vui lòng xóa các lượt làm bài trước khi xóa bài thi.`
+      );
+    }
+
     return this.prisma.academyExam.delete({
       where: { id },
     });

@@ -48,13 +48,39 @@ const cohortSchema = z.object({
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
 }).refine((data) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (data.enrollmentOpenAt && new Date(data.enrollmentOpenAt) < today) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Ngày mở đăng ký không được ở quá khứ",
+  path: ["enrollmentOpenAt"],
+}).refine((data) => {
+  if (data.enrollmentOpenAt && data.enrollmentCloseAt) {
+    return new Date(data.enrollmentOpenAt) < new Date(data.enrollmentCloseAt);
+  }
+  return true;
+}, {
+  message: "Ngày mở đăng ký phải trước ngày đóng đăng ký",
+  path: ["enrollmentOpenAt"],
+}).refine((data) => {
   if (data.enrollmentCloseAt && data.startDate) {
     return new Date(data.enrollmentCloseAt) < new Date(data.startDate);
   }
   return true;
 }, {
-  message: "Thời hạn đóng đăng ký phải trước ngày khai giảng",
+  message: "Ngày đóng đăng ký phải trước ngày khai giảng",
   path: ["enrollmentCloseAt"],
+}).refine((data) => {
+  if (data.startDate && data.endDate) {
+    return new Date(data.startDate) < new Date(data.endDate);
+  }
+  return true;
+}, {
+  message: "Ngày khai giảng phải trước ngày kết thúc",
+  path: ["startDate"],
 })
 
 type CohortFormValues = z.infer<typeof cohortSchema>
@@ -76,6 +102,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<CohortFormValues>({
     resolver: zodResolver(cohortSchema),
@@ -163,6 +190,11 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
   }
 
   const isLoading = createMutation.isPending || updateMutation.isPending
+
+  const watchOpenAt = watch("enrollmentOpenAt")
+  const watchCloseAt = watch("enrollmentCloseAt")
+  const watchStartDate = watch("startDate")
+  const today = new Date().toISOString().split("T")[0]
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -280,7 +312,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                           name="enrollmentOpenAt"
                           control={control}
                           render={({ field }) => (
-                            <Input type="date" value={field.value || ""} onChange={field.onChange} />
+                            <Input type="date" value={field.value || ""} onChange={field.onChange} min={today} />
                           )}
                         />
                         <FieldError errors={[errors.enrollmentOpenAt]} />
@@ -291,7 +323,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                           name="enrollmentCloseAt"
                           control={control}
                           render={({ field }) => (
-                            <Input type="date" value={field.value || ""} onChange={field.onChange} />
+                            <Input type="date" value={field.value || ""} onChange={field.onChange} min={watchOpenAt || today} />
                           )}
                         />
                         <FieldError errors={[errors.enrollmentCloseAt]} />
@@ -302,7 +334,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                           name="startDate"
                           control={control}
                           render={({ field }) => (
-                            <Input type="date" value={field.value || ""} onChange={field.onChange} />
+                            <Input type="date" value={field.value || ""} onChange={field.onChange} min={watchCloseAt || today} />
                           )}
                         />
                         <FieldError errors={[errors.startDate]} />
@@ -313,7 +345,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                           name="endDate"
                           control={control}
                           render={({ field }) => (
-                            <Input type="date" value={field.value || ""} onChange={field.onChange} />
+                            <Input type="date" value={field.value || ""} onChange={field.onChange} min={watchStartDate || today} />
                           )}
                         />
                         <FieldError errors={[errors.endDate]} />

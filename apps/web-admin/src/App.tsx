@@ -67,6 +67,7 @@ import JlptTemplateDetailPage from '@/routes/academy/jlpt/templates/[id]/page.ts
 import JlptMondaiMasterPage from '@/routes/academy/jlpt/mondai/page.tsx'
 import JlptConfigPage from '@/routes/academy/jlpt/config/page.tsx'
 import StudySetCatalogsPage from '@/routes/academy/study-set-catalogs/page.tsx'
+import StudySetCatalogDetailPage from '@/routes/academy/study-set-catalogs/detail-page.tsx'
 
 import AcademyExamsPage from '@/routes/academy/assessment/exams/exams-page'
 import AcademyExamEditorPage from '@/routes/academy/assessment/exams/exam-editor-page'
@@ -143,6 +144,7 @@ function App() {
                     <Route path="academy/jlpt/questions/:id" element={<JlptQuestionDetailPage />} />
                     <Route path="academy/jlpt/mondai" element={<JlptMondaiMasterPage />} />
                     <Route path="academy/study-set-catalogs" element={<StudySetCatalogsPage />} />
+                    <Route path="academy/study-set-catalogs/:id" element={<StudySetCatalogDetailPage />} />
 
                     {/* Academy Assessment (Fixed Quiz) */}
                     <Route path="academy/assessment/exams" element={<AcademyExamsPage />} />

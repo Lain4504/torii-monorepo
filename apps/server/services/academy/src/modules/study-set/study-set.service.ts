@@ -240,6 +240,45 @@ export class StudySetService {
     return { ok: true };
   }
 
+  async adminFindSystemSetById(id: string) {
+    const set = await this.prisma.studySet.findFirst({
+      where: { id, sourceType: 'SYSTEM' },
+      include: {
+        setCards: { orderBy: { createdAt: 'asc' } },
+        _count: { select: { setCards: true } },
+      },
+    });
+    if (!set) throw new NotFoundException('System Study Set not found');
+    return set;
+  }
+
+  async adminCreateCard(setId: string, data: CreateSetCardDto) {
+    const set = await this.prisma.studySet.findFirst({
+      where: { id: setId, sourceType: 'SYSTEM' },
+    });
+    if (!set) throw new NotFoundException('System Study Set not found');
+    return this.prisma.setCard.create({
+      data: { ...data, studySetId: setId },
+    });
+  }
+
+  async adminUpdateCard(cardId: string, data: UpdateSetCardDto) {
+    const card = await this.prisma.setCard.findFirst({
+      where: { id: cardId, studySet: { sourceType: 'SYSTEM' } },
+    });
+    if (!card) throw new NotFoundException('Card not found in system set');
+    return this.prisma.setCard.update({ where: { id: cardId }, data });
+  }
+
+  async adminDeleteCard(cardId: string) {
+    const card = await this.prisma.setCard.findFirst({
+      where: { id: cardId, studySet: { sourceType: 'SYSTEM' } },
+    });
+    if (!card) throw new NotFoundException('Card not found in system set');
+    await this.prisma.setCard.delete({ where: { id: cardId } });
+    return { ok: true };
+  }
+
   async updateSet(id: string, userId: string, data: UpdateStudySetDto) {
     await this.findSetById(id, userId); // check exists
     const updated = await this.prisma.studySet.update({

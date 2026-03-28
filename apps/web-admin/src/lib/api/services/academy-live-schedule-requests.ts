@@ -12,6 +12,7 @@ import type {
 export type AcademyLiveScheduleRequest = {
   id: string
   sessionId: string
+  liveClassId?: string | null
   requestedBy: string
   type: "LEAVE" | "RESCHEDULE"
   status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"
@@ -27,7 +28,7 @@ export type AcademyLiveScheduleRequest = {
   updatedAt: string
   session?: {
     id: string
-    classId: string
+    liveClassId: string
     sessionDate: string
     startTime: string
     endTime: string
@@ -43,6 +44,7 @@ export type AcademyLiveScheduleRequest = {
     email: string
   }
 }
+
 
 export const academyLiveScheduleRequestsApi = {
   async findAll(params: AcademyLiveScheduleRequestQueryDTO) {

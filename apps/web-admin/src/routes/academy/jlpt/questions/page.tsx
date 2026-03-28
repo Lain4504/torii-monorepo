@@ -4,7 +4,10 @@ import {
   FileAudio,
   Image as ImageIcon,
   Plus,
+  Edit2,
+  Trash2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@workspace/ui/components/button";
 import {
   Table,
@@ -40,6 +43,7 @@ import { toast } from "sonner";
 const PAGE_SIZE = 20;
 
 export default function JlptQuestionsPage() {
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState<JlptBankQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -145,7 +149,17 @@ export default function JlptQuestionsPage() {
     setMondaiCode("all");
   };
 
-  /** Nhóm theo phần thi (section) — đúng với cấu trúc JLPT: mỗi section chứa nhiều mondai/câu. */
+  const handleDelete = async (id: string) => {
+    if (!confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) return;
+    try {
+      await academyJlptMockApi.deleteBankQuestion(id);
+      toast.success("Đã xóa câu hỏi");
+      void fetchQuestions();
+    } catch {
+      toast.error("Không thể xóa câu hỏi");
+    }
+  };
+
   const questionsBySection = useMemo(() => {
     const map = new Map<string, JlptBankQuestion[]>();
     for (const q of questions) {
@@ -170,7 +184,7 @@ export default function JlptQuestionsPage() {
         title="Ngân hàng Câu hỏi JLPT"
         subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe."
         actions={
-          <Button onClick={() => toast.info("Tính năng thêm câu hỏi mới đang được phát triển")}>
+          <Button onClick={() => navigate("/academy/jlpt/questions/new")}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm câu hỏi
           </Button>
@@ -209,7 +223,7 @@ export default function JlptQuestionsPage() {
                   <TableHead className="w-[200px]">Mondai</TableHead>
                   <TableHead className="w-[88px]">Độ khó</TableHead>
                   <TableHead className="w-[72px]">Media</TableHead>
-                  <TableHead className="w-[88px] text-right">Trạng thái</TableHead>
+                  <TableHead className="w-[100px] text-right pr-4">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -313,7 +327,26 @@ export default function JlptQuestionsPage() {
                               {q.imageAssetId && <ImageIcon className="size-4 text-emerald-500" />}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right text-xs text-muted-foreground">Read-only</TableCell>
+                          <TableCell className="text-right pr-4">
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                                onClick={() => navigate(`/academy/jlpt/questions/${q.id}`)}
+                              >
+                                <Edit2 className="size-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                onClick={() => handleDelete(q.id)}
+                              >
+                                <Trash2 className="size-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </Fragment>

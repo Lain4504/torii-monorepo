@@ -17,6 +17,7 @@ export class CohortService {
 
     if (query.onlyAvailable) {
       and.push({
+        status: { notIn: ['COMPLETED', 'ARCHIVED'] },
         OR: [
           { enrollmentCloseAt: null },
           { enrollmentCloseAt: { gte: new Date() } },

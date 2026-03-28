@@ -38,8 +38,11 @@ export function DeleteQuestionDialog({
             toast.success('Đã xóa câu hỏi thành công');
             onOpenChange(false);
         } catch (error: any) {
-            toast.error(error.response?.data?.message || error.message || 'Không thể xóa câu hỏi');
+            const msg = error.userMessage || error.response?.data?.message || error.message;
+            toast.error(msg || 'Không thể xóa câu hỏi');
+            onOpenChange(false);
         }
+
     };
 
     if (!question) return null;

@@ -144,7 +144,6 @@ enum CohortStatus {
   DRAFT
   PENDING_APPROVAL
   OPENING
-  ONGOING
   COMPLETED
   ARCHIVED
 }
@@ -152,7 +151,6 @@ enum CohortStatus {
 enum LiveClassStatus {
   DRAFT
   OPENING
-  ONGOING
   COMPLETED
   CANCELLED
   ARCHIVED

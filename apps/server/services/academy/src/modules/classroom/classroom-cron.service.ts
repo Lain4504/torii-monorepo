@@ -35,7 +35,7 @@ export class ClassroomCronService {
   }
 
   /**
-   * Auto transition Cohort status to ONGOING (and its classes) when registration closes.
+   * Auto transition Cohort status to COMPLETED (and its classes) when registration closes.
    */
   @Cron(CronExpression.EVERY_MINUTE)
   async handleCohortRegistrationsClosed() {
@@ -54,63 +54,24 @@ export class ClassroomCronService {
 
     const cohortIds = cohortsToStart.map((c) => c.id);
 
-    // 2. Transition Cohorts to ONGOING
-    await this.prisma.cohort.updateMany({
-      where: { id: { in: cohortIds } },
-      data: { status: 'ONGOING' },
-    });
-
-    // 3. Transition associated LiveClasses to ONGOING (if they were OPENING)
-    const classesStarted = await this.prisma.liveClass.updateMany({
-      where: {
-        cohortId: { in: cohortIds },
-        status: 'OPENING',
-      },
-      data: { status: 'ONGOING' },
-    });
-
-    this.logger.log(
-      `Auto-started ${cohortIds.length} cohorts and ${classesStarted.count} live classes`,
-    );
-  }
-
-  /**
-   * Auto transition Cohort status to COMPLETED (and its classes) when end date is reached.
-   */
-  @Cron(CronExpression.EVERY_MINUTE)
-  async handleCohortSessionsFinished() {
-    const now = new Date();
-
-    // 1. Find all ONGOING cohorts that reached end date
-    const cohortsToEnd = await this.prisma.cohort.findMany({
-      where: {
-        status: 'ONGOING',
-        endDate: { lte: now },
-      },
-      select: { id: true },
-    });
-
-    if (cohortsToEnd.length === 0) return;
-
-    const cohortIds = cohortsToEnd.map((c) => c.id);
-
     // 2. Transition Cohorts to COMPLETED
     await this.prisma.cohort.updateMany({
       where: { id: { in: cohortIds } },
       data: { status: 'COMPLETED' },
     });
 
-    // 3. Transition associated LiveClasses to COMPLETED (if they were ONGOING)
-    const classesFinished = await this.prisma.liveClass.updateMany({
+    // 3. Transition associated LiveClasses to COMPLETED (if they were OPENING)
+    const classesStarted = await this.prisma.liveClass.updateMany({
       where: {
         cohortId: { in: cohortIds },
-        status: 'ONGOING',
+        status: 'OPENING',
       },
       data: { status: 'COMPLETED' },
     });
 
     this.logger.log(
-      `Auto-completed ${cohortIds.length} cohorts and ${classesFinished.count} live classes`,
+      `Auto-completed ${cohortIds.length} cohorts and ${classesStarted.count} live classes due to registration closure`,
     );
   }
+
 }

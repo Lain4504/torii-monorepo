@@ -40,12 +40,14 @@ export type AcademyLiveScheduleRequestRejectDTO = z.infer<
 >;
 
 export const academyLiveScheduleRequestQueryDTOSchema = z.object({
+  classId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
   requestedBy: z.string().uuid().optional(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED']).optional(),
   fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'fromDate must be yyyy-MM-dd').optional(),
   toDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'toDate must be yyyy-MM-dd').optional(),
 });
+
 export type AcademyLiveScheduleRequestQueryDTO = z.infer<
   typeof academyLiveScheduleRequestQueryDTOSchema
 >;

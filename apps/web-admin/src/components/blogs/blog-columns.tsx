@@ -192,19 +192,25 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
         id: 'actions',
         cell: ({ row }) => {
             const blog = row.original;
+            const statusLower = (blog.status as string)?.toLowerCase();
+            const isPastScheduled = statusLower === 'scheduled' &&
+                blog.publishedAt && new Date(blog.publishedAt) <= new Date();
+            const isPublished = statusLower === 'published' || isPastScheduled;
 
             return (
                 <div className="flex items-center justify-center gap-2">
                     <Can permission="blog.manage">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 gap-1.5"
-                            onClick={() => onEdit(blog)}
-                        >
-                            <Pencil className="h-4 w-4" />
-                            Sửa
-                        </Button>
+                        {!isPublished && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5"
+                                onClick={() => onEdit(blog)}
+                            >
+                                <Pencil className="h-4 w-4" />
+                                Sửa
+                            </Button>
+                        )}
                         {blog.status === 'scheduled' && (
                             <Button
                                 variant="outline"

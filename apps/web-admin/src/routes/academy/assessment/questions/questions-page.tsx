@@ -2,7 +2,6 @@ import { useState } from "react"
 import {
   useAcademyQuestions,
   useAcademyQuestionCategories,
-  useCreateAcademyQuestionCategory,
 } from "@/lib/api/services/academy-questions"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
@@ -13,15 +12,11 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@workspace/ui/components/select"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
-} from "@workspace/ui/components/dialog"
 import { Badge } from "@workspace/ui/components/badge"
-import { Label } from "@workspace/ui/components/label"
 import { Plus, Search, Edit2, Trash2, Tag } from "lucide-react"
 import { QuestionEditor } from "./components/question-editor"
 import { DeleteQuestionDialog } from "./components/delete-question-dialog"
-import { toast } from "sonner"
+import { CategoryManagerDialog } from "./components/category-manager-dialog"
 import { format } from "date-fns"
 
 export default function QuestionsPage() {
@@ -31,7 +26,6 @@ export default function QuestionsPage() {
   const [editorOpen, setEditorOpen] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null)
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
-  const [newCategoryName, setNewCategoryName] = useState("")
   const [questionToDelete, setQuestionToDelete] = useState<{ id: string; stem: string } | null>(null)
 
   const { data: categories = [] } = useAcademyQuestionCategories()
@@ -40,24 +34,8 @@ export default function QuestionsPage() {
     categoryId: categoryId === "ALL" ? undefined : categoryId,
   })
 
-  const createCategoryMutation = useCreateAcademyQuestionCategory()
-
   const handleDelete = (question: any) => {
     setQuestionToDelete({ id: question.id, stem: question.stem })
-  }
-
-  const handleCreateCategory = async () => {
-    const trimmed = newCategoryName.trim()
-    if (!trimmed) return
-    const code = trimmed.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_]/g, '').substring(0, 50) || `CAT_${Date.now()}`
-    try {
-      await createCategoryMutation.mutateAsync({ name: trimmed, code, isActive: true })
-      toast.success("Tạo danh mục thành công")
-      setNewCategoryName("")
-      setCategoryDialogOpen(false)
-    } catch (error: any) {
-      toast.error(error.userMessage || error.message || "Không thể tạo danh mục")
-    }
   }
 
   const handleEdit = (question: any) => {
@@ -91,7 +69,7 @@ export default function QuestionsPage() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}>
               <Tag className="w-4 h-4 mr-2" />
-              Thêm danh mục
+              Quản lý danh mục
             </Button>
             <Button onClick={handleCreate}>
               <Plus className="w-4 h-4 mr-2" />
@@ -210,41 +188,11 @@ export default function QuestionsPage() {
         question={questionToDelete}
       />
 
-      {/* Create Category Dialog */}
-      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Tag className="w-4 h-4 text-primary" />
-              Tạo danh mục câu hỏi
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-2 space-y-3">
-            <div className="space-y-1.5">
-              <Label>Tên danh mục <span className="text-destructive">*</span></Label>
-              <Input
-                placeholder="VD: Ngữ pháp, Từ vựng N5, Hán tự..."
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleCreateCategory() }}
-                autoFocus
-              />
-              <p className="text-xs text-muted-foreground">
-                Mã danh mục sẽ được tự động tạo từ tên.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setCategoryDialogOpen(false)}>Hủy</Button>
-            <Button
-              onClick={handleCreateCategory}
-              disabled={!newCategoryName.trim() || createCategoryMutation.isPending}
-            >
-              {createCategoryMutation.isPending ? "Đang tạo..." : "Tạo danh mục"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Category Manager Dialog */}
+      <CategoryManagerDialog
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+      />
     </div>
   )
 }

@@ -4,8 +4,13 @@ export class EnrollmentCreateDto {
   @IsUUID()
   userId!: string;
 
+  @IsOptional()
   @IsUUID()
-  classId!: string;
+  liveClassId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  vodPackageId?: string;
 
   @IsOptional()
   @IsUUID()
@@ -27,7 +32,11 @@ export class EnrollmentCreateDto {
 export class EnrollmentQueryDto {
   @IsOptional()
   @IsUUID()
-  classId?: string;
+  liveClassId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  vodPackageId?: string;
 
   @IsOptional()
   @IsUUID()
@@ -41,3 +50,4 @@ export class EnrollmentQueryDto {
   @IsString()
   status?: string;
 }
+

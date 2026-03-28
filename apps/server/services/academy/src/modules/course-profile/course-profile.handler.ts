@@ -54,6 +54,13 @@ export class CourseProfileHandler {
     return this.courseProfiles.approve(data.id, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseProfile.reject' })
+  reject(
+    @Payload() data: { id: string; reason: string; requesterId?: string },
+  ) {
+    return this.courseProfiles.reject(data.id, data.reason, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseProfile.duplicate' })
   duplicate(
     @Payload()
