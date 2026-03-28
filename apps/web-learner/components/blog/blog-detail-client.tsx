@@ -89,7 +89,7 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
             const blocks = Array.isArray(parsed) ? parsed : parsed?.blocks;
             if (Array.isArray(blocks)) {
                 return (
-                    <div className="prose prose-lg max-w-none">
+                    <div className="prose prose-lg max-w-none dark:prose-invert">
                         {blocks.map((block: any, index: number) => {
                             const data = block?.data ?? {};
                             switch (block?.type) {
@@ -157,7 +157,7 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
         // Render theo block tách bởi khoảng trắng dòng đôi để giữ cấu trúc đoạn văn.
         const paragraphs = trimmed.length > 0 ? trimmed.split(/\n{2,}/) : [];
         return (
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none dark:prose-invert">
                 {paragraphs.length > 0
                     ? paragraphs.map((p, i) => (
                         <p key={i}>

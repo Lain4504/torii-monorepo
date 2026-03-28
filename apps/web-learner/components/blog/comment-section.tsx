@@ -288,7 +288,8 @@ function CommentItem({
     user,
     onUpdateComment,
     onDeleteComment,
-    canLike = true
+    canLike = true,
+    depth
 }: {
     comment: CommentResponseDTO,
     replies: CommentResponseDTO[],
@@ -301,8 +302,13 @@ function CommentItem({
     user: any,
     onUpdateComment: (id: string, content: string) => Promise<void>,
     onDeleteComment: (id: string) => Promise<void>,
-    canLike?: boolean
+    canLike?: boolean,
+    depth?: number
 }) {
+    const MAX_DEPTH = 3
+    const actualDepth = depth || 0
+    const shouldIndent = actualDepth < MAX_DEPTH
+
     const getNestedReplies = (parentId: string) => allComments.filter(c => c.parentId === parentId)
     const isReplying = replyingToId === comment.id
     const isOwner = isAuthenticated && user?.id === comment.author?.id
@@ -370,7 +376,7 @@ function CommentItem({
                         </div>
                     ) : (
                         <div className="bg-muted/30 rounded-lg p-4 border">
-                            <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+                            <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
                                 {comment.content}
                             </p>
                         </div>
@@ -422,7 +428,10 @@ function CommentItem({
 
                     {/* Recursively Render Replies */}
                     {replies.length > 0 && (
-                        <div className="pl-6 mt-6 space-y-6 border-l-2 border-primary/10">
+                        <div className={cn(
+                            "mt-6 space-y-6",
+                            shouldIndent ? "pl-6 border-l-2 border-primary/10" : "pl-2 border-l-2 border-primary/5"
+                        )}>
                             {replies.map(reply => (
                                 <CommentItem
                                     key={reply.id}
@@ -438,6 +447,7 @@ function CommentItem({
                                     onUpdateComment={onUpdateComment}
                                     onDeleteComment={onDeleteComment}
                                     canLike={canLike}
+                                    depth={actualDepth + 1}
                                 />
                             ))}
                         </div>

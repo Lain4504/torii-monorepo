@@ -19,7 +19,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly templateDir = path.join(__dirname, 'templates', 'pug');
 
-  constructor(private readonly sharedEmailService: SharedEmailService) {}
+  constructor(private readonly sharedEmailService: SharedEmailService) { }
 
   private render(templateName: string, data: any): string {
     try {
@@ -82,10 +82,11 @@ export class EmailService {
     const { type, to, data } = event;
 
     this.logger.log(
-      `[EmailService] Received request to send email. Type: ${type}, To: ${to}`,
+      `[EmailService] Processing sendEmail event. Type: ${type}, To: ${to}`,
     );
 
     try {
+      this.logger.debug(`[EmailService] Rendering template for type: ${type}`);
       switch (type) {
         case 'order_success':
           await this.sendOrderSuccessEmail(to, data as OrderSuccessEmailData);
@@ -131,11 +132,12 @@ export class EmailService {
           break;
 
         default:
-          this.logger.warn(`Unknown email type: ${type}`);
+          this.logger.warn(`[EmailService] Unknown email type: ${type}`);
       }
+      this.logger.log(`[EmailService] Email of type ${type} processed for ${to}`);
     } catch (error: any) {
       this.logger.error(
-        `Failed to send email type ${type}: ${error.message}`,
+        `[EmailService] Failed to send email type ${type} to ${to}: ${error.message}`,
         error.stack,
       );
       throw error;

@@ -12,12 +12,18 @@ import {
 
 @Injectable()
 export class VodPackageService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll(query: AcademyVodPackageQueryDTO) {
     const where: any = {};
     if (query.courseProfileId) where.courseProfileId = query.courseProfileId;
     if (query.status) where.status = query.status;
+    if ((query as any).level) {
+      where.courseProfile = {
+        ...where.courseProfile,
+        level: (query as any).level,
+      };
+    }
     if (query.q) {
       where.OR = [
         { code: { contains: query.q, mode: 'insensitive' } },

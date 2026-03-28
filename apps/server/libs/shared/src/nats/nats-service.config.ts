@@ -25,7 +25,7 @@ export function createNatsServiceConfig(
 
   const options: any = {
     servers: [natsUrl],
-    queue: queue, // IMPORTANT: Queue group for load balancing across instances
+    queue: queue, // IMPORTANT: Queue group for load balancing across instances of the SAME service
   };
 
   // Add NKEY authentication if provided

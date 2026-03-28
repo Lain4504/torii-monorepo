@@ -8,7 +8,7 @@ async function bootstrap() {
   // NATS-only microservice (no HTTP server)
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AcademyModule,
-    createNatsServiceConfig(),
+    createNatsServiceConfig('academy_queue'),
   );
 
   app.useGlobalPipes(

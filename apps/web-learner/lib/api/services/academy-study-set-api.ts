@@ -33,11 +33,12 @@ export const academyStudySetApi = {
         return res.data.data!.items
     },
 
-    async findPublicCatalogSets() {
+    async findPublicCatalogSets(q?: string) {
         const res = await apiClient.get<StandardApiResponse<{ items: AcademyStudySetModel[] }>>(
             "/api/academy/study-set-catalogs",
+            { params: { q } }
         )
-        return (res.data.data!.items || []).map((item) => ({ ...item, isCatalog: true }))
+        return (res.data.data!.items || []).map((item) => ({ ...item, isCatalog: item.sourceType === 'SYSTEM' }))
     },
 
     async findSetById(id: string) {
@@ -159,10 +160,10 @@ export function useAcademyStudySets(options?: Omit<UseQueryOptions<AcademyStudyS
     })
 }
 
-export function usePublicCatalogStudySets(options?: Omit<UseQueryOptions<AcademyStudySetModel[]>, "queryKey" | "queryFn">) {
+export function usePublicCatalogStudySets(q?: string, options?: Omit<UseQueryOptions<AcademyStudySetModel[]>, "queryKey" | "queryFn">) {
     return useQuery({
-        queryKey: ["academy-public-study-set-catalogs"],
-        queryFn: academyStudySetApi.findPublicCatalogSets,
+        queryKey: ["academy-public-study-set-catalogs", q],
+        queryFn: () => academyStudySetApi.findPublicCatalogSets(q),
         ...options,
     })
 }

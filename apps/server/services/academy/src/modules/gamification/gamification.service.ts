@@ -25,7 +25,7 @@ export class GamificationService {
     private readonly achievementService: AchievementService,
     private readonly audit: AuditLoggerService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private getVnDateString(d: Date = new Date()) {
     const vn = new Date(
@@ -239,14 +239,14 @@ export class GamificationService {
     string,
     { xp: number; points: number }
   > = {
-    [ActivityType.LOGIN]: { xp: 10, points: 5 }, // Riki: Login thưởng 5 pts
-    [ActivityType.LESSON_COMPLETE]: { xp: 20, points: 2 },
-    [ActivityType.EXAM_COMPLETE]: { xp: 150, points: 10 },
-    [ActivityType.REVIEW]: { xp: 5, points: 1 },
-    [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 1 },
-    [ActivityType.QUIZ_ANSWER]: { xp: 1, points: 0 },
-    [ActivityType.PRACTICE]: { xp: 2, points: 0 },
-  };
+      [ActivityType.LOGIN]: { xp: 10, points: 5 }, // Riki: Login thưởng 5 pts
+      [ActivityType.LESSON_COMPLETE]: { xp: 20, points: 2 },
+      [ActivityType.EXAM_COMPLETE]: { xp: 150, points: 10 },
+      [ActivityType.REVIEW]: { xp: 5, points: 1 },
+      [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 1 },
+      [ActivityType.QUIZ_ANSWER]: { xp: 1, points: 0 },
+      [ActivityType.PRACTICE]: { xp: 2, points: 0 },
+    };
 
   private readonly ACTIVITY_WEIGHTS: Record<string, number> = {
     [ActivityType.LOGIN]: 1,
@@ -487,7 +487,7 @@ export class GamificationService {
             currency: GamificationCurrency.POINT,
             type: GamificationTransactionType.EARN,
             activityType,
-            description: `Received points for ${activityType}`,
+            description: metadata?.lessonTitle || `Received points for ${activityType}`,
             metadata: rewardMeta,
           },
         });
@@ -501,7 +501,7 @@ export class GamificationService {
             currency: GamificationCurrency.XP,
             type: GamificationTransactionType.EARN,
             activityType,
-            description: `Received XP for ${activityType}`,
+            description: metadata?.lessonTitle || `Received XP for ${activityType}`,
             metadata: rewardMeta,
           },
         });

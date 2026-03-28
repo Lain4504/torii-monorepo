@@ -10,7 +10,7 @@ async function bootstrap() {
   // Create NATS microservice (connection only)
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     IdentityModule,
-    createNatsServiceConfig(),
+    createNatsServiceConfig('identity_queue'),
   );
 
   // Enable validation pipe for DTOs in NATS messages

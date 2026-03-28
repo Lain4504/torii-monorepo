@@ -17,5 +17,6 @@ export const academyVodPackageQueryDTOSchema = z.object({
   courseProfileId: z.string().uuid().optional(),
   status: z.string().optional(),
   q: z.string().optional(),
+  level: z.string().optional(),
 });
 export type AcademyVodPackageQueryDTO = z.infer<typeof academyVodPackageQueryDTOSchema>;

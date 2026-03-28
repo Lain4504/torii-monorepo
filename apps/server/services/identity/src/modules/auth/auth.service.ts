@@ -87,7 +87,7 @@ export class AuthService implements IAuthService {
     private readonly blacklistService: BlacklistService,
     @Inject(NOTIFICATION_SERVICE_TOKEN)
     private readonly notificationService: INotificationService,
-  ) {}
+  ) { }
 
   /**
    * Logout user - Revoke tokens

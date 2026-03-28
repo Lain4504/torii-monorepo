@@ -276,4 +276,33 @@ export class LiveClassController {
     );
     return successResponse({ item });
   }
+
+  @Post(':id/lessons/:lessonId/complete')
+  async trackLessonProgress(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('lessonId', new ParseUUIDPipe()) lessonId: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.enrollment.trackLessonProgress' },
+        { targetId: id, lessonId, userId: req.requester.sub },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Get(':id/completed-lessons')
+  async getCompletedLessons(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.enrollment.getCompletedLessons' },
+        { targetId: id, userId: req.requester.sub },
+      ),
+    );
+    return successResponse(result);
+  }
 }
