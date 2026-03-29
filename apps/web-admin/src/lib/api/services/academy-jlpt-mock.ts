@@ -154,9 +154,12 @@ export const academyJlptMockApi = {
   },
 
   async createTemplate(data: any) {
+    const { levelCode, ...rest } = data;
+    const level = (typeof data.level === 'string' && data.level) || (typeof levelCode === 'string' ? levelCode : undefined);
+    const body = { ...rest, ...(level ? { level } : {}) };
     const res = await apiClient.post<StandardApiResponse<{ item: JlptMockTemplate }>>(
       "/api/academy/jlpt-mock/admin/templates",
-      data
+      body
     );
     return res.data.data?.item;
   },

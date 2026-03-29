@@ -59,7 +59,7 @@ export function JlptQuestionForm({
   presetSectionCode,
 }: {
   initialData?: JlptBankQuestion | null;
-  onSuccess: () => void;
+  onSuccess: (question?: JlptBankQuestion) => void;
   onCancel: () => void;
   presetLevelCode?: string;
   presetSectionCode?: string;
@@ -252,14 +252,15 @@ export function JlptQuestionForm({
     }
     try {
       setSubmitting(true);
+      let res: any;
       if (initialData?.id) {
-        await academyJlptMockApi.updateBankQuestion(initialData.id, data);
+        res = await academyJlptMockApi.updateBankQuestion(initialData.id, data);
         toast.success("Cập nhật câu hỏi thành công");
       } else {
-        await academyJlptMockApi.createBankQuestion(data);
+        res = await academyJlptMockApi.createBankQuestion(data);
         toast.success("Thêm câu hỏi thành công");
       }
-      onSuccess();
+      onSuccess(res);
     } catch {
       toast.error("Thao tác thất bại");
     } finally {
