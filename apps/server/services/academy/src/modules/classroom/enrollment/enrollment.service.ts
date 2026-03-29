@@ -26,13 +26,23 @@ export class EnrollmentService {
   private readonly logger = new Logger(EnrollmentService.name);
 
   async findAll(query: any) {
+    const where: any = {
+      userId: query.userId ?? undefined,
+      status: query.status ?? undefined,
+    };
+
+    // Smart Bridge logic: if a generic ID is provided, check both liveClassId and vodPackageId
+    if (query.liveClassId) {
+      where.liveClassId = query.liveClassId;
+    } else if (query.vodPackageId) {
+      where.vodPackageId = query.vodPackageId;
+    } else if (query.classId || query.courseId) {
+      const targetId = query.classId || query.courseId;
+      where.OR = [{ liveClassId: targetId }, { vodPackageId: targetId }];
+    }
+
     const enrollments = await this.prisma.enrollment.findMany({
-      where: {
-        userId: query.userId ?? undefined,
-        status: query.status ?? undefined,
-        liveClassId: query.liveClassId || query.classId || undefined,
-        vodPackageId: query.vodPackageId || query.courseId || undefined,
-      },
+      where,
 
       include: {
         user: {
