@@ -746,8 +746,8 @@ export const PromptInput = ({
         title="Upload files"
         type="file"
       />
-      <form className={cn("w-full", className)} onSubmit={handleSubmit} ref={formRef} {...props}>
-        <InputGroup className="overflow-hidden">{children}</InputGroup>
+      <form className={cn("w-full max-w-full min-w-0", className)} onSubmit={handleSubmit} ref={formRef} {...props}>
+        <InputGroup className="overflow-hidden max-w-full min-w-0">{children}</InputGroup>
       </form>
     </>
   )
@@ -762,7 +762,7 @@ export const PromptInput = ({
 export type PromptInputBodyProps = HTMLAttributes<HTMLDivElement>
 
 export const PromptInputBody = ({ className, ...props }: PromptInputBodyProps) => (
-  <div className={cn("contents", className)} {...props} />
+  <div className={cn("flex-1 min-w-0 w-full", className)} {...props} />
 )
 
 export type PromptInputTextareaProps = ComponentProps<typeof InputGroupTextarea>
@@ -845,7 +845,7 @@ export const PromptInputTextarea = ({
 
   return (
     <InputGroupTextarea
-      className={cn("field-sizing-content max-h-48 min-h-16", className)}
+      className={cn("field-sizing-content max-h-48 min-h-16 w-0 min-w-full break-all whitespace-pre-wrap", className)}
       name="message"
       onCompositionEnd={() => setIsComposing(false)}
       onCompositionStart={() => setIsComposing(true)}

@@ -6,12 +6,12 @@ import {
     ArrowRightLeft,
     Volume2,
     Copy,
-    MessageCircle,
     CheckCircle2,
     AlertCircle,
     Sparkles,
     Check,
     ArrowRight,
+    ArrowDown,
     X,
     ChevronDown,
     Search
@@ -197,16 +197,7 @@ export function TranslatorView() {
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigator.clipboard.writeText(targetText)} disabled={!targetText}><Copy className="size-4" /></Button>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" disabled={!targetText}><Volume2 className="size-4" /></Button>
                             </div>
-                            {targetText && (
-                                <div className="flex gap-2">
-                                    <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2">
-                                        Hỏi AI <MessageCircle className="size-3" />
-                                    </Button>
-                                    <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest gap-2">
-                                        Lưu lại <Check className="size-3" />
-                                    </Button>
-                                </div>
-                            )}
+
                         </div>
                     </div>
                 </div>
@@ -254,13 +245,14 @@ export function TranslatorView() {
                         </div>
 
                         {/* Comparison box */}
-                        <div className="grid md:grid-cols-[1fr,32px,1fr] gap-4 items-center">
+                        <div className="grid sm:grid-cols-[1fr,32px,1fr] gap-4 items-center">
                             <div className="p-5 rounded-lg bg-muted/30 border border-border space-y-2">
                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Câu văn gốc</p>
                                 <p className="text-lg font-medium leading-relaxed">{grammarResult.originalText}</p>
                             </div>
                             <div className="flex justify-center opacity-30">
-                                <ArrowRight className="size-5" />
+                                <ArrowRight className="size-5 hidden sm:block" />
+                                <ArrowDown className="size-5 sm:hidden" />
                             </div>
                             <div className="p-5 rounded-lg bg-primary/5 border border-primary/20 space-y-2">
                                 <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Đề xuất hoàn thiện</p>
@@ -278,14 +270,14 @@ export function TranslatorView() {
                                             <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
                                                 {idx + 1}
                                             </div>
-                                            <div className="space-y-2">
+                                            <div className="space-y-2 min-w-0">
                                                 <div className="flex flex-wrap items-center gap-3">
                                                     <span className="font-bold text-muted-foreground line-through decoration-destructive/30">{error.issue}</span>
                                                     <ArrowRight className="size-4 text-muted-foreground" />
                                                     <span className="font-bold text-primary text-lg">{error.correction}</span>
                                                     <Badge variant="outline" className="text-[9px] px-2 uppercase font-bold tracking-wider">{error.type}</Badge>
                                                 </div>
-                                                <p className="text-sm text-muted-foreground italic leading-relaxed">{error.explanation}</p>
+                                                <p className="text-sm text-muted-foreground italic leading-relaxed break-words">{error.explanation}</p>
                                             </div>
                                         </div>
                                     ))}
