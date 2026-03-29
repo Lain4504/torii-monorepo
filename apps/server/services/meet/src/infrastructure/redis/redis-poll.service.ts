@@ -45,7 +45,7 @@ export class RedisPollService {
 
       if (voted === 1) {
         await this.redis.unwatch();
-        throw new Error('user already voted');
+        throw new Error('Người dùng đã bỏ phiếu');
       }
 
       const voteData = `${r.userId}:${r.selectedOption}:${r.name}`;
@@ -83,7 +83,7 @@ export class RedisPollService {
 
       if (!result) {
         await this.redis.unwatch();
-        throw new Error('not found');
+        throw new Error('Không tìm thấy');
       }
 
       const info: PollInfo = JSON.parse(result);

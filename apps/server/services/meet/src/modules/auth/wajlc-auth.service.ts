@@ -105,7 +105,7 @@ export class WajlcAuthService {
       return claims;
     } catch (error) {
       this.logger.error(`Invalid token: ${error.message}`);
-      throw new Error('Invalid token claims');
+      throw new Error('Thông tin token không hợp lệ');
     }
   }
 
@@ -162,7 +162,7 @@ export class WajlcAuthService {
         claims.userId,
       );
       if (!status || status === '') {
-        throw new Error('user not found');
+        throw new Error('Không tìm thấy người dùng');
       }
     } catch (error) {
       this.logger.error(

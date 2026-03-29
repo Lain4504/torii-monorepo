@@ -46,7 +46,7 @@ export class ExternalMediaService {
         await this.endExternalMediaPlayBack(req);
         break;
       default:
-        throw new Error('Not valid request');
+        throw new Error('Yêu cầu không hợp lệ');
     }
   }
 
@@ -54,12 +54,12 @@ export class ExternalMediaService {
     const { info, metadata } =
       await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
     if (!info || !metadata) {
-      throw new Error('Room not found');
+      throw new Error('Không tìm thấy phòng');
     }
 
     const feature = metadata.roomFeatures?.externalMediaPlayerFeatures;
     if (!feature) {
-      throw new Error('External media player feature not found in metadata');
+      throw new Error('Không tìm thấy tính năng phát media ngoài trong metadata');
     }
 
     // Check user
@@ -68,7 +68,7 @@ export class ExternalMediaService {
       req.userId,
     );
     if (status !== 'online') {
-      throw new Error('User not active');
+      throw new Error('Người dùng không hoạt động');
     }
 
     // Check permission if not admin
@@ -77,7 +77,7 @@ export class ExternalMediaService {
       req.userId,
     );
     if (!userMeta?.isAdmin && !userMeta?.isPresenter) {
-      throw new Error('Permission denied');
+      throw new Error('Không có quyền');
     }
   }
 
@@ -85,7 +85,7 @@ export class ExternalMediaService {
     req: ExternalMediaPlayerReq,
   ): Promise<void> {
     if (!req.url || req.url.trim() === '') {
-      throw new Error('Valid url required');
+      throw new Error('Cần URL hợp lệ');
     }
 
     const active = true;
@@ -121,12 +121,12 @@ export class ExternalMediaService {
     const { info, metadata } =
       await this.natsRoomService.getRoomInfoWithMetadata(roomId);
     if (!info || !metadata) {
-      throw new Error('Room not found');
+      throw new Error('Không tìm thấy phòng');
     }
 
     const feature = metadata.roomFeatures?.externalMediaPlayerFeatures;
     if (!feature) {
-      throw new Error('External media player feature not found in metadata');
+      throw new Error('Không tìm thấy tính năng phát media ngoài trong metadata');
     }
 
     if (opts.isActive !== undefined) {

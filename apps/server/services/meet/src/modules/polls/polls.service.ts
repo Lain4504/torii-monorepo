@@ -42,11 +42,11 @@ export class PollsService {
       req.roomId,
     );
     if (!roomMeta) {
-      throw new Error('Room metadata not found');
+      throw new Error('Không tìm thấy metadata phòng');
     }
 
     if (!roomMeta.roomFeatures?.pollsFeatures) {
-      throw new Error('Polls feature not enabled for this room');
+      throw new Error('Phòng chưa bật tính năng bình chọn');
     }
 
     roomMeta.roomFeatures.pollsFeatures.isActive = req.isActive;
@@ -286,12 +286,12 @@ export class PollsService {
       pollId,
     );
     if (!pStr) {
-      throw new Error('no poll found');
+      throw new Error('Không tìm thấy bình chọn');
     }
     const p: PollInfo = JSON.parse(pStr);
 
     if (p.isRunning) {
-      throw new Error('poll is still running');
+      throw new Error('Bình chọn vẫn đang mở');
     }
 
     const counters = await this.redisPollService.getPollCountersByPollId(
@@ -299,7 +299,7 @@ export class PollsService {
       pollId,
     );
     if (!counters) {
-      throw new Error('no poll counters found');
+      throw new Error('Không tìm thấy số liệu bình chọn');
     }
     const totalResp = counters['total_resp'] || '0'; // String from Redis
 

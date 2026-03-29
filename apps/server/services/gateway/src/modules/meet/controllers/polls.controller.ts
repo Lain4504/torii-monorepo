@@ -60,13 +60,13 @@ export class PollsController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
 
     if (!roomId) {
-      sendCommonProtobufResponse(res, false, 'roomId required');
+      sendCommonProtobufResponse(res, false, 'Cần có roomId');
       return;
     }
 
@@ -78,7 +78,7 @@ export class PollsController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -93,7 +93,7 @@ export class PollsController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error activating polls',
+        error instanceof Error ? error.message : 'Lỗi khi kích hoạt bình chọn',
       );
     }
   }
@@ -112,7 +112,7 @@ export class PollsController {
     if (!isAdmin) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: 'only admin can perform this task',
+        msg: 'Chỉ quản trị viên mới thực hiện được thao tác này',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -127,7 +127,7 @@ export class PollsController {
     } catch (error) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: error instanceof Error ? error.message : 'Invalid request',
+        msg: error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -150,7 +150,7 @@ export class PollsController {
     } catch (error) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: error instanceof Error ? error.message : 'Error creating poll',
+        msg: error instanceof Error ? error.message : 'Lỗi khi tạo bình chọn',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -181,7 +181,7 @@ export class PollsController {
     } catch (error) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: error instanceof Error ? error.message : 'Error listing polls',
+        msg: error instanceof Error ? error.message : 'Lỗi khi liệt kê bình chọn',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -200,7 +200,7 @@ export class PollsController {
     if (!pollId) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: 'pollId required',
+        msg: 'Cần có pollId',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -230,7 +230,7 @@ export class PollsController {
         msg:
           error instanceof Error
             ? error.message
-            : 'Error getting total responses',
+            : 'Lỗi khi lấy tổng số phản hồi',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -250,7 +250,7 @@ export class PollsController {
     if (!pollId || !userId) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: 'both userId & pollId required',
+        msg: 'Cần có cả userId và pollId',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -280,7 +280,7 @@ export class PollsController {
         msg:
           error instanceof Error
             ? error.message
-            : 'Error getting user selection',
+            : 'Lỗi khi lấy lựa chọn của người dùng',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -303,7 +303,7 @@ export class PollsController {
     } catch (error) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: error instanceof Error ? error.message : 'Invalid request',
+        msg: error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -327,7 +327,7 @@ export class PollsController {
       const response = create(PollResponseSchema, {
         status: false,
         msg:
-          error instanceof Error ? error.message : 'Error submitting response',
+          error instanceof Error ? error.message : 'Lỗi khi gửi phản hồi',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -348,7 +348,7 @@ export class PollsController {
     if (!isAdmin) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: 'only admin can perform this task',
+        msg: 'Chỉ quản trị viên mới thực hiện được thao tác này',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -363,7 +363,7 @@ export class PollsController {
     } catch (error) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: error instanceof Error ? error.message : 'Invalid request',
+        msg: error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -386,7 +386,7 @@ export class PollsController {
     } catch (error) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: error instanceof Error ? error.message : 'Error closing poll',
+        msg: error instanceof Error ? error.message : 'Lỗi khi đóng bình chọn',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -406,7 +406,7 @@ export class PollsController {
     if (!isAdmin) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: 'only admin can perform this task',
+        msg: 'Chỉ quản trị viên mới thực hiện được thao tác này',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -416,7 +416,7 @@ export class PollsController {
     if (!pollId) {
       const response = create(PollResponseSchema, {
         status: false,
-        msg: 'pollId required',
+        msg: 'Cần có pollId',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -444,7 +444,7 @@ export class PollsController {
       const response = create(PollResponseSchema, {
         status: false,
         msg:
-          error instanceof Error ? error.message : 'Error getting poll details',
+          error instanceof Error ? error.message : 'Lỗi khi lấy chi tiết bình chọn',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -481,7 +481,7 @@ export class PollsController {
       const response = create(PollResponseSchema, {
         status: false,
         msg:
-          error instanceof Error ? error.message : 'Error getting poll results',
+          error instanceof Error ? error.message : 'Lỗi khi lấy kết quả bình chọn',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);
@@ -513,7 +513,7 @@ export class PollsController {
       const response = create(PollResponseSchema, {
         status: false,
         msg:
-          error instanceof Error ? error.message : 'Error getting polls stats',
+          error instanceof Error ? error.message : 'Lỗi khi lấy thống kê bình chọn',
       });
       res.status(200);
       sendProtobufResponse(res, PollResponseSchema, response);

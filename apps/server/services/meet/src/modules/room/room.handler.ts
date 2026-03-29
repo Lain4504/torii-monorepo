@@ -113,7 +113,7 @@ export class RoomHandler {
       true,
     );
     if (!room) {
-      return { success: false, message: 'Room not found' };
+      return { success: false, message: 'Không tìm thấy phòng' };
     }
 
     const count = await this.roomInfoService.updateRoomRTMPStatus(

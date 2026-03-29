@@ -81,13 +81,13 @@ export class FileController {
     if (req.roomId !== jwtRoomId) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        msg: "token roomId & requested roomId didn't matched",
+        msg: 'roomId trong token không khớp với yêu cầu',
       });
     }
     if (req.userId !== jwtUserId) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        msg: "token userId & requested userId didn't matched",
+        msg: 'userId trong token không khớp với yêu cầu',
       });
     }
 
@@ -129,7 +129,7 @@ export class FileController {
     if (!file) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ status: false, msg: 'no file part' });
+        .json({ status: false, msg: 'Không có phần tệp tải lên' });
     }
 
     // Resumable.js sends params in body for POST requests
@@ -139,7 +139,7 @@ export class FileController {
     if (!req.resumableIdentifier || !req.roomSid) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ status: false, msg: 'missing resumable parameters' });
+        .json({ status: false, msg: 'Thiếu tham số resumable' });
     }
 
     const jwtRoomId = (res.req as any).roomId;
@@ -148,13 +148,13 @@ export class FileController {
     if (req.roomId !== jwtRoomId) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        msg: "token roomId & requested roomId didn't matched",
+        msg: 'roomId trong token không khớp với yêu cầu',
       });
     }
     if (req.userId !== jwtUserId) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         status: false,
-        msg: "token userId & requested userId didn't matched",
+        msg: 'userId trong token không khớp với yêu cầu',
       });
     }
 
@@ -164,7 +164,7 @@ export class FileController {
       if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           status: false,
-          msg: `file too large: max allowed is ${maxSizeMb}MB`,
+          msg: `Tệp quá lớn: tối đa cho phép là ${maxSizeMb}MB`,
         });
       }
       // Basic extension validation
@@ -176,7 +176,7 @@ export class FileController {
       if (!ext || !allowedTypes.includes(ext)) {
         return res
           .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-          .json({ status: false, msg: 'file type not allowed' });
+          .json({ status: false, msg: 'Loại tệp không được phép' });
       }
     }
 
@@ -281,7 +281,7 @@ export class FileController {
     const fullPath = path.join(this.uploadPath, pathStr);
 
     if (!fs.existsSync(fullPath) || fs.lstatSync(fullPath).isDirectory()) {
-      return res.status(HttpStatus.NOT_FOUND).send('File not found');
+      return res.status(HttpStatus.NOT_FOUND).send('Không tìm thấy tệp');
     }
 
     const fileName = path.basename(fullPath);
@@ -378,7 +378,7 @@ export class FileController {
     const fullPath = path.join(this.uploadPath, pathStr);
 
     if (!fs.existsSync(fullPath) || fs.lstatSync(fullPath).isDirectory()) {
-      return res.status(HttpStatus.NOT_FOUND).send('File not found');
+      return res.status(HttpStatus.NOT_FOUND).send('Không tìm thấy tệp');
     }
 
     const fileName = path.basename(fullPath);

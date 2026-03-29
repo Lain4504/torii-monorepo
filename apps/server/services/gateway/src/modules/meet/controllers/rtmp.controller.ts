@@ -64,12 +64,12 @@ export class RtmpController {
           } else {
             // Default fallback or ignore
             this.logger.log(`Ignored RTMP protobuf task: ${task}`);
-            if (!roomId) return res.status(400).send('Missing room_id');
+            if (!roomId) return res.status(400).send('Thiếu room_id');
             return res.status(200).send('Ignored');
           }
         } catch (e) {
           this.logger.error(`Failed to parse protobuf: ${e.message}`);
-          return res.status(400).send('Invalid protobuf');
+          return res.status(400).send('Protobuf không hợp lệ');
         }
       } else {
         // Fallback: NGINX-RTMP standard format (x-www-form-urlencoded)
@@ -86,13 +86,13 @@ export class RtmpController {
           this.logger.warn(
             `Received unknown body format: ${JSON.stringify(body).slice(0, 100)}...`,
           );
-          return res.status(400).send('Invalid request format');
+          return res.status(400).send('Định dạng yêu cầu không hợp lệ');
         }
       }
 
       if (!roomId) {
         this.logger.warn('RTMP webhook missing room_id');
-        return res.status(400).send('Missing room_id');
+        return res.status(400).send('Thiếu room_id');
       }
 
       // Send to NATS
@@ -114,13 +114,13 @@ export class RtmpController {
           `Failed to update RTMP status for room ${roomId}: ${result?.message}`,
         );
         if (isActive) {
-          return res.status(404).send('Room not found or not active');
+          return res.status(404).send('Không tìm thấy phòng hoặc phòng không hoạt động');
         }
         return res.status(200).send('OK');
       }
     } catch (error) {
       this.logger.error(`Error handling RTMP webhook: ${error.message}`);
-      return res.status(500).send('Internal Server Error');
+      return res.status(500).send('Lỗi máy chủ nội bộ');
     }
   }
 

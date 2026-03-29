@@ -51,7 +51,7 @@ export class IngressController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -70,7 +70,7 @@ export class IngressController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error creating ingress',
+        error instanceof Error ? error.message : 'Lỗi khi tạo ingress',
       );
     }
   }

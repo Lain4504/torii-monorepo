@@ -112,18 +112,18 @@ export class RoomUserService {
       const RECORDER_USER_AUTH_NAME = 'PLUGNMEET_RECORDER_AUTH';
       if (userName === RECORDER_USER_AUTH_NAME) {
         throw new Error(
-          `name: ${RECORDER_USER_AUTH_NAME} is reserved for internal use only`,
+          `Tên ${RECORDER_USER_AUTH_NAME} được dành cho hệ thống`,
         );
       }
       // Logic for internal user ID check (internal users like system bots)
       if (this.isUserIdInternal(userId)) {
-        throw new Error(`user_id: ${userId} is reserved for internal use only`);
+        throw new Error(`user_id ${userId} được dành cho hệ thống`);
       }
 
       // Step 3: Fetch the current room information and metadata from NATS
       const roomInfo = await this.natsRoom.getRoomInfoWithMetadata(roomId);
       if (!roomInfo || !roomInfo.metadata) {
-        throw new Error('did not find correct room info');
+        throw new Error('Không tìm thấy thông tin phòng hợp lệ');
       }
 
       const rInfo = roomInfo.info;
@@ -131,7 +131,7 @@ export class RoomUserService {
 
       // Step 4: Ensure the room is not in an ended state
       if (rInfo?.status === 'ended') {
-        throw new Error('room found in delete status, need to recreate it');
+        throw new Error('Phòng đã kết thúc, cần tạo lại phòng');
       }
 
       // Step 5: Initialize user metadata if not provided
@@ -191,18 +191,18 @@ export class RoomUserService {
       const validUserIdRegex = /^[a-zA-Z0-9-_]+$/;
       if (!validUserIdRegex.test(req.userInfo.userId)) {
         throw new Error(
-          'user_id should only contain ASCII letters (a-z A-Z), digits (0-9) or -_',
+          'user_id chỉ được gồm chữ ASCII (a-z, A-Z), số (0-9) hoặc - _',
         );
       }
       // Add an extra check to ensure our chosen separator pattern is not present.
       // Assuming UserKeyFieldPrefix is 'field_' (implied by context of NATS keys)
       if (req.userInfo.userId.includes('field_')) {
-        throw new Error("user_id cannot contain the reserved pattern 'field_'");
+        throw new Error("user_id không được chứa mẫu dành riêng 'field_'");
       }
       // Assuming UserKeyPrefix is 'user_'
       if (req.userInfo.userId.startsWith('user_')) {
         throw new Error(
-          "user_id cannot start with the reserved pattern 'user_'",
+          "user_id không được bắt đầu bằng mẫu dành riêng 'user_'",
         );
       }
 
@@ -451,7 +451,7 @@ export class RoomUserService {
       userId,
     );
     if (!metadata) {
-      throw new Error("User's metadata not found");
+      throw new Error('Không tìm thấy metadata người dùng');
     }
 
     // No lock for admin (except whiteboard)
@@ -483,7 +483,7 @@ export class RoomUserService {
     // Get room metadata
     const metadata = await this.natsRoom.getRoomMetadataStruct(data.roomId);
     if (!metadata) {
-      throw new Error('Invalid nil room metadata information');
+      throw new Error('Thông tin metadata phòng không hợp lệ hoặc trống');
     }
 
     // Update default lock settings
@@ -568,7 +568,7 @@ export class RoomUserService {
       if (!participant || participant.state !== ParticipantInfo_State.ACTIVE) {
         // ✅ Using LiveKit enum
         this.logger.warn('Participant not found or not active');
-        return { status: false, msg: 'User not active' };
+        return { status: false, msg: 'Người dùng không hoạt động' };
       }
 
       // Step 3: Find track SID if not provided (auto-find microphone)
@@ -587,7 +587,7 @@ export class RoomUserService {
       }
 
       if (!trackSid) {
-        return { status: false, msg: 'No suitable track found to mute/unmute' };
+        return { status: false, msg: 'Không tìm thấy track phù hợp để tắt/bật tiếng' };
       }
 
       // Step 4: Mute/unmute the track via LiveKit
@@ -623,7 +623,7 @@ export class RoomUserService {
     );
 
     if (!participants || participants.length === 0) {
-      throw new Error('No active users found');
+      throw new Error('Không có người dùng đang hoạt động');
     }
 
     // Mute/unmute each participant's microphone
@@ -692,7 +692,7 @@ export class RoomUserService {
       );
       if (status !== 'online') {
         this.logger.warn('User not online');
-        return { status: false, msg: 'User not active' };
+        return { status: false, msg: 'Người dùng không hoạt động' };
       }
 
       // Step 2: Notify user with error message
@@ -837,7 +837,7 @@ export class RoomUserService {
       // The admin making the request is the safe fallback to prevent a presenter-less room
       newPresenterId = req.requestedUserId;
     } else {
-      throw new Error(`Invalid task: ${req.task}`);
+      throw new Error(`Tác vụ không hợp lệ: ${req.task}`);
     }
 
     // Step 1: Promote the new presenter first
@@ -911,7 +911,7 @@ export class RoomUserService {
       );
     } catch (error) {
       throw new Error(
-        `Failed to update user key-value for ${userId}: ${error.message}`,
+        `Cập nhật key-value cho ${userId} thất bại: ${error.message}`,
       );
     }
 
@@ -921,12 +921,12 @@ export class RoomUserService {
       metadata = await this.natsUserInfo.getUserMetadataStruct(roomId, userId);
     } catch (error) {
       throw new Error(
-        `Failed to get user metadata for ${userId}: ${error.message}`,
+        `Không lấy được metadata người dùng ${userId}: ${error.message}`,
       );
     }
 
     if (!metadata) {
-      throw new Error(`No metadata found for user ${userId}`);
+      throw new Error(`Không có metadata cho người dùng ${userId}`);
     }
 
     // Update metadata
@@ -942,7 +942,7 @@ export class RoomUserService {
       );
     } catch (error) {
       throw new Error(
-        `Failed to update and broadcast metadata for ${userId}: ${error.message}`,
+        `Cập nhật và phát metadata cho ${userId} thất bại: ${error.message}`,
       );
     }
 

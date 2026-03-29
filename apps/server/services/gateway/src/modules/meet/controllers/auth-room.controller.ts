@@ -65,14 +65,14 @@ export class AuthRoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
 
     // Validate userInfo
     if (!request.userInfo) {
-      sendCommonProtoJsonResponse(res, false, 'UserInfo required');
+      sendCommonProtoJsonResponse(res, false, 'Cần có UserInfo');
       return;
     }
 
@@ -89,7 +89,7 @@ export class AuthRoomController {
         sendCommonProtoJsonResponse(
           res,
           false,
-          'this user is blocked to join this session',
+          'Người dùng này bị chặn tham gia phiên',
         );
         return;
       }
@@ -97,7 +97,7 @@ export class AuthRoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error checking block list',
+        error instanceof Error ? error.message : 'Lỗi khi kiểm tra danh sách chặn',
       );
       return;
     }
@@ -117,11 +117,11 @@ export class AuthRoomController {
         !isRoomActiveRes.res ||
         !isRoomActiveRes.res.isActive
       ) {
-        sendCommonProtoJsonResponse(res, false, 'room is not active');
+        sendCommonProtoJsonResponse(res, false, 'Phòng không hoạt động');
         return;
       }
     } catch (error) {
-      sendCommonProtoJsonResponse(res, false, 'room is not active');
+      sendCommonProtoJsonResponse(res, false, 'Phòng không hoạt động');
       return;
     }
 
@@ -143,7 +143,7 @@ export class AuthRoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error generating token',
+        error instanceof Error ? error.message : 'Lỗi khi tạo token',
       );
     }
   }

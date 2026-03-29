@@ -71,7 +71,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -97,7 +97,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -173,7 +173,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -223,7 +223,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -249,7 +249,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -296,7 +296,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -322,7 +322,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {
@@ -351,7 +351,7 @@ export class InsightsController {
       return sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
 
     try {

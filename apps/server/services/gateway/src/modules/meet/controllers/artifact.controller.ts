@@ -69,7 +69,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -81,7 +81,7 @@ export class ArtifactController {
       );
 
       if (Number(result.result?.totalArtifacts) === 0) {
-        sendCommonProtoJsonResponse(res, false, 'no artifacts found');
+        sendCommonProtoJsonResponse(res, false, 'Không có artifact nào');
         return;
       }
 
@@ -97,7 +97,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error fetching artifacts',
+        error instanceof Error ? error.message : 'Lỗi khi tải danh sách artifact',
       );
     }
   }
@@ -123,7 +123,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -140,7 +140,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error getting artifact info',
+        error instanceof Error ? error.message : 'Lỗi khi lấy thông tin artifact',
       );
     }
   }
@@ -166,7 +166,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -182,7 +182,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error deleting artifact',
+        error instanceof Error ? error.message : 'Lỗi khi xóa artifact',
       );
     }
   }
@@ -208,7 +208,7 @@ export class ArtifactController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -233,7 +233,7 @@ export class ArtifactController {
         false,
         error instanceof Error
           ? error.message
-          : 'Error generating download token',
+          : 'Lỗi khi tạo token tải xuống',
       );
     }
   }

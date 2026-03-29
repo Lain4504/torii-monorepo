@@ -78,7 +78,7 @@ export class LiveKitService {
       const participant = await this.client.getParticipant(roomId, identity);
 
       if (!participant) {
-        throw new Error('participant not found');
+        throw new Error('Không tìm thấy người tham gia');
       }
 
       this.logger.debug(`Loaded participant: ${identity}`);

@@ -99,7 +99,7 @@ export class ArtifactsService {
       this.logger.error(
         `Failed to create artifact directory: ${error.message}`,
       );
-      throw new Error(`failed to create artifact directory: ${error.message}`);
+      throw new Error(`Không tạo được thư mục artifact: ${error.message}`);
     }
 
     return {
@@ -728,7 +728,7 @@ export class ArtifactsService {
     });
 
     if (!artifact) {
-      throw new Error(`artifact not found: ${artifactId}`);
+      throw new Error(`Không tìm thấy artifact: ${artifactId}`);
     }
 
     const metadata = fromJson(
@@ -776,13 +776,13 @@ export class ArtifactsService {
     });
 
     if (!artifact) {
-      throw new Error(`artifact not found: ${artifactId}`);
+      throw new Error(`Không tìm thấy artifact: ${artifactId}`);
     }
 
     const artifactType =
       RoomArtifactType[artifact.type as keyof typeof RoomArtifactType];
     if (!this.isDownloadable(artifactType)) {
-      throw new Error(`'${artifact.type}' artifact type is not downloadable`);
+      throw new Error(`Loại artifact '${artifact.type}' không được phép tải xuống`);
     }
 
     const metadata = fromJson(
@@ -790,7 +790,7 @@ export class ArtifactsService {
       artifact.metadata as any,
     );
     if (!metadata.fileInfo || !metadata.fileInfo.filePath) {
-      throw new Error('artifact has no downloadable file');
+      throw new Error('Artifact không có tệp để tải xuống');
     }
 
     return generateTokenForDownloadRecording(
@@ -813,7 +813,7 @@ export class ArtifactsService {
 
       const relativePath = decoded.sub || decoded.filePath;
       if (!relativePath) {
-        throw new Error('invalid token: file path not found');
+        throw new Error('Token không hợp lệ: không tìm thấy đường dẫn tệp');
       }
 
       const absolutePath = path.join(
@@ -836,7 +836,7 @@ export class ArtifactsService {
       if (error.message.includes('file') || error.message.includes('token')) {
         throw error;
       }
-      throw new Error(`token verification failed: ${error.message}`);
+      throw new Error(`Xác minh token thất bại: ${error.message}`);
     }
   }
 
@@ -849,7 +849,7 @@ export class ArtifactsService {
     });
 
     if (!artifact) {
-      throw new Error(`artifact not found with ID: ${artifactId}`);
+      throw new Error(`Không tìm thấy artifact với ID: ${artifactId}`);
     }
 
     // Double check to prevent deletion of certain artifact types.
@@ -858,7 +858,7 @@ export class ArtifactsService {
       RoomArtifactType.UNKNOWN_ARTIFACT;
     if (!this.isDownloadable(type)) {
       throw new Error(
-        `deleting '${artifact.type}' type of artifact is not allowed`,
+        `Không được phép xóa artifact loại '${artifact.type}'`,
       );
     }
 

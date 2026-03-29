@@ -59,7 +59,7 @@ export class RecordingService {
     }
 
     if (!req.sid) {
-      throw new Error('room sid is missing');
+      throw new Error('Thiếu SID phòng');
     }
 
     // Validate task
@@ -72,7 +72,7 @@ export class RecordingService {
         await this.sendMsgToRecorder(req);
         break;
       default:
-        throw new Error(`invalid recording task: ${req.task}`);
+        throw new Error(`Tác vụ ghi không hợp lệ: ${req.task}`);
     }
   }
 
@@ -118,7 +118,7 @@ export class RecordingService {
         }
       }
       if (!sid) {
-        throw new Error('empty sid');
+        throw new Error('SID trống');
       }
       // Fetch room info by SID from DB
       const rmInfo = await this.roomInfoService.getRoomInfoBySid(sid, 1);
@@ -150,7 +150,7 @@ export class RecordingService {
         task === RecordingTasks.START_RECORDING ? 'RECORDER_BOT' : 'RTMP_BOT';
       const recorderId = await this.selectRecorder();
       if (!recorderId) {
-        throw new Error('no recorder available');
+        throw new Error('Không có bộ ghi khả dụng');
       }
 
       const tokenData = await this.roomUserService.getWajlcJoinToken({
@@ -188,7 +188,7 @@ export class RecordingService {
       const res = fromBinary(CommonResponseSchema, msg.data);
       if (!res.status) {
         throw new Error(
-          res.msg || 'recorder returned a non-successful response',
+          res.msg || 'Bộ ghi trả về phản hồi thất bại',
         );
       }
       log.log(

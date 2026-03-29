@@ -54,15 +54,15 @@ export class SpeechToTextService {
   ): Promise<CommonResponse> {
     const azureEnabled = this.appConfig.azureSpeech.enabled;
     if (!azureEnabled) {
-      throw new Error('speech service disabled');
+      throw new Error('Dịch vụ giọng nói đã tắt');
     }
 
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    if (!metadata) throw new Error('invalid room metadata');
+    if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
     const f = metadata.roomFeatures?.speechToTextTranslationFeatures;
     if (!f) {
-      throw new Error('speech to text features not found in metadata');
+      throw new Error('Không tìm thấy tính năng speech-to-text trong metadata');
     }
 
     f.isEnabled = r.isEnabled;
@@ -222,7 +222,7 @@ export class SpeechToTextService {
 
   private async selectAzureKey(): Promise<any> {
     const keys = this.appConfig.azureSpeech.subscriptionKeys;
-    if (keys.length === 0) throw new Error('no azure keys found');
+    if (keys.length === 0) throw new Error('Không có khóa Azure');
     if (keys.length === 1) return keys[0];
 
     const usableKeys: any[] = [];
@@ -238,7 +238,7 @@ export class SpeechToTextService {
 
     usableKeys.sort((a, b) => b.available - a.available);
     if (usableKeys[0].available <= 0)
-      throw new Error('no usable azure key found (limit reached)');
+      throw new Error('Không còn khóa Azure khả dụng (đã đạt giới hạn)');
 
     return usableKeys[0];
   }
@@ -262,7 +262,7 @@ export class SpeechToTextService {
       );
 
       if (response.status !== 200) {
-        throw new Error(`Azure returned status ${response.status}`);
+        throw new Error(`Azure trả về mã ${response.status}`);
       }
 
       return create(GenerateAzureTokenResSchema, {

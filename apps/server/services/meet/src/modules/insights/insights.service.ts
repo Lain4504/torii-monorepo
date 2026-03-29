@@ -70,7 +70,7 @@ export class InsightsService {
     r: InsightsTranscriptionConfigReq,
   ): Promise<CommonResponse> {
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    if (!metadata) throw new Error('invalid room metadata');
+    if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
     // Check E2EE
     if (
@@ -82,10 +82,10 @@ export class InsightsService {
 
     const insightsFeatures = metadata.roomFeatures?.insightsFeatures;
     if (!insightsFeatures?.isAllow) {
-      throw new Error("insights feature isn't allowed for this room");
+      throw new Error('Phòng không được phép dùng tính năng Insights');
     }
     if (!insightsFeatures.transcriptionFeatures?.isAllow) {
-      throw new Error("transcription feature isn't allowed for this room");
+      throw new Error('Phòng không được phép dùng phiên âm');
     }
 
     // Disable legacy Azure STT if enabled
@@ -168,11 +168,11 @@ export class InsightsService {
   ): Promise<CommonResponse> {
     if (r.action === InsightsUserSessionAction.USER_SESSION_ACTION_START) {
       if (!r.spokenLang) {
-        throw new Error('spoken lang is required');
+        throw new Error('Cần chọn ngôn ngữ nói');
       }
 
       const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-      if (!metadata) throw new Error('invalid room metadata');
+      if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
       if (
         metadata.roomFeatures?.endToEndEncryptionFeatures
@@ -182,7 +182,7 @@ export class InsightsService {
       }
 
       const userInfo = await this.natsUserService.getUserInfo(roomId, userId);
-      if (!userInfo) throw new Error('empty user info');
+      if (!userInfo) throw new Error('Thiếu thông tin người dùng');
 
       const options = {
         spokenLang: r.spokenLang,
@@ -239,7 +239,7 @@ export class InsightsService {
       return create(CommonResponseSchema, { status: true, msg: 'success' });
     }
 
-    throw new Error(`unknown action '${r.action}'`);
+    throw new Error(`Thao tác không xác định: '${r.action}'`);
   }
 
   async endTranscription(roomId: string): Promise<CommonResponse> {
@@ -295,16 +295,16 @@ export class InsightsService {
     r: InsightsChatTranslationConfigReq,
   ): Promise<CommonResponse> {
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    if (!metadata) throw new Error('invalid room metadata');
+    if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
     const chatTransFeatures =
       metadata.roomFeatures?.insightsFeatures?.chatTranslationFeatures;
     if (!chatTransFeatures?.isAllow) {
-      throw new Error("chat translation feature isn't allowed for this room");
+      throw new Error('Phòng không được phép dùng dịch chat');
     }
 
     if (r.allowedTransLangs.length > chatTransFeatures.maxSelectedTransLangs) {
-      throw new Error('max allowed selected languages exceeded');
+      throw new Error('Vượt quá số ngôn ngữ được chọn tối đa');
     }
 
     chatTransFeatures.isEnabled = true;
@@ -413,11 +413,11 @@ export class InsightsService {
     r: InsightsAITextChatConfigReq,
   ): Promise<CommonResponse> {
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    if (!metadata) throw new Error('invalid room metadata');
+    if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
     const aiFeatures = metadata.roomFeatures?.insightsFeatures?.aiFeatures;
     if (!aiFeatures?.isAllow || !aiFeatures.aiTextChatFeatures?.isAllow) {
-      throw new Error("AI text chat feature isn't allowed for this room");
+      throw new Error('Phòng không được phép dùng chat AI');
     }
 
     aiFeatures.aiTextChatFeatures.isEnabled = true;
@@ -489,11 +489,11 @@ export class InsightsService {
     r: InsightsAITextChatContent,
   ): Promise<CommonResponse> {
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    if (!metadata) throw new Error('invalid room metadata');
+    if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
     const aiFeatures = metadata.roomFeatures?.insightsFeatures?.aiFeatures;
     if (!aiFeatures?.isAllow || !aiFeatures.aiTextChatFeatures?.isAllow) {
-      throw new Error("AI text chat feature isn't allowed for this room");
+      throw new Error('Phòng không được phép dùng chat AI');
     }
 
     let foundUser = aiFeatures.aiTextChatFeatures.isAllowedEveryone;
@@ -504,7 +504,7 @@ export class InsightsService {
     }
 
     if (!foundUser) {
-      throw new Error("you're not allowed to use this service");
+      throw new Error('Bạn không được phép dùng dịch vụ này');
     }
 
     // 1. Build history (SYNC)
@@ -718,7 +718,7 @@ export class InsightsService {
     r: InsightsAIMeetingSummarizationConfigReq,
   ): Promise<CommonResponse> {
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    if (!metadata) throw new Error('invalid room metadata');
+    if (!metadata) throw new Error('Metadata phòng không hợp lệ');
 
     const aiFeatures = metadata.roomFeatures?.insightsFeatures?.aiFeatures;
     if (
@@ -726,7 +726,7 @@ export class InsightsService {
       !aiFeatures.meetingSummarizationFeatures?.isAllow
     ) {
       throw new Error(
-        "meeting summarization feature isn't allowed for this room",
+        'Phòng không được phép dùng tóm tắt cuộc họp',
       );
     }
 
@@ -873,7 +873,7 @@ export class InsightsService {
         ),
       );
       if (!res.status) {
-        throw new Error(res.msg || 'agent failed to process task');
+        throw new Error(res.msg || 'Agent xử lý tác vụ thất bại');
       }
     } catch (error) {
       this.logger.error(`Configure agent failed: ${error.message}`);

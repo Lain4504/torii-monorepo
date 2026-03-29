@@ -78,7 +78,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -114,7 +114,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error checking user status',
+        error instanceof Error ? error.message : 'Lỗi khi kiểm tra trạng thái người dùng',
       );
       return;
     }
@@ -136,7 +136,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error checking block list',
+        error instanceof Error ? error.message : 'Lỗi khi kiểm tra danh sách chặn',
       );
       return;
     }
@@ -150,7 +150,7 @@ export class UserRoomSettingController {
       );
 
       if (!roomActiveResponse) {
-        sendCommonProtobufResponse(res, false, 'room status unavailable');
+        sendCommonProtobufResponse(res, false, 'Không lấy được trạng thái phòng');
         return;
       }
 
@@ -225,7 +225,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error verifying token',
+        error instanceof Error ? error.message : 'Lỗi khi xác minh token',
       );
     }
   }
@@ -252,7 +252,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -265,7 +265,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -275,7 +275,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'requested roomId & token roomId mismatched',
+        'roomId yêu cầu không khớp với roomId trong token',
       );
       return;
     }
@@ -290,11 +290,11 @@ export class UserRoomSettingController {
       );
 
       if (!room || !room.id) {
-        sendCommonProtobufResponse(res, false, "room isn't running");
+        sendCommonProtobufResponse(res, false, 'Phòng hiện không chạy');
         return;
       }
     } catch (error) {
-      sendCommonProtobufResponse(res, false, "room isn't running");
+      sendCommonProtobufResponse(res, false, 'Phòng hiện không chạy');
       return;
     }
 
@@ -312,7 +312,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error updating lock settings',
+        error instanceof Error ? error.message : 'Lỗi khi cập nhật cài đặt khóa',
       );
     }
   }
@@ -339,7 +339,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -352,7 +352,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -362,7 +362,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'requested roomId & token roomId mismatched',
+        'roomId yêu cầu không khớp với roomId trong token',
       );
       return;
     }
@@ -377,11 +377,11 @@ export class UserRoomSettingController {
       );
 
       if (!room || !room.id) {
-        sendCommonProtobufResponse(res, false, "room isn't running");
+        sendCommonProtobufResponse(res, false, 'Phòng hiện không chạy');
         return;
       }
     } catch (error) {
-      sendCommonProtobufResponse(res, false, "room isn't running");
+      sendCommonProtobufResponse(res, false, 'Phòng hiện không chạy');
       return;
     }
 
@@ -399,7 +399,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error muting/unmuting track',
+        error instanceof Error ? error.message : 'Lỗi khi tắt/bật tiếng track',
       );
     }
   }
@@ -426,7 +426,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -439,7 +439,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -449,14 +449,14 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'requested roomId & token roomId mismatched',
+        'roomId yêu cầu không khớp với roomId trong token',
       );
       return;
     }
 
     // Validate user can't remove themselves
     if (requestedUserId === request.userId) {
-      sendCommonProtobufResponse(res, false, "you can't remove yourself");
+      sendCommonProtobufResponse(res, false, 'Bạn không thể tự loại chính mình');
       return;
     }
 
@@ -470,11 +470,11 @@ export class UserRoomSettingController {
       );
 
       if (!room || !room.id) {
-        sendCommonProtobufResponse(res, false, "room isn't running");
+        sendCommonProtobufResponse(res, false, 'Phòng hiện không chạy');
         return;
       }
     } catch (error) {
-      sendCommonProtobufResponse(res, false, "room isn't running");
+      sendCommonProtobufResponse(res, false, 'Phòng hiện không chạy');
       return;
     }
 
@@ -489,7 +489,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error removing participant',
+        error instanceof Error ? error.message : 'Lỗi khi loại người tham gia',
       );
     }
   }
@@ -516,7 +516,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -529,7 +529,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -549,7 +549,7 @@ export class UserRoomSettingController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error switching presenter',
+        error instanceof Error ? error.message : 'Lỗi khi chuyển người trình bày',
       );
     }
   }

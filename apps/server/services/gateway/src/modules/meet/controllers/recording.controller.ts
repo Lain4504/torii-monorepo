@@ -70,7 +70,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -81,7 +81,7 @@ export class RecordingController {
       );
 
       if (Number(result.totalRecordings) === 0) {
-        sendCommonProtoJsonResponse(res, false, 'no recordings found');
+        sendCommonProtoJsonResponse(res, false, 'Không có bản ghi nào');
         return;
       }
 
@@ -97,7 +97,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error fetching recordings',
+        error instanceof Error ? error.message : 'Lỗi khi tải danh sách bản ghi',
       );
     }
   }
@@ -122,7 +122,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -137,7 +137,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error getting recording info',
+        error instanceof Error ? error.message : 'Lỗi khi lấy thông tin bản ghi',
       );
     }
   }
@@ -162,7 +162,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -178,7 +178,7 @@ export class RecordingController {
         false,
         error instanceof Error
           ? error.message
-          : 'Error updating recording metadata',
+          : 'Lỗi khi cập nhật metadata bản ghi',
       );
     }
   }
@@ -203,7 +203,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -217,7 +217,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error deleting recording',
+        error instanceof Error ? error.message : 'Lỗi khi xóa bản ghi',
       );
     }
   }
@@ -242,7 +242,7 @@ export class RecordingController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -266,7 +266,7 @@ export class RecordingController {
         false,
         error instanceof Error
           ? error.message
-          : 'Error generating download token',
+          : 'Lỗi khi tạo token tải xuống',
       );
     }
   }

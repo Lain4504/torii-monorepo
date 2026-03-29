@@ -74,7 +74,7 @@ export class WaitingRoomService {
       req.userId,
     );
     if (!userInfo) {
-      throw new Error('user not found');
+      throw new Error('Không tìm thấy người dùng');
     }
 
     await this.approveUser(req.roomId, req.userId, userInfo.metadata);
@@ -95,7 +95,7 @@ export class WaitingRoomService {
     // Unmarshal user metadata
     const mt = this.natsService.unmarshalUserMetadata(metadata);
     if (!mt) {
-      throw new Error('Failed to parse user metadata');
+      throw new Error('Không đọc được metadata người dùng');
     }
 
     // Set waitForApproval to false (user doesn't need to wait anymore)
@@ -110,7 +110,7 @@ export class WaitingRoomService {
         undefined,
       );
     } catch (error) {
-      throw new Error('Failed to approve user. Please try again.');
+      throw new Error('Duyệt người dùng thất bại. Vui lòng thử lại.');
     }
   }
 
@@ -129,12 +129,12 @@ export class WaitingRoomService {
       req.roomId,
     );
     if (!roomMeta) {
-      throw new Error('invalid or missing room metadata information');
+      throw new Error('Thông tin metadata phòng không hợp lệ hoặc thiếu');
     }
 
     // Update waiting room message
     if (!roomMeta.roomFeatures?.waitingRoomFeatures) {
-      throw new Error('waiting room features not configured');
+      throw new Error('Phòng chờ chưa được cấu hình');
     }
 
     roomMeta.roomFeatures.waitingRoomFeatures.waitingRoomMsg = req.msg;

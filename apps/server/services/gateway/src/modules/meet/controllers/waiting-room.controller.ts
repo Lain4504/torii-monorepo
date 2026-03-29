@@ -60,7 +60,7 @@ export class WaitingRoomController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -73,7 +73,7 @@ export class WaitingRoomController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -92,7 +92,7 @@ export class WaitingRoomController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error approving users',
+        error instanceof Error ? error.message : 'Lỗi khi duyệt người dùng',
       );
     }
   }
@@ -118,7 +118,7 @@ export class WaitingRoomController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -131,7 +131,7 @@ export class WaitingRoomController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -152,7 +152,7 @@ export class WaitingRoomController {
         false,
         error instanceof Error
           ? error.message
-          : 'Error updating waiting room message',
+          : 'Lỗi khi cập nhật tin nhắn phòng chờ',
       );
     }
   }

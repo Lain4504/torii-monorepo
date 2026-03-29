@@ -53,15 +53,15 @@ export class IngressService {
       req.roomId,
     );
     if (!metadata) {
-      throw new Error('invalid nil room metadata information');
+      throw new Error('Thông tin metadata phòng không hợp lệ hoặc trống');
     }
 
     const ingressFeatures = metadata.roomFeatures?.ingressFeatures;
     if (!ingressFeatures?.isAllow) {
-      throw new Error("ingress feature isn't allowed for this room");
+      throw new Error('Phòng không được phép dùng ingress');
     }
     if (ingressFeatures.streamKey && ingressFeatures.streamKey !== '') {
-      throw new Error('multiple ingress creation request not allowed');
+      throw new Error('Không được tạo nhiều ingress cùng lúc');
     }
 
     // 2. Map input type
@@ -91,7 +91,7 @@ export class IngressService {
       options,
     );
     if (!lkIngressInfo) {
-      throw new Error('livekit returned invalid nil create ingress response');
+      throw new Error('LiveKit trả về phản hồi tạo ingress không hợp lệ');
     }
 
     // 5. Add ingress user to NATS (bot user)

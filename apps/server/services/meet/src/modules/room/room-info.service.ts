@@ -69,7 +69,7 @@ export class RoomInfoService {
   }> {
     const res = create(IsRoomActiveResSchema, {
       status: true,
-      msg: 'room is not active',
+      msg: 'Phòng không hoạt động',
       isActive: false,
     });
 
@@ -87,7 +87,7 @@ export class RoomInfoService {
       rInfo.status === ROOM_STATUS_ACTIVE
     ) {
       res.isActive = true;
-      res.msg = 'room is active';
+      res.msg = 'Phòng đang hoạt động';
     }
     // If status is "ended" or anything else, it will correctly return IsActive: false and "room is not active".
 
@@ -115,7 +115,7 @@ export class RoomInfoService {
     // Get room from database
     const roomDbInfo = await this.getRoomInfoByRoomId(req.roomId, true);
     if (!roomDbInfo || !roomDbInfo.id) {
-      return { status: false, msg: 'no room found', room: null };
+      return { status: false, msg: 'Không tìm thấy phòng', room: null };
     }
 
     // Get room info from NATS
@@ -129,7 +129,7 @@ export class RoomInfoService {
         `Room found in DB but not active in NATS (status: ${rrr?.status}), marking as ended`,
       );
       await this.updateRoomStatus(req.roomId, false);
-      return { status: false, msg: 'room is not active', room: null };
+      return { status: false, msg: 'Phòng không hoạt động', room: null };
     }
 
     // Build response
@@ -190,7 +190,7 @@ export class RoomInfoService {
     // Get all active rooms from database
     const roomsInfo = await this.getActiveRoomsFromDb();
     if (!roomsInfo || roomsInfo.length === 0) {
-      return { status: false, msg: 'no active room found', rooms: null };
+      return { status: false, msg: 'Không có phòng đang hoạt động', rooms: null };
     }
 
     const res: ActiveRoomWithParticipant[] = [];

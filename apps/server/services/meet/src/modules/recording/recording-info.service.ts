@@ -89,7 +89,7 @@ export class RecordingInfoService {
     });
 
     if (!artifact) {
-      throw new Error('no info found');
+      throw new Error('Không tìm thấy thông tin');
     }
 
     const meta = fromJson(RoomArtifactMetadataSchema, artifact.metadata as any);

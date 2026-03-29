@@ -32,7 +32,7 @@ export class DownloadController {
     @Res() res: Response,
   ): Promise<void> {
     if (!token || token.length === 0) {
-      res.status(HttpStatus.UNAUTHORIZED).send('token require or invalid url');
+      res.status(HttpStatus.UNAUTHORIZED).send('Thiếu token hoặc URL không hợp lệ');
       return;
     }
 
@@ -47,7 +47,7 @@ export class DownloadController {
       if (!verifyRes.status) {
         res
           .status(verifyRes.httpStatus || HttpStatus.BAD_REQUEST)
-          .send(verifyRes.msg || 'Invalid token');
+          .send(verifyRes.msg || 'Token không hợp lệ');
         return;
       }
 
@@ -61,7 +61,7 @@ export class DownloadController {
         .send(
           error instanceof Error
             ? error.message
-            : 'Error downloading recording',
+            : 'Lỗi khi tải bản ghi',
         );
     }
   }
@@ -76,7 +76,7 @@ export class DownloadController {
     @Res() res: Response,
   ): Promise<void> {
     if (!token || token.length === 0) {
-      res.status(HttpStatus.UNAUTHORIZED).send('token required or invalid url');
+      res.status(HttpStatus.UNAUTHORIZED).send('Thiếu token hoặc URL không hợp lệ');
       return;
     }
 
@@ -91,7 +91,7 @@ export class DownloadController {
       if (!verifyRes.status) {
         res
           .status(HttpStatus.BAD_REQUEST)
-          .send(verifyRes.msg || 'Invalid token');
+          .send(verifyRes.msg || 'Token không hợp lệ');
         return;
       }
 
@@ -103,7 +103,7 @@ export class DownloadController {
       res
         .status(HttpStatus.BAD_REQUEST)
         .send(
-          error instanceof Error ? error.message : 'Error downloading artifact',
+          error instanceof Error ? error.message : 'Lỗi khi tải artifact',
         );
     }
   }

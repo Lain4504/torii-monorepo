@@ -79,7 +79,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -102,7 +102,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error creating room',
+        error instanceof Error ? error.message : 'Lỗi khi tạo phòng',
       );
     }
   }
@@ -129,7 +129,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -146,7 +146,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error checking room status',
+        error instanceof Error ? error.message : 'Lỗi khi kiểm tra trạng thái phòng',
       );
     }
   }
@@ -173,7 +173,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -196,7 +196,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error getting room info',
+        error instanceof Error ? error.message : 'Lỗi khi lấy thông tin phòng',
       );
     }
   }
@@ -227,7 +227,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error getting rooms info',
+        error instanceof Error ? error.message : 'Lỗi khi lấy danh sách phòng',
       );
     }
   }
@@ -248,7 +248,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -264,7 +264,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error ending room',
+        error instanceof Error ? error.message : 'Lỗi khi kết thúc phòng',
       );
     }
   }
@@ -291,7 +291,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -319,7 +319,7 @@ export class RoomController {
       sendCommonProtoJsonResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error fetching past rooms',
+        error instanceof Error ? error.message : 'Lỗi khi tải lịch sử phòng',
       );
     }
   }
@@ -357,7 +357,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -370,7 +370,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -380,7 +380,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        'requested roomId & token roomId mismatched',
+        'roomId yêu cầu không khớp với roomId trong token',
       );
       return;
     }
@@ -396,7 +396,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error ending room',
+        error instanceof Error ? error.message : 'Lỗi khi kết thúc phòng',
       );
     }
   }
@@ -422,7 +422,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
@@ -435,7 +435,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -445,7 +445,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        'requested roomId & token roomId mismatched',
+        'roomId yêu cầu không khớp với roomId trong token',
       );
       return;
     }
@@ -461,7 +461,7 @@ export class RoomApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Error changing visibility',
+        error instanceof Error ? error.message : 'Lỗi khi thay đổi chế độ hiển thị',
       );
     }
   }

@@ -75,12 +75,12 @@ export class RoomCreateService {
 
     if (req.roomId.includes(userKeyFieldPrefix)) {
       throw new Error(
-        `roomId cannot contain the reserved pattern '${userKeyFieldPrefix}'`,
+        `roomId không được chứa mẫu dành riêng '${userKeyFieldPrefix}'`,
       );
     }
     if (req.roomId.startsWith(userKeyPrefix)) {
       throw new Error(
-        `roomId cannot start with the reserved pattern '${userKeyPrefix}'`,
+        `roomId không được bắt đầu bằng mẫu dành riêng '${userKeyPrefix}'`,
       );
     }
 

@@ -42,7 +42,7 @@ export class RoomModifyService {
     );
 
     if (!roomMeta) {
-      return { status: false, msg: 'invalid nil room metadata information' };
+      return { status: false, msg: 'Thông tin metadata phòng không hợp lệ hoặc trống' };
     }
 
     // Step 2: Update visibility flags if provided
@@ -82,7 +82,7 @@ export class RoomModifyService {
       return {
         status: false,
         msg:
-          error instanceof Error ? error.message : 'Error updating visibility',
+          error instanceof Error ? error.message : 'Lỗi khi cập nhật chế độ hiển thị',
       };
     }
   }

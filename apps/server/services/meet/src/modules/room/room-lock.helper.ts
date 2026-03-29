@@ -67,7 +67,7 @@ export async function acquireRoomCreationLockWithRetry(
         `Redis error while attempting to acquire room creation lock: ${roomId}, error: ${errorMsg}`,
       );
       throw new Error(
-        `Redis communication error for room '${roomId}' lock: ${errorMsg}`,
+        `Lỗi Redis khi khóa tạo phòng '${roomId}': ${errorMsg}`,
       );
     }
 
@@ -78,7 +78,7 @@ export async function acquireRoomCreationLockWithRetry(
         `Timeout while waiting for room creation lock: ${roomId}, maxWaitTime: ${maxWaitTime}ms`,
       );
       throw new Error(
-        `Timeout waiting to acquire lock for room ${roomId}, operation is currently locked`,
+        `Hết thời gian chờ khóa phòng ${roomId}, thao tác đang bị khóa`,
       );
     }
 
@@ -135,7 +135,7 @@ export async function waitUntilRoomCreationCompletes(
         `Redis error while checking room creation lock: ${roomId}, error: ${errorMsg}`,
       );
       throw new Error(
-        `Redis communication error while checking room '${roomId}' creation lock: ${errorMsg}`,
+        `Lỗi Redis khi kiểm tra khóa tạo phòng '${roomId}': ${errorMsg}`,
       );
     }
 
@@ -146,7 +146,7 @@ export async function waitUntilRoomCreationCompletes(
         `Timeout while waiting for room creation to complete: ${roomId}, maxWaitTime: ${maxWaitTime}ms`,
       );
       throw new Error(
-        `Timeout waiting for room creation of room '${roomId}' to complete`,
+        `Hết thời gian chờ hoàn tất tạo phòng '${roomId}'`,
       );
     }
 

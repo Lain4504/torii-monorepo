@@ -97,7 +97,7 @@ export class RoomEndService {
       await waitUntilRoomCreationCompletes(this.redisLock, roomId, this.logger);
     } catch (error) {
       this.logger.error(`Cannot end room as it's locked: ${error.message}`);
-      return { status: false, msg: `Failed to end room: ${error.message}` };
+      return { status: false, msg: `Không thể kết thúc phòng: ${error.message}` };
     }
 
     this.logger.log(`Proceeding to end room: ${roomId}`);
@@ -110,7 +110,7 @@ export class RoomEndService {
     );
 
     if (!roomDbInfo) {
-      return { status: false, msg: 'room not found in DB or not active' };
+      return { status: false, msg: 'Không tìm thấy phòng trong CSDL hoặc phòng không hoạt động' };
     }
 
     // Step 3: Fetch the live room state from the NATS key-value store

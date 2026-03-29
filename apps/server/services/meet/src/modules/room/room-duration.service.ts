@@ -132,7 +132,7 @@ export class RoomDurationService {
       // Step 1: Get room metadata first
       const meta = await this.natsRoomService.getRoomMetadataStruct(roomId);
       if (!meta) {
-        throw new Error('Invalid nil room metadata information');
+        throw new Error('Thông tin metadata phòng không hợp lệ hoặc trống');
       }
 
       // Step 2: Get current room duration info from Redis
@@ -149,7 +149,7 @@ export class RoomDurationService {
         if (info && info.startedAt > 0) {
           if (info.duration === 0) {
             const err = new Error(
-              "can't increase duration as breakout room has unlimited duration",
+              'Không thể tăng thời lượng vì phòng nhóm đang không giới hạn thời gian',
             );
             this.logger.warn(err.message);
             throw err;
@@ -281,7 +281,7 @@ export class RoomDurationService {
 
     // Validate breakout room duration
     if (minutesLeft < duration) {
-      const error = `Breakout room's duration (${duration}) can't be more than parent room's remaining duration (${minutesLeft})`;
+      const error = `Thời lượng phòng nhóm (${duration}) không được vượt quá thời gian còn lại của phòng chính (${minutesLeft})`;
       this.logger.warn(error);
       throw new Error(error);
     }

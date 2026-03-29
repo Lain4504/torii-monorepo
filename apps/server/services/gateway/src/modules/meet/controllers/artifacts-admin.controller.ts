@@ -98,7 +98,7 @@ export class ArtifactsAdminController {
       res.status(500).json({
         success: false,
         message:
-          error instanceof Error ? error.message : 'Error fetching artifacts',
+          error instanceof Error ? error.message : 'Lỗi khi tải danh sách artifact',
       });
     }
   }
@@ -162,7 +162,7 @@ export class ArtifactsAdminController {
         message:
           error instanceof Error
             ? error.message
-            : 'Error getting artifact info',
+            : 'Lỗi khi lấy thông tin artifact',
       });
     }
   }
@@ -199,7 +199,7 @@ export class ArtifactsAdminController {
         message:
           error instanceof Error
             ? error.message
-            : 'Error generating download token',
+            : 'Lỗi khi tạo token tải xuống',
       });
     }
   }
@@ -216,7 +216,7 @@ export class ArtifactsAdminController {
     if (!token) {
       res.status(400).json({
         success: false,
-        message: 'Token is required',
+        message: 'Cần có token',
       });
       return;
     }
@@ -227,13 +227,13 @@ export class ArtifactsAdminController {
       // For now, return error
       res.status(501).json({
         success: false,
-        message: 'Download endpoint not yet implemented',
+        message: 'Chức năng tải xuống chưa được triển khai',
       });
     } catch (error) {
       res.status(500).json({
         success: false,
         message:
-          error instanceof Error ? error.message : 'Error downloading artifact',
+          error instanceof Error ? error.message : 'Lỗi khi tải artifact',
       });
     }
   }
@@ -265,7 +265,7 @@ export class ArtifactsAdminController {
       res.status(500).json({
         success: false,
         message:
-          error instanceof Error ? error.message : 'Error deleting artifact',
+          error instanceof Error ? error.message : 'Lỗi khi xóa artifact',
       });
     }
   }

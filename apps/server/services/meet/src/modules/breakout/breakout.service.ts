@@ -83,7 +83,7 @@ export class BreakoutService {
       await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
 
     if (!mainRoom || !meta) {
-      throw new Error('Invalid parent room information');
+      throw new Error('Thông tin phòng cha không hợp lệ');
     }
 
     // 2. Duration Check
@@ -178,7 +178,7 @@ export class BreakoutService {
     }
 
     if (Object.keys(e).length === req.rooms.length) {
-      throw new Error("breakout room creation wasn't successful for any room");
+      throw new Error('Không tạo được phòng nhóm nào');
     }
 
     // Update parent room metadata
@@ -233,7 +233,7 @@ export class BreakoutService {
       req.userId,
     );
     if (status === USER_STATUS_ONLINE) {
-      throw new Error('User has already been joined');
+      throw new Error('Người dùng đã tham gia phòng nhóm này');
     }
 
     // 2. Fetch Breakout Room Info
@@ -242,7 +242,7 @@ export class BreakoutService {
       req.breakoutRoomId,
     );
     if (!roomStr) {
-      throw new Error('Failed to fetch breakout room info');
+      throw new Error('Không lấy được thông tin phòng nhóm');
     }
 
     const room = fromJsonString(BreakoutRoomSchema, roomStr);
@@ -251,7 +251,7 @@ export class BreakoutService {
     if (!req.isAdmin) {
       const canJoin = room.users.some((u) => u.id === req.userId);
       if (!canJoin) {
-        throw new Error('User is not allowed to join this breakout room');
+        throw new Error('Bạn không được phép vào phòng nhóm này');
       }
     }
 
@@ -265,7 +265,7 @@ export class BreakoutService {
       req.userId,
     );
     if (!pInfo || !pMeta) {
-      throw new Error('Failed to get user info from parent room');
+      throw new Error('Không lấy được thông tin người dùng từ phòng chính');
     }
 
     const joinReq = {
@@ -296,7 +296,7 @@ export class BreakoutService {
       req.breakoutRoomId,
     );
     if (!rm) {
-      throw new Error('Breakout room not found');
+      throw new Error('Không tìm thấy phòng nhóm');
     }
 
     // Use core end room logic
@@ -373,7 +373,7 @@ export class BreakoutService {
     }
 
     if (result.length === 0) {
-      throw new Error('no breakout rooms found');
+      throw new Error('Không có phòng nhóm nào');
     }
 
     return result;
@@ -390,7 +390,7 @@ export class BreakoutService {
       () => [],
     );
     if (!breakoutRooms || breakoutRooms.length === 0) {
-      throw new Error('no breakout rooms found');
+      throw new Error('Không có phòng nhóm nào');
     }
 
     for (const rr of breakoutRooms) {
@@ -401,7 +401,7 @@ export class BreakoutService {
       }
     }
 
-    throw new Error('not found');
+    throw new Error('Không tìm thấy');
   }
 
   /**
@@ -422,7 +422,7 @@ export class BreakoutService {
     );
     if (!roomStr) {
       log.error('failed to fetch breakout room info');
-      throw new Error('Breakout room not found');
+      throw new Error('Không tìm thấy phòng nhóm');
     }
 
     const room = fromJsonString(BreakoutRoomSchema, roomStr);

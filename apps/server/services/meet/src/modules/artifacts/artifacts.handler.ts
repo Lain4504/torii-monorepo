@@ -34,7 +34,7 @@ export class ArtifactsHandler {
       if (Number(result.totalArtifacts) === 0) {
         return create(FetchArtifactsResSchema, {
           status: false,
-          msg: 'no artifacts found',
+          msg: 'Không có artifact nào',
         });
       }
 

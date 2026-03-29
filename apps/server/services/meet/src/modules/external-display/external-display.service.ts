@@ -46,7 +46,7 @@ export class ExternalDisplayService {
         await this.endExternalDisplay(req);
         break;
       default:
-        throw new Error('Not valid request');
+        throw new Error('Yêu cầu không hợp lệ');
     }
   }
 
@@ -54,12 +54,12 @@ export class ExternalDisplayService {
     const { info, metadata } =
       await this.natsRoomService.getRoomInfoWithMetadata(req.roomId);
     if (!info || !metadata) {
-      throw new Error('Room not found');
+      throw new Error('Không tìm thấy phòng');
     }
 
     const feature = metadata.roomFeatures?.displayExternalLinkFeatures;
     if (!feature || !feature.isAllow) {
-      throw new Error('External display feature disabled');
+      throw new Error('Tính năng hiển thị ngoài đã tắt');
     }
 
     // Check user
@@ -68,7 +68,7 @@ export class ExternalDisplayService {
       req.userId,
     );
     if (status !== 'online') {
-      throw new Error('User not active');
+      throw new Error('Người dùng không hoạt động');
     }
 
     // Check permission if not admin
@@ -77,7 +77,7 @@ export class ExternalDisplayService {
       req.userId,
     );
     if (!userMeta?.isAdmin && !userMeta?.isPresenter) {
-      throw new Error('Permission denied');
+      throw new Error('Không có quyền');
     }
   }
 
@@ -85,7 +85,7 @@ export class ExternalDisplayService {
     req: ExternalDisplayLinkReq,
   ): Promise<void> {
     if (!req.url || req.url === '') {
-      throw new Error('Valid url required');
+      throw new Error('Cần URL hợp lệ');
     }
 
     const active = true;
@@ -112,12 +112,12 @@ export class ExternalDisplayService {
     const { info, metadata } =
       await this.natsRoomService.getRoomInfoWithMetadata(roomId);
     if (!info || !metadata) {
-      throw new Error('Room not found');
+      throw new Error('Không tìm thấy phòng');
     }
 
     const feature = metadata.roomFeatures?.displayExternalLinkFeatures;
     if (!feature) {
-      throw new Error('External display feature not found in metadata');
+      throw new Error('Không tìm thấy tính năng hiển thị ngoài trong metadata');
     }
 
     if (opts.isActive !== undefined) {

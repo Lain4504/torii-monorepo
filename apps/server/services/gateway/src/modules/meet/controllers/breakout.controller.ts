@@ -55,7 +55,7 @@ export class BreakoutController {
     if (!isAdmin) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: 'only admin can perform this task',
+        msg: 'Chỉ quản trị viên mới thực hiện được thao tác này',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -98,7 +98,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -138,7 +138,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -166,7 +166,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -198,7 +198,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -235,7 +235,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -268,7 +268,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -305,7 +305,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -321,7 +321,7 @@ export class BreakoutController {
     if (!isAdmin) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: 'only admin can perform this task',
+        msg: 'Chỉ quản trị viên mới thực hiện được thao tác này',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);
@@ -343,7 +343,7 @@ export class BreakoutController {
     } catch (error) {
       const response = create(BreakoutRoomResSchema, {
         status: false,
-        msg: error.message || 'Unknown Error',
+        msg: error.message || 'Lỗi không xác định',
       });
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, BreakoutRoomResSchema, response);

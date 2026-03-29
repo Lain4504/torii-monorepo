@@ -74,13 +74,13 @@ export class ExternalMediaController {
       sendCommonProtobufResponse(
         res,
         false,
-        'only admin can perform this task',
+        'Chỉ quản trị viên mới thực hiện được thao tác này',
       );
       return;
     }
 
     if (!roomId) {
-      sendCommonProtobufResponse(res, false, 'roomId required');
+      sendCommonProtobufResponse(res, false, 'Cần có roomId');
       return;
     }
 

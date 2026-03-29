@@ -86,19 +86,19 @@ export class FileService {
 
     if (method === 'POST') {
       if (!file) {
-        throw new Error('No file provided in POST request');
+        throw new Error('Yêu cầu POST không có tệp');
       }
 
       if (req.resumableChunkNumber === 1) {
         // Check if room is active
         const roomInfo = await this.natsRoom.getRoomInfo(req.roomId);
         if (!roomInfo || roomInfo.status === 'ended') {
-          throw new Error('Room is not active');
+          throw new Error('Phòng không hoạt động');
         }
         // Check max size
         const maxSizeMb = this.appConfig.upload.maxSizeMb;
         if (req.resumableTotalSize > maxSizeMb * 1024 * 1024) {
-          throw new Error(`File too large: max allowed is ${maxSizeMb}MB`);
+          throw new Error(`Tệp quá lớn: tối đa cho phép là ${maxSizeMb}MB`);
         }
 
         // Validate Mime Type (Chunk 1)
@@ -129,7 +129,7 @@ export class FileService {
 
     const roomInfo = await this.natsRoom.getRoomInfo(req.roomId);
     if (!roomInfo) {
-      throw new Error('Room not found');
+      throw new Error('Không tìm thấy phòng');
     }
 
     const roomSid = roomInfo.roomSid;
@@ -140,7 +140,7 @@ export class FileService {
     // Check max size
     const maxSizeMb = this.appConfig.upload.maxSizeMb;
     if (buffer.length > maxSizeMb * 1024 * 1024) {
-      throw new Error(`File too large: max allowed is ${maxSizeMb}MB`);
+      throw new Error(`Tệp quá lớn: tối đa cho phép là ${maxSizeMb}MB`);
     }
 
     // Validate Mime Type
@@ -210,7 +210,7 @@ export class FileService {
     if (!fs.existsSync(chunkDir)) {
       this.logger.error(`Chunks not found in path: ${chunkDir}`);
       throw new Error(
-        `Chunks not found for identifier ${req.resumableIdentifier} at path ${chunkDir}`,
+        `Không tìm thấy chunk cho ${req.resumableIdentifier} tại ${chunkDir}`,
       );
     }
 
@@ -228,7 +228,7 @@ export class FileService {
       for (let i = 1; i <= req.resumableTotalChunks; i++) {
         const chunkPath = path.join(chunkDir, `part${i}`);
         if (!fs.existsSync(chunkPath)) {
-          throw new Error(`Chunk ${i} missing`);
+          throw new Error(`Thiếu chunk ${i}`);
         }
         const chunkData = fs.readFileSync(chunkPath);
         fs.writeSync(destFile, chunkData);
@@ -298,7 +298,7 @@ export class FileService {
 
     const fullPath = path.join(this.uploadPath, filePath);
     if (!fs.existsSync(fullPath)) {
-      throw new Error('File not found');
+      throw new Error('Không tìm thấy tệp');
     }
 
     const fileId = uuidv4();
@@ -323,7 +323,7 @@ export class FileService {
         pdfPath = path.join(outputDir, pdfName);
       } catch (error) {
         this.logger.error(`soffice conversion failed: ${error.message}`);
-        throw new Error('Failed to convert file to PDF');
+        throw new Error('Chuyển đổi tệp sang PDF thất bại');
       }
     }
 
@@ -334,7 +334,7 @@ export class FileService {
       );
     } catch (error) {
       this.logger.error(`mutool conversion failed: ${error.message}`);
-      throw new Error('Failed to convert PDF to images');
+      throw new Error('Chuyển PDF sang ảnh thất bại');
     }
 
     // Count pages
@@ -405,12 +405,12 @@ export class FileService {
       if (len && Number(len) > 0) {
         const maxSizeMb = this.appConfig.upload.maxWhiteboardFileSizeMb;
         if (Number(len) > maxSizeMb * 1024 * 1024) {
-          throw new Error('File too large');
+          throw new Error('Tệp quá lớn');
         }
       }
       const cType = headRes.headers['content-type'];
       if (!cType) {
-        throw new Error('Missing Content-Type header');
+        throw new Error('Thiếu header Content-Type');
       }
     } catch (err) {
       this.logger.error(`Failed to validate remote file: ${err.message}`);
@@ -446,7 +446,7 @@ export class FileService {
       this.logger.error(
         `Failed to download file from ${fileUrl}: ${error.message}`,
       );
-      throw new Error(`Failed to download whiteboard file: ${error.message}`);
+      throw new Error(`Tải tệp whiteboard thất bại: ${error.message}`);
     }
 
     const safeFilename = path.basename(fileName);
@@ -496,7 +496,7 @@ export class FileService {
     try {
       const { metadata } = await this.natsRoom.getRoomInfoWithMetadata(roomId);
       if (!metadata) {
-        throw new Error('Room metadata not found');
+        throw new Error('Không tìm thấy metadata phòng');
       }
 
       if (!metadata.roomFeatures) {
@@ -592,7 +592,7 @@ export class FileService {
     const allowedTypes = this.appConfig.upload.allowedTypes;
 
     if (!ext || !allowedTypes.includes(ext)) {
-      throw new Error('File type not allowed');
+      throw new Error('Loại tệp không được phép');
     }
   }
 }

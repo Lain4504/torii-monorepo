@@ -49,12 +49,12 @@ export class RecordingApiController {
     const tokenRoomId = (req as any).roomId as string;
 
     if (!isAdmin) {
-      sendCommonProtobufResponse(res, false, 'only admin can start recording');
+      sendCommonProtobufResponse(res, false, 'Chỉ quản trị viên mới có thể bắt đầu ghi');
       return;
     }
 
     if (!tokenRoomId) {
-      sendCommonProtobufResponse(res, false, 'no roomId in token');
+      sendCommonProtobufResponse(res, false, 'Không có roomId trong token');
       return;
     }
 
@@ -65,7 +65,7 @@ export class RecordingApiController {
       sendCommonProtobufResponse(
         res,
         false,
-        error instanceof Error ? error.message : 'Invalid request',
+        error instanceof Error ? error.message : 'Yêu cầu không hợp lệ',
       );
       return;
     }
@@ -86,7 +86,7 @@ export class RecordingApiController {
       }
 
       if (rInfo.roomId !== tokenRoomId) {
-        sendCommonProtobufResponse(res, false, 'roomId in token mismatched');
+        sendCommonProtobufResponse(res, false, 'roomId trong token không khớp');
         return;
       }
 
@@ -114,7 +114,7 @@ export class RecordingApiController {
           break;
         case RecordingTasks.START_RTMP:
           if (!request.rtmpUrl) {
-            sendCommonProtobufResponse(res, false, 'rtmpUrl required');
+            sendCommonProtobufResponse(res, false, 'Cần có rtmpUrl');
             return;
           }
           if (rInfo.isActiveRtmp) {
@@ -154,7 +154,7 @@ export class RecordingApiController {
         false,
         error instanceof Error
           ? error.message
-          : 'Error processing recorder task',
+          : 'Lỗi khi xử lý tác vụ ghi âm',
       );
     }
   }
