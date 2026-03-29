@@ -362,7 +362,9 @@ function AuthenticatedDashboardPage() {
                                             </div>
                                         </div>
                                         <Link
-                                            href={`/courses/${mainCourse.liveClassId ?? mainCourse.vodPackageId ?? mainCourse.courseProfileId ?? mainCourse.id}/learn`}
+                                            href={(mainCourse as any).liveClassId 
+                                                ? `/dashboard/my-courses/${(mainCourse as any).liveClassId}` 
+                                                : `/courses/${(mainCourse as any).liveClassId ?? (mainCourse as any).vodPackageId ?? (mainCourse as any).courseProfileId ?? mainCourse.id}/learn`}
                                             className="mt-6 w-full md:max-w-max px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] text-center text-sm"
                                         >
                                             Tiếp tục học tập
@@ -508,7 +510,7 @@ function AuthenticatedDashboardPage() {
                                                 <td className="px-5 py-4 text-right">
                                                     {session.status === LiveSessionStatus.LIVE ? (
                                                         <Link
-                                                            href={`/courses/${session.classId}/learn`}
+                                                            href={`/dashboard/my-courses/${session.classId}`}
                                                             className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-xs transition-colors"
                                                         >
                                                             Tham gia ngay

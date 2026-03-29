@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Send, User, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play, Zap } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
+import { Textarea } from "@workspace/ui/components/textarea"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
@@ -814,8 +815,8 @@ export function InteractiveRoleplay() {
                                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                                             </div>
                                         ) : (
-                                            <div className="flex items-start gap-4">
-                                                <p className="flex-1">{msg.content}</p>
+                                            <div className="flex items-start gap-4 break-all">
+                                                <p className="flex-1 break-words">{msg.content}</p>
                                                 {msg.role === 'assistant' && (
                                                     <Button
                                                         variant="ghost"
@@ -891,18 +892,18 @@ export function InteractiveRoleplay() {
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid} className="flex-1">
                                 <div className="relative">
-                                    <Input
+                                    <Textarea
                                         {...field}
                                         id={field.name}
                                         placeholder={isFinished ? "Cuộc hội thoại đã kết thúc" : "Nhập tin nhắn tiếng Nhật..."}
-                                        className="h-12 pr-12"
+                                        className="min-h-12 py-3 pr-12 overflow-hidden"
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || isFinished}
                                         aria-invalid={fieldState.invalid}
                                     />
                                     <Button
                                         size="icon"
-                                        className="absolute right-1 top-1 h-10 w-10"
+                                        className="absolute right-1 bottom-1 h-10 w-10"
                                         onClick={inputForm.handleSubmit(handleSend)}
                                         disabled={!field.value.trim() || isLoading || isFinished}
                                     >

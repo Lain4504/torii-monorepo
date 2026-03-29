@@ -320,7 +320,7 @@ export default function SchedulePage() {
     }
 
     function viewMaterialsHref(s: ScheduleSession) {
-        return `/courses/${s.classId}/learn`
+        return `/dashboard/my-courses/${s.classId}`
     }
 
     return (

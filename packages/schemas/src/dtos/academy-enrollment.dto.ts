@@ -27,6 +27,8 @@ export type AcademyEnrollmentUpdateDTO = z.infer<
 export const academyEnrollmentQueryDTOSchema = paginationOptionsDTOSchema.extend({
   liveClassId: z.string().uuid().optional(),
   vodPackageId: z.string().uuid().optional(),
+  classId: z.string().uuid().optional(),
+  courseId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.string().optional(),
 });

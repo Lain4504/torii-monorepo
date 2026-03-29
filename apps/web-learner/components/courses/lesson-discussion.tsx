@@ -51,11 +51,11 @@ function useCreateDiscussion() {
     const { user } = useAppSelector(state => state.auth)
 
     return useMutation({
-        mutationFn: (data: { title: string, content: string, classId: string, moduleId?: string, lessonId: string, category: string }) => {
+        mutationFn: (data: { content: string, classId: string, moduleId?: string, lessonId: string, category: string }) => {
             return commentApi.create({
                 discussionId: data.lessonId,
                 userId: user?.id || '',
-                content: `${data.title}\n\n${data.content}`,
+                content: data.content,
             })
         },
         onSuccess: (_, variables) => {
@@ -75,8 +75,8 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
     const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null)
 
     const handleCreateTopic = async () => {
-        if (!title.trim() || !content.trim()) {
-            toast.error('Vui lòng nhập đầy đủ tiêu đề và nội dung câu hỏi')
+        if (!content.trim()) {
+            toast.error('Vui lòng nhập nội dung câu hỏi')
             return
         }
 
@@ -87,7 +87,6 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
 
         try {
             await createDiscussion.mutateAsync({
-                title: title.trim(),
                 content: content.trim(),
                 classId,
                 moduleId,
@@ -95,7 +94,6 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                 category: 'QUESTION'
             })
 
-            setTitle('')
             setContent('')
             setIsCreating(false)
             toast.success('Đã gửi câu hỏi thành công')
@@ -164,16 +162,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Tiêu đề câu hỏi</label>
-                            <Input
-                                placeholder="Ví dụ: Cách sử dụng trợ từ 'wa' và 'ga' trong bài này?"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="bg-background border-border/40 focus:border-primary/40 transition-all font-medium"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Chi tiết câu hỏi</label>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Nội dung câu hỏi</label>
                             <Textarea
                                 placeholder="Hãy mô tả chi tiết thắc mắc của bạn..."
                                 value={content}
@@ -188,7 +177,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                             <Button
                                 size="sm"
                                 onClick={handleCreateTopic}
-                                disabled={createDiscussion.isPending || !title.trim() || !content.trim()}
+                                disabled={createDiscussion.isPending || !content.trim()}
                                 className="gap-2 font-bold text-xs uppercase tracking-widest px-6"
                             >
                                 {createDiscussion.isPending ? <Spinner className="size-3" /> : <Send className="size-3" />}
@@ -253,8 +242,8 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                                     {formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })}
                                                 </span>
                                             </div>
-                                            <CardTitle className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                                                {topic.content.split('\n')[0]}
+                                            <CardTitle className="text-base font-medium text-foreground group-hover:text-primary transition-colors leading-relaxed whitespace-pre-wrap">
+                                                {topic.content}
                                             </CardTitle>
                                         </div>
                                     </div>

@@ -38,13 +38,12 @@ export const academyLearningProgressApi = {
     /**
      * Get progress detail for a specific class
      */
-    getClassProgress: async (classId: string): Promise<any> => {
+    getClassProgress: async (classId: string): Promise<string[]> => {
         try {
-            const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/live-classes/${classId}/progress`);
+            const response = await apiClient.get<StandardApiResponse<string[]>>(`/api/academy/live-classes/${classId}/completed-lessons`);
             return response.data.data!;
         } catch {
-            // Graceful fallback if progress endpoint is missing or fails
-            return { modules: [], lessons: [] };
+            return [];
         }
     },
 
@@ -53,24 +52,7 @@ export const academyLearningProgressApi = {
      * Backend `getUserProgress` trả `{ modules: [{ lessons: [{ id, isCompleted, ... }] }] }` — không có `lessons` phẳng.
      */
     getCompletedLessonIds: async (classId: string): Promise<string[]> => {
-        const data = await academyLearningProgressApi.getClassProgress(classId);
-        const ids = new Set<string>();
-        const addIfDone = (l: { isCompleted?: boolean; lessonId?: string; id?: string } | null | undefined) => {
-            if (!l?.isCompleted) return;
-            const id = (l.lessonId ?? l.id)?.toString();
-            if (id) ids.add(id);
-        };
-        if (Array.isArray(data?.lessons)) {
-            data.lessons.forEach((l: any) => addIfDone(l));
-        }
-        if (Array.isArray(data?.modules)) {
-            for (const mod of data.modules) {
-                if (Array.isArray(mod?.lessons)) {
-                    mod.lessons.forEach((l: any) => addIfDone(l));
-                }
-            }
-        }
-        return [...ids];
+        return academyLearningProgressApi.getClassProgress(classId);
     },
 
     /**
