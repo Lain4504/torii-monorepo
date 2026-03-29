@@ -277,7 +277,7 @@ export default function MyCoursesPage() {
 
                                             return (
                                         <Link
-                                            href={isLive ? `/courses/${courseMasterId}` : `/courses/${courseMasterId}/learn`}
+                                            href={isLive ? `/dashboard/my-courses/${courseMasterId}` : `/courses/${courseMasterId}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >

@@ -297,7 +297,7 @@ export function AiChatBot() {
             </Conversation>
 
             {/* Input & Suggestions Area */}
-            <div className="shrink-0 pt-4 space-y-4 shadow-2xl bg-muted/30">
+            <div className="shrink-0 pt-4 space-y-4 shadow-2xl bg-muted/30 min-w-0">
                 {suggestions.length > 0 && status === "ready" && (
                     <Suggestions className="px-4">
                         {suggestions.map(s => (
@@ -310,7 +310,7 @@ export function AiChatBot() {
                     </Suggestions>
                 )}
 
-                <div className="w-full px-4 pb-4">
+                <div className="w-full px-4 pb-4 min-w-0">
                     <PromptInput multiple onSubmit={handleSubmit}>
                         <PromptInputHeader>
                             <PromptInputAttachmentsDisplay />

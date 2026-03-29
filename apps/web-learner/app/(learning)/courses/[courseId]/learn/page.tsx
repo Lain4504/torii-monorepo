@@ -57,9 +57,9 @@ function isTrackableLessonKind(kind?: string) {
     return k === 'VIDEO' || k === 'READING';
 }
 
-/** ID lưu trong tiến độ server — trùng với `referenceId` (content) khi có, không thì `id` node curriculum */
+/** ID lưu trong tiến độ server — dùng node curriculum id */
 function lessonProgressId(lesson: { id: string; referenceId?: string | null }) {
-    return lesson.referenceId ?? lesson.id;
+    return lesson.id;
 }
 
 // ─── Video Player — tự đánh dấu hoàn thành khi xem ≥95% hoặc khi video kết thúc (READING: không dùng component này) ─
