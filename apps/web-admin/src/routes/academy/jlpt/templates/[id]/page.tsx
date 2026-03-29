@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Save,
   Plus,
+  PlusCircle,
   Trash2,
   GripVertical,
   Settings2,
@@ -51,7 +52,8 @@ export default function JlptTemplateBuilderPage() {
   const [activeTab, setActiveTab] = useState("structure");
   const [saving, setSaving] = useState(false);
 
-  // General Settings Dialog
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [targetDeleteId, setTargetDeleteId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsData, setSettingsData] = useState({
     title: "",
@@ -236,6 +238,25 @@ export default function JlptTemplateBuilderPage() {
     }
   };
 
+  const handleDeleteQuestion = (tqId: string) => {
+    setTargetDeleteId(tqId);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteQuestion = async () => {
+    if (!targetDeleteId) return;
+    try {
+      await academyJlptMockApi.deleteTemplateQuestion(targetDeleteId);
+      toast.success("Đã xóa câu hỏi khỏi đề thi");
+      fetchTemplate();
+    } catch {
+      toast.error("Xóa câu hỏi thất bại");
+    } finally {
+      setIsDeleteConfirmOpen(false);
+      setTargetDeleteId(null);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -306,34 +327,44 @@ export default function JlptTemplateBuilderPage() {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-background/50 backdrop-blur-sm p-4 rounded-2xl border shadow-sm sticky top-0 z-10">
+        <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
           <Button
             variant="outline"
             size="sm"
-            className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+            className="gap-2 shrink-0 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
             onClick={() => navigate("/academy/jlpt/templates")}
           >
             <ArrowLeft className="w-5 h-5" />
-            Quay lại
+            <span className="hidden sm:inline">Quay lại</span>
           </Button>
-          <div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{template.title}</h1>
-              <Badge variant="outline" className="font-bold border-2">{template.levelCode}</Badge>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate py-1" title={template.title}>
+                {template.title}
+              </h1>
+              <Badge variant="outline" className="font-bold border-2 shrink-0">{template.levelCode}</Badge>
             </div>
-            <p className="text-muted-foreground text-[10px] sm:text-xs uppercase font-mono tracking-tighter">ID: {template.id} · CODE: {template.code}</p>
+            <p className="text-muted-foreground text-[10px] sm:text-xs uppercase font-mono tracking-tighter truncate">
+              ID: {template.id} · CODE: {template.code}
+            </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => void handleAssembleRandom()} disabled={assembling}>
-            {assembling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} Random gắn câu
+        <div className="flex flex-wrap items-center gap-2 shrink-0 w-full lg:w-auto justify-end">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => void handleAssembleRandom()} disabled={assembling}>
+            {assembling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} 
+            <span className="hidden sm:inline">Random gắn câu</span>
+            <span className="sm:hidden">Random</span>
           </Button>
-          <Button variant="outline" className="gap-2" onClick={() => setIsSettingsOpen(true)}>
-            <Settings2 className="w-4 h-4" /> Cài đặt chung
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setIsSettingsOpen(true)}>
+            <Settings2 className="w-4 h-4" /> 
+            <span className="hidden sm:inline">Cài đặt chung</span>
+            <span className="sm:hidden">Cài đặt</span>
           </Button>
-          <Button className="gap-2 shadow-sm" onClick={handleUpdateSettings} disabled={saving}>
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Lưu cấu hình
+          <Button size="sm" className="gap-2 shadow-sm" onClick={handleUpdateSettings} disabled={saving}>
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
+            <span className="hidden sm:inline">Lưu cấu hình</span>
+            <span className="sm:hidden">Lưu</span>
           </Button>
         </div>
       </div>
@@ -352,27 +383,32 @@ export default function JlptTemplateBuilderPage() {
           {template.sections.map((section: any) => (
             <Card key={section.id} className="border-2 overflow-hidden shadow-sm">
               <CardHeader className="bg-muted/30 border-b py-4">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-2 rounded-lg">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0 w-full">
+                    <div className="bg-primary/10 p-2 rounded-xl shrink-0">
                       {section.isListening ? <ListMusic className="w-5 h-5 text-primary" /> : <Languages className="w-5 h-5 text-primary" />}
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{section.title} ({section.code})</CardTitle>
-                      <CardDescription>{section.durationMinutes} phút làm bài</CardDescription>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg font-bold truncate" title={`${section.title} (${section.code})`}>
+                        {section.title} <span className="text-muted-foreground font-normal text-sm">({section.code})</span>
+                      </CardTitle>
+                      <CardDescription className="truncate">{section.durationMinutes} phút làm bài dành cho phần này</CardDescription>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" className="gap-2" onClick={() => handleOpenPicker(section.id)}>
-                      <Plus className="w-4 h-4" /> Chọn từ Bank
+                  <div className="flex flex-wrap items-center gap-2 lg:shrink-0 w-full lg:w-auto justify-end">
+                    <Button variant="outline" size="sm" className="gap-2 h-9" onClick={() => handleOpenPicker(section.id)}>
+                      <Plus className="w-4 h-4" /> 
+                      <span className="hidden sm:inline">Chọn từ Ngân hàng</span>
+                      <span className="sm:hidden">Chọn từ Bank</span>
                     </Button>
                     <Button 
                       variant="default" 
                       size="sm" 
-                      className="gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+                      className="gap-2 h-9 bg-emerald-600 hover:bg-emerald-700 shadow-sm border-none"
                       onClick={() => handleOpenQuickCreate(section.id)}
                     >
-                      <Plus className="w-4 h-4" /> Tạo mới & Gắn
+                      <PlusCircle className="w-4 h-4" /> 
+                      <span>Tạo mới & Gắn</span>
                     </Button>
                   </div>
                 </div>
@@ -416,7 +452,8 @@ export default function JlptTemplateBuilderPage() {
                                  variant="ghost"
                                  size="icon"
                                  className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-50"
-                               >
+                                 onClick={() => handleDeleteQuestion(q.id)}
+                                >
                                  <Trash2 className="w-4 h-4" />
                                </Button>
                             </div>
@@ -556,6 +593,24 @@ export default function JlptTemplateBuilderPage() {
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               Lưu cài đặt
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader className="pt-4">
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="w-5 h-5" /> Xác nhận xóa câu hỏi
+            </DialogTitle>
+            <CardDescription className="pt-2">
+              Bạn có chắc chắn muốn xóa câu hỏi này khỏi đề thi không? Hành động này sẽ gỡ bỏ liên kết giữa câu hỏi và đề thi hiện tại.
+            </CardDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 p-4 pt-2">
+            <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)}>Hủy bỏ</Button>
+            <Button variant="destructive" onClick={confirmDeleteQuestion}>Xác nhận xóa</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

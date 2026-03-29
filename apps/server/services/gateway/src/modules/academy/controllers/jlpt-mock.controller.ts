@@ -412,6 +412,24 @@ export class JlptMockController {
     }
   }
 
+  @Delete('admin/templates/questions/:id')
+  async adminDeleteTemplateQuestion(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.deleteQuestion' },
+          { id, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
   @Post('admin/templates/:id/assemble-random')
   async adminAssembleTemplateFromBank(
     @Req() req: ReqWithRequester,
@@ -527,6 +545,24 @@ export class JlptMockController {
         ),
       );
       return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Delete('admin/bank-questions/:id')
+  async adminDeleteBankQuestion(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.bankQuestion.delete' },
+          { id, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
     } catch (e: any) {
       return errorResponse(e.message);
     }

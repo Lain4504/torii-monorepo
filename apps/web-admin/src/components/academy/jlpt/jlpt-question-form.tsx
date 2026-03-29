@@ -274,7 +274,7 @@ export function JlptQuestionForm({
         <Info className="size-4" />
         <AlertTitle>Cấu trúc JLPT trong ngân hàng</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed">
-          Chọn <strong>Cấp độ → Phần thi → Mondai (問題)</strong> theo đề chính thức (vd: 漢字読み, 文の文法, 内容理解, 課題理解…).
+          Chọn <strong>Cấp độ → Phần thi → Mondai (問題)</strong> theo đề chính thức (vd: 漢字読み, 文の文 pháp, 内容 lý giải, 課題 lý giải…).
           Mỗi câu gắn một mondai để lọc và ghép đề đúng format. Nếu danh sách trống, nghĩa là hệ thống chưa có dữ liệu mondai
           cho cấp độ/phần thi đó và cần được nạp dữ liệu ở backend.
         </AlertDescription>
@@ -379,7 +379,7 @@ export function JlptQuestionForm({
                       placeholder={
                         mondaiLoading
                           ? "Đang tải danh sách mondai…"
-                          : "Chọn dạng bài (vd: 漢字読み, 文の文法１, 課題理解…)"
+                          : "Chọn dạng bài (vd: 漢字読み, 文 của văn bản １, 課題 lý giải…)"
                       }
                     />
                   </SelectTrigger>
@@ -409,7 +409,7 @@ export function JlptQuestionForm({
               control={control}
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Phân loại domain (VOCAB / 文法 / 読解 / 聴解)</FieldLabel>
+                  <FieldLabel>Phân loại domain (VOCAB / GRAMMAR / READING / LISTENING)</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue />
@@ -456,7 +456,7 @@ export function JlptQuestionForm({
             control={control}
             render={({ field }) => (
               <Field>
-                <FieldLabel>Ngữ cảnh (Context — 読解 / 聴解)</FieldLabel>
+                <FieldLabel>Ngữ cảnh (Context)</FieldLabel>
                 <Textarea
                   {...field}
                   placeholder="Đoạn văn dài, hội thoại, hoặc chỉ dẫn (nếu stem chỉ là câu hỏi lẻ)"
@@ -479,7 +479,7 @@ export function JlptQuestionForm({
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="min-w-0 flex-1 space-y-2">
               <FieldLabel className="flex items-center gap-2">
-                <ImageIcon className="size-4 shrink-0" /> Hình ảnh (表現問題, 発表現話…)
+                <ImageIcon className="size-4 shrink-0" /> Hình ảnh
               </FieldLabel>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                 <Input

@@ -180,6 +180,13 @@ export const academyJlptMockApi = {
     return res.data.data?.ok;
   },
 
+  async deleteTemplateQuestion(id: string) {
+    const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/jlpt-mock/admin/templates/questions/${id}`
+    );
+    return res.data.data?.ok;
+  },
+
   // Bank Questions (phân trang server: `page`, `limit`; `take` = alias `limit`)
   async findAllBankQuestions(
     params: {
