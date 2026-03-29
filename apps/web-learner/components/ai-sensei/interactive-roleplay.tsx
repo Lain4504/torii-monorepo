@@ -814,8 +814,8 @@ export function InteractiveRoleplay() {
                                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                                             </div>
                                         ) : (
-                                            <div className="flex items-start gap-4">
-                                                <p className="flex-1">{msg.content}</p>
+                                            <div className="flex items-start gap-4 break-all">
+                                                <p className="flex-1 break-words">{msg.content}</p>
                                                 {msg.role === 'assistant' && (
                                                     <Button
                                                         variant="ghost"
