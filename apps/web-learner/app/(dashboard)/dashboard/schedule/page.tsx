@@ -79,8 +79,10 @@ function getSlotIndex(scheduledAt: Date | string): number {
     const totalMinutes = h * 60 + m
 
     for (let i = 0; i < TIME_SLOTS.length; i++) {
-        const [slotH, slotM] = TIME_SLOTS[i].start.split(':').map(Number)
-        const slotStartMinutes = slotH * 60 + slotM
+        const slot = TIME_SLOTS[i]
+        if (!slot) continue
+        const slotParts = slot.start.split(':').map(Number)
+        const slotStartMinutes = (slotParts[0] ?? 0) * 60 + (slotParts[1] ?? 0)
         // If the session starts within 45 minutes of the slot start
         if (Math.abs(totalMinutes - slotStartMinutes) <= 45) {
             return i
@@ -89,10 +91,12 @@ function getSlotIndex(scheduledAt: Date | string): number {
 
     // Fallback: finding the slot it fits into based on time range
     for (let i = 0; i < TIME_SLOTS.length; i++) {
-        const [startH, startM] = TIME_SLOTS[i].start.split(':').map(Number)
-        const [endH, endM] = TIME_SLOTS[i].end.split(':').map(Number)
-        const startMin = startH * 60 + startM
-        const endMin = endH * 60 + endM
+        const slot = TIME_SLOTS[i]
+        if (!slot) continue
+        const startParts = slot.start.split(':').map(Number)
+        const endParts = slot.end.split(':').map(Number)
+        const startMin = (startParts[0] ?? 0) * 60 + (startParts[1] ?? 0)
+        const endMin = (endParts[0] ?? 0) * 60 + (endParts[1] ?? 0)
         if (totalMinutes >= startMin && totalMinutes < endMin) {
             return i
         }
