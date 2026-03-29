@@ -6,21 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add whiteboard embed mode and corresponding UI component">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/artifacts-admin.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/artifacts-admin.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/breakout.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/breakout.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/download.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/download.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/external-media.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/external-media.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/file.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/file.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/ingress.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/ingress.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/insights.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/insights.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/polls.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/polls.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/recording-api.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/recording-api.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/room.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/user-room-setting.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/user-room-setting.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/waiting-room.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/meet/controllers/waiting-room.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-end.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useWhiteboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useWhiteboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/blogs/blog-columns.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +22,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1818" />
+    <option name="cachedIndexableFilesCount" value="1817" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -399,6 +388,7 @@
       <workItem from="1774309461606" duration="4689000" />
       <workItem from="1774369682844" duration="1071000" />
       <workItem from="1774753925411" duration="1077000" />
+      <workItem from="1774773252832" duration="294000" />
     </task>
     <task id="LOCAL-01023" summary="refactor: simplify class handling in offerings and remove legacy code">
       <option name="closed" value="true" />

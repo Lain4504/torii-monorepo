@@ -136,9 +136,17 @@ export class RoomController {
 
     // Call room service via NATS
     try {
-      const isRoomActiveRes = await firstValueFrom(
+      const natsPayload: unknown = await firstValueFrom(
         this.natsClient.send({ cmd: 'room.isActive' }, request),
       );
+
+      // Meet service returns { res: IsRoomActiveRes, roomDbInfo, rInfo, metadata, ... }
+      // (see RoomHandler.isRoomActive). Gateway must only JSON-encode IsRoomActiveRes,
+      // not the wrapper — otherwise toJson(IsRoomActiveResSchema, …) fails with
+      // "cannot use field … IsRoomActiveRes.status with message undefined".
+      const p = natsPayload as { res?: unknown } | null;
+      const isRoomActiveRes =
+        p != null && typeof p === 'object' && p.res != null ? p.res : natsPayload;
 
       res.status(200);
       sendProtoJsonResponse(res, IsRoomActiveResSchema, isRoomActiveRes);
