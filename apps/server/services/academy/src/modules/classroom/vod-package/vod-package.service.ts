@@ -64,6 +64,7 @@ export class VodPackageService {
         code: data.code,
         title: data.title,
         price: data.price,
+        discountPrice: data.discountPrice,
         status: (data.status as any) ?? 'DRAFT',
         rejectionReason: data.rejectionReason,
         submittedForApprovalAt:
@@ -92,6 +93,7 @@ export class VodPackageService {
         code: data.code,
         title: data.title,
         price: data.price,
+        discountPrice: data.discountPrice,
         status: data.status as any,
         rejectionReason: data.rejectionReason,
         submittedForApprovalAt:

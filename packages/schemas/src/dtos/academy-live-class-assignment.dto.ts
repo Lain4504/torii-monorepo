@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export const academyLiveClassAssignmentCreateDTOSchema = z.object({
-  liveClassId: z.string().uuid(),
+  liveClassId: z.string().uuid().optional(),
+  vodPackageId: z.string().uuid().optional(),
   title: z.string().min(1).max(255),
   instructions: z.string().min(1),
   openAt: z.coerce.date().optional(),

@@ -41,6 +41,7 @@ const vodPackageSchema = z.object({
   code: z.string().min(2, "Mã gói VOD phải có ít nhất 2 ký tự"),
   title: z.string().min(3, "Tên gói VOD phải có ít nhất 3 ký tự"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
+  discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   status: z.string().optional(),
 })
 
@@ -71,6 +72,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
       code: "",
       title: "",
       price: 0,
+      discountPrice: null,
       status: "DRAFT",
     },
   })
@@ -82,6 +84,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         code: vodPackage.code,
         title: vodPackage.title,
         price: Number(vodPackage.price),
+        discountPrice: vodPackage.discountPrice ? Number(vodPackage.discountPrice) : null,
         status: vodPackage.status ?? "DRAFT",
       })
     } else {
@@ -90,6 +93,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         code: "",
         title: "",
         price: 0,
+        discountPrice: null,
         status: "DRAFT",
       })
     }
@@ -102,6 +106,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         code: values.code,
         title: values.title,
         price: values.price,
+        discountPrice: values.discountPrice,
         status: values.status as any,
       }
 
@@ -198,21 +203,40 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                 <FieldSet>
                   <FieldLegend>Kinh doanh</FieldLegend>
                   <FieldGroup>
-                    <Field>
-                      <FieldLabel>Giá học phí (VNĐ)</FieldLabel>
-                      <Controller
-                        name="price"
-                        control={control}
-                        render={({ field }) => (
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        )}
-                      />
-                      <FieldError errors={[errors.price]} />
-                    </Field>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Field>
+                        <FieldLabel>Giá học phí (VNĐ)</FieldLabel>
+                        <Controller
+                          name="price"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          )}
+                        />
+                        <FieldError errors={[errors.price]} />
+                      </Field>
+                      <Field>
+                        <FieldLabel>Giá giảm (VNĐ)</FieldLabel>
+                        <Controller
+                          name="discountPrice"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                              placeholder="Để trống nếu không giảm"
+                            />
+                          )}
+                        />
+                        <FieldError errors={[errors.discountPrice]} />
+                      </Field>
+                    </div>
                   </FieldGroup>
                 </FieldSet>
               </FieldGroup>

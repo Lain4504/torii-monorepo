@@ -5,6 +5,7 @@ export const academyVodPackageCreateDTOSchema = z.object({
   code: z.string().min(1).max(150),
   title: z.string().min(1).max(255),
   price: z.coerce.number().min(0),
+  discountPrice: z.coerce.number().min(0).optional().nullable(),
   status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'ARCHIVED']).optional(),
   rejectionReason: z.string().optional().nullable(),
 });

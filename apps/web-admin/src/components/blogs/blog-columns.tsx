@@ -211,7 +211,7 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
                                 Sửa
                             </Button>
                         )}
-                        {blog.status === 'scheduled' && (
+                        {statusLower === 'scheduled' && !isPublished && (
                             <Button
                                 variant="outline"
                                 size="sm"

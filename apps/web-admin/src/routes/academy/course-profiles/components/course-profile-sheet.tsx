@@ -113,6 +113,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreat
           },
         })
         toast.success("Cập nhật hồ sơ khóa học thành công")
+        onOpenChange(false)
       } else {
         const newProfile = await createMutation.mutateAsync({
           code: payload.code,

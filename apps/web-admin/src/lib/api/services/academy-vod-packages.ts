@@ -14,6 +14,7 @@ export type AcademyVodPackage = {
   title: string
   description?: string | null
   price: number
+  discountPrice?: number | null
   status: string
   submittedForApprovalAt?: string | null
   rejectionReason?: string | null

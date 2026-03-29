@@ -854,8 +854,10 @@ export default function CourseLearnPage() {
                                 completedIds={completedIds}
                                 isLessonUnlocked={effectiveLessonUnlocked}
                                 milestones={milestones.filter(m =>
-                                    m.moduleId === mod.id ||
-                                    (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
+                                    m.kind !== 'FINAL_EXAM' && (
+                                        m.moduleId === mod.id ||
+                                        (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
+                                    )
                                 )}
                                 onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
                                 onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}

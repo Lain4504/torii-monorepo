@@ -1,9 +1,10 @@
-import { Controller, Get, Query, UseGuards, Inject, Req } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Inject, Req, Param } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
   PermissionsGuard,
+  Permissions,
   successResponse,
   successPaginatedResponse,
   ReqWithRequester,
@@ -14,7 +15,7 @@ import {
 export class WalletController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get('balance')
   async getBalance(@Req() req: ReqWithRequester) {
@@ -35,6 +36,30 @@ export class WalletController {
       this.natsClient.send(
         { cmd: 'academy.wallet.getTransactions' },
         { userId: requester.sub, query },
+      ),
+    );
+    return successPaginatedResponse(result);
+  }
+
+  @Get(':userId/balance')
+  @Permissions('user.manage')
+  async getUserBalance(@Param('userId') userId: string) {
+    const result = await firstValueFrom(
+      this.natsClient.send({ cmd: 'academy.wallet.getBalance' }, { userId }),
+    );
+    return successResponse(result);
+  }
+
+  @Get(':userId/transactions')
+  @Permissions('user.view')
+  async getUserTransactions(
+    @Param('userId') userId: string,
+    @Query() query: any,
+  ) {
+    const result = await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'academy.wallet.getTransactions' },
+        { userId, query },
       ),
     );
     return successPaginatedResponse(result);

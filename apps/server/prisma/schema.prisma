@@ -1241,6 +1241,7 @@ model VodPackage {
   code            String    @unique @db.VarChar(150)
   title           String    @db.VarChar(255)
   price           Decimal   @db.Decimal(12, 2)
+  discountPrice   Decimal?  @map("discount_price") @db.Decimal(12, 2)
   status          VodStatus @default(DRAFT)
   rejectionReason String?   @map("rejection_reason") @db.Text
   submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
@@ -1253,6 +1254,8 @@ model VodPackage {
   enrollments   Enrollment[]
 
   reviews CourseReview[]
+  assignments LiveClassAssignment[]
+  academyFolders AcademyFolder[]
 
   @@index([status])
   @@index([courseProfileId])
@@ -1320,7 +1323,8 @@ model LiveClass {
 
 model LiveClassAssignment {
   id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  liveClassId   String    @map("live_class_id") @db.Uuid
+  liveClassId   String?   @map("live_class_id") @db.Uuid
+  vodPackageId  String?   @map("vod_package_id") @db.Uuid
   assignmentId  String    @map("assignment_id") @db.Uuid
   titleOverride String?   @map("title_override") @db.VarChar(255)
   openAt        DateTime? @map("open_at")
@@ -1328,12 +1332,15 @@ model LiveClassAssignment {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
 
-  liveClass   LiveClass              @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  liveClass   LiveClass?             @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  vodPackage  VodPackage?            @relation(fields: [vodPackageId], references: [id], onDelete: Cascade)
   assignment  Assignment             @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   submissions AssignmentSubmission[]
 
   @@unique([liveClassId, assignmentId])
+  @@unique([vodPackageId, assignmentId])
   @@index([liveClassId])
+  @@index([vodPackageId])
   @@map("academy_live_class_assignments")
 }
 
@@ -1626,18 +1633,21 @@ model WalletTransaction {
 // ==================================================
 
 model AcademyFolder {
-  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String                 @db.VarChar(255)
-  type        AcademyFolderType      @default(LIVE_CLASS_SHARED)
-  liveClassId String?                @map("live_class_id") @db.Uuid
-  ownerType   AcademyFolderOwnerType @default(SYSTEM) @map("owner_type")
-  createdAt   DateTime               @default(now()) @map("created_at")
-  updatedAt   DateTime               @default(now()) @updatedAt @map("updated_at")
+  id           String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String                 @db.VarChar(255)
+  type         AcademyFolderType      @default(LIVE_CLASS_SHARED)
+  liveClassId  String?                @map("live_class_id") @db.Uuid
+  vodPackageId String?                @map("vod_package_id") @db.Uuid
+  ownerType    AcademyFolderOwnerType @default(SYSTEM) @map("owner_type")
+  createdAt    DateTime               @default(now()) @map("created_at")
+  updatedAt    DateTime               @default(now()) @updatedAt @map("updated_at")
 
-  liveClass LiveClass?        @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
-  resources AcademyResource[]
+  liveClass  LiveClass?        @relation(fields: [liveClassId], references: [id], onDelete: SetNull)
+  vodPackage VodPackage?       @relation(fields: [vodPackageId], references: [id], onDelete: SetNull)
+  resources  AcademyResource[]
 
   @@index([liveClassId])
+  @@index([vodPackageId])
   @@index([type, liveClassId])
   @@map("academy_folders")
 }

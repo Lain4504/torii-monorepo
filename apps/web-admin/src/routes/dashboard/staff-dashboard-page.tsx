@@ -6,8 +6,7 @@ import { cn } from '@workspace/ui/lib/utils';
 import { PageHeader } from '@/components/common/page-header';
 import { getGreeting, formatNumber } from '@/lib/format-utils';
 import { useAuth } from '@/hooks/use-auth';
-import { Zap, BookOpen, Users, GraduationCap, CheckCircle2 } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
+import { BookOpen, Users, GraduationCap, CheckCircle2 } from 'lucide-react';
 
 export default function StaffDashboardPage() {
     const { data: metrics, isLoading, error } = useStaffDashboard();
@@ -60,38 +59,6 @@ export default function StaffDashboardPage() {
             <PageHeader
                 title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
                 subtitle={`Bảng chỉ huy trung tâm Torii Admin • v4.2.0-stable`}
-                actions={
-                    <div className="flex items-center gap-3">
-                        <div className="flex bg-muted p-1 rounded-xl border">
-                            <Button
-                              variant="outline"
-                              asChild
-                              size="sm"
-                              className="border-primary/30 text-primary bg-transparent hover:bg-primary/5"
-                            >
-                                <Link to="/analytics/learning" className="flex items-center gap-2">
-                                    <BookOpen className="size-4" />
-                                    Học tập
-                                </Link>
-                            </Button>
-                            <Button
-                              variant="outline"
-                              asChild
-                              size="sm"
-                              className="border-primary/30 text-primary bg-transparent hover:bg-primary/5"
-                            >
-                                <Link to="/analytics/users" className="flex items-center gap-2">
-                                    <Users className="size-4" />
-                                    Học viên
-                                </Link>
-                            </Button>
-                        </div>
-                        <Button size="lg" className="group">
-                            <Zap className="size-4 mr-2" />
-                            Lệnh nhanh
-                        </Button>
-                    </div>
-                }
             />
 
             {/* Metrics Grid */}

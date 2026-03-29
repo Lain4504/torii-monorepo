@@ -80,22 +80,7 @@ export default function DashboardPage() {
                 </Link>
               </Button>
             </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <ButtonGroup>
-                <Button variant="outline" asChild size="sm">
-                  <Link to="/analytics/learning">Học tập</Link>
-                </Button>
-                <Button variant="outline" asChild size="sm">
-                  <Link to="/analytics/users">Học viên</Link>
-                </Button>
-              </ButtonGroup>
-              <Button size="sm">
-                <Zap className="size-4 mr-2" />
-                Lệnh nhanh
-              </Button>
-            </div>
-          )
+          ) : null
         }
       />
 

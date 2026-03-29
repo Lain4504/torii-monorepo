@@ -67,10 +67,11 @@ import { AcademyFolderType, AcademyFolderOwnerType, AcademyResourceType, Academy
 import { toast } from "sonner"
 
 interface ClassResourcesTabProps {
-    classId: string
+    classId?: string
+    vodPackageId?: string
 }
 
-export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
+export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabProps) {
     const [isAddingResource, setIsAddingResource] = useState(false)
     const [isAddingFolder, setIsAddingFolder] = useState(false)
     const [resourceToDelete, setResourceToDelete] = useState<string | null>(null)
@@ -78,7 +79,9 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
     const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
     const [newFolderName, setNewFolderName] = useState("")
 
-    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(classId, AcademyFolderOwnerType.LIVE_CLASS)
+    const ownerId = (vodPackageId || classId) as string
+    const ownerType = vodPackageId ? AcademyFolderOwnerType.COURSE_VOD : AcademyFolderOwnerType.LIVE_CLASS
+    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(ownerId, ownerType)
 
     const activeFolder = folders?.find(f => f.folderId === activeFolderId)
     const { data: resources, isLoading: isLoadingResources } = useAcademyResources(activeFolderId || undefined)
@@ -114,8 +117,8 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
             await createFolderMutation.mutateAsync({
                 name: newFolderName,
                 type: AcademyFolderType.SHARED,
-                ownerId: classId,
-                ownerType: AcademyFolderOwnerType.LIVE_CLASS
+                ownerId: ownerId,
+                ownerType: ownerType
             })
             toast.success("Đã tạo thư mục.")
             setIsAddingFolder(false)
@@ -137,7 +140,7 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
 
         setIsUploading(true)
         try {
-            const result = await storageApi.uploadFile(file, 'academy', { classId })
+            const result = await storageApi.uploadFile(file, 'academy', { classId, vodPackageId })
             setNewResource(prev => ({
                 ...prev,
                 fileAssetId: result.fileId,
@@ -257,7 +260,7 @@ export function ClassResourcesTab({ classId }: ClassResourcesTabProps) {
                     <p className="text-sm text-muted-foreground">
                         {activeFolder
                             ? `Quản lý các tài liệu trong thư mục ${activeFolder.folderName}.`
-                            : "Danh sách các thư mục tài liệu chia sẻ trong lớp học."}
+                            : "Danh sách các thư mục tài liệu chia sẻ."}
                     </p>
                 </div>
 

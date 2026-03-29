@@ -103,9 +103,8 @@ export default function AcademyExamEditorPage() {
             ...formData,
           } as any,
         })
-        setIsSaved(true)
-        setIsDirty(false)
         toast.success("Cập nhật đề thi thành công")
+        navigate("/academy/assessment/exams")
       } else {
         const res = await createMutation.mutateAsync({
           ...formData,
@@ -118,9 +117,7 @@ export default function AcademyExamEditorPage() {
           settings: {},
         } as any)
         toast.success("Tạo đề thi mới thành công")
-        navigate(`/academy/assessment/exams/${res.id}`, { replace: true })
-        // On new page, it will remount, so isSaved and isDirty will reset.
-        // We could pass state to show 'Saved' immediately if we want.
+        navigate("/academy/assessment/exams")
       }
     } catch (error: any) {
       toast.error(error.message || "Đã xảy ra lỗi")
@@ -158,11 +155,10 @@ export default function AcademyExamEditorPage() {
             size="lg"
             onClick={() => handleSubmit()}
             disabled={isPending || (isSaved && !isDirty)}
-            className={`min-w-[160px] transition-all duration-300 ${
-              isSaved && !isDirty 
-                ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 cursor-default' 
+            className={`min-w-[160px] transition-all duration-300 ${isSaved && !isDirty
+                ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 cursor-default'
                 : 'bg-sky-600 hover:bg-sky-700 shadow-md hover:shadow-lg'
-            }`}
+              }`}
           >
             {isPending ? (
               <>
@@ -321,8 +317,8 @@ export default function AcademyExamEditorPage() {
             <CardContent className="p-5 space-y-6">
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-500 uppercase">Loại bài thi</Label>
-                <Select 
-                  value={formData.examType} 
+                <Select
+                  value={formData.examType}
                   onValueChange={(val) => {
                     setFormData({ ...formData, examType: val })
                     setIsDirty(true)
@@ -342,8 +338,8 @@ export default function AcademyExamEditorPage() {
 
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-500 uppercase">Trạng thái</Label>
-                <Select 
-                  value={formData.status} 
+                <Select
+                  value={formData.status}
                   onValueChange={(val) => {
                     setFormData({ ...formData, status: val })
                     setIsDirty(true)
