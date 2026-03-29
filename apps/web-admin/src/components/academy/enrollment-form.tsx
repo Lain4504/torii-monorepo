@@ -102,6 +102,8 @@ export function EnrollmentForm({
             }) as any,
     })
 
+    const today = new Date().toISOString().split("T")[0]
+
     return (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="space-y-6">
@@ -275,7 +277,7 @@ export function EnrollmentForm({
                             render={({ field, fieldState }) => (
                                 <Field>
                                     <FieldLabel>Ngày hết hạn</FieldLabel>
-                                    <Input type="date" {...field} />
+                                    <Input type="date" {...field} min={today} />
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>
                             )}

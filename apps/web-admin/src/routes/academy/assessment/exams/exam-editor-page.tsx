@@ -17,6 +17,16 @@ import { QuestionPickerModal } from "./components/question-picker-modal"
 import { Badge } from "@workspace/ui/components/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Label } from "@workspace/ui/components/label"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 
 export default function AcademyExamEditorPage() {
   const { id } = useParams<{ id: string }>()
@@ -33,6 +43,8 @@ export default function AcademyExamEditorPage() {
   const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
   const [isSaved, setIsSaved] = useState(false)
+  const [isDirty, setIsDirty] = useState(false)
+  const [removeTargetId, setRemoveTargetId] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -68,14 +80,15 @@ export default function AcademyExamEditorPage() {
     }
   }
 
-  const handleRemoveQuestion = async (examQuestionId: string) => {
-    if (confirm("Chắc chắn xóa câu hỏi này khỏi bài thi?")) {
-      try {
-        await removeQuestionMutation.mutateAsync(examQuestionId)
-        toast.success("Đã xóa câu hỏi")
-      } catch (err: any) {
-        toast.error(err.message || "Lỗi khi xóa câu hỏi")
-      }
+  const handleRemoveQuestion = async () => {
+    if (!removeTargetId) return
+    try {
+      await removeQuestionMutation.mutateAsync(removeTargetId)
+      toast.success("Đã xóa câu hỏi")
+    } catch (err: any) {
+      toast.error(err.message || "Lỗi khi xóa câu hỏi")
+    } finally {
+      setRemoveTargetId(null)
     }
   }
 
@@ -85,13 +98,13 @@ export default function AcademyExamEditorPage() {
     try {
       if (isEditing) {
         await updateMutation.mutateAsync({
-          id,
+          id: id!,
           dto: {
             ...formData,
           } as any,
         })
         setIsSaved(true)
-        setTimeout(() => setIsSaved(false), 3000)
+        setIsDirty(false)
         toast.success("Cập nhật đề thi thành công")
       } else {
         const res = await createMutation.mutateAsync({
@@ -106,6 +119,8 @@ export default function AcademyExamEditorPage() {
         } as any)
         toast.success("Tạo đề thi mới thành công")
         navigate(`/academy/assessment/exams/${res.id}`, { replace: true })
+        // On new page, it will remount, so isSaved and isDirty will reset.
+        // We could pass state to show 'Saved' immediately if we want.
       }
     } catch (error: any) {
       toast.error(error.message || "Đã xảy ra lỗi")
@@ -139,26 +154,30 @@ export default function AcademyExamEditorPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button
-            variant={isSaved ? "outline" : "default"}
+            variant={isSaved && !isDirty ? "outline" : "default"}
             size="lg"
             onClick={() => handleSubmit()}
-            disabled={isPending}
-            className={`min-w-[140px] transition-all duration-300 ${isSaved ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20' : 'bg-sky-600 hover:bg-sky-700'}`}
+            disabled={isPending || (isSaved && !isDirty)}
+            className={`min-w-[160px] transition-all duration-300 ${
+              isSaved && !isDirty 
+                ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 cursor-default' 
+                : 'bg-sky-600 hover:bg-sky-700 shadow-md hover:shadow-lg'
+            }`}
           >
             {isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                 Đang lưu...
               </>
-            ) : isSaved ? (
+            ) : isSaved && !isDirty ? (
               <>
                 <Check className="w-4 h-4 mr-2" />
-                Đã lưu thành công!
+                Đã lưu thành công
               </>
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Lưu bài thi
+                {isEditing ? "Lưu thay đổi" : "Lưu bài thi"}
               </>
             )}
           </Button>
@@ -185,7 +204,11 @@ export default function AcademyExamEditorPage() {
                 <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tên bài thi *</Label>
                 <Input
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value })
+                    setIsDirty(true)
+                    setIsSaved(false)
+                  }}
                   placeholder="VD: Bài kiểm tra General English 1..."
                   className="text-lg font-medium h-12 focus-visible:ring-sky-500"
                   required
@@ -196,7 +219,11 @@ export default function AcademyExamEditorPage() {
                 <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Mô tả/Hướng dẫn</Label>
                 <Textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, description: e.target.value })
+                    setIsDirty(true)
+                    setIsSaved(false)
+                  }}
                   placeholder="Nhập mô tả hoặc hướng dẫn làm bài cho học viên..."
                   rows={6}
                   className="resize-none focus-visible:ring-sky-500"
@@ -267,7 +294,7 @@ export default function AcademyExamEditorPage() {
                               variant="ghost"
                               size="icon"
                               className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition-all"
-                              onClick={() => handleRemoveQuestion(eq.id)}
+                              onClick={() => setRemoveTargetId(eq.id)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -294,7 +321,14 @@ export default function AcademyExamEditorPage() {
             <CardContent className="p-5 space-y-6">
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-500 uppercase">Loại bài thi</Label>
-                <Select value={formData.examType} onValueChange={(val) => setFormData({ ...formData, examType: val })}>
+                <Select 
+                  value={formData.examType} 
+                  onValueChange={(val) => {
+                    setFormData({ ...formData, examType: val })
+                    setIsDirty(true)
+                    setIsSaved(false)
+                  }}
+                >
                   <SelectTrigger className="h-10 bg-white dark:bg-slate-950">
                     <SelectValue />
                   </SelectTrigger>
@@ -308,7 +342,14 @@ export default function AcademyExamEditorPage() {
 
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-500 uppercase">Trạng thái</Label>
-                <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val })}>
+                <Select 
+                  value={formData.status} 
+                  onValueChange={(val) => {
+                    setFormData({ ...formData, status: val })
+                    setIsDirty(true)
+                    setIsSaved(false)
+                  }}
+                >
                   <SelectTrigger className="h-10 bg-white dark:bg-slate-950">
                     <SelectValue />
                   </SelectTrigger>
@@ -326,7 +367,11 @@ export default function AcademyExamEditorPage() {
                   <Input
                     type="number"
                     value={formData.totalTimeLimitMinutes}
-                    onChange={(e) => setFormData({ ...formData, totalTimeLimitMinutes: parseInt(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, totalTimeLimitMinutes: parseInt(e.target.value) || 0 })
+                      setIsDirty(true)
+                      setIsSaved(false)
+                    }}
                     min={0}
                     className="h-10 pr-12 focus-visible:ring-sky-500"
                   />
@@ -354,6 +399,27 @@ export default function AcademyExamEditorPage() {
         onOpenChange={setPickerOpen}
         onConfirm={handleAddQuestions}
       />
+
+      {/* Remove Question Confirmation */}
+      <AlertDialog open={!!removeTargetId} onOpenChange={(o) => !o && setRemoveTargetId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa câu hỏi khỏi bài thi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Câu hỏi sẽ bị gỡ khỏi đề thi này. Dữ liệu gốc trong ngân hàng câu hỏi không bị ảnh hưởng.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleRemoveQuestion}
+            >
+              Xóa khỏi đề thi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

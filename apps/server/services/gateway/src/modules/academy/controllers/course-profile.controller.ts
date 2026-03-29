@@ -125,6 +125,22 @@ export class CourseProfileController {
     return successResponse({ item });
   }
 
+  @Post(':id/reject')
+  @Permissions('academy.content.approve')
+  async reject(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: { reason: string },
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseProfile.reject' },
+        { id, reason: body.reason, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
+
   @Post(':id/duplicate')
   @Permissions('academy.content.write')
   async duplicate(

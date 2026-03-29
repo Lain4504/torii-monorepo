@@ -6,7 +6,7 @@ export const academyLiveClassCreateDTOSchema = z.object({
   name: z.string().min(1).max(255),
   instructorId: z.string().uuid().optional(),
   maxStudents: z.coerce.number().int().min(1).optional().nullable(),
-  status: z.enum(['DRAFT', 'OPENING', 'ONGOING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
+  status: z.enum(['DRAFT', 'OPENING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
   schedules: z.array(z.object({
     weekday: z.number().int().min(0).max(6),
     startTime: z.string(),

@@ -249,6 +249,41 @@ export class CourseProfileService {
     return item;
   }
 
+  async reject(id: string, reason: string, requesterId?: string) {
+    const before = await this.prisma.courseProfile.findUnique({
+      where: { id },
+    });
+    if (!before) throw new NotFoundException('CourseProfile not found');
+
+    if (before.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException(
+        'Chỉ có CourseProfile ở trạng thái PENDING_APPROVAL mới có thể từ chối.',
+      );
+    }
+
+    const item = await this.prisma.courseProfile.update({
+      where: { id },
+      data: {
+        status: 'DRAFT',
+      },
+    });
+
+    if (requesterId) {
+      await this.audit.log({
+        userId: requesterId,
+        action: 'REJECT',
+        entity: 'CourseProfile',
+        entityId: id,
+        description: `Rejected course profile ${before.code}. Reason: ${reason}`,
+        oldValues: before,
+        newValues: item,
+        metadata: { reason },
+      });
+    }
+
+    return item;
+  }
+
   /**
    * DUPLICATE - The "Yearly Update" Engine
    * Clones a CourseProfile and all its Modules/Lessons.

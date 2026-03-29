@@ -59,7 +59,17 @@ export function ClassRescheduleRequestSheet({
   const previewConflict = usePreviewAcademyLiveSessionConflict()
 
   const form = useForm<AcademyLiveScheduleRequestCreateDTO>({
-    resolver: zodResolver(academyLiveScheduleRequestCreateDTOSchema),
+    resolver: zodResolver(
+      academyLiveScheduleRequestCreateDTOSchema.refine((data) => {
+        if (data.type === 'RESCHEDULE' && data.proposedStartTime && data.proposedEndTime) {
+          return data.proposedStartTime < data.proposedEndTime;
+        }
+        return true;
+      }, {
+        message: "Giờ kết thúc phải sau giờ bắt đầu",
+        path: ["proposedEndTime"],
+      })
+    ),
     defaultValues: {
       sessionId: session.id,
       type: "RESCHEDULE",

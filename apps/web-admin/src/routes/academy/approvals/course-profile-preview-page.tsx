@@ -6,20 +6,33 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription as UIDialogDescription,
+  DialogFooter,
+} from "@workspace/ui/components/dialog"
+import { Textarea } from "@workspace/ui/components/textarea"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription as UIDialogDescription,
+  AlertDialogDescription as UIAlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { toast } from "@workspace/ui/components/sonner"
-import { ChevronRight, CheckCircle2, BookOpen } from "lucide-react"
+import { ChevronRight, CheckCircle2, BookOpen, XCircle } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole, isStaffBranchRole } from "@workspace/schemas"
-import { useAcademyCourseProfile, useApproveAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
+import {
+  useAcademyCourseProfile,
+  useApproveAcademyCourseProfile,
+  useRejectAcademyCourseProfile,
+} from "@/lib/api/services/academy-course-profiles"
 import { formatDateTime } from "@/lib/format-utils"
 
 const STATUS_LABELS: Record<string, string> = {
@@ -36,8 +49,13 @@ export default function CourseProfileApprovalPreviewPage() {
 
   const { data: profile, isLoading } = useAcademyCourseProfile(id)
   const approveMutation = useApproveAcademyCourseProfile()
+  const rejectMutation = useRejectAcademyCourseProfile()
 
   const [approveConfirmOpen, setApproveConfirmOpen] = useState(false)
+  const [rejectDialog, setRejectDialog] = useState<{
+    open: boolean
+    reason: string
+  }>({ open: false, reason: "" })
 
   const isStaffOrAdmin =
     user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
@@ -79,15 +97,27 @@ export default function CourseProfileApprovalPreviewPage() {
         ]}
         actions={
           canApprove ? (
-            <Button
-              size="lg"
-              onClick={() => setApproveConfirmOpen(true)}
-              disabled={approveMutation.isPending}
-              className="gap-2"
-            >
-              <CheckCircle2 className="size-5" />
-              Duyệt
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="lg"
+                variant="destructive"
+                onClick={() => setRejectDialog({ open: true, reason: "" })}
+                disabled={rejectMutation.isPending}
+                className="gap-2"
+              >
+                <XCircle className="size-5" />
+                Từ chối
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => setApproveConfirmOpen(true)}
+                disabled={approveMutation.isPending}
+                className="gap-2"
+              >
+                <CheckCircle2 className="size-5" />
+                Duyệt
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -144,14 +174,65 @@ export default function CourseProfileApprovalPreviewPage() {
         </Card>
       </div>
 
+      <Dialog
+        open={rejectDialog.open}
+        onOpenChange={(open) => !open && setRejectDialog({ open: false, reason: "" })}
+      >
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Từ chối phê duyệt</DialogTitle>
+            <UIDialogDescription>
+              Vui lòng cho biết lý do từ chối để bộ phận soạn thảo có thể điều chỉnh phù hợp.
+            </UIDialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Nhập lý do tại đây..."
+              value={rejectDialog.reason}
+              onChange={(e) => setRejectDialog((prev) => ({ ...prev, reason: e.target.value }))}
+              rows={4}
+              className="resize-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setRejectDialog({ open: false, reason: "" })}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!rejectDialog.reason.trim() || rejectMutation.isPending}
+              onClick={async () => {
+                try {
+                  await rejectMutation.mutateAsync({
+                    id: profile.id,
+                    reason: rejectDialog.reason.trim(),
+                  })
+                  toast.success(`Đã từ chối "${profile.code}"`)
+                  navigate("/academy/approvals")
+                } catch (err: any) {
+                  toast.error(
+                    err?.response?.data?.message || err?.message || "Không thể từ chối",
+                  )
+                }
+              }}
+            >
+              Xác nhận từ chối
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={approveConfirmOpen} onOpenChange={setApproveConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận phê duyệt</AlertDialogTitle>
-            <UIDialogDescription>
+            <UIAlertDialogDescription>
               Bạn có chắc muốn phê duyệt hồ sơ <span className="font-medium">{profile.code}</span>?
               Sau khi duyệt, hồ sơ sẽ chuyển sang trạng thái <span className="font-medium">PUBLISHED</span>.
-            </UIDialogDescription>
+            </UIAlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>

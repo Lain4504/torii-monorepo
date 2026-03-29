@@ -271,6 +271,20 @@ export default function CohortDetailPage() {
                     </div>
 
                     <div className="pt-4 border-t space-y-4">
+                       <h4 className="text-sm font-bold flex items-center gap-2"><Plus className="size-4" /> Thời gian đăng ký</h4>
+                       <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-muted-foreground uppercase">Mở đăng ký</p>
+                            <p className="text-sm font-medium">{cohort.enrollmentOpenAt ? formatDateTime(cohort.enrollmentOpenAt, "dd/MM/yyyy") : "—"}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-[10px] text-muted-foreground uppercase">Đóng đăng ký</p>
+                            <p className="text-sm font-medium">{cohort.enrollmentCloseAt ? formatDateTime(cohort.enrollmentCloseAt, "dd/MM/yyyy") : "—"}</p>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="pt-4 border-t space-y-4">
                        <h4 className="text-sm font-bold flex items-center gap-2"><Package className="size-4" /> Lịch trình dự kiến</h4>
                        <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
@@ -335,7 +349,7 @@ export default function CohortDetailPage() {
                            <Badge 
                             variant="outline"
                             className={`text-[10px] font-bold ${
-                              cls.status === 'OPENING' || cls.status === 'ONGOING' 
+                              cls.status === 'OPENING' 
                                 ? 'bg-green-50 text-green-700 border-green-200' 
                                 : cls.status === 'PENDING_APPROVAL'
                                 ? 'bg-amber-50 text-amber-700 border-amber-200'

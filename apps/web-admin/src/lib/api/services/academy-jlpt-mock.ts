@@ -241,6 +241,13 @@ export const academyJlptMockApi = {
     return item ? normalizeJlptBankQuestion(item) : undefined;
   },
 
+  async deleteBankQuestion(id: string) {
+    const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/jlpt-mock/admin/bank-questions/${id}`,
+    );
+    return res.data.data?.ok;
+  },
+
   async findBankQuestionById(id: string) {
     const res = await apiClient.get<StandardApiResponse<{ item: Record<string, unknown> }>>(
       `/api/academy/jlpt-mock/admin/bank-questions/${id}`,

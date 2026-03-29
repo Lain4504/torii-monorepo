@@ -33,6 +33,7 @@ export class EnrollmentService {
         liveClassId: query.liveClassId || query.classId || undefined,
         vodPackageId: query.vodPackageId || query.courseId || undefined,
       },
+
       include: {
         user: {
           select: { id: true, displayName: true, email: true, avatarUrl: true },

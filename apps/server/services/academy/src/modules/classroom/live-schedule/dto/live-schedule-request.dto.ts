@@ -59,6 +59,10 @@ export class LiveScheduleRequestRejectDto {
 export class LiveScheduleRequestQueryDto {
   @IsOptional()
   @IsUUID()
+  classId?: string;
+
+  @IsOptional()
+  @IsUUID()
   sessionId?: string;
 
   @IsOptional()
@@ -78,6 +82,7 @@ export class LiveScheduleRequestQueryDto {
   @IsDateString()
   toDate?: string;
 }
+
 
 export class LiveScheduleConflictPreviewDto {
   @IsUUID()

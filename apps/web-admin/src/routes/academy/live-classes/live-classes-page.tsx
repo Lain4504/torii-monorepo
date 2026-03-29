@@ -84,7 +84,6 @@ export default function LiveClassesPage() {
         const map: Record<string, string> = {
             DRAFT: "Bản nháp",
             OPENING: "Đang tuyển sinh",
-            ONGOING: "Đang diễn ra",
             COMPLETED: "Đã hoàn thành",
             CANCELLED: "Đã hủy",
             ARCHIVED: "Lưu trữ",
@@ -93,14 +92,13 @@ export default function LiveClassesPage() {
     };
 
     const stats = useMemo(() => [
-        { label: "Lớp đang chạy", value: classes?.filter(c => c.status === 'ONGOING').length || 0 },
+        { label: "Lớp đang tuyển", value: classes?.filter(c => c.status === 'OPENING').length || 0 },
         { label: "Tổng số học viên", value: "---" }
     ], [classes]);
 
     const liveStatuses = [
         { value: 'DRAFT', label: 'Bản nháp' },
         { value: 'OPENING', label: 'Đang tuyển sinh' },
-        { value: 'ONGOING', label: 'Đang diễn ra' },
         { value: 'COMPLETED', label: 'Đã hoàn thành' },
         { value: 'CANCELLED', label: 'Đã hủy' },
         { value: 'ARCHIVED', label: 'Lưu trữ' },
@@ -317,8 +315,6 @@ export default function LiveClassesPage() {
                                 <Badge variant="secondary">Bản nháp</Badge>
                                 <span className="text-muted-foreground">→</span>
                                 <Badge variant="secondary">Đang tuyển sinh</Badge>
-                                <span className="text-muted-foreground">→</span>
-                                <Badge variant="secondary">Đang diễn ra</Badge>
                                 <span className="text-muted-foreground">→</span>
                                 <Badge variant="secondary">Đã hoàn thành</Badge>
                                 <span className="text-muted-foreground">→</span>

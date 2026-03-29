@@ -45,6 +45,14 @@ const scheduleItemSchema = z.object({
   weekday: z.number().int().min(0).max(6),
   startTime: z.string().min(1, "Bắt đầu không được để trống"),
   endTime: z.string().min(1, "Kết thúc không được để trống"),
+}).refine((data) => {
+  if (data.startTime && data.endTime) {
+    return data.startTime < data.endTime;
+  }
+  return true;
+}, {
+  message: "Giờ kết thúc phải sau giờ bắt đầu",
+  path: ["endTime"],
 })
 
 const liveClassSchema = z.object({
@@ -72,7 +80,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
   const updateMutation = useUpdateAcademyLiveClass()
   const createScheduleMutation = useCreateAcademyLiveSchedule()
 
-  const { data: cohorts } = useAcademyCohorts({})
+  const { data: cohorts } = useAcademyCohorts({ onlyAvailable: true })
   const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {

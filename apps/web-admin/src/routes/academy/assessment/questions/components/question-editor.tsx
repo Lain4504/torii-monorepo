@@ -13,19 +13,20 @@ import {
   AcademyQuestionType,
 } from "@workspace/schemas"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@workspace/ui/components/dialog"
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@workspace/ui/components/sheet"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Label } from "@workspace/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { Badge } from "@workspace/ui/components/badge"
-import { X, CheckCircle2 } from "lucide-react"
+import { X, CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -125,41 +126,46 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
   const watchedCategoryIds = form.watch("categoryIds") || []
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
-        <DialogHeader className="px-6 py-4 border-b shrink-0">
-          <DialogTitle className="text-base font-bold">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="!w-full sm:!max-w-[680px] p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-6 py-4 border-b shrink-0">
+          <SheetTitle>
             {questionId ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+          <SheetDescription>
+            {questionId
+              ? "Chỉnh sửa nội dung câu hỏi trắc nghiệm."
+              : "Tạo câu hỏi trắc nghiệm 4 đáp án cho ngân hàng câu hỏi."}
+          </SheetDescription>
+        </SheetHeader>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col overflow-hidden flex-1">
-          <div className="overflow-y-auto flex-1 px-6 py-4 space-y-5">
+        <ScrollArea className="flex-1 min-h-0">
+          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="px-6 py-5 space-y-5">
 
-            {/* Question stem */}
-            <div className="space-y-1.5">
+            {/* Nội dung câu hỏi */}
+            <div className="space-y-2">
               <Label className="text-sm font-semibold">
                 Nội dung câu hỏi <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 placeholder="Nhập nội dung câu hỏi..."
                 {...form.register("stem")}
-                className="min-h-[90px] resize-none"
+                className="min-h-[100px] text-sm resize-none"
               />
               {form.formState.errors.stem && (
                 <p className="text-destructive text-xs">{form.formState.errors.stem.message}</p>
               )}
             </div>
 
-            {/* Difficulty + Categories */}
+            {/* Độ khó + Danh mục */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label className="text-sm font-semibold">Độ khó</Label>
                 <Select
                   value={form.watch("difficulty")}
                   onValueChange={(v) => form.setValue("difficulty", v)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -170,15 +176,18 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <Label className="text-sm font-semibold">Danh mục</Label>
                 <Select
+                  value=""
                   onValueChange={(v) => {
                     const current = form.getValues("categoryIds") || []
-                    if (!current.includes(v)) form.setValue("categoryIds", [...current, v])
+                    if (!current.includes(v)) {
+                      form.setValue("categoryIds", [...current, v], { shouldDirty: true })
+                    }
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="Chọn danh mục..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -194,15 +203,15 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                   </SelectContent>
                 </Select>
                 {watchedCategoryIds.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1.5">
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
                     {watchedCategoryIds.map((catId: string) => {
                       const cat = (categories as any[]).find(c => c.id === catId)
                       return (
-                        <Badge key={catId} variant="secondary" className="pl-2 pr-1 h-5 text-[10px] gap-1">
+                        <Badge key={catId} variant="secondary" className="pl-2 pr-1 h-6 text-xs gap-1">
                           {cat?.name || catId}
                           <button
                             type="button"
-                            className="ml-0.5 hover:text-destructive transition-colors"
+                            className="p-0.5 rounded hover:text-destructive transition-colors"
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
@@ -220,10 +229,15 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
               </div>
             </div>
 
-            {/* Answer Options - 2x2 grid */}
+            {/* Đáp án - 2x2 grid */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Đáp án (chọn 1 đúng)</Label>
+              <div>
+                <Label className="text-sm font-semibold">
+                  Các đáp án <span className="text-destructive">*</span>
+                </Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Bấm vào ô để đánh dấu đáp án đúng
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {fields.map((field, index) => {
@@ -236,23 +250,23 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                         fields.forEach((_, i) => form.setValue(`options.${i}.isCorrect`, i === index))
                       }}
                       className={cn(
-                        "flex items-center gap-2 p-3 rounded-xl border-2 text-left transition-all",
+                        "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
                         isCorrect
-                          ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30"
-                          : "border-border bg-card hover:border-muted-foreground/40"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20"
+                          : "border-border bg-card hover:border-muted-foreground/30"
                       )}
                     >
                       <div className={cn(
                         "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors",
                         isCorrect
                           ? "bg-emerald-500 border-emerald-500 text-white"
-                          : "border-muted-foreground/40 text-muted-foreground"
+                          : "border-muted-foreground/30 text-muted-foreground"
                       )}>
                         {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : field.optionKey}
                       </div>
                       <Input
-                        className="flex-1 border-none shadow-none px-1 h-8 py-1 bg-transparent focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/40"
-                        placeholder={`Đáp án ${field.optionKey}...`}
+                        className="flex-1 border-none shadow-none px-0 h-8 bg-transparent focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/40"
+                        placeholder={`Nhập đáp án ${field.optionKey}...`}
                         {...form.register(`options.${index}.content`)}
                         onClick={(e) => e.stopPropagation()}
                       />
@@ -260,32 +274,48 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                   )
                 })}
               </div>
-              <p className="text-xs text-muted-foreground">Bấm vào ô để đánh dấu đáp án đúng</p>
             </div>
 
-            {/* Explanation (optional) */}
-            <div className="space-y-1.5">
+            {/* Giải thích (tùy chọn) */}
+            <div className="space-y-2">
               <Label className="text-sm font-semibold">
-                Giải thích đáp án <span className="text-muted-foreground font-normal">(tùy chọn)</span>
+                Giải thích đáp án{" "}
+                <span className="text-muted-foreground font-normal">(tùy chọn)</span>
               </Label>
               <Textarea
-                placeholder="Nhập giải thích cho đáp án đúng..."
+                placeholder="Giải thích ngắn gọn tại sao đây là đáp án đúng..."
                 {...form.register("explanation")}
-                className="min-h-[70px] resize-none text-sm"
+                className="min-h-[80px] text-sm resize-none"
               />
             </div>
 
-          </div>
+          </form>
+        </ScrollArea>
 
-          <DialogFooter className="px-6 py-4 border-t shrink-0 bg-muted/20">
-            <p className="text-xs text-muted-foreground flex-1">* Trường bắt buộc</p>
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Hủy</Button>
-            <Button type="submit" disabled={isPending} className="min-w-[120px]">
-              {isPending ? "Đang xử lý..." : (questionId ? "Lưu thay đổi" : "Tạo câu hỏi")}
+        {/* Footer */}
+        <div className="px-6 py-4 border-t bg-muted/20 flex items-center justify-between shrink-0">
+          <p className="text-xs text-muted-foreground">* Trường bắt buộc</p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isPending}
+            >
+              Hủy
             </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <Button
+              type="submit"
+              form="question-editor-form"
+              disabled={isPending}
+              className="min-w-[120px]"
+            >
+              {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {isPending ? "Đang xử lý..." : questionId ? "Lưu thay đổi" : "Tạo câu hỏi"}
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }

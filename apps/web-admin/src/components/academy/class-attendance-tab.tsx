@@ -72,8 +72,8 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
         classId: classId || undefined,
     })
     const { data: schedules = [] } = useAcademyLiveSchedules({ classId })
-    const { data: allRequests = [] } = useAcademyLiveScheduleRequests({})
-    const requests = allRequests.filter(r => r.session?.classId === classId || (r as any).classId === classId)
+    const { data: allRequests = [] } = useAcademyLiveScheduleRequests({ classId })
+    const requests = allRequests.filter(r => r.liveClassId === classId || r.session?.liveClassId === classId)
 
     const enrollments = enrollmentsData as AcademyEnrollment[]
     const attendances = attendanceData?.items || []

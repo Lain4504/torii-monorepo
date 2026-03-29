@@ -211,13 +211,15 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
                         <CheckCircle2 className="size-3 mr-1" />
                         Chấm điểm
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditClick(ca)}
-                      >
-                        Chỉnh sửa
-                      </Button>
+                      {(!ca.deadline || new Date(ca.deadline) >= new Date()) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditClick(ca)}
+                        >
+                          Chỉnh sửa
+                        </Button>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"

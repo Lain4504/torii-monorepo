@@ -34,8 +34,7 @@ const getCohortStatusLabel = (status: string) => {
     const map: Record<string, string> = {
         DRAFT: "Bản nháp",
         PENDING_APPROVAL: "Chờ duyệt",
-        OPENING: "Đang mở đăng ký",
-        ONGOING: "Đang diễn ra",
+        OPENING: "Đang tuyển sinh",
         COMPLETED: "Đã kết thúc",
         ARCHIVED: "Đã lưu trữ",
     };
@@ -45,7 +44,7 @@ const getCohortStatusLabel = (status: string) => {
 export default function CohortsPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [debouncedSearch] = useDebounceValue(searchTerm, 500)
-    const [tab, setTab] = useState<'all' | 'draft' | 'pending' | 'opening' | 'ongoing' | 'completed' | 'archived'>('all')
+    const [tab, setTab] = useState<'all' | 'draft' | 'pending' | 'opening' | 'completed' | 'archived'>('all')
     const [sheetOpen, setSheetOpen] = useState(false)
     const [selectedCohort, setSelectedCohort] = useState<AcademyCohort | null>(null)
     const navigate = useNavigate()
@@ -56,7 +55,6 @@ export default function CohortsPage() {
         tab === 'draft' ? 'DRAFT' : 
         tab === 'pending' ? 'PENDING_APPROVAL' : 
         tab === 'opening' ? 'OPENING' : 
-        tab === 'ongoing' ? 'ONGOING' : 
         tab === 'completed' ? 'COMPLETED' : 'ARCHIVED'
 
     const { data: cohorts, isLoading } = useAcademyCohorts({
@@ -111,7 +109,6 @@ export default function CohortsPage() {
                             <SelectItem value="draft">Bản nháp</SelectItem>
                             <SelectItem value="pending">Chờ duyệt</SelectItem>
                             <SelectItem value="opening">Đang tuyển sinh</SelectItem>
-                            <SelectItem value="ongoing">Đang diễn ra</SelectItem>
                             <SelectItem value="completed">Đã kết thúc</SelectItem>
                             <SelectItem value="archived">Đã lưu trữ</SelectItem>
                         </SelectContent>

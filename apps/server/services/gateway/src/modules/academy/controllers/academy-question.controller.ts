@@ -31,6 +31,8 @@ import {
   academyQuestionQueryDTOSchema,
   AcademyQuestionCategoryDTO,
   academyQuestionCategorySchema,
+  AcademyQuestionCategoryUpdateDTO,
+  academyQuestionCategoryUpdateSchema,
 } from '@workspace/schemas';
 
 @Controller('api/academy/questions')
@@ -70,6 +72,28 @@ export class AcademyQuestionController {
       this.nats.send({ cmd: 'academy.question.createCategory' }, dto),
     );
     return successResponse({ item });
+  }
+
+  @Put('categories/:id')
+  @Permissions('academy.content.write')
+  async updateCategory(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyQuestionCategoryUpdateSchema))
+    dto: AcademyQuestionCategoryUpdateDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.question.updateCategory' }, { id, dto }),
+    );
+    return successResponse({ item });
+  }
+
+  @Delete('categories/:id')
+  @Permissions('academy.content.write')
+  async deleteCategory(@Param('id', new ParseUUIDPipe()) id: string) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.question.deleteCategory' }, { id }),
+    );
+    return successResponse(result);
   }
 
   @Get(':id')

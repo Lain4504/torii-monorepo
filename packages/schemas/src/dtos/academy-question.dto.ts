@@ -65,3 +65,13 @@ export const academyQuestionCategorySchema = z.object({
   isActive: z.boolean().default(true),
 });
 export type AcademyQuestionCategoryDTO = z.infer<typeof academyQuestionCategorySchema>;
+
+export const academyQuestionCategoryUpdateSchema = z.object({
+  code: z.string().min(1).max(100).optional(),
+  name: z.string().min(1).max(255).optional(),
+  description: z.string().optional(),
+  parentId: z.string().uuid().nullable().optional(),
+  isActive: z.boolean().optional(),
+});
+export type AcademyQuestionCategoryUpdateDTO = z.infer<typeof academyQuestionCategoryUpdateSchema>;
+

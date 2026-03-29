@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import {
   AcademyQuestionCreateDTO,
   AcademyQuestionUpdateDTO,
   AcademyQuestionQueryDTO,
   AcademyQuestionCategoryDTO,
+  AcademyQuestionCategoryUpdateDTO,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -155,6 +156,26 @@ export class QuestionService {
   }
 
   async deleteQuestion(id: string) {
+    const question = await this.prisma.academyQuestion.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            examQuestions: true,
+            attemptAnswers: true,
+          },
+        },
+      },
+    });
+
+    if (!question) throw new NotFoundException('Không tìm thấy câu hỏi');
+
+    if (question._count.examQuestions > 0 || question._count.attemptAnswers > 0) {
+      throw new BadRequestException(
+        'Câu hỏi này đang được sử dụng trong bài thi hoặc đã có học viên thực hiện. Không thể xóa.'
+      );
+    }
+
     return this.prisma.academyQuestion.delete({
       where: { id },
     });
@@ -170,6 +191,43 @@ export class QuestionService {
   async getCategories() {
     return this.prisma.academyQuestionCategory.findMany({
       orderBy: { code: 'asc' },
+    });
+  }
+
+  async updateCategory(id: string, dto: AcademyQuestionCategoryUpdateDTO) {
+    const category = await this.prisma.academyQuestionCategory.findUnique({
+      where: { id },
+    });
+    if (!category) throw new NotFoundException('Danh mục không tồn tại');
+
+    return this.prisma.academyQuestionCategory.update({
+      where: { id },
+      data: dto as any,
+    });
+  }
+
+  async deleteCategory(id: string) {
+    const category = await this.prisma.academyQuestionCategory.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { links: true, children: true },
+        },
+      },
+    });
+
+    if (!category) throw new NotFoundException('Danh mục không tồn tại');
+
+    if (category._count.links > 0) {
+      throw new BadRequestException('Không thể xóa danh mục đang có câu hỏi');
+    }
+
+    if (category._count.children > 0) {
+      throw new BadRequestException('Không thể xóa danh mục đang có danh mục con');
+    }
+
+    return this.prisma.academyQuestionCategory.delete({
+      where: { id },
     });
   }
 }

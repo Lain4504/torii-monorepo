@@ -36,6 +36,25 @@ const assignmentSchema = z.object({
   }),
   openAt: z.string().optional(),
   deadline: z.string().optional(),
+}).refine((data) => {
+  if (data.openAt && data.deadline) {
+    return new Date(data.openAt) < new Date(data.deadline);
+  }
+  return true;
+}, {
+  message: "Hạn nộp bài phải sau thời gian mở bài tập",
+  path: ["deadline"],
+}).refine((data) => {
+  if (data.deadline) {
+    const now = new Date();
+    // buffer a bit for network lag
+    now.setMinutes(now.getMinutes() - 5);
+    return new Date(data.deadline) > now;
+  }
+  return true;
+}, {
+  message: "Hạn nộp bài không được ở quá khứ",
+  path: ["deadline"],
 })
 
 type AssignmentForm = z.infer<typeof assignmentSchema>
@@ -111,6 +130,9 @@ export function ClassAssignmentSheet({
     }
     onOpenChange(next)
   }
+
+  const watchOpenAt = form.watch("openAt")
+  const now = new Date().toISOString().slice(0, 16)
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const payload: AssignmentForm = {
@@ -234,6 +256,7 @@ export function ClassAssignmentSheet({
                   <Input
                     type="datetime-local"
                     {...form.register("openAt")}
+                    min={now}
                   />
                 </Field>
                 <Field>
@@ -241,6 +264,7 @@ export function ClassAssignmentSheet({
                   <Input
                     type="datetime-local"
                     {...form.register("deadline")}
+                    min={watchOpenAt || now}
                   />
                 </Field>
               </div>
