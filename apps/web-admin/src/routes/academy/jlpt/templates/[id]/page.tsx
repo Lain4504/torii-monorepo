@@ -139,7 +139,9 @@ export default function JlptTemplateBuilderPage() {
       setCreatingTemplate(true);
       const res = await academyJlptMockApi.createTemplate(newTemplateData);
       toast.success("Đã tạo đề thi mới");
-      navigate(`/academy/jlpt/templates/${res.id}`, { replace: true });
+      if (res?.id) {
+        navigate(`/academy/jlpt/templates/${res.id}`, { replace: true });
+      }
     } catch {
       toast.error("Không thể tạo đề thi");
     } finally {
