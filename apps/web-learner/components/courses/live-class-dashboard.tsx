@@ -88,7 +88,7 @@ export function LiveClassDashboard() {
         .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
 
     const enrollment = enrollmentData?.enrollment as any;
-    const progress = (enrollmentData as any)?.progress || 0;
+    const progress = enrollment?.progress || (enrollmentData as any)?.progress || 0;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -127,13 +127,21 @@ export function LiveClassDashboard() {
                                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                                         <Calendar className="size-3" /> Ngày bắt đầu
                                     </div>
-                                    <div className="text-sm font-bold">{academyClass.startDate ? format(new Date(academyClass.startDate), 'dd/MM/yyyy') : 'Chưa xác định'}</div>
+                                    <div className="text-sm font-bold">
+                                        {(academyClass as any).cohort?.startDate 
+                                            ? format(new Date((academyClass as any).cohort.startDate), 'dd/MM/yyyy') 
+                                            : academyClass.startDate 
+                                                ? format(new Date(academyClass.startDate), 'dd/MM/yyyy') 
+                                                : 'Chưa xác định'}
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                                         <Users className="size-3" /> Giảng viên
                                     </div>
-                                    <div className="text-sm font-bold">{(academyClass as any).courseProfile?.instructorName || "Torii Instructor"}</div>
+                                    <div className="text-sm font-bold">
+                                        {(academyClass as any).instructor?.displayName || (academyClass as any).courseProfile?.instructorName || "Torii Instructor"}
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -371,7 +379,11 @@ export function LiveClassDashboard() {
                                                         <div className="flex items-center gap-3 text-[10px] font-black text-white/40 uppercase tracking-widest">
                                                             <span className="flex items-center gap-1"><Clock className="size-3" /> {format(new Date(session.scheduledAt), "HH:mm")}</span>
                                                             <span className="opacity-50">/</span>
-                                                            <span>Thứ {format(new Date(session.scheduledAt), "i") === '1' ? '2' : format(new Date(session.scheduledAt), "i")}</span>
+                                                            <span>
+                                                                {format(new Date(session.scheduledAt), "i") === '7' 
+                                                                    ? 'Chủ Nhật' 
+                                                                    : `Thứ ${Number(format(new Date(session.scheduledAt), "i")) + 1}`}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
