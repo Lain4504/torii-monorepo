@@ -110,7 +110,7 @@ export default function ClassCatalogDetailPage() {
     )
   }
 
-  const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
+  const thumb = klass.thumbnailUrl || profile?.thumbnailUrl || "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
   const jlptLevel = profile?.level
   const title = klass.name || klass.title || profile?.title || 'Khóa học'
   const subtitle = profile?.title && title !== profile.title ? profile.title : null
@@ -159,81 +159,99 @@ export default function ClassCatalogDetailPage() {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* 1. Dashboard-style Header Banner */}
+      {/* 1. Dashboard-style Header Banner Redesigned with Thumb */}
       <header className="relative group">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-[2.5rem] -z-10 blur-xl transition-all group-hover:blur-2xl duration-700 opacity-50" />
         <Card className="rounded-[2.5rem] border-none bg-card/60 backdrop-blur-md shadow-2xl shadow-primary/5 overflow-hidden">
-          <div className="p-8 md:p-12 space-y-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <Button variant="ghost" size="sm" className="rounded-full h-8 px-3 text-muted-foreground hover:bg-muted/50 -ml-2" asChild>
-                <Link href="/dashboard/available-courses">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Danh sách
-                </Link>
-              </Button>
-              <Separator orientation="vertical" className="h-4" />
-              <Badge className={cn(
-                "px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase border-none",
-                isLIVE ? "bg-red-500/90 hover:bg-red-500 text-white" : "bg-primary/90 hover:bg-primary text-white"
-              )}>
-                {isLIVE ? 'Live Class' : 'VOD Course'}
-              </Badge>
-              {jlptLevel && (
-                <Badge variant="outline" className="px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase border-primary/20 text-primary">
-                  JLPT {jlptLevel}
+          <div className="grid grid-cols-1 lg:grid-cols-12">
+            {/* Info Left (8/12) */}
+            <div className="lg:col-span-8 p-8 md:p-12 space-y-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <Button variant="ghost" size="sm" className="rounded-full h-8 px-3 text-muted-foreground hover:bg-muted/50 -ml-2" asChild>
+                  <Link href="/dashboard/available-courses">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Danh sách
+                  </Link>
+                </Button>
+                <Separator orientation="vertical" className="h-4" />
+                <Badge className={cn(
+                  "px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase border-none",
+                  isLIVE ? "bg-red-500/90 hover:bg-red-500 text-white" : "bg-primary/90 hover:bg-primary text-white"
+                )}>
+                  {isLIVE ? 'Live Class' : 'VOD Course'}
                 </Badge>
-              )}
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full border border-border/40">
-                {klass.code}
-              </span>
-            </div>
-
-            <div className="space-y-4 max-w-4xl">
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight leading-[0.9] text-foreground">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-xl md:text-2xl text-muted-foreground font-medium tracking-tight">
-                  {subtitle}
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 ring-2 ring-primary/10">
-                  <AvatarImage src={klass.instructor?.avatarUrl} />
-                  <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
-                    {instructorName[0] || 'T'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="space-y-0.5">
-                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Giảng viên</div>
-                  <div className="text-sm font-bold">{instructorName}</div>
-                </div>
+                {jlptLevel && (
+                  <Badge variant="outline" className="px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase border-primary/20 text-primary">
+                    JLPT {jlptLevel}
+                  </Badge>
+                )}
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full border border-border/40">
+                  {klass.code}
+                </span>
               </div>
 
-              {openingDate && (
+              <div className="space-y-4 max-w-4xl">
+                <h1 className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight leading-[0.9] text-foreground">
+                  {title}
+                </h1>
+                {subtitle && (
+                  <p className="text-xl md:text-2xl text-muted-foreground font-medium tracking-tight">
+                    {subtitle}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-4 border-t border-border/40">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+                    <AvatarImage src={klass.instructor?.avatarUrl} />
+                    <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                      {instructorName[0] || 'T'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="space-y-0.5">
+                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Giảng viên</div>
+                    <div className="text-sm font-bold">{instructorName}</div>
+                  </div>
+                </div>
+
+                {openingDate && (
+                  <div className="space-y-0.5">
+                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
+                      <Calendar className="size-3" /> Khai giảng
+                    </div>
+                    <div className="text-sm font-bold">{new Date(openingDate).toLocaleDateString('vi-VN')}</div>
+                  </div>
+                )}
+
                 <div className="space-y-0.5">
                   <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
-                    <Calendar className="size-3" /> Khai giảng
+                    <BookOpen className="size-3" /> Nội dung
                   </div>
-                  <div className="text-sm font-bold">{new Date(openingDate).toLocaleDateString('vi-VN')}</div>
+                  <div className="text-sm font-bold">{lessonCount} bài giảng</div>
                 </div>
-              )}
 
-              <div className="space-y-0.5">
-                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
-                  <BookOpen className="size-3" /> Nội dung
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
+                    <Users className="size-3" /> Học viên
+                  </div>
+                  <div className="text-sm font-bold">{activeEnrollmentCount} đã đăng ký</div>
                 </div>
-                <div className="text-sm font-bold">{lessonCount} bài giảng</div>
               </div>
+            </div>
 
-              <div className="space-y-0.5">
-                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
-                  <Users className="size-3" /> Học viên
-                </div>
-                <div className="text-sm font-bold">{activeEnrollmentCount} đã đăng ký</div>
+            {/* Thumbnail Right (4/12) */}
+            <div className="lg:col-span-4 relative min-h-[340px] lg:min-h-full overflow-hidden group/image sm:rounded-b-[2.5rem] lg:rounded-r-[2.5rem] lg:rounded-bl-none">
+              <Image 
+                src={thumb} 
+                alt={title} 
+                fill 
+                className="object-cover grayscale-[0.2] group-hover/image:grayscale-0 group-hover/image:scale-110 transition-all duration-1000"
+              />
+              <div className="absolute inset-0 bg-gradient-to-l from-black/20 via-transparent to-card/60 lg:to-card/80 hidden lg:block" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+              <div className="absolute bottom-6 left-6 right-6 flex flex-col items-start gap-2 lg:hidden">
+                <Badge className="bg-white/20 backdrop-blur-md text-white border-white/20 font-black text-[10px] tracking-widest">COURSE PREVIEW</Badge>
               </div>
             </div>
           </div>
@@ -379,14 +397,6 @@ export default function ClassCatalogDetailPage() {
           )}
 
           <Card className="rounded-[2.5rem] border-none bg-card shadow-2xl shadow-primary/5 overflow-hidden ring-1 ring-border/50">
-            <div className="relative aspect-[16/10] w-full overflow-hidden group">
-              <Image src={thumb} alt={title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-6">
-                <Badge className="bg-white/20 backdrop-blur-md text-white border-white/20 font-black text-[10px] tracking-widest">PREVIEW AVAILABLE</Badge>
-              </div>
-            </div>
-            
             <CardContent className="p-8 space-y-8">
               <div className="space-y-1">
                 <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Giá niêm yết</div>

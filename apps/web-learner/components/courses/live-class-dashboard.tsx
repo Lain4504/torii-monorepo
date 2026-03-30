@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import {
@@ -159,14 +160,19 @@ export function LiveClassDashboard() {
                         </div>
 
                         {/* Visual Right */}
-                        <div className="lg:col-span-4 relative overflow-hidden bg-muted group">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={(academyClass as any).courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"}
-                                alt={academyClass.name}
-                                className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                        <div className="lg:col-span-4 relative overflow-hidden group/image sm:rounded-b-[2.5rem] lg:rounded-r-[2.5rem] lg:rounded-bl-none">
+                            <Image
+                                src={
+                                    academyClass.thumbnailUrl || 
+                                    (academyClass as any).courseProfile?.thumbnailUrl || 
+                                    (academyClass as any).cohort?.courseProfile?.thumbnailUrl || 
+                                    "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
+                                }
+                                alt={academyClass.name || "Class Thumbnail"}
+                                fill
+                                className="object-cover grayscale-[0.2] group-hover/image:grayscale-0 transition-all duration-1000 group-hover:scale-110"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
+                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
                                 <Button 
                                     className="w-full bg-white text-black hover:bg-zinc-100 font-black h-14 rounded-2xl shadow-2xl shadow-black/40 text-sm group/btn"
                                     onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
