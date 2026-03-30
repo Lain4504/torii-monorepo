@@ -31,12 +31,14 @@ import {
 } from "@workspace/ui/components/dialog"
 
 interface ClassStudentsTabProps {
-  classId: string
+  classId?: string
+  vodPackageId?: string
   canManageEnrollment?: boolean
 }
 
 export function ClassStudentsTab({
   classId,
+  vodPackageId,
   canManageEnrollment = false,
 }: ClassStudentsTabProps) {
   const [enrollmentSheetOpen, setEnrollmentSheetOpen] = useState(false)
@@ -44,7 +46,12 @@ export function ClassStudentsTab({
   const {
     data: enrollments = [],
     isLoading: isLoadingEnrollments,
-  } = useAcademyEnrollments({ liveClassId: classId, page: 1, limit: 100 })
+  } = useAcademyEnrollments({
+    liveClassId: classId,
+    vodPackageId: vodPackageId,
+    page: 1,
+    limit: 100,
+  })
 
   const createEnrollment = useCreateAcademyEnrollment()
   const cancelEnrollment = useCancelAcademyEnrollment()
@@ -139,7 +146,7 @@ export function ClassStudentsTab({
                   colSpan={canManageEnrollment ? 5 : 4}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  Lớp học hiện chưa có học viên nào được ghi danh.
+                  Lớp học/Gói học hiện chưa có học viên nào được ghi danh.
                 </TableCell>
               </TableRow>
             ) : (
@@ -190,15 +197,15 @@ export function ClassStudentsTab({
                         en.status === "ACTIVE"
                           ? "default"
                           : en.status === "COMPLETED"
-                          ? "secondary"
-                          : "outline"
+                            ? "secondary"
+                            : "outline"
                       }
                     >
                       {en.status === "ACTIVE"
                         ? "Đang học"
                         : en.status === "COMPLETED"
-                        ? "Hoàn thành"
-                        : "Đã hủy"}
+                          ? "Hoàn thành"
+                          : "Đã hủy"}
                     </Badge>
                   </TableCell>
                   {canManageEnrollment && (
@@ -237,6 +244,7 @@ export function ClassStudentsTab({
         open={enrollmentSheetOpen}
         onOpenChange={setEnrollmentSheetOpen}
         classId={classId}
+        vodPackageId={vodPackageId}
         submitting={createEnrollment.isPending}
         onSubmit={handleCreateEnrollment}
       />
@@ -247,14 +255,14 @@ export function ClassStudentsTab({
           <DialogHeader>
             <DialogTitle>Xác nhận hủy kích hoạt</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn hủy kích hoạt ghi danh của học viên <strong>{selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}</strong>? 
+              Bạn có chắc chắn muốn hủy kích hoạt ghi danh của học viên <strong>{selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}</strong>?
               Hành động này sẽ thay đổi trạng thái thành CANCELLED.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmCancelOpen(false)}>Hủy</Button>
-            <Button 
-              onClick={handleConfirmCancel} 
+            <Button
+              onClick={handleConfirmCancel}
               disabled={cancelEnrollment.isPending}
             >
               Xác nhận hủy
@@ -275,9 +283,9 @@ export function ClassStudentsTab({
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Hủy</Button>
-            <Button 
+            <Button
               variant="destructive"
-              onClick={handleConfirmDelete} 
+              onClick={handleConfirmDelete}
               disabled={deleteEnrollment.isPending}
             >
               Xác nhận xóa

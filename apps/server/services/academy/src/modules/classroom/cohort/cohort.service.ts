@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class CohortService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll(query: AcademyCohortQueryDTO) {
     const and: any[] = [];
@@ -17,7 +17,7 @@ export class CohortService {
 
     if (query.onlyAvailable) {
       and.push({
-        status: { notIn: ['COMPLETED', 'ARCHIVED'] },
+        status: { notIn: ['DRAFT', 'PENDING_APPROVAL', 'COMPLETED', 'ARCHIVED'] },
         OR: [
           { enrollmentCloseAt: null },
           { enrollmentCloseAt: { gte: new Date() } },

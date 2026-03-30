@@ -90,7 +90,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                 excludedRunIds: coupon.excludedRunIds || [],
             });
         }
-    }, [open, coupon, reset]);
+    }, [open, coupon.id, reset]);
 
     const discountType = watch('discountType');
     const startDate = watch('startDate');

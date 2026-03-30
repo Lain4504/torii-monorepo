@@ -32,9 +32,10 @@ export class ResourceService {
             data: {
                 name: data.name,
                 type: data.type as any,
-                liveClassId: String(data.ownerType) === 'LIVE_CLASS' ? data.ownerId : data.liveClassId,
+                liveClassId: String(data.ownerType) === 'LIVE_CLASS' ? data.ownerId : (data as any).liveClassId,
+                vodPackageId: String(data.ownerType) === 'COURSE_VOD' ? data.ownerId : (data as any).vodPackageId,
                 ownerType: data.ownerType as any,
-            },
+            } as any,
         });
     }
 
@@ -68,12 +69,17 @@ export class ResourceService {
 
         const folders = await this.prisma.academyFolder.findMany({
             where: {
-                liveClassId: { in: liveClassIds },
-                ownerType: 'LIVE_CLASS',
+                OR: [
+                    { liveClassId: { in: liveClassIds }, ownerType: 'LIVE_CLASS' },
+                    // Support VOD Package folders if needed for learners
+                ]
             },
             include: {
                 liveClass: {
                     select: { id: true, name: true, code: true },
+                },
+                vodPackage: {
+                    select: { id: true, title: true, code: true },
                 },
                 _count: {
                     select: { resources: { where: { status: 'ACTIVE' } } },
@@ -90,6 +96,11 @@ export class ResourceService {
                 name: f.liveClass.name,
                 code: f.liveClass.code,
             } : undefined,
+            vodPackage: f.vodPackage ? {
+                id: f.vodPackage.id,
+                title: f.vodPackage.title,
+                code: f.vodPackage.code,
+            } : undefined,
             resourceCount: (f as any)._count.resources,
         }));
     }
@@ -98,6 +109,7 @@ export class ResourceService {
         const folders = await this.prisma.academyFolder.findMany({
             where: {
                 liveClassId: ownerType === 'LIVE_CLASS' ? ownerId : undefined,
+                vodPackageId: ownerType === 'COURSE_VOD' ? ownerId : undefined,
                 ownerType: ownerType as any,
             },
             include: {

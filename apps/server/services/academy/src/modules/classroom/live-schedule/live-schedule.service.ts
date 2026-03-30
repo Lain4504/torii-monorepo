@@ -1109,30 +1109,17 @@ export class LiveScheduleService {
       }
 
       if (request.type === 'RESCHEDULE') {
-        const newRoomId = this.buildSessionRoomId();
-        const newSession = await tx.liveScheduleSession.create({
+        await tx.liveScheduleSession.update({
+          where: { id: request.sessionId },
           data: {
-            liveClassId: request.session.liveClassId,
-            scheduleId: null,
             sessionDate: request.proposedDate!,
             startTime: request.proposedStartTime!,
             endTime: request.proposedEndTime!,
-            status: 'SCHEDULED',
-            roomId: newRoomId,
             instructorId:
               request.proposedTeacherId ??
               request.session.instructorId ??
               undefined,
-            createdBy: reviewerId,
             updatedBy: reviewerId,
-          },
-        });
-
-        await tx.liveScheduleSession.update({
-          where: { id: request.sessionId },
-          data: {
-            status: 'RESCHEDULED',
-            supersededBySessionId: newSession.id,
           },
         });
       }

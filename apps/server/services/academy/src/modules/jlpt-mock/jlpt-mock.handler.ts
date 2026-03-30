@@ -185,6 +185,11 @@ export class JlptMockHandler {
     );
   }
 
+  @MessagePattern({ cmd: 'academy.jlptMock.template.deleteQuestion' })
+  deleteTemplateQuestion(@Payload() data: { id: string }) {
+    return this.jlpt.deleteTemplateQuestion(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.jlptMock.template.assembleFromBank' })
   assembleTemplateFromBank(
     @Payload() data: JlptAssembleTemplateFromBankDto & { requesterId?: string },
@@ -228,6 +233,11 @@ export class JlptMockHandler {
     },
   ) {
     return this.jlpt.updateBankQuestion(data.id, data.input, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.delete' })
+  deleteBankQuestion(@Payload() data: { id: string }) {
+    return this.jlpt.deleteBankQuestion(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.mondai.create' })

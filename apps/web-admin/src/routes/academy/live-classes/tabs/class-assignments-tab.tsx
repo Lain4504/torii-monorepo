@@ -32,20 +32,22 @@ import {
 } from "@workspace/ui/components/dialog"
 
 interface ClassAssignmentsTabProps {
-  classId: string
+  classId?: string
+  vodPackageId?: string
 }
 
-export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
+export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsTabProps) {
   const navigate = useNavigate()
 
+  const id = (vodPackageId || classId) as string;
   const {
     data: classAssignments = [],
     isLoading: isLoadingAssignments,
-  } = useAcademyClassAssignments(classId)
+  } = useAcademyClassAssignments(id)
 
-  const addMutation = useAddAcademyClassAssignment(classId)
-  const updateMutation = useUpdateAcademyClassAssignment(classId)
-  const removeMutation = useRemoveAcademyClassAssignment(classId)
+  const addMutation = useAddAcademyClassAssignment(id)
+  const updateMutation = useUpdateAcademyClassAssignment(id)
+  const removeMutation = useRemoveAcademyClassAssignment(id)
 
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editingAssignment, setEditingAssignment] =
@@ -96,12 +98,13 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
         toast.success("Đã cập nhật bài tập")
       } else {
         await addMutation.mutateAsync({
-          liveClassId: classId,
+          liveClassId: classId || undefined,
+          vodPackageId: vodPackageId,
           title: data.title,
           instructions: data.instructions,
           openAt: data.openAt ? new Date(data.openAt) : undefined,
           deadline: data.deadline ? new Date(data.deadline) : undefined,
-        })
+        } as any)
         toast.success("Đã giao bài tập cho lớp")
       }
       setSheetOpen(false)
@@ -114,7 +117,10 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
   }
 
   const handleGoToGrading = (ca: AcademyClassAssignment) => {
-    navigate(`/academy/live-classes/${classId}/assignments/${ca.id}/submissions`)
+    const baseUrl = vodPackageId
+      ? `/academy/vod-packages/${vodPackageId}`
+      : `/academy/live-classes/${classId}`;
+    navigate(`${baseUrl}/assignments/${ca.id}/submissions`)
   }
 
   if (isLoadingAssignments) {
@@ -153,7 +159,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
             {classAssignments.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                  Lớp học chưa có bài tập nào được giao. Chỉ áp dụng cho lớp LIVE.
+                  Lớp học/Gói học hiện chưa có bài tập nào được giao.
                 </TableCell>
               </TableRow>
             ) : (
@@ -251,15 +257,15 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
           <DialogHeader>
             <DialogTitle>Xác nhận gỡ bài tập</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn gỡ bài tập <strong>{selectedForRemove?.assignment?.title || selectedForRemove?.titleOverride}</strong> khỏi lớp học này? 
+              Bạn có chắc chắn muốn gỡ bài tập <strong>{selectedForRemove?.assignment?.title || selectedForRemove?.titleOverride}</strong> khỏi lớp học này?
               Dữ liệu về các bài nộp của học viên cho bài tập này (nếu có) cũng có thể bị ảnh hưởng.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRemoveConfirmOpen(false)}>Hủy</Button>
-            <Button 
+            <Button
               variant="destructive"
-              onClick={handleConfirmRemove} 
+              onClick={handleConfirmRemove}
               disabled={removeMutation.isPending}
             >
               Xác nhận gỡ

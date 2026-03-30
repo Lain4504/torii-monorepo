@@ -100,6 +100,15 @@ export default function CourseProfileApprovalPreviewPage() {
             <div className="flex items-center gap-2">
               <Button
                 size="lg"
+                onClick={() => setApproveConfirmOpen(true)}
+                disabled={approveMutation.isPending}
+                className="gap-2"
+              >
+                <CheckCircle2 className="size-5" />
+                Phê duyệt
+              </Button>
+              <Button
+                size="lg"
                 variant="destructive"
                 onClick={() => setRejectDialog({ open: true, reason: "" })}
                 disabled={rejectMutation.isPending}
@@ -107,15 +116,6 @@ export default function CourseProfileApprovalPreviewPage() {
               >
                 <XCircle className="size-5" />
                 Từ chối
-              </Button>
-              <Button
-                size="lg"
-                onClick={() => setApproveConfirmOpen(true)}
-                disabled={approveMutation.isPending}
-                className="gap-2"
-              >
-                <CheckCircle2 className="size-5" />
-                Duyệt
               </Button>
             </div>
           ) : undefined

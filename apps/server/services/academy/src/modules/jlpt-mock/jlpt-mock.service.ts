@@ -617,6 +617,29 @@ export class JlptMockService {
     return this.mapBankQuestionToAdmin(updated);
   }
 
+  async deleteBankQuestion(id: string) {
+    const question = await this.prisma.jlptQuestionBankQuestion.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!question) throw new NotFoundException('Bank question not found');
+
+    const usageCount = await this.prisma.jlptMockExamTemplateQuestion.count({
+      where: { questionId: id },
+    });
+
+    if (usageCount > 0) {
+      throw new BadRequestException(
+        'Không thể xóa câu hỏi đang được sử dụng trong đề thi (JLPT Template). Hãy gỡ câu hỏi khỏi đề thi trước.',
+      );
+    }
+
+    // Note: Options are deleted automatically via Cascade Delete in Prisma schema
+    await this.prisma.jlptQuestionBankQuestion.delete({ where: { id } });
+
+    return { ok: true };
+  }
+
   // -------------------------
   // Templates (learner/admin)
   // -------------------------
@@ -1083,6 +1106,13 @@ export class JlptMockService {
       }),
     );
 
+    return { ok: true };
+  }
+
+  async deleteTemplateQuestion(id: string) {
+    await this.prisma.jlptMockExamTemplateQuestion.delete({
+      where: { id },
+    });
     return { ok: true };
   }
 

@@ -7,6 +7,7 @@ export const academyFolderCreateDTOSchema = z.object({
     ownerId: z.string().uuid(),
     ownerType: z.nativeEnum(AcademyFolderOwnerType).default(AcademyFolderOwnerType.SYSTEM),
     liveClassId: z.string().uuid().optional().nullable(),
+    vodPackageId: z.string().uuid().optional().nullable(),
 });
 export type AcademyFolderCreateDTO = z.infer<typeof academyFolderCreateDTOSchema>;
 
@@ -45,6 +46,11 @@ export interface AcademyFolderResponseDTO {
     liveClass?: {
         id: string;
         name: string;
+        code: string;
+    };
+    vodPackage?: {
+        id: string;
+        title: string;
         code: string;
     };
     resourceCount: number;
