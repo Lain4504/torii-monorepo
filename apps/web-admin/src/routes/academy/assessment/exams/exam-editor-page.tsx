@@ -106,7 +106,7 @@ export default function AcademyExamEditorPage() {
         toast.success("Cập nhật đề thi thành công")
         navigate("/academy/assessment/exams")
       } else {
-        const res = await createMutation.mutateAsync({
+        await createMutation.mutateAsync({
           ...formData,
           sections: [
             {

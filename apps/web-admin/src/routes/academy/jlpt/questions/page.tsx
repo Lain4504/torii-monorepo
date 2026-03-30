@@ -8,7 +8,7 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 import { Button } from "@workspace/ui/components/button";
 import {
   Table,
@@ -52,7 +52,6 @@ import { toast } from "sonner";
 const PAGE_SIZE = 20;
 
 export default function JlptQuestionsPage() {
-  const navigate = useNavigate();
   const [questions, setQuestions] = useState<JlptBankQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
