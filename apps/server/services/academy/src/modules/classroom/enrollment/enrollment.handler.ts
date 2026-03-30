@@ -108,4 +108,15 @@ export class EnrollmentHandler {
   ) {
     return this.enrollments.getCompletedLessons(data.userId, data.targetId);
   }
+
+  @MessagePattern({ cmd: 'academy.enrollment.checkGiftRecipient' })
+  checkGiftRecipient(
+    @Payload()
+    data: {
+      recipientEmail: string;
+      courseId: string;
+    },
+  ) {
+    return this.enrollments.checkGiftRecipient(data.recipientEmail, data.courseId);
+  }
 }

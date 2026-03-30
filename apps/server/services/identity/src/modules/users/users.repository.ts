@@ -34,8 +34,9 @@ export class UsersRepository implements IUsersRepository {
    * Find user by email
    */
   async findByEmail(email: string): Promise<User | null> {
+    const normalizedEmail = email.toLowerCase();
     const user = await this.prisma.user.findFirst({
-      where: { email },
+      where: { email: normalizedEmail },
       include: { gamification: true },
     });
 
@@ -120,8 +121,9 @@ export class UsersRepository implements IUsersRepository {
     email: string,
     data: Prisma.UserUpdateInput,
   ): Promise<User> {
+    const normalizedEmail = email.toLowerCase();
     const user = await this.prisma.user.update({
-      where: { email },
+      where: { email: normalizedEmail },
       data: {
         ...data,
         updatedAt: new Date(),
@@ -161,9 +163,10 @@ export class UsersRepository implements IUsersRepository {
    * Check if email exists
    */
   async emailExists(email: string, excludeUserId?: string): Promise<boolean> {
+    const normalizedEmail = email.toLowerCase();
     const user = await this.prisma.user.findFirst({
       where: {
-        email,
+        email: normalizedEmail,
         id: excludeUserId ? { not: excludeUserId } : undefined,
       },
     });

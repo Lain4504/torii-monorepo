@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import Image from "next/image"
 import { useParams, useRouter } from "next/navigation"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import {
@@ -88,7 +89,7 @@ export function LiveClassDashboard() {
         .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
 
     const enrollment = enrollmentData?.enrollment as any;
-    const progress = (enrollmentData as any)?.progress || 0;
+    const progress = enrollment?.progress || (enrollmentData as any)?.progress || 0;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -127,13 +128,21 @@ export function LiveClassDashboard() {
                                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                                         <Calendar className="size-3" /> Ngày bắt đầu
                                     </div>
-                                    <div className="text-sm font-bold">{academyClass.startDate ? format(new Date(academyClass.startDate), 'dd/MM/yyyy') : 'Chưa xác định'}</div>
+                                    <div className="text-sm font-bold">
+                                        {(academyClass as any).cohort?.startDate 
+                                            ? format(new Date((academyClass as any).cohort.startDate), 'dd/MM/yyyy') 
+                                            : academyClass.startDate 
+                                                ? format(new Date(academyClass.startDate), 'dd/MM/yyyy') 
+                                                : 'Chưa xác định'}
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                                         <Users className="size-3" /> Giảng viên
                                     </div>
-                                    <div className="text-sm font-bold">{(academyClass as any).courseProfile?.instructorName || "Torii Instructor"}</div>
+                                    <div className="text-sm font-bold">
+                                        {(academyClass as any).instructor?.displayName || (academyClass as any).courseProfile?.instructorName || "Torii Instructor"}
+                                    </div>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -151,14 +160,19 @@ export function LiveClassDashboard() {
                         </div>
 
                         {/* Visual Right */}
-                        <div className="lg:col-span-4 relative overflow-hidden bg-muted group">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src={(academyClass as any).courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"}
-                                alt={academyClass.name}
-                                className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                        <div className="lg:col-span-4 relative overflow-hidden group/image sm:rounded-b-[2.5rem] lg:rounded-r-[2.5rem] lg:rounded-bl-none">
+                            <Image
+                                src={
+                                    academyClass.thumbnailUrl || 
+                                    (academyClass as any).courseProfile?.thumbnailUrl || 
+                                    (academyClass as any).cohort?.courseProfile?.thumbnailUrl || 
+                                    "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
+                                }
+                                alt={academyClass.name || "Class Thumbnail"}
+                                fill
+                                className="object-cover grayscale-[0.2] group-hover/image:grayscale-0 transition-all duration-1000 group-hover:scale-110"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
+                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
                                 <Button 
                                     className="w-full bg-white text-black hover:bg-zinc-100 font-black h-14 rounded-2xl shadow-2xl shadow-black/40 text-sm group/btn"
                                     onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
@@ -371,7 +385,11 @@ export function LiveClassDashboard() {
                                                         <div className="flex items-center gap-3 text-[10px] font-black text-white/40 uppercase tracking-widest">
                                                             <span className="flex items-center gap-1"><Clock className="size-3" /> {format(new Date(session.scheduledAt), "HH:mm")}</span>
                                                             <span className="opacity-50">/</span>
-                                                            <span>Thứ {format(new Date(session.scheduledAt), "i") === '1' ? '2' : format(new Date(session.scheduledAt), "i")}</span>
+                                                            <span>
+                                                                {format(new Date(session.scheduledAt), "i") === '7' 
+                                                                    ? 'Chủ Nhật' 
+                                                                    : `Thứ ${Number(format(new Date(session.scheduledAt), "i")) + 1}`}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>

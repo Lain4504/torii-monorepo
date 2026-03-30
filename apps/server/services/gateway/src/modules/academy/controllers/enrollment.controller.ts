@@ -133,4 +133,18 @@ export class EnrollmentController {
     );
     return successResponse(result);
   }
+
+  @Get('check-gift-recipient')
+  async checkGiftRecipient(
+    @Query('recipientEmail') recipientEmail: string,
+    @Query('courseId') courseId: string,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.enrollment.checkGiftRecipient' },
+        { recipientEmail, courseId },
+      ),
+    );
+    return successResponse(result);
+  }
 }
