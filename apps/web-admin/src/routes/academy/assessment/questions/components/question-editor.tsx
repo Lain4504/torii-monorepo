@@ -25,8 +25,8 @@ import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Label } from "@workspace/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
-import { Badge } from "@workspace/ui/components/badge"
-import { X, CheckCircle2, Loader2 } from "lucide-react"
+
+import { CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -99,6 +99,10 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
   }, [initialData, open, form])
 
   const onSubmit = async (data: any) => {
+    if (!data.categoryIds || data.categoryIds.length === 0) {
+      toast.error("Vui lòng chọn danh mục cho câu hỏi")
+      return
+    }
     if (!data.options?.some((o: any) => o.isCorrect)) {
       toast.error("Vui lòng chọn ít nhất một đáp án đúng")
       return
@@ -177,14 +181,11 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Danh mục</Label>
+                <Label className="text-sm font-semibold">Danh mục <span className="text-destructive">*</span></Label>
                 <Select
-                  value=""
+                  value={watchedCategoryIds[0] || ""}
                   onValueChange={(v) => {
-                    const current = form.getValues("categoryIds") || []
-                    if (!current.includes(v)) {
-                      form.setValue("categoryIds", [...current, v], { shouldDirty: true })
-                    }
+                    form.setValue("categoryIds", [v], { shouldDirty: true })
                   }}
                 >
                   <SelectTrigger className="h-10">
@@ -202,30 +203,6 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                     )}
                   </SelectContent>
                 </Select>
-                {watchedCategoryIds.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-1.5">
-                    {watchedCategoryIds.map((catId: string) => {
-                      const cat = (categories as any[]).find(c => c.id === catId)
-                      return (
-                        <Badge key={catId} variant="secondary" className="pl-2 pr-1 h-6 text-xs gap-1">
-                          {cat?.name || catId}
-                          <button
-                            type="button"
-                            className="p-0.5 rounded hover:text-destructive transition-colors"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              const current = form.getValues("categoryIds") || []
-                              form.setValue("categoryIds", current.filter(id => id !== catId), { shouldDirty: true })
-                            }}
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </Badge>
-                      )
-                    })}
-                  </div>
-                )}
               </div>
             </div>
 

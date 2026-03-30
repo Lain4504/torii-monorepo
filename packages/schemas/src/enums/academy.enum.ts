@@ -61,6 +61,7 @@ export enum AcademyFolderOwnerType {
     SYSTEM = 'SYSTEM',
     LECTURER = 'LECTURER',
     LIVE_CLASS = 'LIVE_CLASS',
+    COURSE_VOD = 'COURSE_VOD',
     USER = 'USER',
 }
 

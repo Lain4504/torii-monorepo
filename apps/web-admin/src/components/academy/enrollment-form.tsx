@@ -41,6 +41,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
+import { useAcademyVodPackages } from "@/lib/api/services/academy-vod-packages"
 import { useUsers } from "@/lib/api/services/users"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
 
@@ -51,6 +52,7 @@ export function EnrollmentForm({
     onCancel,
     submitting,
     defaultClassId,
+    defaultVodPackageId,
 }: {
     mode: "create" | "edit"
     initial?: AcademyEnrollment
@@ -60,6 +62,7 @@ export function EnrollmentForm({
     onCancel: () => void
     submitting?: boolean
     defaultClassId?: string
+    defaultVodPackageId?: string
 }) {
     const isEdit = mode === "edit"
     const [classSearch, setClassSearch] = useState("")
@@ -70,6 +73,11 @@ export function EnrollmentForm({
         q: debouncedClassSearch,
     })
     const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
+
+    const { data: vodPackagesData = [], isLoading: loadingVodPackages } = useAcademyVodPackages({
+        q: debouncedClassSearch,
+    })
+    const vodPackages = Array.isArray(vodPackagesData) ? vodPackagesData : (vodPackagesData as any)?.items || []
 
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebounceValue(search, 500)
@@ -97,6 +105,7 @@ export function EnrollmentForm({
             }
             : {
                 liveClassId: defaultClassId ?? "",
+                vodPackageId: defaultVodPackageId ?? "",
                 userId: "",
                 status: "ACTIVE",
             }) as any,
@@ -110,73 +119,141 @@ export function EnrollmentForm({
                 <FieldGroup>
                     {!isEdit && (
                         <>
-                            {!defaultClassId && (
-                                <Controller
-                                    name={"liveClassId" as any}
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel>Lớp học</FieldLabel>
-                                            <Popover open={openClassPopover} onOpenChange={setOpenClassPopover}>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        role="combobox"
-                                                        className="w-full justify-between font-normal"
-                                                    >
-                                                        {field.value
-                                                            ? classes.find((c: any) => c.id === field.value)?.name || "Đã chọn lớp"
-                                                            : "Chọn lớp..."}
-                                                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-[400px] p-0" align="start">
-                                                    <Command shouldFilter={false}>
-                                                        <CommandInput
-                                                            placeholder="Tìm lớp học (tên hoặc mã)..."
-                                                            value={classSearch}
-                                                            onValueChange={setClassSearch}
-                                                        />
-                                                        <CommandList>
-                                                            {loadingClasses && (
-                                                                <div className="p-4 text-center">
-                                                                    <Spinner className="mx-auto" />
-                                                                </div>
-                                                            )}
-                                                            {!loadingClasses && classes.length === 0 && (
-                                                                <CommandEmpty>Không tìm thấy lớp học nào</CommandEmpty>
-                                                            )}
-                                                            <CommandGroup>
-                                                                {classes.map((cls: any) => (
-                                                                    <CommandItem
-                                                                        key={cls.id}
-                                                                        value={cls.id}
-                                                                        onSelect={() => {
-                                                                            field.onChange(cls.id)
-                                                                            setOpenClassPopover(false)
-                                                                        }}
-                                                                    >
-                                                                        <Check
-                                                                            className={cn(
-                                                                                "mr-2 h-4 w-4",
-                                                                                field.value === cls.id ? "opacity-100" : "opacity-0"
-                                                                            )}
-                                                                        />
-                                                                        <div className="flex flex-col">
-                                                                            <span className="font-medium">{cls.name}</span>
-                                                                            <span className="text-xs text-muted-foreground">{cls.code}</span>
-                                                                        </div>
-                                                                    </CommandItem>
-                                                                ))}
-                                                            </CommandGroup>
-                                                        </CommandList>
-                                                    </Command>
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FieldError>{fieldState.error?.message}</FieldError>
-                                        </Field>
-                                    )}
-                                />
+                            {!defaultClassId && !defaultVodPackageId && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Controller
+                                        name={"liveClassId" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Lớp học (Live)</FieldLabel>
+                                                <Popover open={openClassPopover} onOpenChange={setOpenClassPopover}>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            className="w-full justify-between font-normal"
+                                                        >
+                                                            {field.value
+                                                                ? classes.find((c: any) => c.id === field.value)?.name || "Đã chọn lớp"
+                                                                : "Chọn lớp..."}
+                                                            <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[400px] p-0" align="start">
+                                                        <Command shouldFilter={false}>
+                                                            <CommandInput
+                                                                placeholder="Tìm lớp học (tên hoặc mã)..."
+                                                                value={classSearch}
+                                                                onValueChange={setClassSearch}
+                                                            />
+                                                            <CommandList>
+                                                                {loadingClasses && (
+                                                                    <div className="p-4 text-center">
+                                                                        <Spinner className="mx-auto" />
+                                                                    </div>
+                                                                )}
+                                                                {!loadingClasses && classes.length === 0 && (
+                                                                    <CommandEmpty>Không tìm thấy lớp học nào</CommandEmpty>
+                                                                )}
+                                                                <CommandGroup>
+                                                                    {classes.map((cls: any) => (
+                                                                        <CommandItem
+                                                                            key={cls.id}
+                                                                            value={cls.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(cls.id)
+                                                                                setOpenClassPopover(false)
+                                                                            }}
+                                                                        >
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4",
+                                                                                    field.value === cls.id ? "opacity-100" : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                            <div className="flex flex-col">
+                                                                                <span className="font-medium">{cls.name}</span>
+                                                                                <span className="text-xs text-muted-foreground">{cls.code}</span>
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <Controller
+                                        name={"vodPackageId" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Gói VOD</FieldLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            className="w-full justify-between font-normal"
+                                                        >
+                                                            {field.value
+                                                                ? vodPackages.find((p: any) => p.id === field.value)?.title || "Đã chọn gói"
+                                                                : "Chọn gói VOD..."}
+                                                            <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[400px] p-0" align="start">
+                                                        <Command shouldFilter={false}>
+                                                            <CommandInput
+                                                                placeholder="Tìm gói VOD..."
+                                                                value={classSearch}
+                                                                onValueChange={setClassSearch}
+                                                            />
+                                                            <CommandList>
+                                                                {loadingVodPackages && (
+                                                                    <div className="p-4 text-center">
+                                                                        <Spinner className="mx-auto" />
+                                                                    </div>
+                                                                )}
+                                                                {!loadingVodPackages && vodPackages.length === 0 && (
+                                                                    <CommandEmpty>Không tìm thấy gói nào</CommandEmpty>
+                                                                )}
+                                                                <CommandGroup>
+                                                                    {vodPackages.map((pkg: any) => (
+                                                                        <CommandItem
+                                                                            key={pkg.id}
+                                                                            value={pkg.id}
+                                                                            onSelect={() => {
+                                                                                field.onChange(pkg.id)
+                                                                            }}
+                                                                        >
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4",
+                                                                                    field.value === pkg.id ? "opacity-100" : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                            <div className="flex flex-col">
+                                                                                <span className="font-medium">{pkg.title}</span>
+                                                                                <span className="text-xs text-muted-foreground">{pkg.code}</span>
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
                             )}
 
                             <Controller

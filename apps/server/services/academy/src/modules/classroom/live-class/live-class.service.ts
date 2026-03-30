@@ -220,9 +220,11 @@ export class LiveClassService {
     return { ok: true };
   }
 
-  async findAssignments(classId: string) {
+  async findAssignments(id: string) {
     return this.prisma.liveClassAssignment.findMany({
-      where: { liveClassId: classId },
+      where: {
+        OR: [{ liveClassId: id }, { vodPackageId: id }],
+      },
       include: { assignment: true, _count: { select: { submissions: true } } },
       orderBy: { createdAt: 'desc' },
     });
@@ -246,10 +248,11 @@ export class LiveClassService {
       throw new BadRequestException('assignmentId or title/instructions required');
     }
 
-    // 2. Link the assignment to the live class
+    // 2. Link the assignment
     return this.prisma.liveClassAssignment.create({
       data: {
         liveClassId: data.liveClassId,
+        vodPackageId: data.vodPackageId,
         assignmentId,
         titleOverride: data.titleOverride,
         openAt: data.openAt,

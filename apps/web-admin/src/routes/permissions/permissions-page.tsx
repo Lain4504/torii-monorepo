@@ -173,7 +173,7 @@ export function PermissionsPage() {
                         <TableHeader>
                             {/* Row 1: Category group headers */}
                             <TableRow>
-                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
+                                <TableHead className="sticky left-0 z-40 bg-muted border-r w-[200px]">
                                     Vai trò / Quyền hạn
                                 </TableHead>
                                 {Array.from({ length: SKEL_CATS }).map((_, i) => (
@@ -188,7 +188,7 @@ export function PermissionsPage() {
                             </TableRow>
                             {/* Row 2: Individual permission name headers */}
                             <TableRow>
-                                <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
+                                <TableHead className="sticky left-0 z-40 bg-muted border-r" />
                                 {Array.from({ length: SKEL_PERMS }).map((_, i) => (
                                     <TableHead
                                         key={i}
@@ -206,7 +206,7 @@ export function PermissionsPage() {
                             {Array.from({ length: SKEL_ROLES }).map((_, i) => (
                                 <TableRow key={i}>
                                     {/* Role name cell */}
-                                    <TableCell className="sticky left-0 z-30 bg-card border-r">
+                                    <TableCell className="sticky left-0 z-30 bg-background border-r">
                                         <div className="flex flex-col gap-1.5">
                                             <Skeleton className="h-4 w-24" />
                                             <Skeleton className="h-2.5 w-16" />
@@ -246,7 +246,7 @@ export function PermissionsPage() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="sticky left-0 z-40 bg-muted/50 border-r w-[200px]">
+                            <TableHead className="sticky left-0 z-40 bg-muted border-r w-[200px]">
                                 Vai trò / Quyền hạn
                             </TableHead>
                             {permissions && Object.entries(permissions.byCategory).map(([category, perms]) => (
@@ -262,7 +262,7 @@ export function PermissionsPage() {
                             ))}
                         </TableRow>
                         <TableRow>
-                            <TableHead className="sticky left-0 z-40 bg-muted/50 border-r" />
+                            <TableHead className="sticky left-0 z-40 bg-muted border-r" />
                             {permissions && permissions.all.map((perm) => (
                                 <TableHead
                                     key={perm.code}
@@ -292,8 +292,8 @@ export function PermissionsPage() {
                                     className={cn(isLearner && "bg-muted/30")}
                                 >
                                     <TableCell className={cn(
-                                        "sticky left-0 z-30 bg-card border-r font-medium",
-                                        isLearner && "bg-muted/30"
+                                        "sticky left-0 z-30 bg-background border-r font-medium",
+                                        isLearner && "bg-muted"
                                     )}>
                                         <div className="flex flex-col">
                                             <span>{role.name}</span>

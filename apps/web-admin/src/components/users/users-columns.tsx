@@ -3,7 +3,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 
-import { ArrowUpDown, Pencil, UserCircle, Mail, Clock, ShieldAlert } from 'lucide-react';
+import { ArrowUpDown, Pencil, UserCircle, Mail, Clock, ShieldAlert, Eye } from 'lucide-react';
 import { Can } from "@/lib/guard/can";
 import { formatDateTime } from "@/lib/format-utils";
 import { cn } from "@workspace/ui/lib/utils";
@@ -18,7 +18,7 @@ export type UsersColumnsProps = {
     limit: number;
 };
 
-export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersColumnsProps) => [
+export const getUsersColumns = ({ onView, onEdit, onChangeStatus, page, limit }: UsersColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -227,6 +227,17 @@ export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersCo
 
             return (
                 <div className="flex items-center justify-center gap-2">
+                    <Can permission="user.view">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5"
+                            onClick={() => onView(user)}
+                        >
+                            <Eye className="h-4 w-4" />
+                            Xem
+                        </Button>
+                    </Can>
                     <Can permission="user.manage">
                         {onEdit && (
                             <Button

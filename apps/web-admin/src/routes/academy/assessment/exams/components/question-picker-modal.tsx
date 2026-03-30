@@ -1,6 +1,7 @@
 import { useState } from "react"
-import { useAcademyQuestions } from "@/lib/api/services/academy-questions"
-import { 
+import { useAcademyQuestions, useAcademyQuestionCategories } from "@/lib/api/services/academy-questions"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -9,13 +10,13 @@ import {
 } from "@workspace/ui/components/dialog"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@workspace/ui/components/table"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Badge } from "@workspace/ui/components/badge"
@@ -29,12 +30,18 @@ interface QuestionPickerModalProps {
 
 export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionPickerModalProps) {
   const [search, setSearch] = useState("")
+  const [categoryId, setCategoryId] = useState<string>("ALL")
+  const [difficulty, setDifficulty] = useState<string>("ALL")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: categories = [] } = useAcademyQuestionCategories()
 
   // Fetch questions from question bank
   const { data: questions, isLoading } = useAcademyQuestions({
     q: search || undefined,
+    categoryId: categoryId === "ALL" ? undefined : categoryId,
+    difficulty: difficulty === "ALL" ? undefined : difficulty as any,
   })
 
   // Handle individual checkbox toggle
@@ -81,14 +88,42 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
         </DialogHeader>
 
         <div className="space-y-4 flex-1 overflow-hidden flex flex-col min-h-0">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-            <Input 
-              placeholder="Tìm kiếm nội dung câu hỏi..." 
-              className="pl-9"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Tìm kiếm nội dung câu hỏi..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="w-[180px]">
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tất cả danh mục" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Tất cả danh mục</SelectItem>
+                  {(categories as any[]).map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-[150px]">
+              <Select value={difficulty} onValueChange={setDifficulty}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Mọi độ khó" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Mọi độ khó</SelectItem>
+                  <SelectItem value="EASY">Dễ</SelectItem>
+                  <SelectItem value="MEDIUM">Trung bình</SelectItem>
+                  <SelectItem value="HARD">Khó</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="border rounded-md overflow-hidden bg-white dark:bg-slate-900 flex-1 overflow-y-auto">
@@ -96,7 +131,7 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
               <TableHeader className="sticky top-0 bg-white dark:bg-slate-900 border-b z-10">
                 <TableRow>
                   <TableHead className="w-[50px]">
-                    <Checkbox 
+                    <Checkbox
                       checked={questions && questions.length > 0 && selectedIds.size === questions.length}
                       onCheckedChange={toggleAll}
                     />
@@ -108,18 +143,18 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                   <TableRow>
-                     <TableCell colSpan={4} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
-                   </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
+                  </TableRow>
                 ) : questions && questions.length === 0 ? (
-                   <TableRow>
-                     <TableCell colSpan={4} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
-                   </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
+                  </TableRow>
                 ) : (
                   questions?.map((q) => (
                     <TableRow key={q.id}>
                       <TableCell>
-                        <Checkbox 
+                        <Checkbox
                           checked={selectedIds.has(q.id)}
                           onCheckedChange={() => toggleQuestion(q.id)}
                         />
@@ -150,8 +185,8 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Hủy bỏ
               </Button>
-              <Button 
-                onClick={handleConfirm} 
+              <Button
+                onClick={handleConfirm}
                 disabled={selectedIds.size === 0 || isSubmitting}
               >
                 Thêm vào bài thi

@@ -12,6 +12,7 @@ interface ClassEnrollmentSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   classId?: string
+  vodPackageId?: string
   submitting?: boolean
   onSubmit: (data: any) => Promise<void>
 }
@@ -20,6 +21,7 @@ export function ClassEnrollmentSheet({
   open,
   onOpenChange,
   classId,
+  vodPackageId,
   submitting,
   onSubmit,
 }: ClassEnrollmentSheetProps) {
@@ -27,9 +29,9 @@ export function ClassEnrollmentSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="!w-full sm:!max-w-[700px] max-h-screen p-0 flex flex-col overflow-hidden">
         <SheetHeader className="p-6 border-b shrink-0">
-          <SheetTitle>Ghi danh học viên vào lớp</SheetTitle>
+          <SheetTitle>Ghi danh học viên vào lớp/gói</SheetTitle>
           <SheetDescription>
-            Chọn lớp và học viên để tạo bản ghi danh thủ công. Thường dùng cho trường hợp đăng ký
+            Chọn lớp/gói và học viên để tạo bản ghi danh thủ công. Thường dùng cho trường hợp đăng ký
             offline hoặc ưu đãi đặc biệt.
           </SheetDescription>
         </SheetHeader>
@@ -38,6 +40,7 @@ export function ClassEnrollmentSheet({
             <EnrollmentForm
               mode="create"
               defaultClassId={classId}
+              defaultVodPackageId={vodPackageId}
               onSubmit={onSubmit}
               onCancel={() => onOpenChange(false)}
               submitting={submitting}

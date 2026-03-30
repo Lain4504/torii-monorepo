@@ -21,24 +21,27 @@ import {
 } from '@workspace/ui/components/dialog'
 import { Input } from '@workspace/ui/components/input'
 import { useAcademyLiveClass } from '@/lib/api/services/academy-live-classes'
+import { useAcademyVodPackage } from '@/lib/api/services/academy-vod-packages'
 
 interface ClassDiscussionTabProps {
-  classId: string
+  classId?: string
+  vodPackageId?: string
 }
 
 function getTopicTitle(content: string) {
   return (content || '').split('\n')[0]?.trim() || 'Không có tiêu đề'
 }
 
-export function ClassDiscussionTab({ classId }: ClassDiscussionTabProps) {
+export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTabProps) {
   const { user, isAuthenticated } = useAuth()
   const createComment = useCreateComment()
 
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null)
   const [replyDraftByTopic, setReplyDraftByTopic] = useState<Record<string, string>>({})
 
-  const { data: academyClass } = useAcademyLiveClass(classId)
-  const curriculum = (academyClass as any)?.cohort?.courseProfile
+  const { data: academyClass } = useAcademyLiveClass(classId || undefined)
+  const { data: vodPackage } = useAcademyVodPackage(vodPackageId || undefined)
+  const curriculum = (academyClass as any)?.cohort?.courseProfile || (vodPackage as any)?.courseProfile
 
   const lessonOptions = useMemo(() => {
     const modules = (curriculum?.modules ?? []) as Array<any>

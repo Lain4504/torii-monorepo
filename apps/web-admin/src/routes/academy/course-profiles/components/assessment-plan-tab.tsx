@@ -3,15 +3,15 @@ import { useAcademyAssessmentPlan, useUpdateAcademyAssessmentPlan } from "@/lib/
 import { useAcademyExams } from "@/lib/api/services/academy-exams"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@workspace/ui/components/select"
 import { Checkbox } from "@workspace/ui/components/checkbox"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@workspace/ui/components/table"
 import { Plus, Trash2, GripVertical, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
@@ -64,7 +64,15 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
 
   const updateItem = (index: number, field: string, value: any) => {
     const newItems = [...items]
-    newItems[index] = { ...newItems[index], [field]: value }
+    let updatedItem = { ...newItems[index], [field]: value }
+
+    // If changing to FINAL_EXAM, clear module/lesson associations
+    if (field === "assessmentKind" && value === AcademyAssessmentKind.FINAL_EXAM) {
+      updatedItem.moduleId = undefined
+      updatedItem.triggerLessonId = undefined
+    }
+
+    newItems[index] = updatedItem
     setItems(newItems)
   }
 
@@ -90,7 +98,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
           <div>
             <CardTitle>Kế hoạch đánh giá (Milestones)</CardTitle>
             <CardDescription>
-                Thiết lập các bài thi/kiểm tra bắt buộc học viên phải vượt qua để tiếp tục tiến độ.
+              Thiết lập các bài thi/kiểm tra bắt buộc học viên phải vượt qua để tiếp tục tiến độ.
             </CardDescription>
           </div>
           <Button onClick={addItem} size="sm">
@@ -101,7 +109,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
         <CardContent>
           {items.length === 0 ? (
             <div className="text-center py-10 border-2 border-dashed rounded-lg text-slate-400">
-                Chưa có mốc đánh giá nào được thiết lập.
+              Chưa có mốc đánh giá nào được thiết lập.
             </div>
           ) : (
             <Table>
@@ -120,8 +128,8 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                   <TableRow key={index}>
                     <TableCell><GripVertical className="text-slate-300 w-4 h-4 cursor-grab" /></TableCell>
                     <TableCell>
-                      <Select 
-                        value={item.examId} 
+                      <Select
+                        value={item.examId}
                         onValueChange={(v) => updateItem(index, "examId", v)}
                       >
                         <SelectTrigger>
@@ -135,8 +143,8 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                       </Select>
                     </TableCell>
                     <TableCell>
-                      <Select 
-                        value={item.assessmentKind} 
+                      <Select
+                        value={item.assessmentKind}
                         onValueChange={(v) => updateItem(index, "assessmentKind", v)}
                       >
                         <SelectTrigger>
@@ -151,22 +159,29 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                     </TableCell>
                     <TableCell>
                       {item.assessmentKind === AcademyAssessmentKind.LESSON_CHECKPOINT ? (
-                        <Select 
-                          value={item.triggerLessonId || ""} 
+                        <Select
+                          value={item.triggerLessonId || ""}
                           onValueChange={(v) => updateItem(index, "triggerLessonId", v)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Chọn bài học..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {modules.flatMap(m => m.lessons || []).map(l => (
-                                <SelectItem key={l.id} value={l.id}>{l.title}</SelectItem>
+                            {modules.map(m => (
+                              <SelectGroup key={m.id}>
+                                <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>
+                                {(m.lessons || []).map((l: any) => (
+                                  <SelectItem key={l.id} value={l.id} className="pl-6">
+                                    {l.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : item.assessmentKind === AcademyAssessmentKind.MODULE_CHECKPOINT ? (
-                        <Select 
-                          value={item.moduleId || ""} 
+                        <Select
+                          value={item.moduleId || ""}
                           onValueChange={(v) => updateItem(index, "moduleId", v)}
                         >
                           <SelectTrigger>
@@ -174,7 +189,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                           </SelectTrigger>
                           <SelectContent>
                             {modules.map(m => (
-                                <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>
+                              <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -183,10 +198,10 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                       )}
                     </TableCell>
                     <TableCell>
-                       <Checkbox 
-                         checked={item.isRequired} 
-                         onCheckedChange={(v) => updateItem(index, "isRequired", !!v)}
-                       />
+                      <Checkbox
+                        checked={item.isRequired}
+                        onCheckedChange={(v) => updateItem(index, "isRequired", !!v)}
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" className="text-red-500" onClick={() => removeItem(index)}>
@@ -200,13 +215,13 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
           )}
 
           <div className="mt-6 flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
-                <AlertTriangle className="w-4 h-4" />
-                <span>Các mốc "Bắt buộc" sẽ chặn tiến độ học tập của luồng VOD Package cho đến khi hoàn thành.</span>
-             </div>
-             <Button onClick={handleSave} disabled={updateMutation.isPending}>
-                Lưu kế hoạch đánh giá
-             </Button>
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Các mốc "Bắt buộc" sẽ chặn tiến độ học tập của luồng VOD Package cho đến khi hoàn thành.</span>
+            </div>
+            <Button onClick={handleSave} disabled={updateMutation.isPending}>
+              Lưu kế hoạch đánh giá
+            </Button>
           </div>
         </CardContent>
       </Card>

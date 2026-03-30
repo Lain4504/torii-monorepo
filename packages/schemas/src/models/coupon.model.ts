@@ -4,17 +4,17 @@ import { z } from 'zod';
  * Coupon Status Enum
  */
 export enum CouponStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  EXPIRED = 'expired',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  EXPIRED = 'EXPIRED',
 }
 
 /**
  * Coupon Discount Type Enum
  */
 export enum CouponDiscountType {
-  PERCENTAGE = 'percentage',
-  FIXED_AMOUNT = 'fixed_amount',
+  PERCENTAGE = 'PERCENTAGE',
+  FIXED_AMOUNT = 'FIXED_AMOUNT',
 }
 
 /**
