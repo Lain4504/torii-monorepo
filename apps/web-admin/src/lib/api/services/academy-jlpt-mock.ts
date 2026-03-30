@@ -154,9 +154,12 @@ export const academyJlptMockApi = {
   },
 
   async createTemplate(data: any) {
+    const { levelCode, ...rest } = data;
+    const level = (typeof data.level === 'string' && data.level) || (typeof levelCode === 'string' ? levelCode : undefined);
+    const body = { ...rest, ...(level ? { level } : {}) };
     const res = await apiClient.post<StandardApiResponse<{ item: JlptMockTemplate }>>(
       "/api/academy/jlpt-mock/admin/templates",
-      data
+      body
     );
     return res.data.data?.item;
   },
@@ -173,6 +176,13 @@ export const academyJlptMockApi = {
     const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/jlpt-mock/admin/templates/${templateId}/attach-questions`,
       { items }
+    );
+    return res.data.data?.ok;
+  },
+
+  async deleteTemplateQuestion(id: string) {
+    const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/jlpt-mock/admin/templates/questions/${id}`
     );
     return res.data.data?.ok;
   },

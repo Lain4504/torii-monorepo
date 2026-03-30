@@ -6,6 +6,7 @@ import {
   Plus,
   Edit2,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@workspace/ui/components/button";
@@ -26,6 +27,13 @@ import {
   EmptyTitle,
   EmptyDescription,
 } from "@workspace/ui/components/empty";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@workspace/ui/components/sheet";
 import { PageHeader } from "@/components/common/page-header";
 import {
   JlptQuestionsToolbar,
@@ -37,6 +45,7 @@ import {
   type JlptMondaiOption,
 } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
+import { JlptQuestionForm } from "@/components/academy/jlpt/jlpt-question-form";
 import { SmartPagination } from "@/components/common/smart-pagination";
 import { toast } from "sonner";
 
@@ -56,6 +65,11 @@ export default function JlptQuestionsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+
+  // Sheet states
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState<JlptBankQuestion | null>(null);
+  const [isFetchingQuestion, setIsFetchingQuestion] = useState(false);
 
 
   const prevFilters = useRef({
@@ -160,6 +174,36 @@ export default function JlptQuestionsPage() {
     }
   };
 
+  const handleOpenSheet = async (questionId?: string) => {
+    if (questionId) {
+      try {
+        setIsFetchingQuestion(true);
+        setIsSheetOpen(true);
+        const q = await academyJlptMockApi.findBankQuestionById(questionId);
+        if (q) {
+          setCurrentQuestion(q);
+        } else {
+          toast.error("Không tìm thấy câu hỏi");
+          setIsSheetOpen(false);
+        }
+      } catch {
+        toast.error("Lỗi khi tải dữ liệu câu hỏi");
+        setIsSheetOpen(false);
+      } finally {
+        setIsFetchingQuestion(false);
+      }
+    } else {
+      setCurrentQuestion(null);
+      setIsSheetOpen(true);
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setIsSheetOpen(false);
+    setCurrentQuestion(null);
+    void fetchQuestions();
+  };
+
   const questionsBySection = useMemo(() => {
     const map = new Map<string, JlptBankQuestion[]>();
     for (const q of questions) {
@@ -184,7 +228,7 @@ export default function JlptQuestionsPage() {
         title="Ngân hàng Câu hỏi JLPT"
         subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe."
         actions={
-          <Button onClick={() => navigate("/academy/jlpt/questions/new")}>
+          <Button onClick={() => handleOpenSheet()}>
             <Plus className="mr-2 h-4 w-4" />
             Thêm câu hỏi
           </Button>
@@ -333,7 +377,7 @@ export default function JlptQuestionsPage() {
                                 variant="ghost"
                                 size="icon"
                                 className="size-8 text-slate-500 hover:text-sky-600 hover:bg-sky-50"
-                                onClick={() => navigate(`/academy/jlpt/questions/${q.id}`)}
+                                onClick={() => handleOpenSheet(q.id)}
                               >
                                 <Edit2 className="size-4" />
                               </Button>
@@ -365,6 +409,33 @@ export default function JlptQuestionsPage() {
           itemName="câu hỏi"
         />
       </div>
+
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetContent className="w-full sm:!w-[70vw] sm:!max-w-none overflow-y-auto p-0 border-l shadow-2xl">
+          <SheetHeader className="p-8 border-b sticky top-0 bg-background/95 backdrop-blur-md z-20">
+             <SheetTitle>{currentQuestion ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}</SheetTitle>
+             <SheetDescription>
+               Hoàn thiện thông tin bên dưới để lưu câu hỏi vào ngân hàng.
+             </SheetDescription>
+          </SheetHeader>
+          <div className="p-8 pb-12">
+            {isFetchingQuestion ? (
+               <div className="flex flex-col items-center justify-center py-20 gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
+               </div>
+            ) : (
+              <JlptQuestionForm
+                initialData={currentQuestion}
+                onSuccess={handleFormSuccess}
+                onCancel={() => setIsSheetOpen(false)}
+                presetLevelCode={level !== "all" ? level : undefined}
+                presetSectionCode={section !== "all" ? section : undefined}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
