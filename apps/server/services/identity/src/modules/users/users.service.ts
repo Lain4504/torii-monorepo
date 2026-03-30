@@ -198,7 +198,8 @@ export class UsersService implements IUsersService {
    * Find user by email
    */
   async findByEmail(email: string): Promise<UserResponseDTO> {
-    const user = await this.usersRepository.findByEmail(email);
+    const normalizedEmail = email.toLowerCase();
+    const user = await this.usersRepository.findByEmail(normalizedEmail);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -224,9 +225,10 @@ export class UsersService implements IUsersService {
 
     // Create user (Firebase handles password authentication)
     const newId = uuidv4();
+    const email = dto.email.toLowerCase();
     const user = await this.usersRepository.create({
       id: newId,
-      email: dto.email,
+      email,
       displayName: dto.displayName,
       role: dto.role || UserRole.LEARNER,
       password: dto.password || null,
@@ -261,11 +263,13 @@ export class UsersService implements IUsersService {
     // Hash password using Argon2
     const hashedPassword = await argon2.hash(randomPassword);
 
+    const email = dto.email.toLowerCase();
+
     // Create user with hashed password and auto-verify email
     const newId = uuidv4();
     const user = await this.usersRepository.create({
       id: newId,
-      email: dto.email,
+      email,
       displayName: dto.displayName,
       role: dto.role,
       password: hashedPassword, // Store hashed password

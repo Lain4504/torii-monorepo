@@ -107,6 +107,25 @@ export function TranslatorView() {
         setTargetText(sourceText)
     }
 
+    const handleSpeak = (text: string, lang: string) => {
+        if (!text) return
+        
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel()
+        
+        const utterance = new SpeechSynthesisUtterance(text)
+        
+        // Map language codes to supported speech synthesis locales
+        const langMap: Record<string, string> = {
+            'ja': 'ja-JP',
+            'vi': 'vi-VN',
+            'en': 'en-US'
+        }
+        
+        utterance.lang = langMap[lang] || lang
+        window.speechSynthesis.speak(utterance)
+    }
+
     return (
         <div className="w-full space-y-6">
             {/* Language Selector Bar */}
@@ -161,7 +180,15 @@ export function TranslatorView() {
                         </div>
                         <div className="p-4 border-t bg-muted/20 flex items-center justify-between shrink-0">
                             <div className="flex gap-1">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Volume2 className="size-4" /></Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-muted-foreground"
+                                    onClick={() => handleSpeak(sourceText, sourceLang)}
+                                    disabled={!sourceText}
+                                >
+                                    <Volume2 className="size-4" />
+                                </Button>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className={cn(
@@ -195,7 +222,15 @@ export function TranslatorView() {
                         <div className="p-4 border-t border-border/30 flex items-center justify-between shrink-0">
                             <div className="flex gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigator.clipboard.writeText(targetText)} disabled={!targetText}><Copy className="size-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" disabled={!targetText}><Volume2 className="size-4" /></Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-muted-foreground" 
+                                    onClick={() => handleSpeak(targetText, targetLang)}
+                                    disabled={!targetText}
+                                >
+                                    <Volume2 className="size-4" />
+                                </Button>
                             </div>
 
                         </div>

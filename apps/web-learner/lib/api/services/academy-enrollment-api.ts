@@ -53,10 +53,12 @@ export const academyEnrollmentApi = {
     /**
      * Check if a recipient is eligible for a gift (registered but not enrolled)
      */
-    async checkGiftRecipient(_recipientEmail: string, _courseId: string): Promise<{ isEnrolled: boolean; isRegistered: boolean }> {
-        // This endpoint might need to be implemented on the backend
-        // For now, we'll return a default response to support the UI
-        return { isEnrolled: false, isRegistered: true };
+    async checkGiftRecipient(recipientEmail: string, courseId: string): Promise<{ isEnrolled: boolean; isRegistered: boolean; recipientName?: string }> {
+        const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; isRegistered: boolean; recipientName?: string }>>(
+            '/api/academy/enrollments/check-gift-recipient',
+            { params: { recipientEmail, courseId } }
+        );
+        return response.data.data!;
     },
 };
 

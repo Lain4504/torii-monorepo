@@ -143,8 +143,9 @@ export class AuthService implements IAuthService {
    * Register a new user
    */
   async register(dto: UserRegistrationDTO): Promise<UserResponseDTO> {
+    const email = dto.email.toLowerCase();
     // Check if email already exists
-    const existingUser = await this.usersRepository.findByEmail(dto.email);
+    const existingUser = await this.usersRepository.findByEmail(email);
 
     if (existingUser) {
       throw new ConflictException('Email already exists');
@@ -166,7 +167,7 @@ export class AuthService implements IAuthService {
 
     // Create user
     const fullUser = await this.usersRepository.create({
-      email: dto.email,
+      email,
       password: hashedPassword,
       displayName,
       role: UserRole.LEARNER,
@@ -237,8 +238,9 @@ export class AuthService implements IAuthService {
    * Now supports 2FA - returns requiresTwoFactor if 2FA is enabled
    */
   async login(dto: UserLoginDTO): Promise<LoginResponse> {
-    const user = await this.usersRepository.findByEmail(dto.email);
-    const result = await this.processLoginFlow(user, dto);
+    const email = dto.email.toLowerCase();
+    const user = await this.usersRepository.findByEmail(email);
+    const result = await this.processLoginFlow(user, { ...dto, email });
 
     // Emit activity if login complete (not requiring 2FA)
     if (!result.requiresTwoFactor && user) {
@@ -253,7 +255,8 @@ export class AuthService implements IAuthService {
    * Rejects users with LEARNER role even with valid credentials
    */
   async adminLogin(dto: UserLoginDTO): Promise<LoginResponse> {
-    const user = await this.usersRepository.findByEmail(dto.email);
+    const email = dto.email.toLowerCase();
+    const user = await this.usersRepository.findByEmail(email);
 
     if (user) {
       const { permissions } =
@@ -269,7 +272,7 @@ export class AuthService implements IAuthService {
       }
     }
 
-    return this.processLoginFlow(user, dto);
+    return this.processLoginFlow(user, { ...dto, email });
   }
 
   /**
@@ -530,7 +533,8 @@ export class AuthService implements IAuthService {
    * Generate token for email verification
    * Returns the token to be used in verification URL
    */
-  async generateVerificationToken(email: string): Promise<string> {
+  async generateVerificationToken(emailRaw: string): Promise<string> {
+    const email = emailRaw.toLowerCase();
     // Generate secure random token (32 bytes = 64 hex chars)
     const crypto = await import('crypto');
     const token = crypto.randomBytes(32).toString('hex');
@@ -566,7 +570,8 @@ export class AuthService implements IAuthService {
    * Resend verification email with magic link
    * Rate limited: 3 requests per hour per email
    */
-  async resendVerification(email: string): Promise<void> {
+  async resendVerification(emailRaw: string): Promise<void> {
+    const email = emailRaw.toLowerCase();
     const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
@@ -628,7 +633,8 @@ export class AuthService implements IAuthService {
    * Rate limited: 3 requests per hour per email
    */
   async forgotPassword(dto: ForgotPasswordDTO): Promise<void> {
-    const { email, platform } = dto;
+    const { email: emailRaw, platform } = dto;
+    const email = emailRaw.toLowerCase();
     const user = await this.usersRepository.findByEmail(email);
 
     // Don't reveal if user exists or not (security best practice)
@@ -1076,6 +1082,7 @@ export class AuthService implements IAuthService {
   async registerWithGoogle(idToken: string): Promise<AuthResponse> {
     // Verify Google ID token
     const googleUser = await this.googleAuthService.verifyIdToken(idToken);
+    googleUser.email = googleUser.email.toLowerCase();
 
     // Check if user exists by Google provider ID
     const existingIdentity = await this.userIdentityRepository.findByProvider(
@@ -1328,6 +1335,7 @@ export class AuthService implements IAuthService {
     // Verify Facebook access token
     const facebookUser =
       await this.facebookAuthService.verifyAccessToken(accessToken);
+    facebookUser.email = facebookUser.email?.toLowerCase();
 
     // Check if user exists by Facebook provider ID
     const existingIdentity = await this.userIdentityRepository.findByProvider(

@@ -1,4 +1,5 @@
 import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import {
   BadRequestException,
   Inject,
@@ -518,7 +519,43 @@ export class EnrollmentService {
       description: `Deleted enrollment for user ${enrollment.userId}`,
       metadata: { userId: enrollment.userId, liveClassId: enrollment.liveClassId, vodPackageId: enrollment.vodPackageId },
     });
-
     return { ok: true };
+  }
+
+  async checkGiftRecipient(recipientEmail: string, targetId: string) {
+    // 1. Check if user exists
+    let user: any = null;
+    try {
+      const response = await firstValueFrom<{ user: any }>(
+        this.nats.send({ cmd: 'identity.users.findByEmail' }, { email: recipientEmail }),
+      );
+      user = response?.user;
+    } catch (err) {
+      this.logger.error(`Failed to find user by email ${recipientEmail}: ${err.message}`);
+    }
+
+    if (!user) {
+      return { isRegistered: false, isEnrolled: false };
+    }
+
+    // 2. Check if already enrolled in the specific course/cohort
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: {
+        userId: user.id,
+        OR: [
+          { liveClassId: targetId },
+          { vodPackageId: targetId },
+          { liveClass: { cohortId: targetId } },
+        ],
+        status: { in: ['ACTIVE', 'COMPLETED'] },
+      },
+    });
+
+    return {
+      isRegistered: true,
+      isEnrolled: !!enrollment,
+      recipientName: user.displayName,
+      recipientId: user.id,
+    };
   }
 }

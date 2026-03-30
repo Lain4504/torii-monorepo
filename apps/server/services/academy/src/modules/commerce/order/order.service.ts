@@ -212,6 +212,7 @@ export class OrderService {
         couponCode: input.couponCode,
         couponId: preview.couponId,
         paymentMethod: input.paymentMethod,
+        metadata: input.metadata || {},
         items: { create: orderItemsData },
       },
       include: { items: true },
@@ -272,6 +273,7 @@ export class OrderService {
         where: { id: order.id },
         data: {
           metadata: {
+            ...(order.metadata as any),
             paymentLinkId: paymentLink.paymentLinkId,
             numericOrderCode,
             checkoutUrl: paymentLink.checkoutUrl,
@@ -549,16 +551,17 @@ export class OrderService {
   ): Promise<string> {
     const md = metadata ?? {};
     if (md.isGift && md.recipientEmail) {
+      const recipientEmail = md.recipientEmail.toLowerCase();
       try {
         const response = await firstValueFrom<{ user: { id: string } }>(
           this.natsClient.send(
             { cmd: 'identity.users.findByEmail' },
-            { email: md.recipientEmail },
+            { email: recipientEmail },
           ),
         );
         if (response?.user?.id) return response.user.id;
         throw new BadRequestException(
-          `Không tìm thấy người nhận với email ${md.recipientEmail}`,
+          `Không tìm thấy người nhận với email ${recipientEmail}`,
         );
       } catch (err: any) {
         this.logger.error(`Failed to resolve gift recipient: ${err.message}`);
