@@ -28,16 +28,17 @@ function parseArgs(argv: string[]) {
 async function main() {
   const args = parseArgs(process.argv);
   const templateId = args.templateId ?? '625ac154-38b5-493b-9fcf-a10649fbe0ec';
-  const inputPath = args.input ?? '../../dataset/n1/n1_seed_combined.json';
+  const inputPath = args.input ?? '../../dataset/n1/part1.json';
 
   const combined = JSON.parse(readFileSync(resolve(process.cwd(), inputPath), 'utf-8')) as any;
   const sections = (combined.sections ?? []) as Array<{
-    code: string;
+    code?: string;
+    sectionCode?: string;
     durationMinutes?: number;
   }>;
 
-  const grammar = sections.find((s) => s.code === 'LANGUAGE_GRAMMAR_READING');
-  const listening = sections.find((s) => s.code === 'LISTENING');
+  const grammar = sections.find((s) => (s.code ?? s.sectionCode) === 'LANGUAGE_GRAMMAR_READING');
+  const listening = sections.find((s) => (s.code ?? s.sectionCode) === 'LISTENING');
 
   let grammarDuration = Number(grammar?.durationMinutes ?? 110);
   let listeningDuration = Number(listening?.durationMinutes ?? 55);
