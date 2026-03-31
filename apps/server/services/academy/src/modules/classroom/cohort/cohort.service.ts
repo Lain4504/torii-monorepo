@@ -16,11 +16,22 @@ export class CohortService {
     if (query.status) and.push({ status: query.status });
 
     if (query.onlyAvailable) {
+      const now = new Date();
       and.push({
         status: { notIn: ['DRAFT', 'PENDING_APPROVAL', 'COMPLETED', 'ARCHIVED'] },
-        OR: [
-          { enrollmentCloseAt: null },
-          { enrollmentCloseAt: { gte: new Date() } },
+        AND: [
+          {
+            OR: [
+              { enrollmentOpenAt: null },
+              { enrollmentOpenAt: { lte: now } },
+            ],
+          },
+          {
+            OR: [
+              { enrollmentCloseAt: null },
+              { enrollmentCloseAt: { gte: now } },
+            ],
+          },
         ],
       });
     }

@@ -21,9 +21,8 @@ interface ClassInfoTabProps {
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Bản nháp",
   OPENING: "Đang tuyển sinh",
-  ONGOING: "Đang diễn ra",
+  IN_PROGRESS: "Đang diễn ra",
   COMPLETED: "Đã hoàn thành",
-  CANCELLED: "Đã hủy",
   ARCHIVED: "Lưu trữ",
 }
 

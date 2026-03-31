@@ -104,8 +104,8 @@ export function EnrollmentForm({
                 status: initial?.status ?? 'ACTIVE',
             }
             : {
-                liveClassId: defaultClassId ?? "",
-                vodPackageId: defaultVodPackageId ?? "",
+                liveClassId: defaultClassId || undefined,
+                vodPackageId: defaultVodPackageId || undefined,
                 userId: "",
                 status: "ACTIVE",
             }) as any,

@@ -84,8 +84,8 @@ export default function LiveClassesPage() {
         const map: Record<string, string> = {
             DRAFT: "Bản nháp",
             OPENING: "Đang tuyển sinh",
+            IN_PROGRESS: "Đang diễn ra",
             COMPLETED: "Đã hoàn thành",
-            CANCELLED: "Đã hủy",
             ARCHIVED: "Lưu trữ",
         };
         return map[status] ?? status;
@@ -99,8 +99,8 @@ export default function LiveClassesPage() {
     const liveStatuses = [
         { value: 'DRAFT', label: 'Bản nháp' },
         { value: 'OPENING', label: 'Đang tuyển sinh' },
+        { value: 'IN_PROGRESS', label: 'Đang diễn ra' },
         { value: 'COMPLETED', label: 'Đã hoàn thành' },
-        { value: 'CANCELLED', label: 'Đã hủy' },
         { value: 'ARCHIVED', label: 'Lưu trữ' },
     ];
 
@@ -233,8 +233,8 @@ export default function LiveClassesPage() {
                                             >
                                                 {cls.status === 'ARCHIVED' ? (
                                                     <Badge variant="destructive" className="bg-orange-500/10 text-orange-600 border-none cursor-pointer">Đã lưu trữ</Badge>
-                                                ) : cls.status === 'CANCELLED' ? (
-                                                    <Badge variant="destructive" className="bg-red-500/10 text-red-600 border-none cursor-pointer">Đã hủy</Badge>
+                                                ) : cls.status === 'IN_PROGRESS' ? (
+                                                    <Badge variant="default" className="bg-blue-500/10 text-blue-600 border-none cursor-pointer">Đang diễn ra</Badge>
                                                 ) : cls.status === 'OPENING' ? (
                                                     <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 border-none cursor-pointer">Đang tuyển sinh</Badge>
                                                 ) : cls.status === 'DRAFT' ? (
@@ -315,6 +315,8 @@ export default function LiveClassesPage() {
                                 <Badge variant="secondary">Bản nháp</Badge>
                                 <span className="text-muted-foreground">→</span>
                                 <Badge variant="secondary">Đang tuyển sinh</Badge>
+                                <span className="text-muted-foreground">→</span>
+                                <Badge variant="secondary">Đang diễn ra</Badge>
                                 <span className="text-muted-foreground">→</span>
                                 <Badge variant="secondary">Đã hoàn thành</Badge>
                                 <span className="text-muted-foreground">→</span>

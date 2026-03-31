@@ -253,7 +253,10 @@ export class BlogService implements IBlogService {
 
     // Check if scheduled
     const isScheduled = blog.status === BlogStatus.SCHEDULED;
-    if (isScheduled && !showScheduled) {
+    const isFutureScheduled = isScheduled && (!blog.publishedAt || new Date(blog.publishedAt) > new Date());
+    
+    // Block if it is a future scheduled post and not requesting to show it
+    if (isFutureScheduled && !showScheduled) {
       throw new NotFoundException(`Blog with id "${id}" not found`);
     }
 
@@ -272,7 +275,8 @@ export class BlogService implements IBlogService {
 
     // Check if scheduled (don't count views for scheduled posts if public)
     const isScheduled = blog.status === BlogStatus.SCHEDULED;
-    if (isScheduled) return;
+    const isFutureScheduled = isScheduled && (!blog.publishedAt || new Date(blog.publishedAt) > new Date());
+    if (isFutureScheduled) return;
 
     // IP Throttling: 1 view per IP per blog every 5 seconds
     if (ip && ip !== 'unknown') {
@@ -301,7 +305,10 @@ export class BlogService implements IBlogService {
 
     // Check if scheduled
     const isScheduled = blog.status === BlogStatus.SCHEDULED;
-    if (isScheduled && !showScheduled) {
+    const isFutureScheduled = isScheduled && (!blog.publishedAt || new Date(blog.publishedAt) > new Date());
+    
+    // Block if it is a future scheduled post and not requesting to show it
+    if (isFutureScheduled && !showScheduled) {
       throw new NotFoundException(`Blog with slug "${slug}" not found`);
     }
 

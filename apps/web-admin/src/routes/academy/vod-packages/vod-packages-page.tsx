@@ -154,7 +154,22 @@ export default function VodPackagesPage() {
                                         <TableCell className="font-mono text-xs font-bold text-primary">{pkg.code}</TableCell>
                                         <TableCell className="font-semibold text-sm">{pkg.title}</TableCell>
                                         <TableCell>
-                                            <span className="font-bold text-sm tracking-tight">{Number(pkg.price).toLocaleString()}₫</span>
+                                            <div className="flex flex-col">
+                                                {pkg.discountPrice ? (
+                                                    <>
+                                                        <span className="font-bold text-sm tracking-tight text-primary">
+                                                            {Number(pkg.discountPrice).toLocaleString()}₫
+                                                        </span>
+                                                        <span className="text-[10px] text-muted-foreground line-through opacity-70">
+                                                            {Number(pkg.price).toLocaleString()}₫
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="font-bold text-sm tracking-tight">
+                                                        {Number(pkg.price).toLocaleString()}₫
+                                                    </span>
+                                                )}
+                                            </div>
                                         </TableCell>
                                         <TableCell>
                                             {pkg.status === 'ARCHIVED' ? (
@@ -177,7 +192,7 @@ export default function VodPackagesPage() {
                                                 >
                                                     <Eye className="size-3.5" /> Chi tiết
                                                 </Button>
-                                                {(pkg.status === 'DRAFT' || pkg.status === 'PENDING_APPROVAL') && (
+                                                {pkg.status === 'DRAFT' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"

@@ -163,10 +163,10 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                           value={item.triggerLessonId || ""}
                           onValueChange={(v) => updateItem(index, "triggerLessonId", v)}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full min-w-[200px]">
                             <SelectValue placeholder="Chọn bài học..." />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent position="popper" className="max-h-[400px]">
                             {modules.map(m => (
                               <SelectGroup key={m.id}>
                                 <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>

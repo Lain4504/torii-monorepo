@@ -150,9 +150,9 @@ enum CohortStatus {
 
 enum LiveClassStatus {
   DRAFT
-  OPENING
+  OPENING      // Đang tuyển sinh
+  IN_PROGRESS  // Đang diễn ra (đóng đăng ký, đang học)
   COMPLETED
-  CANCELLED
   ARCHIVED
 }
 
