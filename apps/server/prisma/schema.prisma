@@ -2115,6 +2115,7 @@ model AcademyQuestion {
   stem         String                      @db.Text
   explanation  String?                     @db.Text
   difficulty   String?                     @db.VarChar(50)
+  level        String?                     @db.VarChar(10)
   metadata     Json?                       @default("{}") @db.JsonB
   reviewStatus AcademyQuestionReviewStatus @default(DRAFT) @map("review_status")
   reviewedBy   String?                     @map("reviewed_by") @db.Uuid

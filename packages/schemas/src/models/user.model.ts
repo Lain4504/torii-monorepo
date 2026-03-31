@@ -46,6 +46,7 @@ export const userSchema = z.object({
     linkedMethods: z.array(z.string()).optional(),
     isOnboarded: z.boolean().optional(),
     walletBalance: z.coerce.number().optional().default(0),
+    points: z.number().optional().default(0),
     onboardingSurvey: z.record(z.any()).optional().nullable(),
 });
 

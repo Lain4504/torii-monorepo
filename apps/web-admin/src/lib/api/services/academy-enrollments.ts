@@ -18,6 +18,8 @@ export type AcademyEnrollment = {
     sourceOrderId?: string | null
     companyId?: string | null
     metadata?: any
+    courseTitle?: string
+    courseCode?: string
     user?: {
         id: string
         displayName: string
