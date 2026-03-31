@@ -211,6 +211,7 @@ export class UsersRepository implements IUsersRepository {
           select: {
             totalXp: true,
             level: true,
+            points: true,
           },
         },
       },
@@ -232,6 +233,7 @@ export class UsersRepository implements IUsersRepository {
     return {
       ...user,
       userMetadata,
+      points: user.gamification?.points || 0,
     } as any;
   }
 
