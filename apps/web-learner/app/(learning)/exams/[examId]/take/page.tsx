@@ -353,6 +353,10 @@ export default function TakeExamPage() {
     }
 
     const currentQuestion = questions[currentQuestionIndex]
+    const answeredCount = Object.keys(answers).length
+    const totalCount = questions.length
+    const flaggedCount = flags.size
+    const progressPercentage = Math.round((answeredCount / totalCount) * 100)
 
     return (
         <div className="flex flex-col h-screen overflow-hidden bg-background">
@@ -453,31 +457,67 @@ export default function TakeExamPage() {
 
             {/* Confirmation Dialog */}
             <AlertDialog open={showConfirmSubmit} onOpenChange={setShowConfirmSubmit}>
-                <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden border-none bg-transparent shadow-none">
-                    <div className="bg-background border rounded-[2rem] overflow-hidden shadow-2xl">
-                        <div className="p-8 text-center space-y-6">
-                            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                                <AlertCircle className="w-8 h-8 text-primary" />
+                <AlertDialogContent className="max-w-[440px] p-0 overflow-hidden border-none bg-transparent shadow-none">
+                    <div className="bg-background border-2 border-border/50 rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)]">
+                        {/* Decorative Background */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -z-10" />
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl -z-10" />
+
+                        <div className="p-8 sm:p-10 text-center space-y-8 relative z-10">
+                            {/* Icon with Gradient Background */}
+                            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent rounded-[2rem] flex items-center justify-center relative group">
+                                <AlertCircle className="w-10 h-10 text-primary animate-pulse" />
+                                <div className="absolute inset-0 rounded-[2rem] border-2 border-primary/20 scale-110 group-hover:scale-125 transition-transform duration-500 opacity-50" />
                             </div>
 
-                            <div className="space-y-2">
-                                <AlertDialogTitle className="text-2xl font-bold tracking-tight">
-                                    Xác nhận nộp bài
+                            <div className="space-y-3">
+                                <AlertDialogTitle className="text-3xl font-black tracking-tight text-foreground">
+                                    Nộp bài quiz
                                 </AlertDialogTitle>
-                                <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
-                                    Bạn có chắc chắn muốn kết thúc bài thi này không? Hành động này không thể hoàn tác.
+                                <AlertDialogDescription className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[280px] mx-auto uppercase tracking-widest text-[10px]">
+                                    Hành động này không thể hoàn tác. Bạn có chắc chắn muốn kết thúc bài thi?
                                 </AlertDialogDescription>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 pt-2">
-                                <AlertDialogCancel className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] border-2 hover:bg-muted transition-all active:scale-95">
-                                    Hủy
+                            {/* Progress Summary Section */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-muted/50 rounded-2xl p-4 border border-border/50">
+                                    <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đã trả lời</p>
+                                    <p className="text-2xl font-black text-foreground">
+                                        {answeredCount}<span className="text-muted-foreground/40 font-bold ml-1 text-base">/ {totalCount}</span>
+                                    </p>
+                                    <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
+                                        <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+                                    </div>
+                                </div>
+                                <div className="bg-muted/50 rounded-2xl p-4 border border-border/50">
+                                    <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đang đánh dấu</p>
+                                    <p className="text-2xl font-black text-orange-500">
+                                        {flaggedCount}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-muted-foreground mt-1">Cần xem lại</p>
+                                </div>
+                            </div>
+
+                            {/* Warning Message */}
+                            {answeredCount < totalCount && (
+                                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-3 flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+                                    <AlertCircle className="w-5 h-5 text-orange-500 shrink-0" />
+                                    <p className="text-[10px] font-bold text-orange-600 text-left leading-tight">
+                                        Bạn vẫn còn {totalCount - answeredCount} câu hỏi chưa trả lời. Hãy cân nhắc trước khi nộp nhé!
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-4 pt-2">
+                                <AlertDialogCancel className="h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] border-2 border-border hover:bg-muted transition-all active:scale-95 shadow-sm">
+                                    Quay lại
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                     onClick={confirmSubmit}
-                                    className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
+                                    className="h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 transition-all active:scale-95"
                                 >
-                                    Nộp bài
+                                    Nộp bài ngay
                                 </AlertDialogAction>
                             </div>
                         </div>

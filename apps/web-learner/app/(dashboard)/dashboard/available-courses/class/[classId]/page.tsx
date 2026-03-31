@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
@@ -29,7 +30,8 @@ import {
   Star,
   Zap,
   ChevronRight,
-  GraduationCap
+  GraduationCap,
+  Gift
 } from 'lucide-react'
 import { formatNumber } from '@/utils/format-utils'
 import { useAppSelector } from '@/hooks/hooks'
@@ -44,6 +46,7 @@ export default function ClassCatalogDetailPage() {
   const searchParams = useSearchParams()
   const classId = params?.classId
   const modeParam = (searchParams.get('mode') || '').toUpperCase()
+  
   const mode = modeParam === 'LIVE' || modeParam === 'VOD' ? (modeParam as 'LIVE' | 'VOD') : undefined
   const { data: klass, isLoading } = useAcademyClassCatalogById(classId, mode)
   const { isAuthenticated } = useAppSelector((state) => state.auth)
@@ -122,6 +125,8 @@ export default function ClassCatalogDetailPage() {
   const instructorName = klass.instructor?.displayName || profile?.instructorName || "Torii Instructor";
 
   const ctaButton = (() => {
+    const giftHref = `${checkoutHref}${checkoutHref.includes('?') ? '&' : '?'}gift=true`
+
     if (isVOD) {
       if (enrollmentLoading) {
         return (
@@ -133,13 +138,41 @@ export default function ClassCatalogDetailPage() {
 
       if (isEnrolled) {
         return (
-          <Button className="w-full h-12 font-bold rounded-xl" size="lg" asChild>
-            <Link href={classId ? `/courses/${classId}/learn` : '#'}>
+          <div className="space-y-3">
+            <Button className="w-full h-12 font-bold rounded-xl" size="lg" asChild>
+              <Link href={classId ? `/courses/${classId}/learn` : '#'}>
+                Tiếp tục học <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button className="w-full h-12 font-bold rounded-xl border-primary text-primary hover:bg-primary/5" variant="outline" size="lg" asChild>
+              <Link href={giftHref}>
+                Tặng khóa học <Gift className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        )
+      }
+    }
+
+    if (isEnrolled) {
+      return (
+        <div className="space-y-3">
+          <Button
+            className="w-full h-12 font-bold rounded-xl text-md shadow-lg shadow-primary/20"
+            size="lg"
+            asChild
+          >
+            <Link href={checkoutHref.replace('checkout', 'courses').replace('?type=VOD', '/learn').replace('?type=LIVE', '/learn')}>
               Tiếp tục học <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-        )
-      }
+          <Button className="w-full h-12 font-bold rounded-xl border-primary text-primary hover:bg-primary/5" variant="outline" size="lg" asChild>
+            <Link href={giftHref}>
+              Tặng khóa học <Gift className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      )
     }
 
     return (
@@ -150,7 +183,7 @@ export default function ClassCatalogDetailPage() {
         data-requires-auth={!isAuthenticated ? 'true' : undefined}
       >
         <Link href={checkoutHref}>
-          {isEnrolled ? "Tiếp tục học" : isLIVE ? "Đăng ký học ngay" : "Mua khóa học"} 
+          {isLIVE ? "Đăng ký học ngay" : "Mua khóa học"} 
           <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>

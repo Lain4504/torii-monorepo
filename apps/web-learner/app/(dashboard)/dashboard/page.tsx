@@ -532,7 +532,6 @@ function AuthenticatedDashboardPage() {
                     <section className="bg-card p-5 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-base font-bold">Hoạt động gần đây</h3>
-                            <Link href="/dashboard/history" className="text-xs text-primary font-bold hover:underline">Xem tất cả</Link>
                         </div>
 
                         {recentHistory.length === 0 ? (

@@ -279,6 +279,7 @@ export class CommentService {
     }
 
     const where: any = {
+      id: { not: query.entityId },
       status: { not: 'deleted' },
       targets: {
         some: {

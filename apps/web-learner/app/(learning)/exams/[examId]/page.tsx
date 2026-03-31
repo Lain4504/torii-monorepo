@@ -22,6 +22,16 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 
 export default function ExamRunnerPage() {
   const { examId } = useParams() as { examId: string };
@@ -35,6 +45,8 @@ export default function ExamRunnerPage() {
   const submitMutation = useSubmitAcademyExamAttempt();
 
   const [attemptId, setAttemptId] = useState<string | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isReviewMode, setIsReviewMode] = useState(false);
 
   useEffect(() => {
     if (attemptIdFromQuery) {
@@ -109,13 +121,15 @@ export default function ExamRunnerPage() {
   }
 
   const handleSubmit = async () => {
-    if (confirm("Bạn có chắc chắn muốn nộp bài không?")) {
-      try {
-        await submitMutation.mutateAsync({ attemptId: attemptId! });
-        toast.success("Đã nộp bài thành công!");
-      } catch (error: any) {
-        toast.error("Không thể nộp bài: " + error.message);
-      }
+    setIsConfirmOpen(true);
+  }
+
+  const confirmSubmit = async () => {
+    try {
+      await submitMutation.mutateAsync({ attemptId: attemptId! });
+      toast.success("Đã nộp bài thành công!");
+    } catch (error: any) {
+      toast.error("Không thể nộp bài: " + error.message);
     }
   }
 
@@ -128,7 +142,7 @@ export default function ExamRunnerPage() {
     );
   }
 
-  if (attempt?.status === 'SUBMITTED') {
+  if (attempt?.status === 'SUBMITTED' && !isReviewMode) {
     return (
       <div className="max-w-4xl mx-auto py-12 px-6">
          <Card className="text-center overflow-hidden border-none shadow-xl">
@@ -162,6 +176,13 @@ export default function ExamRunnerPage() {
 
               <div className="flex justify-center gap-4 pt-4">
                  <Button variant="outline" onClick={() => router.back()}>Quay lại bài học</Button>
+                 <Button 
+                   className="bg-primary hover:bg-primary/90 text-white" 
+                   onClick={() => setIsReviewMode(true)}
+                 >
+                   <History className="w-4 h-4 mr-2" />
+                   Xem lại bài làm
+                 </Button>
                  {!attempt.isPassed && (
                     <Button onClick={() => setAttemptId(null)}>Thi lại</Button>
                  )}
@@ -208,10 +229,17 @@ export default function ExamRunnerPage() {
                    <span className="font-mono font-bold">{formatTime(timeLeft)}</span>
                 </div>
              )}
-             <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSubmit}>
-                <Send className="w-4 h-4 mr-2" />
-                Nộp bài
-             </Button>
+             {isReviewMode ? (
+                <Button variant="outline" onClick={() => setIsReviewMode(false)}>
+                   <X className="w-4 h-4 mr-2" />
+                   Thoát xem lại
+                </Button>
+             ) : (
+                <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSubmit}>
+                   <Send className="w-4 h-4 mr-2" />
+                   Nộp bài
+                </Button>
+             )}
           </div>
        </header>
 
@@ -233,12 +261,34 @@ export default function ExamRunnerPage() {
                         onValueChange={(v) => saveAnswer(question.id, v)}
                         className="space-y-3"
                       >
-                         {question.options?.map((opt: any) => (
-                            <div key={opt.optionKey} className={`flex items-center gap-3 p-4 border rounded-xl transition-all hover:bg-muted ${answers[question.id] === opt.optionKey ? 'border-primary bg-primary/5 ring-1 ring-primary/20' : 'bg-background'}`}>
-                               <RadioGroupItem value={opt.optionKey} id={opt.optionKey} />
-                               <Label htmlFor={opt.optionKey} className="flex-1 cursor-pointer font-medium">{opt.optionKey}. {opt.content}</Label>
-                            </div>
-                         ))}
+                          {question.options?.map((opt: any) => {
+                             const isSelected = answers[question.id] === opt.optionKey;
+                             const isCorrect = opt.isCorrect;
+                             
+                             let borderClass = "border-border bg-background";
+                             if (isReviewMode) {
+                                if (isCorrect) borderClass = "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-500/20";
+                                else if (isSelected) borderClass = "border-red-500 bg-red-50 dark:bg-red-900/20 ring-1 ring-red-500/20";
+                             } else if (isSelected) {
+                                borderClass = "border-primary bg-primary/5 ring-1 ring-primary/20";
+                             }
+
+                             return (
+                                <div key={opt.optionKey} className={`flex items-center gap-3 p-4 border rounded-xl transition-all ${!isReviewMode ? 'hover:bg-muted' : ''} ${borderClass}`}>
+                                   <RadioGroupItem value={opt.optionKey} id={opt.optionKey} disabled={isReviewMode} />
+                                   <Label htmlFor={opt.optionKey} className="flex-1 cursor-pointer font-medium flex items-center justify-between">
+                                      <span>{opt.optionKey}. {opt.content}</span>
+                                      {isReviewMode && (
+                                         <div className="flex items-center gap-2">
+                                            {isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                                            {isSelected && !isCorrect && <X className="w-4 h-4 text-red-500" />}
+                                            {isSelected && <span className="text-[10px] font-bold uppercase text-muted-foreground ml-2">(Lựa chọn của bạn)</span>}
+                                         </div>
+                                      )}
+                                   </Label>
+                                </div>
+                             );
+                          })}
                       </RadioGroup>
                    )}
 
@@ -343,6 +393,29 @@ export default function ExamRunnerPage() {
              </Card>
           </aside>
        </div>
+
+       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+          <AlertDialogContent className="max-w-[400px]">
+             <AlertDialogHeader>
+                <AlertDialogTitle className="text-xl font-bold flex items-center gap-2">
+                   <AlertTriangle className="w-5 h-5 text-amber-500" />
+                   Xác nhận nộp bài?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-muted-foreground pt-2">
+                   Bạn có chắc chắn muốn nộp bài thi không? Sau khi nộp, bạn sẽ không thể thay đổi câu trả lời.
+                </AlertDialogDescription>
+             </AlertDialogHeader>
+             <AlertDialogFooter className="pt-4">
+                <AlertDialogCancel className="font-bold border-none hover:bg-muted">Hủy</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={confirmSubmit}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6"
+                >
+                   Nộp bài ngay
+                </AlertDialogAction>
+             </AlertDialogFooter>
+          </AlertDialogContent>
+       </AlertDialog>
     </div>
   );
 }

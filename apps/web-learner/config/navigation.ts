@@ -51,7 +51,6 @@ export const progressNav: NavItem[] = [
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
-    { name: 'Lịch sử học tập', href: '/dashboard/history', icon: Clock },
 ]
 
 export const accountNav: NavItem[] = [
