@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
@@ -13,6 +14,7 @@ import { format } from 'date-fns'
 export default function ExamReviewPage() {
     const { examId, sessionId } = useParams<{ examId: string, sessionId: string }>()
     const router = useRouter()
+    const [showAnswers, setShowAnswers] = useState(false)
 
     const { data: reviewData, isLoading, error } = useAcademyExamAttempt(sessionId)
 
@@ -120,17 +122,24 @@ export default function ExamReviewPage() {
                     </div>
 
                     {reviewData.submittedAt && (
-                        <div className="mt-6 pt-6 border-t border-white/5 text-center">
+                        <div className="mt-6 pt-6 border-t border-white/5 flex flex-col items-center gap-4">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
                                 Ngày nộp bài: {format(new Date(reviewData.submittedAt), 'dd/MM/yyyy, HH:mm')}
                             </p>
+                            <Button 
+                                onClick={() => setShowAnswers(!showAnswers)}
+                                variant="outline"
+                                className="rounded-xl px-10 border-primary text-primary hover:bg-primary/5 uppercase font-black tracking-widest text-[11px] h-12 shadow-lg shadow-primary/10 transition-all active:scale-95"
+                            >
+                                {showAnswers ? 'Ẩn đáp án chi tiết' : 'Xem đáp án & giải thích'}
+                            </Button>
                         </div>
                     )}
                 </CardContent>
             </Card>
 
             {/* Questions Review */}
-            {details.length > 0 && (
+            {showAnswers && details.length > 0 && (
                 <Card className="bg-background/40 backdrop-blur-xl border-white/5 shadow-2xl rounded-[2rem] overflow-hidden">
                     <CardHeader className="border-b border-white/5 p-6">
                         <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 italic flex items-center gap-2">

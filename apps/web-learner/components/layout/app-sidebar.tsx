@@ -45,7 +45,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         () =>
             progressNav.filter(
                 (item) =>
-                    item.href !== '/dashboard/history' &&
                     item.href !== '/dashboard/rewards' &&
                     item.href !== '/dashboard/achievements' &&
                     item.href !== '/dashboard/certificates'

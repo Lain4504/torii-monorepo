@@ -389,10 +389,6 @@ export default function ModernDashboard() {
                                 </div>
                             </div>
                         </div>
-
-                        <Button variant="outline" className="w-full mt-10 rounded-2xl font-bold text-xs py-6 bg-slate-50/50 dark:bg-slate-800/30 border-slate-100 dark:border-slate-800" asChild>
-                            <Link href="/dashboard/history">View Activity History</Link>
-                        </Button>
                     </Card>
                 </div>
             </div>

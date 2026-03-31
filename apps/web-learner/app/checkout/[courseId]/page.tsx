@@ -102,6 +102,13 @@ export default function CheckoutPage() {
         if (inList) setSelectedClassId(fromQuery)
     }, [searchParams, product])
 
+    // Handle gift parameter from URL
+    useEffect(() => {
+        if (searchParams.get('gift') === 'true') {
+            setIsGift(true)
+        }
+    }, [searchParams])
+
     // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong product.classes (siblingClasses)
     useEffect(() => {
         if (!product || selectedClassId) return

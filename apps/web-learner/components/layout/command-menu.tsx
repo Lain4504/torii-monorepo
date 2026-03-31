@@ -126,10 +126,6 @@ export function CommandMenu() {
                             <Gift className="mr-2 h-4 w-4" />
                             <span>Cửa hàng quà tặng</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/history"))}>
-                            <Clock className="mr-2 h-4 w-4" />
-                            <span>Lịch sử học tập</span>
-                        </CommandItem>
                     </CommandGroup>
 
                     <CommandSeparator />

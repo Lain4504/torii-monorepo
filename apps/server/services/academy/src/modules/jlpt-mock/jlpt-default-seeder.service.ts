@@ -844,7 +844,8 @@ export class JlptDefaultSeederService implements OnModuleInit {
 
   private async seedJlptDefaultConfig() {
     for (const levelSeed of JLPT_SEED) {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(
+        async (tx) => {
         const totalDurationMinutes = levelSeed.sections.reduce(
           (acc, section) => acc + section.durationMinutes,
           0,
@@ -988,7 +989,7 @@ export class JlptDefaultSeederService implements OnModuleInit {
             });
           }
         }
-      });
+      }, { timeout: 30000 });
 
       this.logger.log(
         `Seeded JLPT defaults for ${levelSeed.code} (upsert mode).`,

@@ -12,7 +12,7 @@ export const academyLearningProgressApi = {
      * Re-routed to enrollments/me which now includes progress data in V2
      */
     getMyCourses: async (): Promise<AcademyEnrollmentModel[]> => {
-        const response = await academyEnrollmentApi.getMyEnrollments({ page: 1, limit: 100, status: 'ACTIVE' });
+        const response = await academyEnrollmentApi.getMyEnrollments({ page: 1, limit: 100 });
         return response.data ?? [];
     },
 

@@ -60,10 +60,15 @@ export default function MyCoursesPage() {
 
     const filteredCourses = courses.filter((course) => {
         const matchesSearch = (course.courseTitle || "").toLowerCase().includes(searchQuery.toLowerCase())
+        
+        const status = (course.status || "ACTIVE").toUpperCase();
+        if (status === 'CANCELLED') return false;
+
         const matchesFilter =
             filter === 'all' ||
-            (filter === 'in-progress' && (course.progress || 0) < 100) ||
-            (filter === 'completed' && (course.progress || 0) >= 100)
+            (filter === 'in-progress' && (course.progress || 0) < 100 && status !== 'COMPLETED') ||
+            (filter === 'completed' && ((course.progress || 0) >= 100 || status === 'COMPLETED'))
+        
         return matchesSearch && matchesFilter
     })
 

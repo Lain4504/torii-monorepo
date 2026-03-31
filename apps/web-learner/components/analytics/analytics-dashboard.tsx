@@ -9,6 +9,7 @@ import {
 import { useAcademyLearningStats as useLearningStats, useAcademyMyCourses as useMyCourses } from '@/lib/api/services/academy-learning-progress-api';
 import { useAnalyticsSnapshot, useGenerateAnalyticsSnapshot } from '@/lib/api/services/agent-api';
 import type { AnalyticsSnapshot } from '@/lib/api/services/agent-api';
+import { useAppSelector } from '@/hooks/hooks';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { toast } from '@workspace/ui/components/sonner';
 import {
@@ -210,6 +211,54 @@ export function AnalyticsDashboard() {
     const snapshot = snapshotData?.snapshot ?? null;
     const generateMutation = useGenerateAnalyticsSnapshot();
 
+    const { user } = useAppSelector((state) => state.auth);
+
+    const onboardingData = useMemo(() => {
+        if (!user?.onboardingSurvey) return null;
+        
+        const currentLevel = user.onboardingSurvey.currentLevel || 'NEVER';
+        
+        // Match logic in dashboard/profile/page.tsx
+        const targetMap: Record<string, string> = {
+            'NEVER': 'N5',
+            'N5': 'N5+',
+            'N4': 'N3',
+            'N3': 'N2',
+            'N2': 'N1',
+            'N1': 'N1+',
+        };
+        
+        const startLevelMap: Record<string, string> = {
+            'NEVER': 'Chưa biết gì',
+            'N5': 'Cơ bản (N5)',
+            'N4': 'Sơ cấp (N4)',
+            'N3': 'Trung cấp (N3)',
+            'N2': 'Nâng cao (N2)',
+            'N1': 'Thượng cấp (N1)',
+        };
+
+        // Parse studyTimePerSession (e.g. "60 minutes" -> 3)
+        let dailyGoal = 3;
+        const minutesMatch = (user.onboardingSurvey as any).studyTimePerSession?.match(/(\d+)/);
+        if (minutesMatch) {
+            const mins = parseInt(minutesMatch[1], 10);
+            if (mins <= 10) dailyGoal = 1;
+            else if (mins <= 30) dailyGoal = 2;
+            else if (mins <= 60) dailyGoal = 3;
+            else dailyGoal = 5;
+        }
+
+        return {
+            targetLevel: targetMap[currentLevel] || 'N5',
+            currentLevel: startLevelMap[currentLevel] || 'N/A',
+            dailyGoal
+        };
+    }, [user]);
+
+    const displayGoal = onboardingData?.dailyGoal || 3;
+    const displayTarget = onboardingData?.targetLevel || 'N5';
+    const displayStart = onboardingData?.currentLevel || 'N/A';
+
     const handleRequestAI = async () => {
         setShowAIDialog(true);
         try {
@@ -347,15 +396,15 @@ export function AnalyticsDashboard() {
                         <Zap className="absolute -bottom-4 -right-4 h-32 w-32 opacity-10 group-hover:scale-110 transition-transform duration-700" />
                         <div className="relative z-10">
                             <p className="text-[10px] uppercase font-bold tracking-widest opacity-70">Mục tiêu hôm nay</p>
-                            <h3 className="text-2xl font-black mt-1">{chartData[6]?.value ?? 0} / {stats?.onboarding?.dailyGoal || 3}</h3>
+                            <h3 className="text-2xl font-black mt-1">{chartData[6]?.value ?? 0} / {displayGoal}</h3>
                             <p className="text-xs mt-2 opacity-80 leading-relaxed font-medium">
-                                {Number(chartData[6]?.value) >= (stats?.onboarding?.dailyGoal || 3)
+                                {Number(chartData[6]?.value) >= displayGoal
                                     ? "Thật tuyệt vời! Bạn đã hoàn thành mục tiêu ngày hôm nay. 🎉"
-                                    : `Cố lên! Bạn chỉ còn thiếu ${Math.max(0, (stats?.onboarding?.dailyGoal || 3) - (chartData[6]?.value || 0))} bài học nữa.`}
+                                    : `Cố lên! Bạn chỉ còn thiếu ${Math.max(0, displayGoal - (chartData[6]?.value || 0))} bài học nữa.`}
                             </p>
                             <div className="mt-4 flex gap-2">
                                 <div className="h-1.5 flex-1 bg-white/20 rounded-full overflow-hidden">
-                                    <div className="h-full bg-white transition-all duration-1000" style={{ width: `${Math.min(100, ((chartData[6]?.value || 0) / (stats?.onboarding?.dailyGoal || 3)) * 100)}%` }} />
+                                    <div className="h-full bg-white transition-all duration-1000" style={{ width: `${Math.min(100, ((chartData[6]?.value || 0) / displayGoal) * 100)}%` }} />
                                 </div>
                             </div>
                         </div>
@@ -368,8 +417,8 @@ export function AnalyticsDashboard() {
                 <StatMetric
                     icon={<Target className="w-5 h-5 text-blue-500" />}
                     label="Mục tiêu"
-                    value={stats?.onboarding?.targetLevel || 'Chưa đặt'}
-                    sub={`Lúc bắt đầu: ${stats?.onboarding?.currentLevel || 'N/A'}`}
+                    value={displayTarget}
+                    sub={`Lúc bắt đầu: ${displayStart}`}
                 />
                 <StatMetric
                     icon={<Award className="w-5 h-5 text-emerald-500" />}
