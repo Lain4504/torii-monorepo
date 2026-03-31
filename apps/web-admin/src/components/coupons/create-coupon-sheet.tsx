@@ -197,10 +197,19 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
                                                 id="discountValue"
                                                 type="number"
                                                 min="0"
-                                                {...register('discountValue', { valueAsNumber: true, required: true, min: 1 })}
+                                                max={discountType === CouponDiscountType.PERCENTAGE ? 100 : undefined}
+                                                {...register('discountValue', { 
+                                                    valueAsNumber: true, 
+                                                    required: 'Giá trị giảm là bắt buộc', 
+                                                    min: { value: 1, message: 'Giá trị giảm phải ít nhất là 1' },
+                                                    max: discountType === CouponDiscountType.PERCENTAGE 
+                                                        ? { value: 100, message: 'Phần trăm giảm không được vượt quá 100%' } 
+                                                        : undefined
+                                                })}
                                                 className="font-mono font-bold"
                                             />
                                         </div>
+                                        {errors.discountValue && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.discountValue.message as string}</FieldError>}
                                     </Field>
                                 </div>
 

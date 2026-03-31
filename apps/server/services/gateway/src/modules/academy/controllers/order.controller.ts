@@ -9,7 +9,9 @@ import {
   Query,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
+
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -160,4 +162,19 @@ export class OrderController {
     );
     return successResponse(result);
   }
+
+  @Get('export')
+  @Permissions('academy:order:admin')
+  async admin_export(@Query() query: any, @Res() res: any) {
+    const buffer = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.order.admin.export' }, query),
+    );
+
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename=orders-export-${new Date().getTime()}.csv`,
+    });
+    return res.send(buffer);
+  }
 }
+
