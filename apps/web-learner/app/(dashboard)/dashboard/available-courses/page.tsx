@@ -23,7 +23,7 @@ const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
 
 function currentMonthLabel() {
     const d = new Date()
-    return `${d.getMonth() + 1}/${d.getFullYear()}`
+    return `${d.getMonth() + 2}/${d.getFullYear()}`
 }
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
@@ -88,7 +88,7 @@ export default function DashboardCoursesPage() {
                         <div className="flex flex-col gap-1">
                             <h2 className="text-xl font-semibold">Lớp Live đang tuyển sinh</h2>
                             <p className="text-sm text-muted-foreground">
-                                Lớp trực tiếp đang mở đăng ký, khai giảng trong {monthLabel} và tháng kế tiếp.
+                                Lớp trực tiếp sắp khai giảng trong tháng {monthLabel} và {new Date().getMonth() + 3}/{new Date().getFullYear()}.
                             </p>
                         </div>
                         {liveQuery.isLoading ? (
