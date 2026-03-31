@@ -271,7 +271,11 @@ export class LiveClassController {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.addAssignment' },
-        { ...dto, liveClassId: id },
+        { 
+          ...dto, 
+          liveClassId: dto.vodPackageId ? undefined : id,
+          vodPackageId: dto.vodPackageId ? dto.vodPackageId : undefined,
+        },
       ),
     );
     return successResponse({ item });

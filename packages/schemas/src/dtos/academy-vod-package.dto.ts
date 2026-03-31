@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const academyVodPackageCreateDTOSchema = z.object({
+export const academyVodPackageBaseSchema = z.object({
   courseProfileId: z.string().uuid(),
   code: z.string().min(1).max(150),
   title: z.string().min(1).max(255),
@@ -9,9 +9,22 @@ export const academyVodPackageCreateDTOSchema = z.object({
   status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'ARCHIVED']).optional(),
   rejectionReason: z.string().optional().nullable(),
 });
+
+const refineDiscountPrice = (schema: z.ZodType<any, any, any>) => 
+  schema.refine(data => {
+    if (data.discountPrice != null && data.price != null) {
+      return Number(data.discountPrice) < Number(data.price);
+    }
+    return true;
+  }, {
+    message: "Giá giảm phải nhỏ hơn giá gốc",
+    path: ["discountPrice"],
+  });
+
+export const academyVodPackageCreateDTOSchema = refineDiscountPrice(academyVodPackageBaseSchema);
 export type AcademyVodPackageCreateDTO = z.infer<typeof academyVodPackageCreateDTOSchema>;
 
-export const academyVodPackageUpdateDTOSchema = academyVodPackageCreateDTOSchema.partial();
+export const academyVodPackageUpdateDTOSchema = refineDiscountPrice(academyVodPackageBaseSchema.partial());
 export type AcademyVodPackageUpdateDTO = z.infer<typeof academyVodPackageUpdateDTOSchema>;
 
 export const academyVodPackageQueryDTOSchema = z.object({

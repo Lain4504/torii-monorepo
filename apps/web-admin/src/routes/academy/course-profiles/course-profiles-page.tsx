@@ -222,7 +222,7 @@ export default function CourseProfilesPage() {
                                                     <Eye className="h-3.5 w-3.5" />
                                                     <span>Chi tiết</span>
                                                 </Button>
-                                                {((profile as any).status === 'DRAFT' || (profile as any).status === 'PENDING_APPROVAL') && (
+                                                {(profile as any).status === 'DRAFT' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -250,18 +250,7 @@ export default function CourseProfilesPage() {
                                                     </Button>
                                                 )}
 
-                                                {(profile as any).status === 'PENDING_APPROVAL' && (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        disabled
-                                                        className="h-8 gap-2 border-amber-500/30 text-amber-700 bg-transparent opacity-60 cursor-not-allowed"
-                                                        title="Đã gửi duyệt"
-                                                    >
-                                                        <Send className="h-3.5 w-3.5" />
-                                                        <span>Đã gửi</span>
-                                                    </Button>
-                                                )}
+
 
                                                 {(profile as any).status !== 'ARCHIVED' && (
                                                     <Button

@@ -10,7 +10,7 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Plus, User, Trash2 } from "lucide-react"
+import { Plus, User, Users, Trash2 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 import { formatDate } from "@/lib/format-utils"
 import {
@@ -118,14 +118,24 @@ export function ClassStudentsTab({
 
   return (
     <div className="space-y-4">
-      {canManageEnrollment && (
-        <div className="flex justify-end">
-          <Button size="lg" onClick={() => setEnrollmentSheetOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <Users className="size-5 text-primary" />
+            Danh sách học viên
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Quản lý ghi danh, kích hoạt và theo dõi học viên trong lớp học này.
+          </p>
+        </div>
+
+        {canManageEnrollment && (
+          <Button className="gap-2" onClick={() => setEnrollmentSheetOpen(true)}>
+            <Plus className="size-4" />
             Ghi danh học viên
           </Button>
-        </div>
-      )}
+        )}
+      </div>
       <div className="rounded-md border bg-card overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">

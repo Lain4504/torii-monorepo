@@ -9,7 +9,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { toast } from '@workspace/ui/components/sonner'
 import { Plus, MessageSquare } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@workspace/ui/components/select'
 
 import {
   Dialog,
@@ -162,14 +162,19 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
         {!!lessonOptions.length && (
           <div className="min-w-[260px]">
             <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[300px]">
                 <SelectValue placeholder="Chọn bài học" />
               </SelectTrigger>
-              <SelectContent>
-                {lessonOptions.map((l) => (
-                  <SelectItem key={l.id} value={l.id}>
-                    {l.title || l.id}
-                  </SelectItem>
+              <SelectContent position="popper" className="max-h-[400px]">
+                {((curriculum?.modules ?? []) as Array<any>).map((m) => (
+                  <SelectGroup key={m.id}>
+                    <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>
+                    {(m.lessons || []).map((l: any) => (
+                      <SelectItem key={l.id} value={l.id} className="pl-6">
+                        {l.title || l.id}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 ))}
               </SelectContent>
             </Select>

@@ -138,9 +138,19 @@ export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsT
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button size="lg" onClick={handleCreateClick}>
-          <Plus className="mr-2 h-4 w-4" />
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <FileText className="size-5 text-primary" />
+            Bài tập trên lớp
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Giao bài tập, thiết lập hạn nộp và chấm điểm học viên.
+          </p>
+        </div>
+
+        <Button className="gap-2" onClick={handleCreateClick}>
+          <Plus className="size-4" />
           Giao bài tập
         </Button>
       </div>

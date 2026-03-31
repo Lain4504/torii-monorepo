@@ -43,6 +43,14 @@ const vodPackageSchema = z.object({
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   status: z.string().optional(),
+}).refine(data => {
+  if (data.discountPrice != null && data.price != null) {
+    return data.discountPrice < data.price;
+  }
+  return true;
+}, {
+  message: "Giá giảm phải nhỏ hơn giá gốc",
+  path: ["discountPrice"],
 })
 
 type VodPackageFormValues = z.infer<typeof vodPackageSchema>

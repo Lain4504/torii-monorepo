@@ -21,9 +21,9 @@ import { Separator } from '@workspace/ui/components/separator'
 
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
 
-function currentMonthParam() {
+function currentMonthLabel() {
     const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    return `${d.getMonth() + 1}/${d.getFullYear()}`
 }
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
@@ -35,15 +35,15 @@ export default function DashboardCoursesPage() {
     const showLive = typeParam !== 'vod'
     const showVod = typeParam !== 'live'
 
-    const month = useMemo(() => currentMonthParam(), [])
+    const monthLabel = useMemo(() => currentMonthLabel(), [])
 
     const levelParam = level === 'all' ? undefined : level
 
     const liveQuery = useAcademyClassCatalog({
         mode: 'LIVE',
         level: levelParam,
-        month,
-    })
+        upcomingRegistration: true,
+    } as any)
     const vodQuery = useAcademyClassCatalog({
         mode: 'VOD',
         level: levelParam,
@@ -58,7 +58,7 @@ export default function DashboardCoursesPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Khám phá khóa học</h1>
                     <p className="text-muted-foreground mt-1">
-                        Chọn trình độ (JLPT) và khám phá lớp Live đang tuyển sinh trong tháng {month.replace('-', '/')} cùng
+                        Chọn trình độ (JLPT) và khám phá lớp Live đang tuyển sinh trong tháng hiện tại và sắp tới cùng
                         khóa VOD theo cấp độ.
                     </p>
                 </div>
@@ -88,7 +88,7 @@ export default function DashboardCoursesPage() {
                         <div className="flex flex-col gap-1">
                             <h2 className="text-xl font-semibold">Lớp Live đang tuyển sinh</h2>
                             <p className="text-sm text-muted-foreground">
-                                Lớp trực tiếp đang mở đăng ký, khai giảng trong tháng {month.replace('-', '/')}.
+                                Lớp trực tiếp đang mở đăng ký, khai giảng trong {monthLabel} và tháng kế tiếp.
                             </p>
                         </div>
                         {liveQuery.isLoading ? (

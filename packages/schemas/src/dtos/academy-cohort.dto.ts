@@ -16,6 +16,14 @@ export const academyCohortBaseSchema = z.object({
 
 const refineDateSequence = (schema: z.ZodType<any, any, any>) => 
   schema.refine(data => {
+    if (data.discountPrice != null && data.price != null) {
+      return Number(data.discountPrice) < Number(data.price);
+    }
+    return true;
+  }, {
+    message: "Giá giảm phải nhỏ hơn giá gốc",
+    path: ["discountPrice"],
+  }).refine(data => {
     if (data.enrollmentOpenAt && data.enrollmentCloseAt) {
       return new Date(data.enrollmentOpenAt) < new Date(data.enrollmentCloseAt);
     }

@@ -44,14 +44,18 @@ export class ResourceService {
         const isPrivileged = role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(role);
 
         let liveClassIds: string[] = [];
+        let vodPackageIds: string[] = [];
 
         if (isPrivileged) {
             if (classId) {
                 liveClassIds = [classId];
+                vodPackageIds = [classId];
             } else {
                 // If no classId, privileged users see folders for all classes
                 const classes = await this.prisma.liveClass.findMany({ select: { id: true } });
                 liveClassIds = classes.map(c => c.id);
+                const vods = await this.prisma.vodPackage.findMany({ select: { id: true } });
+                vodPackageIds = vods.map(v => v.id);
             }
         } else {
             // Get active/completed enrollments
@@ -59,19 +63,23 @@ export class ResourceService {
                 where: {
                     userId,
                     status: { in: ['ACTIVE', 'COMPLETED'] },
-                    liveClassId: classId || { not: null },
                 },
-                select: { liveClassId: true },
+                select: { liveClassId: true, vodPackageId: true },
             });
 
-            liveClassIds = enrollments.map((e) => e.liveClassId as string);
+            const filtered = classId 
+                ? enrollments.filter(e => e.liveClassId === classId || e.vodPackageId === classId)
+                : enrollments;
+
+            liveClassIds = filtered.map((e) => e.liveClassId).filter(Boolean) as string[];
+            vodPackageIds = filtered.map((e) => e.vodPackageId).filter(Boolean) as string[];
         }
 
         const folders = await this.prisma.academyFolder.findMany({
             where: {
                 OR: [
                     { liveClassId: { in: liveClassIds }, ownerType: 'LIVE_CLASS' },
-                    // Support VOD Package folders if needed for learners
+                    { vodPackageId: { in: vodPackageIds }, ownerType: 'COURSE_VOD' }
                 ]
             },
             include: {
@@ -192,7 +200,12 @@ export class ResourceService {
 
         if (!folderId && data.classId) {
             const folder = await this.prisma.academyFolder.findFirst({
-                where: { liveClassId: data.classId },
+                where: { 
+                    OR: [
+                        { liveClassId: data.classId },
+                        { vodPackageId: data.classId }
+                    ]
+                },
             });
             if (!folder) return [];
             folderId = folder.id;
@@ -205,16 +218,29 @@ export class ResourceService {
         // Check enrollment if folder is linked to a live class
         const isPrivileged = data.role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(data.role);
 
-        if (folder.liveClassId && !isPrivileged) {
-            const enrollment = await this.prisma.enrollment.findFirst({
-                where: {
-                    userId: data.userId,
-                    liveClassId: folder.liveClassId,
-                    status: { in: ['ACTIVE', 'COMPLETED'] },
-                },
-            });
-            if (!enrollment) {
-                throw new ForbiddenException('You are not enrolled in this class');
+        if (!isPrivileged) {
+            if (folder.liveClassId) {
+                const enrollment = await this.prisma.enrollment.findFirst({
+                    where: {
+                        userId: data.userId,
+                        liveClassId: folder.liveClassId,
+                        status: { in: ['ACTIVE', 'COMPLETED'] },
+                    },
+                });
+                if (!enrollment) {
+                    throw new ForbiddenException('You are not enrolled in this class');
+                }
+            } else if (folder.vodPackageId) {
+                const enrollment = await this.prisma.enrollment.findFirst({
+                    where: {
+                        userId: data.userId,
+                        vodPackageId: folder.vodPackageId,
+                        status: { in: ['ACTIVE', 'COMPLETED'] },
+                    },
+                });
+                if (!enrollment) {
+                    throw new ForbiddenException('You are not enrolled in this course');
+                }
             }
         }
 
@@ -267,7 +293,12 @@ export class ResourceService {
 
     async getResourcesByClassId(classId: string, userId: string) {
         const folder = await this.prisma.academyFolder.findFirst({
-            where: { liveClassId: classId },
+            where: { 
+                OR: [
+                    { liveClassId: classId },
+                    { vodPackageId: classId }
+                ]
+            },
         });
         if (!folder) return [];
         return this.getResourcesForLearner({ folderId: folder.id, userId });
@@ -362,16 +393,29 @@ export class ResourceService {
         // Check enrollment if folder is linked to a live class
         const isPrivileged = role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(role);
 
-        if (resource.folder.liveClassId && !isPrivileged) {
-            const enrollment = await this.prisma.enrollment.findFirst({
-                where: {
-                    userId,
-                    liveClassId: resource.folder.liveClassId,
-                    status: { in: ['ACTIVE', 'COMPLETED'] },
-                },
-            });
-            if (!enrollment) {
-                throw new ForbiddenException('You are not enrolled in this class');
+        if (!isPrivileged) {
+            if (resource.folder.liveClassId) {
+                const enrollment = await this.prisma.enrollment.findFirst({
+                    where: {
+                        userId,
+                        liveClassId: resource.folder.liveClassId,
+                        status: { in: ['ACTIVE', 'COMPLETED'] },
+                    },
+                });
+                if (!enrollment) {
+                    throw new ForbiddenException('You are not enrolled in this class');
+                }
+            } else if (resource.folder.vodPackageId) {
+                const enrollment = await this.prisma.enrollment.findFirst({
+                    where: {
+                        userId,
+                        vodPackageId: resource.folder.vodPackageId,
+                        status: { in: ['ACTIVE', 'COMPLETED'] },
+                    },
+                });
+                if (!enrollment) {
+                    throw new ForbiddenException('You are not enrolled in this course');
+                }
             }
         }
 
@@ -379,8 +423,8 @@ export class ResourceService {
         if (resource.visibility === 'PRIVATE' && !isPrivileged) {
             throw new ForbiddenException('This resource is hidden');
         }
-        if (resource.visibility === 'ENROLLED_ONLY' && resource.folder.liveClassId) {
-            // enrollment check already done above for class folders
+        if (resource.visibility === 'ENROLLED_ONLY' && (resource.folder.liveClassId || resource.folder.vodPackageId)) {
+            // enrollment check already done above
         }
 
         let downloadUrl = resource.fileAsset?.fileUrl;

@@ -340,11 +340,11 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
                                     <SelectItem value={BlogStatus.DRAFT}>
                                       Bản nháp
                                     </SelectItem>
-                                    <SelectItem value={BlogStatus.PUBLISHED}>
-                                      Đã đăng (Xuất bản)
-                                    </SelectItem>
                                     <SelectItem value={BlogStatus.SCHEDULED}>
                                       Lên lịch
+                                    </SelectItem>
+                                    <SelectItem value={BlogStatus.PUBLISHED}>
+                                      Đã đăng (Xuất bản)
                                     </SelectItem>
                                     {(isEditing &&
                                       (blog?.status?.toLowerCase() === BlogStatus.PUBLISHED ||

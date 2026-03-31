@@ -199,7 +199,7 @@ export default function CohortsPage() {
                                                 >
                                                     <Eye className="size-3.5" /> Chi tiết
                                                 </Button>
-                                                {(cohort.status === 'DRAFT' || cohort.status === 'PENDING_APPROVAL') && (
+                                                {cohort.status === 'DRAFT' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"

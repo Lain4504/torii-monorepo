@@ -47,6 +47,14 @@ const cohortSchema = z.object({
   enrollmentCloseAt: z.string().optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
+}).refine(data => {
+  if (data.discountPrice != null && data.price != null) {
+    return data.discountPrice < data.price;
+  }
+  return true;
+}, {
+  message: "Giá giảm phải nhỏ hơn giá gốc",
+  path: ["discountPrice"],
 }).refine((data) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);

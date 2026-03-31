@@ -256,13 +256,14 @@ export default function CourseProfileDetailPage() {
         ]}
         actions={
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              disabled={isLocked}
-              onClick={() => setProfileSheetOpen(true)}
-            >
-              Chỉnh sửa Profile
-            </Button>
+            {!isLocked && (
+                <Button
+                  variant="outline"
+                  onClick={() => setProfileSheetOpen(true)}
+                >
+                  Chỉnh sửa Profile
+                </Button>
+            )}
 
             {profile.status === 'DRAFT' && (
               <Button
@@ -302,15 +303,16 @@ export default function CourseProfileDetailPage() {
                 <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các Module và Bài giảng (Lessons).</p>
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium"
-                  onClick={() => setCreateModuleOpen(true)}
-                  disabled={isLocked}
-                >
-                  <Plus className="size-4" /> Thêm Module mới
-                </Button>
+                {!isLocked && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium"
+                      onClick={() => setCreateModuleOpen(true)}
+                    >
+                      <Plus className="size-4" /> Thêm Module mới
+                    </Button>
+                )}
               </div>
             </div>
 
@@ -319,15 +321,16 @@ export default function CourseProfileDetailPage() {
                 <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                   <Layers className="size-12 mb-4 opacity-10" />
                   <p className="font-medium text-balance text-center max-w-xs">Hồ sơ khóa học này chưa có chương trình học nào.</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                    onClick={() => setCreateModuleOpen(true)}
-                    disabled={isLocked}
-                  >
-                    Khởi tạo Module đầu tiên
-                  </Button>
+                  {!isLocked && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4"
+                        onClick={() => setCreateModuleOpen(true)}
+                      >
+                        Khởi tạo Module đầu tiên
+                      </Button>
+                  )}
                 </CardContent>
               </Card>
             ) : (
@@ -397,30 +400,32 @@ export default function CourseProfileDetailPage() {
                                       </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                      <DropdownMenuItem
-                                        className="gap-2"
-                                        disabled={isLocked}
-                                        onClick={() => {
-                                          setEditingModule(module)
-                                          setEditModuleOpen(true)
-                                        }}
-                                      >
-                                        <Pencil className="size-4" /> Chỉnh sửa
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem
-                                        className="gap-2 text-destructive"
-                                        disabled={isLocked}
-                                        onClick={() => {
-                                          setDeleteModuleConfirm({
-                                            open: true,
-                                            moduleId: module.id,
-                                            moduleTitle: module.title,
-                                          })
-                                        }}
-                                      >
-                                        <Trash2 className="size-4" /> Xóa Module
-                                      </DropdownMenuItem>
+                                      {!isLocked && (
+                                          <DropdownMenuItem
+                                            className="gap-2"
+                                            onClick={() => {
+                                              setEditingModule(module)
+                                              setEditModuleOpen(true)
+                                            }}
+                                          >
+                                            <Pencil className="size-4" /> Chỉnh sửa
+                                          </DropdownMenuItem>
+                                      )}
+                                      {!isLocked && <DropdownMenuSeparator />}
+                                      {!isLocked && (
+                                          <DropdownMenuItem
+                                            className="gap-2 text-destructive"
+                                            onClick={() => {
+                                              setDeleteModuleConfirm({
+                                                open: true,
+                                                moduleId: module.id,
+                                                moduleTitle: module.title,
+                                              })
+                                            }}
+                                          >
+                                            <Trash2 className="size-4" /> Xóa Module
+                                          </DropdownMenuItem>
+                                      )}
                                     </DropdownMenuContent>
                                   </DropdownMenu>
 
@@ -487,33 +492,35 @@ export default function CourseProfileDetailPage() {
                                                 </div>
 
                                                 <div className="flex items-center gap-1">
-                                                  <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    className="h-8 w-8"
-                                                    disabled={isLocked}
-                                                    onClick={() => {
-                                                      setEditingLesson(lesson)
-                                                      setEditLessonOpen(true)
-                                                    }}
-                                                  >
-                                                    <Pencil className="size-4" />
-                                                  </Button>
-                                                  <Button
-                                                    variant="outline"
-                                                    size="icon"
-                                                    className="h-8 w-8"
-                                                    disabled={isLocked}
-                                                    onClick={() => {
-                                                      setDeleteLessonConfirm({
-                                                        open: true,
-                                                        lessonId: lesson.id,
-                                                        lessonTitle: lesson.title,
-                                                      })
-                                                    }}
-                                                  >
-                                                    <Trash2 className="size-4" />
-                                                  </Button>
+                                                  {!isLocked && (
+                                                      <Button
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="h-8 w-8"
+                                                        onClick={() => {
+                                                          setEditingLesson(lesson)
+                                                          setEditLessonOpen(true)
+                                                        }}
+                                                      >
+                                                        <Pencil className="size-4" />
+                                                      </Button>
+                                                  )}
+                                                  {!isLocked && (
+                                                      <Button
+                                                        variant="outline"
+                                                        size="icon"
+                                                        className="h-8 w-8"
+                                                        onClick={() => {
+                                                          setDeleteLessonConfirm({
+                                                            open: true,
+                                                            lessonId: lesson.id,
+                                                            lessonTitle: lesson.title,
+                                                          })
+                                                        }}
+                                                      >
+                                                        <Trash2 className="size-4" />
+                                                      </Button>
+                                                  )}
                                                 </div>
                                               </div>
                                             )}
@@ -526,18 +533,19 @@ export default function CourseProfileDetailPage() {
                                           </div>
                                         )}
 
-                                        <Button
-                                          variant="ghost"
-                                          className="w-full justify-start gap-2 mt-2"
-                                          disabled={isLocked}
-                                          onClick={() => {
-                                            setCreateLessonModuleId(module.id)
-                                            setCreateLessonOpen(true)
-                                          }}
-                                        >
-                                          <Plus className="size-4" />
-                                          Thêm bài học mới
-                                        </Button>
+                                        {!isLocked && (
+                                            <Button
+                                              variant="ghost"
+                                              className="w-full justify-start gap-2 mt-2"
+                                              onClick={() => {
+                                                setCreateLessonModuleId(module.id)
+                                                setCreateLessonOpen(true)
+                                              }}
+                                            >
+                                              <Plus className="size-4" />
+                                              Thêm bài học mới
+                                            </Button>
+                                        )}
                                       </div>
                                     </SortableContext>
                                   </DndContext>
