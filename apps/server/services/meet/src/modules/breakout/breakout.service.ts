@@ -181,34 +181,43 @@ export class BreakoutService {
       throw new Error('Không tạo được phòng nhóm nào');
     }
 
-    // Update parent room metadata
+    // Update parent room metadata — plugNmeet: UnmarshalRoomMetadata(mainRoom.Metadata), then UpdateAndBroadcast
+    let origMeta: RoomMetadata;
     try {
-      const origMeta = await this.natsRoomService.getRoomMetadataStruct(
-        req.roomId,
-      );
-      if (origMeta) {
-        if (!origMeta.roomFeatures)
-          origMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
-        if (!origMeta.roomFeatures.breakoutRoomFeatures) {
-          origMeta.roomFeatures.breakoutRoomFeatures = create(
-            BreakoutRoomFeaturesSchema,
-            {},
-          );
-        }
-        origMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
-
-        await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(
-          req.roomId,
-          origMeta,
-        );
-      }
+      origMeta = fromJsonString(RoomMetadataSchema, mainRoom.metadata ?? '', {
+        ignoreUnknownFields: true,
+      });
     } catch (error) {
+      const msg = `failed to unmarshal original parent room metadata: ${error instanceof Error ? error.message : String(error)}`;
+      this.logger.error(msg);
+      throw new Error(msg);
+    }
+
+    if (!origMeta.roomFeatures)
+      origMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
+    if (!origMeta.roomFeatures.breakoutRoomFeatures) {
+      origMeta.roomFeatures.breakoutRoomFeatures = create(
+        BreakoutRoomFeaturesSchema,
+        {},
+      );
+    }
+    origMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
+
+    let parentMetadataUpdateError: Error | undefined;
+    try {
+      await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(
+        req.roomId,
+        origMeta,
+      );
+    } catch (error) {
+      parentMetadataUpdateError =
+        error instanceof Error ? error : new Error(String(error));
       this.logger.error(
-        `Failed to update parent room metadata: ${error.message}`,
+        `Failed to update parent room metadata: ${parentMetadataUpdateError.message}`,
       );
     }
 
-    // Send analytics
+    // Send analytics (Go: always after update attempt, even if update failed)
     const analyticsData = create(AnalyticsDataMsgSchema, {
       eventType: AnalyticsEventType.ROOM,
       eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_BREAKOUT_ROOM,
@@ -217,6 +226,10 @@ export class BreakoutService {
     this.analyticsService.handleEvent(analyticsData);
 
     this.logger.log('Finished creating breakout rooms');
+
+    if (parentMetadataUpdateError) {
+      throw parentMetadataUpdateError;
+    }
   }
 
   /**
@@ -472,7 +485,7 @@ export class BreakoutService {
     const log = this.logger;
     log.log(`request to send message to all breakout rooms: ${req.roomId}`);
 
-    const rooms = await this.getBreakoutRoomsInfo(req.roomId).catch(() => []);
+    const rooms = await this.getBreakoutRoomsInfo(req.roomId);
     if (!rooms || rooms.length === 0) {
       log.log('no active breakout rooms found to send message');
       return;

@@ -77,14 +77,18 @@ export class RoomDurationService {
     const keyPrefix = 'wajlc:roomWithDurationInfo:';
 
     for (const key of keys) {
-      const val = await this.redisRoom.getRoomWithDurationInfoByKey(key);
-      if (!val) {
+      try {
+        const val = await this.redisRoom.getRoomWithDurationInfoByKey(key);
+        if (!val) {
+          continue;
+        }
+
+        // Extract roomId from key
+        const roomId = key.replace(keyPrefix, '');
+        out[roomId] = val;
+      } catch {
         continue;
       }
-
-      // Extract roomId from key
-      const roomId = key.replace(keyPrefix, '');
-      out[roomId] = val;
     }
 
     return out;
@@ -105,21 +109,9 @@ export class RoomDurationService {
   }
 
   /**
-     * IncreaseRoomDuration increases the duration limit for a room
-
-     * 
-     * Complex logic:
-     * 1. Get current room duration info from Redis
-     * 2. Get room metadata from NATS
-     * 3. Check if breakout room - validate against parent room duration
-     * 4. Update duration in Redis
-     * 5. Update and broadcast room metadata via NATS
-     * 6. Rollback Redis on metadata update failure
-     * 
-     * @param roomId - Room ID
-     * @param duration - Duration to add (in minutes)
-     * @returns New total duration
-     */
+   * IncreaseRoomDuration — aligned with livekit-meet-server/pkg/models/room_duration.go
+   * (IncreaseRoomDuration): order info → meta → breakout checks → HIncrBy → metadata → rollback.
+   */
   async increaseRoomDuration(
     roomId: string,
     duration: number,
@@ -128,114 +120,69 @@ export class RoomDurationService {
       `Request to increase room duration: ${roomId}, duration: ${duration}`,
     );
 
+    // 1. Redis duration info (Go: GetRoomDurationInfo; empty hash → zero values)
+    const rawInfo = await this.getRoomDurationInfo(roomId);
+    const info = rawInfo ?? { duration: 0, startedAt: 0 };
+
+    // 2. Metadata (Go: GetRoomMetadataStruct)
+    const meta = await this.natsRoomService.getRoomMetadataStruct(roomId);
+    if (!meta) {
+      throw new Error('invalid nil room metadata information');
+    }
+
+    // 3. Breakout room — same guards as Go (meta.IsBreakoutRoom && info != nil always has struct here)
+    if (meta.isBreakoutRoom) {
+      if (info.startedAt === 0) {
+        const err = new Error(
+          "can't increase duration as breakout room is not running",
+        );
+        this.logger.warn(err.message);
+        throw err;
+      }
+      if (info.duration === 0) {
+        const err = new Error(
+          "can't increase duration as breakout room has unlimited duration",
+        );
+        this.logger.warn(err.message);
+        throw err;
+      }
+      this.logger.log('breakout room has duration, will compare with parent room');
+      const now = Math.floor(Date.now() / 1000);
+      const valid = info.startedAt + info.duration * 60;
+      const d = Math.floor((valid - now) / 60) + duration;
+      await this.compareDurationWithParentRoom(meta.parentRoomId, d);
+    }
+
+    // 4. Redis HIncrBy (Go: UpdateRoomDuration)
+    const newTotalDuration = await this.redisRoom.updateRoomDuration(
+      roomId,
+      'duration',
+      duration,
+    );
+
+    if (!meta.roomFeatures) {
+      meta.roomFeatures = {} as any;
+    }
+    meta.roomFeatures!.roomDuration = String(newTotalDuration);
+
     try {
-      // Step 1: Get room metadata first
-      const meta = await this.natsRoomService.getRoomMetadataStruct(roomId);
-      if (!meta) {
-        throw new Error('Thông tin metadata phòng không hợp lệ hoặc trống');
-      }
-
-      // Step 2: Get current room duration info from Redis
-      const info = await this.getRoomDurationInfo(roomId);
-
-      // Get current duration from metadata as a fallback
-      const metaDuration = meta.roomFeatures?.roomDuration
-        ? parseInt(String(meta.roomFeatures.roomDuration), 10)
-        : 0;
-
-      // Step 3: Check if this is a breakout room
-      if (meta.isBreakoutRoom) {
-        // If info exists and has startedAt, the room is running
-        if (info && info.startedAt > 0) {
-          if (info.duration === 0) {
-            const err = new Error(
-              'Không thể tăng thời lượng vì phòng nhóm đang không giới hạn thời gian',
-            );
-            this.logger.warn(err.message);
-            throw err;
-          }
-          this.logger.log(
-            'Breakout room has started, will compare with parent room',
-          );
-
-          const now = Math.floor(Date.now() / 1000); // Unix timestamp in seconds
-          const valid = info.startedAt + info.duration * 60;
-          const timeLeft = Math.floor((valid - now) / 60);
-          const newDurationFromNow = timeLeft + duration;
-
-          // Compare with parent room duration
-          await this.compareDurationWithParentRoom(
-            meta.parentRoomId,
-            newDurationFromNow,
-          );
-        } else {
-          // Room not started yet or missing from Redis
-          this.logger.log(
-            'Breakout room not started yet, comparing total duration with parent',
-          );
-
-          // We use metaDuration as the base since info might be missing or not yet in sync
-          const currentDuration = info ? info.duration : metaDuration;
-          await this.compareDurationWithParentRoom(
-            meta.parentRoomId,
-            currentDuration + duration,
-          );
-        }
-      }
-
-      // Step 4: Update duration in Redis if it exists
-      let newTotalDuration: number;
-      if (info) {
-        // Info exists in Redis, perform atomic increment
-        newTotalDuration = await this.redisRoom.updateRoomDuration(
-          roomId,
-          'duration',
-          duration,
-        );
-      } else {
-        // Info doesn't exist in Redis (room hasn't started yet), use metadata as base
-        newTotalDuration = metaDuration + duration;
-
-        // We do NOT add it to Redis yet. If we add it with startedAt=0,
-        // the Janitor service will think it's expired and kill it.
-        // It will be added to Redis with the correct startedAt when the room officially starts.
-        this.logger.log(
-          `Room not started yet, updated duration in metadata only: ${newTotalDuration} minutes`,
-        );
-      }
-      this.logger.log(`New total duration: ${newTotalDuration} minutes`);
-
-      // Step 5: Update and broadcast room metadata
-      // Update the roomDuration field
-      if (!meta.roomFeatures) {
-        meta.roomFeatures = {} as any;
-      }
-      meta.roomFeatures!.roomDuration = String(newTotalDuration);
-
-      try {
-        await this.natsRoomEvents.updateAndBroadcastRoomMetadata(roomId, meta);
-      } catch (error) {
-        // Rollback Redis change on failure
-        this.logger.error(
-          `Failed to update and broadcast room metadata, rolling back Redis change: ${error.message}`,
-        );
-        // Rollback: subtract the duration we just added
-        await this.redisRoom.setRoomDuration(
-          roomId,
-          'duration',
-          newTotalDuration - duration,
-        );
-        throw error;
-      }
-
-      this.logger.log(
-        `Successfully increased room duration to ${newTotalDuration} minutes`,
-      );
-      return newTotalDuration;
+      await this.natsRoomEvents.updateAndBroadcastRoomMetadata(roomId, meta);
     } catch (error) {
-      this.logger.error(`Failed to increase room duration: ${error.message}`);
+      this.logger.error(
+        `Failed to update and broadcast room metadata, rolling back Redis change: ${error.message}`,
+      );
+      await this.redisRoom.setRoomDuration(
+        roomId,
+        'duration',
+        newTotalDuration - duration,
+      );
       throw error;
     }
+
+    this.logger.log(
+      `Successfully increased room duration to ${newTotalDuration} minutes`,
+    );
+    return newTotalDuration;
   }
 
   /**
@@ -279,11 +226,11 @@ export class RoomDurationService {
       `Parent room duration check - minutes left: ${minutesLeft}`,
     );
 
-    // Validate breakout room duration
+    // Go: if left < duration → fmt.Errorf("breakout room's duration (%d) can't be more than parent room's remaining duration (%d)", duration, left)
     if (minutesLeft < duration) {
-      const error = `Thời lượng phòng nhóm (${duration}) không được vượt quá thời gian còn lại của phòng chính (${minutesLeft})`;
-      this.logger.warn(error);
-      throw new Error(error);
+      const msg = `breakout room's duration (${duration}) can't be more than parent room's remaining duration (${minutesLeft})`;
+      this.logger.warn(msg);
+      throw new Error(msg);
     }
 
     this.logger.log('Breakout room duration validation passed');

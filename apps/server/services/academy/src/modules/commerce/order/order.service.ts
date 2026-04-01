@@ -134,8 +134,11 @@ export class OrderService {
       );
 
     const subTotal =
-      vodPackages.reduce((sum, v) => sum + Number(v.price), 0) +
-      cohorts.reduce((sum, c) => sum + Number(c.price), 0) +
+      vodPackages.reduce(
+        (sum, v) => sum + Number(v.discountPrice ?? v.price),
+        0,
+      ) +
+      cohorts.reduce((sum, c) => sum + Number(c.discountPrice ?? c.price), 0) +
       subscriptionPlans.reduce((sum, s) => sum + Number(s.price), 0);
 
     let discountTotal = 0;
@@ -178,17 +181,25 @@ export class OrderService {
     const orderItemsData = [
       ...preview.vodPackages.map((v: any) => ({
         vodPackageId: v.id,
-        price: v.price,
-        offeringSnapshot: { title: v.title, code: v.code, mode: 'VOD' } as any,
+        price: v.discountPrice ?? v.price,
+        offeringSnapshot: {
+          title: v.title,
+          code: v.code,
+          mode: 'VOD',
+          basePrice: v.price,
+          isDiscounted: !!v.discountPrice,
+        } as any,
       })),
       ...preview.cohorts.map((c: any) => ({
         cohortId: c.id,
-        price: c.price,
+        price: c.discountPrice ?? c.price,
         offeringSnapshot: {
           title: c.name,
           code: c.code,
           mode: 'LIVE',
           selectedClassId: preview.inputLiveClassMap?.[c.id],
+          basePrice: c.price,
+          isDiscounted: !!c.discountPrice,
         } as any,
       })),
       ...preview.subscriptionPlans.map((s: any) => ({
@@ -198,6 +209,7 @@ export class OrderService {
           title: s.name,
           code: s.code,
           isSubscription: true,
+          basePrice: s.price,
         } as any,
       })),
     ];
@@ -248,12 +260,12 @@ export class OrderService {
         ...preview.vodPackages.map((o: any) => ({
           name: o.title,
           quantity: 1,
-          price: Number(o.price),
+          price: Number(o.discountPrice ?? o.price),
         })),
         ...preview.cohorts.map((o: any) => ({
           name: o.name,
           quantity: 1,
-          price: Number(o.price),
+          price: Number(o.discountPrice ?? o.price),
         })),
         ...preview.subscriptionPlans.map((s: any) => ({
           name: s.name,
