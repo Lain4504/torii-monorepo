@@ -18,6 +18,9 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
 
+/** Mặc định khớp Sensei/roleplay (`gemini-2.5-flash` trong fastmcp.service). */
+const DEFAULT_GEMINI_INSIGHTS_MODEL = 'gemini-2.5-flash';
+
 @Injectable()
 export class InsightsProviderService {
   private readonly logger = new Logger(InsightsProviderService.name);
@@ -27,12 +30,40 @@ export class InsightsProviderService {
     this.initializeGoogleClient();
   }
 
+  /** Chat / dịch JSON (Gemini) — ưu tiên `insights.services.ai_text_chat.options.chat_model`. */
+  private resolveGeminiModelName(explicit?: string): string {
+    if (explicit) return explicit;
+    const opts = this.appConfig.insights?.services?.ai_text_chat
+      ?.options as Record<string, string> | undefined;
+    return opts?.chat_model || DEFAULT_GEMINI_INSIGHTS_MODEL;
+  }
+
+  /**
+   * Một nguồn key chính: `thirdParty.gemini.apiKey` (cùng Sensei / roleplay / agents).
+   * Fallback (legacy): `insights.providers.google[]` khớp `insights.services.ai_text_chat.id`.
+   */
+  private resolveGeminiApiKey(): string | undefined {
+    const primary = this.appConfig.thirdParty?.gemini?.apiKey?.trim();
+    if (primary) return primary;
+
+    const serviceId = this.appConfig.insights?.services?.ai_text_chat?.id;
+    const accounts = this.appConfig.insights?.providers?.google;
+    if (serviceId && accounts?.length) {
+      const acc = accounts.find((a) => a.id === serviceId);
+      const fallback = acc?.credentials?.apiKey?.trim();
+      if (fallback) return fallback;
+    }
+    return undefined;
+  }
+
   private initializeGoogleClient() {
-    const apiKey = this.appConfig.thirdParty?.gemini?.apiKey;
+    const apiKey = this.resolveGeminiApiKey();
     if (apiKey) {
       this.googleClient = new GoogleGenerativeAI(apiKey);
     } else {
-      this.logger.warn('Google Gemini API key not configured');
+      this.logger.warn(
+        'Google Gemini API key not configured (set thirdParty.gemini.apiKey)',
+      );
     }
   }
 
@@ -47,7 +78,7 @@ export class InsightsProviderService {
     }
 
     const model = this.googleClient.getGenerativeModel({
-      model: modelName || 'gemini-pro',
+      model: this.resolveGeminiModelName(modelName),
     });
     const streamId = uuidv4();
     const now = Date.now().toString();
@@ -130,7 +161,7 @@ export class InsightsProviderService {
     }
 
     const model = this.googleClient.getGenerativeModel({
-      model: modelName || 'gemini-pro',
+      model: this.resolveGeminiModelName(modelName),
     });
 
     // Prepare prompt
@@ -149,7 +180,7 @@ export class InsightsProviderService {
     };
   }
 
-  // --- Azure Implementation for Translation ---
+  // --- Gemini JSON translation (không dùng Azure) ---
 
   async translateText(
     text: string,
@@ -161,7 +192,7 @@ export class InsightsProviderService {
     }
 
     const model = this.googleClient.getGenerativeModel({
-      model: 'gemini-1.5-flash', // Use faster model for translation
+      model: this.resolveGeminiModelName(),
       generationConfig: {
         responseMimeType: 'application/json',
       },

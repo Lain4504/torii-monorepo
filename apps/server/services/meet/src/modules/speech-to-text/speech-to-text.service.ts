@@ -5,11 +5,8 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import axios from 'axios';
 import {
   GenerateAzureTokenReq,
-  GenerateAzureTokenRes,
-  GenerateAzureTokenResSchema,
   AzureTokenRenewReq,
   SpeechServiceUserStatusReq,
   SpeechToTextTranslationReq,
@@ -22,7 +19,7 @@ import {
   AnalyticsDataMsgSchema,
   AnalyticsStatus,
 } from '@workspace/protocol';
-import { create, toJsonString } from '@bufbuild/protobuf';
+import { create } from '@bufbuild/protobuf';
 import { NatsRoomService } from '@server/meet/services/nats-room.service';
 import { RedisSpeechToTextService } from '@server/meet/infrastructure/redis/redis-speech-to-text.service';
 import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
@@ -33,6 +30,9 @@ import { AppConfigService } from '@server/shared';
 @Injectable()
 export class SpeechToTextService {
   private readonly logger = new Logger(SpeechToTextService.name);
+
+  /** Azure Speech backend đã gỡ khỏi config; STT/TTS dùng pipeline khác (vd. Gameni). */
+  private static readonly LEGACY_AZURE_SPEECH_ENABLED = false;
 
   constructor(
     private readonly appConfig: AppConfigService,
@@ -52,9 +52,8 @@ export class SpeechToTextService {
     roomId: string,
     r: SpeechToTextTranslationReq,
   ): Promise<CommonResponse> {
-    const azureEnabled = this.appConfig.azureSpeech.enabled;
-    if (!azureEnabled) {
-      throw new Error('Dịch vụ giọng nói đã tắt');
+    if (!SpeechToTextService.LEGACY_AZURE_SPEECH_ENABLED) {
+      throw new Error('Dịch vụ giọng nói Azure đã tắt (không còn trong cấu hình)');
     }
 
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
@@ -123,10 +122,9 @@ export class SpeechToTextService {
     }
 
     const metadata = await this.natsRoomService.getRoomMetadataStruct(roomId);
-    const azureEnabled = this.appConfig.azureSpeech.enabled;
     if (
       !metadata ||
-      !azureEnabled ||
+      !SpeechToTextService.LEGACY_AZURE_SPEECH_ENABLED ||
       !metadata.roomFeatures?.speechToTextTranslationFeatures?.isEnabled
     ) {
       throw new Error('speech-services.service-disabled');
@@ -218,78 +216,6 @@ export class SpeechToTextService {
       'remove',
     );
     return create(CommonResponseSchema, { status: true, msg: 'success' });
-  }
-
-  private async selectAzureKey(): Promise<any> {
-    const keys = this.appConfig.azureSpeech.subscriptionKeys;
-    if (keys.length === 0) throw new Error('Không có khóa Azure');
-    if (keys.length === 1) return keys[0];
-
-    const usableKeys: any[] = [];
-    for (const k of keys) {
-      const conns = await this.redisSpeechService.getConnectionsByKeyId(k.id);
-      const count = parseInt(conns, 10) || 0;
-      usableKeys.push({
-        ...k,
-        currentConns: count,
-        available: k.maxConnection - count,
-      });
-    }
-
-    usableKeys.sort((a, b) => b.available - a.available);
-    if (usableKeys[0].available <= 0)
-      throw new Error('Không còn khóa Azure khả dụng (đã đạt giới hạn)');
-
-    return usableKeys[0];
-  }
-
-  private async sendRequestToAzureForToken(
-    subscriptionKey: string,
-    serviceRegion: string,
-    keyId: string,
-  ): Promise<GenerateAzureTokenRes> {
-    const url = `https://${serviceRegion}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
-    try {
-      const response = await axios.post(
-        url,
-        {},
-        {
-          headers: {
-            'Ocp-Apim-Subscription-Key': subscriptionKey,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      if (response.status !== 200) {
-        throw new Error(`Azure trả về mã ${response.status}`);
-      }
-
-      return create(GenerateAzureTokenResSchema, {
-        status: true,
-        msg: 'success',
-        token: response.data,
-        serviceRegion,
-        keyId,
-      });
-    } catch (error) {
-      this.logger.error(`Azure token request failed: ${error.message}`);
-      throw error;
-    }
-  }
-
-  private async broadcastAzureToken(
-    roomId: string,
-    userId: string,
-    data: GenerateAzureTokenRes,
-  ): Promise<void> {
-    const jsonStr = toJsonString(GenerateAzureTokenResSchema, data);
-    await this.natsSystemEvents.broadcastSystemEventToRoom(
-      (NatsMsgServerToClientEvents as any).AZURE_COGNITIVE_SERVICE_SPEECH_TOKEN,
-      roomId,
-      jsonStr,
-      userId,
-    );
   }
 
   /**

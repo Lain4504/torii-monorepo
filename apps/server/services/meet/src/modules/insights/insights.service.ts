@@ -48,6 +48,9 @@ import { AppConfigService } from '@server/shared';
 export class InsightsService {
   private readonly logger = new Logger(InsightsService.name);
 
+  /** Khớp Sensei / roleplay (`fastmcp`: gemini-2.5-flash). */
+  private static readonly DEFAULT_GEMINI_INSIGHTS_MODEL = 'gemini-2.5-flash';
+
   constructor(
     private readonly appConfig: AppConfigService,
     @Inject('NATS_CLIENT') private readonly natsClient: ClientProxy,
@@ -61,6 +64,18 @@ export class InsightsService {
     private readonly analyticsService: AnalyticsService,
     private readonly insightsProvider: InsightsProviderService,
   ) {}
+
+  /** Model AI text chat / tóm tắt từ `insights.services.ai_text_chat.options` trong config.yaml */
+  private getAiTextChatModel(kind: 'chat' | 'summarize'): string {
+    const opts = this.appConfig.insights?.services?.ai_text_chat
+      ?.options as Record<string, string> | undefined;
+    if (!opts) return InsightsService.DEFAULT_GEMINI_INSIGHTS_MODEL;
+    if (kind === 'summarize' && opts.summarize_model) {
+      return opts.summarize_model;
+    }
+    if (opts.chat_model) return opts.chat_model;
+    return InsightsService.DEFAULT_GEMINI_INSIGHTS_MODEL;
+  }
 
   /**
    * TranscriptionConfigure configures the real-time transcription agent
@@ -516,7 +531,7 @@ export class InsightsService {
     );
 
     // 2. Launch background processing (ASYNC)
-    const chatModel = 'gemini-pro'; // Default or from config
+    const chatModel = this.getAiTextChatModel('chat');
 
     // Fire and forget logic
     (async () => {
@@ -679,7 +694,7 @@ export class InsightsService {
     historyToSummarize.push(...contextMessages);
 
     // Call provider to summarize
-    const summarizeModel = 'gemini-pro';
+    const summarizeModel = this.getAiTextChatModel('summarize');
 
     try {
       const res = await this.insightsProvider.aiChatTextSummarize(

@@ -174,19 +174,6 @@ const ConfigSchema = z.object({
   analytics: z.object({
     enabled: z.boolean().default(true),
   }),
-  azureSpeech: z.object({
-    enabled: z.boolean().default(false),
-    subscriptionKeys: z
-      .array(
-        z.object({
-          id: z.string(),
-          subscriptionKey: z.string(),
-          serviceRegion: z.string(),
-          maxConnection: z.number().default(10),
-        }),
-      )
-      .default([]),
-  }),
   webhook: z.object({
     enabled: z.boolean().default(false),
     perMeeting: z.boolean().default(true),

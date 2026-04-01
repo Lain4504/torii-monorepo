@@ -91,52 +91,22 @@ insights:
       provider: google
       id: "gemini-account-1"
       options:
-        chat_model: "gemini-pro"
-        summarize_model: "gemini-pro"
+        chat_model: "gemini-2.5-flash"
+        summarize_model: "gemini-2.5-flash"
       pricing:
-        "gemini-pro":
-          inputPricePerMillionTokens: 0.5
-          outputPricePerMillionTokens: 1.5
-    translation:
-      provider: azure
-      id: "azure-account-1"
-      pricing:
-        "default":
-          pricePerMillionCharacters: 10.0
-    speech-synthesis:
-      provider: azure
-      id: "azure-account-1"
-      pricing:
-        "default":
-          pricePerMillionCharacters: 15.0
-    transcription:
-      provider: azure
-      id: "azure-account-1"
-      pricing:
-        "default":
-          pricePerHour: 1.0
+        "gemini-2.5-flash":
+          inputPricePerMillionTokens: 0.15
+          outputPricePerMillionTokens: 0.6
   providers:
     google:
       - id: "gemini-account-1"
-        credentials:
-          apiKey: "YOUR_GEMINI_API_KEY"
-    azure:
-      - id: "azure-account-1"
-        credentials:
-          apiKey: "YOUR_AZURE_API_KEY"
-          region: "eastus"
-        options:
-          endpoint: "https://api.cognitive.microsofttranslator.com/"
+        credentials: {}
 
 ingress:
   userIdPrefix: "ingress_"
 
 analytics:
   enabled: true
-
-azureSpeech:
-  enabled: false
-  subscriptionKeys: []
 
 webhook:
   enabled: true
