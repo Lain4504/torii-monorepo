@@ -274,7 +274,7 @@ export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetP
                                         </div>
                                         <Switch
                                             checked={watch("isActive")}
-                                            onCheckedChange={(val) => setValue("isActive", val)}
+                                            onCheckedChange={(val) => setValue("isActive", val, { shouldDirty: true })}
                                         />
                                     </Field>
                                 </FieldSet>

@@ -32,6 +32,7 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
   const [search, setSearch] = useState("")
   const [categoryId, setCategoryId] = useState<string>("ALL")
   const [difficulty, setDifficulty] = useState<string>("ALL")
+  const [level, setLevel] = useState<string>("ALL")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -42,6 +43,7 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
     q: search || undefined,
     categoryId: categoryId === "ALL" ? undefined : categoryId,
     difficulty: difficulty === "ALL" ? undefined : difficulty as any,
+    level: level === "ALL" ? undefined : level,
   })
 
   // Handle individual checkbox toggle
@@ -124,6 +126,21 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
                 </SelectContent>
               </Select>
             </div>
+            <div className="w-[150px]">
+              <Select value={level} onValueChange={setLevel}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Mọi cấp độ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Mọi cấp độ</SelectItem>
+                  <SelectItem value="N1">N1</SelectItem>
+                  <SelectItem value="N2">N2</SelectItem>
+                  <SelectItem value="N3">N3</SelectItem>
+                  <SelectItem value="N4">N4</SelectItem>
+                  <SelectItem value="N5">N5</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="border rounded-md overflow-hidden bg-white dark:bg-slate-900 flex-1 overflow-y-auto">
@@ -139,16 +156,17 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
                   <TableHead>Nội dung câu hỏi</TableHead>
                   <TableHead className="w-[150px]">Loại</TableHead>
                   <TableHead className="w-[100px]">Độ khó</TableHead>
+                  <TableHead className="w-[100px]">Cấp độ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
+                    <TableCell colSpan={5} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
                   </TableRow>
                 ) : questions && questions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
+                    <TableCell colSpan={5} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
                   </TableRow>
                 ) : (
                   questions?.map((q) => (
@@ -168,6 +186,11 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
                       <TableCell>
                         <Badge variant={q.difficulty === 'HARD' ? 'destructive' : q.difficulty === 'MEDIUM' ? 'secondary' : 'default'}>
                           {q.difficulty}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
+                          {q.level || "—"}
                         </Badge>
                       </TableCell>
                     </TableRow>

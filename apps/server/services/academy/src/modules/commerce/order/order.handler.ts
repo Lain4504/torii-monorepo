@@ -79,7 +79,13 @@ export class OrderHandler {
     return this.orderService.admin_cancel(data.id, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.order.admin.export' })
+  admin_export(@Payload() query: any) {
+    return this.orderService.admin_exportOrders(query);
+  }
+
   @MessagePattern({ cmd: 'academy.order.findByCodeForUser' })
+
   findByCodeForUser(@Payload() data: { userId: string; orderCode: string }) {
     return this.orderService.getByCodeForUser(data.userId, data.orderCode);
   }

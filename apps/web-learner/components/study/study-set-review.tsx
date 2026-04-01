@@ -17,6 +17,7 @@ import {
 } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { StudyModeSelection } from './study-mode-selection';
 import {
   Flashcards,
@@ -76,6 +77,8 @@ export function StudySetReview({ setId }: { setId: string }) {
         front: c.term,
         back: c.definition,
         tag: c.hint || undefined,
+        phonetic: c.languageDetails?.phonetic || c.language_details?.phonetic,
+        audioUrl: c.languageDetails?.audioUrl || c.language_details?.audioUrl,
       })),
       showRatings: true,
       shuffle: false,
@@ -193,6 +196,11 @@ export function StudySetReview({ setId }: { setId: string }) {
             });
           }}
           onComplete={(res) => setCompletion(res)}
+          onViewDetail={(card) => {
+            toast.info(`Chi tiết thẻ: ${card.front}`, {
+              description: card.back,
+            });
+          }}
         />
 
         {completion && (

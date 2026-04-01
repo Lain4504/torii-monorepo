@@ -261,7 +261,7 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
                                         </div>
                                         <Switch
                                             defaultChecked
-                                            onCheckedChange={(val) => setValue("isActive", val)}
+                                            onCheckedChange={(val) => setValue("isActive", val, { shouldDirty: true })}
                                         />
                                     </Field>
                                 </FieldSet>

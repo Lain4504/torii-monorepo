@@ -46,9 +46,24 @@ export const orderApi = {
     },
 
     async exportOrders(params?: any): Promise<void> {
-         // Assuming this triggers a download or returns a blob
-        await apiClient.get('/api/academy/orders/export', { params, responseType: 'blob' });
+        const response = await apiClient.get('/api/academy/orders/export', {
+            params,
+            responseType: 'blob'
+        });
+
+        // Create a blob URL and trigger download
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `orders-export-${new Date().getTime()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        link.remove();
+        window.URL.revokeObjectURL(url);
     },
+
 
     async getOrdersByCohort(cohortId: string, query?: any): Promise<PaginatedApiResponse<OrderResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>(`/api/academy/cohorts/${cohortId}/orders`, { params: query });

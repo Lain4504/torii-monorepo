@@ -113,11 +113,12 @@ export class QuestionService {
   }
 
   async findQuestions(query: AcademyQuestionQueryDTO) {
-    const { questionType, difficulty, categoryId, reviewStatus, q } = query;
+    const { questionType, difficulty, level, categoryId, reviewStatus, q } = query;
     return this.prisma.academyQuestion.findMany({
       where: {
         questionType: questionType as any,
         difficulty,
+        level,
         reviewStatus,
         OR: q ? [
           { stem: { contains: q, mode: 'insensitive' } } as any,

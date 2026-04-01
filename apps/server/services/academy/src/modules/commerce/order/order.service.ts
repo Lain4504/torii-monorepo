@@ -17,6 +17,8 @@ import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
 import { ClientProxy } from '@nestjs/microservices';
 import { AiSubscriptionService } from '../quota/ai-subscription.service';
+import * as ExcelJS from 'exceljs';
+
 
 @Injectable()
 export class OrderService {
@@ -872,4 +874,65 @@ export class OrderService {
   async admin_getStatsByOffering(offeringId: string) {
     return { totalOrders: 0, totalRevenue: 0 };
   }
+
+  async admin_exportOrders(query: any) {
+    const where: any = {};
+    if (query.userId) where.userId = query.userId;
+    if (query.status && query.status !== 'all') where.status = query.status;
+
+    if (query.startDate || query.endDate) {
+      where.createdAt = {};
+      if (query.startDate)
+        where.createdAt.gte = new Date(query.startDate + 'T00:00:00.000Z');
+      if (query.endDate)
+        where.createdAt.lte = new Date(query.endDate + 'T23:59:59.999Z');
+    }
+
+    if (query.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { user: { email: { contains: query.search, mode: 'insensitive' } } },
+        {
+          user: { displayName: { contains: query.search, mode: 'insensitive' } },
+        },
+      ];
+    }
+
+    const items = await this.prisma.order.findMany({
+      where,
+      include: {
+        user: { select: { email: true, displayName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Orders');
+
+    worksheet.columns = [
+      { header: 'Mã đơn hàng', key: 'code', width: 25 },
+      { header: 'Khách hàng', key: 'user', width: 30 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Ngày tạo', key: 'createdAt', width: 20 },
+      { header: 'Trạng thái', key: 'status', width: 15 },
+      { header: 'Tổng tiền', key: 'grandTotal', width: 15 },
+      { header: 'Phương thức', key: 'paymentMethod', width: 15 },
+    ];
+
+    items.forEach((order) => {
+      worksheet.addRow({
+        code: order.code,
+        user: order.user?.displayName || 'N/A',
+        email: order.user?.email || 'N/A',
+        createdAt: order.createdAt.toLocaleString('vi-VN'),
+        status: order.status,
+        grandTotal: Number(order.grandTotal),
+        paymentMethod: order.paymentMethod,
+      });
+    });
+
+    const buffer = await workbook.csv.writeBuffer();
+    return buffer;
+  }
 }
+

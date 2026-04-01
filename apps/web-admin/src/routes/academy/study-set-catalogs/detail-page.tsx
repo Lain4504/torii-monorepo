@@ -8,17 +8,7 @@ import {
 } from '@/lib/api/services/academy-study-set-catalogs'
 import { PageHeader } from '@/components/common/page-header'
 import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
-import { Textarea } from '@workspace/ui/components/textarea'
-import { Label } from '@workspace/ui/components/label'
 import { Badge } from '@workspace/ui/components/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@workspace/ui/components/dialog'
 import {
   Table,
   TableBody,
@@ -30,13 +20,7 @@ import {
 import { ArrowLeft, Plus, Pencil, Trash2, Loader2, BookOpen } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface CardFormState {
-  term: string
-  definition: string
-  hint: string
-}
-
-const emptyForm: CardFormState = { term: '', definition: '', hint: '' }
+import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog'
 
 export default function StudySetCatalogDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -50,29 +34,26 @@ export default function StudySetCatalogDetailPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCard, setEditingCard] = useState<any | null>(null)
-  const [form, setForm] = useState<CardFormState>(emptyForm)
 
   const openCreate = () => {
     setEditingCard(null)
-    setForm(emptyForm)
     setDialogOpen(true)
   }
 
   const openEdit = (card: any) => {
     setEditingCard(card)
-    setForm({ term: card.term, definition: card.definition, hint: card.hint || '' })
     setDialogOpen(true)
   }
 
-  const onSubmit = async () => {
-    if (!form.term.trim() || !form.definition.trim()) {
-      toast.error('Vui lòng nhập cả mặt trước và mặt sau của thẻ')
-      return
-    }
+  const handleSave = async (values: FlashcardFormValues) => {
     const payload = {
-      term: form.term.trim(),
-      definition: form.definition.trim(),
-      hint: form.hint.trim() || undefined,
+      term: values.term.trim(),
+      definition: values.definition.trim(),
+      hint: values.note.trim() || undefined,
+      languageDetails: {
+        phonetic: values.phonetic.trim(),
+        type: values.type
+      }
     }
     try {
       if (editingCard) {
@@ -121,6 +102,14 @@ export default function StudySetCatalogDetailPage() {
 
   const cards = (set as any).setCards ?? []
 
+  const initialValues: Partial<FlashcardFormValues> = editingCard ? {
+    term: editingCard.term,
+    definition: editingCard.definition,
+    phonetic: editingCard.languageDetails?.phonetic || editingCard.language_details?.phonetic || '',
+    note: editingCard.hint || '',
+    type: editingCard.languageDetails?.type || editingCard.language_details?.type || 'Từ vựng'
+  } : {}
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
@@ -161,9 +150,9 @@ export default function StudySetCatalogDetailPage() {
             <TableHeader className="bg-muted/30">
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-8 pl-4">#</TableHead>
-                <TableHead>Mặt trước (Term)</TableHead>
-                <TableHead>Mặt sau (Definition)</TableHead>
-                <TableHead>Gợi ý</TableHead>
+                <TableHead>Mặt trước / Phiên âm</TableHead>
+                <TableHead>Mặt sau / Nghĩa</TableHead>
+                <TableHead>Từ loại</TableHead>
                 <TableHead className="text-right pr-6 w-[100px]">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
@@ -171,16 +160,24 @@ export default function StudySetCatalogDetailPage() {
               {cards.map((card: any, idx: number) => (
                 <TableRow key={card.id} className="hover:bg-muted/10">
                   <TableCell className="pl-4 text-muted-foreground text-sm">{idx + 1}</TableCell>
-                  <TableCell className="font-medium max-w-[240px]">
-                    <div className="line-clamp-2">{card.term}</div>
+                  <TableCell className="max-w-[240px]">
+                    <div className="font-bold text-slate-800">{card.term}</div>
+                    {(card.languageDetails?.phonetic || card.language_details?.phonetic) && (
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        「 {card.languageDetails?.phonetic || card.language_details?.phonetic} 」
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="max-w-[300px]">
-                    <div className="line-clamp-2 text-muted-foreground">{card.definition}</div>
+                    <div className="text-slate-700">{card.definition}</div>
+                    {card.hint && (
+                      <div className="text-[11px] italic text-muted-foreground mt-0.5">Ghi chú: {card.hint}</div>
+                    )}
                   </TableCell>
                   <TableCell>
-                    {card.hint ? (
-                      <Badge variant="outline" className="text-xs font-normal">
-                        {card.hint}
+                    {(card.languageDetails?.type || card.language_details?.type) ? (
+                      <Badge variant="outline" className="text-[10px] font-bold px-2 py-0 h-5 bg-slate-50 uppercase tracking-tighter">
+                        {card.languageDetails?.type || card.language_details?.type}
                       </Badge>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
@@ -213,58 +210,15 @@ export default function StudySetCatalogDetailPage() {
         </div>
       )}
 
-      {/* Card Editor Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{editingCard ? 'Chỉnh sửa thẻ' : 'Thêm thẻ mới'}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>
-                Mặt trước (Term) <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                placeholder="VD: 日本語 / にほんご"
-                value={form.term}
-                onChange={(e) => setForm((f) => ({ ...f, term: e.target.value }))}
-                rows={2}
-                className="resize-none"
-                autoFocus
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>
-                Mặt sau (Definition) <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                placeholder="VD: Tiếng Nhật"
-                value={form.definition}
-                onChange={(e) => setForm((f) => ({ ...f, definition: e.target.value }))}
-                rows={2}
-                className="resize-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Gợi ý (không bắt buộc)</Label>
-              <Input
-                placeholder="VD: N5"
-                value={form.hint}
-                onChange={(e) => setForm((f) => ({ ...f, hint: e.target.value }))}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Hủy
-            </Button>
-            <Button onClick={onSubmit} disabled={!form.term.trim() || !form.definition.trim() || isPending}>
-              {isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              {editingCard ? 'Cập nhật' : 'Thêm thẻ'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Shared Card Editor Dialog */}
+      <FlashcardFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initialValues={initialValues}
+        onSave={handleSave}
+        isPending={isPending}
+        title={editingCard ? 'Chỉnh sửa thẻ' : 'Thêm thẻ mới'}
+      />
     </div>
   )
 }

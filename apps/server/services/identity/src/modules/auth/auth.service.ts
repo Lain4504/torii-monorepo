@@ -230,6 +230,7 @@ export class AuthService implements IAuthService {
     return {
       ...user,
       role: user.role as UserRole,
+      points: (user as any).gamification?.points || 0,
     } as any;
   }
 
@@ -355,6 +356,7 @@ export class AuthService implements IAuthService {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         walletBalance: Number(user.walletBalance),
+        points: (user as any).gamification?.points || 0,
         permissions,
       },
       accessToken,
@@ -488,6 +490,7 @@ export class AuthService implements IAuthService {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         walletBalance: Number(user.walletBalance),
+        points: (user as any).gamification?.points || 0,
         permissions,
       },
       accessToken,
@@ -967,6 +970,7 @@ export class AuthService implements IAuthService {
           ? (user.appMetadata as Record<string, unknown>)
           : undefined
         : undefined,
+      points: (user as any).gamification?.points || 0,
       permissions,
     } as any;
   }
@@ -1061,6 +1065,7 @@ export class AuthService implements IAuthService {
           ? (user.appMetadata as Record<string, unknown>)
           : undefined
         : undefined,
+      points: (user as any).gamification?.points || 0,
       permissions,
     } as any;
   }
@@ -1137,6 +1142,7 @@ export class AuthService implements IAuthService {
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
           walletBalance: Number(user.walletBalance),
+          points: (user as any).gamification?.points || 0,
           permissions,
         },
         accessToken,
@@ -1233,6 +1239,7 @@ export class AuthService implements IAuthService {
           createdAt: existingUser.createdAt,
           updatedAt: existingUser.updatedAt,
           walletBalance: Number(existingUser.walletBalance),
+          points: (existingUser as any).gamification?.points || 0,
           permissions,
         },
         accessToken,
@@ -1321,6 +1328,7 @@ export class AuthService implements IAuthService {
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
         walletBalance: Number(newUser.walletBalance),
+        points: (newUser as any).gamification?.points || 0,
         permissions,
       },
       accessToken,
@@ -1389,6 +1397,7 @@ export class AuthService implements IAuthService {
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
           walletBalance: Number(user.walletBalance),
+          points: (user as any).gamification?.points || 0,
           permissions,
         },
         accessToken: access_token,
@@ -1483,6 +1492,7 @@ export class AuthService implements IAuthService {
           createdAt: existingUser.createdAt,
           updatedAt: existingUser.updatedAt,
           walletBalance: Number(existingUser.walletBalance),
+          points: (existingUser as any).gamification?.points || 0,
           permissions,
         },
         accessToken: access_token,
@@ -1570,6 +1580,7 @@ export class AuthService implements IAuthService {
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
         walletBalance: Number(newUser.walletBalance),
+        points: (newUser as any).gamification?.points || 0,
         permissions,
       },
       accessToken: access_token,

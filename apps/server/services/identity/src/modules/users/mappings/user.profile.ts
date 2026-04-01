@@ -120,6 +120,10 @@ export class UserProfile extends AutomapperProfile {
           (dest: UserResponseDTO) => dest.isOnboarded,
           mapFrom((src: User) => src.isOnboarded || false),
         ),
+        forMember(
+          (dest: UserResponseDTO) => dest.points,
+          mapFrom((src: any) => src.gamification?.points || 0),
+        ),
       );
     };
   }
