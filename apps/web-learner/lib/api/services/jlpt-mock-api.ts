@@ -15,6 +15,12 @@ export type JlptMockTemplateQuestion = {
   id: string
   sectionId: string
   mondaiId: string | null
+  mondai?: {
+    id: string
+    code: string
+    titleVi?: string | null
+    titleJa?: string | null
+  } | null
   questionId: string
   orderIndex: number
   question: {
