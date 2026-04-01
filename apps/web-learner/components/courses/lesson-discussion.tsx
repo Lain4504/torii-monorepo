@@ -38,10 +38,10 @@ interface LessonDiscussionProps {
 }
 
 // Local hooks to replace missing discussion-topic-api
-function useDiscussions(lessonId: string) {
+function useDiscussions(lessonId: string, classId: string) {
     return useQuery({
-        queryKey: ['discussions', lessonId],
-        queryFn: () => commentApi.findAll({ discussionId: lessonId, limit: 100, page: 1 }),
+        queryKey: ['discussions', lessonId, classId],
+        queryFn: () => commentApi.findAll({ discussionId: lessonId, classId, limit: 100, page: 1 }),
         enabled: !!lessonId
     })
 }
@@ -54,19 +54,20 @@ function useCreateDiscussion() {
         mutationFn: (data: { content: string, classId: string, moduleId?: string, lessonId: string, category: string }) => {
             return commentApi.create({
                 discussionId: data.lessonId,
+                classId: data.classId,
                 userId: user?.id || '',
                 content: data.content,
             })
         },
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['discussions', variables.lessonId] })
+            queryClient.invalidateQueries({ queryKey: ['discussions', variables.lessonId, variables.classId] })
         }
     })
 }
 
 export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
-    const { data: discussions, isLoading, isError } = useDiscussions(lessonId)
+    const { data: discussions, isLoading, isError } = useDiscussions(lessonId, classId)
     const createDiscussion = useCreateDiscussion()
 
     const [isCreating, setIsCreating] = useState(false)
@@ -271,7 +272,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                         {/* Replies Section using existing CommentSection.
                                             Backend enables self-target by topic.id, so the topic + its nested replies will be returned. */}
                                         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                            <CommentSection discussionId={topic.id} />
+                                            <CommentSection discussionId={topic.id} classId={classId} />
                                         </div>
                                     </div>
                                 </CardContent>

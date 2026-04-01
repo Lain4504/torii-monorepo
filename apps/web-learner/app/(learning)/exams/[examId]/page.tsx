@@ -157,7 +157,7 @@ export default function ExamRunnerPage() {
               <div className="flex justify-center gap-12">
                  <div className="text-center">
                     <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">Điểm số</p>
-                    <p className="text-5xl font-black text-primary">{Math.round(attempt.score || 0)}/{attempt.maxScore}</p>
+                    <p className="text-5xl font-black text-primary">{Math.round(attempt.percentage || 0)}%</p>
                  </div>
                  <div className="text-center">
                     <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">Kết quả</p>

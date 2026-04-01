@@ -48,6 +48,8 @@ export const commentApi = {
                 backendParams.entityId = params.discussionId;
                 backendParams.targetType = 'DISCUSSION';
                 delete backendParams.discussionId;
+                if (params.classId) backendParams.classId = params.classId;
+                if (params.courseId) backendParams.courseId = params.courseId;
             }
 
             const response = await apiClient.get<PaginatedApiResponse<CommentResponseDTO>>('/api/comments', {
@@ -100,6 +102,8 @@ export const commentApi = {
             backendDto.entityId = dto.discussionId;
             backendDto.targetType = 'DISCUSSION';
             delete backendDto.discussionId;
+            if (dto.classId) backendDto.classId = dto.classId;
+            if (dto.courseId) backendDto.courseId = dto.courseId;
         }
 
         const response = await apiClient.post<StandardApiResponse<CommentResponseDTO>>('/api/comments', backendDto);

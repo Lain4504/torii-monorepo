@@ -1107,18 +1107,22 @@ model Certificate {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId          String   @map("user_id") @db.Uuid
   liveClassId     String?  @map("live_class_id") @db.Uuid
+  vodPackageId    String?  @map("vod_package_id") @db.Uuid
   enrollmentId    String   @unique @map("enrollment_id") @db.Uuid
   certificateCode String   @unique @map("certificate_code") @db.VarChar(50)
   issueDate       DateTime @default(now()) @map("issue_date")
   fileUrl         String   @map("file_url") @db.Text
+  score           Decimal? @db.Decimal(5, 2)
   metadata        Json?    @default("{}")
 
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  liveClass  LiveClass? @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  liveClass  LiveClass?  @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  vodPackage VodPackage? @relation(fields: [vodPackageId], references: [id], onDelete: Cascade)
+  enrollment Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([liveClassId])
+  @@index([vodPackageId])
   @@map("certificates")
 }
 
@@ -1256,6 +1260,7 @@ model VodPackage {
   reviews CourseReview[]
   assignments LiveClassAssignment[]
   academyFolders AcademyFolder[]
+  certificates   Certificate[]
 
   @@index([status])
   @@index([courseProfileId])

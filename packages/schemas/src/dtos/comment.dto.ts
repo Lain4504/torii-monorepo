@@ -4,15 +4,17 @@ import { paginatedResponseSchema } from './common.dto';
 
 // Use extend to add non-model fields or pick to select model fields
 export const commentCreateDTOSchema = z.object({
-    targetType: z.nativeEnum(CommentTargetType).optional(),
-    entityId: z.string().uuid().optional(),
-    userId: z.string().uuid(),
+    targetType: z.nativeEnum(CommentTargetType),
+    entityId: z.string().uuid(),
+    userId: z.string().uuid().optional(),
     content: z.string().min(1),
     parentId: z.string().uuid().optional(),
     authorId: z.string().uuid().optional(), // Alias
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
+    classId: z.string().uuid().optional(),
+    courseId: z.string().uuid().optional(),
 });
 
 export type CommentCreateDTO = z.infer<typeof commentCreateDTOSchema>;
@@ -34,6 +36,8 @@ export const commentQueryDTOSchema = z.object({
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
+    classId: z.string().uuid().optional(),
+    courseId: z.string().uuid().optional(),
 });
 
 export type CommentQueryDTO = z.infer<typeof commentQueryDTOSchema>;
@@ -48,6 +52,8 @@ export const commentResponseDTOSchema: z.ZodType<any> = commentSchema.extend({
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
+    classId: z.string().uuid().optional(),
+    courseId: z.string().uuid().optional(),
     authorRoleLabel: z.enum(['Torii Support', 'Giảng viên', 'Học viên']).optional(),
     isOfficialReply: z.boolean().optional(),
     replyCount: z.number().optional().default(0),
