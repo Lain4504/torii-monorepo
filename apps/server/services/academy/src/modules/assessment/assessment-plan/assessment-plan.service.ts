@@ -124,6 +124,7 @@ export class AssessmentPlanService {
         examTitle: p.exam?.title ?? undefined,
         latestAttemptId: latestAttempt?.id,
         score: latestAttempt?.score ? Number(latestAttempt.score) : undefined,
+        percentage: latestAttempt?.percentage ? Number(latestAttempt.percentage) : undefined,
         isPassed: latestAttempt?.isPassed ?? undefined,
       };
     });

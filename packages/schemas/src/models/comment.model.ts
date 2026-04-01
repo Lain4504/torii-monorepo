@@ -5,6 +5,8 @@ export enum CommentTargetType {
     FEED = 'FEED',
     DISCUSSION = 'DISCUSSION',
     LESSON = 'LESSON',
+    CLASS = 'CLASS',
+    COURSE = 'COURSE',
 }
 
 export const commentSchema = z.object({

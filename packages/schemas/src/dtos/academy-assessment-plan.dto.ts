@@ -31,6 +31,7 @@ export const academyAssessmentStatusSchema = z.object({
   examTitle: z.string().optional(),
   latestAttemptId: z.string().uuid().nullable().optional(),
   score: z.number().optional(),
+  percentage: z.number().optional(),
   isPassed: z.boolean().optional(),
 });
 

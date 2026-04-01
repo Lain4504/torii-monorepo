@@ -24,10 +24,11 @@ interface CommentSectionProps {
     blogId?: string
     feedId?: string
     discussionId?: string
+    classId?: string
     onCommentCountChange?: (delta: number) => void
 }
 
-export function CommentSection({ blogId, feedId, discussionId, onCommentCountChange }: CommentSectionProps) {
+export function CommentSection({ blogId, feedId, discussionId, classId, onCommentCountChange }: CommentSectionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
@@ -41,7 +42,7 @@ export function CommentSection({ blogId, feedId, discussionId, onCommentCountCha
             const response = await commentApi.findAll({
                 page: 1,
                 limit: 100,
-                ...(blogId ? { blogId } : feedId ? { feedId } : { discussionId }),
+                ...(blogId ? { blogId } : feedId ? { feedId } : { discussionId, classId }),
             })
 
             // Flatten nested structure: backend returns root comments with nested replies
@@ -76,7 +77,7 @@ export function CommentSection({ blogId, feedId, discussionId, onCommentCountCha
         if (blogId || feedId || discussionId) {
             fetchComments()
         }
-    }, [blogId, feedId, discussionId])
+    }, [blogId, feedId, discussionId, classId])
 
     const handleSubmitComment = async (content: string, parentId?: string) => {
         if (!content.trim()) {
@@ -96,7 +97,7 @@ export function CommentSection({ blogId, feedId, discussionId, onCommentCountCha
             }
 
             const newComment = await commentApi.create({
-                ...(blogId ? { blogId } : feedId ? { feedId: feedId! } : { discussionId: discussionId! }),
+                ...(blogId ? { blogId } : feedId ? { feedId: feedId! } : { discussionId: discussionId!, classId }),
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined,

@@ -289,6 +289,22 @@ export class CommentService {
       },
     };
 
+    if (query.classId) {
+      delete where.targets;
+      where.AND = [
+        {
+          targets: {
+            some: { targetId: query.entityId, targetType: query.targetType },
+          },
+        },
+        {
+          targets: {
+            some: { targetId: query.classId, targetType: 'CLASS' },
+          },
+        },
+      ];
+    }
+
     if (query.parentId !== undefined) {
       where.parentCommentId = query.parentId || null;
     }
@@ -486,6 +502,17 @@ export class CommentService {
           targetType: targetType as any,
         },
       });
+
+      // Class-target: scopes discussion to a specific class/course instance.
+      if (dto.classId) {
+        await tx.commentTarget.create({
+          data: {
+            commentId: created.id,
+            targetId: dto.classId,
+            targetType: 'CLASS',
+          },
+        });
+      }
 
       return created;
     });

@@ -257,7 +257,7 @@ function MilestoneItem({
                     {isLocked ? (
                         <span className="text-slate-400 flex items-center gap-1"><Lock className="h-3 w-3" /> Hoàn thành bài trước để mở</span>
                     ) : isPassed ? (
-                        <span className="text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Đã vượt qua ({Math.round(milestone.score || 0)}đ)</span>
+                        <span className="text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Đã vượt qua ({Math.round(milestone.percentage || 0)}%)</span>
                     ) : isInProgress ? (
                         <span className="text-amber-600 font-bold flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Đang làm dở</span>
                     ) : (

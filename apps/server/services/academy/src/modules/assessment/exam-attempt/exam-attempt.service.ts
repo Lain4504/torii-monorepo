@@ -154,7 +154,7 @@ export class ExamAttemptService {
 
     const percentage = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
     const settings = (attempt.exam.settings || {}) as any;
-    const passThreshold = settings.passThreshold || 50; // default 50%
+    const passThreshold = settings.passThreshold || 80; // default 80%
     const isPassed = percentage >= passThreshold;
 
     return this.prisma.$transaction(async (tx) => {

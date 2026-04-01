@@ -11,6 +11,7 @@ export type AcademyAssessmentStatus = {
   triggerLessonId?: string
   latestAttemptId?: string
   score?: number
+  percentage?: number
   isPassed?: boolean
   examTitle?: string
 }

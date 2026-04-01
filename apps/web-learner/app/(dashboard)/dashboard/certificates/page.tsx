@@ -16,7 +16,14 @@ export default function CertificatesPage() {
 
     const stats = [
         { label: 'Chứng chỉ', value: certificates.length.toString(), icon: Award, color: 'text-amber-500' },
-        { label: 'Điểm TB', value: '100', icon: CheckCircle2, color: 'text-emerald-500' },
+        { 
+            label: 'Điểm TB', 
+            value: certificates.length > 0 
+                ? Math.round(certificates.reduce((acc, curr) => acc + (Number(curr.score) || 0), 0) / certificates.length).toString() + '%'
+                : '0%', 
+            icon: CheckCircle2, 
+            color: 'text-emerald-500' 
+        },
         { label: 'Cấp độ', value: 'N/A', icon: Award, color: 'text-primary' },
     ]
 
@@ -115,6 +122,10 @@ export default function CertificatesPage() {
                                                 <CheckCircle2 className="w-3 h-3" /> Đã cấp
                                             </span>
                                         </div>
+                                        <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                                            <span className="text-xs text-muted-foreground font-medium">Điểm số</span>
+                                            <span className="text-sm font-bold">{Math.round(Number(cert.score) || 0)}%</span>
+                                        </div>
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs text-muted-foreground font-medium">Ngày cấp</span>
                                             <span className="text-xs font-bold">{formatDate(cert.issueDate)}</span>
@@ -130,12 +141,12 @@ export default function CertificatesPage() {
                                         className="flex-1 rounded-xl text-xs font-bold h-9 hover:bg-muted transition-all shadow-sm"
                                     >
                                         {cert.fileUrl ? (
-                                            <Link href={cert.fileUrl} target="_blank" download>
+                                            <Link href={cert.fileUrl} target="_blank" download className="w-full h-full flex items-center justify-center">
                                                 <Download className="w-3.5 h-3.5 mr-1.5" /> Tải về
                                             </Link>
                                         ) : (
                                             <span className="inline-flex items-center">
-                                                <Download className="w-3.5 h-3.5 mr-1.5" /> Chưa có file
+                                                <Download className="w-3.5 h-3.5 mr-1.5 text-muted-foreground/50" /> Chưa có file
                                             </span>
                                         )}
                                     </Button>
