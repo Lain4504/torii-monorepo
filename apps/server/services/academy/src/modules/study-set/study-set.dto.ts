@@ -16,6 +16,7 @@ export const createSetCardSchema = z.object({
   definition: z.string().min(1),
   hint: z.string().optional(),
   mediaUrl: z.string().optional(),
+  languageDetails: z.record(z.any()).optional(),
   tags: z.array(z.string()).optional(),
 });
 export type CreateSetCardDto = z.infer<typeof createSetCardSchema>;
