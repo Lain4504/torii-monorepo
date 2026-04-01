@@ -77,35 +77,35 @@ export default function JlptMockSectionPage() {
   useEffect(() => {
     if (endsAtMs == null || Number.isNaN(endsAtMs)) return
     const t = setInterval(() => {
-        const now = Date.now()
-        setNowMs(now)
-        if (now >= endsAtMs) {
-            clearInterval(t)
-            handleAutoSubmit()
-        }
+      const now = Date.now()
+      setNowMs(now)
+      if (now >= endsAtMs) {
+        clearInterval(t)
+        handleAutoSubmit()
+      }
     }, 1000)
     return () => clearInterval(t)
   }, [endsAtMs])
 
   const handleAutoSubmit = async () => {
-      toast.info("Hết thời gian làm bài! Đang tự động nộp bài...")
-      await confirmSubmit()
+    toast.info("Hết thời gian làm bài! Đang tự động nộp bài...")
+    await confirmSubmit()
   }
 
   useEffect(() => {
     if (!templateId) return
-    ;(async () => {
-      try {
-        setLoading(true)
-        const tpl = await jlptMockApi.findTemplateById(templateId)
-        setTemplate(tpl)
-      } catch (e) {
-        console.error(e)
-        toast.error("Không tải được thông tin đề thi JLPT")
-      } finally {
-        setLoading(false)
-      }
-    })()
+      ; (async () => {
+        try {
+          setLoading(true)
+          const tpl = await jlptMockApi.findTemplateById(templateId)
+          setTemplate(tpl)
+        } catch (e) {
+          console.error(e)
+          toast.error("Không tải được thông tin đề thi JLPT")
+        } finally {
+          setLoading(false)
+        }
+      })()
   }, [templateId])
 
   const currentSection = useMemo(
@@ -181,7 +181,7 @@ export default function JlptMockSectionPage() {
 
     const counts = new Map<string | null, number>()
     for (const q of sectionQuestions) {
-      const key = q.mondaiId ?? null
+      const key = q.mondai?.code ?? null
       counts.set(key, (counts.get(key) ?? 0) + 1)
     }
 
@@ -193,20 +193,21 @@ export default function JlptMockSectionPage() {
         title: `問題${idx + 1}`,
         description: (() => {
           const label = (m.titleJa ?? m.titleVi ?? m.code ?? "").toString().trim()
-          const count = counts.get(m.id) ?? 0
-          return label ? `${label}·0/${count}` : `0/${count}`
+          const count = counts.get(m.code ?? null) ?? 0
+          const answered = sectionQuestions.filter(q => q.mondai?.code === m.code && selectedOptionByTemplateQuestionId[q.id]).length
+          return label ? `${label}·${answered}/${count}` : `${answered}/${count}`
         })(),
         orderIndex: idx,
       }))
     }
 
-    // Fallback: group-by mondaiId order of appearance
-    const uniq = Array.from(new Set(sectionQuestions.map((q) => q.mondaiId ?? null)))
-    return uniq.map((mondaiId, idx) => ({
-      mondaiId,
-      mondaiCode: null,
+    // Fallback: group-by mondai code order of appearance
+    const uniqCodes = Array.from(new Set(sectionQuestions.map((q) => q.mondai?.code ?? null)))
+    return uniqCodes.map((code, idx) => ({
+      mondaiId: sectionQuestions.find(q => q.mondai?.code === code)?.mondaiId ?? null,
+      mondaiCode: code,
       title: `問題${idx + 1}`,
-      description: `0/${counts.get(mondaiId) ?? 0}`,
+      description: `0/${counts.get(code) ?? 0}`,
       orderIndex: idx,
     }))
   }, [sectionQuestions])
@@ -214,20 +215,20 @@ export default function JlptMockSectionPage() {
   // Initialize active mondai (first one) once we have MONDAI_SECTIONS.
   useEffect(() => {
     if (MONDAI_SECTIONS.length === 0) return
-    if (activeMondaiId === null) {
-      const first = MONDAI_SECTIONS[0]
-      if (first) {
-        setActiveMondaiId(first.mondaiId)
-        setActiveMondaiIndex(0)
-        setActiveMondaiCode(first.mondaiCode ?? null)
-      }
+
+    // Always initialize/reset to the first mondai when switching section 
+    // or if no mondai is active.
+    const first = MONDAI_SECTIONS[0]
+    if (first) {
+      setActiveMondaiId(first.mondaiId)
+      setActiveMondaiIndex(0)
+      setActiveMondaiCode(first.mondaiCode ?? null)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [MONDAI_SECTIONS])
 
   const activeMondaiQuestions: JlptMockTemplateQuestion[] = useMemo(() => {
-    return sectionQuestions.filter((q) => (q.mondaiId ?? null) === activeMondaiId)
-  }, [sectionQuestions, activeMondaiId])
+    return sectionQuestions.filter((q) => (q.mondai?.code ?? null) === activeMondaiCode)
+  }, [sectionQuestions, activeMondaiCode])
 
   const QUESTION_BLOCKS: QuestionBlock[] = useMemo(
     () =>
@@ -334,45 +335,45 @@ export default function JlptMockSectionPage() {
   useEffect(() => {
     if (!attemptId) return
     if (!sectionQuestionsSorted.length) return
-    ;(async () => {
-      try {
-        const items = await jlptMockApi.getAttemptAnswers(attemptId)
-        setSelectedOptionByTemplateQuestionId((prev) => {
-          const next = { ...prev }
-          for (const a of items) {
-            if (!questionIndexByTemplateQuestionId.has(a.templateQuestionId)) continue
-            next[a.templateQuestionId] = a.selectedOptionId ?? undefined
-          }
-          return next
-        })
-        const lastAnswered = items
-          .filter((a) => a.selectedOptionId && questionIndexByTemplateQuestionId.has(a.templateQuestionId))
-          .sort((a, b) => new Date(b.answeredAt).getTime() - new Date(a.answeredAt).getTime())[0]
-        if (lastAnswered?.templateQuestionId) setActiveQuestionTemplateId(lastAnswered.templateQuestionId)
-        else if (sectionQuestionsSorted[0]?.id) setActiveQuestionTemplateId(sectionQuestionsSorted[0].id)
-        
-        // Fetch audio if listening
-        if (currentSection?.isListening) {
-           const firstListenQ = sectionQuestionsSorted.find(q => q.question.audioAssetId)
-           if (firstListenQ?.question.audioAssetId) {
-               const { signedUrl } = await storageApi.getSignedUrl({ fileId: firstListenQ.question.audioAssetId })
-               setAudioUrl(signedUrl)
-           }
-        }
+      ; (async () => {
+        try {
+          const items = await jlptMockApi.getAttemptAnswers(attemptId)
+          setSelectedOptionByTemplateQuestionId((prev) => {
+            const next = { ...prev }
+            for (const a of items) {
+              if (!questionIndexByTemplateQuestionId.has(a.templateQuestionId)) continue
+              next[a.templateQuestionId] = a.selectedOptionId ?? undefined
+            }
+            return next
+          })
+          const lastAnswered = items
+            .filter((a) => a.selectedOptionId && questionIndexByTemplateQuestionId.has(a.templateQuestionId))
+            .sort((a, b) => new Date(b.answeredAt).getTime() - new Date(a.answeredAt).getTime())[0]
+          if (lastAnswered?.templateQuestionId) setActiveQuestionTemplateId(lastAnswered.templateQuestionId)
+          else if (sectionQuestionsSorted[0]?.id) setActiveQuestionTemplateId(sectionQuestionsSorted[0].id)
 
-        // Fetch images for questions in this section
-        const questionsWithImages = sectionQuestionsSorted.filter(q => q.question.imageAssetId)
-        for (const q of questionsWithImages) {
+          // Fetch audio if listening
+          if (currentSection?.isListening) {
+            const firstListenQ = sectionQuestionsSorted.find(q => q.question.audioAssetId)
+            if (firstListenQ?.question.audioAssetId) {
+              const { signedUrl } = await storageApi.getSignedUrl({ fileId: firstListenQ.question.audioAssetId })
+              setAudioUrl(signedUrl)
+            }
+          }
+
+          // Fetch images for questions in this section
+          const questionsWithImages = sectionQuestionsSorted.filter(q => q.question.imageAssetId)
+          for (const q of questionsWithImages) {
             if (q.question.imageAssetId) {
               const { signedUrl } = await storageApi.getSignedUrl({ fileId: q.question.imageAssetId })
               setQuestionImageUrls(prev => ({ ...prev, [q.id]: signedUrl }))
             }
-        }
+          }
 
-      } catch (e) {
-        console.error(e)
-      }
-    })()
+        } catch (e) {
+          console.error(e)
+        }
+      })()
   }, [attemptId, sectionQuestionsSorted.length, questionIndexByTemplateQuestionId, currentSection?.isListening])
 
   const handleSelectOption = async (templateQuestionId: string, optionId: string) => {
@@ -419,7 +420,9 @@ export default function JlptMockSectionPage() {
               </span>
             )}
             <span className="text-xs text-muted-foreground">
-              0/{QUESTION_COUNT} câu
+              {Object.keys(selectedOptionByTemplateQuestionId).filter(k =>
+                sectionQuestions.some(sq => sq.id === k) && selectedOptionByTemplateQuestionId[k]
+              ).length}/{QUESTION_COUNT} câu
             </span>
           </div>
         </div>
@@ -462,11 +465,10 @@ export default function JlptMockSectionPage() {
                   <button
                     key={`${m.mondaiId ?? "null"}-${index}`}
                     type="button"
-                    className={`block w-full text-left p-3 rounded-lg transition-colors ${
-                      (m.mondaiId ?? null) === activeMondaiId
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "hover:bg-accent"
-                    }`}
+                    className={`block w-full text-left p-3 rounded-lg transition-colors ${(m.mondaiId ?? null) === activeMondaiId
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "hover:bg-accent"
+                      }`}
                     onClick={() => {
                       setActiveMondaiId(m.mondaiId)
                       setActiveMondaiIndex(index)
@@ -477,11 +479,10 @@ export default function JlptMockSectionPage() {
                       {m.title}
                     </p>
                     <p
-                      className={`text-xs ${
-                        (m.mondaiId ?? null) === activeMondaiId
-                          ? "opacity-90"
-                          : "text-muted-foreground"
-                      }`}
+                      className={`text-xs ${(m.mondaiId ?? null) === activeMondaiId
+                        ? "opacity-90"
+                        : "text-muted-foreground"
+                        }`}
                     >
                       {m.description}
                     </p>
@@ -505,9 +506,9 @@ export default function JlptMockSectionPage() {
                       type="button"
                       onClick={() => {
                         setActiveQuestionTemplateId(q.id)
-                        const targetMondaiId = q.mondaiId ?? null
+                        const targetMondaiCode = q.mondai?.code ?? null
                         const mondaiItem = MONDAI_SECTIONS.find(
-                          (m) => (m.mondaiId ?? null) === targetMondaiId,
+                          (m) => (m.mondaiCode ?? null) === targetMondaiCode,
                         )
                         if (mondaiItem) {
                           setActiveMondaiId(mondaiItem.mondaiId)
@@ -515,13 +516,12 @@ export default function JlptMockSectionPage() {
                           setActiveMondaiCode(mondaiItem.mondaiCode ?? null)
                         }
                       }}
-                      className={`w-full aspect-square text-[10px] flex items-center justify-center border rounded hover:transition-colors transition-colors ${
-                        isActive
-                          ? "border-primary bg-primary/10 text-primary"
-                          : isAnswered
-                            ? "border-primary/40 bg-primary/5 text-primary"
-                            : "border-border text-muted-foreground hover:bg-primary/5 hover:text-primary"
-                      }`}
+                      className={`w-full aspect-square text-[10px] flex items-center justify-center border rounded hover:transition-colors transition-colors ${isActive
+                        ? "border-primary bg-primary/10 text-primary"
+                        : isAnswered
+                          ? "border-primary/40 bg-primary/5 text-primary"
+                          : "border-border text-muted-foreground hover:bg-primary/5 hover:text-primary"
+                        }`}
                     >
                       {num}
                     </button>
@@ -545,7 +545,7 @@ export default function JlptMockSectionPage() {
         <main className="flex-1 overflow-y-auto bg-background p-8 relative">
           <div className="max-w-4xl mx-auto space-y-6 pb-24">
             {currentSection?.isListening && (
-               <ListeningPlayer audioUrl={audioUrl} autoPlay />
+              <ListeningPlayer audioUrl={audioUrl} autoPlay />
             )}
 
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-6">
@@ -567,15 +567,15 @@ export default function JlptMockSectionPage() {
                     {q.sentence}
                   </p>
                 </div>
-                
+
                 {activeMondaiQuestions.find(amq => amq.id === q.templateQuestionId)?.question.imageAssetId && (
-                   <div className="ml-12 mb-6 border rounded-lg overflow-hidden bg-accent/20">
-                      <img 
-                        src={questionImageUrls[q.templateQuestionId]} 
-                        alt="Question Content" 
-                        className="max-w-full h-auto object-contain mx-auto"
-                      />
-                   </div>
+                  <div className="ml-12 mb-6 border rounded-lg overflow-hidden bg-accent/20">
+                    <img
+                      src={questionImageUrls[q.templateQuestionId]}
+                      alt="Question Content"
+                      className="max-w-full h-auto object-contain mx-auto"
+                    />
+                  </div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-12">
@@ -585,18 +585,16 @@ export default function JlptMockSectionPage() {
                       type="button"
                       onClick={() => handleSelectOption(q.templateQuestionId, opt.id)}
                       aria-pressed={selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id}
-                      className={`option-card border rounded-lg p-4 text-left transition-all flex items-center space-x-3 group bg-card ${
-                        selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
-                          ? "border-primary bg-primary/10"
-                          : "border-border"
-                      }`}
+                      className={`option-card border rounded-lg p-4 text-left transition-all flex items-center space-x-3 group bg-card ${selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
+                        ? "border-primary bg-primary/10"
+                        : "border-border"
+                        }`}
                     >
                       <span
-                        className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs ${
-                          selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
-                        }`}
+                        className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs ${selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                          }`}
                       >
                         {index + 1}
                       </span>
