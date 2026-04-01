@@ -19,7 +19,7 @@ import {
 } from '@workspace/ui/components/table';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
-import { formatDateTime, formatCurrency } from '@/lib/format-utils';
+import { formatDateTime, formatCurrency, formatNumber } from '@/lib/format-utils';
 import { AlertTriangle, Lock, Zap, Clock, BookOpen, Wallet, History, Info } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
@@ -62,6 +62,7 @@ export function ViewUserSheet({
         { label: 'Trạng thái', value: <Badge variant="outline" className={cn(status.includes('cấm') || status.includes('xóa') ? "border-destructive text-destructive" : "")}><StatusIcon className="size-3 mr-1.5" />{status}</Badge> },
         { label: 'Thành viên từ', value: formatDateTime(user.createdAt, 'PPpp') },
         { label: 'Cập nhật lần cuối', value: formatDateTime(user.updatedAt, 'PPpp') },
+        { label: 'Điểm tích lũy (Point)', value: <Badge variant="secondary" className="font-bold text-amber-600 bg-amber-50 border-amber-200">{formatNumber(user.points || 0)}</Badge> },
         ...(user.verifiedAt ? [{ label: 'Xác minh lúc', value: formatDateTime(user.verifiedAt, 'PPpp') }] : []),
         ...(user.lastSignInAt ? [{ label: 'Đăng nhập cuối', value: formatDateTime(user.lastSignInAt, 'PPpp') }] : []),
         ...(user.bannedUntil && new Date(user.bannedUntil) > new Date() ? [{ label: 'Hết hạn cấm', value: formatDateTime(user.bannedUntil, 'PPpp') }] : []),
@@ -186,10 +187,10 @@ function UserLearningTab({ userId }: { userId: string }) {
                         <TableRow key={item.id}>
                             <TableCell>
                                 <div className="font-semibold">
-                                    {item.liveClass?.name || item.vodPackage?.name || 'N/A'}
+                                    {item.courseTitle || item.liveClass?.name || item.vodPackage?.name || 'N/A'}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    {item.liveClass?.code || item.vodPackage?.code || 'No code'}
+                                    {item.courseCode || item.liveClass?.code || item.vodPackage?.code || 'No code'}
                                 </div>
                             </TableCell>
                             <TableCell className="text-sm">

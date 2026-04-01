@@ -495,6 +495,7 @@ export class LiveScheduleService {
           gte: this.startOfDay(from),
           lte: this.startOfDay(to),
         },
+        status: { in: ['SCHEDULED', 'COMPLETED', 'ONGOING'] }, // Exclude CANCELLED, RESCHEDULED
       },
       orderBy: [{ sessionDate: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
     });
@@ -830,6 +831,9 @@ export class LiveScheduleService {
     }> = [];
 
     if (klass.instructorId) {
+      // Check conflict by: teacherId + sessionDate + startTime/endTime overlap
+      // Do NOT filter by cohortId — a teacher cannot have two overlapping sessions
+      // on the same date/time regardless of which cohort each class belongs to.
       const teacherCandidates = await this.prisma.liveScheduleSession.findMany({
         where: {
           sessionDate,
@@ -838,7 +842,6 @@ export class LiveScheduleService {
             : undefined,
           liveClass: {
             instructorId: klass.instructorId,
-            cohortId: klass.cohortId,
             status: {
               in: ['DRAFT', 'OPENING'],
             },
@@ -856,14 +859,14 @@ export class LiveScheduleService {
 
       teacherConflicts = (teacherCandidates as any[])
         .filter((c) => c.liveClass.id !== input.classId)
-        .filter((c: any) => {
-          return this.isTimeOverlap(
+        .filter((c: any) =>
+          this.isTimeOverlap(
             input.startTime,
             input.endTime,
             c.startTime,
             c.endTime,
-          );
-        })
+          ),
+        )
         .map((c) => ({
           id: c.id,
           startTime: c.startTime,
@@ -1109,16 +1112,32 @@ export class LiveScheduleService {
       }
 
       if (request.type === 'RESCHEDULE') {
-        await tx.liveScheduleSession.update({
-          where: { id: request.sessionId },
+        const newSession = await tx.liveScheduleSession.create({
           data: {
+            liveClassId: request.liveClassId!,
+            scheduleId: null, // Dissociate from old schedule template rule so it's not deleted by generator
             sessionDate: request.proposedDate!,
             startTime: request.proposedStartTime!,
             endTime: request.proposedEndTime!,
+            status: 'SCHEDULED',
             instructorId:
               request.proposedTeacherId ??
               request.session.instructorId ??
               undefined,
+            createdBy: reviewerId,
+            updatedBy: reviewerId,
+            roomId: request.session.roomId, // Carry over roomId if exists
+            location: request.session.location,
+            note: `Dời từ buổi ngày ${request.session.sessionDate.toISOString().slice(0, 10)}`,
+          },
+        });
+
+        await tx.liveScheduleSession.update({
+          where: { id: request.sessionId },
+          data: {
+            status: 'RESCHEDULED',
+            cancellationReason: `Đã dời sang ngày ${request.proposedDate!.toISOString().slice(0, 10)} (${request.proposedStartTime})`,
+            supersededBySessionId: newSession.id, // Linking history
             updatedBy: reviewerId,
           },
         });
@@ -1518,6 +1537,9 @@ export class LiveScheduleService {
       className: string;
     }> = [];
     if (input.instructorId) {
+      // Check conflict by: teacherId + dayOfWeek + startTime/endTime overlap
+      // Do NOT filter by cohortId — a teacher cannot teach two overlapping classes
+      // in the same weekday/time slot regardless of which cohort each class belongs to.
       const teacherCandidates = await this.prisma.liveSchedule.findMany({
         where: {
           weekday: input.weekday,
@@ -1526,7 +1548,6 @@ export class LiveScheduleService {
             : undefined,
           liveClass: {
             instructorId: input.instructorId,
-            cohortId: targetCohortId || undefined,
             status: {
               in: ['DRAFT', 'OPENING'],
             },
@@ -1542,12 +1563,6 @@ export class LiveScheduleService {
               code: true,
               name: true,
               cohortId: true,
-              cohort: {
-                select: {
-                  startDate: true,
-                  endDate: true,
-                },
-              },
             },
           },
         },
@@ -1558,9 +1573,6 @@ export class LiveScheduleService {
           (candidate: any) =>
             !input.liveClassId || candidate.liveClass.id !== input.liveClassId,
         )
-        .filter((candidate: any) => {
-          return true;
-        })
         .filter((candidate: any) =>
           this.isTimeOverlap(
             input.startTime,

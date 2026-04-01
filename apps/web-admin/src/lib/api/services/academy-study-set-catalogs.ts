@@ -14,6 +14,7 @@ export interface SetCardInput {
   hint?: string
   mediaUrl?: string
   tags?: string[]
+  languageDetails?: Record<string, any>
 }
 
 export const academyStudySetCatalogsApi = {

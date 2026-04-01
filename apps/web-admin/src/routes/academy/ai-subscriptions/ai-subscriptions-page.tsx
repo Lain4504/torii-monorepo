@@ -218,7 +218,7 @@ function PlansTabContent() {
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    className="h-8 gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                    className="h-8 gap-1.5 transition-all duration-200"
                                                     onClick={() => handleEdit(plan)}
                                                 >
                                                     <Edit2 className="h-4 w-4" />

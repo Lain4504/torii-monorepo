@@ -57,6 +57,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
       stem: "",
       questionType: AcademyQuestionType.SINGLE_CHOICE,
       difficulty: "MEDIUM",
+      level: "N3",
       explanation: "",
       options: defaultOptions,
       categoryIds: [],
@@ -81,6 +82,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
           stem: initialData.stem,
           questionType: AcademyQuestionType.SINGLE_CHOICE,
           difficulty: initialData.difficulty || "MEDIUM",
+          level: initialData.level || "N3",
           explanation: initialData.explanation || "",
           options: opts.slice(0, 4),
           categoryIds: initialData.categoryLinks?.map(cl => cl.categoryId) || [],
@@ -90,6 +92,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
           stem: "",
           questionType: AcademyQuestionType.SINGLE_CHOICE,
           difficulty: "MEDIUM",
+          level: "N3",
           explanation: "",
           options: defaultOptions,
           categoryIds: [],
@@ -179,7 +182,27 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Cấp độ (JLPT)</Label>
+                <Select
+                  value={form.watch("level")}
+                  onValueChange={(v) => form.setValue("level", v)}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="N1">N1</SelectItem>
+                    <SelectItem value="N2">N2</SelectItem>
+                    <SelectItem value="N3">N3</SelectItem>
+                    <SelectItem value="N4">N4</SelectItem>
+                    <SelectItem value="N5">N5</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">Danh mục <span className="text-destructive">*</span></Label>
                 <Select

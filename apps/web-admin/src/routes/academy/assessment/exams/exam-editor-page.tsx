@@ -45,6 +45,7 @@ export default function AcademyExamEditorPage() {
   const [isSaved, setIsSaved] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const [removeTargetId, setRemoveTargetId] = useState<string | null>(null)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -92,8 +93,13 @@ export default function AcademyExamEditorPage() {
     }
   }
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, silent = false) => {
     if (e) e.preventDefault()
+
+    if (!formData.title.trim()) {
+      toast.error("Vui lòng nhập tên bài thi")
+      return null
+    }
 
     try {
       if (isEditing) {
@@ -103,10 +109,15 @@ export default function AcademyExamEditorPage() {
             ...formData,
           } as any,
         })
-        toast.success("Cập nhật đề thi thành công")
-        navigate("/academy/assessment/exams")
+        if (!silent) {
+          toast.success("Cập nhật đề thi thành công")
+          navigate("/academy/assessment/exams")
+        }
+        setIsDirty(false)
+        setIsSaved(true)
+        return id
       } else {
-        await createMutation.mutateAsync({
+        const newExam = await createMutation.mutateAsync({
           ...formData,
           sections: [
             {
@@ -116,15 +127,38 @@ export default function AcademyExamEditorPage() {
           ],
           settings: {},
         } as any)
-        toast.success("Tạo đề thi mới thành công")
-        navigate("/academy/assessment/exams")
+        
+        if (!silent) {
+          toast.success("Tạo đề thi mới thành công")
+          navigate("/academy/assessment/exams")
+        } else {
+          // If silent (auto-save for questions), we need to redirect to the edit page immediately
+          // but stay on the page logically. The simplest is to navigate to the new ID.
+          navigate(`/academy/assessment/exams/${newExam.id}`, { replace: true })
+        }
+        return newExam
       }
     } catch (error: any) {
       toast.error(error.message || "Đã xảy ra lỗi")
+      return null
     }
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending
+  const handleAddQuestionToNewExam = async () => {
+    setIsAutoSaving(true)
+    const result = await handleSubmit(undefined, true)
+    if (result) {
+      // The component will re-render with the new ID and fetch the exam data.
+      // We need to wait for the data to be available to get the section ID.
+      // However, we can use a temporary trick: if we just created it, we know it has one section.
+      // But it's safer to wait for the exam object to be loaded via the navigate above.
+      // For now, we'll let the user click again OR we can try to find the section once loaded.
+      toast.info("Đã tạo bản nháp bài thi. Vui lòng bấm 'Thêm câu hỏi' một lần nữa.")
+    }
+    setIsAutoSaving(false)
+  }
+
+  const isPending = createMutation.isPending || updateMutation.isPending || isAutoSaving
 
   if (isEditing && isFetching) {
     return (
@@ -134,6 +168,10 @@ export default function AcademyExamEditorPage() {
       </div>
     )
   }
+
+  const displaySections = isEditing && exam?.sections ? exam.sections : [
+    { id: "new-placeholder", title: "Phần 1 - Trắc nghiệm", orderIndex: 0, questions: [] }
+  ]
 
   return (
     <div className="max-w-6xl mx-auto pb-20">
@@ -173,7 +211,7 @@ export default function AcademyExamEditorPage() {
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                {isEditing ? "Lưu thay đổi" : "Lưu bài thi"}
+                {isEditing ? "Lưu thay đổi" : "Tạo Đề thi"}
               </>
             )}
           </Button>
@@ -228,81 +266,91 @@ export default function AcademyExamEditorPage() {
             </CardContent>
           </Card>
 
-          {isEditing && exam?.sections && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 px-1">
-                <Layout className="w-5 h-5 text-slate-400" />
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Cấu trúc đề thi</h3>
-              </div>
-
-              {exam.sections.map((section: any) => (
-                <Card key={section.id} className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border-b">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border text-sm font-bold shadow-sm">
-                        {section.orderIndex + 1}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white">{section.title}</h4>
-                        <p className="text-xs text-slate-500">{section.questions?.length || 0} câu hỏi</p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => { setSelectedSectionId(section.id); setPickerOpen(true); }}
-                      className="h-9 border-sky-200 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Thêm câu hỏi
-                    </Button>
-                  </div>
-
-                  <CardContent className="p-0">
-                    {(!section.questions || section.questions.length === 0) ? (
-                      <div className="p-12 text-center">
-                        <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Plus className="w-6 h-6 text-slate-300" />
-                        </div>
-                        <p className="text-sm text-slate-400">Chưa có câu hỏi nào. Bấm "Thêm câu hỏi" để bắt đầu.</p>
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {section.questions.map((eq: any, idx: number) => (
-                          <div key={eq.id} className="group flex p-4 gap-4 hover:bg-sky-50/30 dark:hover:bg-sky-900/10 transition-colors items-start">
-                            <div className="font-bold text-slate-300 group-hover:text-sky-400 transition-colors pt-1 min-w-[20px]">
-                              {idx + 1}.
-                            </div>
-                            <div className="flex-1 space-y-1.5">
-                              <div className="font-medium text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
-                                {eq.question?.stem}
-                              </div>
-                              <div className="flex gap-2 items-center">
-                                <Badge variant="secondary" className="text-[10px] h-5 py-0 font-normal bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-none uppercase">
-                                  {eq.question?.questionType?.replace('_', ' ')}
-                                </Badge>
-                                <Badge className="text-[10px] h-5 py-0 font-bold bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400">
-                                  {eq.points} điểm
-                                </Badge>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition-all"
-                              onClick={() => setRemoveTargetId(eq.id)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 px-1">
+              <Layout className="w-5 h-5 text-slate-400" />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Cấu trúc đề thi</h3>
             </div>
-          )}
+
+            {displaySections.map((section: any) => (
+              <Card key={section.id} className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border-b">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center border text-sm font-bold shadow-sm">
+                      {section.orderIndex + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white">{section.title}</h4>
+                      <p className="text-xs text-slate-500">{section.questions?.length || 0} câu hỏi</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (isEditing) {
+                        setSelectedSectionId(section.id);
+                        setPickerOpen(true);
+                      } else {
+                        handleAddQuestionToNewExam();
+                      }
+                    }}
+                    className="h-9 border-sky-200 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                    disabled={isPending}
+                  >
+                    {isPending && !isEditing ? (
+                       <div className="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mr-2" />
+                    ) : (
+                      <Plus className="w-4 h-4 mr-2" />
+                    )}
+                    Thêm câu hỏi
+                  </Button>
+                </div>
+
+                <CardContent className="p-0">
+                  {(!section.questions || section.questions.length === 0) ? (
+                    <div className="p-12 text-center">
+                      <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Plus className="w-6 h-6 text-slate-300" />
+                      </div>
+                      <p className="text-sm text-slate-400">Chưa có câu hỏi nào. Bấm "Thêm câu hỏi" để bắt đầu.</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {section.questions.map((eq: any, idx: number) => (
+                        <div key={eq.id} className="group flex p-4 gap-4 hover:bg-sky-50/30 dark:hover:bg-sky-900/10 transition-colors items-start">
+                          <div className="font-bold text-slate-300 group-hover:text-sky-400 transition-colors pt-1 min-w-[20px]">
+                            {idx + 1}.
+                          </div>
+                          <div className="flex-1 space-y-1.5">
+                            <div className="font-medium text-sm text-slate-800 dark:text-slate-200 leading-relaxed">
+                              {eq.question?.stem}
+                            </div>
+                            <div className="flex gap-2 items-center">
+                              <Badge variant="secondary" className="text-[10px] h-5 py-0 font-normal bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-none uppercase">
+                                {eq.question?.questionType?.replace('_', ' ')}
+                              </Badge>
+                              <Badge className="text-[10px] h-5 py-0 font-bold bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400">
+                                {eq.points} điểm
+                              </Badge>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 transition-all"
+                            onClick={() => setRemoveTargetId(eq.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
 
         {/* Sidebar Settings Column */}
@@ -383,8 +431,8 @@ export default function AcademyExamEditorPage() {
             </h4>
             <ul className="text-xs text-sky-700/80 dark:text-sky-400/80 space-y-1.5 list-disc pl-4">
               <li>Đặt thời gian 0 để không giới hạn.</li>
-              <li>Nên thêm câu hỏi sau khi đã lưu thông tin cơ bản.</li>
               <li>Sử dụng trạng thái "Bản nháp" khi đang biên soạn đề.</li>
+              <li>Lưu thông tin cơ bản trước khi thêm câu hỏi.</li>
             </ul>
           </div>
         </div>

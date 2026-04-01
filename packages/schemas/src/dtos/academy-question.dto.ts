@@ -16,6 +16,7 @@ export const academyQuestionCreateDTOSchema = z.object({
   stem: z.string().min(1),
   explanation: z.string().optional(),
   difficulty: z.string().max(50).optional(),
+  level: z.string().max(20).optional(),
   metadata: z.record(z.unknown()).optional(),
   options: z.array(academyQuestionOptionSchema).optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -32,6 +33,7 @@ export const academyQuestionUpdateDTOSchema = z.object({
   stem: z.string().min(1).optional(),
   explanation: z.string().optional(),
   difficulty: z.string().max(50).optional(),
+  level: z.string().max(20).optional(),
   metadata: z.record(z.unknown()).optional(),
   options: z.array(academyQuestionOptionSchema).optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -48,6 +50,7 @@ export type AcademyQuestionUpdateDTO = z.infer<
 export const academyQuestionQueryDTOSchema = z.object({
   questionType: z.nativeEnum(AcademyQuestionType).optional(),
   difficulty: z.string().optional(),
+  level: z.string().optional(),
   categoryId: z.string().optional(),
   reviewStatus: z.nativeEnum(AcademyQuestionReviewStatus).optional(),
   q: z.string().optional(),

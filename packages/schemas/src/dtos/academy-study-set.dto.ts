@@ -17,6 +17,7 @@ export const academySetCardCreateDTOSchema = z.object({
     hint: z.string().optional(),
     mediaUrl: z.string().optional(),
     tags: z.array(z.string()).optional(),
+    languageDetails: z.record(z.any()).optional(),
 })
 export type AcademySetCardCreateDTO = z.infer<typeof academySetCardCreateDTOSchema>
 
@@ -76,6 +77,7 @@ export type AcademySetCardModel = {
     hint?: string | null
     mediaUrl?: string | null
     tags: string[]
+    languageDetails?: Record<string, any> | null
     srsState: string
     interval: number
     nextReviewAt: string

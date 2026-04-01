@@ -22,6 +22,7 @@ import { format } from "date-fns"
 export default function QuestionsPage() {
   const [search, setSearch] = useState("")
   const [categoryId, setCategoryId] = useState<string>("ALL")
+  const [level, setLevel] = useState<string>("ALL")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null)
@@ -32,6 +33,7 @@ export default function QuestionsPage() {
   const { data: questions, isLoading } = useAcademyQuestions({
     q: search || undefined,
     categoryId: categoryId === "ALL" ? undefined : categoryId,
+    level: level === "ALL" ? undefined : level,
   })
 
   const handleDelete = (question: any) => {
@@ -103,6 +105,21 @@ export default function QuestionsPage() {
             </SelectContent>
           </Select>
         </div>
+        <div className="w-[150px]">
+          <Select value={level} onValueChange={setLevel}>
+            <SelectTrigger>
+              <SelectValue placeholder="Mọi cấp độ" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Mọi cấp độ</SelectItem>
+              <SelectItem value="N1">N1</SelectItem>
+              <SelectItem value="N2">N2</SelectItem>
+              <SelectItem value="N3">N3</SelectItem>
+              <SelectItem value="N4">N4</SelectItem>
+              <SelectItem value="N5">N5</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
@@ -112,6 +129,7 @@ export default function QuestionsPage() {
             <TableRow>
               <TableHead className="w-[420px] pl-4">Câu hỏi</TableHead>
               <TableHead>Độ khó</TableHead>
+              <TableHead>Cấp độ</TableHead>
               <TableHead>Danh mục</TableHead>
               <TableHead>Ngày tạo</TableHead>
               <TableHead className="text-right pr-4 w-[100px]">Thao tác</TableHead>
@@ -137,6 +155,11 @@ export default function QuestionsPage() {
                     <div className="line-clamp-2 text-sm">{q.stem}</div>
                   </TableCell>
                   <TableCell>{difficultyBadge(q.difficulty)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
+                      {q.level || "—"}
+                    </Badge>
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {(q.categoryLinks as any[])?.length
