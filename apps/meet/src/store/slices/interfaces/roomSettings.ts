@@ -2,8 +2,6 @@ import { VideoQuality } from 'livekit-client';
 import { Theme } from '@excalidraw/excalidraw/element/types';
 import type { TypeOptions } from 'react-toastify';
 
-import { AzureTokenInfo } from '@/components/translation-transcription/helpers/apiConnections';
-
 export enum VideoObjectFit {
   COVER = 'cover',
   CONTAIN = 'contain',
@@ -38,7 +36,6 @@ export interface IRoomSettings {
   columnCameraPosition: ColumnCameraPosition;
   visibleHeader: boolean;
   visibleFooter: boolean;
-  azureTokenInfo?: AzureTokenInfo;
   isWAJLCWindowTabVisible: boolean;
   pinCamUserId?: string;
   focusActiveSpeakerWebcam: boolean;

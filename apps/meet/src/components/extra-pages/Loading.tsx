@@ -4,7 +4,7 @@ interface ILoadingProps {
   text: string;
 }
 const Loading = ({ text }: ILoadingProps) => {
-  return <PageLoading text={text} />;
+  return <PageLoading/>;
 };
 
 export default Loading;

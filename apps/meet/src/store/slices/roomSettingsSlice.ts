@@ -12,7 +12,6 @@ import {
   UserNotification,
   VideoObjectFit,
 } from '@/store/slices/interfaces/roomSettings';
-import { AzureTokenInfo } from '@/components/translation-transcription/helpers/apiConnections';
 import { DB_STORE_NAMES, idbStore } from '@/helpers/libs/idb';
 
 const initialState: IRoomSettings = {
@@ -160,14 +159,6 @@ const roomSettingsSlice = createSlice({
     toggleFooterVisibility: (state) => {
       state.visibleFooter = !state.visibleFooter;
     },
-    updateAzureTokenInfo: (state, action: PayloadAction<AzureTokenInfo>) => {
-      state.azureTokenInfo = action.payload;
-    },
-    cleanAzureToken: (state) => {
-      if (state.azureTokenInfo) {
-        state.azureTokenInfo.token = '';
-      }
-    },
     updateIsWAJLCWindowTabVisible: (state, action: PayloadAction<boolean>) => {
       state.isWAJLCWindowTabVisible = action.payload;
     },
@@ -236,8 +227,6 @@ export const {
   updateColumnCameraPosition,
   toggleHeaderVisibility,
   toggleFooterVisibility,
-  updateAzureTokenInfo,
-  cleanAzureToken,
   updateIsNatsServerConnected,
   updateIsWAJLCWindowTabVisible,
   updatePinCamUserId,

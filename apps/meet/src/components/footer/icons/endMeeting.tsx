@@ -77,7 +77,7 @@ const EndMeetingButton = () => {
     <>
       <Button
         onClick={open}
-        className="h-[34px] md:h-10 3xl:h-11 w-[34px] md:w-10 lg:w-auto px-2 lg:px-5 flex items-center justify-center rounded-xl text-sm 3xl:text-base font-medium 3xl:font-semibold text-destructive-foreground bg-destructive transition-all duration-300 hover:bg-destructive/90 shadow-sm cursor-pointer"
+        className="h-[34px] md:h-10 3xl:h-11 w-[34px] md:w-10 lg:w-auto px-2 lg:px-5 flex items-center justify-center rounded-full text-sm 3xl:text-base font-medium 3xl:font-semibold text-destructive-foreground bg-destructive transition-all duration-300 hover:bg-destructive/90 shadow-sm cursor-pointer"
       >
         <span className="hidden lg:block">
           {isAdmin ? 'Kết thúc cuộc họp' : 'Rời cuộc họp'}

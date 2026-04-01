@@ -38,6 +38,8 @@ const initialState: IBottomIconsSlice = {
   showSpeechSettingOptionsModal: false,
   showInsightsAISettingsModal: false,
 
+  recordingModalOpenNonce: 0,
+
   totalUnreadChatMsgs: 0,
   virtualBackground: defaultBackgroundConfig,
   isEnabledExtendedVerticalCamView: false,

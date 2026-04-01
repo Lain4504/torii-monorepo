@@ -5,6 +5,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from '@headlessui/react';
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import { toggleStartup } from '@/store/slices/sessionSlice';
 import {
@@ -13,15 +20,32 @@ import {
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
 } from '@/store/slices/roomSettingsSlice';
-import { Volume2, MicOff, VideoOff, Loader2, Lock as LockIcon } from 'lucide-react';
+import {
+  Volume2,
+  MicOff,
+  VideoOff,
+  Loader2,
+  Lock as LockIcon,
+  ChevronDown,
+  Mic,
+  Video,
+  Check,
+} from 'lucide-react';
 import { roomConnectionStatus } from '@/components/app/helper';
 import { getNatsConn } from '@/helpers/nats';
 import { useMediaDevices } from '@/components/landing/hooks/useMediaDevices';
 
-import MicrophoneIcon from '@/components/landing/microphone';
-import WebcamIcon from '@/components/landing/webcam';
 import WebcamPreview from '@/components/landing/webcamPreview';
 import { Button } from '@workspace/ui/components/button';
+
+const pillBtn =
+  'inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1.5 text-left text-xs font-medium text-foreground shadow-sm transition hover:bg-muted sm:text-sm';
+
+const pillStatic =
+  'inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs text-foreground shadow-sm sm:text-sm';
+
+const previewPrimaryBtn =
+  'rounded-full px-6 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90';
 
 interface StartupJoinModalProps {
   setIsAppReady: Dispatch<boolean>;
@@ -33,7 +57,6 @@ const Landing = ({
   roomConnectionStatus,
 }: StartupJoinModalProps) => {
   const dispatch = useAppDispatch();
-  // static values
   const { isWebcamAllowed } = useMemo(() => {
     const session = store.getState().session;
     const roomFeatures = session.currentRoom.metadata?.roomFeatures;
@@ -52,6 +75,9 @@ const Landing = ({
   }, []);
 
   const isStartup = useAppSelector((state) => state.session.isStartup);
+  const displayName = useAppSelector(
+    (state) => state.session.currentUser?.name ?? 'Bạn',
+  );
   const waitForApproval = useAppSelector(
     (state) => state.session.currentUser?.metadata?.waitForApproval,
   );
@@ -86,6 +112,7 @@ const Landing = ({
   const [isReadyToConn, setIsReadyToConn] = useState<boolean | undefined>(
     undefined,
   );
+  const [otherWaysOpen, setOtherWaysOpen] = useState(false);
 
   useEffect(() => {
     switch (roomConnectionStatus) {
@@ -149,157 +176,403 @@ const Landing = ({
   const getEnableDeviceButton = useCallback(() => {
     if (lockMicrophone) {
       return {
-        text: 'Bật máy ảnh',
+        text: 'Cho phép sử dụng máy ảnh',
         action: () => enableMediaDevices('video'),
       };
     } else if (lockWebcam || !isWebcamAllowed) {
       return {
-        text: 'Bật micrô',
+        text: 'Cho phép sử dụng micrô',
         action: () => enableMediaDevices('audio'),
       };
     }
     return {
-      text: 'Bật micrô & máy ảnh',
+      text: 'Cho phép sử dụng micrô và máy ảnh',
       action: () => enableMediaDevices('both'),
     };
   }, [lockMicrophone, lockWebcam, isWebcamAllowed, enableMediaDevices]);
+
+  const micPillLabel = useMemo(() => {
+    if (lockMicrophone) return 'Micrô bị khóa';
+    if (audioDevices.length === 0) return 'Cần có quyền';
+    const d = audioDevices.find((x) => x.id === selectedAudioDevice);
+    return d?.label?.trim() || 'Micrô';
+  }, [lockMicrophone, audioDevices, selectedAudioDevice]);
+
+  const camPillLabel = useMemo(() => {
+    if (lockWebcam || !isWebcamAllowed) return 'Máy ảnh bị khóa';
+    if (videoDevices.length === 0) return 'Cần có quyền';
+    const d = videoDevices.find((x) => x.id === selectedVideoDevice);
+    return d?.label?.trim() || 'Máy ảnh';
+  }, [lockWebcam, isWebcamAllowed, videoDevices, selectedVideoDevice]);
+
+  const hasMediaReady =
+    selectedAudioDevice !== '' || selectedVideoDevice !== '';
+  const bothLockedListenOnly =
+    lockMicrophone && (lockWebcam || !isWebcamAllowed);
+
+  const permissionBlock = useMemo(() => {
+    const textPreview =
+      'mb-3 max-w-md text-sm text-[var(--landing-preview-fg)] opacity-90';
+    if (lockWebcam || !isWebcamAllowed) {
+      return (
+        <p className={textPreview}>
+          Máy ảnh không khả dụng (bị khóa hoặc bị tắt bởi người tổ chức). Bạn
+          vẫn có thể dùng micrô nếu được phép.
+        </p>
+      );
+    }
+    return (
+      <p className={textPreview}>
+        Bạn có muốn người khác nhìn thấy và nghe thấy bạn trong cuộc họp không?
+      </p>
+    );
+  }, [lockWebcam, isWebcamAllowed]);
 
   return (
     isStartup && (
       <div
         id="startupJoinModal"
-        className={`absolute w-full join-the-audio-popup bg-background min-h-full flex items-center justify-center p-5 scrollBar`}
+        className="join-the-audio-popup absolute flex min-h-full w-full flex-col items-center justify-center overflow-y-auto bg-background scrollBar"
       >
-        <div className="inner m-auto bg-card border border-border overflow-hidden rounded-2xl w-full max-w-4xl 3xl:max-w-5xl shadow-xl">
-          <div className="head bg-secondary h-[50px] 3xl:h-[60px] px-3 sm:px-5 flex justify-center sm:justify-start text-center sm:text-left items-center text-foreground text-sm sm:text-base 3xl:text-lg font-medium border-b border-border">
-            Tham gia cuộc họp
-          </div>
-          <div className="wrapper bg-card pt-4 sm:pt-8 3xl:pt-11 pb-4 sm:pb-10 3xl:pb-14 px-4 sm:px-8 3xl:px-12 flex flex-wrap">
-            <div className="left relative z-20 bg-muted/50 shadow-sm border border-border p-2 w-full md:w-1/2 rounded-2xl mb-5 sm:mb-0">
-              <WebcamPreview selectedVideoDevice={selectedVideoDevice} />
-              <div className="micro-cam-wrap flex justify-center py-5 gap-5 empty:hidden">
-                {lockMicrophone ? (
-                  <div className="microphone-wrap relative cursor-not-allowed shadow-sm border border-destructive/30 bg-destructive/5 rounded-xl h-11 w-11 flex items-center justify-center transition-all duration-300 text-destructive">
-                    <MicOff className="h-6 w-6" />
-                    <LockIcon className="w-3 h-3 absolute -top-1 -right-1 z-10 text-destructive" />
-                  </div>
-                ) : (
-                  <MicrophoneIcon
-                    audioDevices={audioDevices}
-                    enableMediaDevices={enableMediaDevices}
-                    disableMic={disableMic}
-                    setSelectedAudioDevice={setSelectedAudioDevice}
-                    selectedAudioDevice={selectedAudioDevice}
-                  />
-                )}
-                {lockWebcam || !isWebcamAllowed ? (
-                  <div className="cam-wrap relative cursor-not-allowed shadow-sm border border-destructive/30 bg-destructive/5 rounded-xl h-11 w-11 flex items-center justify-center transition-all duration-300 text-destructive">
-                    <VideoOff className="h-6 w-6" />
-                    <LockIcon className="w-3 h-3 absolute -top-1 -right-1 z-10 text-destructive" />
-                  </div>
-                ) : (
-                  <WebcamIcon
-                    videoDevices={videoDevices}
-                    enableMediaDevices={enableMediaDevices}
-                    disableWebcam={disableWebcam}
-                    setSelectedVideoDevice={setSelectedVideoDevice}
+        <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-6 px-4 py-6 sm:px-5 sm:py-8 lg:flex-row lg:gap-8 lg:px-6">
+          <div className="flex w-full min-w-0 flex-[1.15] flex-col lg:max-w-[58%]">
+            <div className="relative flex min-h-[min(320px,58vh)] flex-col overflow-hidden rounded-2xl bg-[var(--landing-preview-bg)] shadow-md ring-1 ring-[var(--landing-preview-ring)] sm:min-h-[min(360px,60vh)]">
+              <div className="relative flex min-h-0 flex-1 flex-col">
+                {selectedVideoDevice !== '' ? (
+                  <WebcamPreview
                     selectedVideoDevice={selectedVideoDevice}
+                    className="min-h-[200px]"
                   />
+                ) : (
+                  <div className="flex min-h-[200px] flex-1 flex-col items-center justify-center px-5 pb-20 text-center sm:min-h-[220px] sm:pb-24">
+                    {permissionBlock}
+                    {!bothLockedListenOnly &&
+                      !(lockWebcam || !isWebcamAllowed) && (
+                        <Button
+                          type="button"
+                          disabled={isReadyToConn === true}
+                          className={previewPrimaryBtn}
+                          onClick={getEnableDeviceButton().action}
+                        >
+                          {getEnableDeviceButton().text}
+                        </Button>
+                      )}
+                    {(lockWebcam || !isWebcamAllowed) && !lockMicrophone && (
+                      <Button
+                        type="button"
+                        disabled={isReadyToConn === true}
+                        className={`mt-3 ${previewPrimaryBtn}`}
+                        onClick={() => enableMediaDevices('audio')}
+                      >
+                        Cho phép sử dụng micrô
+                      </Button>
+                    )}
+                  </div>
                 )}
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 flex justify-center">
+                  <div className="pointer-events-auto flex items-center gap-2.5">
+                    {lockMicrophone ? (
+                      <div className="relative flex size-12 items-center justify-center rounded-full bg-[var(--landing-preview-control-bg)] text-destructive shadow-md ring-1 ring-[var(--landing-preview-ring)]">
+                        <MicOff className="size-5" />
+                        <LockIcon className="absolute -right-0.5 -top-0.5 size-3 text-destructive" />
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <div className="flex size-12 items-center justify-center rounded-full bg-[var(--landing-preview-control-bg)] shadow-md ring-1 ring-[var(--landing-preview-ring)]">
+                          <button
+                            type="button"
+                            className="flex size-full items-center justify-center rounded-full text-[var(--landing-preview-control-fg)]"
+                            onClick={() =>
+                              audioDevices.length === 0
+                                ? enableMediaDevices('audio')
+                                : disableMic()
+                            }
+                            aria-label="Micrô"
+                          >
+                            <Mic className="size-5" />
+                          </button>
+                        </div>
+                        {audioDevices.length === 0 && (
+                          <span
+                            className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-amber-950 shadow"
+                            title="Cần quyền truy cập micrô"
+                          >
+                            !
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {lockWebcam || !isWebcamAllowed ? (
+                      <div className="relative flex size-12 items-center justify-center rounded-full bg-[var(--landing-preview-control-bg)] text-destructive shadow-md ring-1 ring-[var(--landing-preview-ring)]">
+                        <VideoOff className="size-5" />
+                        <LockIcon className="absolute -right-0.5 -top-0.5 size-3 text-destructive" />
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <div className="flex size-12 items-center justify-center rounded-full bg-[var(--landing-preview-control-bg)] shadow-md ring-1 ring-[var(--landing-preview-ring)]">
+                          <button
+                            type="button"
+                            className="flex size-full items-center justify-center rounded-full text-[var(--landing-preview-control-fg)]"
+                            onClick={() =>
+                              videoDevices.length === 0
+                                ? enableMediaDevices('video')
+                                : disableWebcam()
+                            }
+                            aria-label="Máy ảnh"
+                          >
+                            <Video className="size-5" />
+                          </button>
+                        </div>
+                        {videoDevices.length === 0 && (
+                          <span
+                            className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-amber-400 text-[9px] font-bold text-amber-950 shadow"
+                            title="Cần quyền truy cập máy ảnh"
+                          >
+                            !
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="right w-full md:w-1/2 md:pl-8 3xl:pl-16 sm:py-8 flex items-center">
-              {showLoadingMsg ? (
-                <div className="inner waiting-room-contents relative md:-mt-10 w-full">
-                  {waitForApproval ? (
-                    <div className="texts text-center md:text-left">
-                      <h3 className="font-bold text-lg md:text-xl 3xl:text-2xl text-foreground leading-snug pb-2 flex items-center justify-center md:justify-start gap-2">
-                        <Loader2
-                          className={
-                            'inline h-5 w-5 text-muted-foreground animate-spin'
-                          }
-                        />
-                        Đang chờ phê duyệt...
-                      </h3>
-                      <p className="text-sm 3xl:text-base text-muted-foreground md:pl-7">
-                        {waitingRoomMessage ||
-                          'Vui lòng đợi người tổ chức cho phép bạn tham gia.'}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="texts text-center md:text-left">
-                      <h3 className="font-bold text-lg md:text-xl 3xl:text-2xl text-foreground leading-snug pb-2 flex items-center justify-center md:justify-start gap-2">
-                        <Loader2
-                          className={
-                            'inline w-7 h-7 text-muted-foreground animate-spin'
-                          }
-                        />
-                        {showLoadingMsg}
-                      </h3>
-                    </div>
-                  )}
-                </div>
+
+            <div className="mt-3 flex flex-wrap gap-2 justify-center sm:justify-start">
+              {lockMicrophone ? (
+                <span className={pillStatic}>
+                  <Mic className="size-4 text-muted-foreground" />
+                  <span className="truncate">Micrô bị khóa</span>
+                </span>
+              ) : audioDevices.length === 0 ? (
+                <button
+                  type="button"
+                  className={pillBtn}
+                  onClick={() => enableMediaDevices('audio')}
+                >
+                  <Mic className="size-4 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 truncate">{micPillLabel}</span>
+                  <ChevronDown className="size-3.5 shrink-0 opacity-60" />
+                </button>
               ) : (
-                <div className="inner relative w-full">
-                  <div className="texts text-center md:text-left">
-                    <h3 className="font-bold text-xl 3xl:text-2xl text-foreground leading-snug pb-2">
-                      Sẵn sàng tham gia?
+                <Menu as="div" className="relative inline-block text-left">
+                  {({ open }) => (
+                    <>
+                      <MenuButton className={pillBtn}>
+                        <Mic className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="min-w-0 truncate">{micPillLabel}</span>
+                        <ChevronDown className="size-3.5 shrink-0 opacity-60" />
+                      </MenuButton>
+                      <Transition
+                        as="div"
+                        show={open}
+                        enter="transition duration-100 ease-out"
+                        enterFrom="transform scale-95 opacity-0"
+                        enterTo="transform scale-100 opacity-100"
+                        leave="transition duration-75 ease-out"
+                        leaveFrom="transform scale-100 opacity-100"
+                        leaveTo="transform scale-95 opacity-0"
+                      >
+                        <MenuItems
+                          static
+                          className="absolute bottom-full left-0 z-40 mb-2 min-w-[220px] rounded-xl border border-border bg-popover p-2 shadow-lg ring-0 focus:outline-hidden"
+                        >
+                          <div className="px-2 pb-1 text-xs font-medium uppercase text-muted-foreground">
+                            Chọn micrô
+                          </div>
+                          {audioDevices.map((device, i) => (
+                            <MenuItem key={`${device.id}-${i}`}>
+                              <button
+                                type="button"
+                                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm font-medium text-foreground hover:bg-muted"
+                                onClick={() => setSelectedAudioDevice(device.id)}
+                              >
+                                <span className="min-w-0 truncate">
+                                  {device.label}
+                                </span>
+                                {selectedAudioDevice === device.id ? (
+                                  <Check className="size-4 shrink-0 text-primary" />
+                                ) : null}
+                              </button>
+                            </MenuItem>
+                          ))}
+                        </MenuItems>
+                      </Transition>
+                    </>
+                  )}
+                </Menu>
+              )}
+
+              <span className={pillStatic}>
+                <Volume2 className="size-4 text-muted-foreground" />
+                <span className="truncate">Loa (mặc định hệ thống)</span>
+              </span>
+
+              {lockWebcam || !isWebcamAllowed ? (
+                <span className={pillStatic}>
+                  <Video className="size-4 text-muted-foreground" />
+                  <span className="truncate">Máy ảnh bị khóa</span>
+                </span>
+              ) : videoDevices.length === 0 ? (
+                <button
+                  type="button"
+                  className={pillBtn}
+                  onClick={() => enableMediaDevices('video')}
+                >
+                  <Video className="size-4 shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 truncate">{camPillLabel}</span>
+                  <ChevronDown className="size-3.5 shrink-0 opacity-60" />
+                </button>
+              ) : (
+                <Menu as="div" className="relative inline-block text-left">
+                  {({ open }) => (
+                    <>
+                      <MenuButton className={pillBtn}>
+                        <Video className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="min-w-0 truncate">{camPillLabel}</span>
+                        <ChevronDown className="size-3.5 shrink-0 opacity-60" />
+                      </MenuButton>
+                      <Transition
+                        as="div"
+                        show={open}
+                        enter="transition duration-100 ease-out"
+                        enterFrom="transform scale-95 opacity-0"
+                        enterTo="transform scale-100 opacity-100"
+                        leave="transition duration-75 ease-out"
+                        leaveFrom="transform scale-100 opacity-100"
+                        leaveTo="transform scale-95 opacity-0"
+                      >
+                        <MenuItems
+                          static
+                          className="absolute bottom-full left-0 z-40 mb-2 min-w-[220px] rounded-xl border border-border bg-popover p-2 shadow-lg ring-0 focus:outline-hidden"
+                        >
+                          <div className="px-2 pb-1 text-xs font-medium uppercase text-muted-foreground">
+                            Chọn máy ảnh
+                          </div>
+                          {videoDevices.map((device, i) => (
+                            <MenuItem key={`${device.id}-${i}`}>
+                              <button
+                                type="button"
+                                className="flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm font-medium text-foreground hover:bg-muted"
+                                onClick={() => setSelectedVideoDevice(device.id)}
+                              >
+                                <span className="min-w-0 truncate">
+                                  {device.label}
+                                </span>
+                                {selectedVideoDevice === device.id ? (
+                                  <Check className="size-4 shrink-0 text-primary" />
+                                ) : null}
+                              </button>
+                            </MenuItem>
+                          ))}
+                        </MenuItems>
+                      </Transition>
+                    </>
+                  )}
+                </Menu>
+              )}
+            </div>
+          </div>
+
+          <div className="flex w-full min-w-0 flex-1 flex-col justify-center text-center lg:max-w-sm lg:text-left">
+            {showLoadingMsg ? (
+              <div className="w-full">
+                {waitForApproval ? (
+                  <div className="text-center lg:text-left">
+                    <h3 className="flex items-center justify-center gap-2 pb-2 text-lg font-semibold text-foreground lg:justify-start lg:text-xl">
+                      <Loader2 className="size-5 shrink-0 animate-spin text-muted-foreground" />
+                      Đang chờ phê duyệt...
                     </h3>
-                    <p className="text-sm 3xl:text-base text-muted-foreground">
-                      {getJoinPrompt()}
+                    <p className="text-sm text-muted-foreground">
+                      {waitingRoomMessage ||
+                        'Vui lòng đợi người tổ chức cho phép bạn tham gia.'}
                     </p>
                   </div>
-                  <div className="buttons grid gap-3 w-full pt-10">
-                    {lockMicrophone && (lockWebcam || !isWebcamAllowed) ? (
-                      // Case 1: Both devices are locked, only show the listener button.
+                ) : (
+                  <div className="text-center lg:text-left">
+                    <h3 className="flex items-center justify-center gap-2 pb-2 text-lg font-semibold text-foreground lg:justify-start lg:text-xl">
+                      <Loader2 className="size-7 shrink-0 animate-spin text-muted-foreground" />
+                      {showLoadingMsg}
+                    </h3>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="w-full">
+                <h2 className="text-xl font-normal text-foreground sm:text-2xl">
+                  Sẵn sàng tham gia?
+                </h2>
+                <p className="mt-3 text-sm leading-snug text-foreground">
+                  <span className="font-medium text-foreground">
+                    {displayName}
+                  </span>{' '}
+                  đang tham gia cuộc gọi này
+                </p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {getJoinPrompt()}
+                </p>
+
+                <div className="mt-6 flex w-full flex-col gap-2.5">
+                  {bothLockedListenOnly ? (
+                    <Button
+                      id="listenOnlyJoin"
+                      disabled={isReadyToConn === true}
+                      variant="outline"
+                      className="h-11 w-full rounded-full border-border text-primary hover:bg-muted"
+                      onClick={() => openConn()}
+                    >
+                      Tham gia chỉ nghe
+                      <Volume2 className="size-4" />
+                    </Button>
+                  ) : hasMediaReady ? (
+                    <Button
+                      disabled={isReadyToConn === true}
+                      className="h-11 w-full rounded-full text-base font-medium"
+                      onClick={() => openConn()}
+                    >
+                      Chuyển qua thiết bị này
+                    </Button>
+                  ) : (
+                    <>
                       <Button
-                        id="listenOnlyJoin"
                         disabled={isReadyToConn === true}
-                        variant="outline"
-                        className="w-full gap-2"
-                        onClick={() => openConn()}
+                        className="h-11 w-full rounded-full text-base font-medium"
+                        onClick={getEnableDeviceButton().action}
                       >
-                        Tham gia chỉ nghe
-                        <Volume2 />
+                        {getEnableDeviceButton().text}
                       </Button>
-                    ) : // Case 2: At least one device is available.
-                      selectedAudioDevice !== '' || selectedVideoDevice !== '' ? (
-                        // Sub-case 2a: A device has been selected, show the "Join" button.
-                        <Button
-                          disabled={isReadyToConn === true}
-                          className="w-full"
-                          onClick={() => openConn()}
-                        >
-                          Tham gia ngay
-                        </Button>
-                      ) : (
-                        // Sub-case 2b: No device selected yet, show the "Enable..." and "Listener" buttons.
-                        <>
-                          <Button
-                            className="w-full"
-                            disabled={isReadyToConn === true}
-                            onClick={getEnableDeviceButton().action}
-                          >
-                            <span className="relative flex items-center justify-center gap-2">
-                              {getEnableDeviceButton().text}
-                            </span>
-                          </Button>
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-center gap-1 rounded-full border border-border bg-card py-2.5 text-sm font-medium text-primary transition hover:bg-muted"
+                        onClick={() => setOtherWaysOpen((o) => !o)}
+                        aria-expanded={otherWaysOpen}
+                      >
+                        Những cách tham gia khác
+                        <ChevronDown
+                          className={`size-4 transition ${otherWaysOpen ? 'rotate-180' : ''}`}
+                        />
+                      </button>
+                      {otherWaysOpen && (
+                        <div className="rounded-2xl border border-border bg-card p-2 shadow-sm">
                           <Button
                             id="listenOnlyJoin"
                             disabled={isReadyToConn === true}
-                            variant="outline"
-                            className="w-full gap-2"
+                            variant="ghost"
+                            className="h-11 w-full justify-start rounded-xl text-foreground"
                             onClick={() => openConn()}
                           >
                             Tham gia chỉ nghe
-                            <Volume2 />
+                            <Volume2 className="ml-auto size-4 text-muted-foreground" />
                           </Button>
-                        </>
+                        </div>
                       )}
-                  </div>
+                    </>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

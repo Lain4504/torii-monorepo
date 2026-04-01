@@ -6,9 +6,10 @@ import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHe
 
 interface WebcamPreviewProps {
   selectedVideoDevice: string;
+  className?: string;
 }
 
-const WebcamPreview = ({ selectedVideoDevice }: WebcamPreviewProps) => {
+const WebcamPreview = ({ selectedVideoDevice, className }: WebcamPreviewProps) => {
   const ref = useRef<HTMLVideoElement>(null);
   const virtualBackground = useAppSelector(
     (state) => state.bottomIconsActivity.virtualBackground,
@@ -51,13 +52,20 @@ const WebcamPreview = ({ selectedVideoDevice }: WebcamPreviewProps) => {
   }, [selectedVideoDevice]);
 
   return (
-    <div className="camera bg-foreground rounded-lg overflow-hidden w-full h-56 sm:h-72 3xl:h-80">
+    <div
+      className={`camera relative min-h-0 flex-1 overflow-hidden bg-transparent ${className ?? ''}`}
+    >
       {selectedVideoDevice !== '' && (
         <>
           <div
-            className={`${virtualBackground.type !== 'none' ? 'w-0.5 h-0.5' : 'w-full h-full flex'}`}
+            className={`${virtualBackground.type !== 'none' ? 'w-0.5 h-0.5' : 'absolute inset-0 flex'}`}
           >
-            <video className="w-full h-full" ref={ref} autoPlay />
+            <video
+              className="h-full w-full object-cover object-center"
+              ref={ref}
+              autoPlay
+              playsInline
+            />
           </div>
           {virtualBackground.type !== 'none' && sourcePlayback && (
             <VirtualBackground

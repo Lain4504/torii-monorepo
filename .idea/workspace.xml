@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(insights): update AI chat model configuration and pricing structure">
-      <change beforePath="$PROJECT_DIR$/apps/server/config/config-sample.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/config/config-sample.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/config/app-config.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/config/app-config.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/libs/shared/src/config/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/libs/shared/src/config/app.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.service.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(breakout): refactor room settings and improve device management in startup modal">
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/footerMenusModals.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/meetFooterWidgets.tsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -390,55 +390,7 @@
       <workItem from="1774773252832" duration="294000" />
       <workItem from="1774791456061" duration="156000" />
       <workItem from="1775037916663" duration="31000" />
-      <workItem from="1775061830841" duration="922000" />
-    </task>
-    <task id="LOCAL-01026" summary="update web-admin">
-      <option name="closed" value="true" />
-      <created>1774011486170</created>
-      <option name="number" value="01026" />
-      <option name="presentableId" value="LOCAL-01026" />
-      <option name="project" value="LOCAL" />
-      <updated>1774011486170</updated>
-    </task>
-    <task id="LOCAL-01027" summary="update web-admin">
-      <option name="closed" value="true" />
-      <created>1774012370643</created>
-      <option name="number" value="01027" />
-      <option name="presentableId" value="LOCAL-01027" />
-      <option name="project" value="LOCAL" />
-      <updated>1774012370643</updated>
-    </task>
-    <task id="LOCAL-01028" summary="courser flow end">
-      <option name="closed" value="true" />
-      <created>1774012820838</created>
-      <option name="number" value="01028" />
-      <option name="presentableId" value="LOCAL-01028" />
-      <option name="project" value="LOCAL" />
-      <updated>1774012820838</updated>
-    </task>
-    <task id="LOCAL-01029" summary="courser flow end">
-      <option name="closed" value="true" />
-      <created>1774014224989</created>
-      <option name="number" value="01029" />
-      <option name="presentableId" value="LOCAL-01029" />
-      <option name="project" value="LOCAL" />
-      <updated>1774014224990</updated>
-    </task>
-    <task id="LOCAL-01030" summary="courser flow end">
-      <option name="closed" value="true" />
-      <created>1774017068149</created>
-      <option name="number" value="01030" />
-      <option name="presentableId" value="LOCAL-01030" />
-      <option name="project" value="LOCAL" />
-      <updated>1774017068149</updated>
-    </task>
-    <task id="LOCAL-01031" summary="feat: add JLPT mondai management functionality and update navigation">
-      <option name="closed" value="true" />
-      <created>1774244820356</created>
-      <option name="number" value="01031" />
-      <option name="presentableId" value="LOCAL-01031" />
-      <option name="project" value="LOCAL" />
-      <updated>1774244820356</updated>
+      <workItem from="1775061830841" duration="4922000" />
     </task>
     <task id="LOCAL-01032" summary="feat: add JLPT mondai management functionality and update navigation">
       <option name="closed" value="true" />
@@ -784,7 +736,55 @@
       <option name="project" value="LOCAL" />
       <updated>1775062618621</updated>
     </task>
-    <option name="localTasksCounter" value="1075" />
+    <task id="LOCAL-01075" summary="fix(insights): update AI chat model configuration and pricing structure">
+      <option name="closed" value="true" />
+      <created>1775062933182</created>
+      <option name="number" value="01075" />
+      <option name="presentableId" value="LOCAL-01075" />
+      <option name="project" value="LOCAL" />
+      <updated>1775062933182</updated>
+    </task>
+    <task id="LOCAL-01076" summary="fix(microphone/webcam): enhance component styling with className prop support">
+      <option name="closed" value="true" />
+      <created>1775063020144</created>
+      <option name="number" value="01076" />
+      <option name="presentableId" value="LOCAL-01076" />
+      <option name="project" value="LOCAL" />
+      <updated>1775063020144</updated>
+    </task>
+    <task id="LOCAL-01077" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775063628703</created>
+      <option name="number" value="01077" />
+      <option name="presentableId" value="LOCAL-01077" />
+      <option name="project" value="LOCAL" />
+      <updated>1775063628703</updated>
+    </task>
+    <task id="LOCAL-01078" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775063885301</created>
+      <option name="number" value="01078" />
+      <option name="presentableId" value="LOCAL-01078" />
+      <option name="project" value="LOCAL" />
+      <updated>1775063885302</updated>
+    </task>
+    <task id="LOCAL-01079" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775064474031</created>
+      <option name="number" value="01079" />
+      <option name="presentableId" value="LOCAL-01079" />
+      <option name="project" value="LOCAL" />
+      <updated>1775064474032</updated>
+    </task>
+    <task id="LOCAL-01080" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775066520893</created>
+      <option name="number" value="01080" />
+      <option name="presentableId" value="LOCAL-01080" />
+      <option name="project" value="LOCAL" />
+      <updated>1775066520893</updated>
+    </task>
+    <option name="localTasksCounter" value="1081" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -801,7 +801,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="breakout-room-insight-fix" />
                       </list>
                     </value>
                   </entry>
@@ -819,8 +819,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="style (#281)" />
-    <MESSAGE value="feat: add content field to academy lessons and update layout styles" />
     <MESSAGE value="feat: update livekit configuration and clean up unused imports in refunds components" />
     <MESSAGE value="fix conflict" />
     <MESSAGE value="refactor: update live schedule service and class attendance UI for improved functionality and user experience" />
@@ -844,7 +842,9 @@
     <MESSAGE value="feat: add whiteboard embed mode and corresponding UI component" />
     <MESSAGE value="fix(breakout): improve metadata handling and error logging for breakout room creation" />
     <MESSAGE value="fix(insights): update AI chat model configuration and pricing structure" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(insights): update AI chat model configuration and pricing structure" />
+    <MESSAGE value="fix(microphone/webcam): enhance component styling with className prop support" />
+    <MESSAGE value="fix(breakout): refactor room settings and improve device management in startup modal" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(breakout): refactor room settings and improve device management in startup modal" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
