@@ -110,7 +110,7 @@ const ChatTabs = () => {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col min-h-0">
       <div className="top-chat-header flex items-center gap-2 h-10 px-3 3xl:px-5 justify-between">
         <div className="left flex items-center gap-3">
           <p className="text-sm text-foreground 3xl:font-medium leading-tight">
@@ -166,7 +166,7 @@ const ChatTabs = () => {
           </SelectContent>
         </div>
       </Select>
-      <div className="h-[calc(100%-135px)] 3xl:h-[calc(100%-176px)] chat-messages-container">
+      <div className="flex-1 min-h-0 chat-messages-container">
         <Messages messageKey={selectedChatOption} />
       </div>
     </div>

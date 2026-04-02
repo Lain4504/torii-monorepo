@@ -13,6 +13,17 @@ async function bootstrap() {
   // Configure cookie parser
   app.use(cookieParser());
 
+  // IMPORTANT: Keep raw body for LiveKit webhook verification.
+  // If we JSON-parse and then JSON.stringify again, sha256(body) may differ
+  // from what LiveKit used to generate the webhook token.
+  app.use(
+    '/webhook',
+    bodyParser.raw({
+      type: '*/*',
+      limit: '10mb',
+    }),
+  );
+
   // Debug middleware for raw request inspection
   app.use((req, res, next) => {
     // console.log(`[Request] ${req.method} ${req.url} Content-Type: ${req.headers['content-type']}`);
@@ -24,7 +35,14 @@ async function bootstrap() {
 
   app.use(
     bodyParser.json({
-      type: ['application/json', 'application/webhook+json'],
+      type: (req) => {
+        // Don't let json parser touch /webhook (raw body is already set above)
+        if (req.url && (req.url === '/webhook' || req.url.startsWith('/webhook?'))) {
+          return false;
+        }
+        const ct = req.headers['content-type'];
+        return ct === 'application/json' || ct === 'application/webhook+json';
+      },
     }),
   );
   // Configure body parser to accept urlencoded (for typical RTMP webhooks)

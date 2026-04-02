@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(room-settings): refactor settings components to use new UI library and improve layout" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(breakout): enhance room status handling and improve webhook body processing">
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/main.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -387,22 +389,6 @@
       <workItem from="1775037916663" duration="31000" />
       <workItem from="1775061830841" duration="4922000" />
     </task>
-    <task id="LOCAL-01039" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774276413707</created>
-      <option name="number" value="01039" />
-      <option name="presentableId" value="LOCAL-01039" />
-      <option name="project" value="LOCAL" />
-      <updated>1774276413708</updated>
-    </task>
-    <task id="LOCAL-01040" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774279850177</created>
-      <option name="number" value="01040" />
-      <option name="presentableId" value="LOCAL-01040" />
-      <option name="project" value="LOCAL" />
-      <updated>1774279850177</updated>
-    </task>
     <task id="LOCAL-01041" summary="new flow">
       <option name="closed" value="true" />
       <created>1774279859783</created>
@@ -779,7 +765,23 @@
       <option name="project" value="LOCAL" />
       <updated>1775118566410</updated>
     </task>
-    <option name="localTasksCounter" value="1088" />
+    <task id="LOCAL-01088" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775118992326</created>
+      <option name="number" value="01088" />
+      <option name="presentableId" value="LOCAL-01088" />
+      <option name="project" value="LOCAL" />
+      <updated>1775118992326</updated>
+    </task>
+    <task id="LOCAL-01089" summary="fix(breakout): enhance room status handling and improve webhook body processing">
+      <option name="closed" value="true" />
+      <created>1775122364545</created>
+      <option name="number" value="01089" />
+      <option name="presentableId" value="LOCAL-01089" />
+      <option name="project" value="LOCAL" />
+      <updated>1775122364545</updated>
+    </task>
+    <option name="localTasksCounter" value="1090" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -814,7 +816,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix conflict" />
     <MESSAGE value="refactor: update live schedule service and class attendance UI for improved functionality and user experience" />
     <MESSAGE value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
     <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
@@ -839,7 +840,8 @@
     <MESSAGE value="fix(microphone/webcam): enhance component styling with className prop support" />
     <MESSAGE value="fix(breakout): refactor room settings and improve device management in startup modal" />
     <MESSAGE value="fix(room-settings): refactor settings components to use new UI library and improve layout" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(room-settings): refactor settings components to use new UI library and improve layout" />
+    <MESSAGE value="fix(breakout): enhance room status handling and improve webhook body processing" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(breakout): enhance room status handling and improve webhook body processing" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -514,41 +514,64 @@ export class BreakoutService {
   async postTaskAfterRoomStartWebhook(
     roomId: string,
     metadata: RoomMetadata,
-  ): Promise<void> {
-    if (!metadata.isBreakoutRoom || !metadata.parentRoomId) return;
+  ): Promise<boolean> {
+    if (!metadata.isBreakoutRoom || !metadata.parentRoomId) return false;
 
-    // Delay to allow sync
-    await new Promise((resolve) =>
-      setTimeout(resolve, this.waitBeforePostStart),
-    );
+    const parentRoomId = metadata.parentRoomId;
 
-    // [MIGRATED] Use Redis
-    const roomStr = await this.redisBreakoutService.getBreakoutRoom(
-      metadata.parentRoomId,
-      roomId,
-    );
-    if (!roomStr) {
-      this.logger.warn(
-        `Breakout room ${roomId} not found in Redis for parent ${metadata.parentRoomId}, skipping postPR-start tasks`,
+    // Mirror Go server behavior: we always wait a bit before fetching breakout
+    // room record from Redis, because LiveKit room can start before Redis
+    // insertion completes.
+    await new Promise((resolve) => setTimeout(resolve, this.waitBeforePostStart));
+
+    // Retry multiple times to avoid "started flag never updated" when Redis
+    // insertion is delayed under load.
+    const maxAttempts = 5; // ~2s + (maxAttempts-1)*2s = ~10s total
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      // [MIGRATED] Use Redis
+      const roomStr = await this.redisBreakoutService.getBreakoutRoom(
+        parentRoomId,
+        roomId,
       );
-      return;
+
+      if (roomStr) {
+        const room = fromJsonString(BreakoutRoomSchema, roomStr);
+        if (room.started) return false; // already started (idempotent)
+
+        const startedAt =
+          (metadata as any).startedAt ?? BigInt(Math.floor(Date.now() / 1000));
+
+        this.logger.log(
+          `Updating breakout room ${roomId} status to started: true`,
+        );
+        room.created = startedAt.toString();
+        room.started = true;
+
+        const jsonStr = this.natsService.marshalToProtoJson(
+          room,
+          BreakoutRoomSchema,
+        );
+        // [MIGRATED] Use Redis
+        await this.redisBreakoutService.insertOrUpdateBreakoutRoom(
+          parentRoomId,
+          roomId,
+          jsonStr,
+        );
+
+        return true;
+      }
+
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.waitBeforePostStart),
+        );
+      }
     }
 
-    const room = fromJsonString(BreakoutRoomSchema, roomStr);
-    this.logger.log(`Updating breakout room ${roomId} status to started: true`);
-    room.created = metadata.startedAt.toString();
-    room.started = true;
-
-    const jsonStr = this.natsService.marshalToProtoJson(
-      room,
-      BreakoutRoomSchema,
+    this.logger.warn(
+      `Breakout room ${roomId} not found in Redis for parent ${parentRoomId}, skipping postPR-start tasks`,
     );
-    // [MIGRATED] Use Redis
-    await this.redisBreakoutService.insertOrUpdateBreakoutRoom(
-      metadata.parentRoomId,
-      roomId,
-      jsonStr,
-    );
+    return false;
   }
 
   /**

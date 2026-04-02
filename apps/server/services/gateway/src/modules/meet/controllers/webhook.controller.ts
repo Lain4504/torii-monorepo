@@ -78,14 +78,13 @@ export class WebhookController {
     @Body() body: any,
     @Headers('authorization') authHeader: string,
   ): Promise<void> {
-    // Read request body (JSON from room-service webhook notifier)
-    if (!body) {
+    // Keep raw bytes for sha256 verification (body can be Buffer when using bodyParser.raw)
+    if (body === undefined || body === null) {
       this.logger.error('No body found in request');
       throw new Error('No body');
     }
 
-    // Convert JSON body to bytes for verification
-    const data = Buffer.from(JSON.stringify(body), 'utf-8');
+    const data = Buffer.isBuffer(body) ? body : Buffer.from(JSON.stringify(body), 'utf-8');
 
     // Extract Authorization header
     const token = authHeader;
@@ -101,9 +100,7 @@ export class WebhookController {
       throw new Error('Forbidden');
     }
 
-    // Unmarshal the webhook event
-    // LiveKit sends webhooks as JSON, so we parse as plain JSON object
-    // The protobuf unmarshaling is for validation, but JSON works fine for forwarding
+    // Unmarshal the webhook event (LiveKit sends webhooks as JSON)
     let event: any;
     try {
       event = JSON.parse(data.toString('utf-8'));

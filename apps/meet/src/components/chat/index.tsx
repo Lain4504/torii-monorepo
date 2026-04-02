@@ -104,13 +104,13 @@ const ChatComponent = () => {
       onDrop={handleOnDrop}
       onDragOver={(e) => e.preventDefault()}
     >
-      <div className="h-full">
+      <div className="flex-1 min-h-0">
         <div className="all-MessageModule-wrap h-full">
           <ChatTabs />
         </div>
       </div>
       {canShowChatInput && (
-        <div className="side-panel-bg-color message-form absolute bottom-0 z-30 border-t border-border bg-card w-full px-3 3xl:px-5 py-2 3xl:py-4 flex items-center">
+        <div className="side-panel-bg-color message-form relative z-30 shrink-0 border-t border-border bg-card w-full px-3 3xl:px-5 py-2 3xl:py-4 flex items-center">
           <TextBoxArea />
         </div>
       )}
