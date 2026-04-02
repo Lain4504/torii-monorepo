@@ -16,7 +16,6 @@ import { DB_STORE_NAMES, idbStore } from '@/helpers/libs/idb';
 
 const initialState: IRoomSettings = {
   isShowRoomSettingsModal: false,
-  isShowKeyboardShortcuts: false,
   isNatsServerConnected: false,
 
   audioDevices: [],
@@ -59,12 +58,6 @@ const roomSettingsSlice = createSlice({
   reducers: {
     updateShowRoomSettingsModal: (state, action: PayloadAction<boolean>) => {
       state.isShowRoomSettingsModal = action.payload;
-    },
-    updateShowKeyboardShortcutsModal: (
-        state,
-        action: PayloadAction<boolean>,
-    ) => {
-      state.isShowKeyboardShortcuts = action.payload;
     },
     updateIsNatsServerConnected: (state, action: PayloadAction<boolean>) => {
       state.isNatsServerConnected = action.payload;
@@ -168,9 +161,6 @@ const roomSettingsSlice = createSlice({
     updateFocusActiveSpeakerWebcam: (state, action: PayloadAction<boolean>) => {
       state.focusActiveSpeakerWebcam = action.payload;
     },
-    addSelfInsertedE2EESecretKey: (state, action: PayloadAction<string>) => {
-      state.selfInsertedE2EESecretKey = action.payload;
-    },
     addUserNotification: (state, action: PayloadAction<UserNotification>) => {
       if (!action.payload.created) {
         action.payload.created = Date.now();
@@ -213,7 +203,6 @@ export const {
   updateActivateWebcamsView,
   updateActiveScreenSharingView,
   updateAllowPlayAudioNotification,
-  updateShowKeyboardShortcutsModal,
   updateRoomAudioVolume,
   updateRoomScreenShareAudioVolume,
   updateRoomVideoQuality,
@@ -231,7 +220,6 @@ export const {
   updateIsWAJLCWindowTabVisible,
   updatePinCamUserId,
   updateFocusActiveSpeakerWebcam,
-  addSelfInsertedE2EESecretKey,
   addUserNotification,
   setAllUserNotifications,
   updateIsSidePanelOpened,

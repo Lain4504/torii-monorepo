@@ -858,7 +858,7 @@ export class InsightsService {
     };
 
     return await firstValueFrom(
-      this.natsClient.send<any>('plug-n-meet-insights', payload),
+      this.natsClient.send<any>('meet.insights', payload),
     );
   }
 
@@ -872,7 +872,7 @@ export class InsightsService {
     };
 
     return await firstValueFrom(
-      this.natsClient.send<any>('plug-n-meet-insights', payload),
+      this.natsClient.send<any>('meet.insights', payload),
     );
   }
 
@@ -883,7 +883,7 @@ export class InsightsService {
     try {
       const res = await firstValueFrom(
         this.natsClient.send<AgentTaskResponse>(
-          'plug-n-meet-insights',
+          'meet.insights',
           payload,
         ),
       );

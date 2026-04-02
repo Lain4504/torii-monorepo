@@ -5,7 +5,6 @@ import Footer from '@/components/footer';
 import Header from '@/components/header';
 import MainArea from '@/components/main-area';
 import Landing from '@/components/landing';
-import InsertE2EEKey from '@/components/extra-pages/InsertE2EEKey';
 import DummyAudio from '@/components/app/dummyAudio';
 import Login from '@/components/extra-pages/Login'
 import { store, useAppDispatch } from '@/store';
@@ -42,7 +41,6 @@ const App = () => {
   const [openConnInfo, setOpenConnInfo] = useState<InfoToOpenConn | undefined>(
     undefined,
   );
-  const [openConn, setOpenConn] = useState<boolean>(false);
   const [isAppReady, setIsAppReady] = useState<boolean>(false);
 
   useKeyboardShortcuts(currentMediaServerConn?.room);
@@ -55,17 +53,11 @@ const App = () => {
   useThemeSettings();
 
   useEffect(() => {
-    verifyToken(
-      setLoading,
-      setError,
-      setOpenConnInfo,
-      setRoomConnectionStatus,
-      setOpenConn,
-    ).then();
+    verifyToken(setLoading, setError, setOpenConnInfo).then();
   }, []);
 
   useEffect(() => {
-    if (openConnInfo && openConn) {
+    if (openConnInfo) {
       // we'll store the token that we received from the URL
       dispatch(addToken(openConnInfo.accessToken));
       dispatch(addServerVersion(openConnInfo.serverVersion));
@@ -83,7 +75,7 @@ const App = () => {
         setCurrentMediaServerConn,
       ).then();
     }
-  }, [dispatch, openConnInfo, openConn]);
+  }, [dispatch, openConnInfo]);
 
   useEffect(() => {
     switch (roomConnectionStatus) {
@@ -127,8 +119,6 @@ const App = () => {
           return <Login />;
         }
         return <ErrorPage title={error!.title} text={error!.text} />;
-      case roomConnectionStatus === 'insert-e2ee-key':
-        return <InsertE2EEKey setOpenConn={setOpenConn} />;
       case isAppReady:
         return (
           <div className="torii-meet-app overflow-hidden h-screen">

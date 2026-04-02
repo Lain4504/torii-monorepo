@@ -165,7 +165,7 @@ export class RedisRoomService {
       this.logger.error(
         `getRoomWithDurationInfo failed for ${roomId}: ${error.message}`,
       );
-      throw error;
+      return null;
     }
   }
 
@@ -214,7 +214,7 @@ export class RedisRoomService {
       this.logger.error(
         `getRoomWithDurationInfoByKey failed: ${error.message}`,
       );
-      throw error;
+      return null;
     }
   }
 }

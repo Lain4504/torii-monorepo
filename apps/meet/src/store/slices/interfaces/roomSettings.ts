@@ -9,7 +9,6 @@ export enum VideoObjectFit {
 
 export interface IRoomSettings {
   isShowRoomSettingsModal: boolean;
-  isShowKeyboardShortcuts: boolean;
   isNatsServerConnected: boolean;
 
   audioDevices: Array<IMediaDevice>;
@@ -39,7 +38,6 @@ export interface IRoomSettings {
   isWAJLCWindowTabVisible: boolean;
   pinCamUserId?: string;
   focusActiveSpeakerWebcam: boolean;
-  selfInsertedE2EESecretKey?: string;
   userNotifications: UserNotification[];
   isSidePanelOpened: boolean;
   hasWebcamPages: boolean;

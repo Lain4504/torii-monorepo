@@ -181,7 +181,7 @@ export class BreakoutService {
       throw new Error('Không tạo được phòng nhóm nào');
     }
 
-    // Update parent room metadata — plugNmeet: UnmarshalRoomMetadata(mainRoom.Metadata), then UpdateAndBroadcast
+    // Update parent room metadata
     let origMeta: RoomMetadata;
     try {
       origMeta = fromJsonString(RoomMetadataSchema, mainRoom.metadata ?? '', {
@@ -217,7 +217,7 @@ export class BreakoutService {
       );
     }
 
-    // Send analytics (Go: always after update attempt, even if update failed)
+    // Send analytics (always after update attempt, even if update failed)
     const analyticsData = create(AnalyticsDataMsgSchema, {
       eventType: AnalyticsEventType.ROOM,
       eventName: AnalyticsEvents.ANALYTICS_EVENT_ROOM_BREAKOUT_ROOM,

@@ -10,7 +10,7 @@ const Avatar = ({ participant }: IAvatarProps) => {
   const initials = generateAvatarInitial(participant.name);
 
   return (
-    <div className="thumb h-7 3xl:h-9 w-7 3xl:w-9 rounded-lg 3xl:rounded-xl bg-primary text-xs 3xl:text-base font-medium text-primary-foreground flex items-center justify-center overflow-hidden">
+    <div className="thumb h-7 3xl:h-9 w-7 3xl:w-9 rounded-full bg-primary text-xs 3xl:text-base font-medium text-primary-foreground flex items-center justify-center overflow-hidden">
       {participant.profilePic ? (
         <img
           src={participant.profilePic}

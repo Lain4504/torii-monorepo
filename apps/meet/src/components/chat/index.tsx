@@ -85,7 +85,7 @@ const ChatComponent = () => {
           chatFeatures?.maxFileSize,
           RoomUploadedFileType.CHAT_FILE,
           files,
-          (result) => {
+          (_result) => {
             dispatch(
               addUserNotification({
                 message: 'Tệp được tải lên thành công',
@@ -100,7 +100,7 @@ const ChatComponent = () => {
 
   return (
     <div
-      className="side-panel-bg-color relative z-10 w-full bg-card border-l border-border h-full"
+      className="side-panel-bg-color relative z-10 w-full bg-card border-l border-border h-full flex flex-col"
       onDrop={handleOnDrop}
       onDragOver={(e) => e.preventDefault()}
     >

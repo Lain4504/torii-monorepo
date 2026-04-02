@@ -1,12 +1,14 @@
-import React, { Fragment } from 'react';
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-  Transition,
-} from '@headlessui/react';
+import React from 'react';
 import { createSelector } from '@reduxjs/toolkit';
+
+import { Button } from '@workspace/ui/components/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@workspace/ui/components/select';
 
 import { RootState, useAppDispatch, useAppSelector } from '@/store';
 import { selectChatKeys } from '@/store/slices/chatMessagesSlice';
@@ -16,7 +18,7 @@ import {
   updateSelectedChatOption,
   updateUnreadMsgFrom,
 } from '@/store/slices/roomSettingsSlice';
-import { X, Check, MessageSquareDot } from 'lucide-react';
+import { X, MessageSquareDot } from 'lucide-react';
 import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 import ChatTranslation from '@/components/chat/chatTranslation';
 
@@ -118,84 +120,52 @@ const ChatTabs = () => {
           </p>
           <ChatTranslation />
         </div>
-        <div className="text-muted-foreground cursor-pointer" onClick={closePanel}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground hover:text-foreground p-0"
+          onClick={closePanel}
+          aria-label="Đóng khung chat"
+        >
           <X className="w-5 h-5" />
-        </div>
+        </Button>
       </div>
-      <Listbox value={selectedChatOption} onChange={onChange}>
+      <Select value={selectedChatOption} onValueChange={onChange}>
         <div className="relative z-10 chat-tabs">
-          <ListboxButton className="flex items-center justify-between border-y border-border h-8 3xl:h-10 w-full outline-hidden px-3 3xl:px-5 text-xs 3xl:text-sm text-muted-foreground cursor-pointer">
-            <p className="block truncate">
+          <SelectTrigger className="flex items-center justify-between border-y border-border h-8 3xl:h-10 w-full outline-hidden px-3 3xl:px-5 text-xs 3xl:text-sm text-muted-foreground cursor-pointer">
+            <p className="block truncate min-w-0">
               To:{' '}
               <span className="font-medium text-foreground">
                 {selectedTitle}
               </span>
             </p>
-            <span className="pointer-events-none absolute inset-y-0 right-3 3xl:right-5 flex items-center">
-              {hasUnreadMessages && (
-                <span className="shake pr-1 -mb-1">
-                  <MessageSquareDot className="w-4 h-4 text-primary shake" />
-                </span>
-              )}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="none"
-                className="h-auto w-3 3xl:w-4"
-              >
-                <path d="M12 6L8 10L4 6" fill="#4D6680" />
-                <path
-                  d="M12 6L8 10L4 6H12Z"
-                  stroke="#4D6680"
-                  strokeWidth="1.67"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </ListboxButton>
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100 z-90"
-            leaveTo="opacity-0"
-          >
-            <ListboxOptions className="absolute max-h-60 w-[calc(100%-8px)] left-1 border border-border bg-popover shadow-lg rounded-xl overflow-hidden p-2">
-              <div className="title h-8 w-full flex items-center text-xs leading-none text-muted-foreground px-3 uppercase">
-                Chọn một cuộc trò chuyện
-              </div>
-              {chatOptions.map((option) => (
-                <ListboxOption
-                  key={option.id}
-                  className={({ focus, selected }) =>
-                    `h-8 w-full cursor-pointer flex items-center text-sm gap-2 leading-none 3xl:font-medium text-foreground px-3 rounded-lg transition-all duration-300 hover:bg-muted relative ${focus ? 'bg-muted' : ''
-                    } ${selected ? 'bg-muted' : ''}`
-                  }
-                  value={option.id}
-                >
-                  {({ selected }) => (
-                    <>
-                      <span>
-                        {option.title}
-                        {option.hasUnread && (
-                          <span className="shake pl-2">
-                            <MessageSquareDot className="w-4 h-4 text-primary shake" />
-                          </span>
-                        )}
-                      </span>
-                      {selected && (
-                        <span className="right absolute right-3">
-                          <Check className="w-4 h-4" />
-                        </span>
-                      )}
-                    </>
+            {/* Keep Radix value in DOM for accessibility/state, but we render custom label above. */}
+            <SelectValue className="sr-only" />
+            {hasUnreadMessages && (
+              <span className="pointer-events-none shake pr-1 -mb-1">
+                <MessageSquareDot className="w-4 h-4 text-primary shake" />
+              </span>
+            )}
+          </SelectTrigger>
+          <SelectContent className="max-h-60 border border-border bg-popover shadow-lg rounded-xl overflow-hidden p-2">
+            <div className="title h-8 w-full flex items-center text-xs leading-none text-muted-foreground px-3 uppercase">
+              Chọn một cuộc trò chuyện
+            </div>
+            {chatOptions.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                <div className="flex w-full items-center justify-between gap-2">
+                  <span className="truncate">{option.title}</span>
+                  {option.hasUnread && (
+                    <span className="shake">
+                      <MessageSquareDot className="w-4 h-4 text-primary shake" />
+                    </span>
                   )}
-                </ListboxOption>
-              ))}
-            </ListboxOptions>
-          </Transition>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
         </div>
-      </Listbox>
+      </Select>
       <div className="h-[calc(100%-135px)] 3xl:h-[calc(100%-176px)] chat-messages-container">
         <Messages messageKey={selectedChatOption} />
       </div>

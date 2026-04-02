@@ -109,7 +109,7 @@ export class RoomDurationService {
   }
 
   /**
-   * IncreaseRoomDuration — aligned with livekit-meet-server/pkg/models/room_duration.go
+   * IncreaseRoomDuration
    * (IncreaseRoomDuration): order info → meta → breakout checks → HIncrBy → metadata → rollback.
    */
   async increaseRoomDuration(
@@ -120,17 +120,17 @@ export class RoomDurationService {
       `Request to increase room duration: ${roomId}, duration: ${duration}`,
     );
 
-    // 1. Redis duration info (Go: GetRoomDurationInfo; empty hash → zero values)
+    // 1. Redis duration info
     const rawInfo = await this.getRoomDurationInfo(roomId);
     const info = rawInfo ?? { duration: 0, startedAt: 0 };
 
-    // 2. Metadata (Go: GetRoomMetadataStruct)
+    // 2. Metadata
     const meta = await this.natsRoomService.getRoomMetadataStruct(roomId);
     if (!meta) {
       throw new Error('invalid nil room metadata information');
     }
 
-    // 3. Breakout room — same guards as Go (meta.IsBreakoutRoom && info != nil always has struct here)
+    // 3. Breakout room
     if (meta.isBreakoutRoom) {
       if (info.startedAt === 0) {
         const err = new Error(
@@ -153,7 +153,7 @@ export class RoomDurationService {
       await this.compareDurationWithParentRoom(meta.parentRoomId, d);
     }
 
-    // 4. Redis HIncrBy (Go: UpdateRoomDuration)
+    // 4. Redis HIncrBy
     const newTotalDuration = await this.redisRoom.updateRoomDuration(
       roomId,
       'duration',
@@ -226,7 +226,7 @@ export class RoomDurationService {
       `Parent room duration check - minutes left: ${minutesLeft}`,
     );
 
-    // Go: if left < duration → fmt.Errorf("breakout room's duration (%d) can't be more than parent room's remaining duration (%d)", duration, left)
+    // if left < duration → print("breakout room's duration (%d) can't be more than parent room's remaining duration (%d)", duration, left)
     if (minutesLeft < duration) {
       const msg = `breakout room's duration (${duration}) can't be more than parent room's remaining duration (${minutesLeft})`;
       this.logger.warn(msg);
