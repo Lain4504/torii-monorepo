@@ -111,7 +111,7 @@ const UserNotifications = () => {
       return (
         <div className="relative">
           <Bell className="w-3.5 md:w-4 h-auto text-foreground dark:text-white" />
-          <span className="unseen-notification-count bg-secondary w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-white absolute -top-2 -right-1 flex justify-center items-center">
+          <span className="unseen-notification-count bg-secondary w-4 3xl:w-5 h-4 3xl:h-5 rounded-full text-[10px] 3xl:text-xs text-secondary-foreground absolute -top-2 -right-1 flex justify-center items-center">
             {hasUnreadNotifications}
           </span>
         </div>

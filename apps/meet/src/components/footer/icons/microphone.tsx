@@ -298,34 +298,6 @@ const MicrophoneIcon = () => {
     }
   }, [currentRoom, conn, dispatch]);
 
-  const manageMic = useCallback(async () => {
-    if (!isActiveMicrophone && !isLocked) {
-      // get devices before showing the modal
-      const devices = await getInputMediaDevices('audio');
-      dispatch(addAudioDevices(devices.audio));
-
-      dispatch(updateShowMicrophoneModal(true));
-    }
-
-    if (isActiveMicrophone) {
-      await muteUnmuteMic();
-    }
-  }, [isActiveMicrophone, isLocked, dispatch, muteUnmuteMic]);
-
-  const getTooltipText = () => {
-    if (!isActiveMicrophone && !isLocked) {
-      return 'Bật micrô';
-    } else if (!isActiveMicrophone && isLocked) {
-      return 'Micrô bị khóa';
-    }
-
-    if (isActiveMicrophone && !isMicMuted) {
-      return 'Tắt tiếng micrô';
-    } else if (isActiveMicrophone && isMicMuted) {
-      return 'Bật tiếng micrô';
-    }
-  };
-
   const onCloseMicrophoneModal = useCallback(
     async (deviceId?: string) => {
       dispatch(updateShowMicrophoneModal(false));
@@ -367,6 +339,46 @@ const MicrophoneIcon = () => {
     [dispatch, currentRoom, muteOnStart],
   );
 
+  const manageMic = useCallback(async () => {
+    if (isLocked) {
+      return;
+    }
+
+    if (!isActiveMicrophone) {
+      if (selectedAudioDevice !== '') {
+        await onCloseMicrophoneModal(selectedAudioDevice);
+      } else {
+        const devices = await getInputMediaDevices('audio');
+        dispatch(addAudioDevices(devices.audio));
+        dispatch(updateShowMicrophoneModal(true));
+      }
+      return;
+    }
+
+    await muteUnmuteMic();
+  }, [
+    isLocked,
+    isActiveMicrophone,
+    selectedAudioDevice,
+    dispatch,
+    muteUnmuteMic,
+    onCloseMicrophoneModal,
+  ]);
+
+  const getTooltipText = () => {
+    if (!isActiveMicrophone && !isLocked) {
+      return 'Bật micrô';
+    } else if (!isActiveMicrophone && isLocked) {
+      return 'Micrô bị khóa';
+    }
+
+    if (isActiveMicrophone && !isMicMuted) {
+      return 'Tắt tiếng micrô';
+    } else if (isActiveMicrophone && isMicMuted) {
+      return 'Bật tiếng micrô';
+    }
+  };
+
   // only for initial if device was selected in landing page
   useEffect(() => {
     if (selectedAudioDevice) {
@@ -375,20 +387,34 @@ const MicrophoneIcon = () => {
     //eslint-disable-next-line
   }, [onCloseMicrophoneModal]);
 
+  const isMicConfigured =
+    selectedAudioDevice !== '' || isActiveMicrophone || isLocked;
+
   const wrapperClasses = clsx(
-    'relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
+    'meet-footer-ctrl-pill relative footer-icon cursor-pointer h-10 md:h-11 3xl:h-[52px] rounded-full border-[3px] 3xl:border-4 transition-[min-width,width] duration-300',
+    isMicConfigured
+      ? 'w-auto min-w-12 md:min-w-14 3xl:min-w-[3.75rem]'
+      : 'w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px]',
     {
-      'border-destructive!': isMicMuted && isActiveMicrophone,
-      'border-primary/25': isActiveMicrophone,
-      'border-transparent': !isActiveMicrophone,
       'border-destructive! pointer-events-none': isLocked,
+      'border-primary/25':
+        isActiveMicrophone && !isMicMuted && !isLocked,
+      'border-destructive!':
+        !isLocked &&
+        ((isMicMuted && isActiveMicrophone) ||
+          (!isActiveMicrophone && selectedAudioDevice !== '')),
+      'border-transparent':
+        !isLocked && !isActiveMicrophone && selectedAudioDevice === '',
     },
   );
 
   const micWrapClasses = clsx(
-    'footer-icon-bg microphone-wrap relative cursor-pointer shadow-sm border border-border rounded-lg h-full w-full flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground bg-card',
+    'footer-icon-bg microphone-wrap relative cursor-pointer shadow-sm border border-border rounded-full h-full w-full flex flex-row items-stretch overflow-visible transition-all duration-300 hover:bg-muted text-foreground bg-card',
     {
-      'border-destructive/50!': isMicMuted && isActiveMicrophone,
+      'border-destructive/50!':
+        !isLocked &&
+        ((isMicMuted && isActiveMicrophone) ||
+          (!isActiveMicrophone && selectedAudioDevice !== '')),
       'border-destructive/50! text-destructive': isLocked,
     },
   );
@@ -431,22 +457,28 @@ const MicrophoneIcon = () => {
             </span>
             {!isActiveMicrophone ? (
               <>
-                <Mic className={'h-4 3xl:h-5 w-auto'} />
-                <span className="add absolute -top-1.5 md:-top-2 -right-1.5 md:-right-2 z-10">
-                  {isLocked ? (
-                    <LockIcon className="w-3.5 h-3.5 md:w-3.5 md:h-3.5 text-primary" />
-                  ) : (
-                    <Plus className="w-4 h-4" />
-                  )}
-                </span>
+                {selectedAudioDevice === '' ? (
+                  <>
+                    <Mic className={'h-4 3xl:h-5 w-auto'} />
+                    <span className="add absolute -top-2 -right-2 z-10">
+                      {isLocked ? (
+                        <LockIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
+                      ) : (
+                        <Plus className="w-3 h-3 md:w-4 md:h-4" />
+                      )}
+                    </span>
+                  </>
+                ) : (
+                  <MicOff className={'h-4 3xl:h-5 w-auto'} />
+                )}
               </>
             ) : null}
-            {!isMicMuted && isActiveMicrophone && (
+            {!isMicMuted && isActiveMicrophone ? (
               <Mic className={'h-4 3xl:h-5 w-auto'} />
-            )}
-            {isMicMuted && isActiveMicrophone && (
+            ) : null}
+            {isMicMuted && isActiveMicrophone ? (
               <MicOff className={'h-4 3xl:h-5 w-auto'} />
-            )}
+            ) : null}
           </div>
           {isActiveMicrophone && (
             <MicMenu

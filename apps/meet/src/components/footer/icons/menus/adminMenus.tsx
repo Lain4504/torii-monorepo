@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
 import FooterMenuItem from '@/components/footer/icons/menus/menuItem';
-import { store, useAppDispatch, useAppSelector } from '@/store';
+import { store, useAppDispatch } from '@/store';
 
 import usePolls from '@/components/footer/icons/menus/hooks/usePolls';
 import useMuteAll from '@/components/footer/icons/menus/hooks/useMuteAll';
@@ -13,16 +13,11 @@ import {
   updateShowLockSettingsModal,
   updateShowManageBreakoutRoomModal,
   updateShowManageWaitingRoomModal,
-  updateShowRtmpModal,
 } from '@/store/slices/bottomIconsActivitySlice';
-import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
+import { BarChart2, LayoutGrid, Bot, Play, MonitorPlay, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();
-
-  const isActiveRtmpBroadcasting = useAppSelector(
-    (state) => state.session.isActiveRtmpBroadcasting,
-  );
 
   const { roomFeatures } = useMemo(() => {
     return {
@@ -40,10 +35,6 @@ const AdminMenus = () => {
 
   const openLockSettingsModal = useCallback(() => {
     dispatch(updateShowLockSettingsModal(true));
-  }, [dispatch]);
-
-  const openRtmpModal = useCallback(() => {
-    dispatch(updateShowRtmpModal(true));
   }, [dispatch]);
 
   const openManageWaitingRoomModal = useCallback(() => {
@@ -72,18 +63,6 @@ const AdminMenus = () => {
             text="Cài đặt AI"
           />
         )}
-      {roomFeatures?.allowRtmp && (
-        <FooterMenuItem
-          onClick={openRtmpModal}
-          isActive={isActiveRtmpBroadcasting}
-          icon={<Radio />}
-          text={
-            isActiveRtmpBroadcasting
-              ? 'Dừng phát trực tiếp RTMP'
-              : 'Bắt đầu phát trực tiếp RTMP'
-          }
-        />
-      )}
       {roomFeatures?.insightsFeatures?.isAllow &&
         roomFeatures?.insightsFeatures?.transcriptionFeatures?.isAllow && (
           <FooterMenuItem

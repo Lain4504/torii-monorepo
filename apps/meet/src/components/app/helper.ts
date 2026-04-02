@@ -24,7 +24,6 @@ export type roomConnectionStatus =
   | 're-connecting'
   | 'error'
   | 'receiving-data'
-  | 'insert-e2ee-key'
   | 'ready'
   | 'media-server-conn-start'
   | 'media-server-conn-established';
@@ -44,8 +43,6 @@ export const verifyToken = once(
     setLoading: Dispatch<SetStateAction<boolean>>,
     setError: Dispatch<SetStateAction<IErrorPageProps | undefined>>,
     setOpenConnInfo: Dispatch<SetStateAction<InfoToOpenConn | undefined>>,
-    setRoomConnectionStatus: Dispatch<SetStateAction<roomConnectionStatus>>,
-    setOpenConn: Dispatch<SetStateAction<boolean>>,
   ) => {
     const accessToken = getAccessToken();
     if (!accessToken) {
@@ -99,13 +96,6 @@ export const verifyToken = once(
         serverVersion: res.serverVersion ?? '',
       });
       store.dispatch(updateIsCloud(!!res.isCloud));
-
-      if (res.enabledSelfInsertEncryptionKey) {
-        setLoading(false);
-        setRoomConnectionStatus('insert-e2ee-key');
-      } else {
-        setOpenConn(true);
-      }
     } else {
       setLoading(false);
       setError({

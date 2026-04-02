@@ -583,7 +583,10 @@ export class ArtifactsService {
         const prompt = usageMap[`prompt_tokens_${task}`] || 0;
         const completion = usageMap[`completion_tokens_${task}`] || 0;
 
-        const pricing = this.getServicePricing('ai_text_chat', 'gemini-pro');
+        const aiChatModel =
+          (this.appConfig.insights?.services?.ai_text_chat?.options
+            ?.chat_model as string | undefined) || 'gemini-2.5-flash';
+        const pricing = this.getServicePricing('ai_text_chat', aiChatModel);
         const promptCost =
           (prompt / 1000000) * (pricing.inputPricePerMillionTokens || 0);
         const completionCost =

@@ -18,12 +18,11 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
 import sendAPIRequest from '@/helpers/api/api-client';
 
-export interface AzureTokenInfo {
-  token: string;
-  serviceRegion: string;
-  keyId: string;
-  renew: boolean;
-}
+/**
+ * Transcription, dịch chat và AI insights gọi qua Gateway REST `POST /api/insights/...`
+ * (protobuf). Provider (Gemini, v.v.) do server cấu hình — client không lấy token Azure
+ * và không gọi legacy `speech/azureToken` trên gateway.
+ */
 
 export const enableOrUpdateTranscription = async (
   body: InsightsTranscriptionConfigReq,

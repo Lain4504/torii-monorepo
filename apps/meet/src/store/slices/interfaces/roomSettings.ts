@@ -2,8 +2,6 @@ import { VideoQuality } from 'livekit-client';
 import { Theme } from '@excalidraw/excalidraw/element/types';
 import type { TypeOptions } from 'react-toastify';
 
-import { AzureTokenInfo } from '@/components/translation-transcription/helpers/apiConnections';
-
 export enum VideoObjectFit {
   COVER = 'cover',
   CONTAIN = 'contain',
@@ -11,7 +9,6 @@ export enum VideoObjectFit {
 
 export interface IRoomSettings {
   isShowRoomSettingsModal: boolean;
-  isShowKeyboardShortcuts: boolean;
   isNatsServerConnected: boolean;
 
   audioDevices: Array<IMediaDevice>;
@@ -38,11 +35,9 @@ export interface IRoomSettings {
   columnCameraPosition: ColumnCameraPosition;
   visibleHeader: boolean;
   visibleFooter: boolean;
-  azureTokenInfo?: AzureTokenInfo;
   isWAJLCWindowTabVisible: boolean;
   pinCamUserId?: string;
   focusActiveSpeakerWebcam: boolean;
-  selfInsertedE2EESecretKey?: string;
   userNotifications: UserNotification[];
   isSidePanelOpened: boolean;
   hasWebcamPages: boolean;

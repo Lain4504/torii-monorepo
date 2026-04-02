@@ -48,9 +48,6 @@ export class AppConfigService {
   get analytics(): AppConfig['analytics'] {
     return this.configService.get<AppConfig['analytics']>('analytics')!;
   }
-  get azureSpeech(): AppConfig['azureSpeech'] {
-    return this.configService.get<AppConfig['azureSpeech']>('azureSpeech')!;
-  }
   get webhook(): AppConfig['webhook'] {
     return this.configService.get<AppConfig['webhook']>('webhook')!;
   }

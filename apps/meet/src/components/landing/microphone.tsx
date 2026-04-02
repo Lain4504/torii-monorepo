@@ -3,6 +3,7 @@ import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { Check, Plus, ChevronUp, Mic } from 'lucide-react';
 import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
 import { inputMediaDeviceKind } from '@/helpers/utils';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface MicrophoneIconProps {
   audioDevices: IMediaDevice[];
@@ -10,6 +11,7 @@ interface MicrophoneIconProps {
   disableMic(): void;
   setSelectedAudioDevice: (value: SetStateAction<string>) => void;
   selectedAudioDevice: string;
+  className?: string;
 }
 
 const MicrophoneIcon = ({
@@ -18,9 +20,15 @@ const MicrophoneIcon = ({
   selectedAudioDevice,
   enableMediaDevices,
   disableMic,
+  className,
 }: MicrophoneIconProps) => {
   return (
-    <div className="microphone-wrap relative cursor-pointer shadow-sm border border-border rounded-xl h-11 min-w-11 flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground">
+    <div
+      className={cn(
+        'microphone-wrap relative cursor-pointer shadow-sm border border-border rounded-xl h-11 min-w-11 flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground',
+        className,
+      )}
+    >
       <div
         className="w-11 h-11 relative flex items-center justify-center"
         onClick={() =>

@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import useVirtual from 'react-cool-virtual';
 import { Search, X } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 
 import ParticipantComponent from '@/components/participants/participant';
@@ -91,12 +92,15 @@ const ParticipantsComponent = () => {
 
   return (
     <div className="side-panel-bg-color relative z-10 w-full bg-card border-l border-border h-full">
-      <div
-        className="inline-block absolute z-50 right-3 3xl:right-5 top-[10px] text-muted-foreground cursor-pointer"
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        className="absolute z-50 right-3 3xl:right-5 top-[10px] text-muted-foreground hover:text-foreground p-0"
         onClick={closePanel}
+        aria-label="Đóng danh sách thành viên"
       >
         <X className="w-5 h-5" />
-      </div>
+      </Button>
       <div className="inner-wrapper relative z-20 w-full">
         <div className="top flex items-center h-10 px-3 3xl:px-5">
           <p className="text-sm text-foreground font-medium leading-tight">

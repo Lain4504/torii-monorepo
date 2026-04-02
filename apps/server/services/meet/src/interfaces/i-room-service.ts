@@ -326,7 +326,7 @@ export interface IRoomService {
   postTaskAfterRoomStartWebhook(
     roomId: string,
     metadata: RoomMetadata,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   /**
    * PostTaskAfterRoomEndWebhook handles cleanup when a room ends

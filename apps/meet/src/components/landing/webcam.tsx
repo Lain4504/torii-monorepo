@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
 import ShareWebcamModal from '@/components/footer/modals/webcam';
 import { inputMediaDeviceKind } from '@/helpers/utils';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface WebcamIconProps {
   videoDevices: IMediaDevice[];
@@ -13,6 +14,9 @@ interface WebcamIconProps {
   disableWebcam(): void;
   setSelectedVideoDevice: (value: SetStateAction<string>) => void;
   selectedVideoDevice: string;
+  /** Khi true, không mount ShareWebcamModal (để parent render một lần). */
+  hideShareModal?: boolean;
+  className?: string;
 }
 
 const WebcamIcon = ({
@@ -21,6 +25,8 @@ const WebcamIcon = ({
   disableWebcam,
   setSelectedVideoDevice,
   selectedVideoDevice,
+  hideShareModal = false,
+  className,
 }: WebcamIconProps) => {
   const dispatch = useAppDispatch();
 
@@ -29,8 +35,13 @@ const WebcamIcon = ({
   );
 
   return (
-    <div className="cam-wrap relative cursor-pointer shadow-sm border border-border rounded-xl h-11 min-w-11 flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground">
-      {showVideoShareModal && (
+    <div
+      className={cn(
+        'cam-wrap relative cursor-pointer shadow-sm border border-border rounded-xl h-11 min-w-11 flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground',
+        className,
+      )}
+    >
+      {showVideoShareModal && !hideShareModal && (
         <ShareWebcamModal
           displayWebcamSelection={false}
           onSelectedDevice={setSelectedVideoDevice}

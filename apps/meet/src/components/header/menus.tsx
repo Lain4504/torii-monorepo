@@ -3,13 +3,10 @@ import { MenuItem, MenuItems } from '@headlessui/react';
 import { Button } from '@workspace/ui/components/button';
 
 import { useAppDispatch } from '@/store';
-import {
-  updateShowKeyboardShortcutsModal,
-  updateShowRoomSettingsModal,
-} from '@/store/slices/roomSettingsSlice';
+import { updateShowRoomSettingsModal } from '@/store/slices/roomSettingsSlice';
 // import DarkThemeSwitcher from '@/components/header/darkThemeSwitcher';
 
-import { Settings, Keyboard, LogOut } from 'lucide-react';
+import { Settings, LogOut } from 'lucide-react';
 
 interface IHeaderMenusProps {
   onOpenAlert(task: string): void;
@@ -35,17 +32,6 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
         >
           <Settings className="text-primary w-4 h-4 transition ease-in" />
           Cài đặt
-        </Button>
-      </MenuItem>
-
-      <MenuItem>
-        <Button
-          variant="ghost"
-          className="h-9 md:h-10 w-full justify-start gap-2 text-sm leading-none font-medium px-2 md:px-3"
-          onClick={() => dispatch(updateShowKeyboardShortcutsModal(true))}
-        >
-          <Keyboard className="text-primary w-4 h-4 transition ease-in" />
-          Phím tắt
         </Button>
       </MenuItem>
 

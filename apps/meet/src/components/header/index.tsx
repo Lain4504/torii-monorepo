@@ -3,7 +3,6 @@ import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { store, useAppSelector } from '@/store';
 import HeaderMenus from '@/components/header/menus';
 import RoomSettings from '@/components/header/room-settings';
-import KeyboardShortcuts from '@/components/header/keyboardShortcuts';
 import VolumeControl from '@/components/header/volumeControl';
 import DurationView from '@/components/header/durationView';
 import { getNatsConn } from '@/helpers/nats';
@@ -94,7 +93,6 @@ const Header = () => {
           text={modalText}
         />
         <RoomSettings />
-        <KeyboardShortcuts />
       </>
     )
   );

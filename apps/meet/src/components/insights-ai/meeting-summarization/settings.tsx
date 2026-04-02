@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
 import {
@@ -6,7 +6,7 @@ import {
   InsightsAIMeetingSummarizationConfigReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppSelector } from '@/store';
+import { useAppSelector } from '@/store';
 import SettingsSwitch from '@/helpers/ui/settingsSwitch';
 import sendAPIRequest from '@/helpers/api/api-client';
 import { Textarea } from '@workspace/ui/components/textarea';
@@ -22,14 +22,6 @@ const MeetingSummarization = ({
   setErrorMsg,
   closeModal,
 }: MeetingSummarizationProps) => {
-  // all static values
-  const { enabledSelfInsertEncryptionKey } = useMemo(() => {
-    const enabledSelfInsertEncryptionKey =
-      !!store.getState().session.currentRoom.metadata?.roomFeatures
-        ?.endToEndEncryptionFeatures?.enabledSelfInsertEncryptionKey;
-    return { enabledSelfInsertEncryptionKey };
-  }, []);
-
   const meetingSummarizationFeatures = useAppSelector(
     (state) =>
       state.session.currentRoom.metadata?.roomFeatures?.insightsFeatures
@@ -112,16 +104,6 @@ const MeetingSummarization = ({
     },
     [],
   );
-
-  if (enabledSelfInsertEncryptionKey) {
-    return (
-      <div className="p-4 bg-muted">
-        <div className="main-wrap -my-4 text-red-600">
-          Tính năng này bị vô hiệu hóa khi bật khóa mã hóa riêng
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

@@ -55,16 +55,6 @@ const useCloudRecording = (): IUseCloudRecordingReturn => {
           CloudRecordingVariants.MEDIA_ONLY_CLOUD_RECORDING;
       }
 
-      if (e2eeFeatures?.enabledSelfInsertEncryptionKey) {
-        dispatch(
-          addUserNotification({
-            message:
-              'Ghi hình trên đám mây không được hỗ trợ khi sử dụng khóa tự nhập.',
-            typeOption: 'info',
-          }),
-        );
-        return;
-      }
       const customDesign = DESIGN_CUSTOMIZATION;
       if (customDesign) {
         const designStr =

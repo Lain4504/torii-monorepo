@@ -1,6 +1,15 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { debounce } from 'es-toolkit';
+
+import { Button } from '@workspace/ui/components/button';
+import { Label } from '@workspace/ui/components/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@workspace/ui/components/popover';
+import { Slider } from '@workspace/ui/components/slider';
+import { cn } from '@workspace/ui/lib/utils';
 
 import {
   updateRoomAudioVolume,
@@ -9,7 +18,6 @@ import {
 import { useAppDispatch, useAppSelector } from '@/store';
 import { updateParticipant } from '@/store/slices/participantSlice';
 import { Volume2, VolumeX } from 'lucide-react';
-import RangeSlider from '@/helpers/ui/rangeSlider';
 
 const VolumeControl = () => {
   const dispatch = useAppDispatch();
@@ -72,83 +80,100 @@ const VolumeControl = () => {
     debouncedScreenShareVolumeUpdate(localScreenShareVolume);
   }, [localScreenShareVolume, debouncedScreenShareVolumeUpdate]);
 
+  const roomPercent = Math.round(localRoomVolume * 100);
+  const screenSharePercent = Math.round(localScreenShareVolume * 100);
+
   return (
-    <Menu as={Fragment}>
-      {({ open }) => (
-        <div className="">
-          <MenuButton
-            className={`relative shrink-0 p-0 w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-[10px] ${open ? 'bg-muted' : ''
-              }`}
-          >
-            <div className="text-foreground cursor-pointer">
-              {localRoomVolume > 0 ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            </div>
-          </MenuButton>
-          <Transition
-            as={Fragment}
-            show={open}
-            enter="transition ease-out duration-300"
-            enterFrom="transform opacity-0 scale-95 -translate-y-2"
-            enterTo="transform opacity-100 scale-100 translate-y-0"
-            leave="transition ease-in duration-200"
-            leaveFrom="transform opacity-100 scale-100 translate-y-0"
-            leaveTo="transform opacity-0 scale-95 -translate-y-2"
-          >
-            <MenuItems
-              unmount={false}
-              className="volume-popup-wrapper origin-top-right z-10 absolute ltr:right-0 top-6 rtl:left-0 mt-2 w-64 py-5 px-3 rounded-xl shadow-lg bg-popover border-border border"
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className={cn(
+            'shrink-0 rounded-[10px] md:size-8 [&_svg]:size-5',
+            'text-foreground',
+          )}
+          aria-label="Âm lượng"
+        >
+          {localRoomVolume > 0 ? (
+            <Volume2 className="size-5" />
+          ) : (
+            <VolumeX className="size-5" />
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="bottom"
+        sideOffset={8}
+        className="volume-popup-wrapper z-10 w-64 gap-0 py-5 px-3 shadow-lg"
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label
+              htmlFor="meet-volume-room"
+              className="text-sm font-normal text-foreground"
             >
-              <p className="text-sm text-foreground">
-                Âm lượng âm thanh phòng
+              Âm lượng âm thanh phòng
+            </Label>
+            <div className="flex items-center gap-3 pl-1">
+              <Slider
+                id="meet-volume-room"
+                min={0}
+                max={100}
+                step={1}
+                value={[roomPercent]}
+                onValueChange={(v) => setLocalRoomVolume((v[0] ?? 0) / 100)}
+                className="min-w-0 flex-1 py-2"
+              />
+              <p className="w-10 shrink-0 text-center text-sm tabular-nums text-foreground">
+                {roomPercent}
               </p>
-              <section className="flex items-center pl-1">
-                <RangeSlider
-                  min={0}
-                  max={100}
-                  value={Math.round(localRoomVolume * 100)}
-                  onChange={(v) => setLocalRoomVolume(v / 100)}
-                  thumbSize={20}
-                  trackHeight={8}
-                />
-                <p className="w-10 text-center text-sm text-foreground ml-3">
-                  {Math.round(localRoomVolume * 100)}
-                </p>
-                <div className="w-5 h-5 flex items-center justify-center">
-                  {localRoomVolume > 0 ? (
-                    <Volume2 className="w-4 h-4 text-foreground" />
-                  ) : (
-                    <VolumeX className="w-4 h-4 text-foreground" />
-                  )}
-                </div>
-              </section>
-              <p className="text-sm mt-2 text-foreground">
-                Âm lượng âm thanh chia sẻ màn hình
+              <div className="flex size-5 shrink-0 items-center justify-center">
+                {localRoomVolume > 0 ? (
+                  <Volume2 className="size-4 text-foreground" />
+                ) : (
+                  <VolumeX className="size-4 text-foreground" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label
+              htmlFor="meet-volume-screenshare"
+              className="text-sm font-normal text-foreground"
+            >
+              Âm lượng âm thanh chia sẻ màn hình
+            </Label>
+            <div className="flex items-center gap-3 pl-1">
+              <Slider
+                id="meet-volume-screenshare"
+                min={0}
+                max={100}
+                step={1}
+                value={[screenSharePercent]}
+                onValueChange={(v) =>
+                  setLocalScreenShareVolume((v[0] ?? 0) / 100)
+                }
+                className="min-w-0 flex-1 py-2"
+              />
+              <p className="w-10 shrink-0 text-center text-sm tabular-nums text-foreground">
+                {screenSharePercent}
               </p>
-              <section className="flex items-center pl-1">
-                <RangeSlider
-                  min={0}
-                  max={100}
-                  value={Math.round(localScreenShareVolume * 100)}
-                  onChange={(v) => setLocalScreenShareVolume(v / 100)}
-                  thumbSize={20}
-                  trackHeight={8}
-                />
-                <p className="w-10 text-center text-sm text-foreground ml-3">
-                  {Math.round(localScreenShareVolume * 100)}
-                </p>
-                <div className="w-5 h-5 flex items-center justify-center">
-                  {localScreenShareVolume > 0 ? (
-                    <Volume2 className="w-4 h-4 text-foreground" />
-                  ) : (
-                    <VolumeX className="w-4 h-4 text-foreground" />
-                  )}
-                </div>
-              </section>
-            </MenuItems>
-          </Transition>
+              <div className="flex size-5 shrink-0 items-center justify-center">
+                {localScreenShareVolume > 0 ? (
+                  <Volume2 className="size-4 text-foreground" />
+                ) : (
+                  <VolumeX className="size-4 text-foreground" />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-      )}
-    </Menu>
+      </PopoverContent>
+    </Popover>
   );
 };
 

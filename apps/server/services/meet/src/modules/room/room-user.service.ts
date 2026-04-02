@@ -109,7 +109,7 @@ export class RoomUserService {
       await waitUntilRoomCreationCompletes(this.redisLock, roomId, this.logger);
 
       // Step 2: Validate the user's name to prevent conflicts with reserved system names
-      const RECORDER_USER_AUTH_NAME = 'PLUGNMEET_RECORDER_AUTH';
+      const RECORDER_USER_AUTH_NAME = 'WAJLC_RECORDER_AUTH';
       if (userName === RECORDER_USER_AUTH_NAME) {
         throw new Error(
           `Tên ${RECORDER_USER_AUTH_NAME} được dành cho hệ thống`,

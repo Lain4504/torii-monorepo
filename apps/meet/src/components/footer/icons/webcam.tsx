@@ -198,9 +198,9 @@ const WebcamIcon = () => {
   );
 
   const getTooltipText = () => {
-    if (!isActiveWebcam && !isWebcamLock) {
+    if (!isActiveWebcam && !isWebcamLocked) {
       return 'Bật webcam';
-    } else if (!isActiveWebcam && isWebcamLock) {
+    } else if (!isActiveWebcam && isWebcamLocked) {
       return 'Webcam bị khóa';
     } else if (isActiveWebcam) {
       return 'Tắt webcam';
@@ -211,21 +211,29 @@ const WebcamIcon = () => {
     return null;
   }
 
+  const isCamConfigured =
+    selectedVideoDevice !== '' || isActiveWebcam || isWebcamLocked;
+
   const wrapperClasses = clsx(
-    'relative footer-icon cursor-pointer min-w-10 md:min-w-11 3xl:min-w-[52px] h-10 md:h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
+    'meet-footer-ctrl-pill relative footer-icon cursor-pointer h-10 md:h-11 3xl:h-[52px] rounded-full border-[3px] 3xl:border-4 transition-[min-width,width] duration-300',
+    isCamConfigured
+      ? 'w-auto min-w-12 md:min-w-14 3xl:min-w-[3.75rem]'
+      : 'w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px]',
     {
-      'border-destructive!': !isActiveWebcam && selectedVideoDevice !== '',
-      'border-primary/25': isActiveWebcam,
-      'border-transparent': !isActiveWebcam,
-      'border-destructive! pointer-events-none':
-        isWebcamLocked,
+      'border-destructive! pointer-events-none': isWebcamLocked,
+      'border-primary/25': isActiveWebcam && !isWebcamLocked,
+      'border-destructive!':
+        !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
+      'border-transparent':
+        !isWebcamLocked && !isActiveWebcam && selectedVideoDevice === '',
     },
   );
 
   const camWrapClasses = clsx(
-    'footer-icon-bg cam-wrap relative cursor-pointer shadow-sm border border-border rounded-lg h-full w-full flex items-center justify-center transition-all duration-300 hover:bg-muted text-foreground bg-card',
+    'footer-icon-bg cam-wrap relative cursor-pointer shadow-sm border border-border rounded-full h-full w-full flex flex-row items-stretch overflow-visible transition-all duration-300 hover:bg-muted text-foreground bg-card',
     {
-      'border-destructive/50!': !isActiveWebcam && selectedVideoDevice !== '',
+      'border-destructive/50!':
+        !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
       'border-destructive/50! text-destructive': isWebcamLocked,
     },
   );

@@ -119,6 +119,31 @@ export const academyProductApi = {
 
 /** Lớp học (catalog learner) — không expose CourseOffering như đơn vị hiển thị; chỉ map giá/checkout qua catalogOfferingId. */
 export const academyClassCatalogApi = {
+  /**
+   * Chuẩn hoá payload trả về từ `live-classes/public` để FE chỉ dùng:
+   * - `price`: giá gốc
+   * - `discountPrice`: giá giảm (hoặc null nếu không có giảm)
+   */
+  normalizePrice(item: any) {
+    const isLive = item?.mode === 'LIVE' || !!item?.cohort
+
+    const basePrice = Number(
+      isLive
+        ? item?.cohort?.price ?? item?.price ?? item?.catalogPrice ?? 0
+        : item?.price ?? item?.catalogPrice ?? 0,
+    )
+
+    const discountRaw = Number(
+      isLive
+        ? item?.cohort?.discountPrice ?? item?.discountPrice ?? 0
+        : item?.discountPrice ?? 0,
+    )
+
+    return {
+      price: basePrice,
+      discountPrice: discountRaw > 0 ? discountRaw : null,
+    }
+  },
   findPublic: async (params: {
     mode: 'LIVE' | 'VOD';
     level?: string;
@@ -129,7 +154,17 @@ export const academyClassCatalogApi = {
       '/api/academy/live-classes/public',
       { params },
     );
-    return response.data.data!;
+    const data = response.data.data!;
+    return {
+      ...data,
+      items: (data.items ?? []).map((it: any) => {
+        const prices = academyClassCatalogApi.normalizePrice(it)
+        return {
+          ...it,
+          ...prices,
+        }
+      }),
+    }
   },
 
   getPublicById: async (id: string, mode?: 'LIVE' | 'VOD'): Promise<any> => {
@@ -140,10 +175,12 @@ export const academyClassCatalogApi = {
     const item = response.data.data!.item as any;
 
     if (item?.mode === 'LIVE') {
+      const prices = academyClassCatalogApi.normalizePrice(item)
       return {
         ...item,
         courseProfile: item.cohort?.courseProfile ?? item.courseProfile,
-        catalogPrice: Number(item.cohort?.price ?? item.catalogPrice ?? 0),
+        price: prices.price,
+        discountPrice: prices.discountPrice,
         term: item.term ?? {
           openingDate: item.cohort?.startDate ?? item.cohort?.enrollmentOpenAt ?? null,
           name: item.cohort?.name,
@@ -160,11 +197,13 @@ export const academyClassCatalogApi = {
       };
     }
 
+    const prices = academyClassCatalogApi.normalizePrice(item)
     return {
       ...item,
       mode: 'VOD',
       name: item.title ?? item.name,
-      catalogPrice: Number(item.price ?? item.catalogPrice ?? 0),
+      price: prices.price,
+      discountPrice: prices.discountPrice,
     };
   },
 };

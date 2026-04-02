@@ -55,7 +55,7 @@ export default function ClassCatalogDetailPage() {
   const enrollmentCheckClassId = isAuthenticated && classId ? classId : ''
   const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(enrollmentCheckClassId)
 
-  const isLIVE = klass?.mode === 'LIVE'
+  const isLIVE = mode === 'LIVE' || klass?.mode === 'LIVE'
   const isVOD = mode === 'VOD' || klass?.mode === 'VOD'
   const profile = klass?.courseProfile
   const chapters = Array.isArray(profile?.modules)
@@ -162,7 +162,7 @@ export default function ClassCatalogDetailPage() {
             size="lg"
             asChild
           >
-            <Link href={checkoutHref.replace('checkout', 'courses').replace('?type=VOD', '/learn').replace('?type=LIVE', '/learn')}>
+            <Link href={classId ? `/courses/${classId}/learn` : '#'}>
               Tiếp tục học <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -433,9 +433,24 @@ export default function ClassCatalogDetailPage() {
             <CardContent className="p-8 space-y-8">
               <div className="space-y-1">
                 <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Giá niêm yết</div>
-                <div className="text-4xl font-black text-primary tracking-tight">
-                  {klass.catalogPrice === 0 ? 'Miễn phí' : `${formatNumber(klass.catalogPrice ?? 0)} đ`}
-                </div>
+                {(() => {
+                    const basePrice = Number(klass?.price ?? 0)
+                    const discountPrice = Number(klass?.discountPrice ?? 0)
+                    const hasDiscount = discountPrice > 0 && discountPrice < basePrice
+                    const displayPrice = hasDiscount ? discountPrice : basePrice
+                  return (
+                    <div className="space-y-2">
+                      <div className="text-4xl font-black text-primary tracking-tight">
+                        {displayPrice === 0 ? 'Miễn phí' : `${formatNumber(displayPrice)} đ`}
+                      </div>
+                      {hasDiscount ? (
+                        <p className="text-sm text-muted-foreground line-through">
+                          {formatNumber(basePrice)} đ
+                        </p>
+                      ) : null}
+                    </div>
+                  )
+                })()}
               </div>
 
               <div className="space-y-4">

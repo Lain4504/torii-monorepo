@@ -12,12 +12,10 @@ import {
   UserNotification,
   VideoObjectFit,
 } from '@/store/slices/interfaces/roomSettings';
-import { AzureTokenInfo } from '@/components/translation-transcription/helpers/apiConnections';
 import { DB_STORE_NAMES, idbStore } from '@/helpers/libs/idb';
 
 const initialState: IRoomSettings = {
   isShowRoomSettingsModal: false,
-  isShowKeyboardShortcuts: false,
   isNatsServerConnected: false,
 
   audioDevices: [],
@@ -60,12 +58,6 @@ const roomSettingsSlice = createSlice({
   reducers: {
     updateShowRoomSettingsModal: (state, action: PayloadAction<boolean>) => {
       state.isShowRoomSettingsModal = action.payload;
-    },
-    updateShowKeyboardShortcutsModal: (
-        state,
-        action: PayloadAction<boolean>,
-    ) => {
-      state.isShowKeyboardShortcuts = action.payload;
     },
     updateIsNatsServerConnected: (state, action: PayloadAction<boolean>) => {
       state.isNatsServerConnected = action.payload;
@@ -160,14 +152,6 @@ const roomSettingsSlice = createSlice({
     toggleFooterVisibility: (state) => {
       state.visibleFooter = !state.visibleFooter;
     },
-    updateAzureTokenInfo: (state, action: PayloadAction<AzureTokenInfo>) => {
-      state.azureTokenInfo = action.payload;
-    },
-    cleanAzureToken: (state) => {
-      if (state.azureTokenInfo) {
-        state.azureTokenInfo.token = '';
-      }
-    },
     updateIsWAJLCWindowTabVisible: (state, action: PayloadAction<boolean>) => {
       state.isWAJLCWindowTabVisible = action.payload;
     },
@@ -176,9 +160,6 @@ const roomSettingsSlice = createSlice({
     },
     updateFocusActiveSpeakerWebcam: (state, action: PayloadAction<boolean>) => {
       state.focusActiveSpeakerWebcam = action.payload;
-    },
-    addSelfInsertedE2EESecretKey: (state, action: PayloadAction<string>) => {
-      state.selfInsertedE2EESecretKey = action.payload;
     },
     addUserNotification: (state, action: PayloadAction<UserNotification>) => {
       if (!action.payload.created) {
@@ -222,7 +203,6 @@ export const {
   updateActivateWebcamsView,
   updateActiveScreenSharingView,
   updateAllowPlayAudioNotification,
-  updateShowKeyboardShortcutsModal,
   updateRoomAudioVolume,
   updateRoomScreenShareAudioVolume,
   updateRoomVideoQuality,
@@ -236,13 +216,10 @@ export const {
   updateColumnCameraPosition,
   toggleHeaderVisibility,
   toggleFooterVisibility,
-  updateAzureTokenInfo,
-  cleanAzureToken,
   updateIsNatsServerConnected,
   updateIsWAJLCWindowTabVisible,
   updatePinCamUserId,
   updateFocusActiveSpeakerWebcam,
-  addSelfInsertedE2EESecretKey,
   addUserNotification,
   setAllUserNotifications,
   updateIsSidePanelOpened,

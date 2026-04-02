@@ -65,7 +65,6 @@ import {
   randomString,
 } from '@/helpers/utils';
 import {
-  addSelfInsertedE2EESecretKey,
   addUserNotification,
   setAllUserNotifications,
   updateIsNatsServerConnected,
@@ -1064,11 +1063,6 @@ export default class ConnectNats {
       }
 
       encryptionKey = e2ee.encryptionKey;
-      if (e2ee.enabledSelfInsertEncryptionKey) {
-        encryptionKey = store.getState().roomSettings.selfInsertedE2EESecretKey;
-        // clean as soon as we've done with it
-        store.dispatch(addSelfInsertedE2EESecretKey(''));
-      }
 
       if (encryptionKey) {
         await importSecretKeyFromPlainText(encryptionKey, roomSid);

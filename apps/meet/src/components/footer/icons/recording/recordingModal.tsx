@@ -58,10 +58,6 @@ const RecordingModal = ({
         id: 'full-screen',
         value: CloudRecordingVariants.FULL_SCREEN_CLOUD_RECORDING,
         label: 'Ghi hình trên đám mây',
-        disabled: !!e2eeFeatures?.enabledSelfInsertEncryptionKey,
-        description: e2eeFeatures?.enabledSelfInsertEncryptionKey
-          ? 'Ghi hình trên đám mây không được hỗ trợ khi sử dụng khóa tự nhập.'
-          : undefined,
       });
       if (isCloud) {
         options.push({

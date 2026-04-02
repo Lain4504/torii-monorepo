@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { InsightsTranscriptionConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { Button } from '@workspace/ui/components/button';
 
 import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottomIconsActivitySlice';
-import { store, useAppDispatch, useAppSelector } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   enableOrUpdateTranscription,
   endTranscription,
@@ -24,14 +24,6 @@ interface TranscriptionSettingsProps {
 
 const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
   const dispatch = useAppDispatch();
-
-  // all static values
-  const { enabledSelfInsertEncryptionKey } = useMemo(() => {
-    const enabledSelfInsertEncryptionKey =
-      !!store.getState().session.currentRoom.metadata?.roomFeatures
-        ?.endToEndEncryptionFeatures?.enabledSelfInsertEncryptionKey;
-    return { enabledSelfInsertEncryptionKey };
-  }, []);
 
   const transcriptionFeatures = useAppSelector(
     (state) =>
@@ -220,16 +212,6 @@ const TranscriptionSettings = ({ setErrorMsg }: TranscriptionSettingsProps) => {
       </div>
     </div>
   );
-
-  if (enabledSelfInsertEncryptionKey) {
-    return (
-      <div className="p-4 bg-muted">
-        <div className="main-wrap -my-4 text-red-600">
-          Tính năng này không khả dụng khi đang bật mã hóa đầu cuối với khóa tự nhập
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

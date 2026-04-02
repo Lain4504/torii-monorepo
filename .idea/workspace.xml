@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add whiteboard embed mode and corresponding UI component" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(breakout): enhance room status handling and improve webhook body processing">
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/main.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +18,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1817" />
+    <option name="cachedIndexableFilesCount" value="1815" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -34,7 +36,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="fix-update-web-admin" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -83,6 +85,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -93,7 +96,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;breakout-room-insight-fix&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -115,7 +118,7 @@
     ]
   }
 }</component>
-  <component name="RunManager" selected="JavaScript Debug.localhost:3000">
+  <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
     <configuration name="CourseRunService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
       <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
@@ -144,10 +147,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Jest.CourseRunService" />
         <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Jest.CourseRunService" />
       </list>
     </recent_temporary>
@@ -155,8 +158,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -384,150 +386,8 @@
       <workItem from="1774753925411" duration="1077000" />
       <workItem from="1774773252832" duration="294000" />
       <workItem from="1774791456061" duration="156000" />
-    </task>
-    <task id="LOCAL-01023" summary="refactor: simplify class handling in offerings and remove legacy code">
-      <option name="closed" value="true" />
-      <created>1773910987047</created>
-      <option name="number" value="01023" />
-      <option name="presentableId" value="LOCAL-01023" />
-      <option name="project" value="LOCAL" />
-      <updated>1773910987048</updated>
-    </task>
-    <task id="LOCAL-01024" summary="feat: add JLPT mock exam module with related services and DTOs">
-      <option name="closed" value="true" />
-      <created>1773917376174</created>
-      <option name="number" value="01024" />
-      <option name="presentableId" value="LOCAL-01024" />
-      <option name="project" value="LOCAL" />
-      <updated>1773917376174</updated>
-    </task>
-    <task id="LOCAL-01025" summary="update web-admin">
-      <option name="closed" value="true" />
-      <created>1774010822081</created>
-      <option name="number" value="01025" />
-      <option name="presentableId" value="LOCAL-01025" />
-      <option name="project" value="LOCAL" />
-      <updated>1774010822081</updated>
-    </task>
-    <task id="LOCAL-01026" summary="update web-admin">
-      <option name="closed" value="true" />
-      <created>1774011486170</created>
-      <option name="number" value="01026" />
-      <option name="presentableId" value="LOCAL-01026" />
-      <option name="project" value="LOCAL" />
-      <updated>1774011486170</updated>
-    </task>
-    <task id="LOCAL-01027" summary="update web-admin">
-      <option name="closed" value="true" />
-      <created>1774012370643</created>
-      <option name="number" value="01027" />
-      <option name="presentableId" value="LOCAL-01027" />
-      <option name="project" value="LOCAL" />
-      <updated>1774012370643</updated>
-    </task>
-    <task id="LOCAL-01028" summary="courser flow end">
-      <option name="closed" value="true" />
-      <created>1774012820838</created>
-      <option name="number" value="01028" />
-      <option name="presentableId" value="LOCAL-01028" />
-      <option name="project" value="LOCAL" />
-      <updated>1774012820838</updated>
-    </task>
-    <task id="LOCAL-01029" summary="courser flow end">
-      <option name="closed" value="true" />
-      <created>1774014224989</created>
-      <option name="number" value="01029" />
-      <option name="presentableId" value="LOCAL-01029" />
-      <option name="project" value="LOCAL" />
-      <updated>1774014224990</updated>
-    </task>
-    <task id="LOCAL-01030" summary="courser flow end">
-      <option name="closed" value="true" />
-      <created>1774017068149</created>
-      <option name="number" value="01030" />
-      <option name="presentableId" value="LOCAL-01030" />
-      <option name="project" value="LOCAL" />
-      <updated>1774017068149</updated>
-    </task>
-    <task id="LOCAL-01031" summary="feat: add JLPT mondai management functionality and update navigation">
-      <option name="closed" value="true" />
-      <created>1774244820356</created>
-      <option name="number" value="01031" />
-      <option name="presentableId" value="LOCAL-01031" />
-      <option name="project" value="LOCAL" />
-      <updated>1774244820356</updated>
-    </task>
-    <task id="LOCAL-01032" summary="feat: add JLPT mondai management functionality and update navigation">
-      <option name="closed" value="true" />
-      <created>1774246994644</created>
-      <option name="number" value="01032" />
-      <option name="presentableId" value="LOCAL-01032" />
-      <option name="project" value="LOCAL" />
-      <updated>1774246994644</updated>
-    </task>
-    <task id="LOCAL-01033" summary="feat: add JLPT mondai management functionality and update navigation">
-      <option name="closed" value="true" />
-      <created>1774247448371</created>
-      <option name="number" value="01033" />
-      <option name="presentableId" value="LOCAL-01033" />
-      <option name="project" value="LOCAL" />
-      <updated>1774247448371</updated>
-    </task>
-    <task id="LOCAL-01034" summary="feat: add JLPT mondai management functionality and update navigation">
-      <option name="closed" value="true" />
-      <created>1774249516789</created>
-      <option name="number" value="01034" />
-      <option name="presentableId" value="LOCAL-01034" />
-      <option name="project" value="LOCAL" />
-      <updated>1774249516789</updated>
-    </task>
-    <task id="LOCAL-01035" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774275221458</created>
-      <option name="number" value="01035" />
-      <option name="presentableId" value="LOCAL-01035" />
-      <option name="project" value="LOCAL" />
-      <updated>1774275221458</updated>
-    </task>
-    <task id="LOCAL-01036" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774275227654</created>
-      <option name="number" value="01036" />
-      <option name="presentableId" value="LOCAL-01036" />
-      <option name="project" value="LOCAL" />
-      <updated>1774275227654</updated>
-    </task>
-    <task id="LOCAL-01037" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774275541501</created>
-      <option name="number" value="01037" />
-      <option name="presentableId" value="LOCAL-01037" />
-      <option name="project" value="LOCAL" />
-      <updated>1774275541501</updated>
-    </task>
-    <task id="LOCAL-01038" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774275726829</created>
-      <option name="number" value="01038" />
-      <option name="presentableId" value="LOCAL-01038" />
-      <option name="project" value="LOCAL" />
-      <updated>1774275726829</updated>
-    </task>
-    <task id="LOCAL-01039" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774276413707</created>
-      <option name="number" value="01039" />
-      <option name="presentableId" value="LOCAL-01039" />
-      <option name="project" value="LOCAL" />
-      <updated>1774276413708</updated>
-    </task>
-    <task id="LOCAL-01040" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774279850177</created>
-      <option name="number" value="01040" />
-      <option name="presentableId" value="LOCAL-01040" />
-      <option name="project" value="LOCAL" />
-      <updated>1774279850177</updated>
+      <workItem from="1775037916663" duration="31000" />
+      <workItem from="1775061830841" duration="4922000" />
     </task>
     <task id="LOCAL-01041" summary="new flow">
       <option name="closed" value="true" />
@@ -777,7 +637,151 @@
       <option name="project" value="LOCAL" />
       <updated>1774753978228</updated>
     </task>
-    <option name="localTasksCounter" value="1072" />
+    <task id="LOCAL-01072" summary="fix(breakout): improve metadata handling and error logging for breakout room creation">
+      <option name="closed" value="true" />
+      <created>1775061935885</created>
+      <option name="number" value="01072" />
+      <option name="presentableId" value="LOCAL-01072" />
+      <option name="project" value="LOCAL" />
+      <updated>1775061935885</updated>
+    </task>
+    <task id="LOCAL-01073" summary="fix(insights): update AI chat model configuration and pricing structure">
+      <option name="closed" value="true" />
+      <created>1775062594026</created>
+      <option name="number" value="01073" />
+      <option name="presentableId" value="LOCAL-01073" />
+      <option name="project" value="LOCAL" />
+      <updated>1775062594027</updated>
+    </task>
+    <task id="LOCAL-01074" summary="fix(insights): update AI chat model configuration and pricing structure">
+      <option name="closed" value="true" />
+      <created>1775062618621</created>
+      <option name="number" value="01074" />
+      <option name="presentableId" value="LOCAL-01074" />
+      <option name="project" value="LOCAL" />
+      <updated>1775062618621</updated>
+    </task>
+    <task id="LOCAL-01075" summary="fix(insights): update AI chat model configuration and pricing structure">
+      <option name="closed" value="true" />
+      <created>1775062933182</created>
+      <option name="number" value="01075" />
+      <option name="presentableId" value="LOCAL-01075" />
+      <option name="project" value="LOCAL" />
+      <updated>1775062933182</updated>
+    </task>
+    <task id="LOCAL-01076" summary="fix(microphone/webcam): enhance component styling with className prop support">
+      <option name="closed" value="true" />
+      <created>1775063020144</created>
+      <option name="number" value="01076" />
+      <option name="presentableId" value="LOCAL-01076" />
+      <option name="project" value="LOCAL" />
+      <updated>1775063020144</updated>
+    </task>
+    <task id="LOCAL-01077" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775063628703</created>
+      <option name="number" value="01077" />
+      <option name="presentableId" value="LOCAL-01077" />
+      <option name="project" value="LOCAL" />
+      <updated>1775063628703</updated>
+    </task>
+    <task id="LOCAL-01078" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775063885301</created>
+      <option name="number" value="01078" />
+      <option name="presentableId" value="LOCAL-01078" />
+      <option name="project" value="LOCAL" />
+      <updated>1775063885302</updated>
+    </task>
+    <task id="LOCAL-01079" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775064474031</created>
+      <option name="number" value="01079" />
+      <option name="presentableId" value="LOCAL-01079" />
+      <option name="project" value="LOCAL" />
+      <updated>1775064474032</updated>
+    </task>
+    <task id="LOCAL-01080" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+      <option name="closed" value="true" />
+      <created>1775066520893</created>
+      <option name="number" value="01080" />
+      <option name="presentableId" value="LOCAL-01080" />
+      <option name="project" value="LOCAL" />
+      <updated>1775066520893</updated>
+    </task>
+    <task id="LOCAL-01081" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775104480403</created>
+      <option name="number" value="01081" />
+      <option name="presentableId" value="LOCAL-01081" />
+      <option name="project" value="LOCAL" />
+      <updated>1775104480404</updated>
+    </task>
+    <task id="LOCAL-01082" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775107671694</created>
+      <option name="number" value="01082" />
+      <option name="presentableId" value="LOCAL-01082" />
+      <option name="project" value="LOCAL" />
+      <updated>1775107671694</updated>
+    </task>
+    <task id="LOCAL-01083" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775117373337</created>
+      <option name="number" value="01083" />
+      <option name="presentableId" value="LOCAL-01083" />
+      <option name="project" value="LOCAL" />
+      <updated>1775117373337</updated>
+    </task>
+    <task id="LOCAL-01084" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775117379818</created>
+      <option name="number" value="01084" />
+      <option name="presentableId" value="LOCAL-01084" />
+      <option name="project" value="LOCAL" />
+      <updated>1775117379818</updated>
+    </task>
+    <task id="LOCAL-01085" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775117726664</created>
+      <option name="number" value="01085" />
+      <option name="presentableId" value="LOCAL-01085" />
+      <option name="project" value="LOCAL" />
+      <updated>1775117726665</updated>
+    </task>
+    <task id="LOCAL-01086" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775117873219</created>
+      <option name="number" value="01086" />
+      <option name="presentableId" value="LOCAL-01086" />
+      <option name="project" value="LOCAL" />
+      <updated>1775117873219</updated>
+    </task>
+    <task id="LOCAL-01087" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775118566410</created>
+      <option name="number" value="01087" />
+      <option name="presentableId" value="LOCAL-01087" />
+      <option name="project" value="LOCAL" />
+      <updated>1775118566410</updated>
+    </task>
+    <task id="LOCAL-01088" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+      <option name="closed" value="true" />
+      <created>1775118992326</created>
+      <option name="number" value="01088" />
+      <option name="presentableId" value="LOCAL-01088" />
+      <option name="project" value="LOCAL" />
+      <updated>1775118992326</updated>
+    </task>
+    <task id="LOCAL-01089" summary="fix(breakout): enhance room status handling and improve webhook body processing">
+      <option name="closed" value="true" />
+      <created>1775122364545</created>
+      <option name="number" value="01089" />
+      <option name="presentableId" value="LOCAL-01089" />
+      <option name="project" value="LOCAL" />
+      <updated>1775122364545</updated>
+    </task>
+    <option name="localTasksCounter" value="1090" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -794,7 +798,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="breakout-room-insight-fix" />
                       </list>
                     </value>
                   </entry>
@@ -812,12 +816,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting" />
-    <MESSAGE value="new" />
-    <MESSAGE value="style (#281)" />
-    <MESSAGE value="feat: add content field to academy lessons and update layout styles" />
-    <MESSAGE value="feat: update livekit configuration and clean up unused imports in refunds components" />
-    <MESSAGE value="fix conflict" />
     <MESSAGE value="refactor: update live schedule service and class attendance UI for improved functionality and user experience" />
     <MESSAGE value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
     <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
@@ -837,7 +835,13 @@
     <MESSAGE value="feat: add staff admin to view resource (#316)" />
     <MESSAGE value="fix: handle potential undefined values in time slot calculations" />
     <MESSAGE value="feat: add whiteboard embed mode and corresponding UI component" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add whiteboard embed mode and corresponding UI component" />
+    <MESSAGE value="fix(breakout): improve metadata handling and error logging for breakout room creation" />
+    <MESSAGE value="fix(insights): update AI chat model configuration and pricing structure" />
+    <MESSAGE value="fix(microphone/webcam): enhance component styling with className prop support" />
+    <MESSAGE value="fix(breakout): refactor room settings and improve device management in startup modal" />
+    <MESSAGE value="fix(room-settings): refactor settings components to use new UI library and improve layout" />
+    <MESSAGE value="fix(breakout): enhance room status handling and improve webhook body processing" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(breakout): enhance room status handling and improve webhook body processing" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
