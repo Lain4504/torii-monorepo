@@ -5,7 +5,7 @@ import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { useAppSelector } from '@/hooks/hooks'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '@/lib/api/services/comment-api'
-import type { CommentResponseDTO } from '@workspace/schemas'
+import { CommentTargetType, type CommentResponseDTO } from '@workspace/schemas'
 import { CommentSection } from '@/components/blog/comment-section'
 import {
     MessageSquare,
@@ -53,6 +53,8 @@ function useCreateDiscussion() {
     return useMutation({
         mutationFn: (data: { content: string, classId: string, moduleId?: string, lessonId: string, category: string }) => {
             return commentApi.create({
+                entityId: data.lessonId,
+                targetType: CommentTargetType.DISCUSSION,
                 discussionId: data.lessonId,
                 classId: data.classId,
                 userId: user?.id || '',

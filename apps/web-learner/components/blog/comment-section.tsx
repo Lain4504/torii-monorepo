@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { commentApi } from '@/lib/api/services/comment-api'
-import type { CommentResponseDTO } from '@workspace/schemas'
+import { CommentTargetType, type CommentResponseDTO } from '@workspace/schemas'
 import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash, MessageSquare, Shield } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@workspace/ui/components/dropdown-menu'
 import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
@@ -96,8 +96,14 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                 return
             }
 
+            const targetPayload = blogId
+                ? { entityId: blogId, targetType: CommentTargetType.BLOG, blogId }
+                : feedId
+                    ? { entityId: feedId, targetType: CommentTargetType.FEED, feedId }
+                    : { entityId: discussionId!, targetType: CommentTargetType.DISCUSSION, discussionId: discussionId!, classId }
+
             const newComment = await commentApi.create({
-                ...(blogId ? { blogId } : feedId ? { feedId: feedId! } : { discussionId: discussionId!, classId }),
+                ...targetPayload,
                 userId: user.id,
                 content: content.trim(),
                 parentId: parentId || undefined,

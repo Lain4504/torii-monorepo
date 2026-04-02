@@ -1,6 +1,11 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from '@server/shared';
+import {
+  fromJsonString,
+  toJsonString,
+} from '@bufbuild/protobuf';
+import { InsightsAITextChatContentSchema } from '@workspace/protocol';
 
 const REDIS_PREFIX = 'wajlc:';
 const TRANSCRIPTION_SESSIONS_KEY = `${REDIS_PREFIX}insights:transcription_sessions:%s`;
@@ -28,6 +33,56 @@ export class RedisInsightsService {
   private readonly logger = new Logger(RedisInsightsService.name);
 
   constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
+  
+  /**
+   * tryLock attempts to acquire a Redis lock for leader election.
+   */
+  async tryLock(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+    const result = await this.redis.set(
+      `lock:${key}`,
+      value,
+      'EX',
+      ttlSeconds,
+      'NX',
+    );
+    return result === 'OK';
+  }
+
+  /**
+   * releaseLock releases a Redis lock if the value matches.
+   */
+  async releaseLock(key: string, value: string): Promise<boolean> {
+    const script = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+      else
+        return 0
+      end
+    `;
+    const result = await this.redis.eval(script, 1, `lock:${key}`, value);
+    return result === 1;
+  }
+
+  /**
+   * refreshLock extends a lock's TTL.
+   */
+  async refreshLock(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+    const script = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("expire", KEYS[1], ARGV[2])
+      else
+        return 0
+      end
+    `;
+    const result = await this.redis.eval(
+      script,
+      1,
+      `lock:${key}`,
+      value,
+      ttlSeconds,
+    );
+    return result === 1;
+  }
 
   /**
    * HandleTranscriptionUsage manages transcription session lifecycle and usage
@@ -228,7 +283,22 @@ export class RedisInsightsService {
       userId,
     );
     const res = await this.redis.lrange(key, start, stop);
-    return res.map((r) => JSON.parse(r));
+    return res
+      .map((r) => {
+        try {
+          return fromJsonString(InsightsAITextChatContentSchema, r, {
+            ignoreUnknownFields: true,
+          });
+        } catch {
+          // Backward compatibility with older JSON.stringify storage
+          try {
+            return JSON.parse(r);
+          } catch {
+            return null;
+          }
+        }
+      })
+      .filter(Boolean);
   }
 
   async appendToAITextChatContext(
@@ -242,6 +312,20 @@ export class RedisInsightsService {
     );
     const pipeline = this.redis.pipeline();
     for (const msg of messages) {
+      if (msg && typeof msg === 'object') {
+        const { $typeName, ...cleanMsg } = msg;
+        try {
+          pipeline.rpush(
+            key,
+            toJsonString(InsightsAITextChatContentSchema, cleanMsg as any, {
+              useProtoFieldName: true,
+            }),
+          );
+          continue;
+        } catch {
+          // fallthrough to JSON
+        }
+      }
       pipeline.rpush(key, JSON.stringify(msg));
     }
     pipeline.expire(key, DEFAULT_TTL);

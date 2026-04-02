@@ -519,7 +519,7 @@ export class BreakoutService {
 
     const parentRoomId = metadata.parentRoomId;
 
-    // Mirror Go server behavior: we always wait a bit before fetching breakout
+    // always wait a bit before fetching breakout
     // room record from Redis, because LiveKit room can start before Redis
     // insertion completes.
     await new Promise((resolve) => setTimeout(resolve, this.waitBeforePostStart));
