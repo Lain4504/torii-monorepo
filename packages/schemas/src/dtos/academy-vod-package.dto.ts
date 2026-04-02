@@ -8,6 +8,7 @@ export const academyVodPackageBaseSchema = z.object({
   discountPrice: z.coerce.number().min(0).optional().nullable(),
   status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'ARCHIVED']).optional(),
   rejectionReason: z.string().optional().nullable(),
+  instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
 });
 
 const refineDiscountPrice = (schema: z.ZodType<any, any, any>) => 

@@ -467,6 +467,7 @@ model User {
   academyAssignmentSubmissions    AssignmentSubmission[]
   academyUserLessonProgress       UserLessonProgress[]   @relation("AcademyUserLessonProgress")
   academyClassesTaught            LiveClass[]            @relation("AcademyClassTeacher")
+  academyVodPackagesTaught        VodPackage[]           @relation("AcademyVodTeacher")
   academyClassReviews             CourseReview[]
   userAchievements                UserAchievement[]
   academyClassAttendances         ClassAttendance[]
@@ -1252,6 +1253,9 @@ model VodPackage {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  instructorId    String?       @map("instructor_id") @db.Uuid
+  instructor      User?         @relation("AcademyVodTeacher", fields: [instructorId], references: [id], onDelete: SetNull)
 
   courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
   orderItems    OrderItem[]

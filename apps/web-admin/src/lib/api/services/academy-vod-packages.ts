@@ -18,6 +18,8 @@ export type AcademyVodPackage = {
   status: string
   submittedForApprovalAt?: string | null
   rejectionReason?: string | null
+  instructorId?: string | null
+  instructor?: { id: string; displayName: string } | null
   courseProfile?: { title: string }
   createdAt: string
   updatedAt: string

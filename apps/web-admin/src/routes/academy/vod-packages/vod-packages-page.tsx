@@ -124,6 +124,7 @@ export default function VodPackagesPage() {
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[150px]">Mã Gói</TableHead>
                                 <TableHead>Tên gói VOD</TableHead>
+                                <TableHead>Giảng viên</TableHead>
                                 <TableHead>Giá (VND)</TableHead>
                                 <TableHead>Trạng thái</TableHead>
                                 <TableHead className="text-right pr-6">Thao tác</TableHead>
@@ -136,6 +137,8 @@ export default function VodPackagesPage() {
                                         <TableCell><Skeleton className="h-4 w-6" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
@@ -143,7 +146,7 @@ export default function VodPackagesPage() {
                                 ))
                             ) : packages?.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                                         Không tìm thấy Gói VOD nào.
                                     </TableCell>
                                 </TableRow>
@@ -153,6 +156,7 @@ export default function VodPackagesPage() {
                                         <TableCell className="text-center text-muted-foreground tabular-nums">{index + 1}</TableCell>
                                         <TableCell className="font-mono text-xs font-bold text-primary">{pkg.code}</TableCell>
                                         <TableCell className="font-semibold text-sm">{pkg.title}</TableCell>
+                                        <TableCell className="text-muted-foreground text-xs">{pkg.instructor?.displayName || 'Chưa chọn'}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
                                                 {pkg.discountPrice ? (

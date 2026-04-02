@@ -335,50 +335,7 @@ export default function CheckoutPage() {
                             </Card>
                         )}
 
-                        {isLIVE && product.classes && product.classes.length > 1 && (
-                            <Card>
-                                <CardHeader><CardTitle className="text-xl">Chọn lớp học (Đợt học)</CardTitle></CardHeader>
-                                <CardContent className="space-y-4">
-                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                         {product.classes.map((cls: any) => {
-                                             const full = isLiveClassFull(cls)
-                                             const cap = liveCapacityLabel(cls)
-                                             return (
-                                             <div key={cls.id}
-                                                  role="button"
-                                                  tabIndex={full ? -1 : 0}
-                                                  onClick={() => { if (!full) setSelectedClassId(cls.id) }}
-                                                  onKeyDown={(e) => {
-                                                      if (full) return
-                                                      if (e.key === 'Enter' || e.key === ' ') {
-                                                          e.preventDefault()
-                                                          setSelectedClassId(cls.id)
-                                                      }
-                                                  }}
-                                                  className={`p-4 border rounded-xl transition-all ${full ? 'opacity-60 cursor-not-allowed border-muted' : 'cursor-pointer hover:border-primary/50'} ${selectedClassId === cls.id && !full ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}>
-                                                 <div className="flex justify-between items-start mb-2 gap-2">
-                                                     <span className="font-bold">{cls.name || cls.code}</span>
-                                                     <div className="flex items-center gap-1 shrink-0">
-                                                         {full && <Badge variant="destructive" className="text-[10px]">Đã đầy</Badge>}
-                                                         {selectedClassId === cls.id && !full && <CheckCircle2 className="size-4 text-primary" />}
-                                                     </div>
-                                                 </div>
-                                                 <p className="text-xs text-muted-foreground line-clamp-1">GV: {cls.instructor?.displayName || 'Chưa gán'}</p>
-                                                 {cap && (
-                                                     <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">{cap}</p>
-                                                 )}
-                                                 {cls.cohort && (
-                                                     <p className="text-[10px] text-muted-foreground mt-2 inline-flex items-center gap-1 bg-muted px-1.5 py-0.5 rounded">
-                                                         <Clock className="size-3" />
-                                                         Khai giảng: {new Date(cls.cohort.startDate).toLocaleDateString()}
-                                                     </p>
-                                                 )}
-                                             </div>
-                                         )})}
-                                     </div>
-                                </CardContent>
-                            </Card>
-                        )}
+
 
                         <Card>
                             <CardHeader>

@@ -35,6 +35,9 @@ import {
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { InstructorPicker } from "@/components/academy/instructor-picker"
+import { useUsers } from "@/lib/api/services/users"
+import { UserRole } from "@workspace/schemas"
 
 const vodPackageSchema = z.object({
   courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
@@ -43,6 +46,7 @@ const vodPackageSchema = z.object({
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   status: z.string().optional(),
+  instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
 }).refine(data => {
   if (data.discountPrice != null && data.price != null) {
     return data.discountPrice < data.price;
@@ -67,6 +71,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
   const updateMutation = useUpdateAcademyVodPackage()
 
   const { data: profiles } = useAcademyCourseProfiles({ status: isEditing ? undefined : 'PUBLISHED' })
+  const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {
     control,
@@ -82,6 +87,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
       price: 0,
       discountPrice: null,
       status: "DRAFT",
+      instructorId: "",
     },
   })
 
@@ -94,6 +100,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         price: Number(vodPackage.price),
         discountPrice: vodPackage.discountPrice ? Number(vodPackage.discountPrice) : null,
         status: vodPackage.status ?? "DRAFT",
+        instructorId: vodPackage.instructorId ?? "",
       })
     } else {
       reset({
@@ -103,6 +110,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         price: 0,
         discountPrice: null,
         status: "DRAFT",
+        instructorId: "",
       })
     }
   }, [vodPackage, reset])
@@ -116,6 +124,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         price: values.price,
         discountPrice: values.discountPrice,
         status: values.status as any,
+        instructorId: values.instructorId,
       }
 
       if (isEditing && vodPackage) {
@@ -205,6 +214,22 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                         <FieldError errors={[errors.title]} />
                       </Field>
                     </div>
+
+                    <Field>
+                      <FieldLabel>Giảng viên phụ trách</FieldLabel>
+                      <Controller
+                        name="instructorId"
+                        control={control}
+                        render={({ field }) => (
+                          <InstructorPicker
+                            value={field.value ?? null}
+                            onSelect={(val) => field.onChange(val)}
+                            instructors={(instructors as any)?.data ?? []}
+                          />
+                        )}
+                      />
+                      <FieldError errors={[errors.instructorId]} />
+                    </Field>
                   </FieldGroup>
                 </FieldSet>
 
