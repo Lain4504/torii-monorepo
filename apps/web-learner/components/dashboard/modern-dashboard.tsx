@@ -127,7 +127,7 @@ export default function ModernDashboard() {
                                         <div className="flex flex-wrap gap-3">
                                             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 rounded-xl" asChild>
                                                 <Link
-                                                    href={`/courses/${mainCourse.liveClassId ?? mainCourse.vodPackageId ?? mainCourse.courseProfileId ?? mainCourse.id}/learn${mainCourse.liveClassId ? '?mode=VOD' : ''}`}
+                                                    href={`/courses/${mainCourse.liveClassId ?? mainCourse.vodPackageId ?? mainCourse.courseProfileId ?? mainCourse.id}/learn${mainCourse.vodPackageId ? '?mode=VOD' : ''}`}
                                                 >
                                                     Continue Lesson
                                                 </Link>

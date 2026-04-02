@@ -157,7 +157,10 @@ function ClassVodCard({ klass }: { klass: any }) {
     const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
     const title = klass.title || klass.name || profile?.title || 'Khóa học'
     const level = profile?.level || '—'
-    const price = Number(klass.price ?? klass.catalogPrice ?? 0)
+    const basePrice = Number(klass.price ?? 0)
+    const discountPrice = Number(klass.discountPrice ?? 0)
+    const hasDiscount = discountPrice > 0 && discountPrice < basePrice
+    const displayPrice = hasDiscount ? discountPrice : basePrice
 
     return (
         <Card>
@@ -187,7 +190,12 @@ function ClassVodCard({ klass }: { klass: any }) {
                     ) : null}
 
                     <div className="flex items-center justify-between gap-2 pt-1">
-                        <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-lg font-semibold text-primary">{formatNumber(displayPrice)} đ</span>
+                            {hasDiscount ? (
+                                <span className="text-sm text-muted-foreground line-through">{formatNumber(basePrice)} đ</span>
+                            ) : null}
+                        </div>
                         <Button size="sm" asChild>
                             <Link href={`/dashboard/available-courses/class/${klass.id}?mode=VOD`}>Chi tiết lớp</Link>
                         </Button>
@@ -203,7 +211,10 @@ function ClassLiveCard({ klass }: { klass: any }) {
     const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
     const title = klass.name || profile?.title || 'Lớp học'
     const level = profile?.level || '—'
-    const price = Number(klass.cohort?.price ?? klass.catalogPrice ?? 0)
+    const basePrice = Number(klass.price ?? 0)
+    const discountPrice = Number(klass.discountPrice ?? 0)
+    const hasDiscount = discountPrice > 0 && discountPrice < basePrice
+    const displayPrice = hasDiscount ? discountPrice : basePrice
     const term = klass.term ?? (klass.cohort ? {
         openingDate: klass.cohort.startDate ?? klass.cohort.enrollmentOpenAt ?? null,
         name: klass.cohort.name,
@@ -291,7 +302,12 @@ function ClassLiveCard({ klass }: { klass: any }) {
                     <Separator />
 
                     <div className="flex items-center justify-between gap-2">
-                        <span className="text-lg font-semibold text-primary">{formatNumber(price)} đ</span>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-lg font-semibold text-primary">{formatNumber(displayPrice)} đ</span>
+                            {hasDiscount ? (
+                                <span className="text-sm text-muted-foreground line-through">{formatNumber(basePrice)} đ</span>
+                            ) : null}
+                        </div>
                         <Button size="sm" asChild>
                             <Link href={`/dashboard/available-courses/class/${klass.id}?mode=LIVE`}>Chi tiết lớp</Link>
                         </Button>
