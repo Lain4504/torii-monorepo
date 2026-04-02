@@ -158,9 +158,9 @@ export function TranslatorView() {
             {/* Translation Layout (2 Columns) */}
             <div className="grid md:grid-cols-2 gap-4">
                 {/* Source Input */}
-                <div className="bg-background rounded-2xl border border-border overflow-hidden group relative">
-                    <div className="flex flex-col h-[320px]">
-                        <div className="p-4 flex-1 overflow-y-auto custom-scrollbar relative">
+                <div className="bg-background rounded-2xl border border-border overflow-hidden group relative flex flex-col">
+                    <div className="flex flex-col flex-1">
+                        <div className="p-4 flex-1 relative">
                             {sourceText && (
                                 <Button 
                                     variant="ghost" 
@@ -175,7 +175,7 @@ export function TranslatorView() {
                                 value={sourceText}
                                 onChange={handleTextChange}
                                 placeholder="Nhập văn bản cần dịch..."
-                                className="min-h-full border-none focus-visible:ring-0 p-0 pr-10 text-xl resize-none shadow-none leading-relaxed bg-transparent"
+                                className="min-h-[160px] border-none focus-visible:ring-0 p-0 pr-10 text-xl resize-none shadow-none leading-relaxed bg-transparent"
                             />
                         </div>
                         <div className="p-4 border-t bg-muted/20 flex items-center justify-between shrink-0">
@@ -207,9 +207,9 @@ export function TranslatorView() {
                 </div>
 
                 {/* Target Output */}
-                <div className="bg-background rounded-2xl border border-border/100 overflow-hidden">
-                    <div className="flex flex-col h-[320px]">
-                        <div className="p-4 flex-1 text-xl font-medium leading-relaxed overflow-y-auto custom-scrollbar">
+                <div className="bg-background rounded-2xl border border-border/100 overflow-hidden flex flex-col">
+                    <div className="flex flex-col flex-1">
+                        <div className="p-4 flex-1 text-xl font-medium leading-relaxed min-h-[160px]">
                             {isTranslating ? (
                                 <div className="space-y-4 pt-2">
                                     <div className="h-5 bg-muted animate-pulse rounded w-3/4" />

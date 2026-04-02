@@ -91,10 +91,13 @@ export default function LiveClassesPage() {
         return map[status] ?? status;
     };
 
-    const stats = useMemo(() => [
-        { label: "Lớp đang tuyển", value: classes?.filter(c => c.status === 'OPENING').length || 0 },
-        { label: "Tổng số học viên", value: "---" }
-    ], [classes]);
+    const stats = useMemo(() => {
+        const enrollmentCount = classes?.reduce((acc, curr) => acc + (curr._count?.enrollments || 0), 0) || 0;
+        return [
+            { label: "Lớp đang tuyển", value: classes?.filter(c => c.status === 'OPENING').length || 0 },
+            { label: "Tổng số học viên", value: enrollmentCount }
+        ];
+    }, [classes]);
 
     const liveStatuses = [
         { value: 'DRAFT', label: 'Bản nháp' },

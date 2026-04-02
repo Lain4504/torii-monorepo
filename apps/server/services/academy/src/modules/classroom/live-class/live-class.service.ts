@@ -20,11 +20,12 @@ export class LiveClassService {
 
   async findAll(query: AcademyLiveClassQueryDTO) {
     const and: any[] = [];
+    const q = query as any;
+
     if (query.cohortId) and.push({ cohortId: query.cohortId });
     if (query.status) and.push({ status: query.status });
     if (query.instructorId) and.push({ instructorId: query.instructorId });
 
-    const q = query as any;
     const cohortConditions: any[] = [];
 
     if (q.month) {
@@ -76,6 +77,12 @@ export class LiveClassService {
             ],
           },
         ],
+      });
+    }
+
+    if (q.courseProfileId) {
+      cohortConditions.push({
+        courseProfileId: q.courseProfileId,
       });
     }
 

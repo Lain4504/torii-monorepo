@@ -184,7 +184,11 @@ export default function ExamRunnerPage() {
                    Xem lại bài làm
                  </Button>
                  {!attempt.isPassed && (
-                    <Button onClick={() => setAttemptId(null)}>Thi lại</Button>
+                    <Button onClick={() => {
+                        setAttemptId(null);
+                        setAnswers({});
+                        setCurrentQuestionIndex(0);
+                     }}>Thi lại</Button>
                  )}
               </div>
            </CardContent>
@@ -255,10 +259,16 @@ export default function ExamRunnerPage() {
                    </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                    {question.passage && (
+                       <div className="p-5 bg-muted/40 rounded-xl border border-border/50 text-sm italic leading-relaxed mb-6">
+                          {question.passage}
+                       </div>
+                    )}
+
                    {question.questionType === 'SINGLE_CHOICE' && (
                       <RadioGroup 
                         value={answers[question.id] || ""} 
-                        onValueChange={(v) => saveAnswer(question.id, v)}
+                        onValueChange={(v) => !isReviewMode && saveAnswer(question.id, v)}
                         className="space-y-3"
                       >
                           {question.options?.map((opt: any) => {
@@ -298,8 +308,10 @@ export default function ExamRunnerPage() {
                             <div key={opt.optionKey} className="flex items-center gap-3 p-4 border rounded-xl bg-background hover:bg-muted transition-all">
                                <Checkbox 
                                  id={opt.optionKey}
+                                 disabled={isReviewMode}
                                  checked={(answers[question.id] || []).includes(opt.optionKey)}
                                  onCheckedChange={(checked) => {
+                                    if (isReviewMode) return;
                                     const current = answers[question.id] || [];
                                     const next = checked 
                                       ? [...current, opt.optionKey]
@@ -320,7 +332,8 @@ export default function ExamRunnerPage() {
                               key={v}
                               variant={answers[question.id] === v ? 'default' : 'outline'}
                               className="flex-1 h-14 text-lg font-bold"
-                              onClick={() => saveAnswer(question.id, v)}
+                              onClick={() => !isReviewMode && saveAnswer(question.id, v)}
+                              disabled={isReviewMode}
                             >
                                {v === 'TRUE' ? 'ĐÚNG' : 'SAI'}
                             </Button>
@@ -328,6 +341,19 @@ export default function ExamRunnerPage() {
                       </div>
                    )}
                 </CardContent>
+
+                    {isReviewMode && question.explanation && (
+                       <div className="mt-8 p-6 bg-primary/5 border border-primary/10 rounded-2xl animate-in fade-in slide-in-from-top-2 text-left">
+                          <div className="flex items-center gap-2 mb-2 text-primary">
+                             <HelpCircle className="w-4 h-4" />
+                             <span className="text-[10px] font-black uppercase tracking-widest">Giải thích chi tiết</span>
+                          </div>
+                          <div className="text-sm text-foreground leading-relaxed italic">
+                             {question.explanation}
+                          </div>
+                       </div>
+                    )}
+
              </Card>
 
              <div className="flex justify-between items-center">
@@ -344,11 +370,20 @@ export default function ExamRunnerPage() {
                 </div>
 
                 <Button 
-                  onClick={() => currentQuestionIndex < allExamQuestions.length - 1 ? setCurrentQuestionIndex(i => i + 1) : handleSubmit()}
+                   onClick={() => {
+                     if (currentQuestionIndex < allExamQuestions.length - 1) {
+                        setCurrentQuestionIndex(i => i + 1);
+                     } else if (isReviewMode) {
+                        setIsReviewMode(false);
+                     } else {
+                        handleSubmit();
+                     }
+                   }}
                   className={currentQuestionIndex === allExamQuestions.length - 1 ? 'bg-emerald-600' : ''}
                 >
-                   {currentQuestionIndex === allExamQuestions.length - 1 ? "Kết thúc bài thi" : "Câu tiếp theo"}
-                   <ChevronRight className="w-4 h-4 ml-2" />
+                   {currentQuestionIndex === allExamQuestions.length - 1 ? (isReviewMode ? "Đóng" : "Kết thúc bài thi") : "Câu tiếp theo"}
+                   {!(currentQuestionIndex === allExamQuestions.length - 1 && isReviewMode) && <ChevronRight className="w-4 h-4 ml-2" />}
+
                 </Button>
              </div>
           </div>

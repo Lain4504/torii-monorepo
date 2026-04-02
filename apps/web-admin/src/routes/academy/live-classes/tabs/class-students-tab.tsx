@@ -208,14 +208,18 @@ export function ClassStudentsTab({
                           ? "default"
                           : en.status === "COMPLETED"
                             ? "secondary"
-                            : "outline"
+                            : en.status === "EXPIRED"
+                              ? "destructive"
+                              : "outline"
                       }
                     >
                       {en.status === "ACTIVE"
                         ? "Đang học"
                         : en.status === "COMPLETED"
                           ? "Hoàn thành"
-                          : "Đã hủy"}
+                          : en.status === "EXPIRED"
+                            ? "Đã hết hạn"
+                            : "Đã hủy"}
                     </Badge>
                   </TableCell>
                   {canManageEnrollment && (

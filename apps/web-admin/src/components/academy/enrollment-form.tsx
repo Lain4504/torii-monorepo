@@ -354,7 +354,15 @@ export function EnrollmentForm({
                             render={({ field, fieldState }) => (
                                 <Field>
                                     <FieldLabel>Ngày hết hạn</FieldLabel>
-                                    <Input type="date" {...field} min={today} />
+                                    <Input
+                                        type="date"
+                                        min={today}
+                                        value={field.value ? new Date(field.value).toISOString().split('T')[0] : ""}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            field.onChange(val ? new Date(val).toISOString() : undefined);
+                                        }}
+                                    />
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>
                             )}

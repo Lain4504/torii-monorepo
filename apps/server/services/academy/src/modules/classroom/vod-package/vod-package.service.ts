@@ -38,6 +38,9 @@ export class VodPackageService {
           courseProfile: {
             select: { id: true, title: true, thumbnailUrl: true, level: true },
           },
+          instructor: {
+            select: { id: true, displayName: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -51,6 +54,7 @@ export class VodPackageService {
       where: { id },
       include: {
         courseProfile: { include: { modules: { include: { lessons: true } } } },
+        instructor: { select: { id: true, displayName: true, email: true } },
       },
     });
     if (!item) throw new NotFoundException('VOD Package not found');
@@ -67,6 +71,7 @@ export class VodPackageService {
         discountPrice: data.discountPrice,
         status: (data.status as any) ?? 'DRAFT',
         rejectionReason: data.rejectionReason,
+        instructorId: data.instructorId,
         submittedForApprovalAt:
           data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },
@@ -96,6 +101,7 @@ export class VodPackageService {
         discountPrice: data.discountPrice,
         status: data.status as any,
         rejectionReason: data.rejectionReason,
+        instructorId: data.instructorId,
         submittedForApprovalAt:
           data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },

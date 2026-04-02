@@ -74,13 +74,15 @@ export function LearnerList({ enrollments, isLoading }: LearnerListProps) {
               </TableCell>
               <TableCell>
                 <Badge
-                  variant={en.status === "ACTIVE" ? "default" : "secondary"}
+                  variant={en.status === "ACTIVE" ? "default" : en.status === "EXPIRED" ? "destructive" : "secondary"}
                   className={en.status === "ACTIVE" ? "bg-emerald-500 hover:bg-emerald-600 border-transparent text-white" : ""}
                 >
                   {en.status === "ACTIVE"
                     ? "Đang học"
                     : en.status === "COMPLETED"
                     ? "Hoàn thành"
+                    : en.status === "EXPIRED"
+                    ? "Đã hết hạn"
                     : "Đã hủy"}
                 </Badge>
               </TableCell>

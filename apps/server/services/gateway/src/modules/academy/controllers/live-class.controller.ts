@@ -48,10 +48,7 @@ export class LiveClassController {
 
   @Get()
   @Permissions('academy.delivery.read')
-  async findAll(
-    @Query(new ZodValidationPipe(academyLiveClassQueryDTOSchema))
-    query: AcademyLiveClassQueryDTO,
-  ) {
+  async findAll(@Query() query: any) {
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.liveClass.findAll' }, query),
     );

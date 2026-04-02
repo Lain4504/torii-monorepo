@@ -113,16 +113,16 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
-                <DialogHeader className="p-6 border-b">
+            <DialogContent className="sm:max-w-[500px] p-0 flex flex-col overflow-hidden max-h-[90vh]">
+                <DialogHeader className="p-6 border-b shrink-0">
                     <DialogTitle>Gửi yêu cầu hỗ trợ</DialogTitle>
                     <DialogDescription>
                         Vui lòng điền thông tin để chúng tôi có thể hỗ trợ bạn tốt nhất.
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <ScrollArea className="max-h-[70vh]">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="p-6 space-y-4">
                             <Field>
                                 <FieldLabel>Loại yêu cầu</FieldLabel>
@@ -188,14 +188,14 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                 <Textarea
                                     {...register('description')}
                                     placeholder="Nội dung yêu cầu của bạn..."
-                                    className="min-h-[120px]"
+                                    className="min-h-[120px] max-h-[200px] overflow-y-auto resize-none"
                                 />
                                 {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
                             </Field>
                         </div>
                     </ScrollArea>
 
-                    <DialogFooter className="p-6 border-t bg-muted/20">
+                    <DialogFooter className="p-6 border-t bg-muted/20 shrink-0">
                         <Button
                             type="button"
                             variant="outline"

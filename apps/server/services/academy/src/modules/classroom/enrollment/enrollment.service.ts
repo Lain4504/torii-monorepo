@@ -81,6 +81,22 @@ export class EnrollmentService {
       orderBy: [{ enrolledAt: 'desc' }],
     });
 
+    // Self-heal EXPIRED status
+    const now = new Date();
+    for (const e of enrollments) {
+      if (e.status === 'ACTIVE' && e.expiresAt && e.expiresAt < now) {
+        try {
+          await this.prisma.enrollment.update({
+            where: { id: e.id },
+            data: { status: 'EXPIRED' },
+          });
+          e.status = 'EXPIRED';
+        } catch (err) {
+          this.logger.error(`Failed to self-heal enrollment ${e.id} to EXPIRED`, err);
+        }
+      }
+    }
+
     if (query.userId) {
       return Promise.all(
         enrollments.map(async (e) => {
@@ -168,6 +184,19 @@ export class EnrollmentService {
       },
     });
     if (!item) throw new NotFoundException('Enrollment not found');
+
+    if (item.status === 'ACTIVE' && item.expiresAt && item.expiresAt < new Date()) {
+      try {
+        await this.prisma.enrollment.update({
+          where: { id: item.id },
+          data: { status: 'EXPIRED' },
+        });
+        item.status = 'EXPIRED';
+      } catch (err) {
+        this.logger.error(`Failed to self-heal enrollment ${item.id} to EXPIRED`, err);
+      }
+    }
+
     return item;
   }
 
@@ -301,6 +330,7 @@ export class EnrollmentService {
           userId: input.userId,
           liveClassId: input.liveClassId,
           vodPackageId: input.vodPackageId,
+          expiresAt: input.expiresAt,
           status: 'ACTIVE',
         },
       });
@@ -340,6 +370,18 @@ export class EnrollmentService {
     });
 
     if (!enrollment) {
+      return { isEnrolled: false, enrollment: null };
+    }
+
+    if (enrollment.status === 'ACTIVE' && enrollment.expiresAt && enrollment.expiresAt < new Date()) {
+      try {
+        await this.prisma.enrollment.update({
+          where: { id: enrollment.id },
+          data: { status: 'EXPIRED' },
+        });
+      } catch (err) {
+        this.logger.error(`Failed to self-heal enrollment ${enrollment.id} to EXPIRED`, err);
+      }
       return { isEnrolled: false, enrollment: null };
     }
 
@@ -384,6 +426,18 @@ export class EnrollmentService {
 
     if (!enrollment) {
       throw new BadRequestException('User is not enrolled or enrollment is inactive');
+    }
+
+    if (enrollment.status === 'ACTIVE' && enrollment.expiresAt && enrollment.expiresAt < new Date()) {
+      try {
+        await this.prisma.enrollment.update({
+          where: { id: enrollment.id },
+          data: { status: 'EXPIRED' },
+        });
+      } catch (err) {
+        this.logger.error(`Failed to self-heal enrollment ${enrollment.id} to EXPIRED`, err);
+      }
+      throw new BadRequestException('User enrollment has expired');
     }
 
     const progress = await this.prisma.userLessonProgress.upsert({

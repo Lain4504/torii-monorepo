@@ -80,7 +80,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
   const updateMutation = useUpdateAcademyLiveClass()
   const createScheduleMutation = useCreateAcademyLiveSchedule()
 
-  const { data: cohorts } = useAcademyCohorts({ onlyAvailable: true })
+  const { data: cohorts } = useAcademyCohorts({ status: "OPENING" } as any)
   const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {
