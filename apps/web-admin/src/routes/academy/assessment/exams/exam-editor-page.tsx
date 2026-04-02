@@ -442,6 +442,7 @@ export default function AcademyExamEditorPage() {
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         onConfirm={handleAddQuestions}
+        existingQuestionIds={exam?.sections?.flatMap(s => (s.questions || s.examQuestions)?.map((q: any) => q.question?.id || q.questionId) || []) || []}
       />
 
       {/* Remove Question Confirmation */}

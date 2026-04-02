@@ -227,12 +227,14 @@ function ArticleViewer({
 
 function MilestoneItem({
     milestone,
-    onClick
+    onClick,
+    forceLocked
 }: {
     milestone: AcademyAssessmentStatus;
     onClick: () => void;
+    forceLocked?: boolean;
 }) {
-    const isLocked = milestone.status === 'LOCKED';
+    const isLocked = milestone.status === 'LOCKED' || forceLocked;
     const isPassed = milestone.status === 'PASSED';
     const isInProgress = milestone.status === 'IN_PROGRESS';
 
@@ -350,6 +352,7 @@ function ModuleItem({
                                     <MilestoneItem
                                         key={m.assessmentId}
                                         milestone={m}
+                                        forceLocked={!isDone}
                                         onClick={() => onSelectMilestone?.(m)}
                                     />
                                 ))}
@@ -361,6 +364,7 @@ function ModuleItem({
                         <MilestoneItem
                             key={m.assessmentId}
                             milestone={m}
+                            forceLocked={doneCount < denom}
                             onClick={() => onSelectMilestone?.(m)}
                         />
                     ))}
@@ -868,6 +872,7 @@ export default function CourseLearnPage() {
                             <MilestoneItem
                                 key={m.assessmentId}
                                 milestone={m}
+                                forceLocked={progressPct < 100}
                                 onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
                             />
                         ))}

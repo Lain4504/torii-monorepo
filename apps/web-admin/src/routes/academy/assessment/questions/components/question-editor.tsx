@@ -294,7 +294,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
 
         {/* Footer */}
         <div className="px-6 py-4 border-t bg-muted/20 flex items-center justify-between shrink-0">
-          <p className="text-xs text-muted-foreground">* Trường bắt buộc</p>
+          <p className="text-xs text-muted-foreground"></p>
           <div className="flex gap-2">
             <Button
               type="button"

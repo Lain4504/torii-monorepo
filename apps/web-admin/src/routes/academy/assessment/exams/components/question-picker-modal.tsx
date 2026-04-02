@@ -20,15 +20,21 @@ import {
 } from "@workspace/ui/components/table"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Badge } from "@workspace/ui/components/badge"
-import { Search } from "lucide-react"
+import { Search, Check } from "lucide-react"
 
 interface QuestionPickerModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onConfirm: (questionIds: string[]) => Promise<void>
+  existingQuestionIds?: string[]
 }
 
-export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionPickerModalProps) {
+export function QuestionPickerModal({
+  open,
+  onOpenChange,
+  onConfirm,
+  existingQuestionIds = []
+}: QuestionPickerModalProps) {
   const [search, setSearch] = useState("")
   const [categoryId, setCategoryId] = useState<string>("ALL")
   const [difficulty, setDifficulty] = useState<string>("ALL")
@@ -46,8 +52,12 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
     level: level === "ALL" ? undefined : level,
   })
 
+  const existingIdsSet = new Set(existingQuestionIds)
+
   // Handle individual checkbox toggle
   const toggleQuestion = (id: string) => {
+    if (existingIdsSet.has(id)) return
+
     const nextSelected = new Set(selectedIds)
     if (nextSelected.has(id)) {
       nextSelected.delete(id)
@@ -60,10 +70,14 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
   // Handle select all toggle
   const toggleAll = () => {
     if (!questions) return
-    if (selectedIds.size === questions.length && questions.length > 0) {
+    
+    // Filter out already existing questions when selecting all
+    const availableQuestions = questions.filter(q => !existingIdsSet.has(q.id))
+    
+    if (selectedIds.size === availableQuestions.length && availableQuestions.length > 0) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(questions.map((q) => q.id)))
+      setSelectedIds(new Set(availableQuestions.map((q) => q.id)))
     }
   }
 
@@ -149,7 +163,12 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
                 <TableRow>
                   <TableHead className="w-[50px]">
                     <Checkbox
-                      checked={questions && questions.length > 0 && selectedIds.size === questions.length}
+                      checked={
+                        questions && 
+                        questions.length > 0 && 
+                        questions.filter(q => !existingIdsSet.has(q.id)).length > 0 &&
+                        selectedIds.size === questions.filter(q => !existingIdsSet.has(q.id)).length
+                      }
                       onCheckedChange={toggleAll}
                     />
                   </TableHead>
@@ -169,32 +188,43 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
                     <TableCell colSpan={5} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
                   </TableRow>
                 ) : (
-                  questions?.map((q) => (
-                    <TableRow key={q.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedIds.has(q.id)}
-                          onCheckedChange={() => toggleQuestion(q.id)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <div className="line-clamp-2">{q.stem}</div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{q.questionType}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={q.difficulty === 'HARD' ? 'destructive' : q.difficulty === 'MEDIUM' ? 'secondary' : 'default'}>
-                          {q.difficulty}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
-                          {q.level || "—"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  questions?.map((q) => {
+                    const isAlreadyInExam = existingIdsSet.has(q.id)
+                    return (
+                      <TableRow key={q.id} className={isAlreadyInExam ? "opacity-50 bg-slate-50/50" : ""}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedIds.has(q.id)}
+                            onCheckedChange={() => toggleQuestion(q.id)}
+                            disabled={isAlreadyInExam}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col gap-1">
+                            <div className="line-clamp-2">{q.stem}</div>
+                            {isAlreadyInExam && (
+                              <div className="text-[10px] text-amber-600 font-bold flex items-center gap-1">
+                                <Check className="w-3 h-3" /> Đã có trong bài thi
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{q.questionType}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={q.difficulty === 'HARD' ? 'destructive' : q.difficulty === 'MEDIUM' ? 'secondary' : 'default'}>
+                            {q.difficulty}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
+                            {q.level || "—"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>
@@ -202,7 +232,7 @@ export function QuestionPickerModal({ open, onOpenChange, onConfirm }: QuestionP
 
           <div className="flex items-center justify-between pt-4 border-t mt-auto">
             <div className="text-sm text-slate-500">
-              Đã chọn {selectedIds.size} câu hỏi
+              Đã chọn {selectedIds.size} câu hỏi mới
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
