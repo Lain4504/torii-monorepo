@@ -16,7 +16,7 @@ export class CouponService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   private normalizeDiscountType(
     value: unknown,

@@ -798,6 +798,29 @@ export class GamificationService {
         },
       });
 
+      // Handle different types of rewards
+      const config = (reward.config as any) || {};
+      const rewardType = (reward.type || 'COUPON').toUpperCase();
+
+      let couponCode = '';
+
+      if (rewardType === 'STREAK_FREEZE') {
+        // Direct profile update for streak freeze
+        const amount = config.amount || 1;
+        await tx.userGamification.update({
+          where: { userId },
+          data: {
+            freezeCount: { increment: amount },
+          },
+        });
+        couponCode = 'STREAK_FREEZE';
+      } else {
+        // For other rewards, generate a code but DO NOT log it into the coupon table
+        const prefix = config.prefix || 'RWD';
+        couponCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      }
+
+      // Update the history record created above with the generated code and more metadata
       await tx.gamificationHistory.create({
         data: {
           userId,
@@ -805,44 +828,22 @@ export class GamificationService {
           currency: GamificationCurrency.POINT,
           type: GamificationTransactionType.REDEEM,
           description: `Redeemed ${reward.name}`,
-          metadata: { rewardId },
-        },
-      });
-
-      // NOTE: A real system should integrate with CouponService here to emit a real coupon.
-      // Simplified coupon issuance for Phase 1
-      const config = (reward.config as any) || {};
-      const prefix = config.prefix || 'RWD';
-      const generatedCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
-      const coupon = await tx.coupon.create({
-        data: {
-          code: generatedCode,
-          name: reward.name,
-          description: `Redeemed from: ${reward.name}`,
-          discountType: config.discountType || 'FIXED_AMOUNT',
-          discountValue: config.discountValue || 0,
-          maxDiscountAmount: config.maxDiscountAmount,
-          minOrderValue: config.minOrderValue,
-          usageLimit: 1,
-          perUserLimit: 1,
-          // Mark this as a personal coupon owned by the redeemer
-          scope: CouponScope.GLOBAL,
-          ownerId: userId,
-          source: 'GAMIFICATION_REWARD',
           metadata: {
-            ...(reward.config as any),
-            source: 'GAMIFICATION_REWARD',
-            rewardId: reward.id,
+            rewardId,
             rewardName: reward.name,
+            rewardType,
+            couponCode: couponCode,
+            ...config,
           },
         },
       });
 
       return {
         success: true,
-        message: 'Reward redeemed successfully',
-        couponCode: coupon.code,
+        message: rewardType === 'STREAK_FREEZE'
+          ? 'Đã đổi thành công bùa bảo vệ chuỗi!'
+          : 'Đổi phần thưởng thành công!',
+        couponCode: couponCode,
         rewardName: reward.name,
       };
     });
@@ -856,7 +857,9 @@ export class GamificationService {
           type: 'system',
           payload: {
             title: 'Bạn vừa đổi quà thành công 🎁',
-            body: `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Mã coupon của bạn là ${result.couponCode}.`,
+            body: result.couponCode === 'STREAK_FREEZE'
+              ? `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Vật phẩm đã được cộng vào tài khoản của bạn.`
+              : `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Mã coupon của bạn là ${result.couponCode}.`,
             metadata: {
               rewardId,
               rewardName: result.rewardName,

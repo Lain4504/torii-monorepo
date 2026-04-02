@@ -12,6 +12,7 @@ import {
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
 import { Can } from '@/lib/guard/can';
+import { Badge } from '@workspace/ui/components/badge';
 
 const columnHelper = createColumnHelper<CouponResponseDTO>();
 
@@ -162,9 +163,18 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
             const status = info.getValue() as string;
             // ACTIVE, INACTIVE, EXPIRED
             const config = {
-                active: { label: 'Đang hoạt động', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dot:bg-emerald-500' },
-                inactive: { label: 'Ngừng hoạt động', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20 dot:bg-slate-500' },
-                expired: { label: 'Đã hết hạn', class: 'bg-rose-500/10 text-rose-600 border-rose-500/20 dot:bg-rose-500' }
+                active: { 
+                    label: 'Hoạt động', 
+                    class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 shadow-none' 
+                },
+                inactive: { 
+                    label: 'Tạm dừng', 
+                    class: 'text-muted-foreground border-border shadow-none' 
+                },
+                expired: { 
+                    label: 'Đã hết hạn', 
+                    class: 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20 shadow-none' 
+                }
             };
             const isExpired = info.row.original.endDate && new Date(info.row.original.endDate) < new Date();
             
@@ -174,14 +184,16 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
                 displayStatus = 'expired';
             }
 
-            const current = config[displayStatus as keyof typeof config] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border/40 dot:bg-muted-foreground' };
+            const current = config[displayStatus as keyof typeof config] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border shadow-none' };
 
             return (
                 <div className="flex justify-center">
-                    <div className={cn("inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm", current.class)}>
-                        <div className={cn("size-1.5 rounded-full mr-2", current.class.split(' ').find(c => c.startsWith('dot:'))?.replace('dot:', ''))} />
+                    <Badge 
+                        variant={displayStatus === 'active' || displayStatus === 'expired' ? 'default' : 'outline'} 
+                        className={cn("font-bold uppercase tracking-wider text-[10px]", current.class)}
+                    >
                         {current.label}
-                    </div>
+                    </Badge>
                 </div>
             );
         },

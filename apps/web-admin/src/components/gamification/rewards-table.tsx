@@ -112,7 +112,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                                 {reward.isActive ? (
                                     <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">Hoạt động</Badge>
                                 ) : (
-                                    <Badge variant="outline" className="text-muted-foreground">Ẩn</Badge>
+                                    <Badge variant="outline" className="text-muted-foreground">Tạm dừng</Badge>
                                 )}
                             </TableCell>
                             <TableCell className="text-right px-6">

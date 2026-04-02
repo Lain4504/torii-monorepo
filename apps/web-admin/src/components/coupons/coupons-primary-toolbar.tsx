@@ -46,8 +46,8 @@ export function CouponsPrimaryToolbar({
                     </SelectTrigger>
                     <SelectContent align="end">
                         <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                        <SelectItem value="ACTIVE">Đang hoạt động</SelectItem>
-                        <SelectItem value="INACTIVE">Ngừng hoạt động</SelectItem>
+                        <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+                        <SelectItem value="INACTIVE">Tạm dừng</SelectItem>
                         <SelectItem value="EXPIRED">Đã hết hạn</SelectItem>
                     </SelectContent>
                 </Select>

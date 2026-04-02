@@ -127,7 +127,7 @@ export default function AcademyExamEditorPage() {
           ],
           settings: {},
         } as any)
-        
+
         if (!silent) {
           toast.success("Tạo đề thi mới thành công")
           navigate("/academy/assessment/exams")
@@ -182,7 +182,7 @@ export default function AcademyExamEditorPage() {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {isEditing ? `Sửa: ${formData.title || "Bài thi"}` : "Tạo bài thi mới"}
+              {isEditing ? `Chỉnh Sửa: ${formData.title || "Bài thi"}` : "Tạo bài thi mới"}
             </h1>
             <p className="text-sm text-slate-500">Thiết lập thông tin và cấu trúc câu hỏi cho bài kiểm tra.</p>
           </div>
@@ -194,8 +194,8 @@ export default function AcademyExamEditorPage() {
             onClick={() => handleSubmit()}
             disabled={isPending || (isSaved && !isDirty)}
             className={`min-w-[160px] transition-all duration-300 ${isSaved && !isDirty
-                ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 cursor-default'
-                : 'bg-sky-600 hover:bg-sky-700 shadow-md hover:shadow-lg'
+              ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 cursor-default'
+              : 'bg-sky-600 hover:bg-sky-700 shadow-md hover:shadow-lg'
               }`}
           >
             {isPending ? (
@@ -299,7 +299,7 @@ export default function AcademyExamEditorPage() {
                     disabled={isPending}
                   >
                     {isPending && !isEditing ? (
-                       <div className="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mr-2" />
+                      <div className="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mr-2" />
                     ) : (
                       <Plus className="w-4 h-4 mr-2" />
                     )}
