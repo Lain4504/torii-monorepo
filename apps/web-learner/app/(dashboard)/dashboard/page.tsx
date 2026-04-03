@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
+import { LearnerRoadmapSection } from '@/components/dashboard/learner-roadmap-section';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
@@ -309,6 +310,10 @@ function AuthenticatedDashboardPage() {
                     )}
                 </div>
             </header>
+
+            {(courses?.length ?? 0) > 0 && (
+                <LearnerRoadmapSection hasEnrollment />
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
