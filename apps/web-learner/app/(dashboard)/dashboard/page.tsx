@@ -34,7 +34,13 @@ function formatDuration(seconds: number): string {
 function formatScheduledAt(date: Date | string): string {
     const d = new Date(date);
     return d.toLocaleString('vi-VN', { weekday: 'short', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
-}function GuestDashboardPreview() {
+}
+
+function getSessionLiveClassId(session: { liveClassId?: string; classId?: string }): string | undefined {
+    return session.liveClassId || session.classId;
+}
+
+function GuestDashboardPreview() {
     return (
         <div className="space-y-8 animate-in fade-in duration-1000">
             {/* Minimal Dashboard Header */}
@@ -510,7 +516,7 @@ function AuthenticatedDashboardPage() {
                                                 <td className="px-5 py-4 text-right">
                                                     {session.status === LiveSessionStatus.LIVE ? (
                                                         <Link
-                                                            href={`/dashboard/my-courses/${session.classId}`}
+                                                            href={`/dashboard/my-courses/${getSessionLiveClassId(session)}`}
                                                             className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-xs transition-colors"
                                                         >
                                                             Tham gia ngay

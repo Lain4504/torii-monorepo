@@ -98,6 +98,8 @@ export function ClassRescheduleRequestSheet({
   const watchProposedDate = form.watch("proposedDate")
   const watchProposedStartTime = form.watch("proposedStartTime")
   const watchProposedEndTime = form.watch("proposedEndTime")
+  const targetLiveClassId =
+    (session as any).liveClassId ?? (session as any).classId
 
   // Preview conflict when inputs change
   useEffect(() => {
@@ -108,14 +110,14 @@ export function ClassRescheduleRequestSheet({
       watchProposedEndTime
     ) {
       previewConflict.mutate({
-        classId: session.classId,
+        classId: targetLiveClassId,
         excludeSessionId: session.id,
         sessionDate: watchProposedDate,
         startTime: watchProposedStartTime,
         endTime: watchProposedEndTime,
       })
     }
-  }, [watchType, watchProposedDate, watchProposedStartTime, watchProposedEndTime, session.id, session.classId])
+  }, [watchType, watchProposedDate, watchProposedStartTime, watchProposedEndTime, session.id, targetLiveClassId])
 
   const onSubmit = (data: AcademyLiveScheduleRequestCreateDTO) => {
     createRequest.mutate(data, {

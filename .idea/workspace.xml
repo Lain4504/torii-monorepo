@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(dashboard): implement admin dashboard with staff academic and operations insights">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(lecturer-dashboard): update session handling and improve class ID retrieval">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-attendance-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-attendance-tab.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-reschedule-request-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-reschedule-request-sheet.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-academic-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-academic-dashboard.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -391,23 +390,7 @@
       <workItem from="1774791456061" duration="156000" />
       <workItem from="1775037916663" duration="31000" />
       <workItem from="1775061830841" duration="4922000" />
-      <workItem from="1775200902364" duration="8286000" />
-    </task>
-    <task id="LOCAL-01043" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774281414499</created>
-      <option name="number" value="01043" />
-      <option name="presentableId" value="LOCAL-01043" />
-      <option name="project" value="LOCAL" />
-      <updated>1774281414499</updated>
-    </task>
-    <task id="LOCAL-01044" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774282691915</created>
-      <option name="number" value="01044" />
-      <option name="presentableId" value="LOCAL-01044" />
-      <option name="project" value="LOCAL" />
-      <updated>1774282691915</updated>
+      <workItem from="1775200902364" duration="10051000" />
     </task>
     <task id="LOCAL-01045" summary="feat: enhance landing page with guest preview and authentication flow">
       <option name="closed" value="true" />
@@ -785,7 +768,23 @@
       <option name="project" value="LOCAL" />
       <updated>1775208903100</updated>
     </task>
-    <option name="localTasksCounter" value="1092" />
+    <task id="LOCAL-01092" summary="feat(class-attendance): add join session functionality and alert dialog for lecturers">
+      <option name="closed" value="true" />
+      <created>1775210842845</created>
+      <option name="number" value="01092" />
+      <option name="presentableId" value="LOCAL-01092" />
+      <option name="project" value="LOCAL" />
+      <updated>1775210842845</updated>
+    </task>
+    <task id="LOCAL-01093" summary="fix(lecturer-dashboard): update session handling and improve class ID retrieval">
+      <option name="closed" value="true" />
+      <created>1775212938677</created>
+      <option name="number" value="01093" />
+      <option name="presentableId" value="LOCAL-01093" />
+      <option name="project" value="LOCAL" />
+      <updated>1775212938677</updated>
+    </task>
+    <option name="localTasksCounter" value="1094" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -820,8 +819,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
-    <MESSAGE value="feat: add JLPT mock exam module with related services and DTOs" />
     <MESSAGE value="update web-admin" />
     <MESSAGE value="courser flow end" />
     <MESSAGE value="feat: add JLPT mondai management functionality and update navigation" />
@@ -845,7 +842,9 @@
     <MESSAGE value="fix(breakout): enhance room status handling and improve webhook body processing" />
     <MESSAGE value="feat: add index column to various tables and restrict access to AI subscriptions" />
     <MESSAGE value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
+    <MESSAGE value="feat(class-attendance): add join session functionality and alert dialog for lecturers" />
+    <MESSAGE value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
