@@ -91,6 +91,7 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
     
     const playAudio = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
+        
         if (card.audioUrl) {
             setIsAudioPlaying(true)
             const audio = new Audio(card.audioUrl);
@@ -107,10 +108,30 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                     setIsAudioPlaying(false)
                 });
         } else {
-            console.warn("No audio URL found for this card");
-            toast.info("Thẻ này không có âm thanh đính kèm.");
+            // Text-to-Speech Fallback
+            if (!card.front) return;
+
+            setIsAudioPlaying(true);
+            
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(card.front);
+            
+            // Detect if Japanese (roughly checking for Hiragana, Katakana, or Kanji)
+            const isJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(card.front);
+            utterance.lang = isJapanese ? 'ja-JP' : 'en-US';
+            utterance.rate = 0.9; // Slightly slower for learning
+            
+            utterance.onend = () => setIsAudioPlaying(false);
+            utterance.onerror = () => {
+                setIsAudioPlaying(false);
+                toast.error("Lỗi phát âm thanh tự động.");
+            };
+
+            window.speechSynthesis.speak(utterance);
         }
-    }, [card.audioUrl])
+    }, [card.audioUrl, card.front])
 
     const handleRate = useCallback(
         (difficulty: FlashcardDifficulty) => {

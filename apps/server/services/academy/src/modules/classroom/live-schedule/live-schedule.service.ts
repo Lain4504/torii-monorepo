@@ -1112,20 +1112,58 @@ export class LiveScheduleService {
       }
 
       if (request.type === 'RESCHEDULE') {
-        await tx.liveScheduleSession.update({
-          where: { id: request.sessionId },
-          data: {
-            sessionDate: request.proposedDate!,
-            startTime: request.proposedStartTime!,
-            endTime: request.proposedEndTime!,
-            status: 'SCHEDULED', // Back to scheduled at new time
-            scheduleId: null, // Dissociate from template rule so generator doesn't override manual move
+        const oldSessionId = request.sessionId;
+        const newDate = request.proposedDate!;
+        const newStartTime = request.proposedStartTime!;
+        const newEndTime = request.proposedEndTime!;
+
+        // 1. Create or Update the new session at the proposed slot
+        // Use upsert to handle case where a template session already existed at that slot
+        const newSession = await tx.liveScheduleSession.upsert({
+          where: {
+            liveClassId_sessionDate_startTime_endTime: {
+              liveClassId: request.session.liveClassId,
+              sessionDate: newDate,
+              startTime: newStartTime,
+              endTime: newEndTime,
+            },
+          },
+          create: {
+            liveClassId: request.session.liveClassId,
+            sessionDate: newDate,
+            startTime: newStartTime,
+            endTime: newEndTime,
+            status: 'SCHEDULED',
+            scheduleId: null, // Dissociate from template so cleanup/generator doesn't touch it
+            roomId: request.session.roomId, // Carry over roomId if possible or create new one
+            instructorId:
+              request.proposedTeacherId ??
+              request.session.instructorId ??
+              undefined,
+            createdBy: reviewerId,
+            updatedBy: reviewerId,
+            note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
+          },
+          update: {
+            status: 'SCHEDULED', // Ensure it's active
+            scheduleId: null, // Dissociate
             instructorId:
               request.proposedTeacherId ??
               request.session.instructorId ??
               undefined,
             updatedBy: reviewerId,
-            note: `Dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
+            note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
+          },
+        });
+
+        // 2. Mark the OLD session as RESCHEDULED to "occupy" the slot and hide it from views
+        await tx.liveScheduleSession.update({
+          where: { id: oldSessionId },
+          data: {
+            status: 'RESCHEDULED',
+            supersededBySessionId: newSession.id,
+            updatedBy: reviewerId,
+            note: `Đã dời sang ngày ${newDate.toISOString().slice(0, 10)} (${newStartTime})`,
           },
         });
       }
