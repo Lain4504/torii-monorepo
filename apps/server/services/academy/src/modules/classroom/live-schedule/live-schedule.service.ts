@@ -1101,12 +1101,27 @@ export class LiveScheduleService {
     }
 
     await this.prisma.$transaction(async (tx) => {
+      const session = await tx.liveScheduleSession.findUnique({
+        where: { id: request.sessionId },
+      });
+
+      if (!session) {
+        throw new NotFoundException('Original LiveScheduleSession not found');
+      }
+
+      if (session.status !== 'SCHEDULED') {
+        throw new BadRequestException(
+          `Cannot approve request: Original session is currently ${session.status}, must be SCHEDULED`,
+        );
+      }
+
       if (request.type === 'LEAVE') {
         await tx.liveScheduleSession.update({
           where: { id: request.sessionId },
           data: {
             status: 'CANCELLED',
             cancellationReason: request.reason ?? undefined,
+            updatedBy: reviewerId,
           },
         });
       }
