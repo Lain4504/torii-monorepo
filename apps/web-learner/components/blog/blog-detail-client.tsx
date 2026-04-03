@@ -18,6 +18,7 @@ import { useBlogBySlug, blogApi } from '@/lib/api/services/blog-api';
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 const CopyLink = LinkIcon;
 
@@ -174,6 +175,22 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
         );
     };
 
+    const handleShareFacebook = () => {
+        const url = encodeURIComponent(window.location.href);
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+    };
+
+    const handleShareTwitter = () => {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(blog?.title || '');
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(window.location.href);
+        toast.success("Đã sao chép liên kết bài viết!");
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background">
@@ -267,13 +284,28 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
                     {/* Social Share */}
                     <div className="mt-12 flex items-center justify-center gap-4">
                         <span className="text-sm font-bold text-muted-foreground">Chia sẻ:</span>
-                        <Button variant="outline" size="icon" className="rounded-full">
+                        <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="rounded-full hover:bg-blue-500 hover:text-white transition-colors"
+                            onClick={handleShareFacebook}
+                        >
                             <Facebook className="size-4" />
                         </Button>
-                        <Button variant="outline" size="icon" className="rounded-full">
+                        <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="rounded-full hover:bg-sky-400 hover:text-white transition-colors"
+                            onClick={handleShareTwitter}
+                        >
                             <Twitter className="size-4" />
                         </Button>
-                        <Button variant="outline" size="icon" className="rounded-full">
+                        <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="rounded-full hover:bg-primary hover:text-white transition-colors"
+                            onClick={handleCopyLink}
+                        >
                             <CopyLink className="size-4" />
                         </Button>
                     </div>

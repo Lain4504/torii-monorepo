@@ -30,7 +30,7 @@ export default function CertificatesPage() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div className="space-y-3">
                 <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
@@ -55,16 +55,20 @@ export default function CertificatesPage() {
                 {isLoading ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
-                            <Card key={i} className="rounded-xl border-border/40 p-5 shadow-sm">
-                                <div className="flex gap-6 items-center">
-                                    <Skeleton className="w-32 h-24 rounded-lg flex-shrink-0" />
-                                    <div className="flex-1 space-y-3">
-                                        <Skeleton className="h-6 w-1/2" />
+                            <Card key={i} className="rounded-xl border-border/40 shadow-sm overflow-hidden flex flex-col">
+                                <Skeleton className="w-full h-36 rounded-none" />
+                                <div className="p-5 flex-1 space-y-4 flex flex-col">
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-6 w-3/4" />
+                                        <Skeleton className="h-4 w-1/2" />
+                                    </div>
+                                    <div className="space-y-2 mt-auto pt-4">
                                         <Skeleton className="h-4 w-1/3" />
-                                        <div className="flex gap-4 mt-2">
-                                            <Skeleton className="h-4 w-20" />
-                                            <Skeleton className="h-4 w-20" />
-                                        </div>
+                                        <Skeleton className="h-4 w-1/2" />
+                                    </div>
+                                    <div className="pt-4 border-t flex items-center gap-2">
+                                        <Skeleton className="h-10 flex-1 rounded-full" />
+                                        <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
                                     </div>
                                 </div>
                             </Card>
@@ -84,7 +88,7 @@ export default function CertificatesPage() {
                         </Link>
                     </div>
                 ) : (
-                    <div className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {certificates.map((cert: CertificateResponseDTO) => {
                             const certClass = (cert as any)?.class as { code?: string; name?: string } | undefined
                             const certName = certClass?.name || 'Chứng chỉ hoàn thành khóa học'
@@ -93,84 +97,68 @@ export default function CertificatesPage() {
                             return (
                                 <Card 
                                     key={cert.id} 
-                                    className="group relative overflow-hidden bg-card hover:bg-muted/5 border-border/40 hover:border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl"
+                                    className="group relative flex flex-col overflow-hidden bg-card hover:bg-muted/5 border-border/40 hover:border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 rounded-xl"
                                 >
-                                    <div className="flex flex-col md:flex-row p-4 md:p-6 gap-6 md:items-center">
-                                        {/* Certificate Preview/Icon Part */}
-                                        <div className="relative group/icon shrink-0">
-                                            <div className="w-36 h-28 bg-white border border-border/50 rounded-lg shadow-sm flex flex-col items-center justify-center p-3 transition-all duration-500 group-hover:scale-105 group-hover:border-blue-200">
-                                                <div className="w-full h-full border border-dashed border-border/30 rounded flex flex-col items-center justify-center bg-[#F9FAFB] relative overflow-hidden">
-                                                    <div className="w-10 h-1 bg-muted-foreground/10 absolute top-2 left-2 rounded-full" />
-                                                    <div className="w-12 h-1 bg-muted-foreground/10 absolute top-4 left-2 rounded-full" />
-                                                    <div className="w-8 h-1 bg-muted-foreground/10 absolute top-6 left-2 rounded-full" />
-                                                    
-                                                    <FileText className="w-10 h-10 text-muted-foreground/20" strokeWidth={1.5} />
-                                                    
-                                                    <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full border border-amber-300 flex items-center justify-center bg-amber-50">
-                                                        <Award className="w-3 h-3 text-amber-500" />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    {/* Certificate Preview/Icon Top Banner */}
+                                    <div className="relative w-full h-36 bg-[#F9FAFB] border-b border-border/30 flex flex-col items-center justify-center transition-all duration-500 group-hover:bg-blue-50/50">
+                                        <div className="w-10 h-1 bg-muted-foreground/10 absolute top-3 left-3 rounded-full" />
+                                        <div className="w-16 h-1 bg-muted-foreground/10 absolute top-5 left-3 rounded-full" />
+                                        <div className="w-8 h-1 bg-muted-foreground/10 absolute top-7 left-3 rounded-full" />
+                                        
+                                        <FileText className="w-14 h-14 text-muted-foreground/20 group-hover:text-blue-300 transition-colors duration-300" strokeWidth={1.5} />
+                                        
+                                        <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full border border-amber-300 flex items-center justify-center bg-amber-50 shadow-sm transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+                                            <Award className="w-4 h-4 text-amber-500" />
+                                        </div>
+                                    </div>
+
+                                    {/* Content Info */}
+                                    <div className="flex flex-col flex-1 p-5 gap-4">
+                                        <div className="space-y-1">
+                                            <Link 
+                                                href={cert.fileUrl || `/verify/${cert.certificateCode}`} 
+                                                target={cert.fileUrl ? "_blank" : undefined} 
+                                                className="text-lg font-bold text-[#2563EB] hover:text-blue-700 leading-tight transition-colors inline-block group-hover:underline decoration-blue-200 line-clamp-2"
+                                            >
+                                                {certName}
+                                            </Link>
+                                            <p className="text-sm font-semibold text-muted-foreground">Torii Academy</p>
                                         </div>
 
-                                        {/* Content Info */}
-                                        <div className="flex-1 min-w-0 space-y-2">
-                                            <div className="flex flex-col space-y-1">
-                                                {cert.fileUrl ? (
-                                                    <Link 
-                                                        href={cert.fileUrl} 
-                                                        target="_blank" 
-                                                        className="text-xl font-bold text-[#2563EB] hover:text-blue-700 leading-tight transition-colors inline-flex items-center gap-2 group-hover:underline decoration-blue-200"
-                                                    >
-                                                        {certName}
-                                                        <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    </Link>
-                                                ) : (
-                                                    <h3 className="text-xl font-bold text-[#2563EB] leading-tight capitalize">
-                                                        {certName}
-                                                    </h3>
-                                                )}
-                                                <p className="text-sm font-semibold text-muted-foreground">Torii Academy</p>
+                                        <div className="flex flex-col gap-3 mt-auto pt-2">
+                                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                                                <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                                                <span>Ngày cấp: {formatDate(cert.issueDate)}</span>
                                             </div>
-
-                                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2">
-                                                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-                                                    <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                                                    <span>Ngày cấp: {formatDate(cert.issueDate)}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                                    <span>Đã cấp</span>
-                                                </div>
-                                                <div className="hidden sm:block text-xs font-mono text-muted-foreground/60 px-2 py-0.5 rounded bg-muted/40 uppercase tracking-tighter">
-                                                    ID: {certCode}
-                                                </div>
+                                            <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span>Đã cấp chính thức</span>
+                                            </div>
+                                            <div className="text-xs font-mono text-muted-foreground/60 px-2 py-1 rounded bg-muted/40 uppercase tracking-tighter break-all w-fit mt-1">
+                                                ID: {certCode}
                                             </div>
                                         </div>
 
                                         {/* Actions Part */}
-                                        <div className="flex items-center gap-2 mt-2 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-border/40">
+                                        <div className="flex items-center gap-2 pt-4 mt-2 border-t border-border/40">
                                             <Button
                                                 asChild
                                                 variant="outline"
                                                 size="sm"
-                                                disabled={!cert.fileUrl}
-                                                className="h-10 px-4 rounded-full border-border/60 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all font-bold text-xs shadow-sm"
+                                                className="flex-1 h-10 rounded-full border-border/60 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all font-bold text-xs shadow-sm bg-blue-50/30"
                                             >
-                                                {cert.fileUrl ? (
-                                                    <Link href={cert.fileUrl} target="_blank" download>
-                                                        <Download className="w-3.5 h-3.5 mr-2" /> Tải chứng chỉ
-                                                    </Link>
-                                                ) : (
-                                                    <span className="cursor-not-allowed opacity-50">
-                                                        <Download className="w-3.5 h-3.5 mr-2" /> Chưa có file
-                                                    </span>
-                                                )}
+                                                <Link 
+                                                    href={cert.fileUrl || `/verify/${cert.certificateCode}`} 
+                                                    target={cert.fileUrl ? "_blank" : undefined}
+                                                >
+                                                    {cert.fileUrl ? <Download className="w-3.5 h-3.5 mr-2" /> : <ExternalLink className="w-3.5 h-3.5 mr-2" />}
+                                                    {cert.fileUrl ? 'Tải PDF' : 'Xem & Tải về'}
+                                                </Link>
                                             </Button>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-10 w-10 rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all text-muted-foreground"
+                                                className="h-10 w-10 shrink-0 rounded-full hover:bg-blue-50 hover:text-blue-600 transition-all text-muted-foreground border border-transparent hover:border-blue-100"
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     handleShare(cert)

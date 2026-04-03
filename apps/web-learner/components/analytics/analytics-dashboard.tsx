@@ -436,9 +436,8 @@ export function AnalyticsDashboard() {
             </section>
 
             {/* ── Courses section ───────────── */}
-            <div className="grid grid-cols-1 xl:grid-cols-5 gap-8 items-start">
-                <div className="xl:col-span-3 space-y-6">
-                    <section className="rounded-3xl border bg-card shadow-sm p-8">
+            <div className="space-y-10">
+                <section className="rounded-3xl border bg-card shadow-sm p-8">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="font-bold text-xl flex items-center gap-3">
                                 <BookMarked className="h-6 w-6 text-primary" /> Khóa học của bạn
@@ -482,8 +481,14 @@ export function AnalyticsDashboard() {
                     </section>
                 </div>
 
-                <div className="xl:col-span-2">
-                    <section>
+                <div className="pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
+                    <header className="mb-6">
+                        <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
+                             <Sparkles className="h-6 w-6 text-primary" /> Phân Tích Chuyên Sâu
+                        </h2>
+                        <p className="text-muted-foreground text-sm">Hiểu rõ năng lực và nhận lộ trình tối ưu từ chuyên gia AI.</p>
+                    </header>
+                    <section className="[&>div]:bg-card/50 [&>div]:backdrop-blur-sm [&>div]:border-primary/10">
                         {snapshot ? (
                             <AIInsightsPanel snapshot={snapshot} targetLevel={targetLevel} />
                         ) : (
@@ -496,7 +501,6 @@ export function AnalyticsDashboard() {
                     </section>
                 </div>
             </div>
-        </div>
     );
 }
 

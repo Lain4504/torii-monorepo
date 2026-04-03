@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { formatDate } from '@/utils/format-utils'
+import { formatDate, formatNumber } from '@/utils/format-utils'
 
 const container = {
     hidden: { opacity: 0 },
@@ -257,11 +257,22 @@ export default function ProfilePage() {
                             ) : coupons && coupons.length > 0 ? (
                                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {coupons.map((coupon: any) => (
-                                        <div key={coupon.id} className="p-8 border-2 border-dashed border-primary/30 rounded-[2rem] bg-primary/5 flex flex-col items-center text-center space-y-6 hover:border-primary transition-all">
-                                            <div className="size-16 rounded-full bg-white flex items-center justify-center text-xl font-black text-primary shadow-xl">-{coupon.discountValue}%</div>
+                                        <div key={coupon.id} className="group p-8 border-2 border-dashed border-primary/30 rounded-[2rem] bg-primary/5 flex flex-col items-center text-center space-y-6 hover:border-primary transition-all">
+                                            <div className="size-16 rounded-full bg-white flex items-center justify-center text-primary shadow-xl relative overflow-hidden group-hover:scale-110 transition-transform">
+                                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <Ticket className="size-8" />
+                                            </div>
                                             <div className="space-y-1">
                                                 <p className="text-xl font-black text-foreground tracking-tight">{coupon.code}</p>
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{coupon.type} OFF</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest font-mono text-center">
+                                                    {(() => {
+                                                        const discType = String(coupon.discountType || '').toUpperCase();
+                                                        const val = Number(coupon.discountValue || coupon.discountAmount || 0);
+                                                        const isPerc = discType.includes('PERCENT');
+                                                        const formattedVal = isPerc ? `${val}%` : `${formatNumber(val)}đ`;
+                                                        return `${isPerc ? 'Giảm phần trăm' : 'Giảm trực tiếp'} • ${formattedVal}`;
+                                                    })()}
+                                                </p>
                                             </div>
                                             <Button variant="outline" className="w-full rounded-xl border-2 font-black text-xs h-10" onClick={() => navigator.clipboard.writeText(coupon.code)}>SAO CHÉP</Button>
                                         </div>

@@ -92,14 +92,14 @@ export default function RewardsPage() {
 
                     return (
                         <Card key={reward.id} className={cn(
-                            "relative overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50",
+                            "relative overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50 flex flex-col h-full",
                             isStreakFreeze && "hover:border-blue-500/50"
                         )}>
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 {isStreakFreeze ? <Snowflake className="size-16" /> : <Gift className="size-16" />}
                             </div>
 
-                            <CardHeader>
+                            <CardHeader className="flex-1">
                                 <div className={cn(
                                     "size-10 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform",
                                     isStreakFreeze ? "bg-blue-500/10" : "bg-primary/10"
@@ -110,8 +110,8 @@ export default function RewardsPage() {
                                         reward.config?.discountType === 'PERCENTAGE' ? <TrendingUp className="size-5 text-primary" /> : <Ticket className="size-5 text-primary" />
                                     )}
                                 </div>
-                                <CardTitle className="text-xl">{reward.name}</CardTitle>
-                                <CardDescription>{reward.description}</CardDescription>
+                                <CardTitle className="text-xl line-clamp-1" title={reward.name}>{reward.name}</CardTitle>
+                                <CardDescription className="line-clamp-2 min-h-[40px] mt-1.5 leading-snug" title={reward.description || undefined}>{reward.description}</CardDescription>
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {reward.config?.minOrderValue ? (
                                         <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
