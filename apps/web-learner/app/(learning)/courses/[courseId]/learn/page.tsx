@@ -194,7 +194,7 @@ function ArticleViewer({
 
             {lesson.content ? (
                 <div className="prose prose-slate dark:prose-invert max-w-none">
-                    <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+                    <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: lesson.content }} />
                 </div>
             ) : (
                 <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">

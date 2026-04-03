@@ -17,7 +17,10 @@ import {
     MessageCircle,
     Send,
     AlertCircle,
-    Shield
+    Shield,
+    MoreVertical,
+    Pencil,
+    Trash2
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
@@ -27,6 +30,23 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@workspace/ui/components/dropdown-menu'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@workspace/ui/components/alert-dialog"
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { cn } from '@workspace/ui/lib/utils'
@@ -67,15 +87,39 @@ function useCreateDiscussion() {
     })
 }
 
+function useUpdateDiscussion() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: ({ id, content }: { id: string, content: string }) => commentApi.update(id, { content }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['discussions'] })
+        }
+    })
+}
+
+function useDeleteDiscussion() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => commentApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['discussions'] })
+        }
+    })
+}
+
 export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const { data: discussions, isLoading, isError } = useDiscussions(lessonId, classId)
     const createDiscussion = useCreateDiscussion()
+    const updateDiscussion = useUpdateDiscussion()
+    const deleteDiscussion = useDeleteDiscussion()
 
     const [isCreating, setIsCreating] = useState(false)
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null)
+    const [editingTopicId, setEditingTopicId] = useState<string | null>(null)
+    const [editContent, setEditContent] = useState('')
 
     const handleCreateTopic = async () => {
         if (!content.trim()) {
@@ -103,6 +147,33 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
         } catch (error: any) {
             console.error('Failed to create discussion:', error)
             toast.error('Không thể gửi câu hỏi. Vui lòng thử lại.')
+        }
+    }
+
+    const handleUpdateTopic = async (id: string) => {
+        if (!editContent.trim()) {
+            toast.error('Vui lòng nhập nội dung câu hỏi')
+            return
+        }
+
+        try {
+            await updateDiscussion.mutateAsync({ id, content: editContent.trim() })
+            setEditingTopicId(null)
+            setEditContent('')
+            toast.success('Đã cập nhật câu hỏi thành công')
+        } catch (error: any) {
+            console.error('Failed to update discussion:', error)
+            toast.error('Không thể cập nhật câu hỏi. Vui lòng thử lại.')
+        }
+    }
+
+    const handleDeleteTopic = async (id: string) => {
+        try {
+            await deleteDiscussion.mutateAsync(id)
+            toast.success('Đã xóa câu hỏi thành công')
+        } catch (error: any) {
+            console.error('Failed to delete discussion:', error)
+            toast.error('Không thể xóa câu hỏi. Vui lòng thử lại.')
         }
     }
 
@@ -222,14 +293,14 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                 onClick={() => setExpandedTopicId(expandedTopicId === topic.id ? null : topic.id)}
                             >
                                 <div className="flex items-start justify-between gap-4">
-                                    <div className="flex gap-4 min-w-0">
+                                    <div className="flex-1 flex gap-4 min-w-0">
                                         <Avatar className="size-10 border border-border/60 shrink-0">
                                             <AvatarImage src={topic.author?.avatarUrl || undefined} />
                                             <AvatarFallback className="bg-muted text-muted-foreground">
                                                 <User className="size-5" />
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div className="space-y-1.5 min-w-0">
+                                        <div className="flex-1 space-y-1.5 min-w-0">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <span className={cn("text-sm font-bold truncate", (topic.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE) ? "text-primary" : "text-foreground/90")}>
                                                     {topic.author?.displayName || 'Unknown Student'}
@@ -245,18 +316,99 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                                     {formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })}
                                                 </span>
                                             </div>
-                                            <CardTitle className="text-base font-medium text-foreground group-hover:text-primary transition-colors leading-relaxed whitespace-pre-wrap">
-                                                {topic.content}
-                                            </CardTitle>
+                                            {editingTopicId === topic.id ? (
+                                                <div className="w-full space-y-4 mt-3" onClick={(e) => e.stopPropagation()}>
+                                                    <Textarea
+                                                        value={editContent}
+                                                        onChange={(e) => setEditContent(e.target.value)}
+                                                        className="w-full min-h-[140px] bg-background border-primary/20 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm resize-none p-5 text-sm leading-relaxed"
+                                                        placeholder="Chỉnh sửa nội dung thảo luận..."
+                                                        autoFocus
+                                                    />
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="sm" 
+                                                            onClick={() => {
+                                                                setEditingTopicId(null)
+                                                                setEditContent('')
+                                                            }}
+                                                            className="font-bold text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                                                        >
+                                                            Hủy bỏ
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={() => handleUpdateTopic(topic.id)}
+                                                            disabled={updateDiscussion.isPending || !editContent.trim()}
+                                                            className="gap-2 font-bold text-xs uppercase tracking-widest px-6"
+                                                        >
+                                                            {updateDiscussion.isPending ? <Spinner className="size-3" /> : <Send className="size-3" />}
+                                                            Lưu thay đổi
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <CardTitle className="text-base font-medium text-foreground group-hover:text-primary transition-colors leading-relaxed whitespace-pre-wrap">
+                                                    {topic.content}
+                                                </CardTitle>
+                                            )}
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col items-end gap-2 shrink-0">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex items-center gap-1.5 text-muted-foreground font-bold">
-                                                <MessageCircle className="size-4" />
-                                                <span className="text-xs">{topic.replyCount || 0}</span>
-                                            </div>
+                                            {/* Three dots menu for owner */}
+                                            {user?.id === topic.author?.id && (
+                                                <div onClick={(e) => e.stopPropagation()}>
+                                                    <AlertDialog>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon" className="size-8 rounded-full hover:bg-muted">
+                                                                    <MoreVertical className="size-4 text-muted-foreground" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-40">
+                                                                <DropdownMenuItem 
+                                                                    onClick={() => {
+                                                                        setEditingTopicId(topic.id)
+                                                                        setEditContent(topic.content)
+                                                                    }}
+                                                                    className="gap-2"
+                                                                >
+                                                                    <Pencil className="size-3.5" />
+                                                                    <span>Chỉnh sửa</span>
+                                                                </DropdownMenuItem>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive focus:bg-destructive/10">
+                                                                        <Trash2 className="size-3.5" />
+                                                                        <span>Xóa câu hỏi</span>
+                                                                    </DropdownMenuItem>
+                                                                </AlertDialogTrigger>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                        
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Xóa câu hỏi này?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    Hành động này không thể hoàn tác. Tất cả các bình luận phản hồi trong câu hỏi này cũng sẽ bị xóa.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
+                                                                <AlertDialogAction 
+                                                                    onClick={() => handleDeleteTopic(topic.id)}
+                                                                    variant="destructive"
+                                                                >
+                                                                    Xác nhận xóa
+                                                                </AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </div>
+                                            )}
+                                            {/* Removed comment icon and count */}
                                             {expandedTopicId === topic.id ? <ChevronUp className="size-5 text-primary" /> : <ChevronDown className="size-5 text-muted-foreground/50 group-hover:text-primary/50 transition-colors" />}
                                         </div>
                                         {topic.status === 'ANSWERED' && (

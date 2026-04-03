@@ -32,7 +32,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { formatDate } from '@/utils/format-utils'
+import { formatDate, formatNumber } from '@/utils/format-utils'
 
 const container = {
     hidden: { opacity: 0 },
@@ -258,10 +258,14 @@ export default function ProfilePage() {
                                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {coupons.map((coupon: any) => (
                                         <div key={coupon.id} className="p-8 border-2 border-dashed border-primary/30 rounded-[2rem] bg-primary/5 flex flex-col items-center text-center space-y-6 hover:border-primary transition-all">
-                                            <div className="size-16 rounded-full bg-white flex items-center justify-center text-xl font-black text-primary shadow-xl">-{coupon.discountValue}%</div>
+                                            <div className="size-16 rounded-full bg-white flex items-center justify-center text-xl font-black text-primary shadow-xl">
+                                                -{coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` : `${formatNumber(coupon.discountValue)}đ`}
+                                            </div>
                                             <div className="space-y-1">
                                                 <p className="text-xl font-black text-foreground tracking-tight">{coupon.code}</p>
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{coupon.type} OFF</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                                                    {coupon.discountType === 'PERCENTAGE' ? 'PHẦN TRĂM' : 'GIẢM TRỰC TIẾP'} OFF
+                                                </p>
                                             </div>
                                             <Button variant="outline" className="w-full rounded-xl border-2 font-black text-xs h-10" onClick={() => navigator.clipboard.writeText(coupon.code)}>SAO CHÉP</Button>
                                         </div>

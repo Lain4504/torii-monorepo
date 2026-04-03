@@ -101,11 +101,10 @@ export class CommentController {
   }
 
   @Patch(':id')
-  @UsePipes(new ZodValidationPipe(commentUpdateDTOSchema))
   async update(
     @Req() req: ReqWithRequester,
     @Param('id') commentId: string,
-    @Body() dto: CommentUpdateDTO,
+    @Body(new ZodValidationPipe(commentUpdateDTOSchema)) dto: CommentUpdateDTO,
   ) {
     try {
       const requesterId = req.requester?.sub;
