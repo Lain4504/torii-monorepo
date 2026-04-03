@@ -86,6 +86,29 @@ export function useCreateComment() {
         mutationFn: (dto: CommentCreateDTO) => commentApi.create(dto),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['comments'] });
+            queryClient.invalidateQueries({ queryKey: ['discussions'] });
+        },
+    });
+}
+
+export function useUpdateComment() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, dto }: { id: string; dto: CommentUpdateDTO }) => commentApi.update(id, dto),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['comments'] });
+            queryClient.invalidateQueries({ queryKey: ['discussions'] });
+        },
+    });
+}
+
+export function useDeleteComment() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id: string) => commentApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['comments'] });
+            queryClient.invalidateQueries({ queryKey: ['discussions'] });
         },
     });
 }

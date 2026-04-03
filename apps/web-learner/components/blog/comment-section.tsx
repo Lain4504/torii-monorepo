@@ -19,6 +19,16 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { cn } from '@workspace/ui/lib/utils'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 
 interface CommentSectionProps {
     blogId?: string
@@ -33,6 +43,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
     const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [replyTo, setReplyTo] = useState<string | null>(null)
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
     const fetchComments = async () => {
         try {
@@ -106,7 +117,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                 ...targetPayload,
                 userId: user.id,
                 content: content.trim(),
-                parentId: parentId || undefined,
+                parentId: parentId || (discussionId || undefined),
             })
 
             setReplyTo(null)
@@ -193,13 +204,12 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
     }
 
     const handleDeleteComment = async (commentId: string) => {
-        if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return
-
         try {
             await commentApi.delete(commentId)
 
             // Remove from local state
             setComments(prev => prev.filter(c => c.id !== commentId))
+            setDeleteConfirmId(null)
 
             // Notify parent to update comment count
             onCommentCountChange?.(-1)
@@ -214,7 +224,12 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
     }
 
     // Filter root comments and replies
-    const rootComments = comments.filter(c => !c.parentId)
+    // If we have a discussionId, the top-level comments for display are the direct replies to the discussion topic.
+    // Otherwise (for blogs/feeds), top-level comments are those without a parentId.
+    const rootComments = discussionId
+        ? comments.filter(c => c.parentId === discussionId)
+        : comments.filter(c => !c.parentId)
+
     const getReplies = (parentId: string) => comments.filter(c => c.parentId === parentId)
 
     return (
@@ -279,6 +294,27 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                     placeholder="Viết bình luận..."
                 />
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => deleteConfirmId && handleDeleteComment(deleteConfirmId)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                        >
+                            Xóa bình luận
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </section>
     )
 }
@@ -475,7 +511,7 @@ function CommentItem({
                                 Chỉnh sửa
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() => onDeleteComment(comment.id)}
+                                onClick={() => setDeleteConfirmId(comment.id)}
                                 className="text-destructive focus:text-destructive"
                             >
                                 <Trash className="w-4 h-4 mr-2" />

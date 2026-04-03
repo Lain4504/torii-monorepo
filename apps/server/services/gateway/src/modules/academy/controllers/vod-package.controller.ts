@@ -38,7 +38,7 @@ import {
 @Controller('api/academy/vod-packages')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class VodPackageController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Public()
   @Get('public')

@@ -47,7 +47,6 @@ export default function LiveClassesPage() {
 
     // Filters
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-    const [showAll, setShowAll] = useState(false);
 
     const isLecturer = user?.role === UserRole.LECTURER;
     const isStaff = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role);
@@ -56,7 +55,6 @@ export default function LiveClassesPage() {
         q: debouncedSearch,
         instructorId: isLecturer ? user?.id : undefined,
         status: statusFilter || undefined,
-        upcomingRegistration: showAll ? undefined : true,
     } as any);
 
     const publishMutation = usePublishClassDirectly();
@@ -163,19 +161,6 @@ export default function LiveClassesPage() {
                                 Xóa bộ lọc
                             </Button>
                         )}
-
-                        <div className="flex items-center gap-2 ml-2 px-3 h-10 bg-muted/30 rounded-lg border border-transparent has-[:checked]:border-sky-500/30 has-[:checked]:bg-sky-500/5 transition-all">
-                            <label htmlFor="show-all" className="text-xs font-medium cursor-pointer select-none">
-                                {showAll ? "Hiển thị tất cả" : "Lớp đang tuyển"}
-                            </label>
-                            <input
-                                type="checkbox"
-                                id="show-all"
-                                checked={showAll}
-                                onChange={(e) => setShowAll(e.target.checked)}
-                                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                            />
-                        </div>
                     </div>
                 </div>
 
