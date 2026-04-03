@@ -2,7 +2,9 @@
 
 import * as React from "react"
 import { useState, useCallback } from "react"
+import { toast } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
+
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Progress } from "@workspace/ui/components/progress"
@@ -85,11 +87,28 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
 
     const handleFlip = useCallback(() => setFlipped((f) => !f), [])
     
+    const [isAudioPlaying, setIsAudioPlaying] = useState(false)
+    
     const playAudio = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         if (card.audioUrl) {
+            setIsAudioPlaying(true)
             const audio = new Audio(card.audioUrl);
-            audio.play().catch(err => console.error("Error playing audio:", err));
+            
+            audio.play()
+                .then(() => {
+                    console.log("Audio playing:", card.audioUrl);
+                })
+                .catch(err => {
+                    console.error("Flashcard Audio playback failed:", err, "URL:", card.audioUrl);
+                    toast.error("Không thể phát âm thanh. Vui lòng kiểm tra lại file hoặc mạng.");
+                })
+                .finally(() => {
+                    setIsAudioPlaying(false)
+                });
+        } else {
+            console.warn("No audio URL found for this card");
+            toast.info("Thẻ này không có âm thanh đính kèm.");
         }
     }, [card.audioUrl])
 
@@ -209,10 +228,14 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-12 w-12 rounded-full text-slate-400 hover:text-primary transition-colors"
+                                    className={cn(
+                                        "h-12 w-12 rounded-full transition-all",
+                                        isAudioPlaying ? "text-primary animate-pulse scale-110" : "text-slate-400 hover:text-primary"
+                                    )}
                                     onClick={playAudio}
+                                    disabled={isAudioPlaying}
                                 >
-                                    <Volume2 className="size-8" />
+                                    <Volume2 className={cn("size-8", isAudioPlaying ? "fill-primary" : "")} />
                                 </Button>
                             </div>
                             
@@ -250,10 +273,14 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-12 w-12 rounded-full text-slate-400 hover:text-primary transition-colors"
+                                    className={cn(
+                                        "h-12 w-12 rounded-full transition-all",
+                                        isAudioPlaying ? "text-primary animate-pulse scale-110" : "text-slate-400 hover:text-primary"
+                                    )}
                                     onClick={playAudio}
+                                    disabled={isAudioPlaying}
                                 >
-                                    <Volume2 className="size-8" />
+                                    <Volume2 className={cn("size-8", isAudioPlaying ? "fill-primary" : "")} />
                                 </Button>
                             </div>
 

@@ -15,12 +15,12 @@ export default function MyFoldersPage() {
 
     // Group folders by class
     const classesWithFolders = allFolders?.reduce((acc, folder) => {
-        const classId = folder.liveClass?.id || 'other'
+        const classId = (folder.liveClass?.id || folder.vodPackage?.id) || 'other'
         if (!acc[classId]) {
             acc[classId] = {
                 id: classId,
-                className: folder.liveClass?.name || 'Thư mục khác',
-                classCode: folder.liveClass?.code || '',
+                className: (folder.liveClass?.name || folder.vodPackage?.title) || 'Tài liệu khác',
+                classCode: (folder.liveClass?.code || folder.vodPackage?.code) || '',
                 folders: []
             }
         }

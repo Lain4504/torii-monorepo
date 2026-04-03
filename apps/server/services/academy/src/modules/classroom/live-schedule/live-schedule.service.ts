@@ -1112,33 +1112,20 @@ export class LiveScheduleService {
       }
 
       if (request.type === 'RESCHEDULE') {
-        const newSession = await tx.liveScheduleSession.create({
+        await tx.liveScheduleSession.update({
+          where: { id: request.sessionId },
           data: {
-            liveClassId: request.liveClassId!,
-            scheduleId: null, // Dissociate from old schedule template rule so it's not deleted by generator
             sessionDate: request.proposedDate!,
             startTime: request.proposedStartTime!,
             endTime: request.proposedEndTime!,
-            status: 'SCHEDULED',
+            status: 'SCHEDULED', // Back to scheduled at new time
+            scheduleId: null, // Dissociate from template rule so generator doesn't override manual move
             instructorId:
               request.proposedTeacherId ??
               request.session.instructorId ??
               undefined,
-            createdBy: reviewerId,
             updatedBy: reviewerId,
-            roomId: request.session.roomId, // Carry over roomId if exists
-            location: request.session.location,
-            note: `Dời từ buổi ngày ${request.session.sessionDate.toISOString().slice(0, 10)}`,
-          },
-        });
-
-        await tx.liveScheduleSession.update({
-          where: { id: request.sessionId },
-          data: {
-            status: 'RESCHEDULED',
-            cancellationReason: `Đã dời sang ngày ${request.proposedDate!.toISOString().slice(0, 10)} (${request.proposedStartTime})`,
-            supersededBySessionId: newSession.id, // Linking history
-            updatedBy: reviewerId,
+            note: `Dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
           },
         });
       }

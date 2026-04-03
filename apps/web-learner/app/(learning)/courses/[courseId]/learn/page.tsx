@@ -25,6 +25,8 @@ import type { AcademyLessonModel } from '@workspace/schemas';
 import { useAppSelector } from '@/hooks/hooks';
 import { RootState } from '@/store/store';
 import { LessonDiscussion } from '@/components/courses/lesson-discussion';
+import { AcademyResourceList } from '@/components/courses/academy-resource-list';
+
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -430,7 +432,8 @@ export default function CourseLearnPage() {
     // expandedModules: null means "not yet initialized" so we expand all after curriculum loads
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'content' | 'discussion'>('content');
+    const [activeTab, setActiveTab] = useState<'content' | 'discussion' | 'resources'>('content');
+
 
     useEffect(() => {
         // Handle explicit forbidden/unauthorized from enrollment check
@@ -573,6 +576,8 @@ export default function CourseLearnPage() {
         setSidebarOpen(false);
         setActiveTab('content');
     };
+
+
 
     const toggleModule = (id: string) => setExpandedModules(prev => {
         const next = new Set(prev);
@@ -745,21 +750,27 @@ export default function CourseLearnPage() {
                             {/* Tabs */}
                             <Tabs
                                 value={activeTab}
-                                onValueChange={(v) => setActiveTab(v as 'content' | 'discussion')}
+                                onValueChange={(v) => setActiveTab(v as 'content' | 'discussion' | 'resources')}
                                 className="w-full"
                             >
+
                                 <div className="border-b border-border mb-8 overflow-x-auto no-scrollbar">
                                     <TabsList variant="line" className="w-full min-h-0 justify-start rounded-none border-0 bg-transparent p-0 h-auto gap-0">
-                                        <TabsTrigger value="content" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary">
+                                        <TabsTrigger value="content" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary rounded-none">
                                             <BookOpen className="h-4 w-4" />
-                                            Nội dung
+                                            Tổng quan
                                         </TabsTrigger>
-                                        <TabsTrigger value="discussion" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary">
+                                        <TabsTrigger value="discussion" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary rounded-none">
                                             <MessageSquare className="h-4 w-4" />
                                             Thảo luận
                                         </TabsTrigger>
+                                        <TabsTrigger value="resources" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary rounded-none">
+                                            <Paperclip className="h-4 w-4" />
+                                            Tài liệu
+                                        </TabsTrigger>
                                     </TabsList>
                                 </div>
+
 
                                 <TabsContent value="content" className="mt-0 space-y-5 outline-none">
                                     <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
@@ -777,6 +788,17 @@ export default function CourseLearnPage() {
                                         moduleId={(currentLesson as any)?.moduleId}
                                     />
                                 </TabsContent>
+
+                                <TabsContent value="resources" className="mt-0 outline-none">
+                                    <div className="space-y-6">
+                                        <div className="flex flex-col gap-1">
+                                            <h3 className="text-xl font-bold text-foreground">Tài liệu học tập</h3>
+                                            <p className="text-sm text-muted-foreground">Tất cả tài liệu được chia sẻ cho khoá học này.</p>
+                                        </div>
+                                        <AcademyResourceList classId={classId as string} />
+                                    </div>
+                                </TabsContent>
+
                             </Tabs>
                         </section>
                     )}
