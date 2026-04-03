@@ -140,8 +140,8 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
               <Table>
                 <TableHeader className="sticky top-0 bg-muted/80 backdrop-blur-sm z-10">
                   <TableRow>
+                    <TableHead className="w-[60px] text-center">#</TableHead>
                     <TableHead>Tên danh mục</TableHead>
-                    <TableHead className="w-[240px] text-center">#</TableHead>
                     <TableHead className="w-[120px]">Mã</TableHead>
                     <TableHead className="text-right w-[100px]">Thao tác</TableHead>
                   </TableRow>
@@ -163,6 +163,11 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
                   ) : (
                     categories.map((cat: any, idx: number) => (
                       <TableRow key={cat.id}>
+                        <TableCell
+                          className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs"
+                        >
+                          {idx + 1}
+                        </TableCell>
                         <TableCell className="font-medium">
                           {editingId === cat.id ? (
                             <Input
@@ -178,11 +183,6 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
                           ) : (
                             cat.name
                           )}
-                        </TableCell>
-                        <TableCell
-                          className="text-muted-foreground text-xs font-mono truncate max-w-[240px]"
-                        >
-                          {idx + 1}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground font-mono">
                           {cat.code}

@@ -1,121 +1,147 @@
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { Button } from "@workspace/ui/components/button";
-import { CircleDollarSign, CreditCard, HandCoins, ReceiptText, Ticket, Wallet } from "lucide-react";
-import { usePlatformOverview } from "@/lib/api/services/analytics";
-import { formatCurrency, formatNumber } from "@/lib/format-utils";
+import { PageLoading } from "@workspace/ui/components/page-loading";
 import { StatsCard } from "./stats-card";
+import { useStaffOperationsDashboard } from "@/lib/api/services/dashboard";
+import { formatCurrency, formatNumber } from "@/lib/format-utils";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
+import { HandCoins, ReceiptText, Wallet } from "lucide-react";
 
-function FinanceAction({
-  to,
-  title,
-  description,
-}: {
-  to: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Button asChild variant="outline" className="h-auto w-full justify-start py-3">
-      <Link to={to} className="flex flex-col items-start gap-1">
-        <span className="text-sm font-semibold">{title}</span>
-        <span className="text-xs text-muted-foreground">{description}</span>
-      </Link>
-    </Button>
-  );
+const COLORS = ["#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#14b8a6"];
+
+function ChartEmpty() {
+  return <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">Chưa có dữ liệu</div>;
 }
 
 export default function StaffFinanceDashboard() {
-  const { data } = usePlatformOverview();
-  const overview = data?.overview;
-  const estimatedTodayRevenue = (overview?.totalRevenue ?? 0) / 30;
+  const { data, isLoading } = useStaffOperationsDashboard();
+
+  if (isLoading) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <PageLoading />
+      </div>
+    );
+  }
+
+  const ordersByStatus = (data?.ordersByStatus ?? []).slice(0, 6);
+  const revenueByLevel = (data?.revenueByLevel ?? []).slice(0, 8).map((r) => ({
+    name: r.level,
+    value: r.amount,
+  }));
+  const recentSales = (data?.recentSales ?? []).slice(0, 4);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatsCard
-          title="Doanh thu ước tính hôm nay"
-          value={formatCurrency(estimatedTodayRevenue)}
-          sub="Ước tính từ dữ liệu doanh thu tổng"
+          title="Doanh thu (tổng)"
+          value={formatCurrency(data?.stats.totalRevenue ?? 0)}
+          sub="Tổng doanh thu đã thanh toán"
           icon={Wallet}
         />
         <StatsCard
           title="Yêu cầu hoàn tiền"
-          value={formatNumber(overview?.pendingRefunds ?? 0)}
+          value={formatNumber(data?.stats.pendingRefunds ?? 0)}
           sub="Các yêu cầu cần đối soát"
           icon={HandCoins}
-          highlight={(overview?.pendingRefunds ?? 0) > 0}
+          highlight={(data?.stats.pendingRefunds ?? 0) > 0}
         />
         <StatsCard
           title="Ticket hỗ trợ mở"
-          value={formatNumber(overview?.pendingTickets ?? 0)}
-          sub="Vấn đề thanh toán/đơn hàng đang chờ xử lý"
+          value={formatNumber(data?.stats.pendingTickets ?? 0)}
+          sub="Ticket đang chờ xử lý"
           icon={ReceiptText}
-          highlight={(overview?.pendingTickets ?? 0) > 0}
+          highlight={(data?.stats.pendingTickets ?? 0) > 0}
         />
         <StatsCard
-          title="Đăng ký khóa học"
-          value={formatNumber(overview?.totalEnrollments ?? 0)}
-          sub="Tổng lượt đăng ký trong hệ thống"
-          icon={CreditCard}
+          title="Đơn PAID"
+          value={formatNumber(data?.stats.paidOrders ?? 0)}
+          sub="Giao dịch thành công"
+          icon={Wallet}
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Trung tâm tài chính</CardTitle>
-            <CardDescription>Các thao tác daily cho staff-finance</CardDescription>
+            <CardTitle>Đơn hàng theo trạng thái</CardTitle>
+            <CardDescription>Phân bổ status của order</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <FinanceAction
-              to="/orders"
-              title="Đơn hàng & doanh thu"
-              description="Theo dõi giao dịch, trạng thái thanh toán và doanh thu."
-            />
-            <FinanceAction
-              to="/coupons"
-              title="Mã giảm giá (Coupons)"
-              description="Kiểm soát chiến dịch giảm giá và hiệu lực mã."
-            />
-            <FinanceAction
-              to="/tickets"
-              title="Hỗ trợ thanh toán"
-              description="Xử lý ticket liên quan đến lỗi nạp tiền, hoàn tiền, giao dịch."
-            />
+          <CardContent>
+            {ordersByStatus.length === 0 ? (
+              <ChartEmpty />
+            ) : (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip />
+                    <Pie data={ordersByStatus} dataKey="value" nameKey="name" outerRadius={95}>
+                      {ordersByStatus.map((_, idx) => (
+                        <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Giám sát vận hành doanh thu</CardTitle>
-            <CardDescription>Điểm kiểm soát nhanh theo vai trò tài chính</CardDescription>
+            <CardTitle>Doanh thu theo Level</CardTitle>
+            <CardDescription>Top cấp độ theo doanh thu</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <CircleDollarSign className="size-4 text-primary" />
-                Tổng doanh thu
+          <CardContent>
+            {revenueByLevel.length === 0 ? (
+              <ChartEmpty />
+            ) : (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={revenueByLevel} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill={COLORS[0]} radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-              <div className="text-sm font-bold">{formatCurrency(overview?.totalRevenue ?? 0)}</div>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Ticket className="size-4 text-primary" />
-                Ticket cần xử lý
-              </div>
-              <div className="text-sm font-bold">{formatNumber(overview?.pendingTickets ?? 0)}</div>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-border/50 px-3 py-2">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <HandCoins className="size-4 text-primary" />
-                Hoàn tiền chờ duyệt
-              </div>
-              <div className="text-sm font-bold">{formatNumber(overview?.pendingRefunds ?? 0)}</div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Giao dịch gần đây</CardTitle>
+          <CardDescription>4 giao dịch PAID mới nhất</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {recentSales.length === 0 ? (
+            <ChartEmpty />
+          ) : (
+            <div className="space-y-3">
+              {recentSales.map((s) => (
+                <div
+                  key={s.id}
+                  className="rounded-lg border border-border/50 bg-muted/10 p-3 flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold truncate">{s.userName || s.userEmail}</div>
+                    <div className="text-xs text-muted-foreground truncate">{s.userEmail}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold tabular-nums">
+                      {formatCurrency(Number(s.amount) || 0)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{s.date}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

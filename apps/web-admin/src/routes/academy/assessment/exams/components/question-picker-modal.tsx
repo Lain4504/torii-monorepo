@@ -161,6 +161,7 @@ export function QuestionPickerModal({
             <Table>
               <TableHeader className="sticky top-0 bg-white dark:bg-slate-900 border-b z-10">
                 <TableRow>
+                  <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[50px]">
                     <Checkbox
                       checked={
@@ -173,7 +174,6 @@ export function QuestionPickerModal({
                     />
                   </TableHead>
                   <TableHead>Nội dung câu hỏi</TableHead>
-                  <TableHead className="w-[240px] text-center">#</TableHead>
                   <TableHead className="w-[150px]">Loại</TableHead>
                   <TableHead className="w-[100px]">Độ khó</TableHead>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
@@ -193,6 +193,9 @@ export function QuestionPickerModal({
                     const isAlreadyInExam = existingIdsSet.has(q.id)
                     return (
                       <TableRow key={q.id} className={isAlreadyInExam ? "opacity-50 bg-slate-50/50" : ""}>
+                        <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                          {idx + 1}
+                        </TableCell>
                         <TableCell>
                           <Checkbox
                             checked={selectedIds.has(q.id)}
@@ -209,11 +212,6 @@ export function QuestionPickerModal({
                               </div>
                             )}
                           </div>
-                        </TableCell>
-                        <TableCell
-                          className="text-muted-foreground text-xs font-mono truncate max-w-[240px]"
-                        >
-                          {idx + 1}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{q.questionType}</Badge>

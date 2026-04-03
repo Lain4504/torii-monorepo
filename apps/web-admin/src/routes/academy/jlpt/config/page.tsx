@@ -31,6 +31,7 @@ import {
 } from "@workspace/ui/components/table";
 
 const LEVELS = ["N1", "N2", "N3", "N4", "N5"] as const;
+const SHOW_JLPT_SCORING_MAPPINGS = false;
 
 export default function JlptConfigPage() {
   const [selectedLevel, setSelectedLevel] = useState<string>("N5");
@@ -345,7 +346,8 @@ export default function JlptConfigPage() {
                 )}
               </CardContent>
             </Card>
-        <Card className="border">
+        {SHOW_JLPT_SCORING_MAPPINGS ? (
+          <Card className="border">
             <CardHeader>
               <CardTitle>Scoring mappings (JLPT)</CardTitle>
               <CardDescription>
@@ -508,6 +510,7 @@ export default function JlptConfigPage() {
               )}
             </CardContent>
           </Card>
+        ) : null}
       </div>
     </div>
   </div>
