@@ -22,7 +22,7 @@ export class CommentService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private hasStaffOverride(permissions?: string[]): boolean {
     if (!permissions?.length) return false;
@@ -49,36 +49,36 @@ export class CommentService {
     const replyCount = replyCountOverride ?? comment?._count?.replies ?? 0;
     const likeCount = comment?._count?.likes ?? 0;
 
-    // --- Official Reply Logic (SPEC VOD Discussion) ---
+    // --- Official Reply Logic (Internal Roles) ---
     const userRole = comment.user?.role;
-    const isInstructor = userRole === 'instructor';
-    const isAdminOrStaff = userRole === 'admin' || userRole === 'staff';
+    const isInstructor = userRole === 'lecturer' || userRole === 'instructor';
+    const isAdminOrStaff =
+      userRole === 'admin' ||
+      userRole === 'staff' ||
+      userRole === 'staff-academic' ||
+      userRole === 'staff-operations';
 
-    // Official if the author has an internal role (Instructor/Staff/Admin)
     const isOfficialReply = isAdminOrStaff || isInstructor;
 
-    // Mapping labels according to SPEC:
-    // Staff/Admin/Instructor -> 'Torii Support'
-    // Fallback -> 'Học viên'
-    let authorRoleLabel: 'Torii Support' | 'Giảng viên' | 'Học viên' = 'Học viên';
-    
+    // Mapping labels:
+    let authorRoleLabel: string | undefined = undefined;
+
     if (isOfficialReply) {
-      // Per SPEC: INSTRUCTOR, STAFF, ADMIN all get 'Torii Support' label
-      authorRoleLabel = 'Torii Support';
+      authorRoleLabel = isInstructor ? 'Giảng viên' : 'Torii Support';
     }
 
     const authorData = comment.user
       ? {
-          id: comment.user.id,
-          displayName:
-            isOfficialReply && isVODContext
-              ? 'Torii Support'
-              : comment.user.displayName,
-          avatarUrl:
-            isOfficialReply && isVODContext
-              ? undefined
-              : (comment.user.avatarUrl ?? undefined),
-        }
+        id: comment.user.id,
+        displayName:
+          isOfficialReply && isVODContext
+            ? 'Torii Support'
+            : comment.user.displayName,
+        avatarUrl:
+          isOfficialReply && isVODContext
+            ? undefined
+            : (comment.user.avatarUrl ?? undefined),
+      }
       : undefined;
 
     return {
@@ -119,10 +119,10 @@ export class CommentService {
         _count: { select: { replies: true, likes: true } },
         ...(currentUserId
           ? {
-              likes: {
-                where: { userId: currentUserId },
-              },
-            }
+            likes: {
+              where: { userId: currentUserId },
+            },
+          }
           : {}),
       },
     });
@@ -212,29 +212,58 @@ export class CommentService {
     requesterPermissions: string[] | undefined,
     targetType: string,
     entityId: string,
+    isWrite: boolean = true,
   ): Promise<void> {
-    if (this.hasStaffOverride(requesterPermissions)) return;
-
+    // 1. Resolve which classes or packages this discussion belongs to.
     const classIds = await this.resolveClassIdsFromDiscussionEntity(
       targetType,
       entityId,
     );
 
-    if (!classIds.length) {
-      throw new ForbiddenException('Bạn không được phép đăng thảo luận này');
+    // 2. Load the user's explicit role to handle role-based restrictions
+    const user = await this.prisma.user.findUnique({
+      where: { id: requesterId },
+      select: { role: true },
+    });
+    const role = user?.role;
+
+    // 3. Admin & Staff Check
+    const isStaffOrAdminByPerm = this.hasStaffOverride(requesterPermissions);
+    const isInternalRole = role === 'admin' || role === 'staff-academic' || role === 'staff-operations';
+
+    if (isWrite) {
+      // Per Requirement: Admin and Staff cannot ask or answer questions in Academy Discussion.
+      if (isInternalRole || role === 'admin') {
+        throw new ForbiddenException(
+          'Admin và Nhân viên học vụ chỉ có quyền xem, không được phép đặt câu hỏi hoặc trả lời trong thảo luận bài học.',
+        );
+      }
+    } else {
+      // For viewing (isWrite = false), always allow internal staff/admin
+      if (isStaffOrAdminByPerm || isInternalRole) return;
     }
 
+    // 4. Lecturer Check: Must be the assigned instructor for the class
     const classes = await this.prisma.liveClass.findMany({
       where: { id: { in: classIds } },
       select: { instructorId: true },
     });
 
-    // Instructor can always post.
-    if (classes.some((c) => c.instructorId && c.instructorId === requesterId)) {
-      return;
+    const isAssignedInstructor = classes.some(
+      (c) => c.instructorId && c.instructorId === requesterId,
+    );
+
+    if (isAssignedInstructor) {
+      return; // Full access for assigned instructor
     }
 
-    // Otherwise require enrollment in ANY candidate class.
+    if (isWrite && (role === 'lecturer' || role === 'instructor')) {
+      // Lecturer but not assigned to this specific class
+      throw new ForbiddenException('Chỉ giảng viên phụ trách khóa học này mới có quyền tham gia thảo luận.');
+    }
+
+    // 5. Learner Check & Enrollment (Fallback)
+    // If not a staff/admin and not the assigned lecturer, must be enrolled.
     for (const classId of classIds) {
       const result = await firstValueFrom(
         this.natsClient.send(
@@ -249,7 +278,7 @@ export class CommentService {
       if (result?.isEnrolled) return;
     }
 
-    throw new ForbiddenException('Bạn không được phép đăng thảo luận này');
+    throw new ForbiddenException('Bạn không có quyền tham gia thảo luận này. Vui lòng đăng ký khóa học.');
   }
 
   async findAllComments(
@@ -275,21 +304,45 @@ export class CommentService {
         requesterPermissions,
         query.targetType,
         query.entityId,
+        false, // isWrite = false (view list)
       );
     }
 
     const where: any = {
-      id: { not: query.entityId },
       status: { not: 'deleted' },
-      targets: {
+    };
+
+    // If we're fetching replies specifically
+    if (query.parentId !== undefined) {
+      where.parentCommentId = query.parentId || null;
+    } else {
+      // Top-level comments must match the specific board/target
+      where.targets = {
         some: {
           targetId: query.entityId,
           targetType: query.targetType,
         },
-      },
-    };
+      };
 
-    if (query.classId) {
+      // Optional: Narrow down by classId if provided (for Live Classes)
+      if (query.classId && query.targetType !== 'DISCUSSION') {
+        where.AND = [
+          {
+            targets: {
+              some: { targetId: query.entityId, targetType: query.targetType },
+            },
+          },
+          {
+            targets: {
+              some: { targetId: query.classId, targetType: 'CLASS' },
+            },
+          },
+        ];
+        delete where.targets;
+      }
+    }
+
+    if (query.classId && query.targetType !== 'DISCUSSION') {
       delete where.targets;
       where.AND = [
         {
@@ -305,10 +358,6 @@ export class CommentService {
       ];
     }
 
-    if (query.parentId !== undefined) {
-      where.parentCommentId = query.parentId || null;
-    }
-
     const [rootComments, total] = await Promise.all([
       this.prisma.comment.findMany({
         where,
@@ -320,8 +369,8 @@ export class CommentService {
           _count: { select: { replies: true, likes: true } },
           ...(currentUserId
             ? {
-                likes: { where: { userId: currentUserId } },
-              }
+              likes: { where: { userId: currentUserId } },
+            }
             : {}),
         },
       }),
@@ -385,6 +434,7 @@ export class CommentService {
         requesterPermissions,
         'DISCUSSION',
         commentId,
+        false, // read mode for replies list
       );
     }
 
@@ -442,6 +492,7 @@ export class CommentService {
       requesterPermissions,
       targetType,
       entityId,
+      true, // isWrite = true (creating)
     );
 
     if (parentId) {

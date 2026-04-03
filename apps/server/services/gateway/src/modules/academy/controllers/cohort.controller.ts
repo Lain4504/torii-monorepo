@@ -38,7 +38,7 @@ import {
 @Controller('api/academy/cohorts')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CohortController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Public()
   @Get('public')
