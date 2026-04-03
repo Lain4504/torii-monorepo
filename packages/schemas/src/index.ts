@@ -24,6 +24,7 @@ export * from './dtos/notification.dto';
 export * from './dtos/blog.dto';
 export * from './dtos/comment.dto';
 export * from './dtos/staff-dashboard.dto';
+export * from './dtos/dashboard.dto';
 export * from './dtos/academy-course-profile.dto';
 export * from './dtos/academy-vod-package.dto';
 export * from './dtos/academy-cohort.dto';

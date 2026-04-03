@@ -1,110 +1,100 @@
-import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { Button } from "@workspace/ui/components/button";
-import { BookOpen, ClipboardCheck, School, Users } from "lucide-react";
-import { usePlatformOverview } from "@/lib/api/services/analytics";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
+import { ClipboardCheck, School, BookOpen } from "lucide-react";
+import { useStaffAcademicDashboard } from "@/lib/api/services/dashboard";
 import { formatNumber } from "@/lib/format-utils";
 import { StatsCard } from "./stats-card";
+import { PageLoading } from "@workspace/ui/components/page-loading";
 
-function QuickAction({
-  to,
-  title,
-  description,
-}: {
-  to: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Button asChild variant="outline" className="h-auto w-full justify-start py-3">
-      <Link to={to} className="flex flex-col items-start gap-1">
-        <span className="text-sm font-semibold">{title}</span>
-        <span className="text-xs text-muted-foreground">{description}</span>
-      </Link>
-    </Button>
-  );
+const COLORS = ["#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#14b8a6"];
+
+function ChartEmpty() {
+  return <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">Chưa có dữ liệu</div>;
 }
 
 export default function StaffAcademicDashboard() {
-  const { data } = usePlatformOverview();
-  const overview = data?.overview;
+  const { data, isLoading } = useStaffAcademicDashboard();
+
+  if (isLoading) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <PageLoading />
+      </div>
+    );
+  }
+
+  const pendingApprovalsByType = data?.pendingApprovalsByType ?? [];
+  const pipelineByStatus = (data?.pipelineByStatus ?? []).slice(0, 8);
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatsCard
           title="Chờ phê duyệt"
-          value={formatNumber(overview?.pendingApprovals ?? 0)}
-          sub="Nội dung/chương trình đang chờ duyệt"
+          value={formatNumber(data?.stats.pendingApprovals ?? 0)}
+          sub="Tổng số items đang chờ duyệt (Profiles/Cohorts/VOD)"
           icon={ClipboardCheck}
-          highlight={(overview?.pendingApprovals ?? 0) > 0}
+          highlight={(data?.stats.pendingApprovals ?? 0) > 0}
         />
         <StatsCard
           title="Lớp LIVE đang hoạt động"
-          value={formatNumber(overview?.activeRooms ?? 0)}
-          sub="Buổi học trực tiếp đang diễn ra"
+          value={formatNumber(data?.stats.activeRooms ?? 0)}
+          sub="Buổi học trực tiếp diễn ra trong hôm nay"
           icon={School}
         />
         <StatsCard
           title="Tổng khóa học"
-          value={formatNumber(overview?.totalCourses ?? 0)}
+          value={formatNumber(data?.stats.totalCourses ?? 0)}
           sub="Kho nội dung đang quản trị"
           icon={BookOpen}
         />
-        <StatsCard
-          title="Học viên đang hoạt động"
-          value={formatNumber(overview?.activeToday ?? 0)}
-          sub="Số học viên học trong ngày"
-          icon={Users}
-        />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Ưu tiên học thuật</CardTitle>
-            <CardDescription>Nhóm thao tác quan trọng cho staff-academic</CardDescription>
+            <CardTitle>Phê duyệt chờ duyệt</CardTitle>
+            <CardDescription>Phân bổ theo loại nội dung</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <QuickAction
-              to="/academy/approvals"
-              title="Approval Center"
-              description="Duyệt profiles, live classes, cohorts theo luồng mới."
-            />
-            <QuickAction
-              to="/academy/course-profiles"
-              title="Kho khóa học (Profiles)"
-              description="Cập nhật mô tả, module, lesson cho từng profile."
-            />
-            <QuickAction
-              to="/academy/live-classes"
-              title="Lớp học"
-              description="Theo dõi trạng thái OPENING/ONGOING, lịch lớp và giảng viên."
-            />
+          <CardContent>
+            {pendingApprovalsByType.length === 0 ? (
+              <ChartEmpty />
+            ) : (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip />
+                    <Pie data={pendingApprovalsByType} dataKey="value" nameKey="name" outerRadius={95}>
+                      {pendingApprovalsByType.map((_, idx) => (
+                        <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Vận hành nội dung</CardTitle>
-            <CardDescription>Công cụ hỗ trợ nội dung và chuẩn hóa đề thi</CardDescription>
+            <CardTitle>Pipeline theo status</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <QuickAction
-              to="/academy/jlpt/templates"
-              title="JLPT Templates"
-              description="Quản lý đề thi, ngân hàng câu hỏi, mondai."
-            />
-            <QuickAction
-              to="/academy/jlpt/config"
-              title="JLPT Config"
-              description="Cấu hình kỳ thi, lịch thi và tham số hệ thống."
-            />
-            <QuickAction
-              to="/academy/live-classes"
-              title="Theo dõi lớp theo lịch"
-              description="Kiểm soát chất lượng triển khai lớp LIVE/VOD."
-            />
+          <CardContent>
+            {pipelineByStatus.length === 0 ? (
+              <ChartEmpty />
+            ) : (
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={pipelineByStatus} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill={COLORS[0]} radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

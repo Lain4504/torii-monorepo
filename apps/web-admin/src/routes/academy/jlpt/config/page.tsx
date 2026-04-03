@@ -29,12 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table";
-import { useStep } from "@workspace/ui/hooks/use-step";
 
 const LEVELS = ["N1", "N2", "N3", "N4", "N5"] as const;
+const SHOW_JLPT_SCORING_MAPPINGS = false;
 
 export default function JlptConfigPage() {
-  const [currentStep, { goToNextStep, goToPrevStep, reset }] = useStep(2);
   const [selectedLevel, setSelectedLevel] = useState<string>("N5");
   const [levels, setLevels] = useState<JlptLevel[]>([]);
   const [sections, setSections] = useState<JlptSection[]>([]);
@@ -95,11 +94,6 @@ export default function JlptConfigPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedLevel]);
-
-  useEffect(() => {
-    // Đổi level thì quay về bước 1 để người dùng xem lại danh sách/sections.
-    reset();
   }, [selectedLevel]);
 
   useEffect(() => {
@@ -195,19 +189,6 @@ export default function JlptConfigPage() {
     }
   };
 
-  const canGoStep2 = !loading && sections.length > 0;
-
-  const handleNext = () => {
-    if (currentStep === 1) {
-      if (!canGoStep2) {
-        toast.error("Không có sections cho level này.");
-        return;
-      }
-      goToNextStep();
-      return;
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
@@ -215,37 +196,9 @@ export default function JlptConfigPage() {
         subtitle="Xem cấu hình JLPT + scoring profile (seed) - read-only"
       />
 
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-3 text-sm">
-          {[
-            { step: 1, label: "A. Level + Sections" },
-            { step: 2, label: "B. Scoring profile" },
-          ].map(({ step, label }) => {
-            const isActive = currentStep === step;
-            const isDone = currentStep > step;
-            return (
-              <div key={step} className="flex items-center gap-2">
-                <div
-                  className={
-                    isActive
-                      ? "font-semibold rounded-full px-2 py-1 bg-primary/10 text-primary"
-                      : isDone
-                        ? "font-semibold rounded-full px-2 py-1 bg-muted/50"
-                        : "rounded-full px-2 py-1 bg-muted/30 text-muted-foreground"
-                  }
-                >
-                  {step}
-                </div>
-                <div className={isActive ? "font-medium" : "text-muted-foreground"}>{label}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {currentStep === 1 ? (
-          <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-2">
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border">
                 <CardHeader>
                   <CardTitle>JlptLevel (danh sách cấu hình)</CardTitle>
                   <CardDescription>
@@ -293,7 +246,7 @@ export default function JlptConfigPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-2">
+              <Card className="border">
                 <CardHeader>
                   <CardTitle>Sections theo Level</CardTitle>
                   <CardDescription>Hiển thị sections theo chuẩn N5/N4/... (duration/order/isListening) từ seed/config.</CardDescription>
@@ -331,9 +284,9 @@ export default function JlptConfigPage() {
                   )}
                 </CardContent>
               </Card>
-            </div>
+        </div>
 
-            <div className="flex flex-wrap items-end gap-4">
+        <div className="flex flex-wrap items-end gap-4">
               <Field className="min-w-[220px]">
                 <FieldLabel>Cấp độ (Level)</FieldLabel>
                 <Select value={selectedLevel} onValueChange={setSelectedLevel}>
@@ -349,13 +302,10 @@ export default function JlptConfigPage() {
                   </SelectContent>
                 </Select>
               </Field>
-            </div>
-          </>
-        ) : null}
+        </div>
 
-        {currentStep === 2 ? (
-          <div className="grid grid-cols-1 gap-6">
-            <Card className="border-2">
+        <div className="grid grid-cols-1 gap-6">
+            <Card className="border">
               <CardHeader>
                 <CardTitle>Active scoring profile</CardTitle>
                 <CardDescription>
@@ -396,11 +346,8 @@ export default function JlptConfigPage() {
                 )}
               </CardContent>
             </Card>
-          </div>
-        ) : null}
-
-        {currentStep === 3 ? (
-          <Card className="border-2">
+        {SHOW_JLPT_SCORING_MAPPINGS ? (
+          <Card className="border">
             <CardHeader>
               <CardTitle>Scoring mappings (JLPT)</CardTitle>
               <CardDescription>
@@ -564,25 +511,9 @@ export default function JlptConfigPage() {
             </CardContent>
           </Card>
         ) : null}
-
-        <div className="flex items-center justify-between pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={goToPrevStep}
-            disabled={currentStep === 1}
-          >
-            Quay lại
-          </Button>
-          <div className="flex-1" />
-          {currentStep === 1 ? (
-            <Button type="button" onClick={handleNext} disabled={!canGoStep2}>
-              Tiếp theo
-            </Button>
-          ) : null}
-        </div>
       </div>
     </div>
+  </div>
   );
 }
 

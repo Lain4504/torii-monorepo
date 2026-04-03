@@ -200,9 +200,9 @@ export class LiveScheduleService {
       { cmd: 'room.isActive' },
       { roomId },
       2,
-    ).catch(() => ({ isActive: false }));
+    ).catch(() => null);
     const isRoomActive = Boolean(
-      roomExists?.isActive ?? roomExists?.status ?? false,
+      roomExists?.res?.isActive ?? roomExists?.res?.status ?? false,
     );
 
     if (!isRoomActive) {
@@ -337,9 +337,9 @@ export class LiveScheduleService {
       { cmd: 'room.isActive' },
       { roomId },
       2,
-    ).catch(() => ({ isActive: false }));
+    ).catch(() => null);
     const isRoomActive = Boolean(
-      roomExists?.isActive ?? roomExists?.status ?? false,
+      roomExists?.res?.isActive ?? roomExists?.res?.status ?? false,
     );
 
     if (!isRoomActive) {

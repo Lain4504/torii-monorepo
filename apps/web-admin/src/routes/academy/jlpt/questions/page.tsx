@@ -221,6 +221,9 @@ export default function JlptQuestionsPage() {
     }));
   }, [questions]);
 
+  const sttBase = (page - 1) * PAGE_SIZE;
+  let sttCounter = 0;
+
   return (
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
@@ -259,6 +262,7 @@ export default function JlptQuestionsPage() {
             <Table className="min-w-[1040px] w-full">
               <TableHeader className="bg-muted/50">
                 <TableRow>
+                  <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[72px]">Cấp độ</TableHead>
                   <TableHead>Nội dung (stem)</TableHead>
                   <TableHead className="w-[128px]">Dạng bài</TableHead>
@@ -273,7 +277,7 @@ export default function JlptQuestionsPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, index) => (
                     <TableRow key={index}>
-                      {Array.from({ length: 8 }).map((_, colIndex) => (
+                      {Array.from({ length: 9 }).map((_, colIndex) => (
                         <TableCell key={colIndex}>
                           <Skeleton className="h-4 w-full" />
                         </TableCell>
@@ -282,7 +286,7 @@ export default function JlptQuestionsPage() {
                   ))
                 ) : questions.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={8} className="h-[400px] text-center">
+                    <TableCell colSpan={9} className="h-[400px] text-center">
                       <Empty>
                         <EmptyMedia>
                           <Search className="size-8 text-muted-foreground" />
@@ -300,7 +304,7 @@ export default function JlptQuestionsPage() {
                   questionsBySection.map(({ sectionCode, label, items }) => (
                     <Fragment key={sectionCode}>
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableCell colSpan={8} className="py-2.5 text-sm font-semibold">
+                        <TableCell colSpan={9} className="py-2.5 text-sm font-semibold">
                           <span>{label}</span>
                           <span className="ml-2 font-normal text-muted-foreground">
                             ({items.length} câu) · <span className="font-mono text-xs">{sectionCode}</span>
@@ -309,6 +313,9 @@ export default function JlptQuestionsPage() {
                       </TableRow>
                       {items.map((q) => (
                         <TableRow key={q.id} className="group transition-colors">
+                          <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                            {sttBase + (sttCounter += 1)}
+                          </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="font-bold">
                               {q.levelCode}

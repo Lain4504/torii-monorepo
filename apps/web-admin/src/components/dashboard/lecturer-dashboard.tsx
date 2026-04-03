@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react"
+import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -51,9 +51,15 @@ import {
 
 const MEET_URL = import.meta.env.VITE_MEET_URL || "https://meet.torii.sbs"
 
-type SessionWithClass = AcademyLiveScheduleSessionModel & { className?: string; classCode?: string }
+type SessionWithClass = AcademyLiveScheduleSessionModel & {
+    className?: string
+    classCode?: string
+    liveClassId?: string
+}
 
-const DAY_LABELS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
+function getSessionClassId(session: SessionWithClass): string | undefined {
+    return session.liveClassId || (session.classId as string | undefined)
+}
 
 function sessionToDate(s: SessionWithClass): Date {
     const raw = s.sessionDate
@@ -117,7 +123,7 @@ function LecturerTimetableSessionCard({
                         asChild
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <Link to={`/academy/live-classes/${session.classId}/schedule`}>Lớp</Link>
+                        <Link to={`/academy/live-classes/${getSessionClassId(session)}/schedule`}>Lớp</Link>
                     </Button>
                 </div>
                 <div>
@@ -145,8 +151,9 @@ export default function LecturerDashboard() {
     })
 
     const liveClassIds = useMemo(() => {
+        // Chỉ lấy những lớp đang tuyển sinh hoặc đang diễn ra
         return classes
-            .filter((c) => ["ONGOING", "PUBLISHED"].includes(c.status))
+            .filter((c) => ["OPENING", "IN_PROGRESS"].includes(c.status))
             .map((c) => c.id)
     }, [classes])
 
@@ -172,6 +179,7 @@ export default function LecturerDashboard() {
                 q.data.forEach((s: AcademyLiveScheduleSessionModel) => {
                     results.push({
                         ...s,
+                        liveClassId: (s as any).liveClassId,
                         className: cls?.name,
                         classCode: cls?.code,
                     })
@@ -207,7 +215,6 @@ export default function LecturerDashboard() {
 
     const [weekOffset, setWeekOffset] = useState(0)
     const [joinTarget, setJoinTarget] = useState<SessionWithClass | null>(null)
-    const rowRefs = useRef<(HTMLDivElement | null)[]>([])
 
     const weekStart = useMemo(
         () => startOfWeek(addWeeks(new Date(), weekOffset), { weekStartsOn: 1 }),
@@ -226,13 +233,9 @@ export default function LecturerDashboard() {
         })
     }, [timetableSessions, days])
 
-    const scrollToDay = (index: number) => {
-        rowRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "nearest" })
-    }
-
     const sessionsLoading = sessionQueries.some((q) => q.isLoading)
     const joinMutation = useJoinAcademyLiveSessionAsLecturer()
-    const ongoingCount = classes.filter((c) => c.status === "ONGOING").length
+    const ongoingCount = classes.filter((c) => c.status === "IN_PROGRESS").length
     const nextSession = upcomingSessions[0]
 
     const handleJoinSession = async (sessionId: string) => {
@@ -321,7 +324,7 @@ export default function LecturerDashboard() {
                                     Vào phòng học
                                 </Button>
                                 <Button variant="outline" asChild>
-                                    <Link to={`/academy/live-classes/${nextSession.classId}/schedule`}>
+                                    <Link to={`/academy/live-classes/${getSessionClassId(nextSession)}/schedule`}>
                                         Lịch & Điểm danh
                                         <ChevronRight className="size-4 ml-1" />
                                     </Link>
@@ -452,95 +455,54 @@ export default function LecturerDashboard() {
                                 <div className="space-y-3">
                                     <p className="text-[11px] font-semibold text-muted-foreground">
                                         <Clock className="mr-1 inline size-3 align-text-bottom" />
-                                        Chọn ngày để cuộn tới · chấm xanh = có buổi dạy
+                                        Lịch dạy trong tuần hiện tại
                                     </p>
-                                    <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-thin">
-                                        {days.map((day, i) => {
-                                            const has = sessionsForDayLecturer(weekSessions, day).length > 0
-                                            const todayDay = isToday(day)
-                                            return (
-                                                <button
-                                                    key={i}
-                                                    type="button"
-                                                    onClick={() => scrollToDay(i)}
-                                                    className={cn(
-                                                        "flex min-w-[48px] flex-col items-center rounded-xl border px-2 py-1.5 transition-colors",
-                                                        todayDay
-                                                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                                                            : "border-border/60 bg-card font-medium shadow-sm hover:bg-muted/50"
-                                                    )}
-                                                >
-                                                    <span
-                                                        className={cn(
-                                                            "text-[9px] font-bold",
-                                                            todayDay ? "text-primary-foreground/90" : "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {DAY_LABELS[i]}
-                                                    </span>
-                                                    <span className="text-sm font-black tabular-nums">{format(day, "dd")}</span>
-                                                    {has && (
-                                                        <span
-                                                            className={cn(
-                                                                "mt-0.5 h-1.5 w-1.5 rounded-full",
-                                                                todayDay ? "bg-primary-foreground" : "bg-blue-500"
-                                                            )}
-                                                        />
-                                                    )}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-
-                                    <div className="divide-y divide-border/50 overflow-hidden rounded-xl border border-border/60 bg-muted/20 dark:bg-muted/10">
-                                        {days.map((day, i) => {
+                                    <div className="space-y-3">
+                                        {days.map((day) => {
                                             const daySessions = sessionsForDayLecturer(weekSessions, day)
+                                            if (daySessions.length === 0) return null
                                             const todayDay = isToday(day)
                                             return (
                                                 <div
-                                                    key={i}
-                                                    ref={(el) => {
-                                                        rowRefs.current[i] = el
-                                                    }}
+                                                    key={format(day, "yyyy-MM-dd")}
                                                     className={cn(
-                                                        "flex gap-3 p-3 sm:gap-4 sm:p-4",
-                                                        todayDay && "bg-primary/[0.04]"
+                                                        "rounded-xl border border-border/60 bg-card p-3 shadow-sm sm:p-4",
+                                                        todayDay && "border-primary/40 bg-primary/[0.03]"
                                                     )}
                                                 >
-                                                    <div className="w-14 shrink-0 pt-0.5 text-center sm:w-16">
-                                                        <div className="text-xs font-black tabular-nums text-foreground">
-                                                            {format(day, "dd/MM")}
+                                                    <div className="mb-3 flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-sm font-black tabular-nums text-foreground">
+                                                                {format(day, "EEEE, dd/MM", { locale: vi })}
+                                                            </p>
+                                                            <p className="text-[11px] text-muted-foreground">
+                                                                {daySessions.length} buổi dạy
+                                                            </p>
                                                         </div>
-                                                        <div className="text-[10px] font-bold text-muted-foreground">{DAY_LABELS[i]}</div>
-                                                    </div>
-                                                    <div className="min-w-0 flex-1 space-y-2">
-                                                        {daySessions.length === 0 ? (
-                                                            <div className="flex min-h-[52px] items-center rounded-lg border border-dashed border-border/50 bg-card px-3 text-[11px] text-muted-foreground/60">
-                                                                Không có buổi dạy
-                                                            </div>
-                                                        ) : (
-                                                            daySessions.map((s) => (
-                                                                <LecturerTimetableSessionCard
-                                                                    key={s.id}
-                                                                    session={s}
-                                                                    onRequestJoin={setJoinTarget}
-                                                                    joining={joinMutation.isPending}
-                                                                />
-                                                            ))
+                                                        {todayDay && (
+                                                            <Badge variant="secondary" className="text-[10px] font-bold">
+                                                                Hôm nay
+                                                            </Badge>
                                                         )}
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        {daySessions.map((s) => (
+                                                            <LecturerTimetableSessionCard
+                                                                key={s.id}
+                                                                session={s}
+                                                                onRequestJoin={setJoinTarget}
+                                                                joining={joinMutation.isPending}
+                                                            />
+                                                        ))}
                                                     </div>
                                                 </div>
                                             )
                                         })}
-                                    </div>
-
-                                    <div className="flex flex-wrap items-center justify-center gap-4 rounded-xl border border-border/40 bg-muted/30 py-2.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-                                        <span className="flex items-center gap-1.5">
-                                            <span className="size-2 rounded-full bg-blue-500" /> Có lịch
-                                        </span>
-                                        <span className="flex items-center gap-1.5">
-                                            <span className="size-2 rounded-full bg-muted-foreground/30" /> Trống
-                                        </span>
+                                        {weekSessions.length === 0 && (
+                                            <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center text-sm text-muted-foreground">
+                                                Tuần này chưa có buổi dạy nào.
+                                            </div>
+                                        )}
                                     </div>
 
                                     <Button variant="outline" size="sm" className="w-full" asChild>

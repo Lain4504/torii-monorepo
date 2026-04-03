@@ -8,16 +8,7 @@ import {
     useMySchedule,
 } from '@/lib/api/services/academy-live-session-api'
 import { LiveSessionResponseDTO } from '@workspace/schemas'
-import {
-    format,
-    startOfWeek,
-    addDays,
-    isSameDay,
-    isToday,
-    addWeeks,
-    isFuture,
-    addMinutes,
-} from 'date-fns'
+import { format, startOfWeek, addDays, isSameDay, isToday, addWeeks, isFuture, addMinutes } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import {
     Select,
@@ -61,48 +52,6 @@ function attendanceBadgeLabel(status: LiveSessionResponseDTO['attendanceStatus']
     if (status === 'LATE') return 'Đã điểm danh: muộn'
     if (status === 'EXCUSED') return 'Đã điểm danh: có phép'
     return 'Chưa có điểm danh'
-}
-
-const TIME_SLOTS = [
-    { no: 1, start: '07:00', end: '09:15' },
-    { no: 2, start: '09:30', end: '11:45' },
-    { no: 3, start: '12:30', end: '14:45' },
-    { no: 4, start: '15:00', end: '17:15' },
-    { no: 5, start: '17:30', end: '19:45' },
-    { no: 6, start: '20:00', end: '22:15' },
-]
-
-function getSlotIndex(scheduledAt: Date | string): number {
-    const date = new Date(scheduledAt)
-    const h = date.getHours()
-    const m = date.getMinutes()
-    const totalMinutes = h * 60 + m
-
-    for (let i = 0; i < TIME_SLOTS.length; i++) {
-        const slot = TIME_SLOTS[i]
-        if (!slot) continue
-        const slotParts = slot.start.split(':').map(Number)
-        const slotStartMinutes = (slotParts[0] ?? 0) * 60 + (slotParts[1] ?? 0)
-        // If the session starts within 45 minutes of the slot start
-        if (Math.abs(totalMinutes - slotStartMinutes) <= 45) {
-            return i
-        }
-    }
-
-    // Fallback: finding the slot it fits into based on time range
-    for (let i = 0; i < TIME_SLOTS.length; i++) {
-        const slot = TIME_SLOTS[i]
-        if (!slot) continue
-        const startParts = slot.start.split(':').map(Number)
-        const endParts = slot.end.split(':').map(Number)
-        const startMin = (startParts[0] ?? 0) * 60 + (startParts[1] ?? 0)
-        const endMin = (endParts[0] ?? 0) * 60 + (endParts[1] ?? 0)
-        if (totalMinutes >= startMin && totalMinutes < endMin) {
-            return i
-        }
-    }
-
-    return -1
 }
 
 function sessionsForDay(sessions: ScheduleSession[], day: Date) {
@@ -221,7 +170,6 @@ export default function SchedulePage() {
     const [joiningId, setJoiningId] = React.useState<string | null>(null)
     const [joinConfirmSession, setJoinConfirmSession] = React.useState<ScheduleSession | null>(null)
     const [now, setNow] = React.useState(() => new Date())
-    const rowRefs = React.useRef<(HTMLDivElement | null)[]>([])
 
     React.useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 30 * 1000)
@@ -257,8 +205,6 @@ export default function SchedulePage() {
         }
     }
 
-    const DAY_ABBR = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] as const
-
     // Build YEAR/WEEK options similar to the screenshot (weekStartsOn=Mon).
     const weekOptions = React.useMemo(() => {
         const offsets = Array.from({ length: 53 }, (_, i) => i - 26) // ~ +/- 26 weeks
@@ -281,47 +227,6 @@ export default function SchedulePage() {
 
     const selectedYear = weekStart.getFullYear()
     const visibleWeekOptions = weekOptions.filter((o) => o.year === selectedYear)
-
-    const slotsCount = TIME_SLOTS.length
-    const sessionsByDaySlot = days.map((day) => {
-        const daySessions = sessionsForDay(weekSessions as any, day)
-        const slots: (ScheduleSession | undefined)[] = Array(TIME_SLOTS.length).fill(undefined)
-
-        daySessions.forEach((session) => {
-            const slotIdx = getSlotIndex(session.scheduledAt)
-            if (slotIdx !== -1) {
-                slots[slotIdx] = session
-            }
-        })
-        return slots
-    })
-
-    function getSessionEndAt(s: ScheduleSession) {
-        const start = new Date(s.scheduledAt)
-        return addMinutes(start, s.duration ?? 90)
-    }
-
-    function uiStateLabel(s: ScheduleSession) {
-        const state = getLiveSessionUiState(s, now)
-        if (state === 'scheduled') return 'Not yet'
-        if (state === 'live') return 'Live'
-        if (state === 'ended') return 'Ended'
-        return 'Joinable'
-    }
-
-    function cellAttendanceText(status: LiveSessionResponseDTO['attendanceStatus']) {
-        if (!status) return '(?)'
-        const upper = String(status).toUpperCase()
-        if (upper === 'PRESENT') return '(attended)'
-        if (upper === 'ABSENT') return '(absent)'
-        if (upper === 'LATE') return '(late)'
-        if (upper === 'EXCUSED') return '(excused)'
-        return '(?)'
-    }
-
-    function viewMaterialsHref(s: ScheduleSession) {
-        return `/dashboard/my-courses/${s.classId}`
-    }
 
     return (
         <div className="animate-in fade-in space-y-4 duration-500">
@@ -450,128 +355,57 @@ export default function SchedulePage() {
                 <div className="space-y-3 rounded-2xl border border-border/50 bg-white p-4 shadow-sm dark:bg-zinc-950 sm:p-5">
                     <p className="text-[11px] font-semibold text-muted-foreground flex items-center gap-2">
                         <Clock className="size-3.5" />
-                        Bảng lịch dạng Slot (theo thứ tự buổi trong ngày).
+                        Lịch học theo ngày trong tuần.
                     </p>
+                    <div className="space-y-3">
+                        {days.map((day) => {
+                            const daySessions = sessionsForDay(weekSessions as any, day).sort(
+                                (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+                            )
+                            if (daySessions.length === 0) return null
 
-                    <div className="overflow-x-auto">
-                        <table className="min-w-[980px] w-full border-collapse">
-                            <thead>
-                                <tr>
-                                    <th className="w-[140px] border border-border/60 bg-[#3b82f6]/10 p-2 text-left text-[10px] font-black uppercase tracking-wider"></th>
-                                    {days.map((d, dayIdx) => (
-                                        <th
-                                            key={dayIdx}
-                                            className={cn(
-                                                'border border-border/60 bg-[#3b82f6]/10 p-2 text-left',
-                                                isToday(d) && 'bg-[#2563eb]/15'
-                                            )}
-                                        >
-                                            <div className="text-[10px] font-black uppercase tracking-wider text-foreground">
-                                                {DAY_ABBR[dayIdx]}
-                                            </div>
-                                            <div className="text-[11px] font-black tabular-nums text-muted-foreground">
-                                                {format(d, 'dd/MM')}
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
+                            return (
+                                <div
+                                    key={format(day, 'yyyy-MM-dd')}
+                                    className={cn(
+                                        'rounded-xl border border-border/60 bg-card p-3 shadow-sm sm:p-4',
+                                        isToday(day) && 'border-primary/40 bg-primary/[0.03]'
+                                    )}
+                                >
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-black tabular-nums text-foreground">
+                                                {format(day, 'EEEE, dd/MM', { locale: vi })}
+                                            </p>
+                                            <p className="text-[11px] text-muted-foreground">{daySessions.length} buổi học</p>
+                                        </div>
+                                        {isToday(day) && (
+                                            <Badge variant="secondary" className="text-[10px] font-bold">
+                                                Hôm nay
+                                            </Badge>
+                                        )}
+                                    </div>
 
-                            <tbody>
-                                {TIME_SLOTS.map((slot, slotIdx) => {
-                                    const slotNo = slot.no
-                                    return (
-                                        <tr key={slotNo}>
-                                            <th className="border border-border/60 bg-transparent p-2 align-top text-left">
-                                                <div className="text-[11px] font-bold text-muted-foreground">Slot {slotNo}</div>
-                                                <div className="text-[9px] font-medium text-muted-foreground/60 leading-none mt-1">
-                                                    {slot.start} - {slot.end}
-                                                </div>
-                                            </th>
-                                            {days.map((d, dayIdx) => {
-                                                const daySessionsSlot = sessionsByDaySlot[dayIdx] ?? []
-                                                const session = daySessionsSlot[slotIdx] as ScheduleSession | undefined
+                                    <div className="space-y-2">
+                                        {daySessions.map((session) => (
+                                            <CompactSessionCard
+                                                key={session.id}
+                                                session={session}
+                                                now={now}
+                                                joiningId={joiningId}
+                                                onRequestJoin={setJoinConfirmSession}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )
+                        })}
 
-                                                if (!session) {
-                                                    return (
-                                                        <td
-                                                            key={dayIdx}
-                                                            className={cn(
-                                                                'border border-border/60 p-2 align-top',
-                                                                isToday(d) && 'bg-[#3b82f6]/[0.02]'
-                                                            )}
-                                                        >
-                                                            <div className="text-[10px] text-muted-foreground/30">-</div>
-                                                        </td>
-                                                    )
-                                                }
-
-                                                const start = new Date(session.scheduledAt)
-                                                const endAt = getSessionEndAt(session)
-                                                const uiLabel = uiStateLabel(session)
-                                                const attendance = cellAttendanceText(session.attendanceStatus ?? null)
-                                                const canMeet = canJoinLiveSessionNow(session, now)
-
-                                                return (
-                                                    <td
-                                                        key={dayIdx}
-                                                        className={cn(
-                                                            'border border-border/60 p-2 align-top',
-                                                            isToday(d) && 'bg-[#3b82f6]/[0.02]'
-                                                        )}
-                                                    >
-                                                        <div className="space-y-1">
-                                                            <div className="text-[10px] font-black leading-tight">
-                                                                <Link
-                                                                    href={viewMaterialsHref(session)}
-                                                                    className="text-primary underline underline-offset-4"
-                                                                >
-                                                                    {session.courseTitle} - View Materials
-                                                                </Link>
-                                                            </div>
-                                                            <div className="text-[10px] font-semibold text-muted-foreground leading-tight">
-                                                                at {format(start, 'dd/MM')}
-                                                            </div>
-                                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                                <Button
-                                                                    variant="link"
-                                                                    className={cn(
-                                                                        'h-auto p-0 text-[10px] font-bold text-primary underline underline-offset-4',
-                                                                        !canMeet && 'opacity-50 pointer-events-none'
-                                                                    )}
-                                                                    onClick={() => setJoinConfirmSession(session)}
-                                                                >
-                                                                    Meet URL
-                                                                </Button>
-                                                                <span className="text-[10px] font-bold text-emerald-700">
-                                                                    ({uiLabel})
-                                                                </span>
-                                                            </div>
-                                                            <div className="text-[10px] font-bold text-muted-foreground">
-                                                                (
-                                                                {format(start, 'HH:mm')}
-                                                                -
-                                                                {format(endAt, 'HH:mm')}
-                                                                )
-                                                            </div>
-                                                            <div className="text-[10px] font-bold text-muted-foreground">
-                                                                {attendance}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                )
-                                            })}
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="space-y-1 pt-2 text-[10px] font-medium text-muted-foreground">
-                        <div>• (attended) = PRESENT</div>
-                        <div>• (absent) = ABSENT</div>
-                        <div>• (?) = no attendance data</div>
+                        {weekSessions.length === 0 && (
+                            <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center text-sm text-muted-foreground">
+                                Tuần này chưa có buổi học nào.
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

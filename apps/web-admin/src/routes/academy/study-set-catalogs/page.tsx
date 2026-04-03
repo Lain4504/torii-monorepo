@@ -135,6 +135,7 @@ export default function StudySetCatalogsPage() {
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-8 text-center">#</TableHead>
               <TableHead>Tên bộ</TableHead>
               <TableHead>Mô tả</TableHead>
               <TableHead>Public</TableHead>
@@ -145,17 +146,20 @@ export default function StudySetCatalogsPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5}>Đang tải...</TableCell>
+                <TableCell colSpan={6}>Đang tải...</TableCell>
               </TableRow>
             ) : !items.length ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   Chưa có bộ hệ thống nào.
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((item) => (
+              items.map((item, idx) => (
                 <TableRow key={item.id}>
+                  <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                    {idx + 1}
+                  </TableCell>
                   <TableCell className="font-medium">{item.title}</TableCell>
                   <TableCell className="text-muted-foreground">{item.description || '—'}</TableCell>
                   <TableCell>{item.isPublic ? 'Yes' : 'No'}</TableCell>

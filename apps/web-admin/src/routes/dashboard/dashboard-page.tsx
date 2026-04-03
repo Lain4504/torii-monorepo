@@ -47,22 +47,7 @@ export default function DashboardPage() {
               <Link to="/academy/live-classes">Lớp của tôi</Link>
             </Button>
           ) : isStaffAcademic ? (
-            <div className="flex items-center gap-3">
-              <ButtonGroup>
-                <Button variant="outline" asChild size="sm">
-                  <Link to="/academy/approvals">Approval Center</Link>
-                </Button>
-                <Button variant="outline" asChild size="sm">
-                  <Link to="/academy/live-classes">Lớp học</Link>
-                </Button>
-              </ButtonGroup>
-              <Button size="sm" asChild>
-                <Link to="/academy/course-profiles">
-                  <Zap className="size-4 mr-2" />
-                  Nội dung
-                </Link>
-              </Button>
-            </div>
+            null
           ) : isStaffFinance ? (
             <div className="flex items-center gap-3">
               <ButtonGroup>

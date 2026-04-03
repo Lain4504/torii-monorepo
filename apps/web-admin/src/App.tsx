@@ -134,7 +134,9 @@ function App() {
                     <Route path="academy/live-classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
 
                     {/* AI Subscriptions */}
-                    <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
+                    <Route element={<RoutePermissionGuard permission="academy:subscription:admin" />}>
+                      <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
+                    </Route>
 
                     {/* JLPT Mock Exams */}
                     <Route path="academy/jlpt/config" element={<JlptConfigPage />} />

@@ -161,6 +161,7 @@ export function QuestionPickerModal({
             <Table>
               <TableHeader className="sticky top-0 bg-white dark:bg-slate-900 border-b z-10">
                 <TableRow>
+                  <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[50px]">
                     <Checkbox
                       checked={
@@ -181,17 +182,20 @@ export function QuestionPickerModal({
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
+                    <TableCell colSpan={6} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
                   </TableRow>
                 ) : questions && questions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
+                    <TableCell colSpan={6} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
                   </TableRow>
                 ) : (
-                  questions?.map((q) => {
+                  questions?.map((q, idx) => {
                     const isAlreadyInExam = existingIdsSet.has(q.id)
                     return (
                       <TableRow key={q.id} className={isAlreadyInExam ? "opacity-50 bg-slate-50/50" : ""}>
+                        <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                          {idx + 1}
+                        </TableCell>
                         <TableCell>
                           <Checkbox
                             checked={selectedIds.has(q.id)}
