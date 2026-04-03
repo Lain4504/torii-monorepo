@@ -117,7 +117,7 @@ export default function CertificatesPage() {
                                         <div className="space-y-1">
                                             <Link 
                                                 href={cert.fileUrl || `/verify/${cert.certificateCode}`} 
-                                                target="_blank" 
+                                                target={cert.fileUrl ? "_blank" : undefined} 
                                                 className="text-lg font-bold text-[#2563EB] hover:text-blue-700 leading-tight transition-colors inline-block group-hover:underline decoration-blue-200 line-clamp-2"
                                             >
                                                 {certName}
@@ -149,7 +149,7 @@ export default function CertificatesPage() {
                                             >
                                                 <Link 
                                                     href={cert.fileUrl || `/verify/${cert.certificateCode}`} 
-                                                    target="_blank"
+                                                    target={cert.fileUrl ? "_blank" : undefined}
                                                 >
                                                     {cert.fileUrl ? <Download className="w-3.5 h-3.5 mr-2" /> : <ExternalLink className="w-3.5 h-3.5 mr-2" />}
                                                     {cert.fileUrl ? 'Tải PDF' : 'Xem & Tải về'}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
+import { useAppSelector } from '@/hooks/hooks'
 import { certificateApi } from '@/lib/api/services/certificate-api'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
@@ -15,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 
 export default function VerifyCertificatePage() {
+    const { isAuthenticated } = useAppSelector((state) => state.auth)
     const params = useParams()
     const code = params.code as string
     const [cert, setCert] = useState<CertificateResponseDTO | null>(null)
@@ -62,7 +64,7 @@ export default function VerifyCertificatePage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-4">
                 <div className="max-w-4xl w-full space-y-8">
                     <div className="text-center space-y-4">
                         <Skeleton className="h-12 w-64 mx-auto rounded-full" />
@@ -78,7 +80,7 @@ export default function VerifyCertificatePage() {
 
     if (error || !cert) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-4">
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -107,17 +109,17 @@ export default function VerifyCertificatePage() {
     const score = cert.score != null ? Math.round(cert.score) : null
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 print:p-0 print:bg-white selection:bg-primary/10">
-            {/* Action Toolbar (Glassmorphism) */}
+        <div className="py-4 px-4 print:p-0 print:bg-white selection:bg-primary/10">
+            {/* Action Toolbar (Integrated) */}
             <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="max-w-5xl mx-auto mb-10 sticky top-6 z-50 print:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="max-w-5xl mx-auto mb-8 print:hidden"
             >
-                <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-[2.5rem] p-3 pl-6 flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-border/50 px-4 sm:px-0">
                     <div className="flex items-center gap-5">
-                        <Button variant="ghost" size="icon" asChild className="rounded-full hover:bg-slate-100 transition-colors">
-                            <Link href="/dashboard/certificates">
+                        <Button variant="ghost" size="icon" asChild className="rounded-full hover:bg-slate-100 transition-colors" data-guest-allow="true">
+                            <Link href={isAuthenticated ? "/dashboard/certificates" : "/"}>
                                 <ArrowLeft className="w-5 h-5 text-slate-600" />
                             </Link>
                         </Button>
@@ -134,6 +136,7 @@ export default function VerifyCertificatePage() {
                         <Button 
                             onClick={copyLink}
                             variant="ghost"
+                            data-guest-allow="true"
                             className="h-12 w-12 sm:w-auto sm:px-6 rounded-full font-bold transition-all gap-2"
                         >
                             {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-600" />}
@@ -141,6 +144,7 @@ export default function VerifyCertificatePage() {
                         </Button>
                         <Button 
                             onClick={handlePrint}
+                            data-guest-allow="true"
                             className="h-12 px-8 rounded-full font-black shadow-xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all gap-2 bg-[#2563EB] hover:bg-blue-700 text-white"
                         >
                             <Printer className="w-4 h-4" />
@@ -323,7 +327,11 @@ export default function VerifyCertificatePage() {
                                 Trang chủ
                             </Link>
                         </Button>
-                        <Button className="flex-1 md:flex-none h-12 px-6 rounded-xl font-bold gap-2 bg-slate-900 text-white hover:bg-slate-800" onClick={copyLink}>
+                        <Button 
+                            className="flex-1 md:flex-none h-12 px-6 rounded-xl font-bold gap-2 bg-slate-900 text-white hover:bg-slate-800" 
+                            onClick={copyLink}
+                            data-guest-allow="true"
+                        >
                             <Share2 className="w-4 h-4" />
                             Chia sẻ ngay
                         </Button>
