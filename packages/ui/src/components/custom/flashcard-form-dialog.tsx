@@ -19,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { Loader2 } from "lucide-react"
+import { Loader2, Volume2 } from "lucide-react"
+import { toast } from "@workspace/ui/components/sonner"
 
 export interface FlashcardFormValues {
   term: string
@@ -72,6 +73,25 @@ export function FlashcardFormDialog({
     await onSave(values)
   }
 
+  const handlePreviewAudio = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!values.term.trim()) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(values.term);
+    
+    // Detect Japanese
+    const isJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(values.term);
+    utterance.lang = isJapanese ? 'ja-JP' : 'en-US';
+    utterance.rate = 0.9;
+
+    utterance.onerror = () => {
+      toast.error("Lỗi phát âm thanh xem trước.");
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] rounded-[32px] p-0 overflow-hidden border-none shadow-2xl animate-in fade-in zoom-in-95 duration-200">
@@ -86,14 +106,26 @@ export function FlashcardFormDialog({
             <Label htmlFor="term" className="text-sm font-semibold text-slate-600 ml-1">
               Từ
             </Label>
-            <Input
-              id="term"
-              placeholder="Nhập từ..."
-              value={values.term}
-              onChange={(e) => setValues({ ...values, term: e.target.value })}
-              className="h-12 rounded-2xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all px-4"
-              autoFocus
-            />
+            <div className="relative">
+              <Input
+                id="term"
+                placeholder="Nhập từ..."
+                value={values.term}
+                onChange={(e) => setValues({ ...values, term: e.target.value })}
+                className="h-12 rounded-2xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all px-4 pr-12"
+                autoFocus
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full text-slate-400 hover:text-primary"
+                onClick={handlePreviewAudio}
+                disabled={!values.term.trim()}
+              >
+                <Volume2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-2">

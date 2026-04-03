@@ -69,6 +69,19 @@ export function StudySetReview({ setId }: { setId: string }) {
 
   const flashcardsData: FlashcardsData | null = useMemo(() => {
     if (!displayCards || displayCards.length === 0) return null;
+    
+    // Helper to resolve potential relative URLs from the backend
+    const resolveAudioUrl = (url?: string) => {
+      if (!url) return undefined;
+      if (url.startsWith('http')) return url;
+      
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+      // Remove trailing slash from baseUrl and leading slash from url if needed
+      const cleanBase = baseUrl.replace(/\/$/, '');
+      const cleanUrl = url.startsWith('/') ? url : `/${url}`;
+      return `${cleanBase}${cleanUrl}`;
+    };
+
     return {
       title: 'Ôn tập flashcard',
       description: `Bộ thẻ này có ${displayCards.length} thẻ.`,
@@ -78,7 +91,7 @@ export function StudySetReview({ setId }: { setId: string }) {
         back: c.definition,
         tag: c.hint || undefined,
         phonetic: c.languageDetails?.phonetic || c.language_details?.phonetic,
-        audioUrl: c.languageDetails?.audioUrl || c.language_details?.audioUrl,
+        audioUrl: resolveAudioUrl(c.languageDetails?.audioUrl || c.language_details?.audioUrl),
       })),
       showRatings: true,
       shuffle: false,

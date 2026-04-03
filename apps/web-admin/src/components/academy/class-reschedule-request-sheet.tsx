@@ -80,6 +80,20 @@ export function ClassRescheduleRequestSheet({
     },
   })
 
+  // Reset form when session changes to ensure sessionId and default values are up to date
+  useEffect(() => {
+    if (session) {
+      form.reset({
+        sessionId: session.id,
+        type: "RESCHEDULE",
+        proposedDate: new Date(session.sessionDate).toISOString().split("T")[0],
+        proposedStartTime: session.startTime,
+        proposedEndTime: session.endTime,
+        reason: "",
+      })
+    }
+  }, [session, form])
+
   const watchType = form.watch("type")
   const watchProposedDate = form.watch("proposedDate")
   const watchProposedStartTime = form.watch("proposedStartTime")
@@ -101,7 +115,7 @@ export function ClassRescheduleRequestSheet({
         endTime: watchProposedEndTime,
       })
     }
-  }, [watchType, watchProposedDate, watchProposedStartTime, watchProposedEndTime])
+  }, [watchType, watchProposedDate, watchProposedStartTime, watchProposedEndTime, session.id, session.classId])
 
   const onSubmit = (data: AcademyLiveScheduleRequestCreateDTO) => {
     createRequest.mutate(data, {

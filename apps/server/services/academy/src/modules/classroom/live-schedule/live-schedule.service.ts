@@ -1101,44 +1101,84 @@ export class LiveScheduleService {
     }
 
     await this.prisma.$transaction(async (tx) => {
+      const session = await tx.liveScheduleSession.findUnique({
+        where: { id: request.sessionId },
+      });
+
+      if (!session) {
+        throw new NotFoundException('Original LiveScheduleSession not found');
+      }
+
+      if (session.status !== 'SCHEDULED') {
+        throw new BadRequestException(
+          `Cannot approve request: Original session is currently ${session.status}, must be SCHEDULED`,
+        );
+      }
+
       if (request.type === 'LEAVE') {
         await tx.liveScheduleSession.update({
           where: { id: request.sessionId },
           data: {
             status: 'CANCELLED',
             cancellationReason: request.reason ?? undefined,
+            updatedBy: reviewerId,
           },
         });
       }
 
       if (request.type === 'RESCHEDULE') {
-        const newSession = await tx.liveScheduleSession.create({
-          data: {
-            liveClassId: request.liveClassId!,
-            scheduleId: null, // Dissociate from old schedule template rule so it's not deleted by generator
-            sessionDate: request.proposedDate!,
-            startTime: request.proposedStartTime!,
-            endTime: request.proposedEndTime!,
+        const oldSessionId = request.sessionId;
+        const newDate = request.proposedDate!;
+        const newStartTime = request.proposedStartTime!;
+        const newEndTime = request.proposedEndTime!;
+
+        // 1. Create or Update the new session at the proposed slot
+        // Use upsert to handle case where a template session already existed at that slot
+        const newSession = await tx.liveScheduleSession.upsert({
+          where: {
+            liveClassId_sessionDate_startTime_endTime: {
+              liveClassId: request.session.liveClassId,
+              sessionDate: newDate,
+              startTime: newStartTime,
+              endTime: newEndTime,
+            },
+          },
+          create: {
+            liveClassId: request.session.liveClassId,
+            sessionDate: newDate,
+            startTime: newStartTime,
+            endTime: newEndTime,
             status: 'SCHEDULED',
+            scheduleId: null, // Dissociate from template so cleanup/generator doesn't touch it
+            roomId: request.session.roomId, // Carry over roomId if possible or create new one
             instructorId:
               request.proposedTeacherId ??
               request.session.instructorId ??
               undefined,
             createdBy: reviewerId,
             updatedBy: reviewerId,
-            roomId: request.session.roomId, // Carry over roomId if exists
-            location: request.session.location,
-            note: `Dời từ buổi ngày ${request.session.sessionDate.toISOString().slice(0, 10)}`,
+            note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
+          },
+          update: {
+            status: 'SCHEDULED', // Ensure it's active
+            scheduleId: null, // Dissociate
+            instructorId:
+              request.proposedTeacherId ??
+              request.session.instructorId ??
+              undefined,
+            updatedBy: reviewerId,
+            note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
           },
         });
 
+        // 2. Mark the OLD session as RESCHEDULED to "occupy" the slot and hide it from views
         await tx.liveScheduleSession.update({
-          where: { id: request.sessionId },
+          where: { id: oldSessionId },
           data: {
             status: 'RESCHEDULED',
-            cancellationReason: `Đã dời sang ngày ${request.proposedDate!.toISOString().slice(0, 10)} (${request.proposedStartTime})`,
-            supersededBySessionId: newSession.id, // Linking history
+            supersededBySessionId: newSession.id,
             updatedBy: reviewerId,
+            note: `Đã dời sang ngày ${newDate.toISOString().slice(0, 10)} (${newStartTime})`,
           },
         });
       }
