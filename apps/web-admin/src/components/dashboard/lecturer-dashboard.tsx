@@ -145,8 +145,9 @@ export default function LecturerDashboard() {
     })
 
     const liveClassIds = useMemo(() => {
+        // Chỉ lấy những lớp đang tuyển sinh hoặc đang diễn ra
         return classes
-            .filter((c) => ["ONGOING", "PUBLISHED"].includes(c.status))
+            .filter((c) => ["OPENING", "IN_PROGRESS"].includes(c.status))
             .map((c) => c.id)
     }, [classes])
 
@@ -232,7 +233,7 @@ export default function LecturerDashboard() {
 
     const sessionsLoading = sessionQueries.some((q) => q.isLoading)
     const joinMutation = useJoinAcademyLiveSessionAsLecturer()
-    const ongoingCount = classes.filter((c) => c.status === "ONGOING").length
+    const ongoingCount = classes.filter((c) => c.status === "IN_PROGRESS").length
     const nextSession = upcomingSessions[0]
 
     const handleJoinSession = async (sessionId: string) => {

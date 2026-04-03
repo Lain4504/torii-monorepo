@@ -4,20 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add index column to various tables and restrict access to AI subscriptions">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(dashboard): implement admin dashboard with staff academic and operations insights">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/analytics.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/analytics.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-attendance-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-attendance-tab.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-academic-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-academic-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-dashboard.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-finance-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/staff-finance-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/staff-dashboard.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/exams/components/question-picker-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/exams/components/question-picker-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/questions/components/category-manager-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/questions/components/category-manager-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/config/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/config/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/dashboard-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/dashboard/staff-dashboard-page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -400,15 +391,7 @@
       <workItem from="1774791456061" duration="156000" />
       <workItem from="1775037916663" duration="31000" />
       <workItem from="1775061830841" duration="4922000" />
-      <workItem from="1775200902364" duration="6535000" />
-    </task>
-    <task id="LOCAL-01042" summary="new flow">
-      <option name="closed" value="true" />
-      <created>1774280307838</created>
-      <option name="number" value="01042" />
-      <option name="presentableId" value="LOCAL-01042" />
-      <option name="project" value="LOCAL" />
-      <updated>1774280307838</updated>
+      <workItem from="1775200902364" duration="8286000" />
     </task>
     <task id="LOCAL-01043" summary="new flow">
       <option name="closed" value="true" />
@@ -794,7 +777,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775205773989</updated>
     </task>
-    <option name="localTasksCounter" value="1091" />
+    <task id="LOCAL-01091" summary="feat(dashboard): implement admin dashboard with staff academic and operations insights">
+      <option name="closed" value="true" />
+      <created>1775208903100</created>
+      <option name="number" value="01091" />
+      <option name="presentableId" value="LOCAL-01091" />
+      <option name="project" value="LOCAL" />
+      <updated>1775208903100</updated>
+    </task>
+    <option name="localTasksCounter" value="1092" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -829,7 +820,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
     <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
     <MESSAGE value="feat: add JLPT mock exam module with related services and DTOs" />
     <MESSAGE value="update web-admin" />
@@ -854,7 +844,8 @@
     <MESSAGE value="fix(room-settings): refactor settings components to use new UI library and improve layout" />
     <MESSAGE value="fix(breakout): enhance room status handling and improve webhook body processing" />
     <MESSAGE value="feat: add index column to various tables and restrict access to AI subscriptions" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add index column to various tables and restrict access to AI subscriptions" />
+    <MESSAGE value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

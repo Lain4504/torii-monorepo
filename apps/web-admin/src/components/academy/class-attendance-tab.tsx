@@ -1,8 +1,8 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
-import { useAcademyLiveSessions } from "@/lib/api/services/academy-live-sessions"
+import { useAcademyLiveSessions, useJoinAcademyLiveSessionAsLecturer } from "@/lib/api/services/academy-live-sessions"
 import { useAcademyClassAttendances, useCreateAcademyClassAttendance } from "@/lib/api/services/academy-class-attendances"
 import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
 
@@ -23,6 +23,15 @@ import { useAuth } from "@/hooks/use-auth"
 import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { toast } from "sonner"
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import type { AcademyLiveScheduleSessionModel } from "@workspace/schemas"
@@ -82,12 +91,20 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const rejectRequestMutation = useRejectAcademyLiveScheduleRequest()
 
     const [selectedSessionId, setSelectedSessionId] = useState<string>("")
+    const [joinTarget, setJoinTarget] = useState<AcademyLiveScheduleSessionModel | null>(null)
     const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false)
     const [rescheduleSheetOpen, setRescheduleSheetOpen] = useState(false)
     const [selectedSessionForReschedule, setSelectedSessionForReschedule] = useState<AcademyLiveScheduleSessionModel | null>(null)
 
     const activeEnrollments = enrollments.filter((en) => en.status === "ACTIVE")
     const hasSchedules = schedules && schedules.length > 0
+
+    const joinMutation = useJoinAcademyLiveSessionAsLecturer()
+
+    const selectedSession = useMemo(
+        () => sessions.find((s: any) => s.id === selectedSessionId) as AcademyLiveScheduleSessionModel | undefined,
+        [sessions, selectedSessionId]
+    )
 
     const formatDateLabel = (dateStr: string) => {
         try {
@@ -141,8 +158,64 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
         }
     }
 
+    const MEET_URL = import.meta.env.VITE_MEET_URL || "https://meet.torii.sbs"
+
+    const handleJoinSession = async (sessionId: string) => {
+        try {
+            const data = await joinMutation.mutateAsync(sessionId)
+            if (data?.token) {
+                window.open(`${MEET_URL}?access_token=${data.token}`, "_blank", "noopener,noreferrer")
+                setJoinTarget(null)
+            } else {
+                toast.error("Không lấy được token để vào phòng học.")
+            }
+        } catch (err: any) {
+            toast.error(err?.userMessage || "Không thể vào phòng học.")
+        }
+    }
+
     return (
         <div className="space-y-6">
+            <AlertDialog open={!!joinTarget} onOpenChange={(open) => !open && setJoinTarget(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Mở phòng dạy trực tuyến?</AlertDialogTitle>
+                        <AlertDialogDescription asChild>
+                            <div className="space-y-2 text-sm text-muted-foreground">
+                                <p>
+                                    Bạn sắp vào phòng meeting cho buổi học của lớp{" "}
+                                    <span className="font-medium text-foreground">
+                                        {academyClass?.name || academyClass?.code || "Buổi học"}
+                                    </span>
+                                    {academyClass?.code ? (
+                                        <>
+                                            {" "}
+                                            (<span className="font-mono">{academyClass.code}</span>)
+                                        </>
+                                    ) : null}
+                                    .
+                                </p>
+                                {joinTarget && (
+                                    <p className="tabular-nums">
+                                        {formatDateLabel(String(joinTarget.sessionDate))} · {joinTarget.startTime}–{joinTarget.endTime}
+                                    </p>
+                                )}
+                                <p>Tiếp tục để mở tab phòng học.</p>
+                            </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel type="button">Hủy</AlertDialogCancel>
+                        <Button
+                            type="button"
+                            disabled={!joinTarget || joinMutation.isPending}
+                            onClick={() => joinTarget && void handleJoinSession(joinTarget.id)}
+                        >
+                            {joinMutation.isPending ? "Đang mở…" : "Vào phòng"}
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
             <ClassScheduleSheet
                 open={scheduleSheetOpen}
                 onOpenChange={setScheduleSheetOpen}
@@ -229,7 +302,22 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-1.5 ml-2">
-                                                    {(isLecturer || isStaffOrAdmin) && (
+                                                    {isLecturer && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-primary hover:text-primary bg-background border-primary/40 hover:bg-primary/10 rounded-full"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setJoinTarget(s)
+                                                            }}
+                                                            title="Vào phòng dạy"
+                                                        >
+                                                            <Video className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                    {isLecturer && (
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"

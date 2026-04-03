@@ -28,7 +28,7 @@ export default function StaffAcademicDashboard() {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <StatsCard
           title="Chờ phê duyệt"
           value={formatNumber(data?.stats.pendingApprovals ?? 0)}
@@ -47,12 +47,6 @@ export default function StaffAcademicDashboard() {
           value={formatNumber(data?.stats.totalCourses ?? 0)}
           sub="Kho nội dung đang quản trị"
           icon={BookOpen}
-        />
-        <StatsCard
-          title="Lượt đăng ký (Active)"
-          value={formatNumber(data?.stats.totalEnrollments ?? 0)}
-          sub="Tổng enrollment đang ACTIVE trong hệ thống"
-          icon={Users}
         />
       </div>
 
