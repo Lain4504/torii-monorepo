@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useParams } from "react-router-dom"
 import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
@@ -100,11 +100,6 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const hasSchedules = schedules && schedules.length > 0
 
     const joinMutation = useJoinAcademyLiveSessionAsLecturer()
-
-    const selectedSession = useMemo(
-        () => sessions.find((s: any) => s.id === selectedSessionId) as AcademyLiveScheduleSessionModel | undefined,
-        [sessions, selectedSessionId]
-    )
 
     const formatDateLabel = (dateStr: string) => {
         try {

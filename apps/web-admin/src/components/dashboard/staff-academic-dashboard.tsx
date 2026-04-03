@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
-import { ClipboardCheck, School, Users, BookOpen } from "lucide-react";
+import { ClipboardCheck, School, BookOpen } from "lucide-react";
 import { useStaffAcademicDashboard } from "@/lib/api/services/dashboard";
 import { formatNumber } from "@/lib/format-utils";
 import { StatsCard } from "./stats-card";
