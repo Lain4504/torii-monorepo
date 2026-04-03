@@ -145,6 +145,7 @@ export default function JlptTemplatesPage() {
             <Table className="min-w-[800px] w-full">
               <TableHeader className="bg-muted/50">
                 <TableRow>
+                  <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
                   <TableHead>Thông tin đề thi</TableHead>
                   <TableHead className="w-[120px]">Trạng thái</TableHead>
@@ -156,7 +157,7 @@ export default function JlptTemplatesPage() {
                 {loading ? (
                   Array.from({ length: 5 }).map((_, index) => (
                     <TableRow key={index}>
-                      {Array.from({ length: 5 }).map((_, colIndex) => (
+                      {Array.from({ length: 6 }).map((_, colIndex) => (
                         <TableCell key={colIndex}>
                           <Skeleton className="h-4 w-full" />
                         </TableCell>
@@ -165,7 +166,7 @@ export default function JlptTemplatesPage() {
                   ))
                 ) : templates.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={5} className="h-[320px] text-center">
+                    <TableCell colSpan={6} className="h-[320px] text-center">
                       <Empty>
                         <EmptyMedia>
                           <LayoutTemplate className="size-8 text-muted-foreground" />
@@ -180,8 +181,11 @@ export default function JlptTemplatesPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  templates.map((tpl) => (
+                  templates.map((tpl, idx) => (
                     <TableRow key={tpl.id} className="group transition-colors">
+                      <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                        {idx + 1}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="font-bold">
                           {tpl.levelCode}

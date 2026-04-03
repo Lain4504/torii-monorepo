@@ -90,7 +90,7 @@ export const academicNavItems: NavItem[] = [
         url: "/academy/ai-subscriptions",
         icon: Bot,
         excludeRoles: [UserRole.LECTURER],
-        anyPermission: ["academy:subscription:admin", "academy.commerce.read", "academy.commerce.write"],
+        anyPermission: ["academy:subscription:admin"],
     },
 ];
 

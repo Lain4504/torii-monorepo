@@ -173,6 +173,7 @@ export function QuestionPickerModal({
                     />
                   </TableHead>
                   <TableHead>Nội dung câu hỏi</TableHead>
+                  <TableHead className="w-[240px] text-center">#</TableHead>
                   <TableHead className="w-[150px]">Loại</TableHead>
                   <TableHead className="w-[100px]">Độ khó</TableHead>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
@@ -181,14 +182,14 @@ export function QuestionPickerModal({
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
+                    <TableCell colSpan={6} className="text-center py-10 text-slate-400">Đang tải câu hỏi...</TableCell>
                   </TableRow>
                 ) : questions && questions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
+                    <TableCell colSpan={6} className="text-center py-10 text-slate-400">Không tìm thấy câu hỏi phù hợp</TableCell>
                   </TableRow>
                 ) : (
-                  questions?.map((q) => {
+                  questions?.map((q, idx) => {
                     const isAlreadyInExam = existingIdsSet.has(q.id)
                     return (
                       <TableRow key={q.id} className={isAlreadyInExam ? "opacity-50 bg-slate-50/50" : ""}>
@@ -208,6 +209,11 @@ export function QuestionPickerModal({
                               </div>
                             )}
                           </div>
+                        </TableCell>
+                        <TableCell
+                          className="text-muted-foreground text-xs font-mono truncate max-w-[240px]"
+                        >
+                          {idx + 1}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{q.questionType}</Badge>

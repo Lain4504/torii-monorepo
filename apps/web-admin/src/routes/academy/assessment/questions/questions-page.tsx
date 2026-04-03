@@ -82,7 +82,7 @@ export default function QuestionsPage() {
       />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center bg-card border rounded-xl p-4 shadow-sm">
+      <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -127,6 +127,7 @@ export default function QuestionsPage() {
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow>
+              <TableHead className="w-[60px] text-center">#</TableHead>
               <TableHead className="w-[420px] pl-4">Câu hỏi</TableHead>
               <TableHead>Độ khó</TableHead>
               <TableHead>Cấp độ</TableHead>
@@ -138,19 +139,22 @@ export default function QuestionsPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
                   Đang tải dữ liệu...
                 </TableCell>
               </TableRow>
             ) : !questions?.length ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground italic">
+                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground italic">
                   Không tìm thấy câu hỏi nào
                 </TableCell>
               </TableRow>
             ) : (
-              questions.map((q) => (
+              questions.map((q, idx) => (
                 <TableRow key={q.id} className="hover:bg-muted/10">
+                  <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                    {idx + 1}
+                  </TableCell>
                   <TableCell className="pl-4 font-medium">
                     <div className="line-clamp-2 text-sm">{q.stem}</div>
                   </TableCell>

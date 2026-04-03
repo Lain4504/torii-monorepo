@@ -46,8 +46,8 @@ export default function LiveClassesPage() {
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyLiveClass | null>(null);
 
     // Filters
-    const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-    const [showAll, setShowAll] = useState(false);
+    // Mặc định chỉ hiển thị lớp đang tuyển sinh (tương ứng trạng thái OPENING)
+    const [statusFilter, setStatusFilter] = useState<string | undefined>('OPENING');
 
     const isLecturer = user?.role === UserRole.LECTURER;
     const isStaff = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role);
@@ -56,7 +56,6 @@ export default function LiveClassesPage() {
         q: debouncedSearch,
         instructorId: isLecturer ? user?.id : undefined,
         status: statusFilter || undefined,
-        upcomingRegistration: showAll ? undefined : true,
     } as any);
 
     const publishMutation = usePublishClassDirectly();
@@ -135,7 +134,7 @@ export default function LiveClassesPage() {
 
                     <div className="flex items-center gap-2">
                         <Select
-                            value={statusFilter || "all"}
+                            value={statusFilter ?? "all"}
                             onValueChange={(val) => setStatusFilter(val === "all" ? undefined : val)}
                         >
                             <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 p-1 rounded-lg">
@@ -151,7 +150,7 @@ export default function LiveClassesPage() {
                             </SelectContent>
                         </Select>
 
-                        {statusFilter && (
+                        {statusFilter && statusFilter !== 'OPENING' && (
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -163,19 +162,6 @@ export default function LiveClassesPage() {
                                 Xóa bộ lọc
                             </Button>
                         )}
-
-                        <div className="flex items-center gap-2 ml-2 px-3 h-10 bg-muted/30 rounded-lg border border-transparent has-[:checked]:border-sky-500/30 has-[:checked]:bg-sky-500/5 transition-all">
-                            <label htmlFor="show-all" className="text-xs font-medium cursor-pointer select-none">
-                                {showAll ? "Hiển thị tất cả" : "Lớp đang tuyển"}
-                            </label>
-                            <input
-                                type="checkbox"
-                                id="show-all"
-                                checked={showAll}
-                                onChange={(e) => setShowAll(e.target.checked)}
-                                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                            />
-                        </div>
                     </div>
                 </div>
 

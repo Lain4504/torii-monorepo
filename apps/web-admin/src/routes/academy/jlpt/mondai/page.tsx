@@ -116,6 +116,7 @@ export default function JlptMondaiMasterPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[60px] text-center">#</TableHead>
               <TableHead className="w-[120px]">Mã (code)</TableHead>
               <TableHead>Tiêu đề (VI)</TableHead>
               <TableHead className="w-[140px]">Tiêu đề (JA)</TableHead>
@@ -125,13 +126,13 @@ export default function JlptMondaiMasterPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                   Đang tải…
                 </TableCell>
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                   Chưa có mondai cho bộ lọc này. Nếu DB chưa có `JlptLevel/Section`, bạn hãy tạo cấu hình trước tại trang{" "}
                   <Button
                     type="button"
@@ -144,8 +145,11 @@ export default function JlptMondaiMasterPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              items.map((row) => (
+              items.map((row, idx) => (
                 <TableRow key={row.id}>
+                  <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                    {idx + 1}
+                  </TableCell>
                   <TableCell className="font-mono text-sm font-medium">{row.code}</TableCell>
                   <TableCell className="max-w-md truncate">{row.titleVi ?? "—"}</TableCell>
                   <TableCell className="max-w-[140px] truncate text-sm text-muted-foreground">

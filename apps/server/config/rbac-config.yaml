@@ -163,6 +163,7 @@ default_role_permissions:
     - academy.delivery.write
     - academy.delivery.approve
     - academy.commerce.read # Limited view of packages
+    - academy.commerce.write # Allow creating/updating VOD packages & cohorts
     - exam.manage
     - report.view
     
@@ -174,8 +175,6 @@ default_role_permissions:
     - academy.content.read
     - academy.delivery.read
     - academy.commerce.read
-    - academy.commerce.write
-    - academy.commerce.approve
     - academy:order:admin
     - academy:coupon:admin
     - academy:subscription:admin

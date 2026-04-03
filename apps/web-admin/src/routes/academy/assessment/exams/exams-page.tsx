@@ -83,7 +83,7 @@ export default function ExamsPage() {
           }
         />
 
-        <div className="flex flex-wrap gap-4 items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex flex-wrap gap-4 items-center">
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input 
@@ -127,6 +127,7 @@ export default function ExamsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[60px] text-center">#</TableHead>
                 <TableHead className="w-[300px]">Tên đề thi</TableHead>
                 <TableHead>Loại</TableHead>
                 <TableHead>Mô tả</TableHead>
@@ -139,15 +140,18 @@ export default function ExamsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-10 text-slate-400">Đang tải dữ liệu...</TableCell>
+                  <TableCell colSpan={8} className="text-center py-10 text-slate-400">Đang tải dữ liệu...</TableCell>
                 </TableRow>
               ) : exams?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-10 text-slate-400">Không tìm thấy bản ghi nào</TableCell>
+                  <TableCell colSpan={8} className="text-center py-10 text-slate-400">Không tìm thấy bản ghi nào</TableCell>
                 </TableRow>
               ) : (
-                exams?.map((exam) => (
+                exams?.map((exam, idx) => (
                   <TableRow key={exam.id}>
+                    <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                      {idx + 1}
+                    </TableCell>
                     <TableCell className="font-semibold">
                       <div className="line-clamp-1">{exam.title}</div>
                     </TableCell>

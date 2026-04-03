@@ -141,6 +141,7 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
                 <TableHeader className="sticky top-0 bg-muted/80 backdrop-blur-sm z-10">
                   <TableRow>
                     <TableHead>Tên danh mục</TableHead>
+                    <TableHead className="w-[240px] text-center">#</TableHead>
                     <TableHead className="w-[120px]">Mã</TableHead>
                     <TableHead className="text-right w-[100px]">Thao tác</TableHead>
                   </TableRow>
@@ -148,19 +149,19 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
                         Đang tải danh sách...
                       </TableCell>
                     </TableRow>
                   ) : categories.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                         Không có danh mục nào. Hãy tạo mới.
                       </TableCell>
                     </TableRow>
                   ) : (
-                    categories.map((cat: any) => (
+                    categories.map((cat: any, idx: number) => (
                       <TableRow key={cat.id}>
                         <TableCell className="font-medium">
                           {editingId === cat.id ? (
@@ -177,6 +178,11 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
                           ) : (
                             cat.name
                           )}
+                        </TableCell>
+                        <TableCell
+                          className="text-muted-foreground text-xs font-mono truncate max-w-[240px]"
+                        >
+                          {idx + 1}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground font-mono">
                           {cat.code}
