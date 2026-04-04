@@ -12,15 +12,30 @@ export const elevatedPanelContentClass = "pb-5 pt-4"
 export const dataTableShellClass = cn("overflow-hidden rounded-xl border bg-card shadow-sm")
 
 /**
- * Toolbar trang danh sách (mobile-first, theo mẫu blog):
- * - Hàng 1: ô tìm kiếm full width
- * - Hàng 2+: select / nút xếp chồng dọc trên mobile, hàng ngang từ md
+ * Toolbar trang danh sách (mobile-first):
+ * - Mobile: cột — tìm kiếm full width, rồi từng filter/nút mỗi hàng (flex-col).
+ * - md+: một hàng — ô tìm kiếm flex-1, nhóm filter co theo nội dung (w-auto), wrap khi quá chật.
  */
-export const listPageToolbarRootClass = cn("flex w-full flex-col gap-4")
-export const listPageSearchWrapClass = cn("relative w-full min-w-0")
-export const listPageFiltersRowClass = cn(
-  "flex w-full flex-col gap-3 md:flex-row md:flex-wrap md:items-center",
+export const listPageToolbarRootClass = cn(
+  "flex w-full flex-col gap-3",
+  "md:flex-row md:flex-wrap md:items-center md:gap-3",
 )
+export const listPageSearchWrapClass = cn(
+  "relative w-full min-w-0",
+  "md:min-w-[12rem] md:flex-1",
+)
+export const listPageFiltersRowClass = cn(
+  "flex w-full min-w-0 flex-col gap-3",
+  "md:w-auto md:max-w-full md:flex-none md:flex-row md:flex-wrap md:items-center md:gap-2",
+)
+
+/** Icon Search trong ô tìm — dùng chung mọi toolbar danh sách */
+export const listPageSearchIconClass = cn(
+  "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground",
+)
+
+/** Input tìm kiếm chuẩn (cùng hệ với icon trên) */
+export const listPageSearchInputClass = cn("h-10 w-full pl-9 shadow-sm")
 
 /** Hàng tiêu đề bảng */
 export const dataTableHeaderClass = "bg-muted/50"

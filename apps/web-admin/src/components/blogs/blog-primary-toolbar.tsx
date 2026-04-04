@@ -17,6 +17,8 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import {
     listPageFiltersRowClass,
+    listPageSearchIconClass,
+    listPageSearchInputClass,
     listPageSearchWrapClass,
     listPageToolbarRootClass,
 } from '@/lib/ui-shell';
@@ -39,12 +41,12 @@ export function BlogPrimaryToolbar({
     return (
         <div className={listPageToolbarRootClass}>
             <div className={listPageSearchWrapClass}>
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className={listPageSearchIconClass} />
                 <Input
                     placeholder="Tìm kiếm theo tiêu đề..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="pl-9"
+                    className={listPageSearchInputClass}
                 />
             </div>
 

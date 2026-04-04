@@ -14,6 +14,7 @@ import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
 import { Spinner } from '@workspace/ui/components/spinner';
+import { createGoogleGsiLoadingGuard, shouldEndFlowFromPromptMoment } from '@/lib/google-gsi-loading-guard';
 
 
 export function SecurityTab() {
@@ -80,7 +81,6 @@ export function SecurityTab() {
 
     const handleLinkGoogle = () => {
         const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-        console.log('[Debug] Google Client ID:', googleClientId);
         if (!googleClientId) {
             toast.error('Google OAuth chưa được cấu hình');
             return;
@@ -91,6 +91,8 @@ export function SecurityTab() {
             setGoogleLoading(false);
             return;
         }
+
+        const guard = createGoogleGsiLoadingGuard(setGoogleLoading, 90_000);
 
         (window as any).google.accounts.id.initialize({
             client_id: googleClientId,
@@ -105,6 +107,7 @@ export function SecurityTab() {
                 } catch (error: any) {
                     toast.error(error?.message || 'Liên kết Google thất bại');
                 } finally {
+                    guard.disarm();
                     setGoogleLoading(false);
                 }
             },
@@ -122,14 +125,23 @@ export function SecurityTab() {
                 btn.click();
             } else {
                 try {
-                    (window as any).google.accounts.id.prompt();
+                    (window as any).google.accounts.id.prompt((notification: unknown) => {
+                        if (shouldEndFlowFromPromptMoment(notification)) {
+                            guard.disarm();
+                            setGoogleLoading(false);
+                        }
+                    });
                 } catch {
+                    guard.disarm();
                     setGoogleLoading(false);
                     toast.error('Không thể khởi tạo Google Sign-In');
                 }
             }
-            // Cleanup after a while
-            setTimeout(() => document.body.removeChild(buttonWrapper), 2000);
+            setTimeout(() => {
+                if (buttonWrapper.parentNode) {
+                    document.body.removeChild(buttonWrapper);
+                }
+            }, 2000);
         }, 100);
     };
 

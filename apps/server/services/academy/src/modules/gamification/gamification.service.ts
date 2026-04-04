@@ -5,16 +5,21 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   ActivityType,
   GamificationTransactionType,
   GamificationCurrency,
+  CouponDiscountType,
   CouponScope,
+  CouponStatus,
 } from '@prisma/generated';
 import { AchievementService } from './achievement.service';
 import { AuditLoggerService } from '../audit-logger.service';
+
+const COUPON_SOURCE_GAMIFICATION_REWARD = 'GAMIFICATION_REWARD';
 
 @Injectable()
 export class GamificationService {
@@ -770,6 +775,9 @@ export class GamificationService {
     });
   }
 
+  /**
+   * Đổi điểm lấy coupon cá nhân (PointReward type COUPON, config trong JSON).
+   */
   async redeemReward(userId: string, rewardId: string) {
     const result = await this.prisma.$transaction(async (tx) => {
       const reward = await tx.pointReward.findUnique({
@@ -778,6 +786,12 @@ export class GamificationService {
 
       if (!reward || !reward.isActive) {
         throw new NotFoundException('Reward not found or inactive');
+      }
+
+      if ((reward.type || 'COUPON').toUpperCase() !== 'COUPON') {
+        throw new BadRequestException(
+          'Chỉ hỗ trợ đổi phần thưởng dạng coupon.',
+        );
       }
 
       const profile = await tx.userGamification.findUnique({
@@ -790,7 +804,8 @@ export class GamificationService {
         );
       }
 
-      // Deduct points
+      const config = (reward.config as Record<string, unknown>) || {};
+
       await tx.userGamification.update({
         where: { userId },
         data: {
@@ -798,29 +813,74 @@ export class GamificationService {
         },
       });
 
-      // Handle different types of rewards
-      const config = (reward.config as any) || {};
-      const rewardType = (reward.type || 'COUPON').toUpperCase();
+      const rawPrefix = String(config.prefix ?? 'RWD')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, '');
+      const prefix = rawPrefix.length > 0 ? rawPrefix.slice(0, 10) : 'RWD';
 
-      let couponCode = '';
-
-      if (rewardType === 'STREAK_FREEZE') {
-        // Direct profile update for streak freeze
-        const amount = config.amount || 1;
-        await tx.userGamification.update({
-          where: { userId },
-          data: {
-            freezeCount: { increment: amount },
-          },
+      let allocated = '';
+      for (let attempt = 0; attempt < 16; attempt++) {
+        const candidate =
+          attempt < 12
+            ? `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+            : `RWD-${randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase()}`;
+        const taken = await tx.coupon.findUnique({
+          where: { code: candidate },
         });
-        couponCode = 'STREAK_FREEZE';
-      } else {
-        // For other rewards, generate a code but DO NOT log it into the coupon table
-        const prefix = config.prefix || 'RWD';
-        couponCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        if (!taken) {
+          allocated = candidate;
+          break;
+        }
+      }
+      if (!allocated) {
+        throw new BadRequestException('Không tạo được mã coupon, thử lại sau');
       }
 
-      // Update the history record created above with the generated code and more metadata
+      const discountType =
+        config.discountType === 'FIXED_AMOUNT'
+          ? CouponDiscountType.FIXED_AMOUNT
+          : CouponDiscountType.PERCENTAGE;
+      const discountValue = Number(config.discountValue ?? 1);
+      if (!Number.isFinite(discountValue) || discountValue <= 0) {
+        throw new BadRequestException('Cấu hình phần thưởng coupon không hợp lệ');
+      }
+      const validDays = Math.max(1, Number(config.validDays ?? 30));
+      const now = new Date();
+      const endDate = new Date(
+        now.getTime() + validDays * 24 * 60 * 60 * 1000,
+      );
+
+      const created = await tx.coupon.create({
+        data: {
+          code: allocated,
+          name: reward.name,
+          description: reward.description ?? undefined,
+          discountType,
+          discountValue,
+          maxDiscountAmount:
+            config.maxDiscountAmount != null
+              ? Number(config.maxDiscountAmount)
+              : null,
+          minOrderValue:
+            config.minOrderValue != null
+              ? Number(config.minOrderValue)
+              : null,
+          usageLimit: 1,
+          usageCount: 0,
+          perUserLimit: 1,
+          startDate: now,
+          endDate,
+          status: CouponStatus.ACTIVE,
+          scope: CouponScope.GLOBAL,
+          ownerId: userId,
+          source: COUPON_SOURCE_GAMIFICATION_REWARD,
+          metadata: {
+            rewardId,
+            rewardName: reward.name,
+          } as object,
+        },
+      });
+
       await tx.gamificationHistory.create({
         data: {
           userId,
@@ -831,8 +891,9 @@ export class GamificationService {
           metadata: {
             rewardId,
             rewardName: reward.name,
-            rewardType,
-            couponCode: couponCode,
+            rewardType: 'COUPON',
+            couponCode: created.code,
+            couponId: created.id,
             ...config,
           },
         },
@@ -840,15 +901,12 @@ export class GamificationService {
 
       return {
         success: true,
-        message: rewardType === 'STREAK_FREEZE'
-          ? 'Đã đổi thành công bùa bảo vệ chuỗi!'
-          : 'Đổi phần thưởng thành công!',
-        couponCode: couponCode,
+        message: 'Đổi phần thưởng thành công!',
+        couponCode: created.code,
         rewardName: reward.name,
       };
     });
 
-    // Emit notification via NATS (identity service will create in-app notification)
     try {
       this.natsClient.emit(
         { cmd: 'send_notification' },
@@ -857,9 +915,7 @@ export class GamificationService {
           type: 'system',
           payload: {
             title: 'Bạn vừa đổi quà thành công 🎁',
-            body: result.couponCode === 'STREAK_FREEZE'
-              ? `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Vật phẩm đã được cộng vào tài khoản của bạn.`
-              : `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Mã coupon của bạn là ${result.couponCode}.`,
+            body: `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Mã coupon của bạn là ${result.couponCode}.`,
             metadata: {
               rewardId,
               rewardName: result.rewardName,

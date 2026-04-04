@@ -266,6 +266,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                             user={user}
                             onUpdateComment={handleUpdateComment}
                             onDeleteComment={handleDeleteComment}
+                            onRequestDelete={setDeleteConfirmId}
                             canLike={!!blogId || !!feedId || !!discussionId}
                         />
                     ))
@@ -331,6 +332,7 @@ function CommentItem({
     user,
     onUpdateComment,
     onDeleteComment,
+    onRequestDelete,
     canLike = true,
     depth
 }: {
@@ -345,6 +347,7 @@ function CommentItem({
     user: any,
     onUpdateComment: (id: string, content: string) => Promise<void>,
     onDeleteComment: (id: string) => Promise<void>,
+    onRequestDelete: (id: string) => void,
     canLike?: boolean,
     depth?: number
 }) {
@@ -489,6 +492,7 @@ function CommentItem({
                                     user={user}
                                     onUpdateComment={onUpdateComment}
                                     onDeleteComment={onDeleteComment}
+                                    onRequestDelete={onRequestDelete}
                                     canLike={canLike}
                                     depth={actualDepth + 1}
                                 />
@@ -511,7 +515,7 @@ function CommentItem({
                                 Chỉnh sửa
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                onClick={() => setDeleteConfirmId(comment.id)}
+                                onClick={() => onRequestDelete(comment.id)}
                                 className="text-destructive focus:text-destructive"
                             >
                                 <Trash className="w-4 h-4 mr-2" />

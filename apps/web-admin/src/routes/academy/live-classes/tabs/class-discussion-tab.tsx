@@ -4,7 +4,7 @@ import { useComments, useCreateComment } from '@/lib/api/services/comments'
 import type { CommentResponseDTO } from '@workspace/schemas'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { toast } from '@workspace/ui/components/sonner'
@@ -30,7 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog'
-import { Input } from '@workspace/ui/components/input'
 import { useAcademyLiveClass } from '@/lib/api/services/academy-live-classes'
 import { useAcademyVodPackage } from '@/lib/api/services/academy-vod-packages'
 import { useUpdateComment, useDeleteComment } from '@/lib/api/services/comments'

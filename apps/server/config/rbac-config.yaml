@@ -1,17 +1,17 @@
 # ============================================
 # RBAC Configuration
 # ============================================
-# Version: 3.0.0 - Academy Centric RBAC
-# 
+# Version: 3.1.0 - Academy Centric RBAC
+#
 # Design Philosophy:
-# - Updated to match Academy microservice structure
-# - Standardized academic content, commerce, and delivery permissions
-# - Full compatibility with latest gateway backend controllers
+# - staff-academic: nội dung (content) + triển khai lớp/lịch (delivery) + mở bán offering (cohort/VOD via commerce.write)
+# - staff-operations: đơn hàng / coupon / subscription + marketing (blog) + gamification + support + đọc academy (read-only) để phục vụ KH
+# - Meet: schedule.view (giám sát phòng) vs live_class.manage (điều khiển, ví dụ end room)
 # - Actors: admin, staff-academic, staff-operations, lecturer, learner
 
 system:
-  version: "3.0.0"
-  description: "Role-Based Access Control updated for Academy Module"
+  version: "3.1.0"
+  description: "RBAC — tách biệt Học vụ (academic) và Vận hành (operations)"
 
 # ============================================
 # Roles Definition
@@ -23,11 +23,11 @@ roles:
     
   - code: staff-academic
     name: Academic Staff
-    description: Academic operations, content and delivery management
+    description: Nội dung, lớp/lịch live, duyệt yêu cầu lịch; mở bán cohort/VOD (commerce.write); không quản đơn/coupon/subscription/blog/gamification
     
   - code: staff-operations
     name: Operations Staff
-    description: Business operations, support, finance, and marketing
+    description: Đơn hàng, coupon, Sensei subscription, blog, gamification, support, audit; chỉ đọc academy (content/delivery/commerce.read)
     
   - code: lecturer
     name: Instructor
@@ -71,8 +71,17 @@ permissions:
     description: Manage course offerings and pricing
     category: Academy Commerce
   - code: academy.commerce.approve
-    description: Approve or reject offering publishing
+    description: (Dự phòng SoD) Duyệt xuất bản offering — hiện gateway dùng commerce.write cho approve cohort/VOD
     category: Academy Commerce
+
+  # Meet / LiveKit (web-admin room tools)
+  - code: schedule.view
+    description: Xem trạng thái phòng live, lịch sử phòng (giám sát)
+    category: Meet
+  - code: live_class.manage
+    description: Điều khiển phòng live (ví dụ force end room)
+    category: Meet
+
   - code: academy:order:admin
     description: Full access to order management and billing
     category: Academy Commerce
@@ -153,7 +162,7 @@ default_role_permissions:
   admin:
     - "*"
     
-  # Staff-Academic: Academic operations & Content
+  # Học vụ: toàn quyền content + delivery + approve lịch; commerce.write = CRUD + mở bán cohort & VOD
   staff-academic:
     - user.view
     - academy.content.read
@@ -162,12 +171,14 @@ default_role_permissions:
     - academy.delivery.read
     - academy.delivery.write
     - academy.delivery.approve
-    - academy.commerce.read # Limited view of packages
-    - academy.commerce.write # Allow creating/updating VOD packages & cohorts
+    - academy.commerce.read
+    - academy.commerce.write
+    - schedule.view
+    - live_class.manage
     - exam.manage
     - report.view
-    
-  # Staff-Operations: Support, Business, and Finance
+
+  # Vận hành: không có content/delivery/commerce.write — chỉ đọc academy; kinh doanh + hỗ trợ
   staff-operations:
     - user.view
     - report.view
@@ -175,6 +186,7 @@ default_role_permissions:
     - academy.content.read
     - academy.delivery.read
     - academy.commerce.read
+    - schedule.view
     - academy:order:admin
     - academy:coupon:admin
     - academy:subscription:admin

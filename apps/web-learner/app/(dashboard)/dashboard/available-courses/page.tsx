@@ -28,6 +28,49 @@ function currentMonthLabel() {
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
+/** Item sau `findPublic` + `normalizePrice` (price / discountPrice đã chuẩn). */
+type CatalogListItem = {
+    id: string
+    code: string
+    title?: string
+    name?: string
+    price: number
+    discountPrice: number | null
+    courseProfile?: {
+        thumbnailUrl?: string | null
+        title?: string
+        level?: string | null
+    } | null
+    cohort?: {
+        courseProfile?: CatalogListItem['courseProfile']
+        startDate?: string | null
+        enrollmentOpenAt?: string | null
+        name?: string
+        code?: string
+    } | null
+    instructor?: { id: string; displayName: string }
+    liveSchedules?: Array<{
+        id: string
+        weekday: number
+        startTime: string
+        endTime: string
+    }>
+    maxStudents?: number | null
+    _count?: { enrollments: number }
+    term?: { openingDate?: string | null; name?: string; code?: string }
+}
+
+function catalogPriceParts(row: Pick<CatalogListItem, 'price' | 'discountPrice'>) {
+    const basePrice = row.price
+    const d = row.discountPrice
+    const hasDiscount = d != null && d > 0 && d < basePrice
+    return {
+        basePrice,
+        displayPrice: hasDiscount ? d : basePrice,
+        hasDiscount,
+    }
+}
+
 export default function DashboardCoursesPage() {
     const [level, setLevel] = useState<string>('all')
     const searchParams = useSearchParams()
@@ -43,7 +86,7 @@ export default function DashboardCoursesPage() {
         mode: 'LIVE',
         level: levelParam,
         upcomingRegistration: true,
-    } as any)
+    })
     const vodQuery = useAcademyClassCatalog({
         mode: 'VOD',
         level: levelParam,
@@ -103,7 +146,7 @@ export default function DashboardCoursesPage() {
                             </Card>
                         ) : (
                             <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory">
-                                {liveItems.map((klass: any) => (
+                                {liveItems.map((klass: CatalogListItem) => (
                                     <div
                                         key={klass.id}
                                         className="snap-start w-[280px] sm:w-[340px] lg:w-[400px] shrink-0"
@@ -134,7 +177,7 @@ export default function DashboardCoursesPage() {
                             </Card>
                         ) : (
                             <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory">
-                                {vodItems.map((klass: any) => (
+                                {vodItems.map((klass: CatalogListItem) => (
                                     <div
                                         key={klass.id}
                                         className="snap-start w-[280px] sm:w-[340px] lg:w-[400px] shrink-0"
@@ -152,21 +195,18 @@ export default function DashboardCoursesPage() {
     )
 }
 
-function ClassVodCard({ klass }: { klass: any }) {
+function ClassVodCard({ klass }: { klass: CatalogListItem }) {
     const profile = klass.courseProfile
     const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
     const title = klass.title || klass.name || profile?.title || 'Khóa học'
     const level = profile?.level || '—'
-    const basePrice = Number(klass.price ?? 0)
-    const discountPrice = Number(klass.discountPrice ?? 0)
-    const hasDiscount = discountPrice > 0 && discountPrice < basePrice
-    const displayPrice = hasDiscount ? discountPrice : basePrice
+    const { basePrice, displayPrice, hasDiscount } = catalogPriceParts(klass)
 
     return (
-        <Card>
+        <Card className="gap-0 py-0">
             <CardContent className="p-0">
-                <div className="relative aspect-video w-full border-b">
-                    <Image src={thumb} alt="" fill className="object-cover" />
+                <div className="relative aspect-video w-full border-b border-border bg-muted">
+                    <Image src={thumb} alt="" fill className="object-cover" sizes="(max-width: 640px) 280px, 400px" />
                     <div className="absolute top-2 left-2 flex gap-1">
                         <Badge>{level}</Badge>
                         <Badge variant="secondary">VOD</Badge>
@@ -206,15 +246,12 @@ function ClassVodCard({ klass }: { klass: any }) {
     )
 }
 
-function ClassLiveCard({ klass }: { klass: any }) {
+function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
     const profile = klass.cohort?.courseProfile ?? klass.courseProfile
     const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
     const title = klass.name || profile?.title || 'Lớp học'
     const level = profile?.level || '—'
-    const basePrice = Number(klass.price ?? 0)
-    const discountPrice = Number(klass.discountPrice ?? 0)
-    const hasDiscount = discountPrice > 0 && discountPrice < basePrice
-    const displayPrice = hasDiscount ? discountPrice : basePrice
+    const { basePrice, displayPrice, hasDiscount } = catalogPriceParts(klass)
     const term = klass.term ?? (klass.cohort ? {
         openingDate: klass.cohort.startDate ?? klass.cohort.enrollmentOpenAt ?? null,
         name: klass.cohort.name,
@@ -230,10 +267,10 @@ function ClassLiveCard({ klass }: { klass: any }) {
     } : null
 
     return (
-        <Card>
+        <Card className="gap-0 py-0">
             <CardContent className="p-0">
-                <div className="relative aspect-video w-full border-b">
-                    <Image src={thumb} alt="" fill className="object-cover" />
+                <div className="relative aspect-video w-full border-b border-border bg-muted">
+                    <Image src={thumb} alt="" fill className="object-cover" sizes="(max-width: 640px) 280px, 400px" />
                     <div className="absolute top-2 left-2 flex gap-1">
                         <Badge>{level}</Badge>
                         <Badge variant="destructive">Đang tuyển sinh</Badge>

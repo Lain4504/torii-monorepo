@@ -14,7 +14,12 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { SmartPagination } from '@/components/common/smart-pagination';
-import { listPageSearchWrapClass, listPageToolbarRootClass } from '@/lib/ui-shell';
+import {
+  listPageSearchIconClass,
+  listPageSearchInputClass,
+  listPageSearchWrapClass,
+  listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 
 export default function AiSubscriptionsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -265,7 +270,7 @@ function UserSubscriptionsTabContent() {
     return (
         <div className="space-y-6">
             <div className={listPageToolbarRootClass}>
-                <div className="space-y-1 min-w-0">
+                <div className="min-w-0 space-y-1 md:shrink-0">
                     <h2 className="text-lg font-bold flex items-center gap-2">
                         <UserCircle className="h-5 w-5 text-primary" />
                         Lịch sử đăng ký
@@ -275,10 +280,13 @@ function UserSubscriptionsTabContent() {
                     </p>
                 </div>
                 <div className={listPageSearchWrapClass}>
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className={listPageSearchIconClass} />
                     <Input
                         placeholder="Tìm kiếm user hoặc gói dịch vụ..."
-                        className="pl-9 h-10 border-muted-foreground/20 focus:border-primary transition-colors"
+                        className={cn(
+                          listPageSearchInputClass,
+                          'border-muted-foreground/20 focus:border-primary transition-colors',
+                        )}
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
                     />

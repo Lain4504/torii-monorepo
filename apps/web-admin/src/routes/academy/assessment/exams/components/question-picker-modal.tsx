@@ -21,6 +21,12 @@ import {
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Badge } from "@workspace/ui/components/badge"
 import { Search, Check } from "lucide-react"
+import { cn } from "@workspace/ui/lib/utils"
+import {
+  listPageSearchIconClass,
+  listPageSearchInputClass,
+  listPageSearchWrapClass,
+} from "@/lib/ui-shell"
 
 interface QuestionPickerModalProps {
   open: boolean
@@ -105,11 +111,11 @@ export function QuestionPickerModal({
 
         <div className="space-y-4 flex-1 overflow-hidden flex flex-col min-h-0">
           <div className="flex flex-wrap gap-3 items-center">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <div className={cn(listPageSearchWrapClass, "min-w-[200px] flex-1")}>
+              <Search className={listPageSearchIconClass} />
               <Input
                 placeholder="Tìm kiếm nội dung câu hỏi..."
-                className="pl-9"
+                className={listPageSearchInputClass}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

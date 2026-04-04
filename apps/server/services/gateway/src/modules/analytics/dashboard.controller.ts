@@ -1,7 +1,21 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { Permissions, PermissionsGuard, successResponse, GatewayAuthGuard } from '@server/shared';
+import {
+  Controller,
+  Get,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  Permissions,
+  PermissionsGuard,
+  successResponse,
+  GatewayAuthGuard,
+  ReqWithRequester,
+} from '@server/shared';
 import type {
   AdminDashboardResponseDTO,
+  AdminPresenceStatsDTO,
+  LecturerDashboardResponseDTO,
   StaffAcademicDashboardResponseDTO,
   StaffOperationsDashboardResponseDTO,
   StandardApiResponse,
@@ -39,6 +53,27 @@ export class DashboardController {
   @Permissions('*')
   async getAdminDashboard(): Promise<StandardApiResponse<AdminDashboardResponseDTO>> {
     const data = await this.dashboardService.getAdminDashboard();
+    return successResponse(data);
+  }
+
+  /** Chỉ block thống kê phiên / hoạt động — payload nhẹ, có thể poll */
+  @Get('presence')
+  @Permissions('*')
+  async getPresenceStats(): Promise<StandardApiResponse<AdminPresenceStatsDTO>> {
+    const data = await this.dashboardService.getPresenceStats();
+    return successResponse(data);
+  }
+
+  @Get('lecturer')
+  @Permissions('academy.delivery.read')
+  async getLecturerDashboard(
+    @Req() req: ReqWithRequester,
+  ): Promise<StandardApiResponse<LecturerDashboardResponseDTO>> {
+    const userId = req.requester?.sub;
+    if (!userId) {
+      throw new UnauthorizedException('Missing authenticated user');
+    }
+    const data = await this.dashboardService.getLecturerDashboard(userId);
     return successResponse(data);
   }
 }

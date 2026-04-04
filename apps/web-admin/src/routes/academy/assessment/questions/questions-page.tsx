@@ -22,6 +22,8 @@ import {
   dataTableShellClass,
   dataTableHeaderClass,
   listPageFiltersRowClass,
+  listPageSearchIconClass,
+  listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass,
 } from "@/lib/ui-shell"
@@ -91,10 +93,10 @@ export default function QuestionsPage() {
       {/* Filters */}
       <div className={listPageToolbarRootClass}>
         <div className={listPageSearchWrapClass}>
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className={listPageSearchIconClass} />
           <Input
             placeholder="Tìm kiếm nội dung câu hỏi..."
-            className="pl-9"
+            className={listPageSearchInputClass}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

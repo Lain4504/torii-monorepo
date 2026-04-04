@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
+  AcademyLiveClassQueryDTO,
   StandardApiResponse,
-  PaginatedApiResponse
+  PaginatedApiResponse,
 } from '@workspace/schemas';
 import { computeLearnerProductDisplay } from '@/lib/utils/learner-product-display';
 
@@ -120,36 +121,30 @@ export const academyProductApi = {
 /** Lớp học (catalog learner) — không expose CourseOffering như đơn vị hiển thị; chỉ map giá/checkout qua catalogOfferingId. */
 export const academyClassCatalogApi = {
   /**
-   * Chuẩn hoá payload trả về từ `live-classes/public` để FE chỉ dùng:
-   * - `price`: giá gốc
-   * - `discountPrice`: giá giảm (hoặc null nếu không có giảm)
+   * Lấy đúng `price` / `discountPrice` từ mỗi item trong response catalog (JSON có thể là số hoặc chuỗi Decimal).
    */
-  normalizePrice(item: any) {
-    const isLive = item?.mode === 'LIVE' || !!item?.cohort
-
-    const basePrice = Number(
-      isLive
-        ? item?.price ?? item?.catalogPrice ?? 0
-        : item?.price ?? item?.catalogPrice ?? 0,
-    )
-
-    const discountRaw = Number(
-      isLive
-        ? item?.discountPrice ?? 0
-        : item?.discountPrice ?? 0,
-    )
-
-    return {
-      price: basePrice,
-      discountPrice: discountRaw > 0 ? discountRaw : null,
+  normalizePrice(item: { price?: unknown; discountPrice?: unknown | null }) {
+    const amount = (v: unknown): number => {
+      if (v == null || v === '') return 0
+      if (typeof v === 'number' && Number.isFinite(v)) return Math.max(0, v)
+      const n = Number(String(v).trim())
+      return Number.isFinite(n) ? Math.max(0, n) : 0
     }
+    const price = amount(item.price)
+    const dRaw = item.discountPrice
+    const dNum =
+      dRaw == null || dRaw === ''
+        ? NaN
+        : typeof dRaw === 'number' && Number.isFinite(dRaw)
+          ? dRaw
+          : Number(String(dRaw).trim())
+    const discountPrice =
+      Number.isFinite(dNum) && dNum > 0 && dNum < price ? dNum : null
+    return { price, discountPrice }
   },
-  findPublic: async (params: {
-    mode: 'LIVE' | 'VOD';
-    level?: string;
-    month?: string;
-    q?: string;
-  }): Promise<{ items: any[] }> => {
+  findPublic: async (
+    params: AcademyLiveClassQueryDTO & { mode: 'LIVE' | 'VOD' },
+  ): Promise<{ items: any[] }> => {
     const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
       '/api/academy/live-classes/public',
       { params },
@@ -267,16 +262,13 @@ export function useAcademyCourseById(courseId?: string) {
   });
 }
 
-export function useAcademyClassCatalog(params: {
-  mode: 'LIVE' | 'VOD';
-  level?: string;
-  month?: string;
-  q?: string;
-}) {
+export function useAcademyClassCatalog(
+  params: AcademyLiveClassQueryDTO & { mode: 'LIVE' | 'VOD' },
+) {
   return useQuery({
     queryKey: ['academy-class-catalog', params],
     queryFn: () => academyClassCatalogApi.findPublic(params),
-  });
+  })
 }
 
 export function useAcademyClassCatalogById(classId?: string, mode?: 'LIVE' | 'VOD') {

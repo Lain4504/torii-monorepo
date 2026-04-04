@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { cn } from '@workspace/ui/lib/utils'
 import { useGoogleAuth, useFacebookAuth } from '@/lib/api/services/auth-api'
+import { createGoogleGsiLoadingGuard, shouldEndFlowFromPromptMoment } from '@/lib/google-gsi-loading-guard'
 import { useEffect as useCleanup } from 'react'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Badge } from '@workspace/ui/components/badge'
@@ -122,6 +123,7 @@ export function RegisterForm() {
             setGoogleLoading(false)
             return
         }
+        const guard = createGoogleGsiLoadingGuard(setGoogleLoading, 90_000)
         ; (window as any).google.accounts.id.initialize({
             client_id: googleClientId,
             callback: async (response: any) => {
@@ -133,6 +135,7 @@ export function RegisterForm() {
                 } catch (error: any) {
                     toast.error(error?.message || 'Đăng nhập Google thất bại')
                 } finally {
+                    guard.disarm()
                     setGoogleLoading(false)
                 }
             },
@@ -145,8 +148,18 @@ export function RegisterForm() {
             const btn = buttonWrapper.querySelector('div[role="button"]') as HTMLElement
             if (btn) btn.click()
             else {
-                try { (window as any).google.accounts.id.prompt() }
-                catch { setGoogleLoading(false); toast.error('Không thể khởi tạo Google Sign-In') }
+                try {
+                    ; (window as any).google.accounts.id.prompt((notification: unknown) => {
+                        if (shouldEndFlowFromPromptMoment(notification)) {
+                            guard.disarm()
+                            setGoogleLoading(false)
+                        }
+                    })
+                } catch {
+                    guard.disarm()
+                    setGoogleLoading(false)
+                    toast.error('Không thể khởi tạo Google Sign-In')
+                }
             }
         }, 200)
     }

@@ -17,11 +17,20 @@ import {
   TableHeader,
   TableRow,
 } from '@workspace/ui/components/table'
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@workspace/ui/components/empty'
 import { ArrowLeft, Plus, Pencil, Trash2, Loader2, BookOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { dataTableShellClass, dataTableHeaderClass } from '@/lib/ui-shell'
 
 import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog'
+import { DeleteSetCardDialog } from '@/components/academy/delete-set-card-dialog'
 
 export default function StudySetCatalogDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -35,6 +44,9 @@ export default function StudySetCatalogDetailPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingCard, setEditingCard] = useState<any | null>(null)
+
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [cardToDelete, setCardToDelete] = useState<{ id: string; term: string } | null>(null)
 
   const openCreate = () => {
     setEditingCard(null)
@@ -53,8 +65,8 @@ export default function StudySetCatalogDetailPage() {
       hint: values.note.trim() || undefined,
       languageDetails: {
         phonetic: values.phonetic.trim(),
-        type: values.type
-      }
+        type: values.type,
+      },
     }
     try {
       if (editingCard) {
@@ -70,11 +82,18 @@ export default function StudySetCatalogDetailPage() {
     }
   }
 
-  const onDelete = async (card: any) => {
-    if (!confirm(`Xóa thẻ "${card.term}"?`)) return
+  const openDelete = (card: any) => {
+    setCardToDelete({ id: card.id, term: card.term })
+    setDeleteOpen(true)
+  }
+
+  const confirmDeleteCard = async () => {
+    if (!cardToDelete) return
     try {
-      await deleteCard.mutateAsync(card.id)
+      await deleteCard.mutateAsync(cardToDelete.id)
       toast.success('Đã xóa thẻ')
+      setDeleteOpen(false)
+      setCardToDelete(null)
     } catch (err: any) {
       toast.error(err?.message || 'Không thể xóa thẻ')
     }
@@ -84,18 +103,19 @@ export default function StudySetCatalogDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
   if (!set) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
         <p className="text-muted-foreground">Không tìm thấy bộ thẻ.</p>
         <Button variant="outline" onClick={() => navigate(-1)}>
-          <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại
+          <ArrowLeft />
+          Quay lại
         </Button>
       </div>
     )
@@ -103,31 +123,34 @@ export default function StudySetCatalogDetailPage() {
 
   const cards = (set as any).setCards ?? []
 
-  const initialValues: Partial<FlashcardFormValues> = editingCard ? {
-    term: editingCard.term,
-    definition: editingCard.definition,
-    phonetic: editingCard.languageDetails?.phonetic || editingCard.language_details?.phonetic || '',
-    note: editingCard.hint || '',
-    type: editingCard.languageDetails?.type || editingCard.language_details?.type || 'Từ vựng'
-  } : {}
+  const initialValues: Partial<FlashcardFormValues> = editingCard
+    ? {
+        term: editingCard.term,
+        definition: editingCard.definition,
+        phonetic:
+          editingCard.languageDetails?.phonetic || editingCard.language_details?.phonetic || '',
+        note: editingCard.hint || '',
+        type: editingCard.languageDetails?.type || editingCard.language_details?.type || 'Từ vựng',
+      }
+    : {}
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="w-4 h-4" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-4">
+        <Button variant="outline" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
+          <ArrowLeft />
         </Button>
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <PageHeader
             title={set.title}
-            subtitle={set.description || 'Quản lý các thẻ flashcard bên trong bộ này'}
+            subtitle={set.description || 'Quản lý các thẻ flashcard trong bộ này.'}
             stats={[
               { label: 'Số thẻ', value: cards.length },
               { label: 'Trạng thái', value: set.isPublic ? 'Public' : 'Ẩn' },
             ]}
             actions={
               <Button onClick={openCreate}>
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus />
                 Thêm thẻ
               </Button>
             }
@@ -135,71 +158,93 @@ export default function StudySetCatalogDetailPage() {
         </div>
       </div>
 
+      <DeleteSetCardDialog
+        open={deleteOpen && !!cardToDelete}
+        onOpenChange={(o) => {
+          setDeleteOpen(o)
+          if (!o) setCardToDelete(null)
+        }}
+        card={cardToDelete}
+        onConfirm={confirmDeleteCard}
+        isPending={deleteCard.isPending}
+      />
+
       {cards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-xl py-20 gap-4 text-muted-foreground">
-          <BookOpen className="w-12 h-12" />
-          <p className="text-lg font-medium">Bộ thẻ này chưa có thẻ nào</p>
-          <p className="text-sm">Nhấn "Thêm thẻ" để bắt đầu tạo nội dung</p>
-          <Button onClick={openCreate}>
-            <Plus className="w-4 h-4 mr-2" />
-            Thêm thẻ đầu tiên
-          </Button>
-        </div>
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <BookOpen />
+            </EmptyMedia>
+            <EmptyTitle>Chưa có thẻ</EmptyTitle>
+            <EmptyDescription>
+              Thêm thẻ để học viên có nội dung trong bộ catalog này.
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={openCreate}>
+              <Plus />
+              Thêm thẻ đầu tiên
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : (
         <div className={dataTableShellClass}>
           <Table>
             <TableHeader className={dataTableHeaderClass}>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-8 pl-4">#</TableHead>
+                <TableHead className="w-10 pl-4">#</TableHead>
                 <TableHead>Mặt trước / Phiên âm</TableHead>
-                <TableHead>Mặt sau / Nghĩa</TableHead>
+                <TableHead>Mặt sau</TableHead>
                 <TableHead>Từ loại</TableHead>
-                <TableHead className="text-right pr-6 w-[100px]">Thao tác</TableHead>
+                <TableHead className="w-[120px] text-right pr-4">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {cards.map((card: any, idx: number) => (
-                <TableRow key={card.id} className="hover:bg-muted/10">
-                  <TableCell className="pl-4 text-muted-foreground text-sm">{idx + 1}</TableCell>
-                  <TableCell className="max-w-[240px]">
-                    <div className="font-bold text-slate-800">{card.term}</div>
+                <TableRow key={card.id}>
+                  <TableCell className="pl-4 text-muted-foreground text-sm tabular-nums">
+                    {idx + 1}
+                  </TableCell>
+                  <TableCell className="max-w-[min(100%,240px)]">
+                    <div className="font-medium">{card.term}</div>
                     {(card.languageDetails?.phonetic || card.language_details?.phonetic) && (
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        「 {card.languageDetails?.phonetic || card.language_details?.phonetic} 」
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        「{card.languageDetails?.phonetic || card.language_details?.phonetic}」
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="max-w-[300px]">
-                    <div className="text-slate-700">{card.definition}</div>
+                  <TableCell className="max-w-[min(100%,320px)]">
+                    <div>{card.definition}</div>
                     {card.hint && (
-                      <div className="text-[11px] italic text-muted-foreground mt-0.5">Ghi chú: {card.hint}</div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">Ghi chú: {card.hint}</div>
                     )}
                   </TableCell>
                   <TableCell>
-                    {(card.languageDetails?.type || card.language_details?.type) ? (
-                      <Badge variant="outline" className="text-[10px] font-bold px-2 py-0 h-5 bg-slate-50 uppercase tracking-tighter">
+                    {card.languageDetails?.type || card.language_details?.type ? (
+                      <Badge variant="outline">
                         {card.languageDetails?.type || card.language_details?.type}
                       </Badge>
                     ) : (
-                      <span className="text-muted-foreground text-xs">—</span>
+                      <span className="text-muted-foreground text-sm">—</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right pr-4">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(card)}>
-                        <Pencil className="h-3.5 w-3.5" />
+                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(card)}>
+                        <Pencil />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                        onClick={() => onDelete(card)}
-                        disabled={deleteCard.isPending && deleteCard.variables === card.id}
+                        size="icon-sm"
+                        onClick={() => openDelete(card)}
+                        disabled={
+                          deleteCard.isPending && deleteCard.variables === card.id
+                        }
                       >
                         {deleteCard.isPending && deleteCard.variables === card.id ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2 className="animate-spin" />
                         ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 />
                         )}
                       </Button>
                     </div>
@@ -211,7 +256,6 @@ export default function StudySetCatalogDetailPage() {
         </div>
       )}
 
-      {/* Shared Card Editor Dialog */}
       <FlashcardFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}

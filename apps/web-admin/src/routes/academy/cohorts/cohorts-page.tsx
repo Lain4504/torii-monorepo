@@ -33,6 +33,8 @@ import {
     dataTableShellClass,
     dataTableHeaderClass,
     listPageFiltersRowClass,
+    listPageSearchIconClass,
+    listPageSearchInputClass,
     listPageSearchWrapClass,
     listPageToolbarRootClass,
 } from "@/lib/ui-shell"
@@ -98,12 +100,12 @@ export default function CohortsPage() {
             <div className="flex flex-col gap-4">
                 <div className={listPageToolbarRootClass}>
                     <div className={listPageSearchWrapClass}>
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Search className={listPageSearchIconClass} />
                         <Input
                             placeholder="Tìm theo mã hoặc tên..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 h-10 shadow-sm"
+                            className={listPageSearchInputClass}
                         />
                     </div>
 
