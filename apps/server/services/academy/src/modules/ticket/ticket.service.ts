@@ -417,14 +417,25 @@ export class TicketService implements ITicketService {
       throw new BadRequestException('Only pending tickets can be deleted');
     }
 
-    await this.ticketRepository.delete(id);
+    if (isAdmin) {
+      await this.ticketRepository.delete(id);
+    } else {
+      await this.ticketRepository.updateStatus(
+        id,
+        TicketStatus.CANCELLED,
+        'Yêu cầu đã bị hủy bởi người dùng.',
+        requesterId || userId || ticket.userId,
+      );
+    }
 
     await this.audit.log({
       userId: requesterId || userId || ticket.userId,
-      action: 'ticket.delete',
+      action: isAdmin ? 'ticket.delete' : 'ticket.cancel',
       entity: 'Ticket',
       entityId: id,
-      description: `Deleted ticket: ${ticket.subject}${isAdmin ? ' (Admin force)' : ''}`,
+      description: isAdmin
+        ? `Deleted ticket: ${ticket.subject} (Admin force)`
+        : `Cancelled ticket: ${ticket.subject}`,
       metadata: { subject: ticket.subject, type: ticket.type, isAdmin },
     });
   }
