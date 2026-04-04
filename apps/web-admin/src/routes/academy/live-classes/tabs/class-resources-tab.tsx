@@ -99,14 +99,12 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
         title: string;
         description: string;
         type: AcademyResourceType;
-        externalUrl: string;
         fileAssetId: string;
         visibility: AcademyResourceVisibility;
     }>({
         title: "",
         description: "",
-        type: AcademyResourceType.LINK,
-        externalUrl: "",
+        type: AcademyResourceType.FILE,
         fileAssetId: "",
         visibility: AcademyResourceVisibility.PUBLIC
     })
@@ -189,8 +187,7 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
             setNewResource({
                 title: "",
                 description: "",
-                type: AcademyResourceType.LINK,
-                externalUrl: "",
+                type: AcademyResourceType.FILE,
                 fileAssetId: "",
                 visibility: AcademyResourceVisibility.PUBLIC
             })
@@ -331,102 +328,67 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                                             className="rounded-xl min-h-[100px]"
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="grid gap-2">
-                                            <Label>Loại tài liệu</Label>
-                                            <Select
-                                                value={newResource.type}
-                                                onValueChange={(val) => {
-                                                    const newType = val as AcademyResourceType;
-                                                    setNewResource({
-                                                        ...newResource,
-                                                        type: newType,
-                                                        // Clear the other field when switching
-                                                        externalUrl: newType === AcademyResourceType.LINK ? newResource.externalUrl : "",
-                                                        fileAssetId: newType === AcademyResourceType.FILE ? newResource.fileAssetId : ""
-                                                    })
-                                                }}
-                                            >
-                                                <SelectTrigger className="rounded-xl">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={AcademyResourceType.LINK}>Liên kết (URL)</SelectItem>
-                                                    <SelectItem value={AcademyResourceType.FILE}>Tệp tin (Upload)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label>Hiển thị</Label>
-                                            <Select
-                                                value={newResource.visibility}
-                                                onValueChange={(val) => setNewResource({ ...newResource, visibility: val as any })}
-                                            >
-                                                <SelectTrigger className="rounded-xl">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={AcademyResourceVisibility.PUBLIC}>Công khai</SelectItem>
-                                                    <SelectItem value={AcademyResourceVisibility.PRIVATE}>Ẩn</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                    <div className="grid gap-2">
+                                        <Label>Hiển thị</Label>
+                                        <Select
+                                            value={newResource.visibility}
+                                            onValueChange={(val) => setNewResource({ ...newResource, visibility: val as any })}
+                                        >
+                                            <SelectTrigger className="rounded-xl">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value={AcademyResourceVisibility.PUBLIC}>Công khai</SelectItem>
+                                                <SelectItem value={AcademyResourceVisibility.PRIVATE}>Ẩn</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
-                                    {newResource.type === AcademyResourceType.LINK && (
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="url">Địa chỉ liên kết (URL)</Label>
-                                            <Input
-                                                id="url"
-                                                placeholder="https://example.com/document"
-                                                value={newResource.externalUrl}
-                                                onChange={(e) => setNewResource({ ...newResource, externalUrl: e.target.value })}
-                                                className="rounded-xl"
-                                            />
-                                        </div>
-                                    )}
 
-                                    {newResource.type === AcademyResourceType.FILE && (
-                                        <div className="grid gap-2">
-                                            <Label>Tải lên tập tin</Label>
-                                            {newResource.fileAssetId ? (
-                                                <div className="flex items-center gap-2 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
-                                                    <FileText className="size-4" />
-                                                    <span className="text-xs font-medium truncate flex-1">{newResource.title}</span>
-                                                    <Button variant="ghost" size="sm" onClick={() => setNewResource({ ...newResource, fileAssetId: "" })} className="h-6 px-2 text-emerald-700 hover:bg-emerald-100">Thay đổi</Button>
-                                                </div>
-                                            ) : (
-                                                <div
-                                                    onDragOver={handleDragOver}
-                                                    onDragLeave={handleDragLeave}
-                                                    onDrop={handleDrop}
-                                                    className={`p-8 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-2 transition-all relative ${isUploading ? 'bg-muted/50 border-muted cursor-not-allowed' : isDragging ? 'bg-primary/10 border-primary scale-[1.02]' : 'hover:bg-primary/5 hover:border-primary/50 border-zinc-200 cursor-pointer'}`}
-                                                    onClick={() => !isUploading && document.getElementById('file-upload-input')?.click()}
-                                                >
-                                                    <input
-                                                        id="file-upload-input"
-                                                        type="file"
-                                                        className="hidden"
-                                                        onChange={handleFileUpload}
-                                                        disabled={isUploading}
-                                                    />
-                                                    {isUploading ? (
-                                                        <>
-                                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                                                            <p className="text-xs font-medium text-muted-foreground">Đang tải lên...</p>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Upload className={`size-6 transition-colors ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
-                                                            <p className="text-xs font-medium text-muted-foreground">
+                                    <div className="grid gap-2">
+                                        <Label>Tải lên tập tin</Label>
+                                        {newResource.fileAssetId ? (
+                                            <div className="flex items-center gap-2 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                                                <FileText className="size-4" />
+                                                <span className="text-xs font-medium truncate flex-1">{newResource.title}</span>
+                                                <Button variant="ghost" size="sm" onClick={() => setNewResource({ ...newResource, fileAssetId: "" })} className="h-6 px-2 text-emerald-700 hover:bg-emerald-100">Thay đổi</Button>
+                                            </div>
+                                        ) : (
+                                            <div
+                                                onDragOver={handleDragOver}
+                                                onDragLeave={handleDragLeave}
+                                                onDrop={handleDrop}
+                                                className={`p-12 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center gap-4 transition-all relative ${isUploading ? 'bg-muted/50 border-muted cursor-not-allowed' : isDragging ? 'bg-primary/10 border-primary scale-[1.02]' : 'hover:bg-primary/5 hover:border-primary/50 border-zinc-200 cursor-pointer'}`}
+                                                onClick={() => !isUploading && document.getElementById('file-upload-input')?.click()}
+                                            >
+                                                <input
+                                                    id="file-upload-input"
+                                                    type="file"
+                                                    className="hidden"
+                                                    onChange={handleFileUpload}
+                                                    disabled={isUploading}
+                                                />
+                                                {isUploading ? (
+                                                    <>
+                                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                                                        <p className="text-sm font-medium text-muted-foreground">Đang tải lên...</p>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div className="p-4 rounded-2xl bg-primary/10 text-primary">
+                                                            <Upload className={`size-8 transition-colors ${isDragging ? 'text-primary' : 'text-primary'}`} />
+                                                        </div>
+                                                        <div className="text-center space-y-1">
+                                                            <p className="text-sm font-bold">
                                                                 {isDragging ? 'Thả tệp vào đây' : 'Nhấn để chọn hoặc kéo thả tệp'}
                                                             </p>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                                            <p className="text-xs text-muted-foreground">Hỗ trợ các định dạng PDF, Docx, Hình ảnh...</p>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <DialogFooter>
                                     <Button variant="outline" onClick={() => setIsAddingResource(false)} className="rounded-xl">Hủy</Button>
@@ -503,8 +465,8 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                             <Card key={res.id} className={`rounded-2xl transition-all ${res.visibility === AcademyResourceVisibility.PRIVATE ? 'opacity-60 bg-muted/30' : ''}`}>
                                 <CardContent className="p-5 flex items-center justify-between">
                                     <div className="flex items-start gap-4">
-                                        <div className={`p-3 rounded-xl ${res.resourceType === 'FILE' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                                            {res.resourceType === 'FILE' ? <FileText className="size-5" /> : <LinkIcon className="size-5" />}
+                                        <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
+                                            <FileText className="size-5" />
                                         </div>
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
@@ -515,25 +477,17 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                                             </div>
                                             <p className="text-sm text-muted-foreground line-clamp-1">{res.description || 'Không có mô tả.'}</p>
                                             <div className="flex items-center gap-2 pt-1">
-                                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">{res.resourceType === 'FILE' ? 'Tệp tin' : 'URL'}</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">Tệp tin</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-1">
-                                        {res.resourceType === 'LINK' ? (
-                                            <Button size="icon" variant="ghost" asChild className="rounded-lg">
-                                                <a href={res.externalUrl || '#'} target="_blank" rel="noopener noreferrer">
-                                                    <ExternalLink className="size-4" />
-                                                </a>
-                                            </Button>
-                                        ) : (
-                                            <Button size="icon" variant="ghost" asChild className="rounded-lg">
-                                                <a href={res.downloadUrl} download target="_blank" rel="noopener noreferrer">
-                                                    <Download className="size-4" />
-                                                </a>
-                                            </Button>
-                                        )}
+                                        <Button size="icon" variant="ghost" asChild className="rounded-lg">
+                                            <a href={res.downloadUrl} download target="_blank" rel="noopener noreferrer">
+                                                <Download className="size-4" />
+                                            </a>
+                                        </Button>
 
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -562,7 +516,7 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                         <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed">
                             <FileText className="size-16 text-muted-foreground/10 mx-auto mb-4" />
                             <h4 className="font-bold">Thư mục này trống</h4>
-                            <p className="text-sm text-muted-foreground">Bắt đầu bằng cách thêm tài liệu hoặc liên kết hữu ích.</p>
+                            <p className="text-sm text-muted-foreground">Bắt đầu bằng cách tải lên các tài liệu học tập hữu ích.</p>
                         </div>
                     )
                 )}
