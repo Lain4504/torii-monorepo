@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useAcademyExam, useCreateAcademyExam, useUpdateAcademyExam, useAddQuestionsToExam, useRemoveQuestionFromExam } from "@/lib/api/services/academy-exams"
+import { academyExamsApi, useAcademyExam, useCreateAcademyExam, useUpdateAcademyExam, useAddQuestionsToExam, useRemoveQuestionFromExam } from "@/lib/api/services/academy-exams"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
@@ -54,6 +54,7 @@ export default function AcademyExamEditorPage() {
     status: "DRAFT",
     totalTimeLimitMinutes: 60,
   })
+  const [localQuestions, setLocalQuestions] = useState<any[]>([]) 
 
   useEffect(() => {
     if (exam && isEditing) {
@@ -67,9 +68,24 @@ export default function AcademyExamEditorPage() {
     }
   }, [exam, isEditing])
 
-  const handleAddQuestions = async (questionIds: string[]) => {
+  const handleAddQuestions = async (selectedQuestions: any[]) => {
+    if (!isEditing) {
+      // Local mode
+      const mapped = selectedQuestions.map(q => ({
+        id: `local-${q.id}`, // Temporary id for local display
+        questionId: q.id,
+        question: q,
+        points: 1
+      }))
+      setLocalQuestions([...localQuestions, ...mapped])
+      setIsDirty(true)
+      setIsSaved(false)
+      return
+    }
+
     if (!selectedSectionId) return
     try {
+      const questionIds = selectedQuestions.map(q => q.id)
       await addQuestionsMutation.mutateAsync({
         sectionId: selectedSectionId,
         questionIds,
@@ -83,6 +99,14 @@ export default function AcademyExamEditorPage() {
 
   const handleRemoveQuestion = async () => {
     if (!removeTargetId) return
+    
+    if (!isEditing) {
+      setLocalQuestions(localQuestions.filter(q => q.id !== removeTargetId))
+      setIsDirty(true)
+      setRemoveTargetId(null)
+      return
+    }
+
     try {
       await removeQuestionMutation.mutateAsync(removeTargetId)
       toast.success("Đã xóa câu hỏi")
@@ -93,7 +117,7 @@ export default function AcademyExamEditorPage() {
     }
   }
 
-  const handleSubmit = async (e?: React.FormEvent, silent = false) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
 
     if (!formData.title.trim()) {
@@ -109,14 +133,11 @@ export default function AcademyExamEditorPage() {
             ...formData,
           } as any,
         })
-        if (!silent) {
-          toast.success("Cập nhật đề thi thành công")
-          navigate("/academy/assessment/exams")
-        }
-        setIsDirty(false)
-        setIsSaved(true)
+        toast.success("Cập nhật đề thi thành công")
+        navigate("/academy/assessment/exams")
         return id
       } else {
+        // Create Exam with initial section
         const newExam = await createMutation.mutateAsync({
           ...formData,
           sections: [
@@ -128,14 +149,18 @@ export default function AcademyExamEditorPage() {
           settings: {},
         } as any)
 
-        if (!silent) {
-          toast.success("Tạo đề thi mới thành công")
-          navigate("/academy/assessment/exams")
-        } else {
-          // If silent (auto-save for questions), we need to redirect to the edit page immediately
-          // but stay on the page logically. The simplest is to navigate to the new ID.
-          navigate(`/academy/assessment/exams/${newExam.id}`, { replace: true })
+        // After creating the exam, if we have local questions, add them now
+        if (localQuestions.length > 0 && newExam.sections?.[0]?.id) {
+            const questionIds = localQuestions.map(q => q.questionId)
+            await academyExamsApi.addQuestions({
+                sectionId: newExam.sections[0].id,
+                questionIds,
+                points: 1
+            })
         }
+
+        toast.success("Tạo đề thi mới thành công")
+        navigate("/academy/assessment/exams")
         return newExam
       }
     } catch (error: any) {
@@ -144,21 +169,7 @@ export default function AcademyExamEditorPage() {
     }
   }
 
-  const handleAddQuestionToNewExam = async () => {
-    setIsAutoSaving(true)
-    const result = await handleSubmit(undefined, true)
-    if (result) {
-      // The component will re-render with the new ID and fetch the exam data.
-      // We need to wait for the data to be available to get the section ID.
-      // However, we can use a temporary trick: if we just created it, we know it has one section.
-      // But it's safer to wait for the exam object to be loaded via the navigate above.
-      // For now, we'll let the user click again OR we can try to find the section once loaded.
-      toast.info("Đã tạo bản nháp bài thi. Vui lòng bấm 'Thêm câu hỏi' một lần nữa.")
-    }
-    setIsAutoSaving(false)
-  }
-
-  const isPending = createMutation.isPending || updateMutation.isPending || isAutoSaving
+  const isPending = createMutation.isPending || updateMutation.isPending 
 
   if (isEditing && isFetching) {
     return (
@@ -170,7 +181,7 @@ export default function AcademyExamEditorPage() {
   }
 
   const displaySections = isEditing && exam?.sections ? exam.sections : [
-    { id: "new-placeholder", title: "Phần 1 - Trắc nghiệm", orderIndex: 0, questions: [] }
+    { id: "new-placeholder", title: "Phần 1 - Trắc nghiệm", orderIndex: 0, questions: localQuestions }
   ]
 
   return (
@@ -189,24 +200,16 @@ export default function AcademyExamEditorPage() {
         </div>
         <div className="flex items-center gap-3">
           <Button
-            variant={isSaved && !isDirty ? "outline" : "default"}
+            variant="default"
             size="lg"
             onClick={() => handleSubmit()}
-            disabled={isPending || (isSaved && !isDirty)}
-            className={`min-w-[160px] transition-all duration-300 ${isSaved && !isDirty
-              ? 'border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-900/10 cursor-default'
-              : 'bg-sky-600 hover:bg-sky-700 shadow-md hover:shadow-lg'
-              }`}
+            disabled={isPending}
+            className="min-w-[160px] bg-sky-600 hover:bg-sky-700 shadow-md hover:shadow-lg transition-all duration-300"
           >
             {isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                 Đang lưu...
-              </>
-            ) : isSaved && !isDirty ? (
-              <>
-                <Check className="w-4 h-4 mr-2" />
-                Đã lưu thành công
               </>
             ) : (
               <>
@@ -290,19 +293,13 @@ export default function AcademyExamEditorPage() {
                     onClick={() => {
                       if (isEditing) {
                         setSelectedSectionId(section.id);
-                        setPickerOpen(true);
-                      } else {
-                        handleAddQuestionToNewExam();
                       }
+                      setPickerOpen(true);
                     }}
                     className="h-9 border-sky-200 text-sky-600 hover:bg-sky-50 hover:text-sky-700"
                     disabled={isPending}
                   >
-                    {isPending && !isEditing ? (
-                      <div className="w-3 h-3 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : (
-                      <Plus className="w-4 h-4 mr-2" />
-                    )}
+                    <Plus className="w-4 h-4 mr-2" />
                     Thêm câu hỏi
                   </Button>
                 </div>
@@ -442,7 +439,11 @@ export default function AcademyExamEditorPage() {
         open={pickerOpen}
         onOpenChange={setPickerOpen}
         onConfirm={handleAddQuestions}
-        existingQuestionIds={exam?.sections?.flatMap(s => (s.questions || s.examQuestions)?.map((q: any) => q.question?.id || q.questionId) || []) || []}
+        existingQuestionIds={
+          isEditing 
+            ? exam?.sections?.flatMap(s => (s.questions || s.examQuestions)?.map((q: any) => q.question?.id || q.questionId) || []) || []
+            : localQuestions.map(q => q.questionId)
+        }
       />
 
       {/* Remove Question Confirmation */}
