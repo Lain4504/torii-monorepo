@@ -9,6 +9,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/component
 import { cn } from '@workspace/ui/lib/utils';
 import {
     listPageFiltersRowClass,
+    listPageSearchIconClass,
+    listPageSearchInputClass,
     listPageSearchWrapClass,
     listPageToolbarRootClass,
 } from '@/lib/ui-shell';
@@ -37,15 +39,15 @@ export function AuditLogsToolbar({
 }: AuditLogsToolbarProps) {
     return (
         <div className={listPageToolbarRootClass}>
-            <Field className="space-y-2">
+            <Field className="w-full min-w-0 space-y-2 md:flex-1">
                 <FieldLabel>Hành động</FieldLabel>
                 <div className={listPageSearchWrapClass}>
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                    <Search className={listPageSearchIconClass} />
                     <Input
                         placeholder="Tìm kiếm hành động..."
                         value={action}
                         onChange={(e) => onActionChange(e.target.value)}
-                        className="pl-10 h-10"
+                        className={listPageSearchInputClass}
                     />
                 </div>
             </Field>
@@ -53,7 +55,7 @@ export function AuditLogsToolbar({
             <Field className="w-full md:flex-1 md:min-w-[200px]">
                 <FieldLabel>Đối tượng</FieldLabel>
                 <Select value={entity || 'all'} onValueChange={(val) => onEntityChange(val === 'all' ? '' : val)}>
-                    <SelectTrigger className="h-10 w-full">
+                    <SelectTrigger className="h-10 w-full md:w-[220px]">
                         <SelectValue placeholder="Chọn đối tượng" />
                     </SelectTrigger>
                     <SelectContent>

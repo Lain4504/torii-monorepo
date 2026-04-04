@@ -47,6 +47,8 @@ import {
 import { PageHeader } from "@/components/common/page-header";
 import {
   listPageFiltersRowClass,
+  listPageSearchIconClass,
+  listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass,
 } from "@/lib/ui-shell";
@@ -116,10 +118,10 @@ export default function JlptTemplatesPage() {
       <div className="space-y-4">
         <div className={listPageToolbarRootClass}>
           <form onSubmit={handleSearch} className={listPageSearchWrapClass}>
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className={listPageSearchIconClass} />
             <Input
               placeholder="Tìm kiếm tiêu đề hoặc mã đề..."
-              className="pl-10"
+              className={listPageSearchInputClass}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

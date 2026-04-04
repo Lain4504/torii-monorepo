@@ -41,6 +41,8 @@ import {
     dataTableShellClass,
     dataTableHeaderClass,
     listPageFiltersRowClass,
+    listPageSearchIconClass,
+    listPageSearchInputClass,
     listPageSearchWrapClass,
     listPageToolbarRootClass,
 } from '@/lib/ui-shell';
@@ -121,12 +123,12 @@ export default function CourseProfilesPage() {
                 <div className="space-y-4">
                     <div className={listPageToolbarRootClass}>
                         <div className={listPageSearchWrapClass}>
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Search className={listPageSearchIconClass} />
                             <Input
                                 placeholder="Tìm theo mã N5-2024, N4..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9 h-10 shadow-sm"
+                                className={listPageSearchInputClass}
                             />
                         </div>
 

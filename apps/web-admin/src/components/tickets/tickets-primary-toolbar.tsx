@@ -14,6 +14,8 @@ import {
 import { TicketStatus, TicketType } from '@workspace/schemas';
 import {
     listPageFiltersRowClass,
+    listPageSearchIconClass,
+    listPageSearchInputClass,
     listPageSearchWrapClass,
     listPageToolbarRootClass,
 } from '@/lib/ui-shell';
@@ -39,12 +41,15 @@ export function TicketsPrimaryToolbar({
     return (
         <div className={listPageToolbarRootClass}>
             <div className={cn(listPageSearchWrapClass, 'group')}>
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                <Search className={cn(listPageSearchIconClass, 'transition-colors group-focus-within:text-primary')} />
                 <Input
                     placeholder="Tìm kiếm theo tiêu đề, email, ID..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="pl-10"
+                    className={cn(
+                        listPageSearchInputClass,
+                        'border-border bg-background transition-all focus-visible:ring-2 focus-visible:ring-primary/20',
+                    )}
                 />
             </div>
 

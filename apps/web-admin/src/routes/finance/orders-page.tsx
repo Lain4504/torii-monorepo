@@ -4,6 +4,8 @@ import { OrdersTable } from '@/components/finance/orders-table';
 import {
   dataTableShellClass,
   listPageFiltersRowClass,
+  listPageSearchIconClass,
+  listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass,
 } from '@/lib/ui-shell';
@@ -145,12 +147,12 @@ export default function OrdersPage() {
         {/* Toolbar */}
         <div className={listPageToolbarRootClass}>
           <div className={listPageSearchWrapClass}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className={listPageSearchIconClass} />
             <Input
               placeholder="Tìm theo mã đơn, email hoặc tên khách hàng..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className={listPageSearchInputClass}
             />
           </div>
 

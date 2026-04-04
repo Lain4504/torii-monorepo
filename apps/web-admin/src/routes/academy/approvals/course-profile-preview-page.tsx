@@ -26,8 +26,7 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { toast } from "@workspace/ui/components/sonner"
 import { ChevronRight, CheckCircle2, BookOpen, XCircle } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
+import { usePermissions } from "@/hooks/use-permissions"
 import {
   useAcademyCourseProfile,
   useApproveAcademyCourseProfile,
@@ -45,7 +44,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default function CourseProfileApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { can } = usePermissions()
 
   const { data: profile, isLoading } = useAcademyCourseProfile(id)
   const approveMutation = useApproveAcademyCourseProfile()
@@ -56,9 +55,6 @@ export default function CourseProfileApprovalPreviewPage() {
     open: boolean
     reason: string
   }>({ open: false, reason: "" })
-
-  const isStaffOrAdmin =
-    user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
 
   if (isLoading) {
     return (
@@ -73,7 +69,8 @@ export default function CourseProfileApprovalPreviewPage() {
     return <div className="p-8 text-center text-muted-foreground">Không tìm thấy CourseProfile.</div>
   }
 
-  const canApprove = isStaffOrAdmin && profile.status === "PENDING_APPROVAL"
+  const canApprove =
+    can("academy.content.approve") && profile.status === "PENDING_APPROVAL"
 
   return (
     <div className="flex flex-col gap-6">

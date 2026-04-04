@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update table header styles and badge variants for improved UI consistency">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add delete confirmation dialog for flashcard sets and improve UI components">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/page-loading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/page-loading.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +31,7 @@
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
         <option value="Lê Thanh Phương &lt;147789009+thanhphuongne@users.noreply.github.com&gt;" />
       </list>
     </option>
@@ -98,7 +97,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "#340 on fssdffsdf",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -400,54 +399,6 @@
       <workItem from="1775200902364" duration="10081000" />
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
-    </task>
-    <task id="LOCAL-01049" summary="feat: add sharing functionality for study notes with public access">
-      <option name="closed" value="true" />
-      <created>1774355383735</created>
-      <option name="number" value="01049" />
-      <option name="presentableId" value="LOCAL-01049" />
-      <option name="project" value="LOCAL" />
-      <updated>1774355383735</updated>
-    </task>
-    <task id="LOCAL-01050" summary="feat: add sharing functionality for study notes with public access">
-      <option name="closed" value="true" />
-      <created>1774356088630</created>
-      <option name="number" value="01050" />
-      <option name="presentableId" value="LOCAL-01050" />
-      <option name="project" value="LOCAL" />
-      <updated>1774356088630</updated>
-    </task>
-    <task id="LOCAL-01051" summary="feat: add sharing functionality for study notes with public access">
-      <option name="closed" value="true" />
-      <created>1774356765740</created>
-      <option name="number" value="01051" />
-      <option name="presentableId" value="LOCAL-01051" />
-      <option name="project" value="LOCAL" />
-      <updated>1774356765740</updated>
-    </task>
-    <task id="LOCAL-01052" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774357774477</created>
-      <option name="number" value="01052" />
-      <option name="presentableId" value="LOCAL-01052" />
-      <option name="project" value="LOCAL" />
-      <updated>1774357774477</updated>
-    </task>
-    <task id="LOCAL-01053" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774358983148</created>
-      <option name="number" value="01053" />
-      <option name="presentableId" value="LOCAL-01053" />
-      <option name="project" value="LOCAL" />
-      <updated>1774358983148</updated>
-    </task>
-    <task id="LOCAL-01054" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774359371307</created>
-      <option name="number" value="01054" />
-      <option name="presentableId" value="LOCAL-01054" />
-      <option name="project" value="LOCAL" />
-      <updated>1774359371307</updated>
     </task>
     <task id="LOCAL-01055" summary="feat: implement sharing functionality for study sets with public access">
       <option name="closed" value="true" />
@@ -793,7 +744,55 @@
       <option name="project" value="LOCAL" />
       <updated>1775291591758</updated>
     </task>
-    <option name="localTasksCounter" value="1098" />
+    <task id="LOCAL-01098" summary="feat: learning pathway for course (#339)">
+      <option name="closed" value="true" />
+      <created>1775307787335</created>
+      <option name="number" value="01098" />
+      <option name="presentableId" value="LOCAL-01098" />
+      <option name="project" value="LOCAL" />
+      <updated>1775307787335</updated>
+    </task>
+    <task id="LOCAL-01099" summary="feat: record coupon usage in order processing">
+      <option name="closed" value="true" />
+      <created>1775311422123</created>
+      <option name="number" value="01099" />
+      <option name="presentableId" value="LOCAL-01099" />
+      <option name="project" value="LOCAL" />
+      <updated>1775311422123</updated>
+    </task>
+    <task id="LOCAL-01100" summary="style: improve layout and spacing in dashboard components">
+      <option name="closed" value="true" />
+      <created>1775314800642</created>
+      <option name="number" value="01100" />
+      <option name="presentableId" value="LOCAL-01100" />
+      <option name="project" value="LOCAL" />
+      <updated>1775314800642</updated>
+    </task>
+    <task id="LOCAL-01101" summary="fix ui web-adin">
+      <option name="closed" value="true" />
+      <created>1775315852659</created>
+      <option name="number" value="01101" />
+      <option name="presentableId" value="LOCAL-01101" />
+      <option name="project" value="LOCAL" />
+      <updated>1775315852661</updated>
+    </task>
+    <task id="LOCAL-01102" summary="feat: add delete confirmation dialog for flashcard sets and improve UI components">
+      <option name="closed" value="true" />
+      <created>1775316140106</created>
+      <option name="number" value="01102" />
+      <option name="presentableId" value="LOCAL-01102" />
+      <option name="project" value="LOCAL" />
+      <updated>1775316140107</updated>
+    </task>
+    <task id="LOCAL-01103" summary="feat: add delete confirmation dialog for flashcard sets and improve UI components">
+      <option name="closed" value="true" />
+      <created>1775316411646</created>
+      <option name="number" value="01103" />
+      <option name="presentableId" value="LOCAL-01103" />
+      <option name="project" value="LOCAL" />
+      <updated>1775316411648</updated>
+    </task>
+    <option name="localTasksCounter" value="1104" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -828,14 +827,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
-    <MESSAGE value="feat: add sharing functionality for study notes with public access" />
-    <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
-    <MESSAGE value="feat: remove study note functionality and related components" />
-    <MESSAGE value="update" />
-    <MESSAGE value="seed" />
-    <MESSAGE value="refactor: change to seed jlpt examc config" />
-    <MESSAGE value="feat: implement Learning Path v2 with gamification integration and recovery mode" />
     <MESSAGE value="feat: add staff admin to view resource (#316)" />
     <MESSAGE value="fix: handle potential undefined values in time slot calculations" />
     <MESSAGE value="feat: add whiteboard embed mode and corresponding UI component" />
@@ -853,7 +844,15 @@
     <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
     <MESSAGE value="feat: enhance dashboard and study set components with sharing functionality and UI improvements" />
     <MESSAGE value="feat: update table header styles and badge variants for improved UI consistency" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: update table header styles and badge variants for improved UI consistency" />
+    <MESSAGE value="update learning path" />
+    <MESSAGE value="feat: learning pathway for course (#339)" />
+    <MESSAGE value="feat: record coupon usage in order processing" />
+    <MESSAGE value="Refactor notifications page UI &amp; behavior&#10;&#10;Simplify and reorganize the learner notifications page: remove search/filters/delete actions and related state, streamline notification mapping, and improve accessibility and loading/empty states.&#10;&#10;Key changes:&#10;- Removed unused imports and components (Search Input, several lucide icons).&#10;- Dropped complex type/category mapping and fields from the UI Notification shape; mapNotificationToUI now only maps id/title/message/date/time/read.&#10;- Removed search/filter UI and related state; notifications are shown as a simple list with loading/empty states.&#10;- Mark notifications as read on item click (and via keyboard Enter/Space) using useMarkNotificationAsRead; kept mark-all-as-read action.&#10;- Simplified card styles and layout for responsiveness and clarity.&#10;- Use unread count to show header summary; improved loading/empty visuals.&#10;&#10;Notes: This is a behavioral/UX refactor—removes delete and category-based filtering and changes Notification interface shape in the component. Adjust callers if they relied on the removed fields or behaviors." />
+    <MESSAGE value="feat: improve price normalization and enhance catalog item types in academy course API" />
+    <MESSAGE value="style: improve layout and spacing in dashboard components" />
+    <MESSAGE value="fix ui web-adin" />
+    <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

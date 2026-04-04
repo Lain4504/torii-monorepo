@@ -191,27 +191,39 @@ export class VodPackageController {
   }
 
   @Post(':id/approve')
-  @Permissions('academy.commerce.write')
-  async approve(@Param('id', new ParseUUIDPipe()) id: string) {
+  @Permissions('academy.commerce.approve')
+  async approve(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.vod.update' },
-        { id, input: { status: 'PUBLISHED' } },
+        {
+          id,
+          input: { status: 'PUBLISHED' },
+          requesterId: req.requester?.sub,
+        },
       ),
     );
     return successResponse(item);
   }
 
   @Post(':id/reject')
-  @Permissions('academy.commerce.write')
+  @Permissions('academy.commerce.approve')
   async reject(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: { reason: string },
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.vod.update' },
-        { id, input: { status: 'DRAFT', rejectionReason: body.reason } },
+        {
+          id,
+          input: { status: 'DRAFT', rejectionReason: body.reason },
+          requesterId: req.requester?.sub,
+        },
       ),
     );
     return successResponse(item);

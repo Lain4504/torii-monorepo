@@ -84,13 +84,11 @@ export class ClassAttendanceService {
 
     if (!session) throw new NotFoundException('LiveScheduleSession not found');
 
-    // 2. Validate session date (Must be TODAY for non-admins)
-    const isAdminOrStaff =
-      requesterRole === 'admin' ||
-      requesterRole === 'staff-academic' ||
-      requesterRole === 'staff-operations';
+    // 2. Validate session date (Must be TODAY unless admin / staff-academic — không áp cho staff-operations)
+    const bypassSessionDayCheck =
+      requesterRole === 'admin' || requesterRole === 'staff-academic';
 
-    if (!isAdminOrStaff) {
+    if (!bypassSessionDayCheck) {
       const now = new Date();
       const sessionDate = new Date(session.sessionDate);
 
@@ -172,13 +170,11 @@ export class ClassAttendanceService {
 
     if (!existing) throw new NotFoundException('Attendance record not found');
 
-    // Validate session date (Must be TODAY for non-admins)
-    const isAdminOrStaff =
-      requesterRole === 'admin' ||
-      requesterRole === 'staff-academic' ||
-      requesterRole === 'staff-operations';
+    // Validate session date (Must be TODAY unless admin / staff-academic)
+    const bypassSessionDayCheck =
+      requesterRole === 'admin' || requesterRole === 'staff-academic';
 
-    if (!isAdminOrStaff && existing.session) {
+    if (!bypassSessionDayCheck && existing.session) {
       const now = new Date();
       const sessionDate = new Date(existing.session.sessionDate);
 

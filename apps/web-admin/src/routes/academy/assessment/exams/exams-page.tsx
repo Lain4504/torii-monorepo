@@ -35,6 +35,8 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import {
   listPageFiltersRowClass,
+  listPageSearchIconClass,
+  listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass,
 } from "@/lib/ui-shell"
@@ -90,10 +92,10 @@ export default function ExamsPage() {
 
         <div className={listPageToolbarRootClass}>
           <div className={listPageSearchWrapClass}>
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Search className={listPageSearchIconClass} />
             <Input 
               placeholder="Tìm kiếm theo tiêu đề..." 
-              className="pl-9"
+              className={listPageSearchInputClass}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

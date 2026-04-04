@@ -11,6 +11,9 @@ import {
   CouponScope,
 } from '@prisma/generated';
 
+/** Coupon tạo khi học viên đổi điểm lấy quà — chỉ hiển thị ở web-learner, không quản trị ở admin list */
+const COUPON_SOURCE_GAMIFICATION_REWARD = 'GAMIFICATION_REWARD';
+
 @Injectable()
 export class CouponService {
   constructor(
@@ -27,6 +30,16 @@ export class CouponService {
     if (value === CouponDiscountType.FIXED_AMOUNT || value === 'fixed_amount')
       return CouponDiscountType.FIXED_AMOUNT;
     throw new BadRequestException('Invalid discountType');
+  }
+
+  /** Coupon cá nhân (đổi điểm / owner) — không nằm trong danh sách quản trị hệ thống */
+  private isRewardOrPersonalCoupon(c: {
+    ownerId: string | null;
+    source: string | null;
+  }): boolean {
+    if (c.ownerId != null) return true;
+    if (c.source === COUPON_SOURCE_GAMIFICATION_REWARD) return true;
+    return false;
   }
 
   private normalizeStatus(value: unknown): CouponStatus | undefined {
@@ -57,6 +70,12 @@ export class CouponService {
     offeringIds: string[],
   ) {
     const coupon = await this.findByCode(code);
+
+    if (coupon.ownerId != null && coupon.ownerId !== userId) {
+      throw new BadRequestException(
+        'Mã giảm giá này không áp dụng cho tài khoản của bạn',
+      );
+    }
 
     if (coupon.status !== CouponStatus.ACTIVE) {
       throw new BadRequestException('Coupon is not active');
@@ -207,10 +226,17 @@ export class CouponService {
     });
   }
 
-  // --- Admin CRUD ---
+  // --- Admin CRUD (chỉ coupon hệ thống: không có owner đổi điểm, không source gamification) ---
 
   async admin_findAll() {
     return this.prisma.coupon.findMany({
+      where: {
+        ownerId: null,
+        OR: [
+          { source: null },
+          { source: { not: COUPON_SOURCE_GAMIFICATION_REWARD } },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -220,6 +246,8 @@ export class CouponService {
       where: { id },
     });
     if (!coupon) throw new NotFoundException('Coupon not found');
+    if (this.isRewardOrPersonalCoupon(coupon))
+      throw new NotFoundException('Coupon not found');
     return coupon;
   }
 
@@ -227,6 +255,7 @@ export class CouponService {
     const {
       discountType,
       status,
+      ownerId: _ignoreOwner,
       // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
       applicableCourseMasterIds,
       excludedCourseMasterIds,
@@ -238,9 +267,11 @@ export class CouponService {
     const coupon = await this.prisma.coupon.create({
       data: {
         ...rest,
+        ownerId: null,
         code: data.code.toUpperCase(),
         discountType: this.normalizeDiscountType(discountType),
         status: this.normalizeStatus(status),
+        source: (data as { source?: string }).source ?? 'MANUAL',
       },
     });
 
@@ -265,6 +296,7 @@ export class CouponService {
     const {
       discountType,
       status,
+      ownerId: _ignoreOwner,
       // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
       applicableCourseMasterIds,
       excludedCourseMasterIds,
@@ -309,6 +341,8 @@ export class CouponService {
       },
     });
     if (!coupon) throw new NotFoundException('Coupon not found');
+    if (this.isRewardOrPersonalCoupon(coupon))
+      throw new NotFoundException('Coupon not found');
 
     const orderCount = await this.prisma.order.count({
       where: { couponId: id },

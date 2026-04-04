@@ -1,21 +1,43 @@
+import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { PageLoading } from "@workspace/ui/components/page-loading";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { StatsCard } from "./stats-card";
 import { useAdminDashboard } from "@/lib/api/services/dashboard";
+import type { DashboardRecentOrderRowDTO } from "@workspace/schemas";
 import { formatCurrency, formatNumber } from "@/lib/format-utils";
 import {
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   Tooltip,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
+  CartesianGrid,
+  AreaChart,
+  Area,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
 } from "recharts";
 import { Badge } from "@workspace/ui/components/badge";
-import { BarChart3, ClipboardCheck, School, Wallet, Ticket, Users, HandCoins } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
+import {
+  BarChart3,
+  ClipboardCheck,
+  Wallet,
+  Ticket,
+  HandCoins,
+  TrendingUp,
+  Activity,
+  Receipt,
+} from "lucide-react";
 import {
   elevatedPanelClass,
   elevatedPanelContentClass,
@@ -24,26 +46,63 @@ import {
 } from "@/lib/ui-shell";
 import { cn } from "@workspace/ui/lib/utils";
 import {
-  orderStatusPieFill,
-  pendingApprovalTypePieFill,
-  revenueBarFill,
+  orderStatusBadgeVariant,
+  orderStatusLabelVi,
+  revenueLevelPieFill,
+  distinctPieSliceFill,
 } from "@/lib/dashboard-chart-colors";
+import {
+  DASHBOARD_CHART_H,
+  DashboardChartScroll,
+  useNarrowMobile,
+} from "@/components/dashboard/dashboard-responsive";
 
 function ChartEmpty() {
   return (
-    <div className={cn("h-64", emptyStateBoxClass)}>
+    <div className={cn(DASHBOARD_CHART_H, emptyStateBoxClass)}>
       <BarChart3 className="size-8 text-muted-foreground/30" aria-hidden />
       Chưa có dữ liệu
     </div>
   );
 }
 
+function DomainSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="space-y-3 sm:space-y-4">
+      <div className="space-y-0.5">
+        <h2 className="text-base font-semibold tracking-tight text-foreground">{title}</h2>
+        {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+const PRESENCE_FALLBACK = {
+  totalUsers: 0,
+  activeToday: 0,
+  usersWithActiveSession: 0,
+  activeSessionCount: 0,
+  usersSignedInLast15Minutes: 0,
+  measuredAt: "",
+};
+
 export default function AdminDashboardV2() {
-  const { data, isLoading } = useAdminDashboard();
+  const narrow = useNarrowMobile();
+
+  const { data, isLoading } = useAdminDashboard({ refetchInterval: 60_000 });
 
   if (isLoading) {
     return (
-      <div className="h-96 flex items-center justify-center">
+      <div className="flex h-96 items-center justify-center">
         <PageLoading />
       </div>
     );
@@ -51,183 +110,319 @@ export default function AdminDashboardV2() {
 
   const staffAcademic = data?.staffAcademic;
   const staffOperations = data?.staffOperations;
+  const presence = data?.presence ?? PRESENCE_FALLBACK;
 
   const pendingApprovalsByType = staffAcademic?.pendingApprovalsByType ?? [];
-  const ordersByStatus = (staffOperations?.ordersByStatus ?? []).slice(0, 6);
   const revenueByLevel = (staffOperations?.revenueByLevel ?? []).slice(0, 8).map((r) => ({
     name: r.level,
     value: r.amount,
   }));
 
-  const recentSales = (staffOperations?.recentSales ?? []).slice(0, 6);
+  const recentOrders = (staffOperations?.recentOrders ?? []).slice(0, 12);
+  const revenueLast30Days = staffOperations?.revenueLast30Days ?? [];
+
+  const pendingPieData = pendingApprovalsByType.map((d) => ({
+    name: d.name,
+    value: d.value,
+  }));
+
+  const pendingApprovals = staffAcademic?.stats.pendingApprovals ?? 0;
+  const pendingTickets = staffOperations?.stats.pendingTickets ?? 0;
+  const pendingRefunds = staffOperations?.stats.pendingRefunds ?? 0;
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-1 pb-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Tổng quan vận hành</h1>
-        <p className="max-w-xl text-sm text-muted-foreground">
-          Duyệt nội dung, lớp LIVE, doanh thu và ticket — một màn hình.
+    <div className="mx-auto w-full min-w-0 max-w-7xl space-y-5 sm:space-y-6">
+      <section aria-label="Chỉ số ưu tiên admin" className="space-y-2">
+        <h2 className="text-sm font-semibold text-foreground">Chỉ số xem ngay</h2>
+        <p className="text-[11px] text-muted-foreground sm:text-xs">
+          Doanh thu, đơn, rủi ro vận hành, duyệt nội dung và tín hiệu hoạt động người dùng.
         </p>
-      </div>
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <StatsCard
+            title="Doanh thu (PAID)"
+            value={formatCurrency(staffOperations?.stats.totalRevenue ?? 0)}
+            sub="Tổng đã thanh toán"
+            icon={Wallet}
+            tone="success"
+          />
+          <StatsCard
+            title="Đơn PAID"
+            value={formatNumber(staffOperations?.stats.paidOrders ?? 0)}
+            sub="Giao dịch thành công"
+            icon={Receipt}
+            tone="info"
+          />
+          <StatsCard
+            title="Ticket mở"
+            value={formatNumber(pendingTickets)}
+            sub="Hỗ trợ / khiếu nại"
+            icon={Ticket}
+            tone="primary"
+            highlight={pendingTickets > 0}
+          />
+          <StatsCard
+            title="Hoàn tiền chờ"
+            value={formatNumber(pendingRefunds)}
+            sub="Đối soát"
+            icon={HandCoins}
+            tone="warning"
+            highlight={pendingRefunds > 0}
+          />
+          <StatsCard
+            title="Duyệt nội dung"
+            value={formatNumber(pendingApprovals)}
+            sub="Course / Cohort / VOD"
+            icon={ClipboardCheck}
+            tone="warning"
+            highlight={pendingApprovals > 0}
+          />
+          <StatsCard
+            title="Đăng nhập hôm nay"
+            value={formatNumber(presence.activeToday)}
+            sub="Theo lastSignInAt"
+            icon={Activity}
+            tone="info"
+            highlight={(presence.activeToday ?? 0) > 0}
+          />
+        </div>
+      </section>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 lg:gap-5">
-        <StatsCard
-          title="Duyệt cần xử lý"
-          value={formatNumber(staffAcademic?.stats.pendingApprovals ?? 0)}
-          sub="Tổng pending (Profiles/Cohorts/VOD)"
-          icon={ClipboardCheck}
-          tone="warning"
-          highlight={(staffAcademic?.stats.pendingApprovals ?? 0) > 0}
-        />
-        <StatsCard
-          title="Lớp LIVE đang chạy"
-          value={formatNumber(staffAcademic?.stats.activeRooms ?? 0)}
-          sub="Phiên trực tiếp trong hôm nay"
-          icon={School}
-          tone="info"
-        />
-        <StatsCard
-          title="Doanh thu"
-          value={formatCurrency(staffOperations?.stats.totalRevenue ?? 0)}
-          sub="Tổng doanh thu đã thanh toán"
-          icon={Wallet}
-          tone="success"
-        />
-        <StatsCard
-          title="Hoàn tiền pending"
-          value={formatNumber(staffOperations?.stats.pendingRefunds ?? 0)}
-          sub="Yêu cầu đối soát chưa xong"
-          icon={HandCoins}
-          tone="warning"
-          highlight={(staffOperations?.stats.pendingRefunds ?? 0) > 0}
-        />
+      <div className="min-w-0 space-y-6">
+        <DomainSection
+          title="Thương mại — biểu đồ"
+          description="Xu hướng doanh thu 30 ngày; tỷ lệ theo Level và duyệt nội dung theo loại (hai biểu đồ cạnh nhau trên màn hình lớn)."
+        >
+          <div className="w-full space-y-4">
+            <Card className={cn(elevatedPanelClass, "w-full")}>
+              <CardHeader className={elevatedCardHeaderPrimary}>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                  <div className="min-w-0">
+                    <CardTitle className="text-base">Doanh thu 30 ngày</CardTitle>
+                    <CardDescription className="text-xs">Đơn PAID theo ngày</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className={elevatedPanelContentClass}>
+                {revenueLast30Days.length === 0 ? (
+                  <ChartEmpty />
+                ) : (
+                  <DashboardChartScroll>
+                    <div className={DASHBOARD_CHART_H}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={revenueLast30Days} margin={{ top: 10, right: 8, left: narrow ? -12 : 0, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="adminRevenueArea" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
+                              <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+                          <XAxis
+                            dataKey="date"
+                            tick={{ fontSize: narrow ? 9 : 10 }}
+                            tickMargin={6}
+                            interval="preserveStartEnd"
+                            tickFormatter={(v: string) => {
+                              const [, m, d] = v.split("-");
+                              return m && d ? `${d}/${m}` : v;
+                            }}
+                          />
+                          <YAxis
+                            allowDecimals={false}
+                            tick={{ fontSize: narrow ? 10 : 11 }}
+                            width={narrow ? 40 : 52}
+                          />
+                          <Tooltip
+                            formatter={(value: number | undefined) =>
+                              value != null ? formatCurrency(value) : ""
+                            }
+                            labelFormatter={(label) => `Ngày ${label}`}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="amount"
+                            stroke="var(--primary)"
+                            strokeWidth={2}
+                            fill="url(#adminRevenueArea)"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </DashboardChartScroll>
+                )}
+              </CardContent>
+            </Card>
 
-        <StatsCard
-          title="Ticket đang chờ xử lý"
-          value={formatNumber(staffOperations?.stats.pendingTickets ?? 0)}
-          sub="Vấn đề hỗ trợ thanh toán"
-          icon={Ticket}
-          tone="primary"
-          highlight={(staffOperations?.stats.pendingTickets ?? 0) > 0}
-        />
-      </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
+              <Card className={cn(elevatedPanelClass, "min-w-0")}>
+                <CardHeader className={elevatedCardHeaderPrimary}>
+                  <CardTitle className="text-base">Doanh thu theo Level</CardTitle>
+                  <CardDescription className="text-xs">Tỷ lệ theo nhóm</CardDescription>
+                </CardHeader>
+                <CardContent className={elevatedPanelContentClass}>
+                  {revenueByLevel.length === 0 ? (
+                    <ChartEmpty />
+                  ) : (
+                    <DashboardChartScroll>
+                      <div className={DASHBOARD_CHART_H}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+                            <Tooltip
+                              formatter={(v: number | undefined) =>
+                                v != null ? formatCurrency(Number(v)) : ""
+                              }
+                            />
+                            <Pie
+                              data={revenueByLevel}
+                              dataKey="value"
+                              nameKey="name"
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={narrow ? 32 : 44}
+                              outerRadius={narrow ? 62 : 78}
+                              paddingAngle={2}
+                            >
+                              {revenueByLevel.map((entry, index) => (
+                                <Cell key={`${entry.name}-${index}`} fill={revenueLevelPieFill(entry.name, index)} />
+                              ))}
+                            </Pie>
+                            <Legend
+                              verticalAlign="bottom"
+                              height={narrow ? 56 : 48}
+                              formatter={(value: string) => (
+                                <span className="text-[11px] text-foreground">{value}</span>
+                              )}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </DashboardChartScroll>
+                  )}
+                </CardContent>
+              </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className={elevatedPanelClass}>
-          <CardHeader className={elevatedCardHeaderPrimary}>
-            <CardTitle>Duyệt đang chờ</CardTitle>
-            <CardDescription>Phân bổ theo loại nội dung cần duyệt</CardDescription>
-          </CardHeader>
-          <CardContent className={elevatedPanelContentClass}>
-            {pendingApprovalsByType.length === 0 ? (
-              <ChartEmpty />
-            ) : (
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip />
-                    <Pie data={pendingApprovalsByType} dataKey="value" nameKey="name" outerRadius={95}>
-                      {pendingApprovalsByType.map((d, idx) => (
-                        <Cell key={`cell-${idx}`} fill={pendingApprovalTypePieFill(d.name)} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className={elevatedPanelClass}>
-          <CardHeader className={elevatedCardHeaderPrimary}>
-            <CardTitle>Doanh thu theo Level</CardTitle>
-            <CardDescription>Top cấp độ theo doanh thu</CardDescription>
-          </CardHeader>
-          <CardContent className={elevatedPanelContentClass}>
-            {revenueByLevel.length === 0 ? (
-              <ChartEmpty />
-            ) : (
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={revenueByLevel}
-                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-                  >
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill={revenueBarFill} radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className={elevatedPanelClass}>
-        <CardHeader className={elevatedCardHeaderPrimary}>
-          <CardTitle>Đơn hàng theo trạng thái</CardTitle>
-          <CardDescription>Phân bổ theo trạng thái đơn hàng</CardDescription>
-        </CardHeader>
-        <CardContent className={elevatedPanelContentClass}>
-          {ordersByStatus.length === 0 ? (
-            <ChartEmpty />
-          ) : (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Tooltip />
-                  <Pie data={ordersByStatus} dataKey="value" nameKey="name" outerRadius={95}>
-                    {ordersByStatus.map((d, idx) => (
-                      <Cell key={`cell-${idx}`} fill={orderStatusPieFill(d.name)} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+              <Card className={cn(elevatedPanelClass, "min-w-0")}>
+                <CardHeader className={elevatedCardHeaderPrimary}>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-medium text-muted-foreground">Học tập & nội dung</p>
+                    <CardTitle className="text-base">Duyệt đang chờ</CardTitle>
+                    <CardDescription className="text-xs">Theo loại</CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className={elevatedPanelContentClass}>
+                  {pendingPieData.length === 0 ? (
+                    <ChartEmpty />
+                  ) : (
+                    <DashboardChartScroll>
+                      <div className={DASHBOARD_CHART_H}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+                            <Tooltip formatter={(v: number | undefined) => (v != null ? formatNumber(Number(v)) : "")} />
+                            <Pie
+                              data={pendingPieData}
+                              dataKey="value"
+                              nameKey="name"
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={narrow ? 32 : 44}
+                              outerRadius={narrow ? 62 : 78}
+                              paddingAngle={2}
+                            >
+                              {pendingPieData.map((entry, index) => (
+                                <Cell key={`${entry.name}-${index}`} fill={distinctPieSliceFill(index)} />
+                              ))}
+                            </Pie>
+                            <Legend
+                              verticalAlign="bottom"
+                              height={narrow ? 56 : 48}
+                              formatter={(value: string) => (
+                                <span className="text-[11px] text-foreground">{value}</span>
+                              )}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </DashboardChartScroll>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        </DomainSection>
+      </div>
 
       <Card className={elevatedPanelClass}>
         <CardHeader className={elevatedCardHeaderPrimary}>
-          <CardTitle>Giao dịch gần đây</CardTitle>
-          <CardDescription>Thông tin bán hàng mới nhất</CardDescription>
+          <CardTitle className="text-base">Đơn hàng gần đây</CardTitle>
+          <CardDescription className="text-xs">12 đơn mới nhất — ưu tiên theo dõi vận hành</CardDescription>
         </CardHeader>
         <CardContent className={elevatedPanelContentClass}>
-          {recentSales.length === 0 ? (
+          {recentOrders.length === 0 ? (
             <div className={cn("py-10 text-center text-xs", emptyStateBoxClass)}>Chưa có dữ liệu.</div>
           ) : (
-            <div className="grid gap-3 md:grid-cols-3">
-              {recentSales.map((s) => (
-                <div
-                  key={s.id}
-                  className="space-y-3 rounded-lg border border-border bg-card p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                        <Users className="size-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-bold text-foreground">{s.userName}</div>
-                        <div className="truncate text-xs text-muted-foreground">{s.userEmail}</div>
-                      </div>
+            <>
+              <div className="space-y-2 md:hidden">
+                {recentOrders.map((o: DashboardRecentOrderRowDTO) => (
+                  <div
+                    key={o.id}
+                    className="rounded-lg border border-border/60 bg-card p-3 shadow-sm"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="font-mono text-xs font-semibold">{o.code}</span>
+                      <Badge variant={orderStatusBadgeVariant(o.status)} className="shrink-0 text-[10px] font-semibold">
+                        {orderStatusLabelVi(o.status)}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="max-w-[5.5rem] shrink-0 truncate font-mono text-[9px]">
-                      {s.id}
-                    </Badge>
+                    <p className="mt-1 truncate text-sm font-medium">{o.userName || "—"}</p>
+                    <p className="truncate text-xs text-muted-foreground">{o.userEmail}</p>
+                    <div className="mt-2 flex items-end justify-between gap-2 border-t border-border/50 pt-2">
+                      <span className="text-xs tabular-nums text-muted-foreground">{o.date}</span>
+                      <span className="text-sm font-semibold tabular-nums">
+                        {formatCurrency(Number(o.amount) || 0)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-lg font-semibold tabular-nums text-foreground">{formatCurrency(Number(s.amount) || 0)}</div>
-                  <div className="text-[11px] font-medium text-muted-foreground">{s.date}</div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              <ScrollArea className="hidden h-[min(20rem,50vh)] rounded-md border border-border/60 md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="sticky top-0 z-10 bg-card">Mã đơn</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-card">Khách hàng</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-card">Email</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-card text-right">Số tiền</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-card">Trạng thái</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-card">Ngày</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentOrders.map((o: DashboardRecentOrderRowDTO) => (
+                      <TableRow key={o.id}>
+                        <TableCell className="font-mono text-xs font-medium">{o.code}</TableCell>
+                        <TableCell className="max-w-[140px] truncate font-medium">{o.userName || "—"}</TableCell>
+                        <TableCell className="max-w-[180px] truncate text-muted-foreground text-xs">
+                          {o.userEmail}
+                        </TableCell>
+                        <TableCell className="text-right font-semibold tabular-nums">
+                          {formatCurrency(Number(o.amount) || 0)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={orderStatusBadgeVariant(o.status)} className="font-semibold">
+                            {orderStatusLabelVi(o.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs tabular-nums text-muted-foreground">{o.date}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </>
           )}
         </CardContent>
       </Card>
     </div>
   );
 }
-

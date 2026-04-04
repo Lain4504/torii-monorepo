@@ -25,8 +25,7 @@ import {
 import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "sonner"
 import { ChevronRight, CheckCircle2, XCircle, Calendar, Tag } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
+import { usePermissions } from "@/hooks/use-permissions"
 import {
   useAcademyCohort,
   useApproveCohort,
@@ -37,7 +36,7 @@ import { formatDateTime } from "@/lib/format-utils"
 export default function CohortApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { can } = usePermissions()
   const { data: cohort, isLoading } = useAcademyCohort(id)
   const approveMutation = useApproveCohort()
   const rejectMutation = useRejectCohort()
@@ -66,9 +65,8 @@ export default function CohortApprovalPreviewPage() {
     )
   }
 
-  const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
-
-  const canApprove = isStaffOrAdmin && cohort.status === "PENDING_APPROVAL"
+  const canApprove =
+    can("academy.commerce.approve") && cohort.status === "PENDING_APPROVAL"
 
   return (
     <div className="flex flex-col gap-6">

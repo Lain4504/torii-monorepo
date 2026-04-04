@@ -2,17 +2,6 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
-import { Switch } from '@workspace/ui/components/switch'
-import { Label } from '@workspace/ui/components/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@workspace/ui/components/dialog'
 import {
   Table,
   TableBody,
@@ -21,7 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from '@workspace/ui/components/table'
+import { Badge } from '@workspace/ui/components/badge'
 import { PageHeader } from '@/components/common/page-header'
+import { StudySetCatalogFormSheet } from '@/components/academy/study-set-catalog-form-sheet'
+import { DeleteStudySetCatalogDialog } from '@/components/academy/delete-study-set-catalog-dialog'
 import {
   useAcademyStudySetCatalogs,
   useCreateAcademyStudySetCatalog,
@@ -39,97 +31,104 @@ export default function StudySetCatalogsPage() {
   const updateCatalog = useUpdateAcademyStudySetCatalog()
   const deleteCatalog = useDeleteAcademyStudySetCatalog()
 
-  const [open, setOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [editing, setEditing] = useState<AcademyStudySetModel | null>(null)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [isPublic, setIsPublic] = useState(true)
+
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState<AcademyStudySetModel | null>(null)
 
   const items = useMemo(
     () => (data || []).filter((x) => (x.sourceType || 'SYSTEM') === 'SYSTEM'),
     [data],
   )
 
-  const resetForm = () => {
-    setEditing(null)
-    setTitle('')
-    setDescription('')
-    setIsPublic(true)
-  }
-
   const openCreate = () => {
-    resetForm()
-    setOpen(true)
+    setEditing(null)
+    setSheetOpen(true)
   }
 
   const openEdit = (item: AcademyStudySetModel) => {
     setEditing(item)
-    setTitle(item.title || '')
-    setDescription(item.description || '')
-    setIsPublic(!!item.isPublic)
-    setOpen(true)
+    setSheetOpen(true)
   }
 
-  const onSubmit = async () => {
-    if (!title.trim()) return
+  const onSubmitSheet = async (input: {
+    title: string
+    description: string
+    isPublic: boolean
+  }) => {
     try {
       if (editing) {
         await updateCatalog.mutateAsync({
           id: editing.id,
-          input: { title, description, isPublic },
+          input,
         })
-        toast.success('Da cap nhat bo he thong')
+        toast.success('Đã cập nhật bộ hệ thống')
       } else {
-        await createCatalog.mutateAsync({ title, description, isPublic })
-        toast.success('Da tao bo he thong')
+        await createCatalog.mutateAsync(input)
+        toast.success('Đã tạo bộ hệ thống')
       }
-      setOpen(false)
-      resetForm()
+      setSheetOpen(false)
+      setEditing(null)
     } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : 'Khong the luu bo he thong')
+      toast.error(error instanceof Error ? error.message : 'Không thể lưu bộ hệ thống')
     }
   }
+
+  const openDelete = (item: AcademyStudySetModel) => {
+    setDeleting(item)
+    setDeleteOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleting) return
+    try {
+      await deleteCatalog.mutateAsync(deleting.id)
+      toast.success('Đã xóa bộ hệ thống')
+      setDeleteOpen(false)
+      setDeleting(null)
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Không xóa được')
+    }
+  }
+
+  const formPending = createCatalog.isPending || updateCatalog.isPending
 
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Study Set Catalogs (System)"
-        subtitle="Quản lý bộ thẻ mặc định hệ thống, dùng cho mục Khám phá phía learner."
+        subtitle="Quản lý bộ thẻ mặc định hệ thống, dùng cho mục Khám phá phía học viên."
         actions={
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="lg" onClick={openCreate}>
-                <Plus className="mr-2 h-4 w-4" />
-                Tạo bộ hệ thống
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editing ? 'Sửa bộ hệ thống' : 'Tạo bộ hệ thống'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Tên bộ</Label>
-                  <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="VD: N5 Kanji co ban" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Mô tả</Label>
-                  <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Mo ta ngan..." />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-                  <Label>Hiển thị public trong catalog</Label>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>Hủy</Button>
-                <Button onClick={onSubmit} disabled={!title.trim()}>
-                  {editing ? 'Cập nhật' : 'Tạo mới'}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button size="lg" onClick={openCreate}>
+            <Plus />
+            Tạo bộ hệ thống
+          </Button>
         }
+      />
+
+      <StudySetCatalogFormSheet
+        open={sheetOpen}
+        onOpenChange={(o) => {
+          if (!formPending) {
+            setSheetOpen(o)
+            if (!o) setEditing(null)
+          }
+        }}
+        editing={editing}
+        onSubmit={onSubmitSheet}
+        isPending={formPending}
+      />
+
+      <DeleteStudySetCatalogDialog
+        open={deleteOpen && !!deleting}
+        onOpenChange={(o) => {
+          setDeleteOpen(o)
+          if (!o) setDeleting(null)
+        }}
+        catalog={deleting}
+        onConfirm={confirmDelete}
+        isPending={deleteCatalog.isPending}
       />
 
       <div className={dataTableShellClass}>
@@ -158,36 +157,34 @@ export default function StudySetCatalogsPage() {
             ) : (
               items.map((item, idx) => (
                 <TableRow key={item.id}>
-                  <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
+                  <TableCell className="text-center text-muted-foreground tabular-nums text-xs">
                     {idx + 1}
                   </TableCell>
                   <TableCell className="font-medium">{item.title}</TableCell>
                   <TableCell className="text-muted-foreground">{item.description || '—'}</TableCell>
-                  <TableCell>{item.isPublic ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>
+                    {item.isPublic ? (
+                      <Badge variant="secondary">Public</Badge>
+                    ) : (
+                      <Badge variant="outline">Ẩn</Badge>
+                    )}
+                  </TableCell>
                   <TableCell>{item._count?.setCards ?? 0}</TableCell>
                   <TableCell className="text-right pr-6">
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => navigate(`/academy/study-set-catalogs/${item.id}`)}>
-                        <BookOpen className="h-3.5 w-3.5 mr-1" />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/academy/study-set-catalogs/${item.id}`)}
+                      >
+                        <BookOpen />
                         Quản lý thẻ
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
-                        <Pencil className="h-3.5 w-3.5" />
+                        <Pencil />
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={async () => {
-                          if (!confirm('Xóa bộ hệ thống này?')) return
-                          try {
-                            await deleteCatalog.mutateAsync(item.id)
-                            toast.success('Da xoa bo he thong')
-                          } catch (error: unknown) {
-                            toast.error(error instanceof Error ? error.message : 'Khong xoa duoc')
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
+                      <Button variant="destructive" size="sm" onClick={() => openDelete(item)}>
+                        <Trash2 />
                       </Button>
                     </div>
                   </TableCell>

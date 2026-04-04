@@ -4,13 +4,13 @@ import * as React from "react"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@workspace/ui/components/dialog"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Select,
@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
+import { Field, FieldLabel } from "@workspace/ui/components/field"
 import { Loader2, Volume2 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 
@@ -70,139 +71,129 @@ export function FlashcardFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!values.term.trim() || !values.definition.trim()) return
-    await onSave(values)
+    try {
+      await onSave(values)
+    } catch {
+      /* toast tại caller */
+    }
   }
 
   const handlePreviewAudio = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!values.term.trim()) return;
+    e.preventDefault()
+    if (!values.term.trim()) return
 
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(values.term);
-    
-    // Detect Japanese
-    const isJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(values.term);
-    utterance.lang = isJapanese ? 'ja-JP' : 'en-US';
-    utterance.rate = 0.9;
+    window.speechSynthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance(values.term)
+
+    const isJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(values.term)
+    utterance.lang = isJapanese ? "ja-JP" : "en-US"
+    utterance.rate = 0.9
 
     utterance.onerror = () => {
-      toast.error("Lỗi phát âm thanh xem trước.");
-    };
+      toast.error("Không phát được âm thanh xem trước.")
+    }
 
-    window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.speak(utterance)
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-[32px] p-0 overflow-hidden border-none shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-        <DialogHeader className="px-8 pt-8 pb-4">
-          <DialogTitle className="text-2xl font-bold text-slate-800 tracking-tight">
-            {title}
-          </DialogTitle>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            Nhập mặt trước, nghĩa và tùy chọn phiên âm / từ loại.
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="term" className="text-sm font-semibold text-slate-600 ml-1">
-              Từ
-            </Label>
-            <div className="relative">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Field>
+            <FieldLabel htmlFor="flash-term">Từ</FieldLabel>
+            <div className="flex gap-2">
               <Input
-                id="term"
-                placeholder="Nhập từ..."
+                id="flash-term"
+                placeholder="Nhập từ…"
                 value={values.term}
                 onChange={(e) => setValues({ ...values, term: e.target.value })}
-                className="h-12 rounded-2xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all px-4 pr-12"
-                autoFocus
+                autoComplete="off"
               />
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full text-slate-400 hover:text-primary"
                 onClick={handlePreviewAudio}
                 disabled={!values.term.trim()}
+                title="Nghe thử"
               >
-                <Volume2 className="h-4 w-4" />
+                <Volume2 />
               </Button>
             </div>
-          </div>
+          </Field>
 
-          <div className="space-y-2">
-            <Label htmlFor="phonetic" className="text-sm font-semibold text-slate-600 ml-1">
-              Phonetic
-            </Label>
+          <Field>
+            <FieldLabel htmlFor="flash-phonetic">Phiên âm</FieldLabel>
             <Input
-              id="phonetic"
-              placeholder="Cách phát âm..."
+              id="flash-phonetic"
+              placeholder="Cách đọc…"
               value={values.phonetic}
               onChange={(e) => setValues({ ...values, phonetic: e.target.value })}
-              className="h-12 rounded-2xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all px-4"
             />
-          </div>
+          </Field>
 
-          <div className="space-y-2">
-            <Label htmlFor="definition" className="text-sm font-semibold text-slate-600 ml-1">
-              Nghĩa của từ
-            </Label>
+          <Field>
+            <FieldLabel htmlFor="flash-def">Nghĩa</FieldLabel>
             <Textarea
-              id="definition"
-              placeholder="Giải nghĩa..."
+              id="flash-def"
+              placeholder="Giải nghĩa…"
               value={values.definition}
               onChange={(e) => setValues({ ...values, definition: e.target.value })}
-              className="min-h-[100px] rounded-2xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all p-4 resize-none"
+              rows={4}
             />
-          </div>
+          </Field>
 
-          <div className="space-y-2">
-            <Label htmlFor="note" className="text-sm font-semibold text-slate-600 ml-1">
-              Thêm ghi chú
-            </Label>
+          <Field>
+            <FieldLabel htmlFor="flash-note">Ghi chú</FieldLabel>
             <Input
-              id="note"
-              placeholder="Ghi chú thêm..."
+              id="flash-note"
+              placeholder="Tùy chọn…"
               value={values.note}
               onChange={(e) => setValues({ ...values, note: e.target.value })}
-              className="h-12 rounded-2xl border-slate-200 focus-visible:ring-primary focus-visible:border-primary transition-all px-4"
             />
-          </div>
+          </Field>
 
-          <div className="space-y-2">
-            <Label htmlFor="type" className="text-sm font-semibold text-slate-600 ml-1">
-              Từ loại
-            </Label>
+          <Field>
+            <FieldLabel htmlFor="flash-type">Từ loại</FieldLabel>
             <Select
               value={values.type}
               onValueChange={(val) => setValues({ ...values, type: val })}
             >
-              <SelectTrigger className="h-12 rounded-2xl border-slate-200 focus:ring-primary focus:border-primary px-4">
-                <SelectValue placeholder="Chọn loại..." />
+              <SelectTrigger id="flash-type" className="w-full">
+                <SelectValue placeholder="Chọn loại" />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border-slate-100 shadow-xl p-1">
-                <SelectItem value="Từ vựng" className="rounded-xl focus:bg-primary/5 cursor-pointer">Từ vựng</SelectItem>
-                <SelectItem value="Ngữ pháp" className="rounded-xl focus:bg-primary/5 cursor-pointer">Ngữ pháp</SelectItem>
-                <SelectItem value="Hán tự" className="rounded-xl focus:bg-primary/5 cursor-pointer">Hán tự</SelectItem>
-                <SelectItem value="Mẫu câu" className="rounded-xl focus:bg-primary/5 cursor-pointer">Mẫu câu</SelectItem>
+              <SelectContent>
+                <SelectItem value="Từ vựng">Từ vựng</SelectItem>
+                <SelectItem value="Ngữ pháp">Ngữ pháp</SelectItem>
+                <SelectItem value="Hán tự">Hán tự</SelectItem>
+                <SelectItem value="Mẫu câu">Mẫu câu</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </Field>
 
-          <DialogFooter className="pt-4 flex !justify-between gap-4 sm:gap-4 sm:flex-row">
+          <DialogFooter className="gap-2 sm:gap-2">
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition-all border-none"
+              disabled={isPending}
             >
               Hủy
             </Button>
             <Button
               type="submit"
               disabled={isPending || !values.term.trim() || !values.definition.trim()}
-              className="flex-1 h-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-lg shadow-primary/20"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Xong
+              Lưu
             </Button>
           </DialogFooter>
         </form>

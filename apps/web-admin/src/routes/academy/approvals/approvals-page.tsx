@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
@@ -23,13 +23,40 @@ import {
 import { useAcademyCourseProfiles, type AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyVodPackages, type AcademyVodPackage } from "@/lib/api/services/academy-vod-packages"
 import { formatDateTime } from "@/lib/format-utils"
-import { listPageSearchWrapClass } from "@/lib/ui-shell"
+import {
+  listPageSearchIconClass,
+  listPageSearchInputClass,
+  listPageSearchWrapClass,
+} from "@/lib/ui-shell"
+import { usePermissions } from "@/hooks/use-permissions"
 
 type ApprovalTab = "cohorts" | "vodPackages" | "courseProfiles"
 
 export default function ApprovalsPage() {
+  const { can, isAdmin } = usePermissions()
+  const showCourseProfileApprovals =
+    isAdmin || can("academy.content.approve")
+  const showOfferingApprovals = isAdmin || can("academy.commerce.approve")
+
   const [tab, setTab] = useState<ApprovalTab>("cohorts")
-  
+
+  useEffect(() => {
+    if (
+      tab === "courseProfiles" &&
+      !showCourseProfileApprovals &&
+      showOfferingApprovals
+    ) {
+      setTab("cohorts")
+    }
+    if (
+      (tab === "cohorts" || tab === "vodPackages") &&
+      !showOfferingApprovals &&
+      showCourseProfileApprovals
+    ) {
+      setTab("courseProfiles")
+    }
+  }, [tab, showCourseProfileApprovals, showOfferingApprovals])
+
   const [cohortSearch, setCohortSearch] = useState("")
   const [debouncedCohortSearch] = useDebounceValue(cohortSearch, 500)
 
@@ -96,30 +123,36 @@ export default function ApprovalsPage() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as ApprovalTab)}>
         <TabsList className="w-full overflow-x-auto whitespace-nowrap">
-          <TabsTrigger value="cohorts" className="gap-2">
-            <Package className="size-4" />
-            Cohorts
-            <Badge variant="secondary">{pendingCohorts.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="vodPackages" className="gap-2">
-            <Package className="size-4" />
-            VOD Packages
-            <Badge variant="secondary">{pendingVodPackages.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="courseProfiles" className="gap-2">
-            <BookOpen className="size-4" />
-            Course Profiles
-            <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
-          </TabsTrigger>
+          {showOfferingApprovals ? (
+            <TabsTrigger value="cohorts" className="gap-2">
+              <Package className="size-4" />
+              Cohorts
+              <Badge variant="secondary">{pendingCohorts.length}</Badge>
+            </TabsTrigger>
+          ) : null}
+          {showOfferingApprovals ? (
+            <TabsTrigger value="vodPackages" className="gap-2">
+              <Package className="size-4" />
+              VOD Packages
+              <Badge variant="secondary">{pendingVodPackages.length}</Badge>
+            </TabsTrigger>
+          ) : null}
+          {showCourseProfileApprovals ? (
+            <TabsTrigger value="courseProfiles" className="gap-2">
+              <BookOpen className="size-4" />
+              Course Profiles
+              <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
+            </TabsTrigger>
+          ) : null}
         </TabsList>
 
         <div className="mt-6">
           <TabsContent value="cohorts" className="space-y-4">
             <div className={listPageSearchWrapClass}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Search className={listPageSearchIconClass} />
               <Input
                 placeholder="Tìm Cohort theo mã hoặc tên..."
-                className="pl-10 h-10"
+                className={listPageSearchInputClass}
                 value={cohortSearch}
                 onChange={(e) => setCohortSearch(e.target.value)}
               />
@@ -191,10 +224,10 @@ export default function ApprovalsPage() {
 
           <TabsContent value="vodPackages" className="space-y-4">
             <div className={listPageSearchWrapClass}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Search className={listPageSearchIconClass} />
               <Input
                 placeholder="Tìm Package theo mã hoặc tên..."
-                className="pl-10 h-10"
+                className={listPageSearchInputClass}
                 value={vodPackageSearch}
                 onChange={(e) => setVodPackageSearch(e.target.value)}
               />
@@ -264,10 +297,10 @@ export default function ApprovalsPage() {
 
           <TabsContent value="courseProfiles" className="space-y-4">
             <div className={listPageSearchWrapClass}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Search className={listPageSearchIconClass} />
               <Input
                 placeholder="Tìm Course Profile theo mã hoặc tên..."
-                className="pl-10 h-10"
+                className={listPageSearchInputClass}
                 value={profileSearch}
                 onChange={(e) => setProfileSearch(e.target.value)}
               />

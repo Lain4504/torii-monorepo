@@ -24,7 +24,7 @@ import { selectUser } from "@/store/slices/auth-slice"
 import { academicNavItems, operationsNavItems, financeNavItems, personnelNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 import { UserRole } from "@workspace/schemas"
 
-// Define Workspace Configuration — aligned with apps/server/config/rbac-config.yaml (admin, staff-academic, staff-operations, lecturer; learner blocked at login)
+// Workspace theo rbac-config.yaml v3.1: Academic Hub = nội dung + lớp/lịch; Operations = đơn/coupon/support + đọc academy
 interface Workspace extends Team {
     id: string;
     roles: string[];

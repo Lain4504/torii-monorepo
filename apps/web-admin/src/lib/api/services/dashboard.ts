@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
 import type {
   AdminDashboardResponseDTO,
+  AdminPresenceStatsDTO,
+  LecturerDashboardResponseDTO,
   StaffAcademicDashboardResponseDTO,
   StaffOperationsDashboardResponseDTO,
   StandardApiResponse,
@@ -34,6 +36,23 @@ export const dashboardApi = {
       );
     return response.data.data!;
   },
+
+  /** GET /api/dashboard/presence — thống kê phiên & hoạt động (payload nhẹ) */
+  async getPresenceStats(): Promise<AdminPresenceStatsDTO> {
+    const response =
+      await apiClient.get<StandardApiResponse<AdminPresenceStatsDTO>>(
+        '/api/dashboard/presence',
+      );
+    return response.data.data!;
+  },
+
+  async getLecturerDashboard(): Promise<LecturerDashboardResponseDTO> {
+    const response =
+      await apiClient.get<StandardApiResponse<LecturerDashboardResponseDTO>>(
+        '/api/dashboard/lecturer',
+      );
+    return response.data.data!;
+  },
 };
 
 export function useStaffAcademicDashboard() {
@@ -54,12 +73,33 @@ export function useStaffOperationsDashboard() {
   });
 }
 
-export function useAdminDashboard() {
+export function useAdminDashboard(options?: { refetchInterval?: number | false }) {
   return useQuery({
     queryKey: ['dashboard', 'admin'],
     queryFn: () => dashboardApi.getAdminDashboard(),
     staleTime: 60_000,
     retry: 1,
+    refetchInterval: options?.refetchInterval,
+  });
+}
+
+export function useAdminPresenceStats(options?: { refetchInterval?: number | false }) {
+  return useQuery({
+    queryKey: ['dashboard', 'presence'],
+    queryFn: () => dashboardApi.getPresenceStats(),
+    staleTime: 30_000,
+    retry: 1,
+    refetchInterval: options?.refetchInterval ?? false,
+  });
+}
+
+export function useLecturerDashboard(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ['dashboard', 'lecturer'],
+    queryFn: () => dashboardApi.getLecturerDashboard(),
+    staleTime: 60_000,
+    retry: 1,
+    enabled: options?.enabled !== false,
   });
 }
 

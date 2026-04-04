@@ -96,7 +96,7 @@ export default function CouponsPage() {
         <div className="flex flex-col gap-8">
             <PageHeader
                 title="Mã Giảm Giá"
-                subtitle="Quản lý các chương trình khuyến mãi và mã giảm giá cho khóa học."
+                subtitle="Chỉ các mã do hệ thống / chiến dịch tạo. Mã từ đổi điểm thưởng (point reward) nằm trên tài khoản học viên ở web-learner, không hiển thị tại đây."
                 actions={
                     <Can permission="coupon.manage">
                         <Button

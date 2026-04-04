@@ -15,6 +15,8 @@ import {
     ChevronRight,
     ChevronLeft,
     Clock,
+    PenLine,
+    Users,
 } from "lucide-react"
 import { StatsCard } from "./stats-card"
 import { useAuth } from "@/hooks/use-auth"
@@ -23,6 +25,7 @@ import {
     useJoinAcademyLiveSessionAsLecturer,
     academyLiveSessionsApi,
 } from "@/lib/api/services/academy-live-sessions"
+import { useLecturerDashboard } from "@/lib/api/services/dashboard"
 import { useQueries } from "@tanstack/react-query"
 import {
     format,
@@ -32,6 +35,7 @@ import {
     isToday,
     addWeeks,
     differenceInWeeks,
+    parseISO,
 } from "date-fns"
 import { vi } from "date-fns/locale"
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
@@ -145,6 +149,10 @@ export default function LecturerDashboard() {
     const now = new Date()
     const fromDate = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split("T")[0]
     const toDate = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString().split("T")[0]
+
+    const { data: lecDash, isLoading: lecDashLoading } = useLecturerDashboard({
+        enabled: !!instructorId,
+    })
 
     const { data: classes = [], isLoading: classesLoading } = useAcademyLiveClasses({
         instructorId: instructorId as any,
@@ -261,8 +269,16 @@ export default function LecturerDashboard() {
         }
     }
 
+    const formatSubmittedAt = (iso: string) => {
+        try {
+            return format(parseISO(iso), "dd/MM/yyyy HH:mm", { locale: vi })
+        } catch {
+            return iso
+        }
+    }
+
     return (
-        <div className="space-y-6">
+        <div className="mx-auto w-full min-w-0 max-w-7xl space-y-5 sm:space-y-6">
             <AlertDialog open={!!joinTarget} onOpenChange={(open) => !open && setJoinTarget(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -318,12 +334,12 @@ export default function LecturerDashboard() {
                                     {nextSession.classCode && ` • ${nextSession.classCode}`}
                                 </CardDescription>
                             </div>
-                            <div className="flex gap-2 shrink-0">
-                                <Button onClick={() => setJoinTarget(nextSession)} disabled={joinMutation.isPending}>
+                            <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+                                <Button className="w-full sm:w-auto" onClick={() => setJoinTarget(nextSession)} disabled={joinMutation.isPending}>
                                     <Video className="size-4 mr-2" />
                                     Vào phòng học
                                 </Button>
-                                <Button variant="outline" asChild>
+                                <Button variant="outline" className="w-full sm:w-auto" asChild>
                                     <Link to={`/academy/live-classes/${getSessionClassId(nextSession)}/schedule`}>
                                         Lịch & Điểm danh
                                         <ChevronRight className="size-4 ml-1" />
@@ -335,33 +351,104 @@ export default function LecturerDashboard() {
                 </Card>
             )}
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div>
+                <h2 className="text-base font-semibold tracking-tight">Tóm tắt nhanh</h2>
+                <p className="text-xs text-muted-foreground">
+                    Số liệu từ lịch lớp (client) và từ hệ thống (bài nộp chờ chấm, buổi hôm nay, học viên).
+                </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-6">
                 <StatsCard
-                    title="Lớp của tôi"
-                    value={classesLoading ? "—" : classes.length}
-                    sub={ongoingCount > 0 ? `${ongoingCount} lớp đang diễn ra` : "Tổng số lớp phụ trách"}
-                    icon={BookOpen}
-                    tone="primary"
-                    highlight
+                    title="Bài chờ chấm"
+                    value={lecDashLoading ? "—" : (lecDash?.stats.pendingSubmissionsToGrade ?? 0)}
+                    sub="SUBMITTED, chưa có điểm"
+                    icon={PenLine}
+                    tone="warning"
+                    highlight={(lecDash?.stats.pendingSubmissionsToGrade ?? 0) > 0}
                 />
                 <StatsCard
-                    title="Lớp đang diễn ra"
-                    value={classesLoading ? "—" : ongoingCount}
-                    sub="Lớp LIVE đang tuyển sinh hoặc đang học"
+                    title="Buổi dạy hôm nay"
+                    value={lecDashLoading ? "—" : (lecDash?.stats.todaySessions ?? 0)}
+                    sub="SCHEDULED/RESCHEDULED, có phòng"
+                    icon={Calendar}
+                    tone="info"
+                />
+                <StatsCard
+                    title="Học viên (lớp tôi)"
+                    value={lecDashLoading ? "—" : (lecDash?.stats.studentsInMyClasses ?? 0)}
+                    sub="Enrollment ACTIVE"
+                    icon={Users}
+                    tone="primary"
+                />
+                <StatsCard
+                    title="Lớp đang mở"
+                    value={lecDashLoading ? "—" : (lecDash?.stats.activeLiveClasses ?? 0)}
+                    sub="OPENING + IN_PROGRESS"
                     icon={GraduationCap}
                     tone="success"
                 />
                 <StatsCard
-                    title="Buổi học sắp tới"
+                    title="Tổng lớp phụ trách"
+                    value={classesLoading ? "—" : classes.length}
+                    sub={ongoingCount > 0 ? `${ongoingCount} đang diễn ra` : "Tất cả trạng thái"}
+                    icon={BookOpen}
+                    tone="neutral"
+                />
+                <StatsCard
+                    title="Buổi sắp tới (lịch)"
                     value={sessionsLoading ? "—" : upcomingSessions.length}
-                    sub="Trong tháng hiện tại"
-                    icon={Calendar}
-                    tone="info"
+                    sub="Theo cửa sổ tải lịch"
+                    icon={Clock}
+                    tone="neutral"
                 />
             </div>
 
+            {(lecDash?.pendingSubmissionsPreview?.length ?? 0) > 0 ? (
+                <Card className="border-border/60 shadow-sm">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-base">Bài nộp cần chấm</CardTitle>
+                        <CardDescription className="text-xs">
+                            Bài tập LIVE/VOD do bạn phụ trách — mở trang chấm điểm
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        {lecDash!.pendingSubmissionsPreview.map((row) => (
+                            <div
+                                key={row.submissionId}
+                                className="flex flex-col gap-2 rounded-lg border border-border/60 bg-card p-3 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                                <div className="min-w-0 space-y-0.5">
+                                    <p className="truncate text-sm font-semibold text-foreground">{row.assignmentTitle}</p>
+                                    <p className="truncate text-xs text-muted-foreground">
+                                        {row.contextLabel} · {row.studentDisplayName}
+                                    </p>
+                                    <p className="text-[11px] tabular-nums text-muted-foreground">
+                                        Nộp: {formatSubmittedAt(row.submittedAt)}
+                                    </p>
+                                </div>
+                                {row.liveClassId ? (
+                                    <Button variant="outline" size="sm" className="shrink-0" asChild>
+                                        <Link
+                                            to={`/academy/live-classes/${row.liveClassId}/assignments/${row.liveClassAssignmentId}/submissions`}
+                                        >
+                                            Chấm bài
+                                            <ChevronRight className="ml-1 size-4" />
+                                        </Link>
+                                    </Button>
+                                ) : (
+                                    <Button variant="outline" size="sm" className="shrink-0" asChild>
+                                        <Link to="/academy/live-classes">Mở lớp / VOD</Link>
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            ) : null}
+
             <Tabs defaultValue="timetable" className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsList className="grid w-full grid-cols-2 sm:max-w-md">
                     <TabsTrigger value="timetable">Thời khóa biểu</TabsTrigger>
                     <TabsTrigger value="quick">Thao tác nhanh</TabsTrigger>
                 </TabsList>

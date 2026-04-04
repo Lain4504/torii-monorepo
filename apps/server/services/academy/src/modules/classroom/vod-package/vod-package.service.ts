@@ -9,10 +9,14 @@ import {
   AcademyVodPackageUpdateDTO,
   AcademyVodPackageQueryDTO,
 } from '@workspace/schemas';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class VodPackageService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) {}
 
   async findAll(query: AcademyVodPackageQueryDTO) {
     const where: any = {};
@@ -78,21 +82,26 @@ export class VodPackageService {
     });
   }
 
-  async update(id: string, data: AcademyVodPackageUpdateDTO) {
+  async update(
+    id: string,
+    data: AcademyVodPackageUpdateDTO,
+    requesterId?: string,
+  ) {
+    const before = await this.prisma.vodPackage.findUnique({
+      where: { id },
+      include: { courseProfile: { select: { status: true } } },
+    });
+    if (!before) throw new NotFoundException('VOD Package not found');
+
     if (data.status === 'PUBLISHED' || data.status === 'PENDING_APPROVAL') {
-      const pkg = await this.prisma.vodPackage.findUnique({
-        where: { id },
-        include: { courseProfile: { select: { status: true } } },
-      });
-      if (!pkg) throw new NotFoundException('VOD Package not found');
-      if (pkg.courseProfile.status !== 'PUBLISHED') {
+      if (before.courseProfile.status !== 'PUBLISHED') {
         throw new BadRequestException(
           'Hồ sơ nội dung (Course Profile) cần được xuất bản trước khi gửi duyệt hoặc xuất bản gói VOD',
         );
       }
     }
 
-    return this.prisma.vodPackage.update({
+    const item = await this.prisma.vodPackage.update({
       where: { id },
       data: {
         code: data.code,
@@ -106,6 +115,34 @@ export class VodPackageService {
           data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },
     });
+
+    if (
+      requesterId &&
+      data.status !== undefined &&
+      data.status !== before.status
+    ) {
+      const action =
+        data.status === 'PUBLISHED' && before.status === 'PENDING_APPROVAL'
+          ? 'APPROVE'
+          : data.status === 'DRAFT' && before.status === 'PENDING_APPROVAL'
+            ? 'REJECT'
+            : 'UPDATE_STATUS';
+      await this.audit.log({
+        userId: requesterId,
+        action,
+        entity: 'VodPackage',
+        entityId: id,
+        description: `${action} VOD package ${before.code}`,
+        oldValues: { status: before.status },
+        newValues: { status: item.status },
+        metadata:
+          action === 'REJECT'
+            ? { reason: data.rejectionReason }
+            : undefined,
+      });
+    }
+
+    return item;
   }
 
   async delete(id: string) {

@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const isStaffFinance = role === UserRole.STAFF_OPERATIONS
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
       <PageHeader
         title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
         subtitle={

@@ -8,6 +8,7 @@ import { formatDate } from '@/utils/format-utils'
 import Link from 'next/link'
 import { useCertificates } from '@/lib/api/services/certificate-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
+import { Skeleton } from '@workspace/ui/components/skeleton'
 import type { CertificateResponseDTO } from '@workspace/schemas'
 
 export default function CertificatesPage() {
