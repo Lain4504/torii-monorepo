@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: record coupon usage in order processing" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="style: improve layout and spacing in dashboard components">
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/dashboard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/dashboard.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/dashboard-chart-colors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/dashboard-chart-colors.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/dashboard.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/dashboard.dto.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -398,14 +405,6 @@
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
     </task>
-    <task id="LOCAL-01051" summary="feat: add sharing functionality for study notes with public access">
-      <option name="closed" value="true" />
-      <created>1774356765740</created>
-      <option name="number" value="01051" />
-      <option name="presentableId" value="LOCAL-01051" />
-      <option name="project" value="LOCAL" />
-      <updated>1774356765740</updated>
-    </task>
     <task id="LOCAL-01052" summary="feat: implement sharing functionality for study sets with public access">
       <option name="closed" value="true" />
       <created>1774357774477</created>
@@ -790,7 +789,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775311422123</updated>
     </task>
-    <option name="localTasksCounter" value="1100" />
+    <task id="LOCAL-01100" summary="style: improve layout and spacing in dashboard components">
+      <option name="closed" value="true" />
+      <created>1775314800642</created>
+      <option name="number" value="01100" />
+      <option name="presentableId" value="LOCAL-01100" />
+      <option name="project" value="LOCAL" />
+      <updated>1775314800642</updated>
+    </task>
+    <option name="localTasksCounter" value="1101" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -825,9 +832,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: remove study note functionality and related components" />
-    <MESSAGE value="update" />
-    <MESSAGE value="seed" />
     <MESSAGE value="refactor: change to seed jlpt examc config" />
     <MESSAGE value="feat: implement Learning Path v2 with gamification integration and recovery mode" />
     <MESSAGE value="feat: add staff admin to view resource (#316)" />
@@ -850,7 +854,10 @@
     <MESSAGE value="update learning path" />
     <MESSAGE value="feat: learning pathway for course (#339)" />
     <MESSAGE value="feat: record coupon usage in order processing" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: record coupon usage in order processing" />
+    <MESSAGE value="Refactor notifications page UI &amp; behavior&#10;&#10;Simplify and reorganize the learner notifications page: remove search/filters/delete actions and related state, streamline notification mapping, and improve accessibility and loading/empty states.&#10;&#10;Key changes:&#10;- Removed unused imports and components (Search Input, several lucide icons).&#10;- Dropped complex type/category mapping and fields from the UI Notification shape; mapNotificationToUI now only maps id/title/message/date/time/read.&#10;- Removed search/filter UI and related state; notifications are shown as a simple list with loading/empty states.&#10;- Mark notifications as read on item click (and via keyboard Enter/Space) using useMarkNotificationAsRead; kept mark-all-as-read action.&#10;- Simplified card styles and layout for responsiveness and clarity.&#10;- Use unread count to show header summary; improved loading/empty visuals.&#10;&#10;Notes: This is a behavioral/UX refactor—removes delete and category-based filtering and changes Notification interface shape in the component. Adjust callers if they relied on the removed fields or behaviors." />
+    <MESSAGE value="feat: improve price normalization and enhance catalog item types in academy course API" />
+    <MESSAGE value="style: improve layout and spacing in dashboard components" />
+    <option name="LAST_COMMIT_MESSAGE" value="style: improve layout and spacing in dashboard components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

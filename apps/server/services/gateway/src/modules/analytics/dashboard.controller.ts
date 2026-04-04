@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { Permissions, PermissionsGuard, successResponse, GatewayAuthGuard } from '@server/shared';
 import type {
   AdminDashboardResponseDTO,
+  AdminPresenceStatsDTO,
   StaffAcademicDashboardResponseDTO,
   StaffOperationsDashboardResponseDTO,
   StandardApiResponse,
@@ -39,6 +40,14 @@ export class DashboardController {
   @Permissions('*')
   async getAdminDashboard(): Promise<StandardApiResponse<AdminDashboardResponseDTO>> {
     const data = await this.dashboardService.getAdminDashboard();
+    return successResponse(data);
+  }
+
+  /** Chỉ block thống kê phiên / hoạt động — payload nhẹ, có thể poll */
+  @Get('presence')
+  @Permissions('*')
+  async getPresenceStats(): Promise<StandardApiResponse<AdminPresenceStatsDTO>> {
+    const data = await this.dashboardService.getPresenceStats();
     return successResponse(data);
   }
 }

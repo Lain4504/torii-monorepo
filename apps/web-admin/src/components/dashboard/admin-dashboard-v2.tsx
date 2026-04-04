@@ -1,21 +1,48 @@
+import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { PageLoading } from "@workspace/ui/components/page-loading";
 import { StatsCard } from "./stats-card";
 import { useAdminDashboard } from "@/lib/api/services/dashboard";
+import type { DashboardRecentOrderRowDTO } from "@workspace/schemas";
 import { formatCurrency, formatNumber } from "@/lib/format-utils";
 import {
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   Tooltip,
   BarChart,
   Bar,
   XAxis,
   YAxis,
+  CartesianGrid,
+  AreaChart,
+  Area,
+  Cell,
 } from "recharts";
 import { Badge } from "@workspace/ui/components/badge";
-import { BarChart3, ClipboardCheck, School, Wallet, Ticket, Users, HandCoins } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
+import {
+  BarChart3,
+  ClipboardCheck,
+  School,
+  Wallet,
+  Ticket,
+  HandCoins,
+  TrendingUp,
+  Users,
+  Activity,
+  MonitorSmartphone,
+  BookOpen,
+  GraduationCap,
+  Layers,
+  Zap,
+  Receipt,
+} from "lucide-react";
 import {
   elevatedPanelClass,
   elevatedPanelContentClass,
@@ -25,8 +52,12 @@ import {
 import { cn } from "@workspace/ui/lib/utils";
 import {
   orderStatusPieFill,
+  orderStatusBadgeVariant,
+  orderStatusLabelVi,
   pendingApprovalTypePieFill,
   revenueBarFill,
+  academyPipelineBarFill,
+  academyPipelineStatusLabelVi,
 } from "@/lib/dashboard-chart-colors";
 
 function ChartEmpty() {
@@ -38,12 +69,43 @@ function ChartEmpty() {
   );
 }
 
+function DomainSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1 border-b border-border/70 pb-3">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
+        {description ? (
+          <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+const PRESENCE_FALLBACK = {
+  totalUsers: 0,
+  activeToday: 0,
+  usersWithActiveSession: 0,
+  activeSessionCount: 0,
+  usersSignedInLast15Minutes: 0,
+  measuredAt: "",
+};
+
 export default function AdminDashboardV2() {
-  const { data, isLoading } = useAdminDashboard();
+  const { data, isLoading, dataUpdatedAt } = useAdminDashboard({ refetchInterval: 60_000 });
 
   if (isLoading) {
     return (
-      <div className="h-96 flex items-center justify-center">
+      <div className="flex h-96 items-center justify-center">
         <PageLoading />
       </div>
     );
@@ -51,183 +113,409 @@ export default function AdminDashboardV2() {
 
   const staffAcademic = data?.staffAcademic;
   const staffOperations = data?.staffOperations;
+  const presence = data?.presence ?? PRESENCE_FALLBACK;
 
   const pendingApprovalsByType = staffAcademic?.pendingApprovalsByType ?? [];
-  const ordersByStatus = (staffOperations?.ordersByStatus ?? []).slice(0, 6);
+  const pipelineByStatus = (staffAcademic?.pipelineByStatus ?? []).slice(0, 12);
+  const ordersByStatus = (staffOperations?.ordersByStatus ?? []).slice(0, 8);
   const revenueByLevel = (staffOperations?.revenueByLevel ?? []).slice(0, 8).map((r) => ({
     name: r.level,
     value: r.amount,
   }));
 
-  const recentSales = (staffOperations?.recentSales ?? []).slice(0, 6);
+  const recentOrders = (staffOperations?.recentOrders ?? []).slice(0, 20);
+  const revenueLast30Days = staffOperations?.revenueLast30Days ?? [];
+
+  const pendingBarData = pendingApprovalsByType.map((d) => ({
+    label: d.name,
+    value: d.value,
+    colorKey: d.name,
+  }));
+
+  const pipelineBarData = pipelineByStatus.map((d) => ({
+    label: academyPipelineStatusLabelVi(d.name),
+    value: d.value,
+    statusKey: d.name,
+  }));
+
+  const ordersBarData = ordersByStatus.map((d) => ({
+    label: orderStatusLabelVi(d.name),
+    value: d.value,
+    statusKey: d.name,
+  }));
+
+  const measuredLabel =
+    presence.measuredAt &&
+    (() => {
+      try {
+        return new Date(presence.measuredAt).toLocaleString("vi-VN");
+      } catch {
+        return presence.measuredAt;
+      }
+    })();
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-1 pb-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Tổng quan vận hành</h1>
-        <p className="max-w-xl text-sm text-muted-foreground">
-          Duyệt nội dung, lớp LIVE, doanh thu và ticket — một màn hình.
+    <div className="space-y-10">
+      <div className="space-y-1 pb-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Tổng quan nền tảng</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Theo từng nhóm: người dùng & phiên, học tập, thương mại. Biểu đồ được chọn theo loại dữ liệu (xu hướng
+          theo thời gian, so sánh nhóm, phân bổ trạng thái).
         </p>
+        {dataUpdatedAt ? (
+          <p className="text-[11px] text-muted-foreground/80">
+            Làm mới dữ liệu: {new Date(dataUpdatedAt).toLocaleString("vi-VN")}
+          </p>
+        ) : null}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 lg:gap-5">
-        <StatsCard
-          title="Duyệt cần xử lý"
-          value={formatNumber(staffAcademic?.stats.pendingApprovals ?? 0)}
-          sub="Tổng pending (Profiles/Cohorts/VOD)"
-          icon={ClipboardCheck}
-          tone="warning"
-          highlight={(staffAcademic?.stats.pendingApprovals ?? 0) > 0}
-        />
-        <StatsCard
-          title="Lớp LIVE đang chạy"
-          value={formatNumber(staffAcademic?.stats.activeRooms ?? 0)}
-          sub="Phiên trực tiếp trong hôm nay"
-          icon={School}
-          tone="info"
-        />
-        <StatsCard
-          title="Doanh thu"
-          value={formatCurrency(staffOperations?.stats.totalRevenue ?? 0)}
-          sub="Tổng doanh thu đã thanh toán"
-          icon={Wallet}
-          tone="success"
-        />
-        <StatsCard
-          title="Hoàn tiền pending"
-          value={formatNumber(staffOperations?.stats.pendingRefunds ?? 0)}
-          sub="Yêu cầu đối soát chưa xong"
-          icon={HandCoins}
-          tone="warning"
-          highlight={(staffOperations?.stats.pendingRefunds ?? 0) > 0}
-        />
+      <DomainSection
+        title="Người dùng & phiên đăng nhập"
+        description={
+          "Ước lượng hoạt động: phiên còn hiệu lực lấy từ bảng session; “15 phút” và “hôm nay” dựa trên lastSignInAt. " +
+          (measuredLabel ? `Đo tại: ${measuredLabel}.` : "")
+        }
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
+          <StatsCard
+            title="Tổng tài khoản"
+            value={formatNumber(presence.totalUsers)}
+            sub="User chưa xóa mềm"
+            icon={Users}
+            tone="neutral"
+          />
+          <StatsCard
+            title="Hoạt động hôm nay"
+            value={formatNumber(presence.activeToday)}
+            sub="Có đăng nhập trong ngày (00:00 server)"
+            icon={Activity}
+            tone="info"
+            highlight={(presence.activeToday ?? 0) > 0}
+          />
+          <StatsCard
+            title="User có phiên hợp lệ"
+            value={formatNumber(presence.usersWithActiveSession)}
+            sub="≥1 session chưa hết hạn, chưa thu hồi"
+            icon={MonitorSmartphone}
+            tone="primary"
+            highlight={(presence.usersWithActiveSession ?? 0) > 0}
+          />
+          <StatsCard
+            title="Tổng phiên đăng nhập"
+            value={formatNumber(presence.activeSessionCount)}
+            sub="Số phiên đang hiệu lực (nhiều thiết bị)"
+            icon={Layers}
+            tone="neutral"
+          />
+          <StatsCard
+            title="Đăng nhập 15 phút gần đây"
+            value={formatNumber(presence.usersSignedInLast15Minutes)}
+            sub="Theo lastSignInAt — hoạt động rất gần"
+            icon={Zap}
+            tone="success"
+            highlight={(presence.usersSignedInLast15Minutes ?? 0) > 0}
+          />
+        </div>
+      </DomainSection>
 
-        <StatsCard
-          title="Ticket đang chờ xử lý"
-          value={formatNumber(staffOperations?.stats.pendingTickets ?? 0)}
-          sub="Vấn đề hỗ trợ thanh toán"
-          icon={Ticket}
-          tone="primary"
-          highlight={(staffOperations?.stats.pendingTickets ?? 0) > 0}
-        />
-      </div>
+      <DomainSection
+        title="Học tập & nội dung"
+        description="Khóa học, lớp LIVE và pipeline duyệt — so sánh nhanh bằng biểu đồ cột ngang."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          <StatsCard
+            title="Duyệt cần xử lý"
+            value={formatNumber(staffAcademic?.stats.pendingApprovals ?? 0)}
+            sub="Profiles / Cohorts / VOD chờ duyệt"
+            icon={ClipboardCheck}
+            tone="warning"
+            highlight={(staffAcademic?.stats.pendingApprovals ?? 0) > 0}
+          />
+          <StatsCard
+            title="Lớp LIVE hôm nay"
+            value={formatNumber(staffAcademic?.stats.activeRooms ?? 0)}
+            sub="Phiên có phòng trong ngày"
+            icon={School}
+            tone="info"
+          />
+          <StatsCard
+            title="Khóa (chưa lưu trữ)"
+            value={formatNumber(staffAcademic?.stats.totalCourses ?? 0)}
+            sub="Course profile đang mở"
+            icon={BookOpen}
+            tone="neutral"
+          />
+          <StatsCard
+            title="Học viên đang học"
+            value={formatNumber(staffAcademic?.stats.totalEnrollments ?? 0)}
+            sub="Enrollment trạng thái ACTIVE"
+            icon={GraduationCap}
+            tone="success"
+          />
+        </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className={elevatedPanelClass}>
-          <CardHeader className={elevatedCardHeaderPrimary}>
-            <CardTitle>Duyệt đang chờ</CardTitle>
-            <CardDescription>Phân bổ theo loại nội dung cần duyệt</CardDescription>
-          </CardHeader>
-          <CardContent className={elevatedPanelContentClass}>
-            {pendingApprovalsByType.length === 0 ? (
-              <ChartEmpty />
-            ) : (
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip />
-                    <Pie data={pendingApprovalsByType} dataKey="value" nameKey="name" outerRadius={95}>
-                      {pendingApprovalsByType.map((d, idx) => (
-                        <Cell key={`cell-${idx}`} fill={pendingApprovalTypePieFill(d.name)} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className={elevatedPanelClass}>
+            <CardHeader className={elevatedCardHeaderPrimary}>
+              <CardTitle>Duyệt đang chờ</CardTitle>
+              <CardDescription>So sánh khối lượng theo loại (cột ngang)</CardDescription>
+            </CardHeader>
+            <CardContent className={elevatedPanelContentClass}>
+              {pendingBarData.length === 0 ? (
+                <ChartEmpty />
+              ) : (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={pendingBarData}
+                      margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" horizontal />
+                      <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <YAxis type="category" dataKey="label" width={118} tick={{ fontSize: 11 }} />
+                      <Tooltip formatter={(v) => (v != null ? formatNumber(Number(v)) : "")} />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                        {pendingBarData.map((e, i) => (
+                          <Cell key={i} fill={pendingApprovalTypePieFill(e.colorKey)} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className={elevatedPanelClass}>
+            <CardHeader className={elevatedCardHeaderPrimary}>
+              <CardTitle>Pipeline nội dung (theo status)</CardTitle>
+              <CardDescription>Gộp Course / Cohort / VOD — cột ngang, màu theo trạng thái</CardDescription>
+            </CardHeader>
+            <CardContent className={elevatedPanelContentClass}>
+              {pipelineBarData.length === 0 ? (
+                <ChartEmpty />
+              ) : (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={pipelineBarData}
+                      margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" horizontal />
+                      <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <YAxis type="category" dataKey="label" width={132} tick={{ fontSize: 10 }} />
+                      <Tooltip formatter={(v) => (v != null ? formatNumber(Number(v)) : "")} />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                        {pipelineBarData.map((e, i) => (
+                          <Cell key={i} fill={academyPipelineBarFill(e.statusKey)} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </DomainSection>
+
+      <DomainSection
+        title="Thương mại & hỗ trợ"
+        description="Doanh thu, đơn hàng và ticket — xu hướng theo ngày dùng vùng (area); so sánh cấp độ dùng cột đứng."
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+          <StatsCard
+            title="Doanh thu (đã thanh toán)"
+            value={formatCurrency(staffOperations?.stats.totalRevenue ?? 0)}
+            sub="Tổng grand total đơn PAID"
+            icon={Wallet}
+            tone="success"
+          />
+          <StatsCard
+            title="Đơn PAID"
+            value={formatNumber(staffOperations?.stats.paidOrders ?? 0)}
+            sub="Số đơn trạng thái thanh toán thành công"
+            icon={Receipt}
+            tone="info"
+          />
+          <StatsCard
+            title="Hoàn tiền chờ xử lý"
+            value={formatNumber(staffOperations?.stats.pendingRefunds ?? 0)}
+            sub="Ticket / đối soát hoàn"
+            icon={HandCoins}
+            tone="warning"
+            highlight={(staffOperations?.stats.pendingRefunds ?? 0) > 0}
+          />
+          <StatsCard
+            title="Ticket đang mở"
+            value={formatNumber(staffOperations?.stats.pendingTickets ?? 0)}
+            sub="Hỗ trợ thanh toán / khiếu nại"
+            icon={Ticket}
+            tone="primary"
+            highlight={(staffOperations?.stats.pendingTickets ?? 0) > 0}
+          />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card className={elevatedPanelClass}>
+            <CardHeader className={elevatedCardHeaderPrimary}>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="size-4 text-muted-foreground" aria-hidden />
+                <div>
+                  <CardTitle>Doanh thu 30 ngày</CardTitle>
+                  <CardDescription>Xu hướng theo thời gian — đơn PAID (area)</CardDescription>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className={elevatedPanelContentClass}>
+              {revenueLast30Days.length === 0 ? (
+                <ChartEmpty />
+              ) : (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={revenueLast30Days} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="adminRevenueArea" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
+                          <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 10 }}
+                        tickMargin={8}
+                        interval="preserveStartEnd"
+                        tickFormatter={(v: string) => {
+                          const [, m, d] = v.split("-");
+                          return m && d ? `${d}/${m}` : v;
+                        }}
+                      />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={52} />
+                      <Tooltip
+                        formatter={(value: number | undefined) =>
+                          value != null ? formatCurrency(value) : ""
+                        }
+                        labelFormatter={(label) => `Ngày ${label}`}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="amount"
+                        stroke="var(--primary)"
+                        strokeWidth={2}
+                        fill="url(#adminRevenueArea)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className={elevatedPanelClass}>
+            <CardHeader className={elevatedCardHeaderPrimary}>
+              <CardTitle>Doanh thu theo Level</CardTitle>
+              <CardDescription>So sánh mức động học phí theo cấp độ (cột đứng)</CardDescription>
+            </CardHeader>
+            <CardContent className={elevatedPanelContentClass}>
+              {revenueByLevel.length === 0 ? (
+                <ChartEmpty />
+              ) : (
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={revenueByLevel} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                      <Tooltip formatter={(v) => (v != null ? formatCurrency(Number(v)) : "")} />
+                      <Bar dataKey="value" fill={revenueBarFill} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <Card className={elevatedPanelClass}>
           <CardHeader className={elevatedCardHeaderPrimary}>
-            <CardTitle>Doanh thu theo Level</CardTitle>
-            <CardDescription>Top cấp độ theo doanh thu</CardDescription>
+            <CardTitle>Đơn hàng theo trạng thái</CardTitle>
+            <CardDescription>So sánh số lượng đơn — cột ngang, màu theo trạng thái</CardDescription>
           </CardHeader>
           <CardContent className={elevatedPanelContentClass}>
-            {revenueByLevel.length === 0 ? (
+            {ordersBarData.length === 0 ? (
               <ChartEmpty />
             ) : (
-              <div className="h-72">
+              <div className="h-[min(22rem,70vh)] min-h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={revenueByLevel}
-                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                    layout="vertical"
+                    data={ordersBarData}
+                    margin={{ top: 8, right: 16, left: 8, bottom: 8 }}
                   >
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill={revenueBarFill} radius={[4, 4, 0, 0]} />
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" horizontal />
+                    <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <YAxis type="category" dataKey="label" width={128} tick={{ fontSize: 10 }} />
+                    <Tooltip formatter={(v) => (v != null ? formatNumber(Number(v)) : "")} />
+                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                      {ordersBarData.map((e, i) => (
+                        <Cell key={i} fill={orderStatusPieFill(e.statusKey)} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             )}
           </CardContent>
         </Card>
-      </div>
+      </DomainSection>
 
       <Card className={elevatedPanelClass}>
         <CardHeader className={elevatedCardHeaderPrimary}>
-          <CardTitle>Đơn hàng theo trạng thái</CardTitle>
-          <CardDescription>Phân bổ theo trạng thái đơn hàng</CardDescription>
+          <CardTitle>Đơn hàng gần đây</CardTitle>
+          <CardDescription>20 đơn mới nhất — badge màu theo trạng thái</CardDescription>
         </CardHeader>
         <CardContent className={elevatedPanelContentClass}>
-          {ordersByStatus.length === 0 ? (
-            <ChartEmpty />
-          ) : (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Tooltip />
-                  <Pie data={ordersByStatus} dataKey="value" nameKey="name" outerRadius={95}>
-                    {ordersByStatus.map((d, idx) => (
-                      <Cell key={`cell-${idx}`} fill={orderStatusPieFill(d.name)} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card className={elevatedPanelClass}>
-        <CardHeader className={elevatedCardHeaderPrimary}>
-          <CardTitle>Giao dịch gần đây</CardTitle>
-          <CardDescription>Thông tin bán hàng mới nhất</CardDescription>
-        </CardHeader>
-        <CardContent className={elevatedPanelContentClass}>
-          {recentSales.length === 0 ? (
+          {recentOrders.length === 0 ? (
             <div className={cn("py-10 text-center text-xs", emptyStateBoxClass)}>Chưa có dữ liệu.</div>
           ) : (
-            <div className="grid gap-3 md:grid-cols-3">
-              {recentSales.map((s) => (
-                <div
-                  key={s.id}
-                  className="space-y-3 rounded-lg border border-border bg-card p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                        <Users className="size-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-bold text-foreground">{s.userName}</div>
-                        <div className="truncate text-xs text-muted-foreground">{s.userEmail}</div>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="max-w-[5.5rem] shrink-0 truncate font-mono text-[9px]">
-                      {s.id}
-                    </Badge>
-                  </div>
-                  <div className="text-lg font-semibold tabular-nums text-foreground">{formatCurrency(Number(s.amount) || 0)}</div>
-                  <div className="text-[11px] font-medium text-muted-foreground">{s.date}</div>
-                </div>
-              ))}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Mã đơn</TableHead>
+                  <TableHead>Khách hàng</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead className="text-right">Số tiền</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Ngày</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentOrders.map((o: DashboardRecentOrderRowDTO) => (
+                  <TableRow key={o.id}>
+                    <TableCell className="font-mono text-xs font-medium">{o.code}</TableCell>
+                    <TableCell className="max-w-[140px] truncate font-medium">{o.userName || "—"}</TableCell>
+                    <TableCell className="max-w-[180px] truncate text-muted-foreground text-xs">
+                      {o.userEmail}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">
+                      {formatCurrency(Number(o.amount) || 0)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={orderStatusBadgeVariant(o.status)} className="font-semibold">
+                        {orderStatusLabelVi(o.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs tabular-nums text-muted-foreground">{o.date}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
     </div>
   );
 }
-

@@ -1,300 +1,180 @@
-import { useState, useMemo } from 'react'
-import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, BellOff } from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
-import { cn } from '@workspace/ui/lib/utils'
-import { formatDateTime, formatRelativeTime, formatNumber } from '@/lib/format-utils.ts';
+import { useMemo, useState } from "react";
+import { Bell, Check, Sparkles } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
+import { Button } from "@workspace/ui/components/button";
+import { Card } from "@workspace/ui/components/card";
+import { cn } from "@workspace/ui/lib/utils";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from '@workspace/ui/components/pagination'
-import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
-import { Skeleton } from '@workspace/ui/components/skeleton'
-import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
-import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications.ts'
-import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
-import { PageHeader } from '@/components/common/page-header.tsx'
-import { dataTableShellClass } from '@/lib/ui-shell'
+} from "@workspace/ui/components/pagination";
+import {
+  useNotifications,
+  useUnreadNotificationsCount,
+  useMarkNotificationAsRead,
+  useMarkAllNotificationsAsRead,
+} from "@/lib/api/services/notifications.ts";
+import type { NotificationResponseDTO } from "@workspace/schemas";
 
 interface Notification {
-  id: string
-  title: string
-  message: string
-  time: string
-  date: string
-  read: boolean
-  type: 'info' | 'success' | 'warning' | 'error'
-  node: string
-  category: 'system' | 'security' | 'finance' | 'identity'
-}
-
-function mapNotificationType(notificationType: NotificationType): 'info' | 'success' | 'warning' | 'error' {
-  switch (notificationType) {
-    case 'course':
-    case 'achievement':
-    case 'order_success':
-      return 'success'
-    case 'system':
-      return 'warning'
-    case 'payment':
-    case 'order_status_update':
-    case 'live_class':
-    case 'reminder':
-    case 'comment_reply':
-      return 'info'
-    default:
-      return 'info'
-  }
-}
-
-function mapNotificationCategory(notificationType: NotificationType): 'system' | 'security' | 'finance' | 'identity' {
-  switch (notificationType) {
-    case 'system': return 'system'
-    case 'payment':
-    case 'order_success':
-    case 'order_status_update': return 'finance'
-    default: return 'system'
-  }
-}
-
-function mapNotificationNode(notificationType: NotificationType): string {
-  switch (notificationType) {
-    case 'system': return 'System'
-    case 'course': return 'Learning'
-    case 'payment': return 'Finance'
-    case 'live_class': return 'Meet'
-    case 'achievement': return 'Gamification'
-    case 'reminder': return 'Scheduler'
-    default: return 'System'
-  }
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  date: string;
+  read: boolean;
 }
 
 function mapNotificationToUI(notification: NotificationResponseDTO): Notification {
-  const createdAt = new Date(notification.createdAt)
+  const createdAt = new Date(notification.createdAt);
   return {
     id: notification.id,
     title: notification.title,
     message: notification.message,
-    time: formatRelativeTime(createdAt),
-    date: formatDateTime(createdAt, 'dd/MM/yyyy'),
+    time: formatDistanceToNow(createdAt, { addSuffix: true }),
+    date: format(createdAt, "dd/MM/yyyy"),
     read: notification.isRead,
-    type: mapNotificationType(notification.notificationType),
-    node: mapNotificationNode(notification.notificationType),
-    category: mapNotificationCategory(notification.notificationType),
-  }
+  };
 }
 
 export default function NotificationsPage() {
-  const [filter, setFilter] = useState<'all' | 'unread'>('all')
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1);
 
   const { data: notificationsData, isLoading } = useNotifications({
     limit: 50,
     page,
-    isRead: filter === 'unread' ? false : undefined,
-  })
-  const { data: unreadCountData } = useUnreadNotificationsCount()
-  const markAsReadMutation = useMarkNotificationAsRead()
-  const markAllAsReadMutation = useMarkAllNotificationsAsRead()
-  const deleteNotificationMutation = useDeleteNotification()
+  });
+  const { data: unreadCountData } = useUnreadNotificationsCount();
+  const markAsReadMutation = useMarkNotificationAsRead();
+  const markAllAsReadMutation = useMarkAllNotificationsAsRead();
 
   const notifications = useMemo(() => {
-    if (!notificationsData?.data) return []
-    return notificationsData.data.map(mapNotificationToUI)
-  }, [notificationsData])
+    if (!notificationsData?.data) return [];
+    return notificationsData.data.map(mapNotificationToUI);
+  }, [notificationsData]);
 
-  const filteredNotifications = useMemo(() => {
-    return notifications.filter((n: Notification) => {
-      if (filter === 'unread') return !n.read
-      return true
-    })
-  }, [notifications, filter])
+  const unreadCount = unreadCountData?.count ?? 0;
 
-  const unreadCount = unreadCountData?.count || 0
-
-  const getTypeStyles = (type: Notification['type']) => {
-    switch (type) {
-      case 'success':
-        return { icon: CheckCircle2, color: 'text-success', bg: 'bg-success/15' }
-      case 'warning':
-        return { icon: AlertTriangle, color: 'text-warning-foreground dark:text-warning', bg: 'bg-warning/15' }
-      case 'error':
-        return { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/15' }
-      default:
-        return { icon: Info, color: 'text-info', bg: 'bg-info/15' }
+  const handleItemClick = (n: Notification) => {
+    if (!n.read) {
+      markAsReadMutation.mutate(n.id);
     }
-  }
+  };
+
+  const totalPages = notificationsData?.totalPages ?? 1;
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Thông báo Hệ thống"
-        subtitle="Cập nhật tin tức và cảnh báo bảo mật Torii Academy"
-        stats={[
-          { label: "Chưa đọc", value: formatNumber(unreadCount) }
-        ]}
-        actions={
-          <Button
-            size="sm"
-            onClick={() => markAllAsReadMutation.mutate()}
-            disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-          >
-            <Check className="size-4 mr-2" />
-            {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
-          </Button>
-        }
-      />
+    <div
+      className={cn(
+        "mx-auto w-full max-w-2xl space-y-6 pb-16 animate-in fade-in slide-in-from-bottom-4 duration-500",
+      )}
+    >
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold text-foreground">Thông báo</h1>
+          <p className="text-sm text-muted-foreground">
+            {unreadCount > 0 ? `${unreadCount} chưa đọc` : "Không có thông báo chưa đọc"}
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => markAllAsReadMutation.mutate()}
+          disabled={markAllAsReadMutation.isPending || unreadCount === 0}
+          className="shrink-0"
+        >
+          <Check className="mr-1.5 h-3.5 w-3.5" />
+          {markAllAsReadMutation.isPending ? "Đang xử lý..." : "Đánh dấu tất cả đã đọc"}
+        </Button>
+      </div>
 
-      {/* Filter Tabs */}
-      <Tabs value={filter} onValueChange={(v) => { setFilter(v as 'all' | 'unread'); setPage(1); }}>
-        <TabsList className="w-full overflow-x-auto whitespace-nowrap">
-          <TabsTrigger value="all">Tất cả</TabsTrigger>
-          <TabsTrigger value="unread">
-            Chưa đọc
-            {unreadCount > 0 && (
-              <span className="ml-2 rounded-full bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-bold tabular-nums">
-                {unreadCount}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Notifications List */}
-      <div className={dataTableShellClass}>
+      <div className="space-y-2">
         {isLoading ? (
-          <div className="divide-y divide-border">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex gap-4 p-6">
-                <Skeleton className="size-10 rounded-xl shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-1/3" />
-                  <Skeleton className="h-3 w-1/4" />
-                  <Skeleton className="h-3 w-3/4" />
-                </div>
-              </div>
-            ))}
+          <div className="py-16 text-center">
+            <Bell className="mx-auto mb-3 h-8 w-8 animate-pulse text-muted-foreground/40" />
+            <p className="text-sm text-muted-foreground">Đang tải thông báo...</p>
           </div>
-        ) : filteredNotifications.length > 0 ? (
-          <div className="divide-y divide-border">
-            {filteredNotifications.map((notification: Notification) => {
-              const styles = getTypeStyles(notification.type)
-              const Icon = styles.icon
-              return (
-                <div
-                  key={notification.id}
+        ) : notifications.length > 0 ? (
+          notifications.map((n) => (
+            <Card
+              key={n.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleItemClick(n)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleItemClick(n);
+                }
+              }}
+              className={cn(
+                "w-full rounded-xl border p-4 text-left shadow-none transition-colors",
+                "hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                !n.read ? "border-border bg-muted/30" : "border-border/60 bg-card opacity-90",
+              )}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h2
                   className={cn(
-                    "group p-6 flex flex-col sm:flex-row gap-4 transition-colors hover:bg-muted/30",
-                    !notification.read && "bg-primary/[0.02]"
+                    "text-sm font-medium",
+                    !n.read ? "text-foreground" : "text-muted-foreground",
                   )}
                 >
-                  <div className={cn(
-                    "size-10 rounded-xl shrink-0 flex items-center justify-center",
-                    styles.bg,
-                    styles.color
-                  )}>
-                    <Icon className="size-5" />
-                  </div>
-
-                  <div className="flex-1 space-y-1.5 min-w-0">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1 min-w-0">
-                        <h3 className={cn(
-                          "text-sm font-semibold truncate",
-                          !notification.read ? "text-foreground" : "text-muted-foreground/80"
-                        )}>
-                          {notification.title}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-muted/50 text-[10px] font-bold uppercase tracking-wider text-muted-foreground border border-border/50">
-                            {notification.node}
-                          </span>
-                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground/60">
-                            <Clock className="size-3" />
-                            {notification.date} · {notification.time}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        {!notification.read && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 gap-1.5 text-xs"
-                            onClick={() => markAsReadMutation.mutate(notification.id)}
-                            disabled={markAsReadMutation.isPending}
-                          >
-                            <Check className="size-3.5" />
-                            Đã đọc
-                          </Button>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-1.5 text-xs text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
-                          onClick={() => deleteNotificationMutation.mutate(notification.id)}
-                          disabled={deleteNotificationMutation.isPending}
-                        >
-                          <Trash2 className="size-3.5" />
-                          Xóa
-                        </Button>
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-muted-foreground/70 leading-relaxed">
-                      {notification.message}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+                  {n.title}
+                </h2>
+                {!n.read && (
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden />
+                )}
+              </div>
+              {n.message ? (
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{n.message}</p>
+              ) : null}
+              <p className="mt-2 text-xs text-muted-foreground/70">
+                {n.date} · {n.time}
+              </p>
+            </Card>
+          ))
         ) : (
-          <Empty>
-            <EmptyMedia>
-              <BellOff className="size-6" />
-            </EmptyMedia>
-            <EmptyContent>
-              <EmptyTitle>Không có thông báo</EmptyTitle>
-              <EmptyDescription>Bạn đã xem hết tất cả thông tin quan trọng.</EmptyDescription>
-            </EmptyContent>
-          </Empty>
+          <div className="rounded-xl border border-dashed border-border bg-muted/5 py-16 text-center">
+            <Sparkles className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
+            <h3 className="text-sm font-medium text-foreground">Chưa có thông báo</h3>
+            <p className="mt-1 text-xs text-muted-foreground">Các cập nhật sẽ hiển thị tại đây.</p>
+          </div>
         )}
       </div>
 
-      {/* Pagination */}
-      {notificationsData && notificationsData.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      {notificationsData && totalPages > 1 ? (
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            Trang <span className="font-semibold text-foreground">{page}</span> / {notificationsData.totalPages}
+            Trang <span className="font-semibold text-foreground">{page}</span> / {totalPages}
           </p>
-          <Pagination className="w-auto mx-0">
+          <Pagination className="mx-0 w-auto">
             <PaginationContent className="gap-1">
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   className={cn(
-                    "h-9 px-3 rounded-lg text-xs cursor-pointer",
-                    page === 1 ? "opacity-40 pointer-events-none" : ""
+                    "h-9 cursor-pointer rounded-lg px-3 text-xs",
+                    page === 1 ? "pointer-events-none opacity-40" : "",
                   )}
                 />
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
-                  onClick={() => setPage((p) => Math.min(notificationsData.totalPages, p + 1))}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   className={cn(
-                    "h-9 px-3 rounded-lg text-xs cursor-pointer",
-                    page === notificationsData.totalPages ? "opacity-40 pointer-events-none" : ""
+                    "h-9 cursor-pointer rounded-lg px-3 text-xs",
+                    page === totalPages ? "pointer-events-none opacity-40" : "",
                   )}
                 />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
-      )}
+      ) : null}
     </div>
-  )
+  );
 }
