@@ -3,7 +3,7 @@ import { useAcademyVodPackage, useUpdateAcademyVodPackage, usePublishVodPackageD
 import { useAppSelector } from "@/hooks/hooks"
 import { selectUser } from "@/store/slices/auth-slice"
 import { UserRole, isStaffBranchRole } from "@workspace/schemas"
-import { Rocket, Send, CheckCircle2, Info, BookOpen, Users, MessageSquare, FileText, Folder } from "lucide-react"
+import { Rocket, Send, CheckCircle2, Info, BookOpen, Users, MessageSquare, Folder } from "lucide-react"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { PageHeader } from "@/components/common/page-header"
 import {
@@ -18,7 +18,6 @@ import { formatCurrency } from "@/lib/format-utils"
 import { toast } from "sonner"
 import { useMemo } from "react"
 import { ClassStudentsTab } from "../live-classes/tabs/class-students-tab"
-import { ClassAssignmentsTab } from "../live-classes/tabs/class-assignments-tab"
 import { ClassResourcesTab } from "../live-classes/tabs/class-resources-tab"
 import { ClassDiscussionTab } from "../live-classes/tabs/class-discussion-tab"
 import { ClassSyllabusTab } from "../live-classes/tabs/class-syllabus-tab"
@@ -28,7 +27,6 @@ const TAB_INFO = "info"
 const TAB_SYLLABUS = "syllabus"
 const TAB_STUDENTS = "students"
 const TAB_DISCUSSION = "discussion"
-const TAB_ASSIGNMENTS = "assignments"
 const TAB_RESOURCES = "resources"
 
 export default function VodPackageDetailPage() {
@@ -51,7 +49,6 @@ export default function VodPackageDetailPage() {
             tabParam === TAB_SYLLABUS ||
             tabParam === TAB_STUDENTS ||
             tabParam === TAB_DISCUSSION ||
-            tabParam === TAB_ASSIGNMENTS ||
             tabParam === TAB_RESOURCES
         ) {
             return tabParam
@@ -203,9 +200,6 @@ export default function VodPackageDetailPage() {
                     <TabsTrigger value={TAB_DISCUSSION} className="gap-2 px-6">
                         <MessageSquare className="size-4" /> Thảo luận
                     </TabsTrigger>
-                    <TabsTrigger value={TAB_ASSIGNMENTS} className="gap-2 px-6">
-                        <FileText className="size-4" /> Bài tập
-                    </TabsTrigger>
                     <TabsTrigger value={TAB_RESOURCES} className="gap-2 px-6">
                         <Folder className="size-4" /> Tài liệu chia sẻ
                     </TabsTrigger>
@@ -223,9 +217,6 @@ export default function VodPackageDetailPage() {
                     </TabsContent>
                     <TabsContent value={TAB_DISCUSSION}>
                         <ClassDiscussionTab vodPackageId={id} />
-                    </TabsContent>
-                    <TabsContent value={TAB_ASSIGNMENTS}>
-                        <ClassAssignmentsTab vodPackageId={id} />
                     </TabsContent>
                     <TabsContent value={TAB_RESOURCES}>
                         <ClassResourcesTab vodPackageId={id} />

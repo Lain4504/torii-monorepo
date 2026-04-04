@@ -115,6 +115,7 @@ export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, 
     const category = watch("category");
     const icon = watch("icon");
     const reqType = watch("requirements.type");
+    const isActive = watch("isActive");
     const needsValue = reqType !== 'CUSTOM';
 
     const onSubmit: SubmitHandler<AchievementFormValues> = (values) => {
@@ -287,6 +288,7 @@ export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, 
                                             <FieldDescription>Học viên có thể đạt được thành tích này.</FieldDescription>
                                         </div>
                                         <Switch
+                                            checked={isActive}
                                             onCheckedChange={(val) => setValue("isActive", val, { shouldDirty: true })}
                                         />
                                     </Field>
