@@ -12,7 +12,7 @@ export class OrderListener {
     private readonly enrollments: EnrollmentService,
     private readonly audit: AuditLoggerService,
     private readonly orderService: OrderService,
-  ) {}
+  ) { }
 
   @EventPattern('order.paid')
   async handleOrderPaid(@Payload() data: { orderId: string }) {
@@ -39,18 +39,23 @@ export class OrderListener {
     for (const item of order.items) {
       const isVod = !!item.vodPackageId;
       const isCohort = !!item.cohortId;
+      const isLiveClass = !!item.liveClassId;
 
-      if (!isVod && !isCohort) continue;
+      if (!isVod && !isCohort && !isLiveClass) continue;
 
       const snapshot = item.offeringSnapshot as any;
-      let targetLiveClassId: string | undefined = undefined;
+      let targetLiveClassId: string | undefined = item.liveClassId ?? undefined;
 
-      if (isCohort) {
+      if (isCohort && !targetLiveClassId) {
         targetLiveClassId = snapshot?.selectedClassId;
-        if (!targetLiveClassId) continue;
       }
 
+      if (!targetLiveClassId) continue;
+
       try {
+        console.log(
+          `[Academy] Enrolling user ${targetUserId} into specific class: ${targetLiveClassId} (Source Order: ${order.id})`,
+        );
         await this.enrollments.enroll(
           {
             userId: targetUserId,

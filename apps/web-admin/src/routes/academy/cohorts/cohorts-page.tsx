@@ -50,12 +50,12 @@ export default function CohortsPage() {
     const navigate = useNavigate()
     const submitForApprovalMutation = useSubmitCohortForApproval()
 
-    const statusFilter = 
-        tab === 'all' ? undefined : 
-        tab === 'draft' ? 'DRAFT' : 
-        tab === 'pending' ? 'PENDING_APPROVAL' : 
-        tab === 'opening' ? 'OPENING' : 
-        tab === 'completed' ? 'COMPLETED' : 'ARCHIVED'
+    const statusFilter =
+        tab === 'all' ? undefined :
+            tab === 'draft' ? 'DRAFT' :
+                tab === 'pending' ? 'PENDING_APPROVAL' :
+                    tab === 'opening' ? 'OPENING' :
+                        tab === 'completed' ? 'COMPLETED' : 'ARCHIVED'
 
     const { data: cohorts, isLoading } = useAcademyCohorts({
         q: debouncedSearch,
@@ -80,7 +80,7 @@ export default function CohortsPage() {
         <div className="flex flex-col gap-8 p-6">
             <PageHeader
                 title="Đợt khai giảng"
-                subtitle="Quản lý các đợt khai giảng, thiết lập giá và ngày học cho các lớp LIVE."
+                subtitle="Quản lý các đợt khai giảng và ngày khai giảng cho các lớp LIVE."
                 actions={
                     <Button size="lg" onClick={handleCreate}>
                         <Plus className="mr-2 h-4 w-4" /> Tạo Đợt khai giảng mới
@@ -122,7 +122,6 @@ export default function CohortsPage() {
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[140px]">Mã Đợt khai giảng</TableHead>
                                 <TableHead>Tên đợt học / Khai giảng</TableHead>
-                                <TableHead>Giá bán (VNĐ)</TableHead>
                                 <TableHead>Trạng thái</TableHead>
                                 <TableHead className="text-right pr-6">Thao tác</TableHead>
                             </TableRow>
@@ -134,14 +133,13 @@ export default function CohortsPage() {
                                         <TableCell><Skeleton className="h-4 w-6" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-48" /></TableCell>
-                                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
                                     </TableRow>
                                 ))
                             ) : !cohorts || cohorts.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                                         Không tìm thấy Đợt khai giảng nào.
                                     </TableCell>
                                 </TableRow>
@@ -156,24 +154,6 @@ export default function CohortsPage() {
                                                 <span className="text-[10px] text-muted-foreground">
                                                     Khai giảng: {cohort.startDate ? new Date(cohort.startDate).toLocaleDateString('vi-VN') : '—'}
                                                 </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-col">
-                                                {cohort.discountPrice ? (
-                                                    <>
-                                                        <span className="font-bold text-sm tracking-tight text-primary">
-                                                            {Number(cohort.discountPrice).toLocaleString()}₫
-                                                        </span>
-                                                        <span className="text-[10px] text-muted-foreground line-through opacity-70">
-                                                            {Number(cohort.price).toLocaleString()}₫
-                                                        </span>
-                                                    </>
-                                                ) : (
-                                                    <span className="font-bold text-sm tracking-tight">
-                                                        {Number(cohort.price).toLocaleString()}₫
-                                                    </span>
-                                                )}
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -220,10 +200,11 @@ export default function CohortsPage() {
                                                                 await submitForApprovalMutation.mutateAsync(cohort.id)
                                                                 toast.success(`Đã gửi duyệt đợt học ${cohort.code}`)
                                                             } catch (err: any) {
-                                                                toast.error(err.message || "Không thể gửi duyệt")
+                                                                toast.error(err?.userMessage || err?.message || "Không thể gửi duyệt")
                                                             }
                                                         }}
-                                                        disabled={submitForApprovalMutation.isPending}
+                                                        disabled={submitForApprovalMutation.isPending || !cohort._count?.liveClasses}
+                                                        title={!cohort._count?.liveClasses ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
                                                     >
                                                         <Send className="size-3.5" /> Gửi duyệt
                                                     </Button>

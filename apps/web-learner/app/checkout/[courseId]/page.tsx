@@ -68,10 +68,10 @@ export default function CheckoutPage() {
     const { data: product, isLoading: isLoadingProduct } = useAcademyProduct(courseId, type)
     const [isProcessing, setIsProcessing] = useState(false)
     const isLIVE = product?.type === 'LIVE'
-    
+
     // Selection state
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
-    
+
     const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedClassId) || product?.class || null
     const lessonCount = Array.isArray(selectedClass?.curriculum?.chapters)
         ? selectedClass.curriculum.chapters.reduce((acc: number, chapter: any) => {
@@ -183,11 +183,12 @@ export default function CheckoutPage() {
             const checkoutPayload = isLiveProduct
                 ? {
                     cohortIds: [product.id],
+                    liveClassIds: selectedClassId ? [selectedClassId] : undefined,
                     liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
-                  }
+                }
                 : {
                     vodPackageIds: [product.id],
-                  }
+                }
             const result = await orderApi.previewOrder({
                 ...checkoutPayload,
                 couponCode: couponCode.trim() || undefined,
@@ -230,11 +231,12 @@ export default function CheckoutPage() {
             const checkoutPayload = isLiveProduct
                 ? {
                     cohortIds: [product.id],
+                    liveClassIds: selectedClassId ? [selectedClassId] : undefined,
                     liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
-                  }
+                }
                 : {
                     vodPackageIds: [product.id],
-                  }
+                }
             const result = await orderApi.createOrder({
                 ...checkoutPayload,
                 paymentMethod: method,
@@ -307,7 +309,7 @@ export default function CheckoutPage() {
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
-                                            <ItemContent><ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
+                                                <ItemContent><ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
                                             </Item>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
@@ -423,9 +425,9 @@ export default function CheckoutPage() {
                                                 </div>
                                             </div>
                                             {user.walletBalance >= displayTotal && (
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     className="h-7 px-2 text-[10px] font-black uppercase text-amber-600 hover:text-white hover:bg-amber-500 border border-amber-500/30 rounded-lg transition-all"
                                                     onClick={() => handlePayment(PaymentMethod.COIN)}
                                                     disabled={isProcessing}

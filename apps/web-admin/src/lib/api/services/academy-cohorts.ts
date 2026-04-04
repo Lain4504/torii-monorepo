@@ -13,8 +13,6 @@ export type AcademyCohort = {
   code: string
   name: string
   description?: string | null
-  price: number
-  discountPrice?: number | null
   status: string
   enrollmentOpenAt?: string | null
   enrollmentCloseAt?: string | null
@@ -24,6 +22,9 @@ export type AcademyCohort = {
   rejectionReason?: string | null
   createdAt: string
   updatedAt: string
+  _count?: {
+    liveClasses?: number
+  }
 }
 
 type AcademyCohortListPayload =

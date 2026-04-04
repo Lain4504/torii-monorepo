@@ -40,21 +40,11 @@ const cohortSchema = z.object({
   courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
   code: z.string().min(2, "Mã khóa học phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên khóa học phải có ít nhất 3 ký tự"),
-  price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   status: z.string().optional(),
   enrollmentOpenAt: z.string().optional().nullable(),
   enrollmentCloseAt: z.string().optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
-}).refine(data => {
-  if (data.discountPrice != null && data.price != null) {
-    return data.discountPrice < data.price;
-  }
-  return true;
-}, {
-  message: "Giá giảm phải nhỏ hơn giá gốc",
-  path: ["discountPrice"],
 }).refine((data) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -118,8 +108,6 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
       courseProfileId: "",
       code: "",
       name: "",
-      price: 0,
-      discountPrice: null,
       status: "DRAFT",
       enrollmentOpenAt: null,
       enrollmentCloseAt: null,
@@ -134,8 +122,6 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         courseProfileId: cohort.courseProfileId,
         code: cohort.code,
         name: cohort.name,
-        price: Number(cohort.price),
-        discountPrice: cohort.discountPrice ? Number(cohort.discountPrice) : null,
         status: cohort.status ?? "DRAFT",
         enrollmentOpenAt: cohort.enrollmentOpenAt
           ? new Date(cohort.enrollmentOpenAt).toISOString().slice(0, 10)
@@ -155,8 +141,6 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         courseProfileId: "",
         code: "",
         name: "",
-        price: 0,
-        discountPrice: null,
         status: "DRAFT",
         enrollmentOpenAt: null,
         enrollmentCloseAt: null,
@@ -172,8 +156,6 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         courseProfileId: values.courseProfileId,
         code: values.code,
         name: values.name,
-        price: values.price,
-        discountPrice: values.discountPrice ?? undefined,
         status: values.status as any,
         enrollmentOpenAt: values.enrollmentOpenAt ? new Date(values.enrollmentOpenAt) : undefined,
         enrollmentCloseAt: values.enrollmentCloseAt ? new Date(values.enrollmentCloseAt) : undefined,
@@ -279,39 +261,6 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                 <FieldSet>
                   <FieldLegend>Kinh doanh & Thời gian</FieldLegend>
                   <FieldGroup>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Field>
-                        <FieldLabel>Giá học phí (VNĐ)</FieldLabel>
-                        <Controller
-                          name="price"
-                          control={control}
-                          render={({ field }) => (
-                            <Input
-                              type="number"
-                              {...field}
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                            />
-                          )}
-                        />
-                        <FieldError errors={[errors.price]} />
-                      </Field>
-                      <Field>
-                        <FieldLabel>Giá giảm giá (VNĐ)</FieldLabel>
-                        <Controller
-                          name="discountPrice"
-                          control={control}
-                          render={({ field }) => (
-                            <Input
-                              type="number"
-                              placeholder="Không giảm"
-                              value={field.value ?? ""}
-                              onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
-                            />
-                          )}
-                        />
-                        <FieldError errors={[errors.discountPrice]} />
-                      </Field>
-                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>

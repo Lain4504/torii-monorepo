@@ -21,6 +21,11 @@ export class OrderCheckoutDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  liveClassIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   subscriptionPlanIds?: string[];
 
   @IsOptional()
@@ -56,6 +61,11 @@ export class OrderPreviewDto {
   @IsArray()
   @IsString({ each: true })
   cohortIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  liveClassIds?: string[];
 
   @IsOptional()
   @IsArray()

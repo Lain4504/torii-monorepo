@@ -11,9 +11,9 @@ const classIdByOfferingSchema = z
   .optional();
 
 export const orderCheckoutSchema = z.object({
-  // New flow: VOD + LIVE products
   vodPackageIds: z.array(z.string().uuid()).optional(),
   cohortIds: z.array(z.string().uuid()).optional(),
+  liveClassIds: z.array(z.string().uuid()).optional(),
   liveClassIdByCohort: liveClassIdByCohortSchema,
   // AI subscription plans
   subscriptionPlanIds: z.array(z.string().uuid()).optional(),
@@ -38,6 +38,7 @@ export const orderPreviewSchema = z.object({
   // New flow
   vodPackageIds: z.array(z.string().uuid()).optional(),
   cohortIds: z.array(z.string().uuid()).optional(),
+  liveClassIds: z.array(z.string().uuid()).optional(),
   liveClassIdByCohort: liveClassIdByCohortSchema,
   subscriptionPlanIds: z.array(z.string().uuid()).optional(),
   couponCode: z.string().optional(),
