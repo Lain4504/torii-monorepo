@@ -53,9 +53,9 @@ export default function QuestionsPage() {
   }
 
   const difficultyBadge = (d: string) => {
-    if (d === 'EASY') return <Badge variant="outline" className="text-[10px] font-bold border-emerald-300 text-emerald-700 bg-emerald-50">Dễ</Badge>
-    if (d === 'HARD') return <Badge variant="outline" className="text-[10px] font-bold border-red-300 text-red-700 bg-red-50">Khó</Badge>
-    return <Badge variant="secondary" className="text-[10px] font-bold">TB</Badge>
+    if (d === 'EASY') return <Badge variant="success" className="text-[10px] font-bold">Dễ</Badge>
+    if (d === 'HARD') return <Badge variant="destructive" className="text-[10px] font-bold">Khó</Badge>
+    return <Badge variant="warning" className="text-[10px] font-bold">TB</Badge>
   }
 
   return (
@@ -160,7 +160,7 @@ export default function QuestionsPage() {
                   </TableCell>
                   <TableCell>{difficultyBadge(q.difficulty)}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
+                    <Badge variant="info" className="text-[10px] font-bold">
                       {q.level || "—"}
                     </Badge>
                   </TableCell>

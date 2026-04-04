@@ -68,14 +68,12 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
             
             return (
                 <div className="flex justify-center">
-                    <div className={cn(
-                        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[11px] font-bold tracking-tight",
-                        type === CouponDiscountType.PERCENTAGE
-                            ? "bg-blue-500/10 text-blue-600 border-blue-500/20" 
-                            : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                    )}>
+                    <Badge
+                        variant={type === CouponDiscountType.PERCENTAGE ? 'info' : 'success'}
+                        className="rounded-md px-2.5 py-1 text-[11px] font-bold tracking-tight"
+                    >
                         {type === CouponDiscountType.PERCENTAGE ? `${value}%` : formatCurrency(value)}
-                    </div>
+                    </Badge>
                 </div>
             );
         },
@@ -162,19 +160,13 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
         cell: (info) => {
             const status = info.getValue() as string;
             // ACTIVE, INACTIVE, EXPIRED
-            const config = {
-                active: { 
-                    label: 'Hoạt động', 
-                    class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 shadow-none' 
-                },
-                inactive: { 
-                    label: 'Tạm dừng', 
-                    class: 'text-muted-foreground border-border shadow-none' 
-                },
-                expired: { 
-                    label: 'Đã hết hạn', 
-                    class: 'bg-rose-500/10 text-rose-600 border-rose-500/20 hover:bg-rose-500/20 shadow-none' 
-                }
+            const config: Record<
+                string,
+                { label: string; variant: 'success' | 'secondary' | 'destructive' | 'outline' }
+            > = {
+                active: { label: 'Hoạt động', variant: 'success' },
+                inactive: { label: 'Tạm dừng', variant: 'secondary' },
+                expired: { label: 'Đã hết hạn', variant: 'destructive' },
             };
             const isExpired = info.row.original.endDate && new Date(info.row.original.endDate) < new Date();
             
@@ -184,14 +176,11 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
                 displayStatus = 'expired';
             }
 
-            const current = config[displayStatus as keyof typeof config] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border shadow-none' };
+            const current = config[displayStatus] ?? { label: status, variant: 'outline' as const };
 
             return (
                 <div className="flex justify-center">
-                    <Badge 
-                        variant={displayStatus === 'active' || displayStatus === 'expired' ? 'default' : 'outline'} 
-                        className={cn("font-bold uppercase tracking-wider text-[10px]", current.class)}
-                    >
+                    <Badge variant={current.variant} className="font-bold uppercase tracking-wider text-[10px]">
                         {current.label}
                     </Badge>
                 </div>

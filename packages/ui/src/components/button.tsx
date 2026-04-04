@@ -18,6 +18,12 @@ const buttonVariants = cva(
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        success:
+          "border border-success/30 bg-success/12 text-success hover:bg-success/18 focus-visible:border-success/40 focus-visible:ring-success/20 dark:border-success/35 dark:bg-success/16 dark:hover:bg-success/22 dark:focus-visible:ring-success/30",
+        warning:
+          "border border-warning/35 bg-warning/14 text-warning-foreground hover:bg-warning/22 focus-visible:border-warning/40 focus-visible:ring-warning/20 dark:border-warning/40 dark:bg-warning/12 dark:text-warning dark:hover:bg-warning/18 dark:focus-visible:ring-warning/25",
+        info:
+          "border border-info/30 bg-info/12 text-info hover:bg-info/18 focus-visible:border-info/40 focus-visible:ring-info/20 dark:border-info/35 dark:bg-info/16 dark:hover:bg-info/22 dark:focus-visible:ring-info/30",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

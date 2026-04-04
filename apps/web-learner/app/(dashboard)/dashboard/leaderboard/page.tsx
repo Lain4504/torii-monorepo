@@ -32,8 +32,8 @@ export default function LeaderboardPage() {
                 onTypeChange={setLeaderboardType}
             />
 
-            {/* Podium Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end mb-12 relative h-[400px] md:h-auto">
+            {/* Podium: mobile xếp 1→2→3; md: podium 2 | 1 | 3 */}
+            <div className="mb-8 flex flex-col gap-8 md:mb-12 md:grid md:grid-cols-3 md:items-end md:gap-6">
                 {topThree.length >= 2 && (
                     <PodiumCard
                         user={topThree[1]!}

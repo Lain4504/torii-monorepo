@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 import { ClipboardCheck, School, Wallet, Ticket, Users, HandCoins } from "lucide-react";
 
 const COLORS = ["#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#14b8a6"];
@@ -84,6 +85,41 @@ export default function AdminDashboardV2() {
           highlight={(staffOperations?.stats.pendingTickets ?? 0) > 0}
         />
       </div>
+
+      <Card className="border-dashed border-primary/20 bg-muted/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Trạng thái & hành động (màu chuẩn)</CardTitle>
+          <CardDescription>
+            Success / Warning / Info bổ sung cho Primary & Destructive — dùng cho badge và nút trên toàn admin.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground w-full sm:w-auto sm:mr-2">Badge</span>
+            <Badge variant="success">Thành công</Badge>
+            <Badge variant="warning">Cần xử lý</Badge>
+            <Badge variant="info">Thông tin</Badge>
+            <Badge variant="destructive">Lỗi / từ chối</Badge>
+            <Badge variant="default">Primary</Badge>
+            <Badge variant="secondary">Trung tính</Badge>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground w-full sm:w-auto sm:mr-2">Button</span>
+            <Button type="button" size="sm" variant="success">
+              Duyệt
+            </Button>
+            <Button type="button" size="sm" variant="warning">
+              Chờ xử lý
+            </Button>
+            <Button type="button" size="sm" variant="info">
+              Chi tiết
+            </Button>
+            <Button type="button" size="sm" variant="destructive">
+              Từ chối
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

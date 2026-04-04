@@ -19,27 +19,40 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
     const isThird = rank === 3
 
     return (
-        <div className={cn(
-            'flex flex-col items-center gap-4 transition-all duration-500 hover:-translate-y-2',
-            isFirst ? 'order-2 z-10 scale-110 md:mb-10' : isSecond ? 'order-1' : 'order-3',
-        )}>
+        <div
+            className={cn(
+                'flex flex-col items-center gap-3 transition-all duration-500 md:gap-4 md:hover:-translate-y-2',
+                /* Mobile: thứ tự 1 → 2 → 3; desktop: podium 2 | 1 | 3 */
+                isFirst
+                    ? 'order-1 z-10 md:order-2 md:mb-10 md:scale-110'
+                    : isSecond
+                      ? 'order-2 md:order-1'
+                      : 'order-3 md:order-3',
+            )}
+        >
             <div className="relative">
                 {isFirst && (
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-                        <Crown className="animate-bounce size-10 fill-amber-400 text-amber-400 drop-shadow-lg duration-3000" />
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 md:-top-8">
+                        <Crown className="size-8 animate-bounce fill-amber-400 text-amber-400 drop-shadow-lg duration-3000 md:size-10" aria-hidden />
                     </div>
                 )}
 
-                <div className={cn(
-                    'rounded-full p-1.5',
-                    isFirst ? 'bg-warning shadow-lg shadow-warning/20' :
-                        isSecond ? 'bg-muted' :
-                            'bg-orange-100 dark:bg-orange-950',
-                )}>
-                    <Avatar className={cn(
-                        'border-4 border-background',
-                        isFirst ? 'size-32' : 'size-24',
-                    )}>
+                <div
+                    className={cn(
+                        'rounded-full p-1.5',
+                        isFirst
+                            ? 'bg-warning shadow-md shadow-warning/20 md:shadow-lg'
+                            : isSecond
+                              ? 'bg-muted'
+                              : 'bg-orange-100 dark:bg-orange-950',
+                    )}
+                >
+                    <Avatar
+                        className={cn(
+                            'border-4 border-background',
+                            isFirst ? 'size-[5.5rem] md:size-32' : 'size-20 md:size-24',
+                        )}
+                    >
                         <AvatarImage src={user.avatarUrl ?? undefined} />
                         <AvatarFallback className="text-2xl font-black">
                             {user.displayName.charAt(0)}
@@ -47,34 +60,40 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                     </Avatar>
                 </div>
 
-                <div className={cn(
-                    'absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border-2 border-background text-xs font-black text-white',
-                    isFirst ? 'size-10 bg-warning text-base' :
-                        isSecond ? 'size-8 bg-muted-foreground' :
-                            'size-8 bg-orange-600',
-                )}>
+                <div
+                    className={cn(
+                        'absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border-2 border-background text-xs font-black text-white',
+                        isFirst ? 'size-9 bg-warning text-sm md:size-10 md:text-base' : 'size-8 bg-muted-foreground',
+                        isThird && 'bg-orange-600',
+                    )}
+                >
                     {rank}
                 </div>
             </div>
 
-            <div className="mt-2 text-center flex flex-col items-center">
-                <div className="flex items-center gap-1.5">
-                    <h3 className={cn(
-                        'flex items-center gap-1 font-black tracking-tight',
-                        isFirst ? 'text-xl' : 'text-base',
-                    )}>
+            <div className="mt-1 flex flex-col items-center text-center md:mt-2">
+                <div className="flex max-w-[min(100%,16rem)] items-center justify-center gap-1.5">
+                    <h3
+                        className={cn(
+                            'truncate font-black tracking-tight',
+                            isFirst ? 'text-lg md:text-xl' : 'text-sm md:text-base',
+                        )}
+                        title={user.displayName}
+                    >
                         {user.displayName}
                     </h3>
                     {isCurrentUser && (
                         <div className="size-2 rounded-full bg-primary" />
                     )}
                 </div>
-                <p className="text-sm font-bold text-muted-foreground">Cấp độ {user.level}</p>
+                <p className="text-xs font-bold text-muted-foreground md:text-sm">Cấp độ {user.level}</p>
 
-                <div className={cn(
-                    'mt-3 flex items-center gap-2 self-center rounded-full border border-border/50 bg-background/50 px-4 py-1.5 backdrop-blur-sm',
-                    isFirst && 'border-warning/20 bg-warning/5 shadow-md',
-                )}>
+                <div
+                    className={cn(
+                        'mt-2 flex items-center gap-1.5 self-center rounded-full border border-border/50 bg-background/50 px-3 py-1 backdrop-blur-sm md:mt-3 md:gap-2 md:px-4 md:py-1.5',
+                        isFirst && 'border-warning/20 bg-warning/5 shadow-sm md:shadow-md',
+                    )}
+                >
                     {type === 'global' ? (
                         <Star className="size-4 fill-warning text-warning" />
                     ) : type === 'streak' ? (
@@ -82,7 +101,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                     ) : (
                         <CalendarDays className="size-4 fill-primary text-primary" />
                     )}
-                    <span className="font-extrabold text-lg tabular-nums">
+                    <span className="font-extrabold text-base tabular-nums md:text-lg">
                         {type === 'global' 
                             ? formatNumber(user.xp) 
                             : type === 'streak' 

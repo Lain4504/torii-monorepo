@@ -16,16 +16,16 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
     const isDisabled = !canAccessLearning || !selectedSetId || selectedCount === 0;
     return (
         <section className="w-full space-y-4 pb-2" data-purpose="study-mode-selection">
-            <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <AlertCircle className="h-4 w-4" />
+            {!canAccessLearning && (
+                <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <AlertCircle className="h-4 w-4" />
+                    </div>
+                    <p className="text-xs font-medium text-foreground/90">
+                        Bạn đang ở chế độ tham quan. Đăng nhập để bắt đầu học flashcard, trắc nghiệm và match.
+                    </p>
                 </div>
-                <p className="text-xs font-medium text-foreground/90">
-                    {canAccessLearning
-                        ? 'Nên dùng bộ gõ tiếng Việt hoặc Nhật cho các chế độ luyện gõ để tăng hiệu quả ghi nhớ.'
-                        : 'Bạn đang ở chế độ tham quan. Đăng nhập để bắt đầu học flashcard, trắc nghiệm và match.'}
-                </p>
-            </div>
+            )}
             <div>
                 <h2 className="mb-4 text-lg font-bold text-foreground">Chọn chế độ học</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

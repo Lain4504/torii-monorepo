@@ -4,11 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: remove leagacy docs">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/academy.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/index.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add roadmap module and related functionality for personalized learning pathways">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/leaderboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/leaderboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-list-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/blog/blog-list-client.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/current-user-rank.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/current-user-rank.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/leaderboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/leaderboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/leaderboard-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/leaderboard-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/podium-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/leaderboard/podium-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-mode-selection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-mode-selection.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +29,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1820" />
+    <option name="cachedIndexableFilesCount" value="1829" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -399,15 +407,8 @@
       <workItem from="1775037916663" duration="31000" />
       <workItem from="1775061830841" duration="4922000" />
       <workItem from="1775200902364" duration="10081000" />
-      <workItem from="1775223495745" duration="2382000" />
-    </task>
-    <task id="LOCAL-01047" summary="feat: enhance landing page with guest preview and authentication flow">
-      <option name="closed" value="true" />
-      <created>1774354298717</created>
-      <option name="number" value="01047" />
-      <option name="presentableId" value="LOCAL-01047" />
-      <option name="project" value="LOCAL" />
-      <updated>1774354298717</updated>
+      <workItem from="1775223495745" duration="3269000" />
+      <workItem from="1775287880059" duration="2428000" />
     </task>
     <task id="LOCAL-01048" summary="feat: enhance landing page with guest preview and authentication flow">
       <option name="closed" value="true" />
@@ -793,7 +794,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775226993298</updated>
     </task>
-    <option name="localTasksCounter" value="1096" />
+    <task id="LOCAL-01096" summary="feat: add roadmap module and related functionality for personalized learning pathways">
+      <option name="closed" value="true" />
+      <created>1775227664588</created>
+      <option name="number" value="01096" />
+      <option name="presentableId" value="LOCAL-01096" />
+      <option name="project" value="LOCAL" />
+      <updated>1775227664589</updated>
+    </task>
+    <option name="localTasksCounter" value="1097" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -828,7 +837,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="courser flow end" />
     <MESSAGE value="feat: add JLPT mondai management functionality and update navigation" />
     <MESSAGE value="new flow" />
     <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
@@ -853,7 +861,8 @@
     <MESSAGE value="feat(class-attendance): add join session functionality and alert dialog for lecturers" />
     <MESSAGE value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
     <MESSAGE value="chore: remove leagacy docs" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: remove leagacy docs" />
+    <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add roadmap module and related functionality for personalized learning pathways" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
