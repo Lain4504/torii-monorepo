@@ -129,13 +129,13 @@ export const academyClassCatalogApi = {
 
     const basePrice = Number(
       isLive
-        ? item?.cohort?.price ?? item?.price ?? item?.catalogPrice ?? 0
+        ? item?.price ?? item?.catalogPrice ?? 0
         : item?.price ?? item?.catalogPrice ?? 0,
     )
 
     const discountRaw = Number(
       isLive
-        ? item?.cohort?.discountPrice ?? item?.discountPrice ?? 0
+        ? item?.discountPrice ?? 0
         : item?.discountPrice ?? 0,
     )
 

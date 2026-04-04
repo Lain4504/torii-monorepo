@@ -4,8 +4,6 @@ export const academyCohortBaseSchema = z.object({
   courseProfileId: z.string().uuid(),
   code: z.string().min(1).max(150),
   name: z.string().min(1).max(255),
-  price: z.coerce.number().min(0),
-  discountPrice: z.coerce.number().min(0).optional().nullable(),
   status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'OPENING', 'COMPLETED', 'ARCHIVED']).optional(),
   enrollmentOpenAt: z.coerce.date().optional().nullable(),
   enrollmentCloseAt: z.coerce.date().optional().nullable(),
@@ -14,16 +12,8 @@ export const academyCohortBaseSchema = z.object({
   rejectionReason: z.string().optional().nullable(),
 });
 
-const refineDateSequence = (schema: z.ZodType<any, any, any>) => 
+const refineDateSequence = (schema: z.ZodType<any, any, any>) =>
   schema.refine(data => {
-    if (data.discountPrice != null && data.price != null) {
-      return Number(data.discountPrice) < Number(data.price);
-    }
-    return true;
-  }, {
-    message: "Giá giảm phải nhỏ hơn giá gốc",
-    path: ["discountPrice"],
-  }).refine(data => {
     if (data.enrollmentOpenAt && data.enrollmentCloseAt) {
       return new Date(data.enrollmentOpenAt) < new Date(data.enrollmentCloseAt);
     }

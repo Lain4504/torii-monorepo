@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom"
 import { useState } from "react"
-import { 
+import {
   useAcademyCohort,
   academyCohortsApi
 } from "@/lib/api/services/academy-cohorts"
@@ -27,11 +27,11 @@ export default function CohortDetailPage() {
   const { cohortId: id = "" } = useParams<{ cohortId: string }>()
   const [page, setPage] = useState(1)
   const [sheetOpen, setSheetOpen] = useState(false)
-  
+
   const { data: cohort, isLoading: isLoadingCohort } = useAcademyCohort(id)
   const { data: liveClasses, isLoading: isLoadingClasses } = useAcademyLiveClasses({ cohortId: id })
   const { data: courseProfile } = useAcademyCourseProfile(cohort?.courseProfileId)
-  
+
   const navigate = useNavigate()
   const approveMutation = useApproveCohort()
   const deleteMutation = useDeleteAcademyCohort()
@@ -50,8 +50,8 @@ export default function CohortDetailPage() {
       await academyCohortsApi.update(id, { status: status as any })
       toast.success(`Đã chuyển trạng thái sang ${status}`)
       // Invalidate if needed, or window.location.reload()
-    } catch (err) {
-      toast.error("Không thể cập nhật trạng thái")
+    } catch (err: any) {
+      toast.error(err?.userMessage || err?.message || "Không thể cập nhật trạng thái")
     }
   }
 
@@ -65,7 +65,7 @@ export default function CohortDetailPage() {
       toast.error("Không thể xóa đợt học")
     }
   }
-  
+
   const { data: ordersResponse, isLoading: isLoadingOrders } = useCohortOrders(id, {
     page,
     limit: 10,
@@ -114,16 +114,18 @@ export default function CohortDetailPage() {
         actions={
           <div className="flex items-center gap-2">
             {cohort.status === 'DRAFT' && (
-              <Button 
-                onClick={() => handleUpdateStatus('PENDING_APPROVAL')} 
+              <Button
+                onClick={() => handleUpdateStatus('PENDING_APPROVAL')}
                 className="bg-primary hover:bg-primary/90 shadow-none gap-2"
+                disabled={!liveClasses?.length}
+                title={!liveClasses?.length ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
               >
                 <Send className="size-4" /> Gửi duyệt
               </Button>
             )}
             {cohort.status === 'PENDING_APPROVAL' && (
-              <Button 
-                onClick={handleApprove} 
+              <Button
+                onClick={handleApprove}
                 className="bg-emerald-600 hover:bg-emerald-700 shadow-none gap-2"
               >
                 <CheckCircle2 className="size-4" /> Phê duyệt & Xuất bản
@@ -148,7 +150,7 @@ export default function CohortDetailPage() {
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
-                <ShoppingCart className="size-4" /> Tổng số đơn hàng
+              <ShoppingCart className="size-4" /> Tổng số đơn hàng
             </CardDescription>
             <CardTitle className="text-2xl font-bold">{totalOrders}</CardTitle>
           </CardHeader>
@@ -160,10 +162,10 @@ export default function CohortDetailPage() {
         <Card className="bg-emerald-500/5 border-emerald-500/20">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2 text-emerald-600 font-medium">
-                <TrendingUp className="size-4" /> Doanh thu thực nhận
+              <TrendingUp className="size-4" /> Doanh thu thực nhận
             </CardDescription>
             <CardTitle className="text-2xl font-bold text-emerald-700">
-                {stats?.totalRevenue ? formatCurrency(stats.totalRevenue) : formatCurrency(orders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (+o.amount), 0))}
+              {stats?.totalRevenue ? formatCurrency(stats.totalRevenue) : formatCurrency(orders.filter(o => o.status === 'PAID').reduce((sum, o) => sum + (+o.amount), 0))}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -174,7 +176,7 @@ export default function CohortDetailPage() {
         <Card className="bg-blue-500/5 border-blue-500/20">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2 text-blue-600 font-medium">
-                <Package className="size-4" /> Số lớp LIVE liên kết
+              <Package className="size-4" /> Số lớp LIVE liên kết
             </CardDescription>
             <CardTitle className="text-2xl font-bold text-blue-700">
               {isLoadingClasses ? "..." : liveClasses?.length || 0}
@@ -199,7 +201,7 @@ export default function CohortDetailPage() {
             <div className="flex-1 space-y-2 text-center md:text-left">
               <div className="flex flex-wrap items-center gap-2 justify-center md:justify-start">
                 <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 flex items-center gap-1">
-                   <BookOpen className="size-3" /> Chương trình gốc
+                  <BookOpen className="size-3" /> Chương trình gốc
                 </Badge>
                 <span className="text-xs text-muted-foreground font-mono">{courseProfile.code}</span>
               </div>
@@ -237,73 +239,55 @@ export default function CohortDetailPage() {
                   <CardTitle>Cấu hình chung</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Tên đợt học</p>
-                            <p className="text-base font-semibold">{cohort.name}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã định danh</p>
-                            <p className="text-base font-mono font-bold">{cohort.code}</p>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Giá bán</p>
-                            <div className="flex flex-col">
-                                {cohort.discountPrice ? (
-                                    <>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-xl font-bold text-primary">{formatCurrency(cohort.discountPrice)}</span>
-                                            <Badge variant="destructive" className="text-[10px] h-4 px-1 leading-none uppercase font-bold border-none">Ưu đãi</Badge>
-                                        </div>
-                                        <span className="text-xs text-muted-foreground line-through decoration-muted-foreground/30 font-medium tabular-nums">
-                                            Gốc: {formatCurrency(cohort.price)}
-                                        </span>
-                                    </>
-                                ) : (
-                                    <p className="text-xl font-bold text-primary">{formatCurrency(cohort.price)}</p>
-                                )}
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trạng thái</p>
-                            <Badge variant="outline" className="font-bold">{cohort.status}</Badge>
-                        </div>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Tên đợt học</p>
+                      <p className="text-base font-semibold">{cohort.name}</p>
                     </div>
-
-                    <div className="pt-4 border-t space-y-4">
-                       <h4 className="text-sm font-bold flex items-center gap-2"><Plus className="size-4" /> Thời gian đăng ký</h4>
-                       <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground uppercase">Mở đăng ký</p>
-                            <p className="text-sm font-medium">{cohort.enrollmentOpenAt ? formatDateTime(cohort.enrollmentOpenAt, "dd/MM/yyyy") : "—"}</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground uppercase">Đóng đăng ký</p>
-                            <p className="text-sm font-medium">{cohort.enrollmentCloseAt ? formatDateTime(cohort.enrollmentCloseAt, "dd/MM/yyyy") : "—"}</p>
-                          </div>
-                       </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã định danh</p>
+                      <p className="text-base font-mono font-bold">{cohort.code}</p>
                     </div>
-
-                    <div className="pt-4 border-t space-y-4">
-                       <h4 className="text-sm font-bold flex items-center gap-2"><Package className="size-4" /> Lịch trình dự kiến</h4>
-                       <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground uppercase">Khai giảng</p>
-                            <p className="text-sm font-medium">{cohort.startDate ? formatDateTime(cohort.startDate, "dd/MM/yyyy") : "—"}</p>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-[10px] text-muted-foreground uppercase">Kết thúc</p>
-                            <p className="text-sm font-medium">{cohort.endDate ? formatDateTime(cohort.endDate, "dd/MM/yyyy") : "—"}</p>
-                          </div>
-                       </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trạng thái</p>
+                      <Badge variant="outline" className="font-bold">{cohort.status}</Badge>
                     </div>
+                  </div>
 
-                    {cohort.description && (
-                      <div className="pt-4 border-t space-y-1">
-                          <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả chương trình</p>
-                          <div className="text-sm prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: cohort.description }} />
+                  <div className="pt-4 border-t space-y-4">
+                    <h4 className="text-sm font-bold flex items-center gap-2"><Plus className="size-4" /> Thời gian đăng ký</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase">Mở đăng ký</p>
+                        <p className="text-sm font-medium">{cohort.enrollmentOpenAt ? formatDateTime(cohort.enrollmentOpenAt, "dd/MM/yyyy") : "—"}</p>
                       </div>
-                    )}
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase">Đóng đăng ký</p>
+                        <p className="text-sm font-medium">{cohort.enrollmentCloseAt ? formatDateTime(cohort.enrollmentCloseAt, "dd/MM/yyyy") : "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t space-y-4">
+                    <h4 className="text-sm font-bold flex items-center gap-2"><Package className="size-4" /> Lịch trình dự kiến</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase">Khai giảng</p>
+                        <p className="text-sm font-medium">{cohort.startDate ? formatDateTime(cohort.startDate, "dd/MM/yyyy") : "—"}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] text-muted-foreground uppercase">Kết thúc</p>
+                        <p className="text-sm font-medium">{cohort.endDate ? formatDateTime(cohort.endDate, "dd/MM/yyyy") : "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {cohort.description && (
+                    <div className="pt-4 border-t space-y-1">
+                      <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả chương trình</p>
+                      <div className="text-sm prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: cohort.description }} />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -331,51 +315,50 @@ export default function CohortDetailPage() {
                             <Badge variant="outline" className="text-[10px] h-4 font-mono">{cls.code}</Badge>
                           </div>
                           <div className="flex gap-4 items-center">
-                             {cls.instructorId && (
-                               <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                                 <div className="size-4 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <User className="size-2.5" />
-                                 </div>
-                                 <span className="font-medium">Giảng viên ID: {cls.instructorId.slice(0, 8)}...</span>
-                               </div>
-                             )}
-                             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                                <Users className="size-3" />
-                                <span>Tối đa: {cls.maxStudents || "∞"}</span>
-                             </div>
+                            {cls.instructorId && (
+                              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                                <div className="size-4 rounded-full bg-primary/10 flex items-center justify-center">
+                                  <User className="size-2.5" />
+                                </div>
+                                <span className="font-medium">Giảng viên ID: {cls.instructorId.slice(0, 8)}...</span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                              <Users className="size-3" />
+                              <span>Tối đa: {cls.maxStudents || "∞"}</span>
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                           <Badge 
+                          <Badge
                             variant="outline"
-                            className={`text-[10px] font-bold ${
-                              cls.status === 'OPENING' 
-                                ? 'bg-green-50 text-green-700 border-green-200' 
-                                : cls.status === 'PENDING_APPROVAL'
+                            className={`text-[10px] font-bold ${cls.status === 'OPENING'
+                              ? 'bg-green-50 text-green-700 border-green-200'
+                              : cls.status === 'PENDING_APPROVAL'
                                 ? 'bg-amber-50 text-amber-700 border-amber-200'
                                 : ''
-                            }`}
-                           >
+                              }`}
+                          >
                             {cls.status}
-                           </Badge>
-                           <Button asChild size="icon" variant="ghost" className="size-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                             <Link to={`/academy/live-classes/${cls.id}/detail`}>
-                               <ChevronRight className="size-4" />
-                             </Link>
-                           </Button>
+                          </Badge>
+                          <Button asChild size="icon" variant="ghost" className="size-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Link to={`/academy/live-classes/${cls.id}/detail`}>
+                              <ChevronRight className="size-4" />
+                            </Link>
+                          </Button>
                         </div>
                       </div>
                     ))
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-xl border-muted bg-muted/5">
-                       <div className="size-12 rounded-full bg-muted flex items-center justify-center mb-4">
-                          <Package className="size-6 text-muted-foreground/30" />
-                       </div>
-                       <p className="text-sm text-muted-foreground font-medium mb-1">Chưa có lớp học nào</p>
-                       <p className="text-xs text-muted-foreground/60 max-w-[200px] mb-4">Hãy tạo lớp LIVE đầu tiên cho đợt khai giảng này.</p>
-                       <Button size="sm" onClick={() => setSheetOpen(true)} className="rounded-full px-6">
-                         <Plus className="size-4 mr-2" /> Tạo lớp ngay
-                       </Button>
+                      <div className="size-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <Package className="size-6 text-muted-foreground/30" />
+                      </div>
+                      <p className="text-sm text-muted-foreground font-medium mb-1">Chưa có lớp học nào</p>
+                      <p className="text-xs text-muted-foreground/60 max-w-[200px] mb-4">Hãy tạo lớp LIVE đầu tiên cho đợt khai giảng này.</p>
+                      <Button size="sm" onClick={() => setSheetOpen(true)} className="rounded-full px-6">
+                        <Plus className="size-4 mr-2" /> Tạo lớp ngay
+                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -395,9 +378,9 @@ export default function CohortDetailPage() {
                 <OrdersTable
                   data={orders}
                   isLoading={isLoadingOrders}
-                  onView={() => {}}
-                  onCancel={() => {}}
-                  onExport={() => {}}
+                  onView={() => { }}
+                  onCancel={() => { }}
+                  onExport={() => { }}
                   page={page}
                   limit={10}
                 />
@@ -416,9 +399,9 @@ export default function CohortDetailPage() {
         </div>
       </Tabs>
 
-      <LiveClassSheet 
-        open={sheetOpen} 
-        onOpenChange={setSheetOpen} 
+      <LiveClassSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
         defaultCohortId={id}
       />
     </div>

@@ -24,7 +24,7 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "sonner"
-import { ChevronRight, CheckCircle2, XCircle, Calendar, DollarSign, Tag } from "lucide-react"
+import { ChevronRight, CheckCircle2, XCircle, Calendar, Tag } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import {
@@ -32,7 +32,7 @@ import {
   useApproveCohort,
   useRejectCohort,
 } from "@/lib/api/services/academy-cohorts"
-import { formatCurrency, formatDateTime } from "@/lib/format-utils"
+import { formatDateTime } from "@/lib/format-utils"
 
 export default function CohortApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
@@ -129,12 +129,6 @@ export default function CohortApprovalPreviewPage() {
                   <Tag className="size-3" /> Mã định danh
                 </p>
                 <p className="font-mono font-bold text-lg">{cohort.code}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <DollarSign className="size-3" /> Giá niêm yết
-                </p>
-                <p className="font-bold text-lg text-primary">{formatCurrency(cohort.price)}</p>
               </div>
               <div className="sm:col-span-2 space-y-1">
                 <p className="text-xs text-muted-foreground">Tên Đợt khai giảng</p>
@@ -243,7 +237,7 @@ export default function CohortApprovalPreviewPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận phê duyệt</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn phê duyệt đợt khai giảng "{cohort.name}"? 
+              Bạn có chắc chắn muốn phê duyệt đợt khai giảng "{cohort.name}"?
               Sau khi duyệt, dữ liệu sẽ được ghi nhận là hợp lệ để mở bán (nếu trạng thái là OPENING).
             </AlertDialogDescription>
           </AlertDialogHeader>

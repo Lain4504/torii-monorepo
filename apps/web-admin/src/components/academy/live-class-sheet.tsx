@@ -62,8 +62,19 @@ const liveClassSchema = z.object({
   instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
   status: z.string().optional(),
   maxStudents: z.number().int().min(1).optional().nullable(),
+  price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional().nullable(),
+  discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   schedules: z.array(scheduleItemSchema).optional(),
 })
+  .refine(data => {
+    if (data.discountPrice != null && data.price != null) {
+      return data.discountPrice < data.price;
+    }
+    return true;
+  }, {
+    message: "Giá giảm phải nhỏ hơn giá gốc",
+    path: ["discountPrice"],
+  })
 
 type LiveClassFormValues = z.infer<typeof liveClassSchema>
 
@@ -80,7 +91,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
   const updateMutation = useUpdateAcademyLiveClass()
   const createScheduleMutation = useCreateAcademyLiveSchedule()
 
-  const { data: cohorts } = useAcademyCohorts({ status: "OPENING" } as any)
+  const { data: cohorts } = useAcademyCohorts({} as any)
   const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {
@@ -97,6 +108,8 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
       instructorId: "",
       status: "DRAFT",
       maxStudents: null,
+      price: 0,
+      discountPrice: null,
       schedules: [],
     },
   })
@@ -125,6 +138,8 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         instructorId: academyClass.instructorId ?? "",
         status: academyClass.status ?? "DRAFT",
         maxStudents: academyClass.maxStudents ?? null,
+        price: (academyClass as any).price ? Number((academyClass as any).price) : 0,
+        discountPrice: (academyClass as any).discountPrice ? Number((academyClass as any).discountPrice) : null,
       })
     } else {
       reset({
@@ -134,6 +149,8 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         instructorId: "",
         status: "DRAFT",
         maxStudents: null,
+        price: 0,
+        discountPrice: null,
         schedules: [],
       })
     }
@@ -149,6 +166,8 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
             instructorId: values.instructorId,
             status: values.status as any,
             maxStudents: values.maxStudents === null ? undefined : values.maxStudents,
+            price: values.price === null ? undefined : values.price,
+            discountPrice: values.discountPrice === null ? undefined : values.discountPrice,
           },
         })
         toast.success("Cập nhật Lớp học LIVE thành công")
@@ -160,6 +179,8 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           instructorId: values.instructorId,
           status: values.status as any,
           maxStudents: values.maxStudents === null ? undefined : values.maxStudents,
+          price: values.price === null ? undefined : values.price,
+          discountPrice: values.discountPrice === null ? undefined : values.discountPrice,
           schedules: values.schedules,
         } as any)
 
@@ -265,7 +286,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                       <FieldError errors={[errors.instructorId]} />
                     </Field>
 
-                    <div className="grid grid-cols-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
                         <FieldLabel>Số học viên tối đa</FieldLabel>
                         <Controller
@@ -292,6 +313,43 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                         />
                         <FieldError errors={[errors.maxStudents]} />
                       </Field>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Field>
+                          <FieldLabel>Giá gốc (VNĐ)</FieldLabel>
+                          <Controller
+                            name="price"
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                type="number"
+                                min={0}
+                                value={field.value ?? 0}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                className="h-10"
+                              />
+                            )}
+                          />
+                          <FieldError errors={[errors.price]} />
+                        </Field>
+                        <Field>
+                          <FieldLabel>Giá giảm (VNĐ)</FieldLabel>
+                          <Controller
+                            name="discountPrice"
+                            control={control}
+                            render={({ field }) => (
+                              <Input
+                                type="number"
+                                min={0}
+                                placeholder="Không giảm"
+                                value={field.value ?? ""}
+                                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                                className="h-10"
+                              />
+                            )}
+                          />
+                          <FieldError errors={[errors.discountPrice]} />
+                        </Field>
+                      </div>
                     </div>
                   </FieldGroup>
                 </FieldSet>

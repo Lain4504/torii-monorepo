@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   AcademyCohortCreateDTO,
@@ -79,13 +79,17 @@ export class CohortService {
   }
 
   async create(data: AcademyCohortCreateDTO) {
+    if (data.status === 'PENDING_APPROVAL') {
+      throw new BadRequestException(
+        'Không thể tạo Đợt khai giảng ở trạng thái Chờ duyệt ngay lập tức. Vui lòng tạo bản nháp và thêm lớp học trước.',
+      );
+    }
+
     return this.prisma.cohort.create({
       data: {
         courseProfileId: data.courseProfileId,
         code: data.code,
         name: data.name,
-        price: data.price,
-        discountPrice: data.discountPrice,
         enrollmentOpenAt: data.enrollmentOpenAt ? new Date(data.enrollmentOpenAt) : null,
         enrollmentCloseAt: data.enrollmentCloseAt ? new Date(data.enrollmentCloseAt) : null,
         startDate: data.startDate ? new Date(data.startDate) : null,
@@ -99,13 +103,15 @@ export class CohortService {
   }
 
   async update(id: string, data: AcademyCohortUpdateDTO) {
+    if (data.status === 'PENDING_APPROVAL' || data.status === 'OPENING') {
+      await this.validateHasLiveClasses(id);
+    }
+
     return this.prisma.cohort.update({
       where: { id },
       data: {
         code: data.code,
         name: data.name,
-        price: data.price,
-        discountPrice: data.discountPrice,
         status: data.status as any,
         rejectionReason: (data as any).rejectionReason,
         submittedForApprovalAt:
@@ -125,5 +131,16 @@ export class CohortService {
   async delete(id: string) {
     await this.prisma.cohort.delete({ where: { id } });
     return { ok: true };
+  }
+
+  private async validateHasLiveClasses(id: string) {
+    const classCount = await this.prisma.liveClass.count({
+      where: { cohortId: id },
+    });
+    if (classCount === 0) {
+      throw new BadRequestException(
+        'Đợt khai giảng cần có ít nhất 1 Lớp học LIVE trước khi chuyển sang trạng thái này',
+      );
+    }
   }
 }

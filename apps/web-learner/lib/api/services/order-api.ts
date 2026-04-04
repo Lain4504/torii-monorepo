@@ -12,6 +12,7 @@ import type {
 export interface OrderPreviewDTO {
     vodPackageIds?: string[];
     cohortIds?: string[];
+    liveClassIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
     liveClassIdByCohort?: Record<string, string>;
@@ -20,6 +21,7 @@ export interface OrderPreviewDTO {
 export interface OrderCheckoutDTO {
     vodPackageIds?: string[];
     cohortIds?: string[];
+    liveClassIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
     paymentMethod: PaymentMethod | string;
@@ -114,7 +116,7 @@ export const orderApi = {
                 productId: it.vodPackageId ?? it.cohortId ?? it.subscriptionPlanId,
                 product: it.vodPackage ? { id: it.vodPackage.id, name: it.vodPackage.title, code: it.vodPackage.code } :
                     it.cohort ? { id: it.cohort.id, name: it.cohort.name, code: it.cohort.code } :
-                    it.subscriptionPlan ? { id: it.subscriptionPlan.id, name: it.subscriptionPlan.name, code: it.subscriptionPlan.code } : undefined,
+                        it.subscriptionPlan ? { id: it.subscriptionPlan.id, name: it.subscriptionPlan.name, code: it.subscriptionPlan.code } : undefined,
             })),
         }));
         return {

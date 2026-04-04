@@ -33,11 +33,12 @@ export class OrderService {
     private readonly audit: AuditLoggerService,
     private readonly aiSubscriptionService: AiSubscriptionService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
     const vodPackageIds = Array.from(new Set(input.vodPackageIds ?? []));
     const cohortIds = Array.from(new Set(input.cohortIds ?? []));
+    const liveClassIds = Array.from(new Set(input.liveClassIds ?? []));
     const subscriptionPlanIds = Array.from(
       new Set(input.subscriptionPlanIds ?? []),
     );
@@ -46,6 +47,7 @@ export class OrderService {
     if (
       !vodPackageIds.length &&
       !cohortIds.length &&
+      !liveClassIds.length &&
       !subscriptionPlanIds.length
     ) {
       throw new BadRequestException('At least one product must be provided');
@@ -53,21 +55,33 @@ export class OrderService {
 
     const vodPackages = vodPackageIds.length
       ? await this.prisma.vodPackage.findMany({
-          where: { id: { in: vodPackageIds }, status: 'PUBLISHED' },
-          include: { courseProfile: true },
-        })
+        where: { id: { in: vodPackageIds }, status: 'PUBLISHED' },
+        include: { courseProfile: true },
+      })
       : [];
     if (vodPackages.length !== vodPackageIds.length)
       throw new BadRequestException('Some VOD Packages are not available');
 
     const cohorts = cohortIds.length
       ? await this.prisma.cohort.findMany({
-          where: { id: { in: cohortIds }, status: 'OPENING' },
-          include: { courseProfile: true },
-        })
+        where: { id: { in: cohortIds }, status: 'OPENING' },
+        include: { courseProfile: true },
+      })
       : [];
     if (cohorts.length !== cohortIds.length)
       throw new BadRequestException('Some Cohorts are not available');
+
+    const liveClasses = liveClassIds.length
+      ? await this.prisma.liveClass.findMany({
+        where: { id: { in: liveClassIds }, status: 'OPENING' },
+        include: {
+          cohort: { include: { courseProfile: true } },
+          _count: { select: { enrollments: { where: { status: 'ACTIVE' } } } }
+        },
+      })
+      : [];
+    if (liveClasses.length !== liveClassIds.length)
+      throw new BadRequestException('Một số lớp học không khả dụng (hoặc đã đóng)');
 
     for (const vod of vodPackages) {
       const existing = await this.prisma.enrollment.findFirst({
@@ -80,6 +94,41 @@ export class OrderService {
       if (existing) throw new BadRequestException('Bạn đã sở hữu gói VOD này');
     }
 
+    // Direct LiveClass validation
+    for (const lc of liveClasses) {
+      const cohort = lc.cohort;
+      // 1. Check parent cohort dates
+      if (
+        !cohort.enrollmentOpenAt ||
+        !cohort.enrollmentCloseAt ||
+        new Date(cohort.enrollmentOpenAt) > now ||
+        new Date(cohort.enrollmentCloseAt) < now
+      ) {
+        throw new BadRequestException(
+          `Lớp học ${lc.name} hiện không trong thời gian đăng ký.`,
+        );
+      }
+
+      // 2. Check if user already enrolled in this cohort (any class)
+      const existing = await this.prisma.enrollment.findFirst({
+        where: {
+          userId,
+          status: { in: ['ACTIVE', 'COMPLETED'] },
+          liveClass: { cohortId: cohort.id },
+        },
+      });
+      if (existing)
+        throw new BadRequestException(
+          `Bạn đã đăng ký một lớp trong đợt học ${cohort.name} rồi`,
+        );
+
+      // 3. Check capacity
+      if (lc.maxStudents && lc._count.enrollments >= lc.maxStudents) {
+        throw new BadRequestException(`Lớp học ${lc.name} đã đủ học viên.`);
+      }
+    }
+
+    const cohortToLiveClass = new Map<string, any>();
     for (const cohort of cohorts) {
       if (
         !cohort.enrollmentOpenAt ||
@@ -121,12 +170,13 @@ export class OrderService {
         if (count >= liveClass.maxStudents)
           throw new BadRequestException('Lớp đã đủ học viên.');
       }
+      cohortToLiveClass.set(cohort.id, liveClass);
     }
 
     const subscriptionPlans = subscriptionPlanIds.length
       ? await this.prisma.aiSubscriptionPlan.findMany({
-          where: { id: { in: subscriptionPlanIds }, isActive: true },
-        })
+        where: { id: { in: subscriptionPlanIds }, isActive: true },
+      })
       : [];
     if (subscriptionPlans.length !== subscriptionPlanIds.length)
       throw new BadRequestException(
@@ -138,14 +188,25 @@ export class OrderService {
         (sum, v) => sum + Number(v.discountPrice ?? v.price),
         0,
       ) +
-      cohorts.reduce((sum, c) => sum + Number(c.discountPrice ?? c.price), 0) +
+      cohorts.reduce((sum, c) => {
+        const lc = cohortToLiveClass.get(c.id);
+        return sum + Number(lc?.discountPrice ?? lc?.price ?? 0);
+      }, 0) +
+      liveClasses.reduce(
+        (sum, lc) => sum + Number(lc.discountPrice ?? lc.price ?? 0),
+        0,
+      ) +
       subscriptionPlans.reduce((sum, s) => sum + Number(s.price), 0);
 
     let discountTotal = 0;
     let couponId: string | undefined;
 
     if (input.couponCode) {
-      const allProductIds = [...vodPackageIds, ...cohortIds];
+      const allProductIds = [
+        ...vodPackageIds,
+        ...cohortIds,
+        ...liveClassIds,
+      ];
       const coupon = await this.couponService.validateCoupon(
         input.couponCode,
         userId,
@@ -167,8 +228,10 @@ export class OrderService {
       grandTotal,
       vodPackages,
       cohorts,
+      liveClasses,
       subscriptionPlans,
       couponId,
+      cohortToLiveClass,
       inputLiveClassMap: input.liveClassIdByCohort,
     };
   }
@@ -190,16 +253,32 @@ export class OrderService {
           isDiscounted: !!v.discountPrice,
         } as any,
       })),
-      ...preview.cohorts.map((c: any) => ({
-        cohortId: c.id,
-        price: c.discountPrice ?? c.price,
+      ...preview.cohorts.map((c: any) => {
+        const lc = preview.cohortToLiveClass.get(c.id);
+        return {
+          cohortId: c.id,
+          price: lc?.discountPrice ?? lc?.price ?? 0,
+          offeringSnapshot: {
+            title: c.name,
+            code: c.code,
+            mode: 'LIVE',
+            selectedClassId: lc?.id,
+            basePrice: lc?.price ?? 0,
+            isDiscounted: !!lc?.discountPrice,
+          } as any,
+        };
+      }),
+      ...preview.liveClasses.map((lc: any) => ({
+        liveClassId: lc.id,
+        price: lc.discountPrice ?? lc.price ?? 0,
         offeringSnapshot: {
-          title: c.name,
-          code: c.code,
+          title: lc.name,
+          code: lc.code,
           mode: 'LIVE',
-          selectedClassId: preview.inputLiveClassMap?.[c.id],
-          basePrice: c.price,
-          isDiscounted: !!c.discountPrice,
+          selectedClassId: lc.id,
+          basePrice: lc.price ?? 0,
+          isDiscounted: !!lc.discountPrice,
+          courseProfileId: lc.cohort?.courseProfileId,
         } as any,
       })),
       ...preview.subscriptionPlans.map((s: any) => ({
@@ -267,12 +346,18 @@ export class OrderService {
           quantity: 1,
           price: Number(o.discountPrice ?? o.price),
         })),
+        ...preview.liveClasses.map((lc: any) => ({
+          name: lc.name,
+          quantity: 1,
+          price: Number(lc.discountPrice ?? lc.price ?? 0),
+        })),
         ...preview.subscriptionPlans.map((s: any) => ({
           name: s.name,
           quantity: 1,
           price: Number(s.price),
         })),
       ];
+
 
       const paymentLink = await this.payOS.createPaymentLink({
         orderCode: numericOrderCode,
