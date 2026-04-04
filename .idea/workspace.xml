@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="style: improve layout and spacing in dashboard components">
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/analytics/dashboard.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/dashboard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/dashboard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/dashboard-chart-colors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/dashboard-chart-colors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/dashboard.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/dashboard.dto.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix ui web-adin">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/study-set-catalogs/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/study-set-catalogs/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/custom/flashcard-form-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/custom/flashcard-form-dialog.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -405,14 +401,6 @@
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
     </task>
-    <task id="LOCAL-01052" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774357774477</created>
-      <option name="number" value="01052" />
-      <option name="presentableId" value="LOCAL-01052" />
-      <option name="project" value="LOCAL" />
-      <updated>1774357774477</updated>
-    </task>
     <task id="LOCAL-01053" summary="feat: implement sharing functionality for study sets with public access">
       <option name="closed" value="true" />
       <created>1774358983148</created>
@@ -797,7 +785,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775314800642</updated>
     </task>
-    <option name="localTasksCounter" value="1101" />
+    <task id="LOCAL-01101" summary="fix ui web-adin">
+      <option name="closed" value="true" />
+      <created>1775315852659</created>
+      <option name="number" value="01101" />
+      <option name="presentableId" value="LOCAL-01101" />
+      <option name="project" value="LOCAL" />
+      <updated>1775315852661</updated>
+    </task>
+    <option name="localTasksCounter" value="1102" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -832,7 +828,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: change to seed jlpt examc config" />
     <MESSAGE value="feat: implement Learning Path v2 with gamification integration and recovery mode" />
     <MESSAGE value="feat: add staff admin to view resource (#316)" />
     <MESSAGE value="fix: handle potential undefined values in time slot calculations" />
@@ -857,7 +852,8 @@
     <MESSAGE value="Refactor notifications page UI &amp; behavior&#10;&#10;Simplify and reorganize the learner notifications page: remove search/filters/delete actions and related state, streamline notification mapping, and improve accessibility and loading/empty states.&#10;&#10;Key changes:&#10;- Removed unused imports and components (Search Input, several lucide icons).&#10;- Dropped complex type/category mapping and fields from the UI Notification shape; mapNotificationToUI now only maps id/title/message/date/time/read.&#10;- Removed search/filter UI and related state; notifications are shown as a simple list with loading/empty states.&#10;- Mark notifications as read on item click (and via keyboard Enter/Space) using useMarkNotificationAsRead; kept mark-all-as-read action.&#10;- Simplified card styles and layout for responsiveness and clarity.&#10;- Use unread count to show header summary; improved loading/empty visuals.&#10;&#10;Notes: This is a behavioral/UX refactor—removes delete and category-based filtering and changes Notification interface shape in the component. Adjust callers if they relied on the removed fields or behaviors." />
     <MESSAGE value="feat: improve price normalization and enhance catalog item types in academy course API" />
     <MESSAGE value="style: improve layout and spacing in dashboard components" />
-    <option name="LAST_COMMIT_MESSAGE" value="style: improve layout and spacing in dashboard components" />
+    <MESSAGE value="fix ui web-adin" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix ui web-adin" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
