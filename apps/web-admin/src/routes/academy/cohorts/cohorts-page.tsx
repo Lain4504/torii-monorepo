@@ -29,6 +29,13 @@ import {
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
 import { CohortSheet } from "@/components/academy/cohort-sheet"
 import { toast } from "sonner"
+import {
+    dataTableShellClass,
+    dataTableHeaderClass,
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from "@/lib/ui-shell"
 
 const getCohortStatusLabel = (status: string) => {
     const map: Record<string, string> = {
@@ -77,7 +84,7 @@ export default function CohortsPage() {
     }
 
     return (
-        <div className="flex flex-col gap-8 p-6">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Đợt khai giảng"
                 subtitle="Quản lý các đợt khai giảng và ngày khai giảng cho các lớp LIVE."
@@ -89,8 +96,8 @@ export default function CohortsPage() {
             />
 
             <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 max-w-sm">
+                <div className={listPageToolbarRootClass}>
+                    <div className={listPageSearchWrapClass}>
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Tìm theo mã hoặc tên..."
@@ -100,8 +107,9 @@ export default function CohortsPage() {
                         />
                     </div>
 
+                    <div className={listPageFiltersRowClass}>
                     <Select value={tab} onValueChange={(v) => setTab(v as any)}>
-                        <SelectTrigger className="w-full sm:w-[240px] bg-muted/30 p-1 rounded-lg">
+                        <SelectTrigger className="h-10 w-full md:w-[240px] bg-muted/30 p-1 rounded-lg">
                             <SelectValue placeholder="Lọc trạng thái" />
                         </SelectTrigger>
                         <SelectContent>
@@ -113,11 +121,12 @@ export default function CohortsPage() {
                             <SelectItem value="archived">Đã lưu trữ</SelectItem>
                         </SelectContent>
                     </Select>
+                    </div>
                 </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[140px]">Mã Đợt khai giảng</TableHead>

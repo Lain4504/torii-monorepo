@@ -7,7 +7,7 @@ import { Award, Download, Share2, FileText, Calendar, ExternalLink } from 'lucid
 import { formatDate } from '@/utils/format-utils'
 import Link from 'next/link'
 import { useCertificates } from '@/lib/api/services/certificate-api'
-import { Skeleton } from '@workspace/ui/components/skeleton'
+import { PageLoading } from '@workspace/ui/components/page-loading'
 import type { CertificateResponseDTO } from '@workspace/schemas'
 
 export default function CertificatesPage() {

@@ -26,6 +26,7 @@ import {
 } from "@workspace/ui/components/table";
 import { Input } from '@workspace/ui/components/input';
 import { formatDate, formatDateTime } from "@/lib/format-utils"
+import { listPageSearchWrapClass } from "@/lib/ui-shell"
 
 function submissionToRow(s: AcademyAssignmentSubmission) {
     const grade = s.score ?? s.grade;
@@ -113,8 +114,8 @@ export default function AssignmentGradingPage() {
             </div>
 
             <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
-                <div className="p-4 border-b bg-muted/30 flex items-center justify-between gap-4">
-                    <div className="relative flex-1 max-w-sm">
+                <div className="p-4 border-b bg-muted/30">
+                    <div className={listPageSearchWrapClass}>
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
                             placeholder="Tìm sinh viên..."

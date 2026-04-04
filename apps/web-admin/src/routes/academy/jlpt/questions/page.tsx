@@ -225,7 +225,7 @@ export default function JlptQuestionsPage() {
   let sttCounter = 0;
 
   return (
-    <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="Ngân hàng Câu hỏi JLPT"
         subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe."

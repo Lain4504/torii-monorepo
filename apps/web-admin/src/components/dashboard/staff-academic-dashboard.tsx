@@ -1,12 +1,27 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { ClipboardCheck, School, BookOpen } from "lucide-react";
 import { useStaffAcademicDashboard } from "@/lib/api/services/dashboard";
 import { formatNumber } from "@/lib/format-utils";
 import { StatsCard } from "./stats-card";
 import { PageLoading } from "@workspace/ui/components/page-loading";
-
-const COLORS = ["#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#14b8a6"];
+import {
+  elevatedPanelClass,
+  elevatedPanelContentClass,
+  elevatedCardHeaderPrimary,
+  elevatedCardHeaderInfo,
+} from "@/lib/ui-shell";
+import { academyPipelineBarFill, pendingApprovalTypePieFill } from "@/lib/dashboard-chart-colors";
 
 function ChartEmpty() {
   return <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">Chưa có dữ liệu</div>;
@@ -34,6 +49,7 @@ export default function StaffAcademicDashboard() {
           value={formatNumber(data?.stats.pendingApprovals ?? 0)}
           sub="Tổng số items đang chờ duyệt (Profiles/Cohorts/VOD)"
           icon={ClipboardCheck}
+          tone="warning"
           highlight={(data?.stats.pendingApprovals ?? 0) > 0}
         />
         <StatsCard
@@ -41,22 +57,24 @@ export default function StaffAcademicDashboard() {
           value={formatNumber(data?.stats.activeRooms ?? 0)}
           sub="Buổi học trực tiếp diễn ra trong hôm nay"
           icon={School}
+          tone="info"
         />
         <StatsCard
           title="Tổng khóa học"
           value={formatNumber(data?.stats.totalCourses ?? 0)}
           sub="Kho nội dung đang quản trị"
           icon={BookOpen}
+          tone="primary"
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
+        <Card className={elevatedPanelClass}>
+          <CardHeader className={elevatedCardHeaderPrimary}>
             <CardTitle>Phê duyệt chờ duyệt</CardTitle>
             <CardDescription>Phân bổ theo loại nội dung</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className={elevatedPanelContentClass}>
             {pendingApprovalsByType.length === 0 ? (
               <ChartEmpty />
             ) : (
@@ -65,8 +83,8 @@ export default function StaffAcademicDashboard() {
                   <PieChart>
                     <Tooltip />
                     <Pie data={pendingApprovalsByType} dataKey="value" nameKey="name" outerRadius={95}>
-                      {pendingApprovalsByType.map((_, idx) => (
-                        <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                      {pendingApprovalsByType.map((d, idx) => (
+                        <Cell key={`cell-${idx}`} fill={pendingApprovalTypePieFill(d.name)} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -76,11 +94,11 @@ export default function StaffAcademicDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className={elevatedPanelClass}>
+          <CardHeader className={elevatedCardHeaderInfo}>
             <CardTitle>Pipeline theo status</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={elevatedPanelContentClass}>
             {pipelineByStatus.length === 0 ? (
               <ChartEmpty />
             ) : (
@@ -90,7 +108,11 @@ export default function StaffAcademicDashboard() {
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" fill={COLORS[0]} radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                      {pipelineByStatus.map((d, idx) => (
+                        <Cell key={`cell-${idx}`} fill={academyPipelineBarFill(d.name)} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>

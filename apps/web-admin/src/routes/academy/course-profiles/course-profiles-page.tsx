@@ -37,6 +37,13 @@ import { toast } from 'sonner';
 
 import { CourseProfileSheet } from './components/course-profile-sheet';
 import { DuplicateCourseDialog } from './components/duplicate-course-dialog';
+import {
+    dataTableShellClass,
+    dataTableHeaderClass,
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 
 export default function CourseProfilesPage() {
     const navigate = useNavigate();
@@ -99,7 +106,7 @@ export default function CourseProfilesPage() {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-6">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Hồ sơ khóa học (Products)"
                 subtitle="Định nghĩa chương trình học gốc. Tại đây bạn quản lý Modules, Lessons và nhân bản khóa học cho năm học mới."
@@ -112,8 +119,8 @@ export default function CourseProfilesPage() {
             />
 
                 <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                        <div className="relative flex-1 max-w-sm">
+                    <div className={listPageToolbarRootClass}>
+                        <div className={listPageSearchWrapClass}>
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 placeholder="Tìm theo mã N5-2024, N4..."
@@ -123,8 +130,9 @@ export default function CourseProfilesPage() {
                             />
                         </div>
 
+                        <div className={listPageFiltersRowClass}>
                         <Select value={tab} onValueChange={(v) => setTab(v as any)}>
-                            <SelectTrigger className="w-full sm:w-[240px] bg-muted/30 p-1 rounded-lg">
+                            <SelectTrigger className="h-10 w-full md:w-[240px] bg-muted/30 p-1 rounded-lg">
                                 <SelectValue placeholder="Lọc trạng thái" />
                             </SelectTrigger>
                             <SelectContent>
@@ -135,11 +143,12 @@ export default function CourseProfilesPage() {
                                 <SelectItem value="archived">Đã lưu trữ</SelectItem>
                             </SelectContent>
                         </Select>
+                        </div>
                     </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[120px]">Mã Code</TableHead>

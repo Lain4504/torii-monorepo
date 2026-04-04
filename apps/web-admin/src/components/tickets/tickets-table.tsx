@@ -17,6 +17,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 import { Search } from 'lucide-react';
 import { getTicketsColumns } from './tickets-columns';
+import { dataTableHeaderClass } from '@/lib/ui-shell';
 import type { TicketResponseDTO } from '@workspace/schemas';
 
 interface TicketsTableProps {
@@ -46,7 +47,7 @@ export function TicketsTable({ data, isLoading, onView, onChangeStatus, page, li
 
     return (
         <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader className={dataTableHeaderClass}>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {

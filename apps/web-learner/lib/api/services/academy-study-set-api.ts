@@ -230,8 +230,10 @@ export function useShareAcademyStudySet() {
     return useMutation({
         mutationFn: ({ id, payload }: { id: string; payload: AcademyStudySetShareDTO }) =>
             academyStudySetApi.updateSetSharing(id, payload),
-        onSuccess: () => {
+        onSuccess: (data) => {
             qc.invalidateQueries({ queryKey: ["academy-study-sets"] })
+            qc.invalidateQueries({ queryKey: ["academy-study-set", data.id] })
+            qc.invalidateQueries({ queryKey: ["academy-public-study-set-catalogs"] })
         },
     })
 }

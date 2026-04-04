@@ -7,6 +7,11 @@ import { Button } from '@workspace/ui/components/button';
 import { Calendar } from '@workspace/ui/components/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/components/popover';
 import { cn } from '@workspace/ui/lib/utils';
+import {
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 import { ENTITY_MAP } from './audit-log-details-sheet';
 
 interface AuditLogsToolbarProps {
@@ -31,10 +36,10 @@ export function AuditLogsToolbar({
     onEndDateChange,
 }: AuditLogsToolbarProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Field>
+        <div className={listPageToolbarRootClass}>
+            <Field className="space-y-2">
                 <FieldLabel>Hành động</FieldLabel>
-                <div className="relative">
+                <div className={listPageSearchWrapClass}>
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm hành động..."
@@ -44,10 +49,11 @@ export function AuditLogsToolbar({
                     />
                 </div>
             </Field>
-            <Field>
+            <div className={listPageFiltersRowClass}>
+            <Field className="w-full md:flex-1 md:min-w-[200px]">
                 <FieldLabel>Đối tượng</FieldLabel>
                 <Select value={entity || 'all'} onValueChange={(val) => onEntityChange(val === 'all' ? '' : val)}>
-                    <SelectTrigger className="h-10">
+                    <SelectTrigger className="h-10 w-full">
                         <SelectValue placeholder="Chọn đối tượng" />
                     </SelectTrigger>
                     <SelectContent>
@@ -58,7 +64,7 @@ export function AuditLogsToolbar({
                     </SelectContent>
                 </Select>
             </Field>
-            <Field>
+            <Field className="w-full md:flex-1 md:min-w-[200px]">
                 <FieldLabel>Ngày bắt đầu</FieldLabel>
                 <Popover>
                     <PopoverTrigger asChild>
@@ -83,7 +89,7 @@ export function AuditLogsToolbar({
                     </PopoverContent>
                 </Popover>
             </Field>
-            <Field>
+            <Field className="w-full md:flex-1 md:min-w-[200px]">
                 <FieldLabel>Ngày kết thúc</FieldLabel>
                 <Popover>
                     <PopoverTrigger asChild>
@@ -108,6 +114,7 @@ export function AuditLogsToolbar({
                     </PopoverContent>
                 </Popover>
             </Field>
+            </div>
         </div>
     );
 }

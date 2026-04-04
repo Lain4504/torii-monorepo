@@ -8,6 +8,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import {
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 
 /** Cấp độ JLPT (N5–N1, format hiện hành). */
 export const JLPT_LEVELS = ['N1', 'N2', 'N3', 'N4', 'N5'] as const;
@@ -108,11 +113,8 @@ export function JlptQuestionsToolbar({
     const mondaiDisabled = level === 'all' || section === 'all';
 
     return (
-        <div className="flex w-full flex-wrap items-stretch gap-3 sm:items-center">
-            <form
-                onSubmit={onSearchSubmit}
-                className="relative min-w-[min(100%,240px)] w-full flex-[1_1_100%] sm:flex-[1_1_220px] sm:max-w-md"
-            >
+        <div className={listPageToolbarRootClass}>
+            <form onSubmit={onSearchSubmit} className={listPageSearchWrapClass}>
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                     placeholder="Tìm kiếm nội dung câu hỏi..."
@@ -122,8 +124,10 @@ export function JlptQuestionsToolbar({
                 />
             </form>
 
+            <div className={listPageFiltersRowClass}>
+            <div className="w-full md:w-[150px]">
             <Select value={level} onValueChange={onLevelChange}>
-                <SelectTrigger className="w-full min-w-[140px] sm:w-[150px]">
+                <SelectTrigger className="w-full">
                     <div className="flex min-w-0 items-center gap-2">
                         <Filter className="size-3.5 shrink-0 text-muted-foreground" />
                         <SelectValue placeholder="Cấp độ" />
@@ -138,9 +142,11 @@ export function JlptQuestionsToolbar({
                     ))}
                 </SelectContent>
             </Select>
+            </div>
 
+            <div className="w-full md:min-w-[220px] md:max-w-[280px]">
             <Select value={section} onValueChange={onSectionChange}>
-                <SelectTrigger className="w-full min-w-[min(100%,220px)] sm:min-w-[220px] sm:max-w-[280px]">
+                <SelectTrigger className="w-full">
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <Layers className="size-3.5 shrink-0 text-muted-foreground" />
                         <SelectValue placeholder="Phần thi" />
@@ -155,9 +161,11 @@ export function JlptQuestionsToolbar({
                     ))}
                 </SelectContent>
             </Select>
+            </div>
 
+            <div className="w-full md:w-[188px]">
             <Select value={questionType} onValueChange={onQuestionTypeChange}>
-                <SelectTrigger className="w-full min-w-[160px] sm:w-[188px]">
+                <SelectTrigger className="w-full">
                     <div className="flex min-w-0 items-center gap-2">
                         <BookOpen className="size-3.5 shrink-0 text-muted-foreground" />
                         <SelectValue placeholder="Dạng bài" />
@@ -172,9 +180,11 @@ export function JlptQuestionsToolbar({
                     ))}
                 </SelectContent>
             </Select>
+            </div>
 
+            <div className="w-full md:w-[140px]">
             <Select value={difficulty} onValueChange={onDifficultyChange}>
-                <SelectTrigger className="w-full min-w-[120px] sm:w-[140px]">
+                <SelectTrigger className="w-full">
                     <div className="flex min-w-0 items-center gap-2">
                         <Gauge className="size-3.5 shrink-0 text-muted-foreground" />
                         <SelectValue placeholder="Độ khó" />
@@ -189,9 +199,11 @@ export function JlptQuestionsToolbar({
                     ))}
                 </SelectContent>
             </Select>
+            </div>
 
+            <div className="w-full md:min-w-[200px] md:max-w-[280px]">
             <Select value={mondaiCode} onValueChange={onMondaiCodeChange} disabled={mondaiDisabled}>
-                <SelectTrigger className="w-full min-w-[min(100%,200px)] sm:min-w-[200px] sm:max-w-[280px]">
+                <SelectTrigger className="w-full">
                     <SelectValue
                         placeholder={
                             mondaiDisabled
@@ -214,11 +226,12 @@ export function JlptQuestionsToolbar({
                     ))}
                 </SelectContent>
             </Select>
+            </div>
 
             <Button
                 type="button"
                 variant="outline"
-                className="w-full shrink-0 gap-2 sm:ml-auto sm:w-auto"
+                className="w-full shrink-0 gap-2 md:ml-auto md:w-auto"
                 onClick={onRefresh}
                 disabled={loading}
             >
@@ -229,6 +242,7 @@ export function JlptQuestionsToolbar({
                 )}
                 Làm mới
             </Button>
+            </div>
         </div>
     );
 }

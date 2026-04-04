@@ -210,7 +210,7 @@ export default function CourseProfileDetailPage() {
 
   if (isLoadingProfile) {
     return (
-      <div className="space-y-6 p-6">
+      <div className="space-y-6">
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-[400px] w-full" />
       </div>
@@ -219,7 +219,7 @@ export default function CourseProfileDetailPage() {
 
   if (!profile) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 text-muted-foreground bg-muted/20 rounded-xl border border-dashed m-6">
+      <div className="flex flex-col items-center justify-center p-20 text-muted-foreground bg-muted/20 rounded-xl border border-dashed my-8">
         <BookOpen className="size-12 mb-4 opacity-20" />
         <p className="text-lg font-medium">Không tìm thấy thông tin khóa học.</p>
         <Button variant="link" asChild className="mt-2">
@@ -234,7 +234,7 @@ export default function CourseProfileDetailPage() {
   const modules = profile.modules ?? []
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         title={
           <div className="flex items-center gap-2">

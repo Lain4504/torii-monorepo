@@ -45,6 +45,11 @@ import {
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog";
 import { PageHeader } from "@/components/common/page-header";
+import {
+  listPageFiltersRowClass,
+  listPageSearchWrapClass,
+  listPageToolbarRootClass,
+} from "@/lib/ui-shell";
 import { academyJlptMockApi, type JlptMockTemplate } from "@/lib/api/services/academy-jlpt-mock";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -96,7 +101,7 @@ export default function JlptTemplatesPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="Quản lý Đề thi JLPT (Templates)"
         subtitle="Danh sách các bản mẫu đề thi JLPT."
@@ -109,8 +114,8 @@ export default function JlptTemplatesPage() {
       />
 
       <div className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
-          <form onSubmit={handleSearch} className="relative min-w-0 flex-1">
+        <div className={listPageToolbarRootClass}>
+          <form onSubmit={handleSearch} className={listPageSearchWrapClass}>
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Tìm kiếm tiêu đề hoặc mã đề..."
@@ -119,9 +124,10 @@ export default function JlptTemplatesPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </form>
-          <div className="flex w-full flex-wrap items-end gap-3 sm:w-auto">
+          <div className={listPageFiltersRowClass}>
+            <div className="w-full md:w-[140px]">
             <Select value={level} onValueChange={setLevel}>
-              <SelectTrigger className="w-full sm:w-[140px]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Cấp độ" />
               </SelectTrigger>
               <SelectContent>
@@ -133,14 +139,15 @@ export default function JlptTemplatesPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Button type="button" variant="outline" className="gap-2" onClick={fetchTemplates} disabled={loading}>
+            </div>
+            <Button type="button" variant="outline" className="w-full gap-2 md:ml-auto md:w-auto" onClick={fetchTemplates} disabled={loading}>
               {loading ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
               Làm mới
             </Button>
           </div>
         </div>
 
-        <div className="-mx-1 overflow-hidden rounded-md border bg-background sm:mx-0">
+        <div className="overflow-hidden rounded-md border bg-background">
           <div className="overflow-x-auto">
             <Table className="min-w-[800px] w-full">
               <TableHeader className="bg-muted/50">

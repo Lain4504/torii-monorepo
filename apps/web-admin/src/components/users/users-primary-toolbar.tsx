@@ -15,6 +15,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
+import {
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 
 interface UsersPrimaryToolbarProps {
     search: string;
@@ -36,9 +41,8 @@ export function UsersPrimaryToolbar({
     hideRoleFilter,
 }: UsersPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
-            {/* Search Input */}
-            <div className="relative flex-1">
+        <div className={listPageToolbarRootClass}>
+            <div className={listPageSearchWrapClass}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     placeholder="Tìm kiếm theo tên hoặc email..."
@@ -48,13 +52,13 @@ export function UsersPrimaryToolbar({
                 />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className={listPageFiltersRowClass}>
                 {!hideRoleFilter && (
                     <Select
                         value={filters.role || 'all'}
                         onValueChange={(value) => onFilterChange({ ...filters, role: value === 'all' ? undefined : value })}
                     >
-                        <SelectTrigger className="w-full sm:w-[180px]">
+                        <SelectTrigger className="w-full md:w-[180px]">
                             <div className="flex items-center gap-2">
                                 <Filter className="size-3.5 text-muted-foreground" />
                                 <SelectValue placeholder="Vai trò" />
@@ -74,7 +78,7 @@ export function UsersPrimaryToolbar({
                 {/* Sort Controls */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="gap-2">
+                        <Button variant="outline" className="w-full gap-2 md:w-auto">
                             <SlidersHorizontal className="size-4 text-muted-foreground" />
                             <span>Sắp xếp</span>
                         </Button>

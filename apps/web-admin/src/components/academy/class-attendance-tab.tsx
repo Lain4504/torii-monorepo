@@ -145,10 +145,10 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
 
     const getRequestStatusBadge = (status: string) => {
         switch (status) {
-            case "PENDING": return <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200">Chờ duyệt</Badge>
-            case "APPROVED": return <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">Đã duyệt</Badge>
-            case "REJECTED": return <Badge variant="secondary" className="bg-destructive/10 text-destructive hover:bg-destructive/10 border-destructive/20">Từ chối</Badge>
-            case "CANCELLED": return <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted">Đã hủy</Badge>
+            case "PENDING": return <Badge variant="warning">Chờ duyệt</Badge>
+            case "APPROVED": return <Badge variant="success">Đã duyệt</Badge>
+            case "REJECTED": return <Badge variant="destructive">Từ chối</Badge>
+            case "CANCELLED": return <Badge variant="secondary">Đã hủy</Badge>
             default: return <Badge variant="outline">{status}</Badge>
         }
     }

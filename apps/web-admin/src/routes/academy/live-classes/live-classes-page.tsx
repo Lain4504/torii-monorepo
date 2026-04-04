@@ -34,6 +34,13 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog";
 import { LiveClassSheet } from '@/components/academy/live-class-sheet';
+import {
+    dataTableShellClass,
+    dataTableHeaderClass,
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 
 
 export default function LiveClassesPage() {
@@ -107,7 +114,7 @@ export default function LiveClassesPage() {
     ];
 
     return (
-        <div className="flex flex-col gap-8 p-6">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title={isLecturer ? "Lớp của tôi" : "Quản lý Lớp học LIVE"}
                 subtitle={isLecturer ? "Quản lý bài giảng, điểm danh và bài tập cho các lớp bạn phụ trách." : "Giám sát và vận hành toàn bộ các lớp học trực tiếp (LIVE)."}
@@ -121,8 +128,8 @@ export default function LiveClassesPage() {
             />
 
             <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-1 max-w-sm">
+                <div className={listPageToolbarRootClass}>
+                    <div className={listPageSearchWrapClass}>
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Tìm kiếm theo mã hoặc tên lớp..."
@@ -132,12 +139,12 @@ export default function LiveClassesPage() {
                         />
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className={listPageFiltersRowClass}>
                         <Select
                             value={statusFilter ?? "all"}
                             onValueChange={(val) => setStatusFilter(val === "all" ? undefined : val)}
                         >
-                            <SelectTrigger className="w-full sm:w-[200px] bg-muted/30 p-1 rounded-lg">
+                            <SelectTrigger className="h-10 w-full md:w-[200px] bg-muted/30 p-1 rounded-lg">
                                 <SelectValue placeholder="Trạng thái" />
                             </SelectTrigger>
                             <SelectContent>
@@ -157,7 +164,7 @@ export default function LiveClassesPage() {
                                 onClick={() => {
                                     setStatusFilter(undefined);
                                 }}
-                                className="text-muted-foreground hover:text-foreground text-xs h-10"
+                                className="h-10 w-full text-muted-foreground hover:text-foreground text-xs md:w-auto"
                             >
                                 Xóa bộ lọc
                             </Button>
@@ -165,9 +172,9 @@ export default function LiveClassesPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow>
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>

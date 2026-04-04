@@ -10,6 +10,7 @@ import {
     useCreateAcademySetCard,
     useUpdateAcademySetCard,
     useDeleteAcademySetCard,
+    useShareAcademyStudySet,
 } from '@/lib/api/services/academy-study-set-api';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
@@ -62,6 +63,7 @@ export default function StudySetDetailPage() {
     const createCard = useCreateAcademySetCard();
     const updateCard = useUpdateAcademySetCard();
     const deleteCard = useDeleteAcademySetCard();
+    const shareSet = useShareAcademyStudySet();
     const [page, setPage] = useState(1);
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -170,6 +172,27 @@ export default function StudySetDetailPage() {
         }
     };
 
+    const handleShareToggle = async (makePublic: boolean) => {
+        if (!setId) return;
+        try {
+            const updated = await shareSet.mutateAsync({
+                id: setId,
+                payload: { isPublic: makePublic },
+            });
+            if (makePublic && updated.shareToken) {
+                const url = `${window.location.origin}/share/study-sets/${updated.shareToken}`;
+                await navigator.clipboard.writeText(url);
+                toast.success('Đã bật công khai và sao chép liên kết chia sẻ');
+            } else {
+                toast.success('Đã tắt công khai bộ thẻ');
+            }
+        } catch (e: any) {
+            toast.error(e?.message || 'Cập nhật chia sẻ thất bại');
+        }
+    };
+
+    const showOwnerShare = isAuthenticated && isOwner && !isCatalogView;
+
     const Row = ({ card }: { card: any }) => (
         <div className="rounded-xl border border-border/70 bg-card p-4 transition-colors hover:bg-muted/20">
             <div className="flex items-start justify-between gap-3">
@@ -203,6 +226,39 @@ export default function StudySetDetailPage() {
 
     return (
         <div className="space-y-4">
+            <div className="flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-bold tracking-tight">{set.title}</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{cards.length} thẻ</p>
+                </div>
+                {showOwnerShare ? (
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                        <Button
+                            size="sm"
+                            variant={set.isPublic ? 'outline' : 'default'}
+                            disabled={shareSet.isPending}
+                            onClick={() => handleShareToggle(!set.isPublic)}
+                        >
+                            {set.isPublic ? 'Tắt công khai' : 'Bật công khai'}
+                        </Button>
+                        {set.isPublic && set.shareToken ? (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={shareSet.isPending}
+                                onClick={async () => {
+                                    const url = `${window.location.origin}/share/study-sets/${set.shareToken}`;
+                                    await navigator.clipboard.writeText(url);
+                                    toast.success('Đã sao chép liên kết chia sẻ');
+                                }}
+                            >
+                                Sao chép liên kết
+                            </Button>
+                        ) : null}
+                    </div>
+                ) : null}
+            </div>
+
             <StudyModeSelection
                 selectedSetId={setId || null}
                 selectedCount={cards.length}

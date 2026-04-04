@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { Can } from '@/lib/guard/can';
 import { useAdminAchievements } from '@/lib/api/services/gamification';
 import { AchievementsTable } from '@/components/gamification/achievements-table';
+import { dataTableShellClass } from '@/lib/ui-shell';
 import { CreateAchievementSheet } from '@/components/gamification/create-achievement-sheet';
 import { EditAchievementSheet } from '@/components/gamification/edit-achievement-sheet';
 import { DeleteAchievementDialog } from '@/components/gamification/delete-achievement-dialog';
@@ -53,7 +54,7 @@ export default function AchievementsPage() {
                 }
             />
 
-            <div className="rounded-md bg-background border overflow-hidden">
+            <div className={dataTableShellClass}>
                         <AchievementsTable
                             data={achievements}
                             isLoading={isLoading}

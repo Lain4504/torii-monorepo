@@ -12,21 +12,14 @@ import { Separator } from "@workspace/ui/components/separator"
 export default function DashboardLayout() {
   return (
     <SidebarProvider>
-      <div className="flex h-svh w-full bg-background font-sans selection:bg-primary/10 selection:text-primary overflow-hidden relative">
-
-        {/* Subtle ambient background */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/[0.03] blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/[0.02] blur-[100px] rounded-full" />
-        </div>
+      <div className="flex h-svh w-full overflow-hidden bg-background font-sans">
 
         <AppSidebar />
 
-        <SidebarInset className="relative z-10 flex flex-col min-w-0 bg-transparent overflow-hidden">
-          {/* Sticky Header */}
-          <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 bg-background/80 px-4 md:px-6 backdrop-blur-xl border-b border-border/10">
-            <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-muted hover:text-primary transition-colors shrink-0" />
-            <Separator orientation="vertical" className="h-5 bg-border/30" />
+        <SidebarInset className="flex min-w-0 flex-col overflow-hidden bg-background">
+          <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4 md:px-6">
+            <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md hover:bg-muted" />
+            <Separator orientation="vertical" className="h-5" />
             <div className="flex-1 min-w-0">
               <DashboardHeader />
             </div>
@@ -35,7 +28,7 @@ export default function DashboardLayout() {
           {/* Page Content */}
           <main className="flex-1 overflow-auto">
             <LecturerAcademyRedirect />
-            <div className="mx-auto max-w-7xl px-4 md:px-6 py-6 w-full">
+            <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-6 md:py-8">
               <Outlet />
             </div>
           </main>

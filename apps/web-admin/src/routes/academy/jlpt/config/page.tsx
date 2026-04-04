@@ -21,6 +21,7 @@ import {
 } from "@workspace/ui/components/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card";
 import { PageHeader } from "@/components/common/page-header";
+import { listPageFiltersRowClass } from "@/lib/ui-shell";
 import {
   Table,
   TableBody,
@@ -190,7 +191,7 @@ export default function JlptConfigPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="JLPT Config"
         subtitle="Xem cấu hình JLPT + scoring profile (seed) - read-only"
@@ -286,11 +287,11 @@ export default function JlptConfigPage() {
               </Card>
         </div>
 
-        <div className="flex flex-wrap items-end gap-4">
-              <Field className="min-w-[220px]">
+        <div className={listPageFiltersRowClass}>
+              <Field className="w-full md:min-w-[220px] md:max-w-sm">
                 <FieldLabel>Cấp độ (Level)</FieldLabel>
                 <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { SmartPagination } from '@/components/common/smart-pagination';
+import { listPageSearchWrapClass, listPageToolbarRootClass } from '@/lib/ui-shell';
 
 export default function AiSubscriptionsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -263,8 +264,8 @@ function UserSubscriptionsTabContent() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
-                <div className="space-y-1">
+            <div className={listPageToolbarRootClass}>
+                <div className="space-y-1 min-w-0">
                     <h2 className="text-lg font-bold flex items-center gap-2">
                         <UserCircle className="h-5 w-5 text-primary" />
                         Lịch sử đăng ký
@@ -273,7 +274,7 @@ function UserSubscriptionsTabContent() {
                         Theo dõi và quản lý các lượt đăng ký AI Sensei từ người dùng.
                     </p>
                 </div>
-                <div className="relative flex-1 max-w-sm">
+                <div className={listPageSearchWrapClass}>
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Tìm kiếm user hoặc gói dịch vụ..."

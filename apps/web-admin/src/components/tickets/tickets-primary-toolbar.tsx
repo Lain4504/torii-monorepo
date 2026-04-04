@@ -12,6 +12,12 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 import { TicketStatus, TicketType } from '@workspace/schemas';
+import {
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
+import { cn } from '@workspace/ui/lib/utils';
 
 interface TicketsPrimaryToolbarProps {
     search: string;
@@ -31,8 +37,8 @@ export function TicketsPrimaryToolbar({
     onStatusChange,
 }: TicketsPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
-            <div className="relative flex-1 group">
+        <div className={listPageToolbarRootClass}>
+            <div className={cn(listPageSearchWrapClass, 'group')}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                 <Input
                     placeholder="Tìm kiếm theo tiêu đề, email, ID..."
@@ -42,9 +48,9 @@ export function TicketsPrimaryToolbar({
                 />
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className={listPageFiltersRowClass}>
                 <Select value={type || 'all'} onValueChange={onTypeChange}>
-                    <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
+                    <SelectTrigger className="h-10 w-full md:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
                         <div className="flex items-center gap-2">
                             <Filter className="size-3.5 text-muted-foreground" />
                             <SelectValue placeholder="Loại hỗ trợ" />
@@ -59,7 +65,7 @@ export function TicketsPrimaryToolbar({
                 </Select>
 
                 <Select value={status || 'all'} onValueChange={onStatusChange}>
-                    <SelectTrigger className="h-10 w-full sm:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
+                    <SelectTrigger className="h-10 w-full md:w-[180px] rounded-lg border-border bg-background hover:bg-muted/50 transition-all text-sm">
                         <div className="flex items-center gap-2">
                             <Filter className="size-3.5 text-muted-foreground" />
                             <SelectValue placeholder="Trạng thái" />

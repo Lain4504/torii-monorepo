@@ -11,6 +11,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import {
+    listPageFiltersRowClass,
+    listPageSearchWrapClass,
+    listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 
 interface CouponsPrimaryToolbarProps {
     search: string;
@@ -26,8 +31,8 @@ export function CouponsPrimaryToolbar({
     onStatusChange,
 }: CouponsPrimaryToolbarProps) {
     return (
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between w-full">
-            <div className="relative flex-1">
+        <div className={listPageToolbarRootClass}>
+            <div className={listPageSearchWrapClass}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <Input
                     placeholder="Tìm kiếm theo mã, tên..."
@@ -36,7 +41,7 @@ export function CouponsPrimaryToolbar({
                     className="pl-10"
                 />
             </div>
-            <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className={listPageFiltersRowClass}>
                 <Select value={status || 'all'} onValueChange={onStatusChange}>
                     <SelectTrigger className="w-full md:w-[200px]">
                         <div className="flex items-center gap-2">

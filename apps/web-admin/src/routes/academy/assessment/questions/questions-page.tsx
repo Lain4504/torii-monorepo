@@ -18,6 +18,13 @@ import { QuestionEditor } from "./components/question-editor"
 import { DeleteQuestionDialog } from "./components/delete-question-dialog"
 import { CategoryManagerDialog } from "./components/category-manager-dialog"
 import { format } from "date-fns"
+import {
+  dataTableShellClass,
+  dataTableHeaderClass,
+  listPageFiltersRowClass,
+  listPageSearchWrapClass,
+  listPageToolbarRootClass,
+} from "@/lib/ui-shell"
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("")
@@ -53,9 +60,9 @@ export default function QuestionsPage() {
   }
 
   const difficultyBadge = (d: string) => {
-    if (d === 'EASY') return <Badge variant="outline" className="text-[10px] font-bold border-emerald-300 text-emerald-700 bg-emerald-50">Dễ</Badge>
-    if (d === 'HARD') return <Badge variant="outline" className="text-[10px] font-bold border-red-300 text-red-700 bg-red-50">Khó</Badge>
-    return <Badge variant="secondary" className="text-[10px] font-bold">TB</Badge>
+    if (d === 'EASY') return <Badge variant="success" className="text-[10px] font-bold">Dễ</Badge>
+    if (d === 'HARD') return <Badge variant="destructive" className="text-[10px] font-bold">Khó</Badge>
+    return <Badge variant="warning" className="text-[10px] font-bold">TB</Badge>
   }
 
   return (
@@ -82,8 +89,8 @@ export default function QuestionsPage() {
       />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className={listPageToolbarRootClass}>
+        <div className={listPageSearchWrapClass}>
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Tìm kiếm nội dung câu hỏi..."
@@ -92,9 +99,10 @@ export default function QuestionsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="w-[220px]">
+        <div className={listPageFiltersRowClass}>
+        <div className="w-full md:w-[220px]">
           <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Tất cả danh mục" />
             </SelectTrigger>
             <SelectContent>
@@ -105,9 +113,9 @@ export default function QuestionsPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-[150px]">
+        <div className="w-full md:w-[150px]">
           <Select value={level} onValueChange={setLevel}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Mọi cấp độ" />
             </SelectTrigger>
             <SelectContent>
@@ -120,12 +128,13 @@ export default function QuestionsPage() {
             </SelectContent>
           </Select>
         </div>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+      <div className={dataTableShellClass}>
         <Table>
-          <TableHeader className="bg-muted/30">
+          <TableHeader className={dataTableHeaderClass}>
             <TableRow>
               <TableHead className="w-[60px] text-center">#</TableHead>
               <TableHead className="w-[420px] pl-4">Câu hỏi</TableHead>
@@ -160,7 +169,7 @@ export default function QuestionsPage() {
                   </TableCell>
                   <TableCell>{difficultyBadge(q.difficulty)}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
+                    <Badge variant="info" className="text-[10px] font-bold">
                       {q.level || "—"}
                     </Badge>
                   </TableCell>

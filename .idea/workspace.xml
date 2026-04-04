@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update table header styles and badge variants for improved UI consistency">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/page-loading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/page-loading.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +20,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1815" />
+    <option name="cachedIndexableFilesCount" value="1829" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -94,7 +98,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "fix-ui-web-admin-bug",
+    "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -116,6 +120,13 @@
     ]
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\docs\spec" />
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\docs\deploy" />
+      <recent name="E:\projectdev\demo\team-source\torii-monorepo\docs" />
+    </key>
+  </component>
   <component name="RunManager" selected="Docker.docker-compose.yml: Compose Deployment">
     <configuration name="CourseRunService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
@@ -145,10 +156,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Jest.CourseRunService" />
         <item itemvalue="JavaScript Debug.localhost:5173" />
         <item itemvalue="JavaScript Debug.localhost:3000" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
         <item itemvalue="Jest.CourseRunService" />
       </list>
     </recent_temporary>
@@ -387,30 +398,8 @@
       <workItem from="1775037916663" duration="31000" />
       <workItem from="1775061830841" duration="4922000" />
       <workItem from="1775200902364" duration="10081000" />
-    </task>
-    <task id="LOCAL-01046" summary="feat: enhance landing page with guest preview and authentication flow">
-      <option name="closed" value="true" />
-      <created>1774353858693</created>
-      <option name="number" value="01046" />
-      <option name="presentableId" value="LOCAL-01046" />
-      <option name="project" value="LOCAL" />
-      <updated>1774353858693</updated>
-    </task>
-    <task id="LOCAL-01047" summary="feat: enhance landing page with guest preview and authentication flow">
-      <option name="closed" value="true" />
-      <created>1774354298717</created>
-      <option name="number" value="01047" />
-      <option name="presentableId" value="LOCAL-01047" />
-      <option name="project" value="LOCAL" />
-      <updated>1774354298717</updated>
-    </task>
-    <task id="LOCAL-01048" summary="feat: enhance landing page with guest preview and authentication flow">
-      <option name="closed" value="true" />
-      <created>1774354372941</created>
-      <option name="number" value="01048" />
-      <option name="presentableId" value="LOCAL-01048" />
-      <option name="project" value="LOCAL" />
-      <updated>1774354372941</updated>
+      <workItem from="1775223495745" duration="3269000" />
+      <workItem from="1775287880059" duration="4339000" />
     </task>
     <task id="LOCAL-01049" summary="feat: add sharing functionality for study notes with public access">
       <option name="closed" value="true" />
@@ -780,7 +769,31 @@
       <option name="project" value="LOCAL" />
       <updated>1775213459918</updated>
     </task>
-    <option name="localTasksCounter" value="1095" />
+    <task id="LOCAL-01095" summary="chore: remove leagacy docs">
+      <option name="closed" value="true" />
+      <created>1775226993297</created>
+      <option name="number" value="01095" />
+      <option name="presentableId" value="LOCAL-01095" />
+      <option name="project" value="LOCAL" />
+      <updated>1775226993298</updated>
+    </task>
+    <task id="LOCAL-01096" summary="feat: add roadmap module and related functionality for personalized learning pathways">
+      <option name="closed" value="true" />
+      <created>1775227664588</created>
+      <option name="number" value="01096" />
+      <option name="presentableId" value="LOCAL-01096" />
+      <option name="project" value="LOCAL" />
+      <updated>1775227664589</updated>
+    </task>
+    <task id="LOCAL-01097" summary="feat: enhance dashboard and study set components with sharing functionality and UI improvements">
+      <option name="closed" value="true" />
+      <created>1775291591757</created>
+      <option name="number" value="01097" />
+      <option name="presentableId" value="LOCAL-01097" />
+      <option name="project" value="LOCAL" />
+      <updated>1775291591758</updated>
+    </task>
+    <option name="localTasksCounter" value="1098" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -815,10 +828,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update web-admin" />
-    <MESSAGE value="courser flow end" />
-    <MESSAGE value="feat: add JLPT mondai management functionality and update navigation" />
-    <MESSAGE value="new flow" />
     <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
     <MESSAGE value="feat: add sharing functionality for study notes with public access" />
     <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
@@ -840,7 +849,11 @@
     <MESSAGE value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
     <MESSAGE value="feat(class-attendance): add join session functionality and alert dialog for lecturers" />
     <MESSAGE value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
+    <MESSAGE value="chore: remove leagacy docs" />
+    <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
+    <MESSAGE value="feat: enhance dashboard and study set components with sharing functionality and UI improvements" />
+    <MESSAGE value="feat: update table header styles and badge variants for improved UI consistency" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update table header styles and badge variants for improved UI consistency" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

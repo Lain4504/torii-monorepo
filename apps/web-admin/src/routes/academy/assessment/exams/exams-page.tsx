@@ -33,6 +33,11 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Plus, Search, Edit2, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
+import {
+  listPageFiltersRowClass,
+  listPageSearchWrapClass,
+  listPageToolbarRootClass,
+} from "@/lib/ui-shell"
 
 export default function ExamsPage() {
   const navigate = useNavigate()
@@ -83,8 +88,8 @@ export default function ExamsPage() {
           }
         />
 
-        <div className="flex flex-wrap gap-4 items-center">
-          <div className="relative flex-1 min-w-[200px]">
+        <div className={listPageToolbarRootClass}>
+          <div className={listPageSearchWrapClass}>
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input 
               placeholder="Tìm kiếm theo tiêu đề..." 
@@ -94,9 +99,10 @@ export default function ExamsPage() {
             />
           </div>
           
-          <div className="w-[180px]">
+          <div className={listPageFiltersRowClass}>
+          <div className="w-full md:w-[180px]">
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Loại đề thi" />
               </SelectTrigger>
               <SelectContent>
@@ -108,9 +114,9 @@ export default function ExamsPage() {
             </Select>
           </div>
 
-          <div className="w-[180px]">
+          <div className="w-full md:w-[180px]">
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Trạng thái" />
               </SelectTrigger>
               <SelectContent>
@@ -120,6 +126,7 @@ export default function ExamsPage() {
                 <SelectItem value="ARCHIVED">Lưu trữ</SelectItem>
               </SelectContent>
             </Select>
+          </div>
           </div>
         </div>
 
@@ -165,7 +172,7 @@ export default function ExamsPage() {
                       {exam.totalTimeLimitMinutes ? `${exam.totalTimeLimitMinutes} ph` : 'N/A'}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={exam.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                      <Badge variant={exam.status === 'PUBLISHED' ? 'success' : 'secondary'}>
                         {exam.status === 'PUBLISHED' ? 'Hoạt động' : 'Bản nháp'}
                       </Badge>
                     </TableCell>

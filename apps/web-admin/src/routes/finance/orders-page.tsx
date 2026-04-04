@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { OrdersTable } from '@/components/finance/orders-table';
+import {
+  dataTableShellClass,
+  listPageFiltersRowClass,
+  listPageSearchWrapClass,
+  listPageToolbarRootClass,
+} from '@/lib/ui-shell';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
@@ -137,8 +143,8 @@ export default function OrdersPage() {
 
       <div className="space-y-4">
         {/* Toolbar */}
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
-          <div className="relative flex-1">
+        <div className={listPageToolbarRootClass}>
+          <div className={listPageSearchWrapClass}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Tìm theo mã đơn, email hoặc tên khách hàng..."
@@ -148,9 +154,9 @@ export default function OrdersPage() {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className={listPageFiltersRowClass}>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px]">
                 <div className="flex items-center gap-2">
                   <Filter className="size-3.5 text-muted-foreground" />
                   <SelectValue placeholder="Trạng thái" />
@@ -169,7 +175,7 @@ export default function OrdersPage() {
                 <Button
                   variant="outline"
                   className={cn(
-                    "gap-2",
+                    "w-full gap-2 md:w-auto",
                     hasDateFilter && "border-primary text-primary"
                   )}
                 >
@@ -221,7 +227,7 @@ export default function OrdersPage() {
 
         {/* Table */}
 
-        <div className="rounded-md bg-background border overflow-hidden">
+        <div className={dataTableShellClass}>
           <OrdersTable
             data={orders}
             isLoading={isLoading}

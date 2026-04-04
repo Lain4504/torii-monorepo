@@ -16,6 +16,7 @@ import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications.ts'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 import { PageHeader } from '@/components/common/page-header.tsx'
+import { dataTableShellClass } from '@/lib/ui-shell'
 
 interface Notification {
   id: string
@@ -115,10 +116,14 @@ export default function NotificationsPage() {
 
   const getTypeStyles = (type: Notification['type']) => {
     switch (type) {
-      case 'success': return { icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' }
-      case 'warning': return { icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10' }
-      case 'error': return { icon: XCircle, color: 'text-rose-500', bg: 'bg-rose-500/10' }
-      default: return { icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10' }
+      case 'success':
+        return { icon: CheckCircle2, color: 'text-success', bg: 'bg-success/15' }
+      case 'warning':
+        return { icon: AlertTriangle, color: 'text-warning-foreground dark:text-warning', bg: 'bg-warning/15' }
+      case 'error':
+        return { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/15' }
+      default:
+        return { icon: Info, color: 'text-info', bg: 'bg-info/15' }
     }
   }
 
@@ -158,7 +163,7 @@ export default function NotificationsPage() {
       </Tabs>
 
       {/* Notifications List */}
-      <div className="rounded-xl border bg-card">
+      <div className={dataTableShellClass}>
         {isLoading ? (
           <div className="divide-y divide-border">
             {Array.from({ length: 5 }).map((_, i) => (

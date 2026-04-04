@@ -19,6 +19,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@workspace/ui/components/empty"
+import { dataTableHeaderClass } from "@/lib/ui-shell"
 
 interface RewardsTableProps {
     data: PointRewardDTO[]
@@ -32,7 +33,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
 
     return (
         <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader className={dataTableHeaderClass}>
                 <TableRow>
                     <TableHead className="w-[80px]">STT</TableHead>
                     <TableHead>Tên phần thưởng</TableHead>
@@ -110,7 +111,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                             </TableCell>
                             <TableCell>
                                 {reward.isActive ? (
-                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20">Hoạt động</Badge>
+                                    <Badge variant="success">Hoạt động</Badge>
                                 ) : (
                                     <Badge variant="outline" className="text-muted-foreground">Tạm dừng</Badge>
                                 )}

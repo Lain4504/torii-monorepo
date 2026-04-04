@@ -8,6 +8,7 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { PageHeader } from '@/components/common/page-header';
 import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
 import { TicketsTable } from '@/components/tickets/tickets-table';
+import { dataTableShellClass } from '@/lib/ui-shell';
 import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
 import { ChangeTicketStatusDialog } from '@/components/tickets/change-ticket-status-dialog';
 import { ticketApi, useTicketStats } from '@/lib/api/services/tickets';
@@ -66,7 +67,7 @@ export default function TicketsPage() {
                     status={statusFilter}
                     onStatusChange={(v) => setStatusFilter(v === 'all' ? '' : v as TicketStatus)}
                 />
-                <div className="rounded-md bg-background border overflow-hidden">
+                <div className={dataTableShellClass}>
                     <TicketsTable
                         data={tickets}
                         isLoading={isLoading}

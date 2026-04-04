@@ -22,6 +22,7 @@ import {
 import { academyJlptMockApi } from "@/lib/api/services/academy-jlpt-mock";
 import { jlptSectionLabel } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import { toast } from "sonner";
+import { listPageFiltersRowClass } from "@/lib/ui-shell";
 
 const LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
 const SECTIONS = [
@@ -69,17 +70,17 @@ export default function JlptMondaiMasterPage() {
 
 
   return (
-    <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
+    <div className="flex flex-col gap-8">
       <PageHeader
         title="Master Mondai (JLPT)"
         subtitle="Định nghĩa dạng bài theo cấp độ và phần thi; trang đang ở chế độ chỉ xem (read-only)."
       />
 
-      <div className="flex flex-wrap items-end gap-4">
-        <Field className="w-full sm:w-40">
+      <div className={listPageFiltersRowClass}>
+        <Field className="w-full md:w-40">
           <FieldLabel>Cấp độ</FieldLabel>
           <Select value={level} onValueChange={setLevel}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -91,10 +92,10 @@ export default function JlptMondaiMasterPage() {
             </SelectContent>
           </Select>
         </Field>
-        <Field className="min-w-[240px] flex-1">
+        <Field className="w-full md:min-w-[240px] md:flex-1">
           <FieldLabel>Phần thi</FieldLabel>
           <Select value={sectionCode} onValueChange={setSectionCode}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +107,7 @@ export default function JlptMondaiMasterPage() {
             </SelectContent>
           </Select>
         </Field>
-        <Button type="button" variant="outline" className="gap-2" onClick={() => void load()} disabled={loading}>
+        <Button type="button" variant="outline" className="w-full gap-2 md:ml-auto md:w-auto" onClick={() => void load()} disabled={loading}>
           {loading ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
           Làm mới
         </Button>

@@ -20,6 +20,7 @@ import { Fingerprint } from 'lucide-react';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { dataTableHeaderClass } from '@/lib/ui-shell';
 
 
 interface UsersTableProps {
@@ -50,7 +51,7 @@ export function UsersTable({ data, onView, onEdit, onChangeStatus, page, limit, 
 
     return (
         <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader className={dataTableHeaderClass}>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {

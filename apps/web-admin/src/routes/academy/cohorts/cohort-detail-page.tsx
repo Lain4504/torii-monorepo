@@ -14,6 +14,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { formatCurrency, formatDateTime } from "@/lib/format-utils"
 import { OrdersTable } from "@/components/finance/orders-table"
+import { dataTableShellClass } from "@/lib/ui-shell"
 import { SmartPagination } from "@/components/common/smart-pagination"
 import { Plus, Layout, BookOpen, Users, CheckCircle2, Trash2, Edit, Send } from "lucide-react"
 import { LiveClassSheet } from "@/components/academy/live-class-sheet"
@@ -375,6 +376,7 @@ export default function CohortDetailPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
+                <div className={dataTableShellClass}>
                 <OrdersTable
                   data={orders}
                   isLoading={isLoadingOrders}
@@ -384,6 +386,7 @@ export default function CohortDetailPage() {
                   page={page}
                   limit={10}
                 />
+                </div>
                 <div className="p-4 border-t">
                   <SmartPagination
                     page={page}

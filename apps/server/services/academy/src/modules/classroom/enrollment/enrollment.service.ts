@@ -332,6 +332,7 @@ export class EnrollmentService {
           vodPackageId: input.vodPackageId,
           expiresAt: input.expiresAt,
           status: 'ACTIVE',
+          ...(input.sourceOrderId ? { sourceOrderId: input.sourceOrderId } : {}),
         },
       });
       return enrollment;
