@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update table header styles and badge variants for improved UI consistency">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: learning pathway for course (#339)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/certificates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/ui/src/components/page-loading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/ui/src/components/page-loading.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/config/rbac-config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/config/rbac-config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-attendance/class-attendance.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class-attendance/class-attendance.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +35,7 @@
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
         <option value="Lê Thanh Phương &lt;147789009+thanhphuongne@users.noreply.github.com&gt;" />
       </list>
     </option>
@@ -400,14 +403,6 @@
       <workItem from="1775200902364" duration="10081000" />
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
-    </task>
-    <task id="LOCAL-01049" summary="feat: add sharing functionality for study notes with public access">
-      <option name="closed" value="true" />
-      <created>1774355383735</created>
-      <option name="number" value="01049" />
-      <option name="presentableId" value="LOCAL-01049" />
-      <option name="project" value="LOCAL" />
-      <updated>1774355383735</updated>
     </task>
     <task id="LOCAL-01050" summary="feat: add sharing functionality for study notes with public access">
       <option name="closed" value="true" />
@@ -793,7 +788,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775291591758</updated>
     </task>
-    <option name="localTasksCounter" value="1098" />
+    <task id="LOCAL-01098" summary="feat: learning pathway for course (#339)">
+      <option name="closed" value="true" />
+      <created>1775307787335</created>
+      <option name="number" value="01098" />
+      <option name="presentableId" value="LOCAL-01098" />
+      <option name="project" value="LOCAL" />
+      <updated>1775307787335</updated>
+    </task>
+    <option name="localTasksCounter" value="1099" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -828,8 +831,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: enhance landing page with guest preview and authentication flow" />
-    <MESSAGE value="feat: add sharing functionality for study notes with public access" />
     <MESSAGE value="feat: implement sharing functionality for study sets with public access" />
     <MESSAGE value="feat: remove study note functionality and related components" />
     <MESSAGE value="update" />
@@ -853,7 +854,9 @@
     <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
     <MESSAGE value="feat: enhance dashboard and study set components with sharing functionality and UI improvements" />
     <MESSAGE value="feat: update table header styles and badge variants for improved UI consistency" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: update table header styles and badge variants for improved UI consistency" />
+    <MESSAGE value="update learning path" />
+    <MESSAGE value="feat: learning pathway for course (#339)" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: learning pathway for course (#339)" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
