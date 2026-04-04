@@ -84,8 +84,13 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
   const [topicContent, setTopicContent] = useState('')
 
   const params = useMemo(
-    () => ({ discussionId: selectedLessonId, page: 1, limit: 100 } as any),
-    [selectedLessonId],
+    () => ({ 
+      discussionId: selectedLessonId, 
+      classId: classId || vodPackageId,
+      page: 1, 
+      limit: 100 
+    } as any),
+    [selectedLessonId, classId, vodPackageId],
   )
 
   const { data, isLoading, isError, refetch } = useComments(params as any)
@@ -111,6 +116,7 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
         discussionId: selectedLessonId,
         userId: user.id,
         content: topicContent.trim(),
+        classId: classId || vodPackageId,
       } as any)
       setTopicDialogOpen(false)
       setTopicContent('')
@@ -137,6 +143,7 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
         userId: user.id,
         parentId: topicId, // This is now the specific comment we are replying to
         content: text,
+        classId: classId || vodPackageId,
       } as any)
       setReplyDraftByTopic((prev) => ({ ...prev, [topicId]: '' }))
       setActiveReplyId(null)
