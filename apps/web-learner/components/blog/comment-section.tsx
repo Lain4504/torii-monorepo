@@ -240,7 +240,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                     <MessageSquare className="size-5 text-primary" />
                     Bình luận
                     <Badge variant="secondary" className="ml-1 font-bold text-[10px] px-2">
-                        {formatNumber(comments.length)}
+                        {formatNumber(comments.length - 1)}
                     </Badge>
                 </h3>
             </div>
