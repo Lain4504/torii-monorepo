@@ -5,16 +5,21 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   ActivityType,
   GamificationTransactionType,
   GamificationCurrency,
+  CouponDiscountType,
   CouponScope,
+  CouponStatus,
 } from '@prisma/generated';
 import { AchievementService } from './achievement.service';
 import { AuditLoggerService } from '../audit-logger.service';
+
+const COUPON_SOURCE_GAMIFICATION_REWARD = 'GAMIFICATION_REWARD';
 
 @Injectable()
 export class GamificationService {
@@ -803,9 +808,9 @@ export class GamificationService {
       const rewardType = (reward.type || 'COUPON').toUpperCase();
 
       let couponCode = '';
+      let couponId: string | undefined;
 
       if (rewardType === 'STREAK_FREEZE') {
-        // Direct profile update for streak freeze
         const amount = config.amount || 1;
         await tx.userGamification.update({
           where: { userId },
@@ -815,12 +820,77 @@ export class GamificationService {
         });
         couponCode = 'STREAK_FREEZE';
       } else {
-        // For other rewards, generate a code but DO NOT log it into the coupon table
-        const prefix = config.prefix || 'RWD';
-        couponCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const rawPrefix = String(config.prefix || 'RWD')
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, '');
+        const prefix = rawPrefix.length > 0 ? rawPrefix.slice(0, 10) : 'RWD';
+
+        let allocated = '';
+        for (let attempt = 0; attempt < 16; attempt++) {
+          const candidate =
+            attempt < 12
+              ? `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+              : `RWD-${randomUUID().replace(/-/g, '').slice(0, 10).toUpperCase()}`;
+          const taken = await tx.coupon.findUnique({
+            where: { code: candidate },
+          });
+          if (!taken) {
+            allocated = candidate;
+            break;
+          }
+        }
+        if (!allocated) {
+          throw new BadRequestException('Không tạo được mã coupon, thử lại sau');
+        }
+
+        const discountType =
+          config.discountType === 'FIXED_AMOUNT'
+            ? CouponDiscountType.FIXED_AMOUNT
+            : CouponDiscountType.PERCENTAGE;
+        const discountValue = Number(config.discountValue ?? 1);
+        if (!Number.isFinite(discountValue) || discountValue <= 0) {
+          throw new BadRequestException('Cấu hình phần thưởng coupon không hợp lệ');
+        }
+        const validDays = Math.max(1, Number(config.validDays ?? 30));
+        const now = new Date();
+        const endDate = new Date(
+          now.getTime() + validDays * 24 * 60 * 60 * 1000,
+        );
+
+        const created = await tx.coupon.create({
+          data: {
+            code: allocated,
+            name: reward.name,
+            description: reward.description ?? undefined,
+            discountType,
+            discountValue,
+            maxDiscountAmount:
+              config.maxDiscountAmount != null
+                ? Number(config.maxDiscountAmount)
+                : null,
+            minOrderValue:
+              config.minOrderValue != null
+                ? Number(config.minOrderValue)
+                : null,
+            usageLimit: 1,
+            usageCount: 0,
+            perUserLimit: 1,
+            startDate: now,
+            endDate,
+            status: CouponStatus.ACTIVE,
+            scope: CouponScope.GLOBAL,
+            ownerId: userId,
+            source: COUPON_SOURCE_GAMIFICATION_REWARD,
+            metadata: {
+              rewardId,
+              rewardName: reward.name,
+            } as object,
+          },
+        });
+        couponId = created.id;
+        couponCode = created.code;
       }
 
-      // Update the history record created above with the generated code and more metadata
       await tx.gamificationHistory.create({
         data: {
           userId,
@@ -832,7 +902,8 @@ export class GamificationService {
             rewardId,
             rewardName: reward.name,
             rewardType,
-            couponCode: couponCode,
+            couponCode,
+            couponId,
             ...config,
           },
         },
