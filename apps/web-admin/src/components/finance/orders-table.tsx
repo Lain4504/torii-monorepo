@@ -16,6 +16,7 @@ import { CreditCard } from 'lucide-react';
 import { Spinner } from '@workspace/ui/components/spinner';
 import type { OrderResponseDTO } from '@workspace/schemas';
 import { getOrdersColumns } from './orders-columns';
+import { dataTableHeaderClass } from '@/lib/ui-shell';
 
 interface OrdersTableProps {
     data: OrderResponseDTO[];
@@ -38,7 +39,7 @@ export function OrdersTable({ data, isLoading, onView, onCancel, onExport, page,
 
     return (
         <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader className={dataTableHeaderClass}>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => (

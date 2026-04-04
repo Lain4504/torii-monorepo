@@ -5,8 +5,14 @@ import { useStaffOperationsDashboard } from "@/lib/api/services/dashboard";
 import { formatCurrency, formatNumber } from "@/lib/format-utils";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { HandCoins, ReceiptText, Wallet } from "lucide-react";
-
-const COLORS = ["#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#10b981", "#14b8a6"];
+import {
+  elevatedPanelClass,
+  elevatedPanelContentClass,
+  elevatedCardHeaderOps,
+  elevatedCardHeaderSuccess,
+  elevatedCardHeaderFinance,
+} from "@/lib/ui-shell";
+import { orderStatusPieFill, revenueBarFill } from "@/lib/dashboard-chart-colors";
 
 function ChartEmpty() {
   return <div className="h-64 flex items-center justify-center text-xs text-muted-foreground">Chưa có dữ liệu</div>;
@@ -38,12 +44,14 @@ export default function StaffFinanceDashboard() {
           value={formatCurrency(data?.stats.totalRevenue ?? 0)}
           sub="Tổng doanh thu đã thanh toán"
           icon={Wallet}
+          tone="success"
         />
         <StatsCard
           title="Yêu cầu hoàn tiền"
           value={formatNumber(data?.stats.pendingRefunds ?? 0)}
           sub="Các yêu cầu cần đối soát"
           icon={HandCoins}
+          tone="warning"
           highlight={(data?.stats.pendingRefunds ?? 0) > 0}
         />
         <StatsCard
@@ -51,6 +59,7 @@ export default function StaffFinanceDashboard() {
           value={formatNumber(data?.stats.pendingTickets ?? 0)}
           sub="Ticket đang chờ xử lý"
           icon={ReceiptText}
+          tone="primary"
           highlight={(data?.stats.pendingTickets ?? 0) > 0}
         />
         <StatsCard
@@ -58,16 +67,17 @@ export default function StaffFinanceDashboard() {
           value={formatNumber(data?.stats.paidOrders ?? 0)}
           sub="Giao dịch thành công"
           icon={Wallet}
+          tone="info"
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
+        <Card className={elevatedPanelClass}>
+          <CardHeader className={elevatedCardHeaderOps}>
             <CardTitle>Đơn hàng theo trạng thái</CardTitle>
             <CardDescription>Phân bổ status của order</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className={elevatedPanelContentClass}>
             {ordersByStatus.length === 0 ? (
               <ChartEmpty />
             ) : (
@@ -76,8 +86,8 @@ export default function StaffFinanceDashboard() {
                   <PieChart>
                     <Tooltip />
                     <Pie data={ordersByStatus} dataKey="value" nameKey="name" outerRadius={95}>
-                      {ordersByStatus.map((_, idx) => (
-                        <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
+                      {ordersByStatus.map((d, idx) => (
+                        <Cell key={`cell-${idx}`} fill={orderStatusPieFill(d.name)} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -87,12 +97,12 @@ export default function StaffFinanceDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className={elevatedPanelClass}>
+          <CardHeader className={elevatedCardHeaderSuccess}>
             <CardTitle>Doanh thu theo Level</CardTitle>
             <CardDescription>Top cấp độ theo doanh thu</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className={elevatedPanelContentClass}>
             {revenueByLevel.length === 0 ? (
               <ChartEmpty />
             ) : (
@@ -102,7 +112,7 @@ export default function StaffFinanceDashboard() {
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis allowDecimals={false} />
                     <Tooltip />
-                    <Bar dataKey="value" fill={COLORS[0]} radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="value" fill={revenueBarFill} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -111,12 +121,12 @@ export default function StaffFinanceDashboard() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className={elevatedPanelClass}>
+        <CardHeader className={elevatedCardHeaderFinance}>
           <CardTitle>Giao dịch gần đây</CardTitle>
           <CardDescription>4 giao dịch PAID mới nhất</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className={elevatedPanelContentClass}>
           {recentSales.length === 0 ? (
             <ChartEmpty />
           ) : (
@@ -124,14 +134,14 @@ export default function StaffFinanceDashboard() {
               {recentSales.map((s) => (
                 <div
                   key={s.id}
-                  className="rounded-lg border border-border/50 bg-muted/10 p-3 flex items-center justify-between gap-3"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card p-3"
                 >
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold truncate">{s.userName || s.userEmail}</div>
-                    <div className="text-xs text-muted-foreground truncate">{s.userEmail}</div>
+                    <div className="truncate text-sm font-bold">{s.userName || s.userEmail}</div>
+                    <div className="truncate text-xs text-muted-foreground">{s.userEmail}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-bold tabular-nums">
+                    <div className="text-sm font-semibold tabular-nums text-foreground">
                       {formatCurrency(Number(s.amount) || 0)}
                     </div>
                     <div className="text-xs text-muted-foreground">{s.date}</div>

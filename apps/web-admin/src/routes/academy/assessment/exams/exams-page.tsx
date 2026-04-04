@@ -165,7 +165,7 @@ export default function ExamsPage() {
                       {exam.totalTimeLimitMinutes ? `${exam.totalTimeLimitMinutes} ph` : 'N/A'}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={exam.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                      <Badge variant={exam.status === 'PUBLISHED' ? 'success' : 'secondary'}>
                         {exam.status === 'PUBLISHED' ? 'Hoạt động' : 'Bản nháp'}
                       </Badge>
                     </TableCell>

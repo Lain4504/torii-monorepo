@@ -16,6 +16,7 @@ import {
 import { useState } from 'react';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { getBlogColumns } from './blog-columns.tsx';
+import { dataTableHeaderClass } from '@/lib/ui-shell';
 import { Newspaper } from 'lucide-react';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
@@ -48,7 +49,7 @@ export function BlogTable({ data, onEdit, onDelete, onScheduleChange, page, limi
 
     return (
         <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader className={dataTableHeaderClass}>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {

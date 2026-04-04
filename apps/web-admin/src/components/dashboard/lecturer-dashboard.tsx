@@ -341,6 +341,7 @@ export default function LecturerDashboard() {
                     value={classesLoading ? "—" : classes.length}
                     sub={ongoingCount > 0 ? `${ongoingCount} lớp đang diễn ra` : "Tổng số lớp phụ trách"}
                     icon={BookOpen}
+                    tone="primary"
                     highlight
                 />
                 <StatsCard
@@ -348,12 +349,14 @@ export default function LecturerDashboard() {
                     value={classesLoading ? "—" : ongoingCount}
                     sub="Lớp LIVE đang tuyển sinh hoặc đang học"
                     icon={GraduationCap}
+                    tone="success"
                 />
                 <StatsCard
                     title="Buổi học sắp tới"
                     value={sessionsLoading ? "—" : upcomingSessions.length}
                     sub="Trong tháng hiện tại"
                     icon={Calendar}
+                    tone="info"
                 />
             </div>
 

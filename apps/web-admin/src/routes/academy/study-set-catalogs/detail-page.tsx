@@ -19,6 +19,7 @@ import {
 } from '@workspace/ui/components/table'
 import { ArrowLeft, Plus, Pencil, Trash2, Loader2, BookOpen } from 'lucide-react'
 import { toast } from 'sonner'
+import { dataTableShellClass, dataTableHeaderClass } from '@/lib/ui-shell'
 
 import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog'
 
@@ -145,9 +146,9 @@ export default function StudySetCatalogDetailPage() {
           </Button>
         </div>
       ) : (
-        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+        <div className={dataTableShellClass}>
           <Table>
-            <TableHeader className="bg-muted/30">
+            <TableHeader className={dataTableHeaderClass}>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-8 pl-4">#</TableHead>
                 <TableHead>Mặt trước / Phiên âm</TableHead>

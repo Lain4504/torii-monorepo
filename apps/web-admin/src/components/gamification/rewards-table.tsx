@@ -19,6 +19,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from "@workspace/ui/components/empty"
+import { dataTableHeaderClass } from "@/lib/ui-shell"
 
 interface RewardsTableProps {
     data: PointRewardDTO[]
@@ -32,7 +33,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
 
     return (
         <Table>
-            <TableHeader className="bg-muted/50">
+            <TableHeader className={dataTableHeaderClass}>
                 <TableRow>
                     <TableHead className="w-[80px]">STT</TableHead>
                     <TableHead>Tên phần thưởng</TableHead>

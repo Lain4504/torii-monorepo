@@ -29,6 +29,7 @@ import {
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
 import { VodPackageSheet } from "@/components/academy/vod-package-sheet"
 import { toast } from "sonner"
+import { dataTableShellClass, dataTableHeaderClass } from "@/lib/ui-shell"
 
 const getVodStatusLabel = (status: string) => {
     switch (status) {
@@ -117,9 +118,9 @@ export default function VodPackagesPage() {
                     </Select>
                 </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[150px]">Mã Gói</TableHead>

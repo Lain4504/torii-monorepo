@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { OrdersTable } from '@/components/finance/orders-table';
+import { dataTableShellClass } from '@/lib/ui-shell';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
@@ -221,7 +222,7 @@ export default function OrdersPage() {
 
         {/* Table */}
 
-        <div className="rounded-md bg-background border overflow-hidden">
+        <div className={dataTableShellClass}>
           <OrdersTable
             data={orders}
             isLoading={isLoading}

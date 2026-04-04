@@ -34,6 +34,7 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog";
 import { LiveClassSheet } from '@/components/academy/live-class-sheet';
+import { dataTableShellClass, dataTableHeaderClass } from '@/lib/ui-shell';
 
 
 export default function LiveClassesPage() {
@@ -165,9 +166,9 @@ export default function LiveClassesPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow>
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>

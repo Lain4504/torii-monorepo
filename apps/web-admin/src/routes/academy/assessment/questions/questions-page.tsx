@@ -18,6 +18,7 @@ import { QuestionEditor } from "./components/question-editor"
 import { DeleteQuestionDialog } from "./components/delete-question-dialog"
 import { CategoryManagerDialog } from "./components/category-manager-dialog"
 import { format } from "date-fns"
+import { dataTableShellClass, dataTableHeaderClass } from "@/lib/ui-shell"
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("")
@@ -123,9 +124,9 @@ export default function QuestionsPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-card overflow-hidden shadow-sm">
+      <div className={dataTableShellClass}>
         <Table>
-          <TableHeader className="bg-muted/30">
+          <TableHeader className={dataTableHeaderClass}>
             <TableRow>
               <TableHead className="w-[60px] text-center">#</TableHead>
               <TableHead className="w-[420px] pl-4">Câu hỏi</TableHead>

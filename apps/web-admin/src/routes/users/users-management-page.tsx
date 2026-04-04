@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
+import { dataTableShellClass } from '@/lib/ui-shell';
 import { CreateUserDialog } from '@/components/users/create-user-dialog.tsx';
 import { ChangeUserRoleDialog } from '@/components/users/change-user-role-dialog.tsx';
 import { ChangeUserStatusDialog } from '@/components/users/change-user-status-dialog.tsx';
@@ -104,7 +105,7 @@ export default function UsersManagementPage() {
                     }}
                 />
 
-                <div className="rounded-md bg-background border overflow-hidden">
+                <div className={dataTableShellClass}>
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}

@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { Can } from '@/lib/guard/can';
 import { useAdminRewards } from '@/lib/api/services/gamification';
 import { RewardsTable } from '@/components/gamification/rewards-table';
+import { dataTableShellClass } from '@/lib/ui-shell';
 import { CreateRewardSheet } from '@/components/gamification/create-reward-sheet';
 import { EditRewardSheet } from '@/components/gamification/edit-reward-sheet';
 import { DeleteRewardDialog } from '@/components/gamification/delete-reward-dialog';
@@ -55,7 +56,7 @@ export default function RewardsPage() {
                 }
             />
 
-            <div className="rounded-md bg-background border overflow-hidden">
+            <div className={dataTableShellClass}>
                         <RewardsTable
                             data={rewards}
                             isLoading={isLoading}

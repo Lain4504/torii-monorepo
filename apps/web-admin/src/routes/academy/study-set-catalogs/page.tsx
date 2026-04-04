@@ -30,6 +30,7 @@ import {
 } from '@/lib/api/services/academy-study-set-catalogs'
 import type { AcademyStudySetModel } from '@workspace/schemas'
 import { toast } from 'sonner'
+import { dataTableShellClass, dataTableHeaderClass } from '@/lib/ui-shell'
 
 export default function StudySetCatalogsPage() {
   const { data, isLoading } = useAcademyStudySetCatalogs()
@@ -131,9 +132,9 @@ export default function StudySetCatalogsPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+      <div className={dataTableShellClass}>
         <Table>
-          <TableHeader className="bg-muted/30">
+          <TableHeader className={dataTableHeaderClass}>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-8 text-center">#</TableHead>
               <TableHead>Tên bộ</TableHead>

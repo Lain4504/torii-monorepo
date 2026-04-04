@@ -8,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@workspace/ui/components/breadcrumb"
-import { ChevronRight } from "lucide-react"
 
 import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
 import { CommandMenu } from "@/components/layout/command-menu.tsx"
@@ -17,88 +16,74 @@ import { useSelector } from "react-redux"
 import { selectUser } from "@/store/slices/auth-slice"
 import { UserRole } from "@workspace/schemas"
 
+const SEGMENT_LABELS: Record<string, string> = {
+  academy: "Học thuật",
+  "course-profiles": "Kho Khóa học",
+  cohorts: "Đợt khai giảng",
+  "vod-packages": "Khóa học VOD",
+  "live-classes": "Lớp học LIVE",
+  lessons: "Bài dạy",
+  quizzes: "Trắc nghiệm",
+  assignments: "Bài tập",
+  exams: "Kỳ thi",
+  "question-pools": "Ngân hàng câu hỏi",
+  users: "Người dùng",
+  roles: "Vai trò",
+  orders: "Đơn hàng",
+  coupons: "Mã giảm giá",
+  tickets: "Hỗ trợ",
+}
+
 export function DashboardHeader() {
   const location = useLocation()
   const user = useSelector(selectUser)
   const isLecturer = user?.role === UserRole.LECTURER
 
-  const pathSegments = location.pathname.split('/').filter(Boolean)
+  const pathSegments = location.pathname.split("/").filter(Boolean)
 
   return (
-    <div className="flex w-full items-center justify-between gap-4 h-14">
-      {/* Breadcrumbs - Refined Admin Style */}
-      <div className="hidden md:flex items-center text-sm px-1 overflow-hidden">
+    <div className="flex h-14 w-full min-w-0 items-center gap-3">
+      <div className="hidden min-w-0 flex-1 overflow-hidden md:block">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/" className="text-xs font-semibold text-muted-foreground/60 hover:text-primary transition-colors flex items-center gap-2">
+                <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
                   Bảng điều khiển
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            {pathSegments.length > 0 && (
-              <BreadcrumbSeparator className="opacity-30">
-                <ChevronRight className="size-3" />
-              </BreadcrumbSeparator>
-            )}
             {pathSegments.map((segment, index) => {
               const isLast = index === pathSegments.length - 1
-              // Map segments to valid paths
-              let href = `/${pathSegments.slice(0, index + 1).join('/')}`
+              let href = `/${pathSegments.slice(0, index + 1).join("/")}`
 
-              // Handle special cases where parent route doesn't exist
-              if (segment === 'academy') href = '/'
+              if (segment === "academy") href = "/"
+              if (isLecturer && segment === "course-master") href = "/course-master/my"
 
-              // Lecturer exceptions
-              if (isLecturer && segment === 'course-master') href = '/course-master/my'
+              const label =
+                SEGMENT_LABELS[segment] ?? segment.replace(/-/g, " ")
 
-              // Friendly names map
-              const labels: Record<string, string> = {
-                'academy': 'Học thuật',
-                'course-profiles': 'Kho Khóa học',
-                'cohorts': 'Đợt khai giảng',
-                'vod-packages': 'Khóa học VOD',
-                'live-classes': 'Lớp học LIVE',
-                'lessons': 'Bài dạy',
-                'quizzes': 'Trắc nghiệm',
-                'assignments': 'Bài tập',
-                'exams': 'Kỳ thi',
-                'question-pools': 'Ngân hàng câu hỏi',
-                'users': 'Người dùng',
-                'roles': 'Vai trò',
-                'orders': 'Đơn hàng',
-                'coupons': 'Mã giảm giá',
-                'tickets': 'Hỗ trợ',
-              }
-
-              const label = labels[segment] || segment.replace(/-/g, ' ')
-
-              if (segment.length > 20 && !labels[segment]) return null;
+              if (segment.length > 20 && !SEGMENT_LABELS[segment]) return null
 
               return (
-                <React.Fragment key={href + index}>
+                <React.Fragment key={`${href}-${index}`}>
+                  <BreadcrumbSeparator />
                   <BreadcrumbItem>
                     {isLast ? (
-                      <BreadcrumbPage className="capitalize text-xs font-bold italic text-foreground flex items-center gap-2 max-w-[200px] truncate">
+                      <BreadcrumbPage className="max-w-[220px] truncate text-sm font-medium text-foreground">
                         {label}
                       </BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink asChild>
                         <Link
                           to={href}
-                          className="capitalize text-xs font-semibold text-muted-foreground/50 hover:text-foreground transition-colors"
+                          className="text-sm text-muted-foreground hover:text-foreground"
                         >
                           {label}
                         </Link>
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-                  {!isLast && (
-                    <BreadcrumbSeparator className="opacity-30">
-                      <ChevronRight className="size-3" />
-                    </BreadcrumbSeparator>
-                  )}
                 </React.Fragment>
               )
             })}
@@ -106,13 +91,10 @@ export function DashboardHeader() {
         </Breadcrumb>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
-        <div className="flex items-center gap-1 sm:gap-1.5">
-          <CommandMenu />
-          <NotificationsDropdown />
-          <div className="hidden sm:block w-px h-4 bg-border/50 mx-0.5" />
-          <ModeToggle />
-        </div>
+      <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+        <CommandMenu />
+        <NotificationsDropdown />
+        <ModeToggle />
       </div>
     </div>
   )

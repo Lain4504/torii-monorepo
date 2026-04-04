@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BlogPrimaryToolbar } from '@/components/blogs/blog-primary-toolbar.tsx';
 import { BlogTable } from '@/components/blogs/blog-table.tsx';
+import { dataTableShellClass } from '@/lib/ui-shell';
 import { DeleteBlogDialog } from '@/components/blogs/delete-blog-dialog.tsx';
 import { ScheduleBlogDialog } from '@/components/blogs/schedule-blog-dialog.tsx';
 import { BlogSheet } from '@/components/blogs/blog-sheet.tsx';
@@ -114,7 +115,7 @@ export function BlogPage() {
                     }}
                 />
 
-                <div className="rounded-md bg-background border overflow-hidden">
+                <div className={dataTableShellClass}>
                     <BlogTable
                         data={blogs}
                         onEdit={(b) => {

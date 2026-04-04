@@ -29,6 +29,7 @@ import {
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
 import { CohortSheet } from "@/components/academy/cohort-sheet"
 import { toast } from "sonner"
+import { dataTableShellClass, dataTableHeaderClass } from "@/lib/ui-shell"
 
 const getCohortStatusLabel = (status: string) => {
     const map: Record<string, string> = {
@@ -115,9 +116,9 @@ export default function CohortsPage() {
                     </Select>
                 </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[140px]">Mã Đợt khai giảng</TableHead>

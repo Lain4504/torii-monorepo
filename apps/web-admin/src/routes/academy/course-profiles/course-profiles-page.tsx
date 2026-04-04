@@ -37,6 +37,7 @@ import { toast } from 'sonner';
 
 import { CourseProfileSheet } from './components/course-profile-sheet';
 import { DuplicateCourseDialog } from './components/duplicate-course-dialog';
+import { dataTableShellClass, dataTableHeaderClass } from '@/lib/ui-shell';
 
 export default function CourseProfilesPage() {
     const navigate = useNavigate();
@@ -137,9 +138,9 @@ export default function CourseProfilesPage() {
                         </Select>
                     </div>
 
-                <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+                <div className={dataTableShellClass}>
                     <Table>
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
                                 <TableHead className="w-[120px]">Mã Code</TableHead>

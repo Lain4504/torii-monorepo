@@ -11,6 +11,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Edit, Trash, Trophy, Star, Target, Zap, Flame, Award } from "lucide-react";
 import type { AchievementDTO } from "@workspace/schemas";
 import { Skeleton } from "@workspace/ui/components/skeleton";
+import { dataTableHeaderClass } from "@/lib/ui-shell";
 
 interface AchievementsTableProps {
     data: AchievementDTO[];
@@ -41,9 +42,8 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
     }
 
     return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader className="bg-muted/50">
+        <Table>
+                <TableHeader className={dataTableHeaderClass}>
                     <TableRow>
                         <TableHead className="w-[80px]">Icon</TableHead>
                         <TableHead>Tên & Code</TableHead>
@@ -129,7 +129,6 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                         })
                     )}
                 </TableBody>
-            </Table>
-        </div>
+        </Table>
     );
 }
