@@ -31,7 +31,7 @@ import {
 interface QuestionPickerModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onConfirm: (questionIds: string[]) => Promise<void>
+  onConfirm: (questions: any[]) => Promise<void>
   existingQuestionIds?: string[]
 }
 
@@ -91,7 +91,8 @@ export function QuestionPickerModal({
     if (selectedIds.size === 0) return
     try {
       setIsSubmitting(true)
-      await onConfirm(Array.from(selectedIds))
+      const selectedQuestions = questions?.filter(q => selectedIds.has(q.id)) || []
+      await onConfirm(selectedQuestions)
       setSelectedIds(new Set())
       onOpenChange(false)
     } finally {

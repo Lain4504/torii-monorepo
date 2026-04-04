@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useParams, Link, useSearchParams } from "react-router-dom"
 import { useAcademyCourseProfile, useSubmitAcademyCourseProfileForApproval } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
+import { useAcademyVodPackages } from "@/lib/api/services/academy-vod-packages"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical } from "lucide-react"
 import {
@@ -138,6 +139,7 @@ export default function CourseProfileDetailPage() {
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(profileId)
   const submitForApprovalMutation = useSubmitAcademyCourseProfileForApproval()
   const { data: classes } = useAcademyLiveClasses({ courseProfileId: profileId } as any)
+  const { data: vodPackages } = useAcademyVodPackages({ courseProfileId: profileId } as any)
 
   const qc = useQueryClient()
   const deleteModuleMutation = useDeleteAcademyCourseModule()
@@ -252,7 +254,8 @@ export default function CourseProfileDetailPage() {
         stats={[
           { label: "Mã khóa", value: profile.code },
           { label: "Trình độ", value: profile.level || 'JLPT' },
-          { label: "Số lớp", value: classes?.length || 0 },
+          { label: "Lớp Live", value: classes?.length || 0 },
+          { label: "Gói VOD", value: vodPackages?.length || 0 },
         ]}
         actions={
           <div className="flex gap-2">
@@ -562,11 +565,18 @@ export default function CourseProfileDetailPage() {
             )}
           </TabsContent>
 
-          <TabsContent value="classes">
+          <TabsContent value="classes" className="space-y-8">
             <Card>
-              <CardHeader>
-                <CardTitle>Các lớp học thuộc hồ sơ này</CardTitle>
-                <CardDescription>Mọi lớp học được tạo từ hồ sơ này sẽ sử dụng chung chương trình học trên.</CardDescription>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">Các lớp học trực tiếp (Live)</CardTitle>
+                    <CardDescription>Danh sách các lớp học đang diễn ra hoặc sắp mở thuộc hồ sơ này.</CardDescription>
+                  </div>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
+                    {classes?.length || 0} Lớp
+                  </Badge>
+                </div>
               </CardHeader>
               <CardContent className="p-0">
                 <Table>
@@ -575,7 +585,6 @@ export default function CourseProfileDetailPage() {
                       <TableHead className="w-12 px-6">STT</TableHead>
                       <TableHead>Mã lớp</TableHead>
                       <TableHead>Tên lớp</TableHead>
-                      <TableHead>Hình thức</TableHead>
                       <TableHead>Trạng thái</TableHead>
                       <TableHead className="text-right px-6">Thao tác</TableHead>
                     </TableRow>
@@ -586,9 +595,6 @@ export default function CourseProfileDetailPage() {
                         <TableCell className="px-6 text-muted-foreground tabular-nums">{index + 1}</TableCell>
                         <TableCell className="font-mono text-xs font-bold text-primary">{cls.code}</TableCell>
                         <TableCell className="font-medium">{cls.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="uppercase font-mono text-[10px]">{cls.mode}</Badge>
-                        </TableCell>
                         <TableCell>
                           <Badge
                             variant={(cls.status === 'PUBLISHED' || cls.status === 'OPENING' || cls.status === 'ONGOING') ? 'default' : cls.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
@@ -615,8 +621,73 @@ export default function CourseProfileDetailPage() {
                     ))}
                     {(!classes || classes.length === 0) && (
                       <TableRow>
-                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
-                          Chưa có lớp học nào được tạo từ hồ sơ này.
+                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground italic">
+                          Chưa có lớp học nào.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">Các gói bài giảng tự học (VOD)</CardTitle>
+                    <CardDescription>Danh sách các gói VOD đang bán hoặc đang soạn thảo dựa trên hồ sơ này.</CardDescription>
+                  </div>
+                  <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
+                    {vodPackages?.length || 0} Gói
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="w-12 px-6">STT</TableHead>
+                      <TableHead>Mã gói</TableHead>
+                      <TableHead>Tên gói VOD</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className="text-right px-6">Thao tác</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {vodPackages?.map((pkg, index) => (
+                      <TableRow key={pkg.id} className="group transition-colors">
+                        <TableCell className="px-6 text-muted-foreground tabular-nums">{index + 1}</TableCell>
+                        <TableCell className="font-mono text-xs font-bold text-orange-600">{pkg.code}</TableCell>
+                        <TableCell className="font-medium">{pkg.title}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={pkg.status === 'PUBLISHED' ? 'default' : pkg.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
+                            className={`text-[10px] ${pkg.status === 'PUBLISHED' ? 'bg-emerald-500/10 text-emerald-600 border-none' : ''}`}
+                          >
+                            {pkg.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right px-6">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="h-8 gap-2 border-orange-500/30 text-orange-700 bg-transparent hover:bg-orange-50"
+                          >
+                            <Link to={`/academy/vod-packages/${pkg.id}/detail`} className="flex items-center gap-2">
+                              <LayoutDashboard className="size-4" />
+                              Quản lý gói
+                              <ChevronRight className="size-4" />
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!vodPackages || vodPackages.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground italic">
+                          Chưa có gói VOD nào.
                         </TableCell>
                       </TableRow>
                     )}
