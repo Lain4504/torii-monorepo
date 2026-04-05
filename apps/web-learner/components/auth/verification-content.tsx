@@ -68,7 +68,7 @@ export function VerificationContent() {
                     <ShieldCheck className="size-10 text-primary" />
                 </div>
                 <div className="space-y-2">
-                    <h3 className="text-xl font-bold tracking-tight">Kích hoạt thành công</h3>
+                    <h3 className="text-xl font-bold tracking-normal">Kích hoạt thành công</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px]">
                         Chào mừng đến với <span className="text-foreground font-bold">Torii Nihongo</span>. Đang chuyển hướng sau 3 giây...
                     </p>
@@ -83,7 +83,7 @@ export function VerificationContent() {
                 <ShieldAlert className="size-10 text-destructive" />
             </div>
             <div className="space-y-2">
-                <h3 className="text-xl font-bold tracking-tight">Xác thực thất bại</h3>
+                <h3 className="text-xl font-bold tracking-normal">Xác thực thất bại</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px]">{message}</p>
             </div>
             <Button onClick={() => router.push('/')} variant="outline" size="lg" className="w-full max-w-[240px] font-semibold">

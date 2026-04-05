@@ -62,7 +62,7 @@ export function AchievementList({ achievements }: AchievementListProps) {
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">
                                     {group.title}
                                 </h3>
-                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tight"> Danh hiệu {group.title.toLowerCase()} </p>
+                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-normal"> Danh hiệu {group.title.toLowerCase()} </p>
                             </div>
                             <Separator className="flex-1" />
                         </div>

@@ -34,7 +34,7 @@ export default function ExamHistoryPage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black uppercase tracking-tighter italic text-foreground flex items-center gap-3">
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
                             <History className="size-8 text-primary" />
                             Attempt Logs
                         </h1>

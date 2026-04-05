@@ -30,7 +30,7 @@ import {
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { Badge } from "@workspace/ui/components/badge"
-import { Plus, Search, Edit2, Trash2 } from "lucide-react"
+import { Plus, Search, Pencil, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import {
@@ -181,13 +181,25 @@ export default function ExamsPage() {
                     <TableCell className="text-slate-500">
                       {format(new Date(exam.createdAt), "dd/MM/yyyy")}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(exam.id)}>
-                          <Edit2 className="w-4 h-4" />
+                    <TableCell className="text-right pr-4">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 border-emerald-500/40 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          onClick={() => handleEdit(exam.id)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          Sửa
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-red-500" onClick={() => setDeleteTargetId(exam.id)}>
-                          <Trash2 className="w-4 h-4" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+                          onClick={() => setDeleteTargetId(exam.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Xóa
                         </Button>
                       </div>
                     </TableCell>

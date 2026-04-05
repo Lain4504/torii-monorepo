@@ -108,7 +108,7 @@ export default function ClassCatalogDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <div className="size-10 rounded-2xl border-2 border-primary/20 border-t-primary animate-spin" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground animate-pulse">Đang tải thông tin khóa học...</p>
+        <p className="text-xs font-bold text-muted-foreground animate-pulse">Đang tải thông tin khóa học...</p>
       </div>
     )
   }
@@ -226,23 +226,23 @@ export default function ClassCatalogDetailPage() {
                 </Button>
                 <Separator orientation="vertical" className="h-4" />
                 <Badge className={cn(
-                  "px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase border-none",
+                  "px-4 py-1 rounded-full font-bold text-xs border-none",
                   isLIVE ? "bg-red-500/90 hover:bg-red-500 text-white" : "bg-primary/90 hover:bg-primary text-white"
                 )}>
-                  {isLIVE ? 'Live Class' : 'VOD Course'}
+                  {isLIVE ? 'Lớp học trực tiếp' : 'Khóa học VOD'}
                 </Badge>
                 {jlptLevel && (
-                  <Badge variant="outline" className="px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase border-primary/20 text-primary">
-                    JLPT {jlptLevel}
+                  <Badge variant="outline" className="px-4 py-1 rounded-full font-bold text-xs border-primary/20 text-primary">
+                    Trình độ JLPT {jlptLevel}
                   </Badge>
                 )}
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full border border-border/40">
-                  {klass.code}
+                <span className="text-xs font-bold text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full border border-border/40">
+                  Mã lớp: {klass.code}
                 </span>
               </div>
 
               <div className="space-y-4 max-w-4xl">
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight leading-[0.9] text-foreground">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                   {title}
                 </h1>
                 {subtitle && (
@@ -261,14 +261,14 @@ export default function ClassCatalogDetailPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none">Giảng viên</div>
+                    <div className="text-xs font-semibold text-muted-foreground leading-none">Giảng viên</div>
                     <div className="text-sm font-bold">{instructorName}</div>
                   </div>
                 </div>
 
                 {openingDate && (
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
+                    <div className="text-xs font-semibold text-muted-foreground leading-none flex items-center gap-1.5">
                       <Calendar className="size-3" /> Khai giảng
                     </div>
                     <div className="text-sm font-bold">{new Date(openingDate).toLocaleDateString('vi-VN')}</div>
@@ -276,14 +276,14 @@ export default function ClassCatalogDetailPage() {
                 )}
 
                 <div className="space-y-0.5">
-                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
+                  <div className="text-xs font-semibold text-muted-foreground leading-none flex items-center gap-1.5">
                     <BookOpen className="size-3" /> Nội dung
                   </div>
                   <div className="text-sm font-bold">{lessonCount} bài giảng</div>
                 </div>
 
                 <div className="space-y-0.5">
-                  <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none flex items-center gap-1.5">
+                  <div className="text-xs font-semibold text-muted-foreground leading-none flex items-center gap-1.5">
                     <Users className="size-3" /> Học viên
                   </div>
                   <div className="text-sm font-bold">{activeEnrollmentCount} đã đăng ký</div>
@@ -302,7 +302,7 @@ export default function ClassCatalogDetailPage() {
               <div className="absolute inset-0 bg-gradient-to-l from-black/20 via-transparent to-card/60 lg:to-card/80 hidden lg:block" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
               <div className="absolute bottom-6 left-6 right-6 flex flex-col items-start gap-2 lg:hidden">
-                <Badge className="bg-white/20 backdrop-blur-md text-white border-white/20 font-black text-[10px] tracking-widest">COURSE PREVIEW</Badge>
+                <Badge className="bg-white/20 backdrop-blur-md text-white border-white/20 font-bold text-xs">Xem trước khóa học</Badge>
               </div>
             </div>
           </div>
@@ -316,13 +316,13 @@ export default function ClassCatalogDetailPage() {
           {/* Section: Overview */}
           <section className="space-y-6">
             <div className="space-y-1">
-              <h2 className="text-2xl font-black flex items-center gap-3">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
                 <Zap className="size-6 text-primary fill-primary/20" />
                 Tổng quan khóa học
               </h2>
-              <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest px-1">Tìm hiểu những gì bạn sẽ đạt được</p>
+              <p className="text-xs text-muted-foreground font-semibold px-1">Tìm hiểu những gì bạn sẽ đạt được</p>
             </div>
-            <Card className="rounded-[2rem] border-border/50 bg-card/40 backdrop-blur-sm overflow-hidden p-8">
+            <Card className="rounded-3xl border-border/50 bg-card/40 backdrop-blur-sm overflow-hidden p-8">
               <div className="prose prose-slate dark:prose-invert max-w-none text-muted-foreground leading-relaxed font-medium">
                 {profile?.description ? (
                   <div dangerouslySetInnerHTML={{ __html: profile.description }} />
@@ -337,11 +337,11 @@ export default function ClassCatalogDetailPage() {
           {isLIVE && schedules.length > 0 && (
             <section className="space-y-6">
               <div className="space-y-1">
-                <h2 className="text-2xl font-black flex items-center gap-3">
+                <h2 className="text-2xl font-bold flex items-center gap-3">
                   <Calendar className="size-6 text-primary fill-primary/20" />
                   Lịch học trực tiếp
                 </h2>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest px-1">Lịch sinh hoạt cố định hàng tuần</p>
+                <p className="text-xs text-muted-foreground font-bold px-1">Lịch sinh hoạt cố định hàng tuần</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {schedules.map((s: any) => (
@@ -351,14 +351,14 @@ export default function ClassCatalogDetailPage() {
                         {WEEKDAY_VI[s.weekday ?? 0] ?? '?'}
                       </div>
                       <div className="space-y-0.5">
-                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Thời gian</div>
+                        <div className="text-xs font-semibold text-muted-foreground">Thời gian học</div>
                         <div className="text-sm font-bold flex items-center gap-2">
                           <Clock className="size-3.5" />
                           {s.startTime} - {s.endTime}
                         </div>
                       </div>
                     </div>
-                    <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-black text-[9px] tracking-[0.1em]">ACTIVE</Badge>
+                    <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold text-xs">Đang diễn ra</Badge>
                   </div>
                 ))}
               </div>
@@ -369,11 +369,11 @@ export default function ClassCatalogDetailPage() {
           <section className="space-y-6">
             <div className="flex items-center justify-between px-1">
               <div className="space-y-1">
-                <h2 className="text-2xl font-black flex items-center gap-3">
+                <h2 className="text-2xl font-bold flex items-center gap-3">
                   <BookOpen className="size-6 text-primary fill-primary/20" />
                   Chương trình đào tạo
                 </h2>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Lộ trình bài giảng chi tiết</p>
+                <p className="text-xs text-muted-foreground font-semibold">Lộ trình bài giảng chi tiết</p>
               </div>
               <Badge variant="secondary" className="rounded-xl px-4 py-1.5 font-bold">{lessonCount} bài học</Badge>
             </div>
@@ -388,12 +388,12 @@ export default function ClassCatalogDetailPage() {
                   <AccordionItem 
                     key={chapter.id || index} 
                     value={`item-${index}`}
-                    className="border border-border/50 rounded-[2rem] bg-card px-6 overflow-hidden data-[state=open]:shadow-lg transition-all"
+                    className="border border-border/50 rounded-3xl bg-card px-6 overflow-hidden data-[state=open]:shadow-lg transition-all"
                   >
                     <AccordionTrigger className="hover:no-underline py-6">
                       <div className="flex flex-col items-start text-left gap-1">
-                        <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Chương {index + 1}</span>
-                        <span className="text-lg font-black tracking-tight leading-tight">{chapter.title || `Module ${index + 1}`}</span>
+                        <span className="text-xs font-semibold text-primary">Chương {index + 1}</span>
+                        <span className="text-lg font-bold tracking-tight leading-tight">{chapter.title || `Module ${index + 1}`}</span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="pb-6 space-y-2">
@@ -405,7 +405,7 @@ export default function ClassCatalogDetailPage() {
                           <div className="flex-1 text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors overflow-hidden truncate">
                             {item.title}
                           </div>
-                          <Badge variant="ghost" className="text-[9px] font-black text-muted-foreground/50">{item.kind}</Badge>
+                          <Badge variant="ghost" className="text-xs font-bold text-muted-foreground/50">{item.kind}</Badge>
                         </div>
                       ))}
                     </AccordionContent>
@@ -419,16 +419,9 @@ export default function ClassCatalogDetailPage() {
           <section className="space-y-6">
             <div className="flex items-center justify-between px-1">
               <div className="space-y-1">
-                <h2 className="text-2xl font-black flex items-center gap-3">
-                  <Star className="size-6 text-yellow-500 fill-yellow-500/20" />
-                  Đánh giá từ học viên
-                </h2>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Phản hồi thực tế từ người học</p>
-              </div>
-              <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1 text-yellow-500">
                   <Star className="size-4 fill-yellow-500" />
-                  <span className="text-xl font-black">{avgRating}</span>
+                  <span className="text-xl font-bold">{avgRating}</span>
                 </div>
                 <Badge variant="secondary" className="rounded-xl px-4 py-1.5 font-bold">{totalReviews} đánh giá</Badge>
               </div>
@@ -452,7 +445,7 @@ export default function ClassCatalogDetailPage() {
                         </Avatar>
                         <div className="space-y-0.5">
                           <div className="text-sm font-bold">{r.user?.displayName || 'Học viên Torii'}</div>
-                          <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none bg-muted px-2 py-0.5 rounded-full inline-block">Đã học xong</div>
+                          <div className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full inline-block">Đã hoàn thành khóa học</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-0.5">
@@ -473,8 +466,8 @@ export default function ClassCatalogDetailPage() {
                         {r.content}
                       </p>
                     </div>
-                    <div className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest pt-2 border-t border-border/10">
-                      {new Date(r.createdAt).toLocaleDateString('vi-VN')}
+                    <div className="text-xs font-semibold text-muted-foreground/30 pt-2 border-t border-border/10">
+                      Cập nhật ngày {new Date(r.createdAt).toLocaleDateString('vi-VN')}
                     </div>
                   </div>
                 ))}
@@ -487,25 +480,25 @@ export default function ClassCatalogDetailPage() {
         <aside className="space-y-8">
           {/* Progress Widget (Only if Enrolled) */}
           {isEnrolled && (
-            <Card className="rounded-[2.5rem] border-border/50 bg-card shadow-sm overflow-hidden animate-in zoom-in-95 duration-500">
+            <Card className="rounded-3xl border-border/50 bg-card shadow-sm overflow-hidden animate-in zoom-in-95 duration-500">
               <div className="p-8 space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-black">Tiến trình lớp học</h3>
-                  <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-black text-[9px] tracking-widest">LIVE</Badge>
+                  <h3 className="text-lg font-bold">Tiến trình lớp học</h3>
+                  <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-semibold text-xs">Trực tuyến</Badge>
                 </div>
-                <div className="p-6 rounded-[2rem] bg-muted/40 border border-border/50 relative overflow-hidden group">
+                <div className="p-6 rounded-3xl bg-muted/40 border border-border/50 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-125 transition-transform">
                     <Star className="size-16" />
                   </div>
                   <div className="relative space-y-4">
                     <div className="flex items-end justify-between">
-                      <div className="text-4xl font-black text-primary tracking-tight">{progress}%</div>
-                      <div className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-wider">Hoàn thành</div>
+                      <div className="text-4xl font-bold text-primary tracking-tight">{progress}%</div>
+                      <div className="text-xs font-semibold text-muted-foreground/60 tracking-wider">Hoàn thành</div>
                     </div>
                     <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
                       <div className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(var(--primary),0.3)]" style={{ width: `${progress}%` }} />
                     </div>
-                    <p className="text-[10px] font-bold text-muted-foreground italic leading-relaxed">
+                    <p className="text-xs font-semibold text-muted-foreground italic leading-relaxed">
                       * Dựa trên số lượng bài giảng và file học liệu bạn đã truy cập.
                     </p>
                   </div>
@@ -514,10 +507,10 @@ export default function ClassCatalogDetailPage() {
             </Card>
           )}
 
-          <Card className="rounded-[2.5rem] border-none bg-card shadow-2xl shadow-primary/5 overflow-hidden ring-1 ring-border/50">
+          <Card className="rounded-3xl border-none bg-card shadow-2xl shadow-primary/5 overflow-hidden ring-1 ring-border/50">
             <CardContent className="p-8 space-y-8">
               <div className="space-y-1">
-                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Giá niêm yết</div>
+                <div className="text-xs font-bold text-muted-foreground">Giá niêm yết</div>
                 {(() => {
                     const basePrice = Number(klass?.price ?? 0)
                     const discountPrice = Number(klass?.discountPrice ?? 0)
@@ -525,7 +518,7 @@ export default function ClassCatalogDetailPage() {
                     const displayPrice = hasDiscount ? discountPrice : basePrice
                   return (
                     <div className="space-y-2">
-                      <div className="text-4xl font-black text-primary tracking-tight">
+                      <div className="text-4xl font-bold text-primary tracking-tight">
                         {displayPrice === 0 ? 'Miễn phí' : `${formatNumber(displayPrice)} đ`}
                       </div>
                       {hasDiscount ? (
@@ -540,7 +533,7 @@ export default function ClassCatalogDetailPage() {
 
               <div className="space-y-4">
                 {ctaButton}
-                <p className="text-[10px] text-center text-muted-foreground font-bold italic">
+                <p className="text-xs text-center text-muted-foreground font-semibold italic">
                   * Thanh toán một lần, sở hữu vĩnh viễn
                 </p>
               </div>
@@ -548,7 +541,7 @@ export default function ClassCatalogDetailPage() {
               <Separator />
 
               <div className="space-y-5">
-                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-1">Đặc quyền khóa học</div>
+                <div className="text-xs font-semibold text-muted-foreground/60 px-1">Đặc quyền khóa học</div>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 group">
                     <div className="size-10 rounded-xl bg-orange-100 dark:bg-orange-950/40 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -556,7 +549,7 @@ export default function ClassCatalogDetailPage() {
                     </div>
                     <div>
                       <div className="text-sm font-bold leading-tight">Giao diện học tập Torii</div>
-                      <div className="text-[10px] text-muted-foreground font-medium">Trải nghiệm hiện đại & mượt mà</div>
+                      <div className="text-xs text-muted-foreground font-medium">Trải nghiệm hiện đại & mượt mà</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 group">
@@ -565,7 +558,7 @@ export default function ClassCatalogDetailPage() {
                     </div>
                     <div>
                       <div className="text-sm font-bold leading-tight">Chứng chỉ hoàn thành</div>
-                      <div className="text-[10px] text-muted-foreground font-medium">Cấp bởi Torii Academy</div>
+                      <div className="text-xs text-muted-foreground font-medium">Cấp bởi Torii Academy</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 group">
@@ -574,7 +567,7 @@ export default function ClassCatalogDetailPage() {
                     </div>
                     <div>
                       <div className="text-sm font-bold leading-tight">Học liệu độc quyền</div>
-                      <div className="text-[10px] text-muted-foreground font-medium">PDF & bài tập tương tác AI</div>
+                      <div className="text-xs text-muted-foreground font-medium">PDF & bài tập tương tác AI</div>
                     </div>
                   </div>
                 </div>
@@ -582,7 +575,7 @@ export default function ClassCatalogDetailPage() {
 
               <Button variant="ghost" className="w-full justify-between h-auto py-5 px-6 rounded-3xl hover:bg-primary/5 group/share border border-transparent hover:border-primary/10 transition-all mt-4" asChild>
                 <Link href="#">
-                  <span className="text-xs font-bold text-muted-foreground group-hover/share:text-primary transition-colors">Yêu cầu tư vấn lộ trình</span>
+                  <span className="text-xs font-semibold text-muted-foreground group-hover/share:text-primary transition-colors">Yêu cầu tư vấn lộ trình</span>
                   <ChevronRight className="size-4 opacity-30 group-hover/share:translate-x-1 group-hover/share:opacity-100 transition-all text-primary" />
                 </Link>
               </Button>

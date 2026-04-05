@@ -54,7 +54,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                         )}
                     >
                         <AvatarImage src={user.avatarUrl ?? undefined} />
-                        <AvatarFallback className="text-2xl font-black">
+                        <AvatarFallback className="text-2xl font-bold">
                             {user.displayName.charAt(0)}
                         </AvatarFallback>
                     </Avatar>
@@ -62,7 +62,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
 
                 <div
                     className={cn(
-                        'absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border-2 border-background text-xs font-black text-white',
+                        'absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full border-2 border-background text-xs font-bold text-white',
                         isFirst ? 'size-9 bg-warning text-sm md:size-10 md:text-base' : 'size-8 bg-muted-foreground',
                         isThird && 'bg-orange-600',
                     )}
@@ -75,7 +75,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                 <div className="flex max-w-[min(100%,16rem)] items-center justify-center gap-1.5">
                     <h3
                         className={cn(
-                            'truncate font-black tracking-tight',
+                            'truncate font-bold tracking-normal',
                             isFirst ? 'text-lg md:text-xl' : 'text-sm md:text-base',
                         )}
                         title={user.displayName}
@@ -108,7 +108,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                                 ? formatNumber(user.currentStreak ?? 0)
                                 : formatNumber(user.totalActiveDays ?? 0)}
                     </span>
-                    <span className="text-[10px] font-black uppercase text-muted-foreground">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground">
                         {type === 'global' ? 'XP' : 'Ngày'}
                     </span>
                 </div>

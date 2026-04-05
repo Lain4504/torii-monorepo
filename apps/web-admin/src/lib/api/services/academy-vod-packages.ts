@@ -12,6 +12,7 @@ export type AcademyVodPackage = {
   courseProfileId: string
   code: string
   title: string
+  thumbnailUrl?: string | null
   description?: string | null
   price: number
   discountPrice?: number | null

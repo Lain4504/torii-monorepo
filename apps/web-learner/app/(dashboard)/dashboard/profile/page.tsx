@@ -81,16 +81,16 @@ export default function ProfilePage() {
                 <div className="relative px-8 sm:px-12 py-10 sm:py-14 flex flex-col md:flex-row items-center gap-8">
                     <Avatar className="size-36 sm:size-44 border-8 border-background shadow-2xl">
                         <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-5xl font-black">
+                        <AvatarFallback className="bg-primary/10 text-primary text-5xl font-bold">
                             {user?.displayName?.charAt(0) || 'U'}
                         </AvatarFallback>
                     </Avatar>
 
                     <div className="flex-1 text-center md:text-left space-y-4">
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                            <h1 className="text-4xl sm:text-5xl font-black tracking-tight">{user?.displayName}</h1>
+                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{user?.displayName}</h1>
                             {gamification && (
-                                <Badge className="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-black">
+                                <Badge className="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-bold">
                                     CẤP {gamification.level}
                                 </Badge>
                             )}
@@ -117,7 +117,7 @@ export default function ProfilePage() {
                         <TabsTrigger
                             key={tab.value}
                             value={tab.value}
-                            className="flex-1 px-4 py-3 rounded-xl font-black text-xs tracking-wider data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all shrink-0"
+                            className="flex-1 px-4 py-3 rounded-xl font-bold text-xs tracking-wider data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all shrink-0"
                         >
                             <tab.icon className="size-4 mr-2" />
                             {tab.label}
@@ -132,25 +132,25 @@ export default function ProfilePage() {
                             <Card className="rounded-[2.5rem] border-2 border-border bg-card/30 backdrop-blur-sm p-8 sm:p-12 h-full">
                                 <div className="space-y-10">
                                     <div className="flex items-center justify-between">
-                                        <h2 className="text-2xl font-black flex items-center gap-3"><Trophy className="size-7 text-amber-500" /> Hành trình học tập</h2>
-                                        <Badge variant="outline" className="px-4 py-1.5 rounded-xl font-black text-primary border-primary/20">{gamification?.currentXp || 0} XP</Badge>
+                                        <h2 className="text-2xl font-bold flex items-center gap-3"><Trophy className="size-7 text-amber-500" /> Hành trình học tập</h2>
+                                        <Badge variant="outline" className="px-4 py-1.5 rounded-xl font-bold text-primary border-primary/20">{gamification?.currentXp || 0} XP</Badge>
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row items-center gap-10">
                                         <div className="relative size-40 shrink-0 flex flex-col items-center justify-center rounded-full bg-primary/5 border-4 border-primary/10">
-                                            <span className="text-7xl font-black text-primary leading-none">{gamification?.level || 1}</span>
-                                            <span className="text-[10px] font-black text-muted-foreground tracking-widest mt-1">CẤP ĐỘ</span>
+                                            <span className="text-7xl font-bold text-primary leading-none">{gamification?.level || 1}</span>
+                                            <span className="text-[10px] font-bold text-muted-foreground tracking-widest mt-1">CẤP ĐỘ</span>
                                         </div>
                                         <div className="flex-1 space-y-6 w-full">
                                             <div className="space-y-3">
-                                                <div className="flex justify-between text-xs font-black text-muted-foreground uppercase tracking-wider">
+                                                <div className="flex justify-between text-xs font-bold text-muted-foreground uppercase tracking-wider">
                                                     <span>Tiến trình hiện tại</span>
-                                                    <span className="text-foreground">{Math.floor(gamification ? (gamification.currentXp % 1000) / 10 : 0)}%</span>
+                                                    <span className="text-foreground">{Math.floor(gamification ? (gamification.currentXp / (100 * (gamification.level + 1))) * 100 : 0)}%</span>
                                                 </div>
-                                                <Progress value={gamification ? (gamification.currentXp % 1000) / 10 : 0} className="h-4 rounded-full bg-muted/50 border" />
+                                                <Progress value={gamification ? (gamification.currentXp / (100 * (gamification.level + 1))) * 100 : 0} className="h-4 rounded-full bg-muted/50 border" />
                                             </div>
                                             <p className="text-sm font-bold text-muted-foreground leading-relaxed italic">
-                                                * Bạn chỉ còn cách cấp độ tiếp theo <span className="text-primary font-black underline underline-offset-4">{gamification ? 1000 - (gamification.currentXp % 1000) : 0} XP</span>. Hãy bền bỉ nhé!
+                                                * Bạn chỉ còn cách cấp độ tiếp theo <span className="text-primary font-bold underline underline-offset-4">{gamification ? (100 * (gamification.level + 1)) - gamification.currentXp : 0} XP</span>. Hãy bền bỉ nhé!
                                             </p>
                                         </div>
                                     </div>
@@ -166,8 +166,8 @@ export default function ProfilePage() {
                                 <div key={i} className="p-8 rounded-[2rem] border-2 border-border bg-card shadow-lg flex items-center justify-between group hover:-translate-y-1 transition-transform">
                                     <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}><stat.icon className="size-8" /></div>
                                     <div className="text-right">
-                                        <p className="text-4xl font-black text-foreground">{stat.value}</p>
-                                        <p className="text-[10px] font-black text-muted-foreground tracking-widest uppercase mt-1">{stat.label}</p>
+                                        <p className="text-4xl font-bold text-foreground">{stat.value}</p>
+                                        <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mt-1">{stat.label}</p>
                                     </div>
                                 </div>
                             ))}
@@ -192,9 +192,9 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
                                         <div className="space-y-3">
-                                            <h3 className="text-xl font-black text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.courseTitle}</h3>
+                                            <h3 className="text-xl font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.courseTitle}</h3>
                                             <div className="space-y-2">
-                                                <div className="flex justify-between text-[10px] font-black text-muted-foreground tracking-widest uppercase">
+                                                <div className="flex justify-between text-[10px] font-bold text-muted-foreground tracking-widest uppercase">
                                                     <span>Tiến độ</span>
                                                     <span className="text-primary">{course.progress}%</span>
                                                 </div>
@@ -202,7 +202,7 @@ export default function ProfilePage() {
                                             </div>
                                         </div>
                                         <Link href={`/courses/${course.classId}/learn`} className="mt-6">
-                                            <Button className="w-full rounded-xl font-black text-xs h-10 tracking-widest">HỌC TIẾP</Button>
+                                            <Button className="w-full rounded-xl font-bold text-xs h-10 tracking-widest">HỌC TIẾP</Button>
                                         </Link>
                                     </div>
                                 </Card>
@@ -210,7 +210,7 @@ export default function ProfilePage() {
                         ) : (
                             <div className="md:col-span-2 py-24 text-center bg-muted/10 rounded-[3rem] border-4 border-dashed border-border/50">
                                 <BookOpen className="size-20 text-muted-foreground/20 mx-auto mb-6" />
-                                <p className="text-xl font-black text-muted-foreground">Bạn chưa đăng ký khóa học nào.</p>
+                                <p className="text-xl font-bold text-muted-foreground">Bạn chưa đăng ký khóa học nào.</p>
                             </div>
                         )}
                     </motion.div>
@@ -220,7 +220,7 @@ export default function ProfilePage() {
                 <TabsContent value="achievements" className="outline-none">
                     <div className="grid lg:grid-cols-2 gap-10">
                         <Card className="rounded-[2.5rem] border-2 border-border bg-card p-10 space-y-10">
-                            <h2 className="text-2xl font-black flex items-center gap-4"><Award className="size-6 text-purple-500" /> Huy hiệu vinh danh</h2>
+                            <h2 className="text-2xl font-bold flex items-center gap-4"><Award className="size-6 text-purple-500" /> Huy hiệu vinh danh</h2>
                             <div className="grid grid-cols-4 sm:grid-cols-5 gap-5">
                                 {achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => (
                                     <motion.div key={achievement.id} whileHover={{ scale: 1.1, rotate: 10 }} className="aspect-square rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg cursor-help" title={achievement.achievement.title}>
@@ -230,13 +230,13 @@ export default function ProfilePage() {
                             </div>
                         </Card>
                         <Card className="rounded-[2.5rem] border-2 border-border bg-card p-10 space-y-10">
-                            <h2 className="text-2xl font-black flex items-center gap-4"><GraduationCap className="size-6 text-primary" /> Chứng chỉ đã đạt</h2>
+                            <h2 className="text-2xl font-bold flex items-center gap-4"><GraduationCap className="size-6 text-primary" /> Chứng chỉ đã đạt</h2>
                             <div className="space-y-4">
                                 {certificates.map((cert: any) => (
                                     <div key={cert.id} className="p-5 border border-border rounded-2xl bg-muted/20 flex items-center gap-5 hover:bg-muted/30 transition-colors">
                                         <div className="size-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-500/20"><CheckCircle2 className="size-6" /></div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="font-black text-foreground truncate">{cert.courseRun?.courseMaster?.title}</p>
+                                            <p className="font-bold text-foreground truncate">{cert.courseRun?.courseMaster?.title}</p>
                                             <p className="text-xs font-bold text-muted-foreground uppercase">{formatDate(cert.issueDate)}</p>
                                         </div>
                                     </div>
@@ -263,8 +263,8 @@ export default function ProfilePage() {
                                                 <Ticket className="size-8" />
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-xl font-black text-foreground tracking-tight">{coupon.code}</p>
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest font-mono text-center">
+                                                <p className="text-xl font-bold text-foreground tracking-normal">{coupon.code}</p>
+                                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono text-center">
                                                     {(() => {
                                                         const discType = String(coupon.discountType || '').toUpperCase();
                                                         const val = Number(coupon.discountValue || coupon.discountAmount || 0);
@@ -274,14 +274,14 @@ export default function ProfilePage() {
                                                     })()}
                                                 </p>
                                             </div>
-                                            <Button variant="outline" className="w-full rounded-xl border-2 font-black text-xs h-10" onClick={() => navigator.clipboard.writeText(coupon.code)}>SAO CHÉP</Button>
+                                            <Button variant="outline" className="w-full rounded-xl border-2 font-bold text-xs h-10" onClick={() => navigator.clipboard.writeText(coupon.code)}>SAO CHÉP</Button>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <div className="py-20 text-center">
                                     <Ticket className="size-20 text-muted-foreground/20 mx-auto mb-6" />
-                                    <p className="text-xl font-black text-muted-foreground">Bạn chưa sở hữu mã ưu đãi nào.</p>
+                                    <p className="text-xl font-bold text-muted-foreground">Bạn chưa sở hữu mã ưu đãi nào.</p>
                                     <p className="text-sm font-bold text-muted-foreground/60 mt-2 italic">Tích lũy điểm Torii để đổi ưu đãi nhé!</p>
                                 </div>
                             )}
@@ -351,8 +351,8 @@ export default function ProfilePage() {
                                         <div key={i} className="p-8 rounded-[2rem] border-2 border-border bg-card shadow-lg flex flex-col items-center text-center space-y-4 hover:-translate-y-1 transition-transform">
                                             <div className="p-4 rounded-2xl bg-primary/10 text-primary"><item.icon className="size-8" /></div>
                                             <div className="space-y-1">
-                                                <p className="text-xl font-black text-foreground line-clamp-1">{item.value}</p>
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{item.label}</p>
+                                                <p className="text-xl font-bold text-foreground line-clamp-1">{item.value}</p>
+                                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.label}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -360,9 +360,9 @@ export default function ProfilePage() {
                             ) : (
                                 <div className="py-20 text-center">
                                     <Target className="size-20 text-muted-foreground/20 mx-auto mb-6" />
-                                    <p className="text-xl font-black text-muted-foreground">Bạn chưa hoàn thành khảo sát lộ trình.</p>
+                                    <p className="text-xl font-bold text-muted-foreground">Bạn chưa hoàn thành khảo sát lộ trình.</p>
                                     <Link href="/onboarding" className="mt-6 inline-block">
-                                        <Button className="rounded-xl font-black px-8 py-6 h-auto text-lg hover:scale-105 transition-transform">XÂY DỰNG LỘ TRÌNH NGAY</Button>
+                                        <Button className="rounded-xl font-bold px-8 py-6 h-auto text-lg hover:scale-105 transition-transform">XÂY DỰNG LỘ TRÌNH NGAY</Button>
                                     </Link>
                                 </div>
                             )}

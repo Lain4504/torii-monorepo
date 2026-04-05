@@ -13,7 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@workspace/ui/components/select"
 import { Badge } from "@workspace/ui/components/badge"
-import { Plus, Search, Edit2, Trash2, Tag } from "lucide-react"
+import { Plus, Search, Pencil, Trash2, Tag } from "lucide-react"
 import { QuestionEditor } from "./components/question-editor"
 import { DeleteQuestionDialog } from "./components/delete-question-dialog"
 import { CategoryManagerDialog } from "./components/category-manager-dialog"
@@ -62,9 +62,78 @@ export default function QuestionsPage() {
   }
 
   const difficultyBadge = (d: string) => {
-    if (d === 'EASY') return <Badge variant="success" className="text-[10px] font-bold">Dễ</Badge>
-    if (d === 'HARD') return <Badge variant="destructive" className="text-[10px] font-bold">Khó</Badge>
-    return <Badge variant="warning" className="text-[10px] font-bold">TB</Badge>
+    if (d === "EASY")
+      return (
+        <Badge variant="success" className="text-[10px] font-bold">
+          Dễ
+        </Badge>
+      )
+    if (d === "HARD")
+      return (
+        <Badge variant="destructive" className="text-[10px] font-bold">
+          Khó
+        </Badge>
+      )
+    return (
+      <Badge variant="warning" className="text-[10px] font-bold">
+        TB
+      </Badge>
+    )
+  }
+
+  const levelBadge = (lvl?: string | null) => {
+    if (!lvl) return <span className="text-muted-foreground opacity-30">—</span>
+    const code = lvl.toUpperCase()
+    if (code === "N1")
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] font-bold border-rose-500/40 text-rose-600 bg-rose-500/5"
+        >
+          N1
+        </Badge>
+      )
+    if (code === "N2")
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] font-bold border-orange-500/40 text-orange-600 bg-orange-500/5"
+        >
+          N2
+        </Badge>
+      )
+    if (code === "N3")
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] font-bold border-amber-500/40 text-amber-600 bg-amber-500/5"
+        >
+          N3
+        </Badge>
+      )
+    if (code === "N4")
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] font-bold border-emerald-500/40 text-emerald-600 bg-emerald-500/5"
+        >
+          N4
+        </Badge>
+      )
+    if (code === "N5")
+      return (
+        <Badge
+          variant="outline"
+          className="text-[10px] font-bold border-sky-500/40 text-sky-600 bg-sky-500/5"
+        >
+          N5
+        </Badge>
+      )
+    return (
+      <Badge variant="secondary" className="text-[10px] font-bold">
+        {code}
+      </Badge>
+    )
   }
 
   return (
@@ -78,12 +147,12 @@ export default function QuestionsPage() {
         ]}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setCategoryDialogOpen(true)}>
-              <Tag className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="lg" className="h-10 gap-2 border-primary/20 text-primary hover:bg-primary/5" onClick={() => setCategoryDialogOpen(true)}>
+              <Tag className="h-4 w-4" />
               Quản lý danh mục
             </Button>
-            <Button onClick={handleCreate}>
-              <Plus className="w-4 h-4 mr-2" />
+            <Button size="lg" className="h-10 gap-2 shadow-sm" onClick={handleCreate}>
+              <Plus className="h-4 w-4" />
               Thêm câu hỏi
             </Button>
           </div>
@@ -169,12 +238,10 @@ export default function QuestionsPage() {
                   <TableCell className="pl-4 font-medium">
                     <div className="line-clamp-2 text-sm">{q.stem}</div>
                   </TableCell>
-                  <TableCell>{difficultyBadge(q.difficulty)}</TableCell>
-                  <TableCell>
-                    <Badge variant="info" className="text-[10px] font-bold">
-                      {q.level || "—"}
-                    </Badge>
+                  <TableCell className="font-medium">
+                    {difficultyBadge(q.difficulty)}
                   </TableCell>
+                  <TableCell>{levelBadge(q.level)}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {(q.categoryLinks as any[])?.length
@@ -190,17 +257,24 @@ export default function QuestionsPage() {
                     {format(new Date(q.createdAt), "dd/MM/yyyy")}
                   </TableCell>
                   <TableCell className="text-right pr-4">
-                    <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(q)}>
-                        <Edit2 className="w-3.5 h-3.5" />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 border-emerald-500/40 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        onClick={() => handleEdit(q)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                        Sửa
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(q)}
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDelete(q.id)}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="h-4 w-4" />
+                        Xóa
                       </Button>
                     </div>
                   </TableCell>

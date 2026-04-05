@@ -206,9 +206,9 @@ export default function ApprovalsPage() {
                             {formatDateTime(o.submittedForApprovalAt || o.createdAt, "HH:mm dd/MM/yyyy")}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button variant="outline" size="sm" asChild className="gap-1">
+                            <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50">
                               <Link to={`/academy/approvals/cohorts/${o.id}`}>
-                                <Eye className="size-4" />
+                                <Eye className="h-4 w-4" />
                                 Preview
                               </Link>
                             </Button>
@@ -280,9 +280,9 @@ export default function ApprovalsPage() {
                           {formatDateTime(p.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="outline" size="sm" asChild className="gap-1">
+                          <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50">
                             <Link to={`/academy/approvals/vod-packages/${p.id}`}>
-                              <Eye className="size-4" />
+                              <Eye className="h-4 w-4" />
                               Preview
                             </Link>
                           </Button>
@@ -350,9 +350,9 @@ export default function ApprovalsPage() {
                           {formatDateTime(p.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="outline" size="sm" asChild className="gap-1">
+                          <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50">
                             <Link to={`/academy/approvals/course-profiles/${p.id}`}>
-                              <Eye className="size-4" />
+                              <Eye className="h-4 w-4" />
                               Preview
                             </Link>
                           </Button>

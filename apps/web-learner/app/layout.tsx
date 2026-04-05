@@ -1,4 +1,4 @@
-import { Montserrat, Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next/font/google"
+import { Montserrat } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
@@ -11,30 +11,6 @@ const fontSans = Montserrat({
   weight: ["400", "500", "600", "700", "800", "900"],
 })
 
-const fontHeading = Nunito({
-  subsets: ["latin", "vietnamese"],
-  variable: "--font-heading",
-  weight: ["600", "700", "800", "900"],
-})
-
-const fontSerif = Noto_Serif_JP({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  weight: ["400", "500", "600", "700"],
-})
-
-const fontJP = Noto_Sans_JP({
-  subsets: ["latin"],
-  variable: "--font-jp",
-  weight: ["300", "400", "500", "700"],
-})
-
-const fontSpace = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space",
-  weight: ["300", "400", "500", "600", "700"],
-})
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -43,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${fontHeading.variable} ${fontSans.variable} ${fontSerif.variable} ${fontJP.variable} ${fontSpace.variable} font-sans antialiased`}
+        className={`${fontSans.variable} font-sans antialiased`}
       >
         <Providers>
           {children}

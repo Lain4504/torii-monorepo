@@ -56,7 +56,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                             isMe && 'bg-primary/[0.06]',
                                         )}
                                     >
-                                        <span className="w-7 shrink-0 text-center text-base font-black tabular-nums text-muted-foreground">
+                                        <span className="w-7 shrink-0 text-center text-base font-bold tabular-nums text-muted-foreground">
                                             {item.rank}
                                         </span>
                                         <div className="relative shrink-0">
@@ -118,7 +118,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                             )}
                                         >
                                             <TableCell className="pl-6 lg:pl-8">
-                                                <span className="text-lg font-black text-muted-foreground/60 transition-colors group-hover:text-foreground">
+                                                <span className="text-lg font-bold text-muted-foreground/60 transition-colors group-hover:text-foreground">
                                                     {item.rank}
                                                 </span>
                                             </TableCell>

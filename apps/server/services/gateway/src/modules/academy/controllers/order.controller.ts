@@ -126,6 +126,21 @@ export class OrderController {
     return successResponse(result);
   }
 
+  /** Đặt trước `admin/:id` để tránh khớp nhầm `.../admin/export` → id = "export" */
+  @Get('export')
+  @Permissions('academy:order:admin')
+  async admin_export(@Query() query: any, @Res() res: any) {
+    const buffer = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.order.admin.export' }, query),
+    );
+
+    res.set({
+      'Content-Type': 'text/csv',
+      'Content-Disposition': `attachment; filename=orders-export-${new Date().getTime()}.csv`,
+    });
+    return res.send(buffer);
+  }
+
   @Get('admin/:id')
   @Permissions('academy:order:admin')
   async admin_findOne(@Param('id') id: string) {
@@ -161,20 +176,6 @@ export class OrderController {
       ),
     );
     return successResponse(result);
-  }
-
-  @Get('export')
-  @Permissions('academy:order:admin')
-  async admin_export(@Query() query: any, @Res() res: any) {
-    const buffer = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.order.admin.export' }, query),
-    );
-
-    res.set({
-      'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename=orders-export-${new Date().getTime()}.csv`,
-    });
-    return res.send(buffer);
   }
 }
 

@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { PageLoading } from "@workspace/ui/components/page-loading";
-import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { StatsCard } from "./stats-card";
 import { useAdminDashboard } from "@/lib/api/services/dashboard";
 import type { DashboardRecentOrderRowDTO } from "@workspace/schemas";
@@ -361,65 +360,44 @@ export default function AdminDashboardV2() {
           {recentOrders.length === 0 ? (
             <div className={cn("py-10 text-center text-xs", emptyStateBoxClass)}>Chưa có dữ liệu.</div>
           ) : (
-            <>
-              <div className="space-y-2 md:hidden">
-                {recentOrders.map((o: DashboardRecentOrderRowDTO) => (
-                  <div
-                    key={o.id}
-                    className="rounded-lg border border-border/60 bg-card p-3 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="font-mono text-xs font-semibold">{o.code}</span>
-                      <Badge variant={orderStatusBadgeVariant(o.status)} className="shrink-0 text-[10px] font-semibold">
-                        {orderStatusLabelVi(o.status)}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 truncate text-sm font-medium">{o.userName || "—"}</p>
-                    <p className="truncate text-xs text-muted-foreground">{o.userEmail}</p>
-                    <div className="mt-2 flex items-end justify-between gap-2 border-t border-border/50 pt-2">
-                      <span className="text-xs tabular-nums text-muted-foreground">{o.date}</span>
-                      <span className="text-sm font-semibold tabular-nums">
+            <div className="max-h-[min(20rem,50vh)] max-w-full overflow-auto rounded-md border border-border/60">
+              <Table className="min-w-[520px] w-full">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="sticky top-0 z-10 w-10 bg-card text-center">STT</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Mã đơn</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Khách hàng</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Email</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card text-right">Số tiền</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Trạng thái</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Ngày</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentOrders.map((o: DashboardRecentOrderRowDTO, index: number) => (
+                    <TableRow key={o.id}>
+                      <TableCell className="text-center text-xs tabular-nums text-muted-foreground">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs font-medium">{o.code}</TableCell>
+                      <TableCell className="max-w-[140px] truncate font-medium">{o.userName || "—"}</TableCell>
+                      <TableCell className="max-w-[180px] truncate text-muted-foreground text-xs">
+                        {o.userEmail}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums">
                         {formatCurrency(Number(o.amount) || 0)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <ScrollArea className="hidden h-[min(20rem,50vh)] rounded-md border border-border/60 md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="sticky top-0 z-10 bg-card">Mã đơn</TableHead>
-                      <TableHead className="sticky top-0 z-10 bg-card">Khách hàng</TableHead>
-                      <TableHead className="sticky top-0 z-10 bg-card">Email</TableHead>
-                      <TableHead className="sticky top-0 z-10 bg-card text-right">Số tiền</TableHead>
-                      <TableHead className="sticky top-0 z-10 bg-card">Trạng thái</TableHead>
-                      <TableHead className="sticky top-0 z-10 bg-card">Ngày</TableHead>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={orderStatusBadgeVariant(o.status)} className="text-[10px] font-semibold md:text-xs">
+                          {orderStatusLabelVi(o.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs tabular-nums text-muted-foreground">{o.date}</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentOrders.map((o: DashboardRecentOrderRowDTO) => (
-                      <TableRow key={o.id}>
-                        <TableCell className="font-mono text-xs font-medium">{o.code}</TableCell>
-                        <TableCell className="max-w-[140px] truncate font-medium">{o.userName || "—"}</TableCell>
-                        <TableCell className="max-w-[180px] truncate text-muted-foreground text-xs">
-                          {o.userEmail}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold tabular-nums">
-                          {formatCurrency(Number(o.amount) || 0)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={orderStatusBadgeVariant(o.status)} className="font-semibold">
-                            {orderStatusLabelVi(o.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs tabular-nums text-muted-foreground">{o.date}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-            </>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

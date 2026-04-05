@@ -217,30 +217,30 @@ export default function CourseProfilesPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 gap-2 border-blue-500/30 text-blue-700 bg-transparent hover:bg-blue-50 hover:text-blue-700"
+                                                    className="h-8 gap-1.5 border-blue-500/40 text-blue-700 bg-transparent hover:bg-blue-50"
                                                     onClick={() => handleDuplicate(profile)}
                                                     title="Nhân bản cho năm mới"
                                                 >
-                                                    <Copy className="h-3.5 w-3.5" />
+                                                    <Copy className="h-4 w-4" />
                                                     <span>Nhân bản</span>
                                                 </Button>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 gap-2 border-sky-500/30 text-sky-700 bg-transparent hover:bg-sky-50 hover:text-sky-700"
+                                                    className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50"
                                                     onClick={() => navigate(`/academy/course-profiles/${profile.id}/detail`)}
                                                 >
-                                                    <Eye className="h-3.5 w-3.5" />
+                                                    <Eye className="h-4 w-4" />
                                                     <span>Chi tiết</span>
                                                 </Button>
                                                 {(profile as any).status === 'DRAFT' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 bg-transparent hover:bg-emerald-50"
                                                         onClick={() => handleEdit(profile)}
                                                     >
-                                                        <Pencil className="h-3.5 w-3.5" />
+                                                        <Pencil className="h-4 w-4" />
                                                         <span>Chỉnh sửa</span>
                                                     </Button>
                                                 )}
@@ -249,29 +249,27 @@ export default function CourseProfilesPage() {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-indigo-500/30 text-indigo-700 bg-transparent hover:bg-indigo-50 hover:text-indigo-700"
+                                                        className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 bg-transparent hover:bg-indigo-50"
                                                         onClick={() => {
                                                             setSubmitDialog({ open: true, profileId: profile.id, code: profile.code });
                                                         }}
                                                         disabled={isSubmitPending}
                                                         title="Gửi duyệt"
                                                     >
-                                                        <Send className="h-3.5 w-3.5" />
+                                                        <Send className="h-4 w-4" />
                                                         <span>Gửi duyệt</span>
                                                     </Button>
                                                 )}
-
-
 
                                                 {(profile as any).status !== 'ARCHIVED' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-orange-500/30 text-orange-700 bg-transparent hover:bg-orange-50 hover:text-orange-700"
+                                                        className="h-8 gap-1.5 border-orange-500/40 text-orange-700 bg-transparent hover:bg-orange-50"
                                                         onClick={() => handleArchive(profile.id, profile.code)}
                                                         title="Lưu trữ"
                                                     >
-                                                        <Archive className="h-3.5 w-3.5" />
+                                                        <Archive className="h-4 w-4" />
                                                         <span>Lưu trữ</span>
                                                     </Button>
                                                 )}

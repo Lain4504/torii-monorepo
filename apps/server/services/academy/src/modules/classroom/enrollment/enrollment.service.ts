@@ -54,6 +54,7 @@ export class EnrollmentService {
             id: true,
             title: true,
             code: true,
+            thumbnailUrl: true,
             courseProfileId: true,
             courseProfile: {
               select: { id: true, title: true, code: true, thumbnailUrl: true },
@@ -134,6 +135,9 @@ export class EnrollmentService {
           // Use specific instance title if available, otherwise fallback to course profile title
           const courseTitle = e.liveClass?.name || e.vodPackage?.title || courseProfile?.title;
 
+          // Prioritize instance-specific thumbnail, fallback to course profile's thumbnail
+          const thumbnailUrl = e.liveClass?.thumbnailUrl || e.vodPackage?.thumbnailUrl || courseProfile?.thumbnailUrl;
+
           return {
             id: e.id,
             status: e.status,
@@ -145,7 +149,7 @@ export class EnrollmentService {
             type: e.liveClassId ? 'live' : 'vod',
             courseTitle,
             courseCode: courseProfile?.code,
-            thumbnailUrl: courseProfile?.thumbnailUrl,
+            thumbnailUrl,
             instructor,
             progress: progressPercent,
             progressPercent,
@@ -178,7 +182,8 @@ export class EnrollmentService {
             id: true,
             title: true,
             code: true,
-            courseProfile: { select: { title: true, code: true } },
+            thumbnailUrl: true,
+            courseProfile: { select: { title: true, code: true, thumbnailUrl: true } },
           },
         },
       },

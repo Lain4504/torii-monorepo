@@ -33,7 +33,7 @@ export default function DashboardReviewsPage() {
                     <MessageSquare className="w-6 h-6" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground">Đánh giá của tôi</h1>
+                    <h1 className="text-2xl font-bold tracking-normal text-foreground">Đánh giá của tôi</h1>
                     <p className="text-sm text-muted-foreground">
                         Xem lại lịch sử đánh giá và nhận xét của bạn về các khóa học trên hệ thống.
                     </p>

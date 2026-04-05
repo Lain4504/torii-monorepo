@@ -16,7 +16,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { formatCurrency } from "@/lib/format-utils"
 import { toast } from "sonner"
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import { ClassStudentsTab } from "../live-classes/tabs/class-students-tab"
 import { ClassResourcesTab } from "../live-classes/tabs/class-resources-tab"
 import { ClassDiscussionTab } from "../live-classes/tabs/class-discussion-tab"
@@ -28,6 +28,8 @@ const TAB_SYLLABUS = "syllabus"
 const TAB_STUDENTS = "students"
 const TAB_DISCUSSION = "discussion"
 const TAB_RESOURCES = "resources"
+
+const VOD_DETAIL_TABS = [TAB_INFO, TAB_SYLLABUS, TAB_STUDENTS, TAB_DISCUSSION, TAB_RESOURCES] as const
 
 export default function VodPackageDetailPage() {
     const { id = "" } = useParams<{ id: string }>()
@@ -42,6 +44,22 @@ export default function VodPackageDetailPage() {
 
     const defaultTab = TAB_INFO
     const tabParam = searchParams.get("tab") || defaultTab
+
+    const rawTab = searchParams.get("tab")
+
+    /** Gỡ `tab` không hợp lệ (vd. copy từ URL lớp LIVE `?tab=assignments`) — web-admin VOD không có tab bài tập/chấm điểm */
+    useEffect(() => {
+        if (rawTab && !VOD_DETAIL_TABS.includes(rawTab as (typeof VOD_DETAIL_TABS)[number])) {
+            setSearchParams(
+                (prev) => {
+                    const next = new URLSearchParams(prev)
+                    next.delete("tab")
+                    return next
+                },
+                { replace: true },
+            )
+        }
+    }, [rawTab, setSearchParams])
 
     const activeTab = useMemo(() => {
         if (

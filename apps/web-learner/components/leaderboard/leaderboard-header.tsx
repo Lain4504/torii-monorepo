@@ -16,7 +16,7 @@ export function LeaderboardHeader({ type, onTypeChange }: LeaderboardHeaderProps
     return (
         <div className="mb-6 space-y-4 md:mb-10">
             <div>
-                <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                <h1 className="flex items-center gap-2 text-2xl font-bold tracking-normal text-foreground sm:text-3xl">
                     <Trophy className="size-7 shrink-0 text-amber-500 sm:size-8" aria-hidden />
                     Bảng xếp hạng
                 </h1>

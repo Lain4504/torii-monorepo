@@ -231,7 +231,7 @@ export default function VerifyCertificatePage() {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.8, type: 'spring', damping: 12 }}
-                                className="text-[3.5rem] sm:text-[4rem] font-serif font-black text-[#1E293B] tracking-tight py-2"
+                                className="text-[3.5rem] sm:text-[4rem] font-black text-[#1E293B] tracking-tight py-2"
                             >
                                 {userName}
                             </motion.h3>
@@ -297,7 +297,7 @@ export default function VerifyCertificatePage() {
                                 </div>
                                 <div className="space-y-1">
                                    <div className="h-[1px] w-48 bg-slate-200 ml-auto" />
-                                   <p className="text-2xl font-serif font-black text-slate-900 italic tracking-tight">Torii Academy CEO</p>
+                                   <p className="text-2xl font-black text-slate-900 italic tracking-tight">Torii Academy CEO</p>
                                 </div>
                             </div>
                         </div>

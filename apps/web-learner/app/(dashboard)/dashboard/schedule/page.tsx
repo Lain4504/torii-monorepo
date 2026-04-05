@@ -100,14 +100,14 @@ function CompactSessionCard({
             )}
         >
             <div className="flex shrink-0 flex-col items-center gap-0.5 border-r border-border/60 py-0.5 pr-3">
-                <span className="text-[11px] font-black tabular-nums leading-none">{format(start, 'HH:mm')}</span>
+                <span className="text-[11px] font-bold tabular-nums leading-none">{format(start, 'HH:mm')}</span>
                 <div className="min-h-[10px] w-px flex-1 bg-border" />
-                <span className="text-[11px] font-black tabular-nums leading-none">{format(end, 'HH:mm')}</span>
+                <span className="text-[11px] font-bold tabular-nums leading-none">{format(end, 'HH:mm')}</span>
             </div>
             <div className="min-w-0 flex-1 space-y-1.5">
                 <div className="flex flex-wrap items-center gap-1.5">
                     {isLive && (
-                        <Badge variant="destructive" className="h-5 px-1.5 text-[9px] font-black">
+                        <Badge variant="destructive" className="h-5 px-1.5 text-[9px] font-bold">
                             LIVE
                         </Badge>
                     )}
@@ -134,7 +134,7 @@ function CompactSessionCard({
                         <Button
                             size="sm"
                             variant="default"
-                            className="h-7 rounded-md px-2.5 text-[10px] font-black uppercase tracking-wide"
+                            className="h-7 rounded-md px-2.5 text-[10px] font-bold uppercase tracking-wide"
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onRequestJoin(session)
@@ -268,7 +268,7 @@ export default function SchedulePage() {
             <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-white p-4 shadow-sm dark:border-border/40 dark:bg-zinc-950 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-0.5">
-                        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Thời khóa biểu</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thời khóa biểu</h1>
                         <p className="text-xs text-muted-foreground sm:text-sm flex items-center gap-2">
                             <Calendar className="size-3.5 text-muted-foreground" />
                             Tuần {format(weekStart, 'dd/MM/yyyy')} – {format(weekEnd, 'dd/MM/yyyy')}
@@ -277,7 +277,7 @@ export default function SchedulePage() {
 
                     <div className="flex flex-wrap items-end gap-6">
                         <div className="space-y-1">
-                            <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                                 YEAR
                             </div>
                             <Select
@@ -304,7 +304,7 @@ export default function SchedulePage() {
                         </div>
 
                         <div className="space-y-1">
-                            <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                                 WEEK
                             </div>
                             <Select
@@ -374,7 +374,7 @@ export default function SchedulePage() {
                                 >
                                     <div className="mb-3 flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-black tabular-nums text-foreground">
+                                            <p className="text-sm font-bold tabular-nums text-foreground">
                                                 {format(day, 'EEEE, dd/MM', { locale: vi })}
                                             </p>
                                             <p className="text-[11px] text-muted-foreground">{daySessions.length} buổi học</p>

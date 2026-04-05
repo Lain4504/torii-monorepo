@@ -88,8 +88,8 @@ export default function AchievementsPage() {
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="space-y-4 pb-2 border-b border-border">
-                <h1 className="text-3xl font-bold text-foreground">
-                    Thành tích của bạn
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                    Bộ sưu tập Thành tựu
                 </h1>
                 <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
                     Khám phá và mở khóa các thành tích trong hành trình học tiếng Nhật của bạn.

@@ -62,7 +62,7 @@ export function LiveClassDashboard() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
                 <div className="size-10 rounded-2xl border-2 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground animate-pulse">Đang tải thông tin lớp học...</p>
+                <p className="text-sm font-semibold text-muted-foreground animate-pulse">Đang tải thông tin lớp học...</p>
             </div>
         );
     }
@@ -101,21 +101,21 @@ export function LiveClassDashboard() {
                         {/* Info Left */}
                         <div className="lg:col-span-8 p-8 md:p-12 space-y-8">
                             <div className="flex flex-wrap items-center gap-4">
-                                <Badge className="bg-primary/90 hover:bg-primary text-white border-none px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase">
-                                    Live Class
+                                <Badge className="bg-primary/90 hover:bg-primary text-white border-none px-4 py-1 rounded-full font-bold text-xs">
+                                    Lớp học trực tiếp
                                 </Badge>
                                 {ongoingSession && (
-                                    <Badge variant="destructive" className="animate-pulse px-4 py-1 rounded-full font-black text-[10px] tracking-[0.1em] uppercase shadow-lg shadow-red-500/20">
+                                    <Badge variant="destructive" className="animate-pulse px-4 py-1 rounded-full font-bold text-xs shadow-lg shadow-red-500/20">
                                         Đang diễn ra
                                     </Badge>
                                 )}
-                                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full">
+                                <span className="text-xs font-bold text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full">
                                     {academyClass.code}
                                 </span>
                             </div>
 
                             <div className="space-y-4">
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[0.95] text-foreground">
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-normal leading-[0.95] text-foreground">
                                     {academyClass.name}
                                 </h1>
                                 <p className="text-lg text-muted-foreground font-medium max-w-2xl line-clamp-2">
@@ -125,7 +125,7 @@ export function LiveClassDashboard() {
 
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-2">
                                 <div className="space-y-1">
-                                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                                         <Calendar className="size-3" /> Ngày bắt đầu
                                     </div>
                                     <div className="text-sm font-bold">
@@ -137,7 +137,7 @@ export function LiveClassDashboard() {
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                                         <Users className="size-3" /> Giảng viên
                                     </div>
                                     <div className="text-sm font-bold">
@@ -145,13 +145,13 @@ export function LiveClassDashboard() {
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                                         <Video className="size-3" /> Số buổi học
                                     </div>
                                     <div className="text-sm font-bold">{sessions.length} buổi live</div>
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                                         <Trophy className="size-3" /> Trình độ
                                     </div>
                                     <div className="text-sm font-bold">{(academyClass as any).courseProfile?.level || "JLPT Standard"}</div>
@@ -174,7 +174,7 @@ export function LiveClassDashboard() {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
                                 <Button 
-                                    className="w-full bg-white text-black hover:bg-zinc-100 font-black h-14 rounded-2xl shadow-2xl shadow-black/40 text-sm group/btn"
+                                    className="w-full bg-white text-black hover:bg-zinc-100 font-bold h-14 rounded-2xl shadow-2xl shadow-black/40 text-sm group/btn"
                                     onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
                                 >
                                     <PlayCircle className="mr-3 size-6 group-hover/btn:scale-110 transition-transform" />
@@ -201,17 +201,17 @@ export function LiveClassDashboard() {
                             </div>
                             <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
                                 <div className="space-y-2 text-center md:text-left">
-                                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none font-black text-[10px] mb-2">
-                                        VỪA BẮT ĐẦU
+                                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none font-bold text-xs mb-2">
+                                        Vừa bắt đầu
                                     </Badge>
-                                    <h3 className="text-2xl md:text-3xl font-black tracking-tight">{ongoingSession.title}</h3>
+                                    <h3 className="text-2xl md:text-3xl font-bold tracking-normal">{ongoingSession.title}</h3>
                                     <p className="text-white/80 font-medium flex items-center justify-center md:justify-start gap-2 text-sm">
                                         <Clock className="size-4" /> Bắt đầu lúc {format(new Date(ongoingSession.scheduledAt), "HH:mm")}
                                     </p>
                                 </div>
                                 <Button
                                     size="lg"
-                                    className="w-full md:w-auto px-12 h-16 text-lg font-black rounded-2xl bg-white text-red-600 hover:bg-zinc-100 shadow-xl shadow-black/20 hover:scale-105 transition-transform"
+                                    className="w-full md:w-auto px-12 h-16 text-lg font-bold rounded-2xl bg-white text-red-600 hover:bg-zinc-100 shadow-xl shadow-black/20 hover:scale-105 transition-transform"
                                     onClick={() => handleJoinSession(ongoingSession.id)}
                                 >
                                     Vào lớp học ngay
@@ -225,17 +225,17 @@ export function LiveClassDashboard() {
                     <div className="space-y-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
                             <div className="space-y-1">
-                                <h2 className="text-2xl font-black flex items-center gap-3">
+                                <h2 className="text-2xl font-bold flex items-center gap-3">
                                     <Calendar className="size-6 text-primary" />
                                     Lịch biểu trong tuần
                                 </h2>
-                                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Đừng bỏ lỡ các buổi học trực tuyến quan trọng</p>
+                                <p className="text-xs text-muted-foreground font-semibold">Theo dõi lịch trình để không bỏ lỡ buổi học</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button variant="outline" size="icon" className="rounded-xl h-10 w-10 border-border/50 bg-card hover:bg-muted" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
                                     <ChevronRight className="rotate-180 size-4" />
                                 </Button>
-                                <div className="bg-muted px-6 py-2 rounded-xl text-xs font-black tracking-tight min-w-[160px] text-center">
+                                <div className="bg-muted px-6 py-2 rounded-xl text-xs font-bold tracking-normal min-w-[160px] text-center">
                                     {format(currentWeekStart, "dd/MM")} — {format(addDays(currentWeekStart, 6), "dd/MM")}
                                 </div>
                                 <Button variant="outline" size="icon" className="rounded-xl h-10 w-10 border-border/50 bg-card hover:bg-muted" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
@@ -264,13 +264,13 @@ export function LiveClassDashboard() {
                                             isToday ? "bg-primary/10 border-primary/10" : "bg-muted/30 border-border/20"
                                         )}>
                                             <div className={cn(
-                                                "text-[9px] font-black uppercase tracking-widest mb-0.5",
+                                                "text-[10px] font-bold mb-0.5",
                                                 isToday ? "text-primary" : "text-muted-foreground/60"
                                             )}>
                                                 {format(day, "eee", { locale: vi })}
                                             </div>
                                             <div className={cn(
-                                                "text-xl font-black leading-none",
+                                                "text-xl font-bold leading-none",
                                                 isToday ? "text-primary" : "text-foreground"
                                             )}>
                                                 {format(day, "dd")}
@@ -283,11 +283,11 @@ export function LiveClassDashboard() {
                                                     className="p-2 rounded-xl bg-card border border-border/50 shadow-sm group cursor-help hover:border-primary/50 transition-colors"
                                                     title={session.title}
                                                 >
-                                                    <div className="text-[10px] font-black text-primary mb-1 flex items-center gap-1">
+                                                    <div className="text-xs font-bold text-primary mb-1 flex items-center gap-1">
                                                         <Clock className="size-2.5" />
                                                         {format(new Date(session.scheduledAt), "HH:mm")}
                                                     </div>
-                                                    <div className="text-[10px] font-bold line-clamp-2 leading-tight group-hover:text-primary transition-colors">{session.title}</div>
+                                                    <div className="text-xs font-medium line-clamp-2 leading-tight group-hover:text-primary transition-colors">{session.title}</div>
                                                 </div>
                                             ))}
                                             {daySessions.length === 0 && (
@@ -364,7 +364,7 @@ export function LiveClassDashboard() {
                         </div>
                         
                         <CardHeader className="border-b border-white/5 pb-6">
-                            <CardTitle className="text-lg font-black flex items-center gap-3">
+                            <CardTitle className="text-lg font-bold flex items-center gap-3">
                                 <Video className="size-5 text-primary" /> Buổi học sắp tới
                             </CardTitle>
                         </CardHeader>
@@ -377,12 +377,12 @@ export function LiveClassDashboard() {
                                             <div key={idx} className="group relative">
                                                 <div className="flex items-start gap-4 p-4 rounded-3xl bg-white/[0.04] border border-white/5 hover:bg-white/[0.08] hover:border-white/10 transition-all cursor-pointer">
                                                     <div className="size-12 rounded-2xl bg-primary/20 flex flex-col items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                                        <span className="text-[9px] font-black uppercase leading-none opacity-50">{format(new Date(session.scheduledAt), "MMM")}</span>
-                                                        <span className="text-xl font-black leading-none mt-1">{format(new Date(session.scheduledAt), "dd")}</span>
+                                                        <span className="text-xs font-bold leading-none opacity-50">{format(new Date(session.scheduledAt), "MMM")}</span>
+                                                        <span className="text-xl font-bold leading-none mt-1">{format(new Date(session.scheduledAt), "dd")}</span>
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="font-bold text-sm leading-tight line-clamp-1 mb-1 group-hover:text-primary transition-colors">{session.title}</h4>
-                                                        <div className="flex items-center gap-3 text-[10px] font-black text-white/40 uppercase tracking-widest">
+                                                        <div className="flex items-center gap-3 text-xs font-semibold text-white/40 tracking-normal">
                                                             <span className="flex items-center gap-1"><Clock className="size-3" /> {format(new Date(session.scheduledAt), "HH:mm")}</span>
                                                             <span className="opacity-50">/</span>
                                                             <span>
@@ -398,13 +398,13 @@ export function LiveClassDashboard() {
                                     ) : (
                                         <div className="text-center py-24 text-white/20">
                                             <Calendar className="size-12 mx-auto mb-4 opacity-20" />
-                                            <p className="text-[10px] font-black uppercase tracking-widest">Chưa có lịch mới</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest">Chưa có lịch mới</p>
                                         </div>
                                     )}
                                 </div>
                             </ScrollArea>
                             <div className="p-6 pt-0">
-                                <Button className="w-full bg-white text-black hover:bg-zinc-200 font-black h-14 rounded-2xl shadow-xl shadow-black/40 text-[10px] uppercase tracking-widest">
+                                <Button className="w-full bg-white text-black hover:bg-zinc-200 font-bold h-14 rounded-2xl shadow-xl shadow-black/40 text-sm">
                                     Tất cả buổi học
                                 </Button>
                             </div>
@@ -414,9 +414,9 @@ export function LiveClassDashboard() {
                     {/* Progress & Instructor Widget */}
                     <Card className="rounded-[2.5rem] border-border/50 bg-card shadow-sm overflow-hidden">
                         <CardHeader className="pb-4">
-                            <CardTitle className="text-lg font-black flex items-center justify-between">
+                            <CardTitle className="text-lg font-bold flex items-center justify-between">
                                 <span>Tiến trình lớp học</span>
-                                <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-black text-[9px] tracking-widest mb-1">LIVE</Badge>
+                                <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold text-xs">Trực tuyến</Badge>
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -426,27 +426,27 @@ export function LiveClassDashboard() {
                                 </div>
                                 <div className="relative space-y-4">
                                     <div className="flex items-end justify-between">
-                                        <div className="text-3xl font-black text-primary">{progress}%</div>
-                                        <div className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-wider">Hoàn thành</div>
+                                        <div className="text-3xl font-bold text-primary">{progress}%</div>
+                                        <div className="text-xs font-bold text-muted-foreground/60">Hoàn thành</div>
                                     </div>
                                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                         <div className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(var(--primary),0.3)]" style={{ width: `${progress}%` }} />
                                     </div>
-                                    <p className="text-[10px] font-bold text-muted-foreground italic leading-relaxed">
+                                    <p className="text-xs font-medium text-muted-foreground italic leading-relaxed">
                                         * Dựa trên số lượng bài giảng và file học liệu bạn đã truy cập.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-1">Lối tắt học tập</div>
+                                <div className="text-xs font-bold text-muted-foreground/60 px-1">Lối tắt học tập</div>
                                 <div className="grid grid-cols-1 gap-2">
                                     <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 rounded-xl hover:bg-primary/5 hover:text-primary group/link border border-transparent hover:border-primary/10 transition-all">
                                         <div className="flex items-center gap-3">
                                             <div className="size-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 flex items-center justify-center">
                                                 <Users className="size-4" />
                                             </div>
-                                            <span className="text-xs font-bold">Danh sách học viên</span>
+                                            <span className="text-sm font-semibold">Danh sách học viên</span>
                                         </div>
                                         <ChevronRight className="size-4 opacity-30 group-hover/link:translate-x-1 group-hover/link:opacity-100 transition-all" />
                                     </Button>
@@ -455,7 +455,7 @@ export function LiveClassDashboard() {
                                             <div className="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center">
                                                 <Sparkles className="size-4" />
                                             </div>
-                                            <span className="text-xs font-bold">Yêu cầu hỗ trợ</span>
+                                            <span className="text-sm font-semibold">Yêu cầu hỗ trợ</span>
                                         </div>
                                         <ChevronRight className="size-4 opacity-30 group-hover/link:translate-x-1 group-hover/link:opacity-100 transition-all" />
                                     </Button>
@@ -464,7 +464,7 @@ export function LiveClassDashboard() {
                                             <div className="size-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
                                                 <Star className="size-4" />
                                             </div>
-                                            <span className="text-xs font-bold">Đánh giá giảng viên</span>
+                                            <span className="text-sm font-semibold">Đánh giá giảng viên</span>
                                         </div>
                                         <ChevronRight className="size-4 opacity-30 group-hover/link:translate-x-1 group-hover/link:opacity-100 transition-all" />
                                     </Button>

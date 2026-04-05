@@ -5,10 +5,11 @@ export const academyLiveClassCreateDTOSchema = z.object({
   code: z.string().min(1).max(150),
   name: z.string().min(1).max(255),
   instructorId: z.string().uuid().optional(),
-  maxStudents: z.coerce.number().int().min(1).optional().nullable(),
+  maxStudents: z.coerce.number().int().min(1, "Ít nhất 1 học viên").max(30, "Số học viên tối đa là 30").optional().nullable(),
   status: z.enum(['DRAFT', 'OPENING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
   price: z.coerce.number().min(0).optional().nullable(),
   discountPrice: z.coerce.number().min(0).optional().nullable(),
+  thumbnailUrl: z.string().url().optional().nullable(),
   schedules: z.array(z.object({
     weekday: z.number().int().min(0).max(6),
     startTime: z.string(),

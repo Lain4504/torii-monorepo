@@ -8,7 +8,6 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import {
@@ -19,6 +18,10 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { cn } from "@workspace/ui/lib/utils"
 
+/**
+ * Một workspace trong sidebar (bám roles trong `apps/server/config/rbac-config.yaml`).
+ * `plan` — dòng phụ mô tả phạm vi menu, hiển thị dưới tên workspace.
+ */
 export interface Team {
     name: string
     logo: React.ElementType
@@ -79,13 +82,14 @@ export function TeamSwitcher({
                             sideOffset={4}
                         >
                             <DropdownMenuLabel className="text-muted-foreground/60 text-xs font-medium">
-                                Khu vực làm việc
+                                Chế độ menu (theo vai trò)
                             </DropdownMenuLabel>
                             {teams.map((team) => (
                                 <DropdownMenuItem
                                     key={team.name}
                                     onClick={() => onTeamSelect?.(team)}
                                     className="gap-3 p-2 cursor-pointer transition-colors"
+                                    aria-label={`Chuyển workspace ${team.name}`}
                                 >
                                     <div className="flex size-6 items-center justify-center rounded-sm border border-border/20 bg-muted/20">
                                         <team.logo className="size-3.5 shrink-0" />
@@ -96,7 +100,6 @@ export function TeamSwitcher({
                                     </div>
                                 </DropdownMenuItem>
                             ))}
-                            <DropdownMenuSeparator className="bg-border/40" />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 ) : (

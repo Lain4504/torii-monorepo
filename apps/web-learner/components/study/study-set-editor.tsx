@@ -194,7 +194,7 @@ export function StudySetEditor({ setId }: { setId: string }) {
                                     onClick={() => startEditingCard(card)}
                                 >
                                     <div className="flex gap-4 flex-1">
-                                        <span className="text-slate-300 font-black text-xl w-8 shrink-0">{index + 1}</span>
+                                        <span className="text-slate-300 font-bold text-xl w-8 shrink-0">{index + 1}</span>
                                         <div className="space-y-1 w-full border-l-2 pl-4 border-slate-100">
                                             <div className="flex items-center gap-2">
                                                 <p className="text-xl font-bold text-slate-800">{card.term}</p>

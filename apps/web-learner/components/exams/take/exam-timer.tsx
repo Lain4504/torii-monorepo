@@ -54,7 +54,7 @@ export function ExamTimer({ durationMinutes, initialSeconds, onTimeUp, onTimeUpd
     return (
         <div className="flex items-center gap-4 min-w-[200px]">
             <div className={cn(
-                "flex items-center gap-2 text-xl font-black uppercase tracking-widest tabular-nums",
+                "flex items-center gap-2 text-xl font-bold uppercase tracking-widest tabular-nums",
                 isUrgent ? "text-destructive animate-pulse" : "text-foreground"
             )}>
                 <Clock className="w-5 h-5" />

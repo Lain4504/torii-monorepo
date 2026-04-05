@@ -145,6 +145,7 @@ export class LiveClassService {
                 id: true,
                 name: true,
                 code: true,
+                thumbnailUrl: true,
                 price: true,
                 discountPrice: true,
                 maxStudents: true,
@@ -190,6 +191,7 @@ export class LiveClassService {
         status: (data.status as any) ?? 'DRAFT',
         price: data.price,
         discountPrice: data.discountPrice,
+        thumbnailUrl: data.thumbnailUrl,
       },
     });
 
@@ -222,6 +224,7 @@ export class LiveClassService {
         maxStudents: data.maxStudents,
         price: data.price,
         discountPrice: data.discountPrice,
+        thumbnailUrl: data.thumbnailUrl,
       },
     });
   }

@@ -6,6 +6,7 @@ export const academyVodPackageBaseSchema = z.object({
   title: z.string().min(1).max(255),
   price: z.coerce.number().min(0),
   discountPrice: z.coerce.number().min(0).optional().nullable(),
+  thumbnailUrl: z.string().url().optional().nullable(),
   status: z.enum(['DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'ARCHIVED']).optional(),
   rejectionReason: z.string().optional().nullable(),
   instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),

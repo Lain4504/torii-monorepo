@@ -108,12 +108,12 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                                     />
                                                     <div className="flex flex-col min-w-0">
                                                         <span className="truncate">{lesson.title}</span>
-                                                        <span className="text-[10px] text-muted-foreground/80 uppercase tracking-widest">
+                                                        <span className="text-xs text-muted-foreground/80 font-medium">
                                                             {typeLabel}
                                                         </span>
                                                     </div>
                                                     {lesson.isPreview && (
-                                                        <span className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
+                                                        <span className="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0">
                                                             Xem thử
                                                         </span>
                                                     )}

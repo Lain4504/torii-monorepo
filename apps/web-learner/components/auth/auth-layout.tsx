@@ -51,7 +51,7 @@ export function AuthLayout({
                         priority
                     />
                     <div className="flex flex-col">
-                        <span className="text-foreground text-lg font-black tracking-widest leading-none">TORII</span>
+                        <span className="text-foreground text-lg font-bold tracking-widest leading-none">TORII</span>
                         <span className="text-muted-foreground text-[10px] font-bold tracking-[0.35em] leading-none mt-0.5">NIHONGO</span>
                     </div>
                 </Link>
@@ -61,7 +61,7 @@ export function AuthLayout({
                         leftPanel
                     ) : (
                         <>
-                            <h1 className="text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
+                            <h1 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight tracking-normal">
                                 Một nền tảng.
                                 <br />
                                 <span className="text-primary">Trọn lộ trình JLPT.</span>
@@ -98,7 +98,7 @@ export function AuthLayout({
                         <Link href="/" className="flex items-center gap-2">
                             <Image src={logo} alt="Torii Nihongo" width={40} height={40} className="h-9 w-auto object-contain" priority />
                             <div className="flex flex-col text-left">
-                                <span className="text-foreground text-lg font-black tracking-widest leading-none">TORII</span>
+                                <span className="text-foreground text-lg font-bold tracking-widest leading-none">TORII</span>
                                 <span className="text-muted-foreground text-[10px] font-bold tracking-[0.35em] leading-none mt-0.5">NIHONGO</span>
                             </div>
                         </Link>
@@ -106,7 +106,7 @@ export function AuthLayout({
 
                     <div className="rounded-3xl border border-border bg-card p-7 sm:p-8 md:p-10 shadow-xl ring-1 ring-black/5">
                         <div className="text-center space-y-1.5 mb-8">
-                            <h2 className="text-2xl font-extrabold text-foreground tracking-tight">{title}</h2>
+                            <h2 className="text-2xl font-extrabold text-foreground tracking-normal">{title}</h2>
                             {description && <p className="text-muted-foreground text-sm">{description}</p>}
                         </div>
 

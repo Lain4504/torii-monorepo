@@ -34,7 +34,7 @@ export default function JlptListExamPage() {
                             <Languages className="w-3 h-3" />
                             Luyện thi JLPT mock
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                             Chọn cấp độ JLPT của bạn
                         </h1>
                         <p className="text-muted-foreground text-sm">

@@ -67,7 +67,7 @@ export default function RewardsPage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-2">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Cửa hàng quà tặng</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Cửa hàng quà tặng</h1>
                     <p className="text-muted-foreground mt-2">Dùng điểm tích lũy để đổi lấy các ưu đãi đặc quyền.</p>
                 </div>
 
@@ -78,7 +78,7 @@ export default function RewardsPage() {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm hiện có</p>
-                            <p className="text-2xl font-black text-primary">{formatNumber(profile?.points) || 0} Points</p>
+                            <p className="text-2xl font-bold text-primary">{formatNumber(profile?.points) || 0} Points</p>
                         </div>
                     </div>
                 </div>
@@ -167,7 +167,7 @@ export default function RewardsPage() {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <h3 className="text-lg font-black text-primary tracking-widest truncate">{coupon.code}</h3>
+                                            <h3 className="text-lg font-bold text-primary tracking-widest truncate">{coupon.code}</h3>
                                             {!coupon.userId && <Badge variant="secondary" className="text-[10px]">Công khai</Badge>}
                                         </div>
                                         <p className="text-sm font-medium text-foreground truncate">{coupon.description || 'Mã giảm giá Torii'}</p>

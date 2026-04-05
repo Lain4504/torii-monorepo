@@ -24,7 +24,7 @@ export default function DashboardFAQPage() {
     return (
         <div className="space-y-6">
             <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
-                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Cau hoi thuong gap</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Câu hỏi thường gặp</h1>
                 <p className="mt-2 text-sm text-muted-foreground sm:text-base">
                     Tong hop thong tin nhanh ve lo trinh hoc, cach su dung va ho tro tren Torii Nihongo.
                 </p>

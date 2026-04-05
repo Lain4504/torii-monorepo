@@ -32,7 +32,7 @@ export default function Error({
                     <div className="size-12 flex items-center justify-center rounded-full bg-destructive/10 text-destructive mb-2">
                         <AlertCircle className="size-6" />
                     </div>
-                    <EmptyTitle className="text-2xl font-black text-destructive">Đã xảy ra lỗi hệ thống</EmptyTitle>
+                    <EmptyTitle className="text-2xl font-bold text-destructive">Đã xảy ra lỗi hệ thống</EmptyTitle>
                     <EmptyDescription>
                         Chúng tôi xin lỗi vì sự bất tiện này. Một lỗi không mong muốn đã xảy ra.
                     </EmptyDescription>

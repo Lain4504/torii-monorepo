@@ -63,12 +63,12 @@ export function DashboardHeader({ onOpenStreakModal, isGuest = false }: Dashboar
     }
 
     // Level & XP Progress logic (align with gamification profile UI)
-    // Convention: 1000 XP per level; currentXp is the accumulated XP.
+    // Non-linear: L1->2=200, L2->3=300, L3->4=400, ...
+    // currentXp from backend is now the XP accumulated in the current level.
     const level = profile?.level ?? 1
-    const currentXp = profile?.currentXp ?? 0
-    const xpInThisLevel = currentXp % 1000
-    const xpToNextLevel = 1000 - xpInThisLevel
-    const progress = Math.min(100, Math.max(0, xpInThisLevel / 10))
+    const currentXpInLevel = profile?.currentXp ?? 0
+    const xpNeededForThisRange = 100 * (level + 1)
+    const progress = Math.min(100, Math.max(0, (currentXpInLevel / xpNeededForThisRange) * 100))
     const isActiveToday = streak?.isActiveToday === true
 
     return (

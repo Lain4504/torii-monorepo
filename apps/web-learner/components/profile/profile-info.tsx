@@ -35,7 +35,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
-                                    <span className="text-2xl font-bold tracking-tight text-foreground">{stat.value}</span>
+                                    <span className="text-2xl font-bold tracking-normal text-foreground">{stat.value}</span>
                                 </div>
                             </div>
                             <div className="h-1 w-full bg-muted rounded-full overflow-hidden border border-border/50">
@@ -55,7 +55,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
                         </div>
                         <div>
                             <CardTitle className="text-base font-bold uppercase tracking-widest">Tiểu sử</CardTitle>
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none tracking-tight"> Câu chuyện của bạn </p>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none tracking-normal"> Câu chuyện của bạn </p>
                         </div>
                     </CardHeader>
                     <Separator className="mx-6 w-auto" />
@@ -70,7 +70,7 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
                 <Card className="border shadow-none">
                     <CardHeader className="pb-4">
                         <CardTitle className="text-base font-bold uppercase tracking-widest">Chi tiết</CardTitle>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none tracking-tight"> Thông tin cá nhân </p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none tracking-normal"> Thông tin cá nhân </p>
                     </CardHeader>
                     <Separator className="mx-6 w-auto" />
                     <CardContent className="p-6 space-y-4">

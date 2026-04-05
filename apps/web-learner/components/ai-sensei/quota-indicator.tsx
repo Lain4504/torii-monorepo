@@ -101,7 +101,7 @@ export function QuotaIndicator() {
 
                         <div className="flex flex-col gap-0.5 min-w-[70px]">
                             <div className="flex items-center justify-between gap-2 leading-none">
-                                <span className="text-[9px] font-black uppercase tracking-wider">{config.label}</span>
+                                <span className="text-[9px] font-bold uppercase tracking-wider">{config.label}</span>
                                 <span className={cn(
                                     "text-[10px] font-bold",
                                     isCritical ? "text-destructive animate-pulse" : "text-foreground/70"
@@ -127,8 +127,8 @@ export function QuotaIndicator() {
                                 {config.icon}
                             </div>
                             <div>
-                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground leading-none">Gói hiện tại</p>
-                                <p className="text-sm font-black">{quota.tier.toUpperCase()}</p>
+                                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground leading-none">Gói hiện tại</p>
+                                <p className="text-sm font-bold">{quota.tier.toUpperCase()}</p>
                             </div>
                         </div>
 

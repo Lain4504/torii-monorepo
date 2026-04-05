@@ -47,7 +47,7 @@ export function RedeemSuccessDialog({
                         </div>
 
                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2">Mã giảm giá của bạn</p>
-                        <h3 className="text-4xl font-black text-primary tracking-[0.3em] mb-4 select-all">{coupon.code}</h3>
+                        <h3 className="text-4xl font-bold text-primary tracking-[0.3em] mb-4 select-all">{coupon.code}</h3>
 
                         <Button
                             variant="outline"

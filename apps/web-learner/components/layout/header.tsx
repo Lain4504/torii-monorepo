@@ -55,7 +55,7 @@ export function Header() {
                 <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
                     <Image src={logo} alt="Torii Nihongo" width={48} height={48} className="w-9 h-9 object-contain" />
                     <div className="flex flex-col leading-none">
-                        <span className="text-base font-black tracking-tight text-foreground font-space">Torii</span>
+                        <span className="text-base font-bold tracking-normal text-foreground">Torii</span>
                         <span className="text-[11px] font-semibold text-muted-foreground mt-1">Nihongo</span>
                     </div>
                 </Link>
@@ -79,7 +79,7 @@ export function Header() {
                                 <DropdownMenuTrigger asChild>
                                     <Avatar className="h-9 w-9 cursor-pointer border border-border hover:border-border/80 transition-colors">
                                         {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
-                                        <AvatarFallback className="bg-primary text-primary-foreground font-black">
+                                        <AvatarFallback className="bg-primary text-primary-foreground font-bold">
                                             {user.displayName?.substring(0, 2).toUpperCase() || 'U'}
                                         </AvatarFallback>
                                     </Avatar>
@@ -143,7 +143,7 @@ export function Header() {
                             <SheetHeader className="border-b pb-3 mb-3">
                                 <SheetTitle className="flex items-center gap-2">
                                     <Image src={logo} alt="Logo" width={28} height={28} className="rounded-md" />
-                                    <span className="font-bold tracking-tight text-base">Torii Nihongo</span>
+                                    <span className="font-bold tracking-normal text-base">Torii Nihongo</span>
                                 </SheetTitle>
                             </SheetHeader>
                             <div className="flex flex-col gap-5 py-2 px-2">
@@ -166,7 +166,7 @@ export function Header() {
                                             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/40">
                                                 <Avatar className="h-12 w-12 border-2 border-primary/20">
                                                     {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
-                                                    <AvatarFallback className="bg-primary text-white font-black">
+                                                    <AvatarFallback className="bg-primary text-white font-bold">
                                                         {user.displayName?.substring(0, 2).toUpperCase() || 'U'}
                                                     </AvatarFallback>
                                                 </Avatar>

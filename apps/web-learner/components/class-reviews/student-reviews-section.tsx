@@ -94,7 +94,7 @@ export function StudentReviewsSection({ classId }: { classId: string }) {
 
                         <div className="bg-zinc-50 rounded-xl p-4 border border-zinc-100 relative">
                             {/* Small decorative quote mark */}
-                            <div className="absolute -top-2 left-4 bg-white px-1 text-zinc-300 text-xl font-serif">"</div>
+                            <div className="absolute -top-2 left-4 bg-white px-1 text-zinc-300 text-xl">"</div>
                             {review.title && <h4 className="font-bold text-sm text-zinc-800 mb-1">{review.title}</h4>}
                             <p className="text-zinc-600 text-sm leading-relaxed whitespace-pre-wrap">{review.content || "Đánh giá không có nội dung."}</p>
                         </div>

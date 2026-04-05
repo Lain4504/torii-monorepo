@@ -99,7 +99,7 @@ export default function DashboardCoursesPage() {
         <div className="space-y-8 pb-10">
             <div className="flex flex-col gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Khám phá khóa học</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Khám phá khóa học</h1>
                     <p className="text-muted-foreground mt-1">
                         Chọn trình độ (JLPT) và khám phá lớp Live đang tuyển sinh trong tháng hiện tại và sắp tới cùng
                         khóa VOD theo cấp độ.
@@ -207,9 +207,13 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
             <CardContent className="p-0">
                 <div className="relative aspect-video w-full border-b border-border bg-muted">
                     <Image src={thumb} alt="" fill className="object-cover" sizes="(max-width: 640px) 280px, 400px" />
-                    <div className="absolute top-2 left-2 flex gap-1">
-                        <Badge>{level}</Badge>
-                        <Badge variant="secondary">VOD</Badge>
+                    <div className="absolute top-3 left-3 flex gap-2">
+                        <Badge className="bg-white/90 backdrop-blur-sm text-foreground hover:bg-white border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+                            {level}
+                        </Badge>
+                        <Badge variant="secondary" className="bg-primary/90 text-primary-foreground border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+                            VOD
+                        </Badge>
                     </div>
                 </div>
                 <div className="p-4 space-y-3">
@@ -276,9 +280,13 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
             <CardContent className="p-0">
                 <div className="relative aspect-video w-full border-b border-border bg-muted">
                     <Image src={thumb} alt="" fill className="object-cover" sizes="(max-width: 640px) 280px, 400px" />
-                    <div className="absolute top-2 left-2 flex gap-1">
-                        <Badge>{level}</Badge>
-                        <Badge variant="destructive">Đang tuyển sinh</Badge>
+                    <div className="absolute top-3 left-3 flex gap-2">
+                        <Badge className="bg-white/90 backdrop-blur-sm text-foreground hover:bg-white border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+                            {level}
+                        </Badge>
+                        <Badge variant="destructive" className="bg-red-500/90 text-white border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+                            Đang tuyển sinh
+                        </Badge>
                     </div>
                 </div>
                 <div className="p-4 space-y-3">

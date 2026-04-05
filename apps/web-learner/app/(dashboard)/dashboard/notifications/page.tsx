@@ -1,11 +1,25 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Bell, Check, Sparkles } from 'lucide-react'
+import type { LucideIcon } from "lucide-react";
+import {
+    BarChart2,
+    Bell,
+    BookOpen,
+    Check,
+    CheckCheck,
+    CreditCard,
+    MessageSquare,
+    MessageSquareReply,
+    Package,
+    Settings2,
+    Trophy,
+    Video,
+} from "lucide-react";
 import { Button } from '@workspace/ui/components/button'
-import { Card } from '@workspace/ui/components/card'
 import { cn } from '@workspace/ui/lib/utils'
 import { format, formatDistanceToNow } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import {
     useNotifications,
     useUnreadNotificationsCount,
@@ -13,6 +27,14 @@ import {
     useMarkAllNotificationsAsRead,
 } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO } from '@workspace/schemas'
+import { NotificationType } from "@workspace/schemas";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationNext,
+    PaginationPrevious,
+} from "@workspace/ui/components/pagination";
 
 interface Notification {
     id: string
@@ -21,6 +43,36 @@ interface Notification {
     time: string
     date: string
     read: boolean
+    notificationType: NotificationType;
+}
+
+function notificationIcon(type: NotificationType): LucideIcon {
+    switch (type) {
+        case NotificationType.SYSTEM:
+            return Settings2;
+        case NotificationType.COURSE:
+            return BookOpen;
+        case NotificationType.LIVE_CLASS:
+            return Video;
+        case NotificationType.PAYMENT:
+            return CreditCard;
+        case NotificationType.ACHIEVEMENT:
+            return Trophy;
+        case NotificationType.REMINDER:
+            return Bell;
+        case NotificationType.COMMENT_REPLY:
+            return MessageSquareReply;
+        case NotificationType.COMMENT:
+            return MessageSquare;
+        case NotificationType.BLOG_ANALYTICS:
+            return BarChart2;
+        case NotificationType.ORDER_SUCCESS:
+            return CheckCheck;
+        case NotificationType.ORDER_STATUS_UPDATE:
+            return Package;
+        default:
+            return Bell;
+    }
 }
 
 function mapNotificationToUI(notification: NotificationResponseDTO): Notification {
@@ -29,14 +81,15 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
         id: notification.id,
         title: notification.title,
         message: notification.message,
-        time: formatDistanceToNow(createdAt, { addSuffix: true }),
+        time: formatDistanceToNow(createdAt, { addSuffix: true, locale: vi }),
         date: format(createdAt, 'dd/MM/yyyy'),
         read: notification.isRead,
+        notificationType: notification.notificationType,
     }
 }
 
 export default function NotificationsPage() {
-    const [page] = useState(1)
+    const [page, setPage] = useState(1)
 
     const { data: notificationsData, isLoading } = useNotifications({
         limit: 50,
@@ -52,6 +105,7 @@ export default function NotificationsPage() {
     }, [notificationsData])
 
     const unreadCount = unreadCountData?.count ?? 0
+    const totalPages = notificationsData?.totalPages ?? 1;
 
     const handleItemClick = (n: Notification) => {
         if (!n.read) {
@@ -60,87 +114,114 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 pb-16">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
-                <div className="space-y-1">
-                    <h1 className="text-2xl font-semibold text-foreground">Thông báo</h1>
-                    <p className="text-sm text-muted-foreground">
-                        {unreadCount > 0 ? `${unreadCount} chưa đọc` : 'Không có thông báo chưa đọc'}
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => markAllAsReadMutation.mutate()}
-                    disabled={markAllAsReadMutation.isPending || unreadCount === 0}
-                    className="shrink-0"
-                >
-                    <Check className="w-3.5 h-3.5 mr-1.5" />
-                    {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đánh dấu tất cả đã đọc'}
-                </Button>
-            </div>
-
-            <div className="space-y-2">
-                {isLoading ? (
-                    <div className="py-16 text-center">
-                        <Bell className="w-8 h-8 text-muted-foreground/40 mx-auto mb-3 animate-pulse" />
-                        <p className="text-sm text-muted-foreground">Đang tải thông báo...</p>
-                    </div>
-                ) : notifications.length > 0 ? (
-                    notifications.map((n) => (
-                        <Card
-                            key={n.id}
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => handleItemClick(n)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault()
-                                    handleItemClick(n)
-                                }
-                            }}
-                            className={cn(
-                                'p-4 rounded-xl border shadow-none transition-colors text-left w-full',
-                                'hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                                !n.read ? 'bg-muted/30 border-border' : 'bg-card border-border/60 opacity-90'
-                            )}
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <h2
-                                    className={cn(
-                                        'text-sm font-medium',
-                                        !n.read ? 'text-foreground' : 'text-muted-foreground'
-                                    )}
-                                >
-                                    {n.title}
-                                </h2>
-                                {!n.read && (
-                                    <span
-                                        className="shrink-0 h-2 w-2 rounded-full bg-primary mt-1.5"
-                                        aria-hidden
-                                    />
-                                )}
-                            </div>
-                            {n.message ? (
-                                <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                                    {n.message}
-                                </p>
-                            ) : null}
-                            <p className="mt-2 text-xs text-muted-foreground/70">
-                                {n.date} · {n.time}
-                            </p>
-                        </Card>
-                    ))
-                ) : (
-                    <div className="py-16 text-center rounded-xl border border-dashed border-border bg-muted/5">
-                        <Sparkles className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
-                        <h3 className="text-sm font-medium text-foreground">Chưa có thông báo</h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Các cập nhật sẽ hiển thị tại đây.
+        <div className="mx-auto w-full max-w-xl px-4 pb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <header className="mb-6 border-b border-border/80 pb-4">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-lg font-medium tracking-normal text-foreground">Thông báo</h1>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                            {unreadCount > 0 ? `${unreadCount} chưa đọc` : "Không có thông báo chưa đọc"}
                         </p>
                     </div>
-                )}
-            </div>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => markAllAsReadMutation.mutate()}
+                        disabled={markAllAsReadMutation.isPending || unreadCount === 0}
+                        className="h-8 shrink-0 px-2 text-xs font-normal text-muted-foreground hover:text-foreground hover:bg-transparent"
+                    >
+                        {markAllAsReadMutation.isPending ? "Đang xử lý…" : "Đánh dấu tất cả đã đọc"}
+                    </Button>
+                </div>
+            </header>
+
+            {isLoading ? (
+                <p className="py-12 text-center text-xs text-muted-foreground">Đang tải…</p>
+            ) : notifications.length > 0 ? (
+                <ul className="divide-y divide-border/60">
+                    {notifications.map((n) => {
+                        const Icon = notificationIcon(n.notificationType);
+                        return (
+                            <li key={n.id}>
+                                <button
+                                    type="button"
+                                    onClick={() => handleItemClick(n)}
+                                    className={cn(
+                                        "flex w-full gap-3 py-3 text-left transition-colors",
+                                        "hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                                        !n.read && "bg-muted/20",
+                                    )}
+                                >
+                                    <span
+                                        className={cn(
+                                            "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md border border-border/50 bg-background/80",
+                                            !n.read ? "text-foreground/80" : "text-muted-foreground/70",
+                                        )}
+                                        aria-hidden
+                                    >
+                                        <Icon className="size-3.5 stroke-[1.75]" />
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <span
+                                                className={cn(
+                                                    "text-sm leading-snug",
+                                                    !n.read ? "font-medium text-foreground" : "font-normal text-muted-foreground",
+                                                )}
+                                            >
+                                                {n.title}
+                                            </span>
+                                            {!n.read ? (
+                                                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" aria-label="Chưa đọc" />
+                                            ) : null}
+                                        </div>
+                                        {n.message ? (
+                                            <p className="mt-1 text-xs leading-relaxed text-muted-foreground/90">{n.message}</p>
+                                        ) : null}
+                                        <p className="mt-1.5 text-[11px] tabular-nums text-muted-foreground/80">
+                                            {n.date} · {n.time}
+                                        </p>
+                                    </div>
+                                </button>
+                            </li>
+                        );
+                    })}
+                </ul>
+            ) : (
+                <p className="py-14 text-center text-xs text-muted-foreground">Chưa có thông báo.</p>
+            )}
+
+            {notificationsData && totalPages > 1 ? (
+                <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-4 sm:flex-row">
+                    <p className="text-[11px] text-muted-foreground">
+                        Trang <span className="text-foreground">{page}</span> / {totalPages}
+                    </p>
+                    <Pagination className="mx-0 w-auto">
+                        <PaginationContent className="gap-0.5">
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    className={cn(
+                                        "h-8 cursor-pointer px-2.5 text-xs",
+                                        page === 1 ? "pointer-events-none opacity-40" : "",
+                                    )}
+                                />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    className={cn(
+                                        "h-8 cursor-pointer px-2.5 text-xs",
+                                        page === totalPages ? "pointer-events-none opacity-40" : "",
+                                    )}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+            ) : null}
         </div>
     )
 }
+

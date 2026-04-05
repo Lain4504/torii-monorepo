@@ -40,7 +40,7 @@ export function BlogListClient() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-8">
             <div className="space-y-4 pb-2 border-b border-border">
-                <h1 className="text-3xl font-bold text-foreground">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                     Blog kiến thức
                 </h1>
                 <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
@@ -99,21 +99,21 @@ export function BlogListClient() {
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-muted flex items-center justify-center">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">No Preview</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Preview</span>
                                         </div>
                                     )}
                                     {blog.tags && blog.tags.length > 0 && (
-                                        <Badge className="absolute top-4 left-4 bg-primary/90 backdrop-blur-md border-none text-[10px] font-black uppercase tracking-widest">
+                                        <Badge className="absolute top-4 left-4 bg-primary/90 backdrop-blur-md border-none text-[10px] font-bold uppercase tracking-widest">
                                             {blog.tags[0]}
                                         </Badge>
                                     )}
                                 </div>
                                 <div className="p-6 flex flex-col flex-1 gap-4">
                                     <div className="space-y-2">
-                                        <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                                        <p className="text-primary text-[10px] font-bold uppercase tracking-[0.2em]">
                                             {blog.publishedAt && formatDate(blog.publishedAt.toString())}
                                         </p>
-                                        <h4 className="text-xl font-black line-clamp-2 group-hover:text-primary transition-colors font-space tracking-tight leading-tight">
+                                        <h4 className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
                                             {blog.title}
                                         </h4>
                                     </div>
@@ -124,7 +124,7 @@ export function BlogListClient() {
                                     )}
                                     <Link
                                         href={`/dashboard/blogs/${blog.slug}`}
-                                        className="text-foreground text-xs font-black uppercase tracking-widest flex items-center gap-2 mt-auto pt-4 w-fit group/link"
+                                        className="text-foreground text-xs font-bold uppercase tracking-widest flex items-center gap-2 mt-auto pt-4 w-fit group/link"
                                     >
                                         Đọc chi tiết
                                         <div className="p-1 rounded-full bg-primary/10 text-primary group-hover/link:bg-primary group-hover/link:text-white transition-all">
@@ -154,7 +154,7 @@ export function BlogListClient() {
                                     <Button
                                         key={pageNum}
                                         variant={page === pageNum ? 'default' : 'outline'}
-                                        className={`size-12 rounded-xl border-border/50 font-black ${
+                                        className={`size-12 rounded-xl border-border/50 font-bold ${
                                             page === pageNum
                                                 ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                                                 : 'bg-background/50 backdrop-blur-md'

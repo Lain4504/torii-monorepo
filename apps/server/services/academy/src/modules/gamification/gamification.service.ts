@@ -468,10 +468,13 @@ export class GamificationService {
         };
       }
 
-      const XP_PER_LEVEL = 1000;
+      // Cấp độ phi tuyến tính: Cấp 2 cần 200 XP, Cấp 3 cần thêm 300 XP (tổng 500), Cấp 4 cần thêm 400 XP (tổng 900)...
+      // Công thức: TotalXP = 50 * (L^2 + L - 2)
       const newTotalXp = profile.totalXp + xpAward;
-      const newLevel = Math.floor(newTotalXp / XP_PER_LEVEL) + 1;
-      const newCurrentXp = newTotalXp % XP_PER_LEVEL;
+      const newLevel = Math.floor((-1 + Math.sqrt(1 + 8 * (newTotalXp / 100 + 1))) / 2); // 1 + 8*(totalXp/100 + 1) = 9 + totalXp/12.5
+      
+      const xpForCurrentLevel = 50 * (newLevel * newLevel + newLevel - 2);
+      const newCurrentXp = newTotalXp - xpForCurrentLevel;
 
       const updatedProfile = await tx.userGamification.update({
         where: { userId },
@@ -579,6 +582,23 @@ export class GamificationService {
         },
       });
     }
+
+    // Tự động tính toán lại level dựa trên totalXp nếu có sự sai lệch (do thay đổi công thức)
+    // Công thức: L = floor((-1 + sqrt(9 + totalXp/12.5)) / 2)
+    const calculatedLevel = Math.floor((-1 + Math.sqrt(9 + profile.totalXp / 12.5)) / 2);
+    const xpForCurrentLevel = 50 * (calculatedLevel * calculatedLevel + calculatedLevel - 2);
+    const calculatedCurrentXp = profile.totalXp - xpForCurrentLevel;
+
+    if (calculatedLevel !== profile.level || calculatedCurrentXp !== profile.currentXp) {
+      profile = await this.prisma.userGamification.update({
+        where: { userId },
+        data: {
+          level: calculatedLevel,
+          currentXp: calculatedCurrentXp,
+        },
+      });
+    }
+
     return profile;
   }
 

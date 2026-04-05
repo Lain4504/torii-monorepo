@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, Search, Eye, Pencil, Rocket } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Rocket, CalendarSync } from 'lucide-react';
 import {
     useAcademyLiveClasses,
     usePublishClassDirectly,
@@ -122,10 +122,16 @@ export default function LiveClassesPage() {
                 subtitle={isLecturer ? "Quản lý bài giảng, điểm danh và bài tập cho các lớp bạn phụ trách." : "Giám sát và vận hành toàn bộ các lớp học trực tiếp (LIVE)."}
                 stats={stats}
                 actions={isStaff && (
-                    <Button size="lg" onClick={handleCreate}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Tạo Lớp mới
-                    </Button>
+                    <div className="flex gap-4">
+                        <Button variant="outline" size="lg" className="h-10 gap-2 border-primary/20 text-primary hover:bg-primary/5" onClick={() => navigate('/academy/live-classes/reschedule-requests')}>
+                            <CalendarSync className="h-4 w-4" />
+                            Duyệt dời lịch
+                        </Button>
+                        <Button size="lg" className="h-10 gap-2 shadow-sm" onClick={handleCreate}>
+                            <Plus className="h-4 w-4" />
+                            Tạo Lớp mới
+                        </Button>
+                    </div>
                 )}
             />
 
@@ -257,29 +263,29 @@ export default function LiveClassesPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 gap-2 border-sky-500/30 text-sky-700 bg-transparent hover:bg-sky-50 hover:text-sky-700"
+                                                    className="h-8 gap-1.5 border-sky-500/40 text-sky-700 hover:bg-sky-50 font-medium"
                                                     onClick={() => navigate(`/academy/live-classes/${cls.id}/detail`)}
                                                 >
-                                                    <Eye className="h-3.5 w-3.5" /> Chi tiết
+                                                    <Eye className="h-4 w-4" /> Chi tiết
                                                 </Button>
                                                 {isStaff && cls.status === 'DRAFT' && (
                                                     <>
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                            className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 hover:bg-emerald-50 font-medium"
                                                             onClick={() => handleEdit(cls)}
                                                         >
-                                                            <Pencil className="h-3.5 w-3.5" /> Chỉnh Sửa
+                                                            <Pencil className="h-4 w-4" /> Chỉnh sửa
                                                         </Button>
                                                         <Button
-                                                            variant="default"
+                                                            variant="outline"
                                                             size="sm"
-                                                            className="h-8 gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-sm"
+                                                            className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 hover:bg-indigo-50 font-medium"
                                                             onClick={() => handlePublish(cls.id)}
                                                             disabled={publishMutation.isPending}
                                                         >
-                                                            <Rocket className="h-3.5 w-3.5" /> Công khai
+                                                            <Rocket className="h-4 w-4" /> Công khai
                                                         </Button>
                                                     </>
                                                 )}
