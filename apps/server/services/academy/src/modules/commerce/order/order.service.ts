@@ -346,8 +346,11 @@ export class OrderService {
       grandTotal: preview.grandTotal,
     });
     if (input.paymentMethod === PaymentMethod.PAYOS) {
-      const numericOrderCode =
-        Number(order.code.replace(/[^0-9]/g, '')) % 100000000;
+      // Generate unique integer max 9007199254740991 (Number.MAX_SAFE_INTEGER)
+      // Date.now() returns 13 digits. Math.random * 1000 returns 3 digits.
+      const numericOrderCode = Number(
+        String(Date.now()) + String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+      );
       await this.prisma.order.update({
         where: { id: order.id },
         data: { metadata: { ...order.metadata, numericOrderCode } },
@@ -356,7 +359,7 @@ export class OrderService {
       const paymentLink = await this.payOS.createPaymentLink({
         orderCode: numericOrderCode,
         amount: Number(preview.grandTotal),
-        description: `Thanh toan don hang ${order.code}`,
+        description: `Thanh toan ${order.code.substring(4)}`, // Format: "Thanh toan 20260405-XXXX" (max 24 chars)
         cancelUrl: `${this.appConfig.identity.webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
         returnUrl: `${this.appConfig.identity.webLearnerUrl}/payment/success?orderCode=${order.code}`,
       });
