@@ -2,6 +2,8 @@
 
 import { useAchievements } from '@/lib/api/services/gamification-api'
 import { formatDate } from '@/utils/format-utils'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Badge } from '@workspace/ui/components/badge'
 import { Progress } from '@workspace/ui/components/progress'
 import { cn } from '@workspace/ui/lib/utils'
@@ -37,7 +39,7 @@ const categoryLabels: Record<AchievementCategory, string> = {
 
 export default function AchievementsPage() {
     const { data: achievementsData, isLoading } = useAchievements()
-    const [selectedCategory, setSelectedCategory] = useState<AchievementCategory | 'ALL'>('ALL')
+    const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
 
     // Process achievements data
     const achievements = useMemo(() => {
@@ -85,141 +87,131 @@ export default function AchievementsPage() {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="space-y-4 pb-2 border-b border-border">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                    Bộ sưu tập Thành tựu
-                </h1>
+        <div className="space-y-8 animate-in fade-in duration-700 pb-8">
+            {/* Standard Header */}
+            <div className="space-y-4 pb-8 border-b border-border">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thành tựu học tập</h1>
                 <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
-                    Khám phá và mở khóa các thành tích trong hành trình học tiếng Nhật của bạn.
+                    Theo dõi tiến trình và những cột mốc quan trọng bạn đã chinh phục trong hành trình chinh phục tiếng Nhật của mình.
                 </p>
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="px-6 py-5 rounded-2xl border border-border bg-card shadow-sm">
-                    <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">Tổng cộng</p>
-                    <div className="flex items-center gap-3">
-                        <Trophy className="w-5 h-5 text-blue-500" />
-                        <span className="text-2xl font-bold text-foreground">{stats.total}</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Tổng cộng</p>
+                        <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground/80">{stats.total}</p>
                     </div>
-                </div>
-                <div className="px-6 py-5 rounded-2xl border border-border bg-card shadow-sm">
-                    <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">Đã đạt</p>
-                    <div className="flex items-center gap-3">
-                        <Star className="w-5 h-5 text-amber-500" />
-                        <span className="text-2xl font-bold text-foreground">{stats.earned}</span>
+                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
+                        <Trophy className="size-4" />
                     </div>
-                </div>
-                <div className="px-6 py-5 rounded-2xl border border-border bg-card shadow-sm">
-                    <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">Còn lại</p>
-                    <div className="flex items-center gap-3">
-                        <Target className="w-5 h-5 text-purple-500" />
-                        <span className="text-2xl font-bold text-foreground">{stats.remaining}</span>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Đã đạt</p>
+                        <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground/80">{stats.earned}</p>
                     </div>
-                </div>
-                <div className="px-6 py-5 rounded-2xl border border-border bg-card shadow-sm">
-                    <p className="text-xs font-bold text-muted-foreground mb-1 uppercase tracking-wider">Hoàn thành</p>
-                    <div className="space-y-2">
-                        <span className="text-2xl font-bold text-primary">{stats.percentage}%</span>
-                        <Progress value={stats.percentage} className="h-1.5 bg-muted" />
+                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
+                        <Star className="size-4" />
                     </div>
-                </div>
-            </div>
-
-            {/* Category Filter */}
-            <div className="flex flex-wrap gap-2">
-                <Badge
-                    variant={selectedCategory === 'ALL' ? 'default' : 'outline'}
-                    onClick={() => setSelectedCategory('ALL')}
-                    className={cn(
-                        "px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all",
-                        selectedCategory === 'ALL' ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-muted"
-                    )}
-                >
-                    Tất cả
-                </Badge>
-                {categories.map((category) => (
-                    <Badge
-                        key={category}
-                        variant={selectedCategory === category ? 'default' : 'outline'}
-                        onClick={() => setSelectedCategory(category)}
-                        className={cn(
-                            "px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-all",
-                            selectedCategory === category ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-muted"
-                        )}
-                    >
-                        {categoryLabels[category]}
-                    </Badge>
-                ))}
-            </div>
-
-            {/* Achievements Grid */}
-            {filteredAchievements.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredAchievements.map((achievement) => (
-                        <div
-                            key={achievement.id}
-                            className={cn(
-                                "p-6 rounded-2xl border transition-all shadow-sm",
-                                achievement.earned
-                                    ? "bg-card border-border hover:shadow-md"
-                                    : "opacity-60 bg-muted/20 border-border/50 grayscale"
-                            )}
-                        >
-                            <div className="flex items-start gap-4">
-                                <div className={cn(
-                                    "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
-                                    achievement.earned ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                                )}>
-                                    <achievement.icon className="w-6 h-6" />
-                                </div>
-                                <div className="flex-1 space-y-2">
-                                    <div className="space-y-1">
-                                        <h3 className="text-base font-bold text-foreground leading-snug">
-                                            {achievement.title}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            {achievement.description}
-                                        </p>
-                                    </div>
-                                    {achievement.earned && achievement.date && (
-                                        <div className="pt-2 border-t border-border/50">
-                                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                                                Đạt được: {achievement.date}
-                                            </p>
-                                        </div>
-                                    )}
-                                    {!achievement.earned && (
-                                        <div className="pt-2">
-                                            <p className="text-xs font-medium text-muted-foreground/60 uppercase tracking-wide italic">
-                                                Chưa mở khóa
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-1.5">
+                        <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Còn lại</p>
+                        <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground/80">{stats.remaining}</p>
+                    </div>
+                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
+                        <Target className="size-4" />
+                    </div>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-4">
+                        <div className="space-y-1.5">
+                            <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Hoàn thành</p>
+                            <p className="text-3xl font-bold tracking-tight tabular-nums text-primary/60">{stats.percentage}%</p>
                         </div>
+                        <Progress value={stats.percentage} className="h-1 bg-muted/20" />
+                    </div>
+                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
+                        <TrendingUp className="size-4" />
+                    </div>
+                </Card>
+            </div>
+
+            <Tabs defaultValue="ALL" className="w-full space-y-6" onValueChange={setSelectedCategory}>
+                <TabsList className="bg-muted/50 p-1 h-auto flex-wrap justify-start border-none">
+                    <TabsTrigger value="ALL" className="px-5 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">Tất cả</TabsTrigger>
+                    {categories.map((category) => (
+                        <TabsTrigger 
+                            key={category} 
+                            value={category}
+                            className="px-5 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                        >
+                            {categoryLabels[category]}
+                        </TabsTrigger>
                     ))}
-                </div>
-            ) : (
-                <Empty>
-                    <EmptyMedia>
-                        <Trophy className="size-8 text-muted-foreground/40" />
-                    </EmptyMedia>
-                    <EmptyContent>
-                        <EmptyTitle>
-                            Không có thành tích nào
-                        </EmptyTitle>
-                        <EmptyDescription>
-                            {selectedCategory === 'ALL'
-                                ? 'Bắt đầu học tập để mở khóa thành tích đầu tiên!'
-                                : 'Không có thành tích nào trong danh mục này'}
-                        </EmptyDescription>
-                    </EmptyContent>
-                </Empty>
-            )}
+                </TabsList>
+
+                <TabsContent value={selectedCategory} className="mt-0 outline-none">
+                    {filteredAchievements.length > 0 ? (
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {filteredAchievements.map((achievement) => (
+                                <Card
+                                    key={achievement.id}
+                                    className={cn(
+                                        "transition-all duration-300 shadow-none border-border/40 rounded-xl bg-card hover:bg-muted/5 group",
+                                        !achievement.earned && "opacity-40"
+                                    )}
+                                >
+                                    <CardContent className="p-4 flex items-start gap-3">
+                                        <div className={cn(
+                                            "size-9 rounded-lg flex items-center justify-center shrink-0 border border-border/40 group-hover:border-primary/20 transition-colors",
+                                            achievement.earned 
+                                                ? "bg-primary/5 text-primary/60" 
+                                                : "bg-muted/20 text-muted-foreground/30"
+                                        )}>
+                                            <achievement.icon className="size-4" />
+                                        </div>
+                                        <div className="flex-1 space-y-1.5">
+                                            <div className="space-y-1">
+                                                <h3 className="text-sm font-semibold text-foreground tracking-tight leading-tight">
+                                                    {achievement.title}
+                                                </h3>
+                                                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                                                    {achievement.description}
+                                                </p>
+                                            </div>
+                                            {achievement.earned && achievement.date && (
+                                                <div className="pt-1 flex items-center gap-1.5 text-xs text-muted-foreground leading-none">
+                                                    <Calendar className="size-3.5 text-primary/60" />
+                                                    {achievement.date}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <Empty className="py-20 border-2 border-dashed rounded-2xl">
+                            <EmptyMedia>
+                                <Trophy className="size-10 text-muted-foreground/30" />
+                            </EmptyMedia>
+                            <EmptyContent>
+                                <EmptyTitle className="text-lg">
+                                    Không có thành tích nào
+                                </EmptyTitle>
+                                <EmptyDescription className="text-sm">
+                                    {selectedCategory === 'ALL'
+                                        ? 'Bắt đầu học tập để mở khóa thành tích đầu tiên!'
+                                        : 'Không có thành tích nào trong danh mục này'}
+                                </EmptyDescription>
+                            </EmptyContent>
+                        </Empty>
+                    )}
+                </TabsContent>
+            </Tabs>
         </div>
     )
 }

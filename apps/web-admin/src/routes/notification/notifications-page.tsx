@@ -16,6 +16,14 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Button } from "@workspace/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { cn } from "@workspace/ui/lib/utils";
 import {
   Pagination,
@@ -41,6 +49,16 @@ interface NotificationItem {
   date: string;
   read: boolean;
   notificationType: NotificationType;
+}
+
+/** Giới hạn ký tự hiển thị trong danh sách (bấm vào để xem đủ trong dialog) */
+const LIST_TITLE_MAX_CHARS = 72;
+const LIST_MESSAGE_MAX_CHARS = 140;
+
+function truncatePreview(text: string, maxChars: number): string {
+  const t = text.trim();
+  if (t.length <= maxChars) return t;
+  return `${t.slice(0, maxChars).trimEnd()}…`;
 }
 
 function notificationIcon(type: NotificationType): LucideIcon {
@@ -87,6 +105,8 @@ function mapNotificationToUI(notification: NotificationResponseDTO): Notificatio
 
 export default function NotificationsPage() {
   const [page, setPage] = useState(1);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailItem, setDetailItem] = useState<NotificationItem | null>(null);
 
   const { data: notificationsData, isLoading } = useNotifications({
     limit: 50,
@@ -103,7 +123,9 @@ export default function NotificationsPage() {
 
   const unreadCount = unreadCountData?.count ?? 0;
 
-  const handleItemClick = (n: NotificationItem) => {
+  const openNotificationDetail = (n: NotificationItem) => {
+    setDetailItem(n);
+    setDetailOpen(true);
     if (!n.read) {
       markAsReadMutation.mutate(n.id);
     }
@@ -144,7 +166,7 @@ export default function NotificationsPage() {
               <li key={n.id}>
                 <button
                   type="button"
-                  onClick={() => handleItemClick(n)}
+                  onClick={() => openNotificationDetail(n)}
                   className={cn(
                     "flex w-full gap-3 py-3 text-left transition-colors",
                     "hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
@@ -168,14 +190,16 @@ export default function NotificationsPage() {
                           !n.read ? "font-medium text-foreground" : "font-normal text-muted-foreground",
                         )}
                       >
-                        {n.title}
+                        {truncatePreview(n.title, LIST_TITLE_MAX_CHARS)}
                       </span>
                       {!n.read ? (
                         <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" aria-label="Chưa đọc" />
                       ) : null}
                     </div>
                     {n.message ? (
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{n.message}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {truncatePreview(n.message, LIST_MESSAGE_MAX_CHARS)}
+                      </p>
                     ) : null}
                     <p className="mt-1.5 text-[11px] tabular-nums text-muted-foreground/80">
                       {n.date} · {n.time}
@@ -219,6 +243,63 @@ export default function NotificationsPage() {
           </Pagination>
         </div>
       ) : null}
+
+      <Dialog
+        open={detailOpen}
+        onOpenChange={(open) => {
+          setDetailOpen(open);
+          if (!open) setDetailItem(null);
+        }}
+      >
+        <DialogContent className="gap-0 p-0 sm:max-w-lg" showCloseButton>
+          {detailItem ? (
+            <>
+              <DialogHeader className="space-y-3 border-b border-border/60 p-4 pr-12 text-left">
+                <div className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border border-border/50 bg-muted/30",
+                      !detailItem.read ? "text-foreground/80" : "text-muted-foreground/70",
+                    )}
+                    aria-hidden
+                  >
+                    {(() => {
+                      const Icon = notificationIcon(detailItem.notificationType);
+                      return <Icon className="size-4 stroke-[1.75]" />;
+                    })()}
+                  </span>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <DialogTitle className="text-left text-base leading-snug">
+                      {detailItem.title}
+                    </DialogTitle>
+                    <p className="text-[11px] tabular-nums text-muted-foreground">
+                      {detailItem.date} · {detailItem.time}
+                    </p>
+                  </div>
+                </div>
+              </DialogHeader>
+              {detailItem.message ? (
+                <ScrollArea className="max-h-[min(50vh,320px)] px-4 py-3">
+                  <DialogDescription asChild>
+                    <div className="whitespace-pre-wrap break-words text-sm text-foreground">
+                      {detailItem.message}
+                    </div>
+                  </DialogDescription>
+                </ScrollArea>
+              ) : (
+                <div className="px-4 py-3">
+                  <DialogDescription>Không có nội dung chi tiết.</DialogDescription>
+                </div>
+              )}
+              <div className="flex justify-end border-t border-border/60 bg-muted/20 p-4">
+                <Button type="button" variant="secondary" onClick={() => setDetailOpen(false)}>
+                  Đóng
+                </Button>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

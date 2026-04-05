@@ -13,7 +13,7 @@ interface CurrentUserRankProps {
 
 export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
     return (
-        <Card className="mb-6 overflow-hidden border-primary/30 bg-primary/5 shadow-md animate-in slide-in-from-bottom duration-700 md:mb-8">
+        <Card className="mb-6 overflow-hidden border-primary/20 bg-primary/5 shadow-none md:mb-10">
             <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-6">
                 <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
                     <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/20 text-lg font-bold text-primary sm:size-12 sm:text-xl">
@@ -36,18 +36,18 @@ export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
                         </div>
                     </div>
                 </div>
-                <div className="flex items-stretch justify-between gap-3 border-t border-primary/10 pt-3 sm:border-t-0 sm:pt-0 md:gap-6">
-                    <div className="flex flex-1 flex-col items-center justify-center rounded-lg bg-background/40 px-3 py-2 text-center sm:flex-initial sm:bg-transparent sm:px-0 sm:py-0">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs">
+                <div className="flex items-stretch justify-between gap-6 border-t border-primary/5 pt-4 sm:border-t-0 sm:pt-0">
+                    <div className="flex flex-col items-center justify-center text-center">
+                        <p className="text-[10px] font-semibold text-muted-foreground/60">
                             Cấp độ
                         </p>
-                        <p className="text-base font-extrabold text-foreground sm:text-lg">{user.level}</p>
+                        <p className="text-lg font-bold text-foreground tabular-nums">{user.level}</p>
                     </div>
-                    <div className="flex flex-1 flex-col items-center justify-center rounded-lg bg-background/40 px-3 py-2 text-center sm:flex-initial sm:bg-transparent sm:px-0 sm:py-0">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs">
+                    <div className="flex flex-col items-center justify-center text-center">
+                        <p className="text-[10px] font-semibold text-muted-foreground/60">
                             {type === 'global' ? 'Kinh nghiệm' : type === 'streak' ? 'Chuỗi học' : 'Hoạt động'}
                         </p>
-                        <div className="mt-0.5 flex items-center gap-1.5">
+                        <div className="flex items-center gap-2 mt-0.5">
                             {type === 'global' ? (
                                 <Star className="size-4 shrink-0 fill-amber-500 text-amber-500" aria-hidden />
                             ) : type === 'streak' ? (
@@ -55,7 +55,7 @@ export function CurrentUserRank({ user, type }: CurrentUserRankProps) {
                             ) : (
                                 <CalendarDays className="size-4 shrink-0 fill-primary text-primary" aria-hidden />
                             )}
-                            <p className="text-base font-extrabold tabular-nums text-foreground sm:text-lg">
+                            <p className="text-lg font-bold tabular-nums text-foreground">
                                 {type === 'global'
                                     ? formatNumber(user.xp)
                                     : type === 'streak'

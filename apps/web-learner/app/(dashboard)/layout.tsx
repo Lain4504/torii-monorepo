@@ -9,6 +9,7 @@ import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
 import { GuestActionGuard } from '@/components/auth/guest-action-guard'
+import { PageLoading } from '@workspace/ui/components/page-loading'
 
 export default function DashboardLayout({
     children,
@@ -33,15 +34,7 @@ export default function DashboardLayout({
 
     // Delay rendering logic until after hydration to avoid mismatch
     if (!mounted || status === 'loading') {
-
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-background">
-                <div className="flex flex-col items-center gap-4 animate-in fade-in duration-700">
-                    <div className="w-12 h-12 rounded-2xl border-2 border-primary/20 border-t-primary animate-spin" />
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Torii Loading...</div>
-                </div>
-            </div>
-        )
+        return <PageLoading className="min-h-screen" />
     }
 
     const layoutContent = (
@@ -52,7 +45,7 @@ export default function DashboardLayout({
                     onOpenStreakModal={() => setStreakModalOpen(true)}
                     isGuest={!isAuthenticated}
                 />
-                <main className="flex-1 overflow-y-auto scrollbar-none">
+                <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none">
                     <div className="mx-auto w-full max-w-[1600px] px-4 py-6 md:px-6 md:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                         {children}
                     </div>

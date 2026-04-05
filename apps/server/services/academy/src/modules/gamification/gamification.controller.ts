@@ -30,8 +30,8 @@ export class GamificationController {
     try {
       return await this.gamificationService.getHistory(
         data.userId,
-        data.limit,
-        data.offset,
+        data.limit ? Number(data.limit) : undefined,
+        data.offset ? Number(data.offset) : undefined,
       );
     } catch (error) {
       this.logger.error(`Error getting history: ${error.message}`, error.stack);

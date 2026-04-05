@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/live-class-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/live-class-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/exams/exams-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/exams/exams-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/questions/questions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/questions/questions-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-classes-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-classes-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-reschedule-requests-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/live-reschedule-requests-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-packages-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/vod-packages-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,7 +16,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1829" />
+    <option name="cachedIndexableFilesCount" value="1849" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -37,8 +29,8 @@
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
-        <option value="Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
         <option value="Lê Thanh Phương &lt;147789009+thanhphuongne@users.noreply.github.com&gt;" />
+        <option value="Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
       </list>
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -90,41 +82,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "Jest.CourseRunService.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\docs\spec" />
@@ -405,400 +397,402 @@
       <workItem from="1775200902364" duration="10081000" />
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
+      <workItem from="1775440642848" duration="3867000" />
+      <workItem from="1775457979530" duration="2710000" />
     </task>
-    <task id="LOCAL-01068" summary="update">
+    <task id="LOCAL-01126" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1774367608672</created>
-      <option name="number" value="01068" />
-      <option name="presentableId" value="LOCAL-01068" />
+      <created>1775406094932</created>
+      <option name="number" value="01126" />
+      <option name="presentableId" value="LOCAL-01126" />
       <option name="project" value="LOCAL" />
-      <updated>1774367608672</updated>
+      <updated>1775406094932</updated>
     </task>
-    <task id="LOCAL-01069" summary="refactor: change to seed jlpt examc config">
+    <task id="LOCAL-01127" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1774373588387</created>
-      <option name="number" value="01069" />
-      <option name="presentableId" value="LOCAL-01069" />
+      <created>1775406189987</created>
+      <option name="number" value="01127" />
+      <option name="presentableId" value="LOCAL-01127" />
       <option name="project" value="LOCAL" />
-      <updated>1774373588387</updated>
+      <updated>1775406189987</updated>
     </task>
-    <task id="LOCAL-01070" summary="feat: add staff admin to view resource (#316)">
+    <task id="LOCAL-01128" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1774517641766</created>
-      <option name="number" value="01070" />
-      <option name="presentableId" value="LOCAL-01070" />
+      <created>1775406562432</created>
+      <option name="number" value="01128" />
+      <option name="presentableId" value="LOCAL-01128" />
       <option name="project" value="LOCAL" />
-      <updated>1774517641766</updated>
+      <updated>1775406562433</updated>
     </task>
-    <task id="LOCAL-01071" summary="feat: add whiteboard embed mode and corresponding UI component">
+    <task id="LOCAL-01129" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1774753978228</created>
-      <option name="number" value="01071" />
-      <option name="presentableId" value="LOCAL-01071" />
+      <created>1775406608484</created>
+      <option name="number" value="01129" />
+      <option name="presentableId" value="LOCAL-01129" />
       <option name="project" value="LOCAL" />
-      <updated>1774753978228</updated>
+      <updated>1775406608485</updated>
     </task>
-    <task id="LOCAL-01072" summary="fix(breakout): improve metadata handling and error logging for breakout room creation">
+    <task id="LOCAL-01130" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775061935885</created>
-      <option name="number" value="01072" />
-      <option name="presentableId" value="LOCAL-01072" />
+      <created>1775406720235</created>
+      <option name="number" value="01130" />
+      <option name="presentableId" value="LOCAL-01130" />
       <option name="project" value="LOCAL" />
-      <updated>1775061935885</updated>
+      <updated>1775406720235</updated>
     </task>
-    <task id="LOCAL-01073" summary="fix(insights): update AI chat model configuration and pricing structure">
+    <task id="LOCAL-01131" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775062594026</created>
-      <option name="number" value="01073" />
-      <option name="presentableId" value="LOCAL-01073" />
+      <created>1775407115380</created>
+      <option name="number" value="01131" />
+      <option name="presentableId" value="LOCAL-01131" />
       <option name="project" value="LOCAL" />
-      <updated>1775062594027</updated>
+      <updated>1775407115380</updated>
     </task>
-    <task id="LOCAL-01074" summary="fix(insights): update AI chat model configuration and pricing structure">
+    <task id="LOCAL-01132" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775062618621</created>
-      <option name="number" value="01074" />
-      <option name="presentableId" value="LOCAL-01074" />
+      <created>1775407157243</created>
+      <option name="number" value="01132" />
+      <option name="presentableId" value="LOCAL-01132" />
       <option name="project" value="LOCAL" />
-      <updated>1775062618621</updated>
+      <updated>1775407157243</updated>
     </task>
-    <task id="LOCAL-01075" summary="fix(insights): update AI chat model configuration and pricing structure">
+    <task id="LOCAL-01133" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775062933182</created>
-      <option name="number" value="01075" />
-      <option name="presentableId" value="LOCAL-01075" />
+      <created>1775407200123</created>
+      <option name="number" value="01133" />
+      <option name="presentableId" value="LOCAL-01133" />
       <option name="project" value="LOCAL" />
-      <updated>1775062933182</updated>
+      <updated>1775407200123</updated>
     </task>
-    <task id="LOCAL-01076" summary="fix(microphone/webcam): enhance component styling with className prop support">
+    <task id="LOCAL-01134" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775063020144</created>
-      <option name="number" value="01076" />
-      <option name="presentableId" value="LOCAL-01076" />
+      <created>1775407487183</created>
+      <option name="number" value="01134" />
+      <option name="presentableId" value="LOCAL-01134" />
       <option name="project" value="LOCAL" />
-      <updated>1775063020144</updated>
+      <updated>1775407487183</updated>
     </task>
-    <task id="LOCAL-01077" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+    <task id="LOCAL-01135" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775063628703</created>
-      <option name="number" value="01077" />
-      <option name="presentableId" value="LOCAL-01077" />
+      <created>1775407573771</created>
+      <option name="number" value="01135" />
+      <option name="presentableId" value="LOCAL-01135" />
       <option name="project" value="LOCAL" />
-      <updated>1775063628703</updated>
+      <updated>1775407573771</updated>
     </task>
-    <task id="LOCAL-01078" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+    <task id="LOCAL-01136" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775063885301</created>
-      <option name="number" value="01078" />
-      <option name="presentableId" value="LOCAL-01078" />
+      <created>1775408035109</created>
+      <option name="number" value="01136" />
+      <option name="presentableId" value="LOCAL-01136" />
       <option name="project" value="LOCAL" />
-      <updated>1775063885302</updated>
+      <updated>1775408035109</updated>
     </task>
-    <task id="LOCAL-01079" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+    <task id="LOCAL-01137" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775064474031</created>
-      <option name="number" value="01079" />
-      <option name="presentableId" value="LOCAL-01079" />
+      <created>1775441937552</created>
+      <option name="number" value="01137" />
+      <option name="presentableId" value="LOCAL-01137" />
       <option name="project" value="LOCAL" />
-      <updated>1775064474032</updated>
+      <updated>1775441937553</updated>
     </task>
-    <task id="LOCAL-01080" summary="fix(breakout): refactor room settings and improve device management in startup modal">
+    <task id="LOCAL-01138" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775066520893</created>
-      <option name="number" value="01080" />
-      <option name="presentableId" value="LOCAL-01080" />
+      <created>1775442144447</created>
+      <option name="number" value="01138" />
+      <option name="presentableId" value="LOCAL-01138" />
       <option name="project" value="LOCAL" />
-      <updated>1775066520893</updated>
+      <updated>1775442144447</updated>
     </task>
-    <task id="LOCAL-01081" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01139" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775104480403</created>
-      <option name="number" value="01081" />
-      <option name="presentableId" value="LOCAL-01081" />
+      <created>1775442443207</created>
+      <option name="number" value="01139" />
+      <option name="presentableId" value="LOCAL-01139" />
       <option name="project" value="LOCAL" />
-      <updated>1775104480404</updated>
+      <updated>1775442443207</updated>
     </task>
-    <task id="LOCAL-01082" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01140" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775107671694</created>
-      <option name="number" value="01082" />
-      <option name="presentableId" value="LOCAL-01082" />
+      <created>1775443429932</created>
+      <option name="number" value="01140" />
+      <option name="presentableId" value="LOCAL-01140" />
       <option name="project" value="LOCAL" />
-      <updated>1775107671694</updated>
+      <updated>1775443429932</updated>
     </task>
-    <task id="LOCAL-01083" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01141" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775117373337</created>
-      <option name="number" value="01083" />
-      <option name="presentableId" value="LOCAL-01083" />
+      <created>1775443878071</created>
+      <option name="number" value="01141" />
+      <option name="presentableId" value="LOCAL-01141" />
       <option name="project" value="LOCAL" />
-      <updated>1775117373337</updated>
+      <updated>1775443878071</updated>
     </task>
-    <task id="LOCAL-01084" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01142" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775117379818</created>
-      <option name="number" value="01084" />
-      <option name="presentableId" value="LOCAL-01084" />
+      <created>1775443967620</created>
+      <option name="number" value="01142" />
+      <option name="presentableId" value="LOCAL-01142" />
       <option name="project" value="LOCAL" />
-      <updated>1775117379818</updated>
+      <updated>1775443967620</updated>
     </task>
-    <task id="LOCAL-01085" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01143" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775117726664</created>
-      <option name="number" value="01085" />
-      <option name="presentableId" value="LOCAL-01085" />
+      <created>1775444524998</created>
+      <option name="number" value="01143" />
+      <option name="presentableId" value="LOCAL-01143" />
       <option name="project" value="LOCAL" />
-      <updated>1775117726665</updated>
+      <updated>1775444524998</updated>
     </task>
-    <task id="LOCAL-01086" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01144" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775117873219</created>
-      <option name="number" value="01086" />
-      <option name="presentableId" value="LOCAL-01086" />
+      <created>1775446998134</created>
+      <option name="number" value="01144" />
+      <option name="presentableId" value="LOCAL-01144" />
       <option name="project" value="LOCAL" />
-      <updated>1775117873219</updated>
+      <updated>1775446998134</updated>
     </task>
-    <task id="LOCAL-01087" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01145" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775118566410</created>
-      <option name="number" value="01087" />
-      <option name="presentableId" value="LOCAL-01087" />
+      <created>1775447790625</created>
+      <option name="number" value="01145" />
+      <option name="presentableId" value="LOCAL-01145" />
       <option name="project" value="LOCAL" />
-      <updated>1775118566410</updated>
+      <updated>1775447790625</updated>
     </task>
-    <task id="LOCAL-01088" summary="fix(room-settings): refactor settings components to use new UI library and improve layout">
+    <task id="LOCAL-01146" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775118992326</created>
-      <option name="number" value="01088" />
-      <option name="presentableId" value="LOCAL-01088" />
+      <created>1775448401988</created>
+      <option name="number" value="01146" />
+      <option name="presentableId" value="LOCAL-01146" />
       <option name="project" value="LOCAL" />
-      <updated>1775118992326</updated>
+      <updated>1775448401988</updated>
     </task>
-    <task id="LOCAL-01089" summary="fix(breakout): enhance room status handling and improve webhook body processing">
+    <task id="LOCAL-01147" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775122364545</created>
-      <option name="number" value="01089" />
-      <option name="presentableId" value="LOCAL-01089" />
+      <created>1775448803029</created>
+      <option name="number" value="01147" />
+      <option name="presentableId" value="LOCAL-01147" />
       <option name="project" value="LOCAL" />
-      <updated>1775122364545</updated>
+      <updated>1775448803030</updated>
     </task>
-    <task id="LOCAL-01090" summary="feat: add index column to various tables and restrict access to AI subscriptions">
+    <task id="LOCAL-01148" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775205773989</created>
-      <option name="number" value="01090" />
-      <option name="presentableId" value="LOCAL-01090" />
+      <created>1775449880925</created>
+      <option name="number" value="01148" />
+      <option name="presentableId" value="LOCAL-01148" />
       <option name="project" value="LOCAL" />
-      <updated>1775205773989</updated>
+      <updated>1775449880925</updated>
     </task>
-    <task id="LOCAL-01091" summary="feat(dashboard): implement admin dashboard with staff academic and operations insights">
+    <task id="LOCAL-01149" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775208903100</created>
-      <option name="number" value="01091" />
-      <option name="presentableId" value="LOCAL-01091" />
+      <created>1775450627661</created>
+      <option name="number" value="01149" />
+      <option name="presentableId" value="LOCAL-01149" />
       <option name="project" value="LOCAL" />
-      <updated>1775208903100</updated>
+      <updated>1775450627662</updated>
     </task>
-    <task id="LOCAL-01092" summary="feat(class-attendance): add join session functionality and alert dialog for lecturers">
+    <task id="LOCAL-01150" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775210842845</created>
-      <option name="number" value="01092" />
-      <option name="presentableId" value="LOCAL-01092" />
+      <created>1775451086313</created>
+      <option name="number" value="01150" />
+      <option name="presentableId" value="LOCAL-01150" />
       <option name="project" value="LOCAL" />
-      <updated>1775210842845</updated>
+      <updated>1775451086313</updated>
     </task>
-    <task id="LOCAL-01093" summary="fix(lecturer-dashboard): update session handling and improve class ID retrieval">
+    <task id="LOCAL-01151" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775212938677</created>
-      <option name="number" value="01093" />
-      <option name="presentableId" value="LOCAL-01093" />
+      <created>1775452572763</created>
+      <option name="number" value="01151" />
+      <option name="presentableId" value="LOCAL-01151" />
       <option name="project" value="LOCAL" />
-      <updated>1775212938677</updated>
+      <updated>1775452572764</updated>
     </task>
-    <task id="LOCAL-01094" summary="fix(lecturer-dashboard): update session handling and improve class ID retrieval">
+    <task id="LOCAL-01152" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775213459917</created>
-      <option name="number" value="01094" />
-      <option name="presentableId" value="LOCAL-01094" />
+      <created>1775452711803</created>
+      <option name="number" value="01152" />
+      <option name="presentableId" value="LOCAL-01152" />
       <option name="project" value="LOCAL" />
-      <updated>1775213459918</updated>
+      <updated>1775452711805</updated>
     </task>
-    <task id="LOCAL-01095" summary="chore: remove leagacy docs">
+    <task id="LOCAL-01153" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775226993297</created>
-      <option name="number" value="01095" />
-      <option name="presentableId" value="LOCAL-01095" />
+      <created>1775452817314</created>
+      <option name="number" value="01153" />
+      <option name="presentableId" value="LOCAL-01153" />
       <option name="project" value="LOCAL" />
-      <updated>1775226993298</updated>
+      <updated>1775452817314</updated>
     </task>
-    <task id="LOCAL-01096" summary="feat: add roadmap module and related functionality for personalized learning pathways">
+    <task id="LOCAL-01154" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775227664588</created>
-      <option name="number" value="01096" />
-      <option name="presentableId" value="LOCAL-01096" />
+      <created>1775452867587</created>
+      <option name="number" value="01154" />
+      <option name="presentableId" value="LOCAL-01154" />
       <option name="project" value="LOCAL" />
-      <updated>1775227664589</updated>
+      <updated>1775452867587</updated>
     </task>
-    <task id="LOCAL-01097" summary="feat: enhance dashboard and study set components with sharing functionality and UI improvements">
+    <task id="LOCAL-01155" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775291591757</created>
-      <option name="number" value="01097" />
-      <option name="presentableId" value="LOCAL-01097" />
+      <created>1775453235883</created>
+      <option name="number" value="01155" />
+      <option name="presentableId" value="LOCAL-01155" />
       <option name="project" value="LOCAL" />
-      <updated>1775291591758</updated>
+      <updated>1775453235883</updated>
     </task>
-    <task id="LOCAL-01098" summary="feat: learning pathway for course (#339)">
+    <task id="LOCAL-01156" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775307787335</created>
-      <option name="number" value="01098" />
-      <option name="presentableId" value="LOCAL-01098" />
+      <created>1775453327837</created>
+      <option name="number" value="01156" />
+      <option name="presentableId" value="LOCAL-01156" />
       <option name="project" value="LOCAL" />
-      <updated>1775307787335</updated>
+      <updated>1775453327837</updated>
     </task>
-    <task id="LOCAL-01099" summary="feat: record coupon usage in order processing">
+    <task id="LOCAL-01157" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775311422123</created>
-      <option name="number" value="01099" />
-      <option name="presentableId" value="LOCAL-01099" />
+      <created>1775453441214</created>
+      <option name="number" value="01157" />
+      <option name="presentableId" value="LOCAL-01157" />
       <option name="project" value="LOCAL" />
-      <updated>1775311422123</updated>
+      <updated>1775453441214</updated>
     </task>
-    <task id="LOCAL-01100" summary="style: improve layout and spacing in dashboard components">
+    <task id="LOCAL-01158" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775314800642</created>
-      <option name="number" value="01100" />
-      <option name="presentableId" value="LOCAL-01100" />
+      <created>1775453593452</created>
+      <option name="number" value="01158" />
+      <option name="presentableId" value="LOCAL-01158" />
       <option name="project" value="LOCAL" />
-      <updated>1775314800642</updated>
+      <updated>1775453593452</updated>
     </task>
-    <task id="LOCAL-01101" summary="fix ui web-adin">
+    <task id="LOCAL-01159" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775315852659</created>
-      <option name="number" value="01101" />
-      <option name="presentableId" value="LOCAL-01101" />
+      <created>1775453915801</created>
+      <option name="number" value="01159" />
+      <option name="presentableId" value="LOCAL-01159" />
       <option name="project" value="LOCAL" />
-      <updated>1775315852661</updated>
+      <updated>1775453915801</updated>
     </task>
-    <task id="LOCAL-01102" summary="feat: add delete confirmation dialog for flashcard sets and improve UI components">
+    <task id="LOCAL-01160" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775316140106</created>
-      <option name="number" value="01102" />
-      <option name="presentableId" value="LOCAL-01102" />
+      <created>1775454554614</created>
+      <option name="number" value="01160" />
+      <option name="presentableId" value="LOCAL-01160" />
       <option name="project" value="LOCAL" />
-      <updated>1775316140107</updated>
+      <updated>1775454554615</updated>
     </task>
-    <task id="LOCAL-01103" summary="feat: add delete confirmation dialog for flashcard sets and improve UI components">
+    <task id="LOCAL-01161" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775316411646</created>
-      <option name="number" value="01103" />
-      <option name="presentableId" value="LOCAL-01103" />
+      <created>1775454798626</created>
+      <option name="number" value="01161" />
+      <option name="presentableId" value="LOCAL-01161" />
       <option name="project" value="LOCAL" />
-      <updated>1775316411648</updated>
+      <updated>1775454798627</updated>
     </task>
-    <task id="LOCAL-01104" summary="feat(ui): enhance ticket management UI with improved layout and functionality">
+    <task id="LOCAL-01162" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775383664239</created>
-      <option name="number" value="01104" />
-      <option name="presentableId" value="LOCAL-01104" />
+      <created>1775455013676</created>
+      <option name="number" value="01162" />
+      <option name="presentableId" value="LOCAL-01162" />
       <option name="project" value="LOCAL" />
-      <updated>1775383664242</updated>
+      <updated>1775455013676</updated>
     </task>
-    <task id="LOCAL-01105" summary="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling">
+    <task id="LOCAL-01163" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775383889387</created>
-      <option name="number" value="01105" />
-      <option name="presentableId" value="LOCAL-01105" />
+      <created>1775455276677</created>
+      <option name="number" value="01163" />
+      <option name="presentableId" value="LOCAL-01163" />
       <option name="project" value="LOCAL" />
-      <updated>1775383889387</updated>
+      <updated>1775455276677</updated>
     </task>
-    <task id="LOCAL-01106" summary="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling">
+    <task id="LOCAL-01164" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775383926768</created>
-      <option name="number" value="01106" />
-      <option name="presentableId" value="LOCAL-01106" />
+      <created>1775455578991</created>
+      <option name="number" value="01164" />
+      <option name="presentableId" value="LOCAL-01164" />
       <option name="project" value="LOCAL" />
-      <updated>1775383926768</updated>
+      <updated>1775455578991</updated>
     </task>
-    <task id="LOCAL-01107" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01165" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775384899275</created>
-      <option name="number" value="01107" />
-      <option name="presentableId" value="LOCAL-01107" />
+      <created>1775455662992</created>
+      <option name="number" value="01165" />
+      <option name="presentableId" value="LOCAL-01165" />
       <option name="project" value="LOCAL" />
-      <updated>1775384899275</updated>
+      <updated>1775455662992</updated>
     </task>
-    <task id="LOCAL-01108" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01166" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775385246287</created>
-      <option name="number" value="01108" />
-      <option name="presentableId" value="LOCAL-01108" />
+      <created>1775455836909</created>
+      <option name="number" value="01166" />
+      <option name="presentableId" value="LOCAL-01166" />
       <option name="project" value="LOCAL" />
-      <updated>1775385246287</updated>
+      <updated>1775455836909</updated>
     </task>
-    <task id="LOCAL-01109" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01167" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775385617583</created>
-      <option name="number" value="01109" />
-      <option name="presentableId" value="LOCAL-01109" />
+      <created>1775456058664</created>
+      <option name="number" value="01167" />
+      <option name="presentableId" value="LOCAL-01167" />
       <option name="project" value="LOCAL" />
-      <updated>1775385617583</updated>
+      <updated>1775456058664</updated>
     </task>
-    <task id="LOCAL-01110" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01168" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775386705675</created>
-      <option name="number" value="01110" />
-      <option name="presentableId" value="LOCAL-01110" />
+      <created>1775456203883</created>
+      <option name="number" value="01168" />
+      <option name="presentableId" value="LOCAL-01168" />
       <option name="project" value="LOCAL" />
-      <updated>1775386705675</updated>
+      <updated>1775456203883</updated>
     </task>
-    <task id="LOCAL-01111" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01169" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775387428445</created>
-      <option name="number" value="01111" />
-      <option name="presentableId" value="LOCAL-01111" />
+      <created>1775456362706</created>
+      <option name="number" value="01169" />
+      <option name="presentableId" value="LOCAL-01169" />
       <option name="project" value="LOCAL" />
-      <updated>1775387428445</updated>
+      <updated>1775456362706</updated>
     </task>
-    <task id="LOCAL-01112" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01170" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775387480421</created>
-      <option name="number" value="01112" />
-      <option name="presentableId" value="LOCAL-01112" />
+      <created>1775456486019</created>
+      <option name="number" value="01170" />
+      <option name="presentableId" value="LOCAL-01170" />
       <option name="project" value="LOCAL" />
-      <updated>1775387480422</updated>
+      <updated>1775456486019</updated>
     </task>
-    <task id="LOCAL-01113" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01171" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775387650126</created>
-      <option name="number" value="01113" />
-      <option name="presentableId" value="LOCAL-01113" />
+      <created>1775458532697</created>
+      <option name="number" value="01171" />
+      <option name="presentableId" value="LOCAL-01171" />
       <option name="project" value="LOCAL" />
-      <updated>1775387650126</updated>
+      <updated>1775458532697</updated>
     </task>
-    <task id="LOCAL-01114" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01172" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775387827772</created>
-      <option name="number" value="01114" />
-      <option name="presentableId" value="LOCAL-01114" />
+      <created>1775458926870</created>
+      <option name="number" value="01172" />
+      <option name="presentableId" value="LOCAL-01172" />
       <option name="project" value="LOCAL" />
-      <updated>1775387827772</updated>
+      <updated>1775458926870</updated>
     </task>
-    <task id="LOCAL-01115" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01173" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775394421078</created>
-      <option name="number" value="01115" />
-      <option name="presentableId" value="LOCAL-01115" />
+      <created>1775459571897</created>
+      <option name="number" value="01173" />
+      <option name="presentableId" value="LOCAL-01173" />
       <option name="project" value="LOCAL" />
-      <updated>1775394421078</updated>
+      <updated>1775459571897</updated>
     </task>
-    <task id="LOCAL-01116" summary="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation">
+    <task id="LOCAL-01174" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
       <option name="closed" value="true" />
-      <created>1775396253029</created>
-      <option name="number" value="01116" />
-      <option name="presentableId" value="LOCAL-01116" />
+      <created>1775460737879</created>
+      <option name="number" value="01174" />
+      <option name="presentableId" value="LOCAL-01174" />
       <option name="project" value="LOCAL" />
-      <updated>1775396253029</updated>
+      <updated>1775460737879</updated>
     </task>
-    <option name="localTasksCounter" value="1117" />
+    <option name="localTasksCounter" value="1175" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -815,7 +809,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="update-web-learner-fix-ui" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -833,7 +827,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix(insights): update AI chat model configuration and pricing structure" />
     <MESSAGE value="fix(microphone/webcam): enhance component styling with className prop support" />
     <MESSAGE value="fix(breakout): refactor room settings and improve device management in startup modal" />
     <MESSAGE value="fix(room-settings): refactor settings components to use new UI library and improve layout" />
@@ -858,7 +851,8 @@
     <MESSAGE value="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling" />
     <MESSAGE value="feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation" />
-    <option name="LAST_COMMIT_MESSAGE" value="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation" />
+    <MESSAGE value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

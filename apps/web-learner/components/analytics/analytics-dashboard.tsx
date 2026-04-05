@@ -286,37 +286,40 @@ export function AnalyticsDashboard() {
             {showAIDialog && <AILoadingDialog onClose={() => setShowAIDialog(false)} />}
 
             {/* ── Header ──────────────────────── */}
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-normal text-foreground">Phân Tích Tiến Độ</h1>
-                    <p className="text-muted-foreground mt-1 text-sm">Cá nhân hóa lộ trình và theo dõi mục tiêu JLPT của bạn.</p>
+            {/* ── Header ──────────────────────── */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border">
+                <div className="space-y-4">
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Phân tích tiến độ</h1>
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Cá nhân hóa lộ trình và theo dõi mục tiêu JLPT của bạn qua hệ thống phân tích dữ liệu thông minh.
+                    </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 bg-secondary/30 p-1.5 rounded-2xl border">
+                <div className="flex flex-wrap items-center gap-2 bg-muted/50 p-1 rounded-xl border border-border">
                     {JLPT_LEVELS.map(lv => (
                         <button
                             key={lv}
                             onClick={() => setTargetLevel(lv)}
-                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${targetLevel === lv ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${targetLevel === lv ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted'}`}
                         >
                             {lv}
                         </button>
                     ))}
-                    <div className="w-[1px] h-6 bg-border mx-1" />
+                    <div className="w-[1px] h-4 bg-border mx-1" />
                     <button
                         onClick={handleRequestAI}
                         disabled={generateMutation.isPending}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-primary font-bold text-xs hover:bg-primary/20 transition disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-wider hover:bg-primary/20 transition disabled:opacity-50"
                     >
-                        <Sparkles className="w-3.5 h-3.5" />
+                        <Sparkles className="w-3 h-3" />
                         AI Analysis
                     </button>
                 </div>
-            </header>
+            </div>
 
             {/* ── Hero Stats ────────────────── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Weekly Chart */}
-                <section className="lg:col-span-2 rounded-3xl border bg-card p-6 shadow-sm overflow-hidden flex flex-col">
+                <section className="lg:col-span-2 rounded-2xl border bg-card p-6 shadow-sm overflow-hidden flex flex-col">
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h2 className="font-bold text-base flex items-center gap-2">
@@ -367,7 +370,7 @@ export function AnalyticsDashboard() {
 
                 {/* Gamification & Goals Sidebar */}
                 <section className="space-y-6">
-                    <div className="rounded-3xl border bg-card p-6 shadow-sm relative overflow-hidden group">
+                    <div className="rounded-2xl border bg-card p-6 shadow-sm relative overflow-hidden group">
                         <div className="absolute -top-6 -right-6 h-24 w-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500" />
                         <div className="relative z-10 flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
@@ -392,7 +395,7 @@ export function AnalyticsDashboard() {
                         </div>
                     </div>
 
-                    <div className="rounded-3xl border bg-primary text-primary-foreground p-6 shadow-lg shadow-primary/20 relative overflow-hidden group">
+                    <div className="rounded-2xl border bg-primary text-primary-foreground p-6 shadow-lg shadow-primary/20 relative overflow-hidden group">
                         <Zap className="absolute -bottom-4 -right-4 h-32 w-32 opacity-10 group-hover:scale-110 transition-transform duration-700" />
                         <div className="relative z-10">
                             <p className="text-[10px] uppercase font-bold tracking-widest opacity-70">Mục tiêu hôm nay</p>
@@ -437,7 +440,7 @@ export function AnalyticsDashboard() {
 
             {/* ── Courses section ───────────── */}
             <div className="space-y-10">
-                <section className="rounded-3xl border bg-card shadow-sm p-8">
+                <section className="rounded-2xl border bg-card shadow-sm p-8">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="font-bold text-xl flex items-center gap-3">
                                 <BookMarked className="h-6 w-6 text-primary" /> Khóa học của bạn
@@ -510,7 +513,7 @@ function StatMetric({ icon, label, value, sub, progress }: {
     icon: React.ReactNode; label: string; value: string | number; sub?: string; progress?: number;
 }) {
     return (
-        <div className="rounded-3xl border bg-card shadow-sm p-6 hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border bg-card shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3 mb-4">
                 <div className="p-2.5 rounded-2xl bg-muted/50 border shrink-0">{icon}</div>
                 <div>
@@ -535,9 +538,9 @@ function AICallToAction({ targetLevel, onRequest, isLoading }: {
     targetLevel: string; onRequest: () => void; isLoading: boolean;
 }) {
     return (
-        <div className="rounded-3xl border border-dashed border-primary/40 bg-primary/5 p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden group">
+        <div className="rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.02] pointer-events-none" />
-            <div className="p-5 rounded-3xl bg-primary shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+            <div className="p-5 rounded-2xl bg-primary shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
                 <Sparkles className="h-10 w-10 text-primary-foreground" />
             </div>
             <div className="relative z-10">

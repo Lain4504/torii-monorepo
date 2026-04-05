@@ -227,10 +227,14 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
                 <SelectValue placeholder="Chọn bài học" />
               </SelectTrigger>
               <SelectContent position="popper" className="max-h-[400px]">
-                {((curriculum?.modules ?? []) as Array<any>).map((m) => (
+                {(((curriculum?.modules ?? []) as Array<any>)
+                  .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                ).map((m) => (
                   <SelectGroup key={m.id}>
                     <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>
-                    {(m.lessons || []).map((l: any) => (
+                    {((m.lessons || []) as Array<any>)
+                      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                      .map((l: any) => (
                       <SelectItem key={l.id} value={l.id} className="pl-6">
                         {l.title || l.id}
                       </SelectItem>

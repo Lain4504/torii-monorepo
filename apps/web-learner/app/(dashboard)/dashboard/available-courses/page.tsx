@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import {
@@ -8,8 +8,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@workspace/ui/components/collapsible'
-import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group'
-import { Calendar, ChevronDown, Clock, User, Users } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock, BookOpen, Video, User, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -18,6 +17,77 @@ import { Spinner } from '@workspace/ui/components/spinner'
 import { formatNumber } from '@/utils/format-utils'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Separator } from '@workspace/ui/components/separator'
+import { cn } from '@workspace/ui/lib/utils'
+
+/** Desktop-only horizontal scroll carousel with prev/next buttons. */
+function HorizontalScrollCarousel({ children, cardCount, scrollRef }: { children: React.ReactNode; cardCount: number; scrollRef: React.RefObject<HTMLDivElement | null> }) {
+    if (cardCount === 0) return <>{children}</>
+
+    return (
+        <div className="relative w-full overflow-hidden">
+            <div
+                ref={scrollRef}
+                className="flex gap-6 overflow-x-auto pb-6 pt-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+                {children}
+            </div>
+        </div>
+    )
+}
+
+function SectionHeader({ 
+    title, 
+    description, 
+    scrollRef, 
+    cardCount 
+}: { 
+    title: string; 
+    description: string; 
+    scrollRef: React.RefObject<HTMLDivElement | null>; 
+    cardCount: number;
+}) {
+    const scroll = (direction: 'left' | 'right') => {
+        if (!scrollRef.current) return
+        const amount = scrollRef.current.clientWidth * 0.8
+        scrollRef.current.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' })
+    }
+
+    return (
+        <div className="flex items-end justify-between gap-6 border-b border-border/20 pb-5">
+            <div className="space-y-1.5 flex-1 min-w-0">
+                <h2 className="text-xl font-bold tracking-tight text-foreground border-l-4 border-primary pl-4 leading-none">
+                    {title}
+                </h2>
+                <p className="text-xs font-semibold text-muted-foreground/60 pl-5 max-w-2xl">
+                    {description}
+                </p>
+            </div>
+            
+            {cardCount > 0 && (
+                <div className="flex items-center gap-2 shrink-0">
+                    <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl border-border/50 hover:bg-muted hover:text-primary transition-all shadow-none" 
+                        onClick={() => scroll('left')}
+                        aria-label="Previous"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl border-border/50 hover:bg-muted hover:text-primary transition-all shadow-none" 
+                        onClick={() => scroll('right')}
+                        aria-label="Next"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
+        </div>
+    )
+}
 
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const
 
@@ -28,7 +98,6 @@ function currentMonthLabel() {
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
-/** Item sau `findPublic` + `normalizePrice` (price / discountPrice đã chuẩn). */
 type CatalogListItem = {
     id: string
     code: string
@@ -36,6 +105,7 @@ type CatalogListItem = {
     name?: string
     price: number
     discountPrice: number | null
+    thumbnailUrl?: string | null
     courseProfile?: {
         thumbnailUrl?: string | null
         title?: string
@@ -79,7 +149,6 @@ export default function DashboardCoursesPage() {
     const showVod = typeParam !== 'live'
 
     const monthLabel = useMemo(() => currentMonthLabel(), [])
-
     const levelParam = level === 'all' ? undefined : level
 
     const liveQuery = useAcademyClassCatalog({
@@ -94,160 +163,162 @@ export default function DashboardCoursesPage() {
 
     const liveItems = liveQuery.data?.items ?? []
     const vodItems = vodQuery.data?.items ?? []
+    const liveScrollRef = useRef<HTMLDivElement>(null)
+    const vodScrollRef = useRef<HTMLDivElement>(null)
 
     return (
-        <div className="space-y-8 pb-10">
-            <div className="flex flex-col gap-4">
-                <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Khám phá khóa học</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Chọn trình độ (JLPT) và khám phá lớp Live đang tuyển sinh trong tháng hiện tại và sắp tới cùng
-                        khóa VOD theo cấp độ.
+        <div className="space-y-8 animate-in fade-in duration-700 pb-8 overflow-hidden">
+            {/* Standard Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border">
+                <div className="space-y-4">
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Khám phá lộ trình</h1>
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Lựa chọn hình thức học tập tối ưu: Lớp Live tương tác trực tuyến hoặc khóa VOD chủ động thời gian.
                     </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                    <ToggleGroup
-                        type="single"
-                        value={level}
-                        onValueChange={(v) => v && setLevel(v)}
-                        variant="outline"
-                        className="justify-start flex-wrap"
+
+                {/* Level filter - Modern segment picker */}
+                <div className="flex items-center gap-2 pb-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1">
+                    <button
+                        onClick={() => setLevel('all')}
+                        className={cn(
+                            "group flex flex-col items-center justify-center min-w-[64px] h-14 rounded-2xl border transition-all duration-300 shrink-0",
+                            level === 'all'
+                                ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/10"
+                                : "bg-muted/30 border-transparent text-muted-foreground/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
+                        )}
                     >
-                        <ToggleGroupItem value="all" aria-label="Tất cả cấp">
-                            Tất cả
-                        </ToggleGroupItem>
-                        {LEVELS.map((lv) => (
-                            <ToggleGroupItem key={lv} value={lv} aria-label={`Cấp ${lv}`}>
-                                {lv}
-                            </ToggleGroupItem>
-                        ))}
-                    </ToggleGroup>
+                        <span className="text-[9px] font-bold uppercase tracking-tighter opacity-50 group-hover:opacity-100">Course</span>
+                        <span className="text-sm font-bold tracking-tight">Tất cả</span>
+                    </button>
+                    {LEVELS.map((lv) => (
+                        <button
+                            key={lv}
+                            onClick={() => setLevel(lv)}
+                            className={cn(
+                                "group flex flex-col items-center justify-center min-w-[64px] h-14 rounded-2xl border transition-all duration-300 shrink-0",
+                                level === lv
+                                    ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/10"
+                                    : "bg-muted/30 border-transparent text-muted-foreground/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
+                            )}
+                        >
+                            <span className="text-[9px] font-bold uppercase tracking-tighter opacity-50 group-hover:opacity-100">JLPT</span>
+                            <span className="text-sm font-bold tracking-tight">{lv}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <div className="space-y-8">
-                {showLive ? (
-                    <section className="space-y-4">
-                        <div className="flex flex-col gap-1">
-                            <h2 className="text-xl font-semibold">Lớp Live đang tuyển sinh</h2>
-                            <p className="text-sm text-muted-foreground">
-                                Lớp trực tiếp sắp khai giảng trong tháng {monthLabel} và {new Date().getMonth() + 3}/{new Date().getFullYear()}.
-                            </p>
-                        </div>
+            <div className="space-y-20">
+                {showLive && (
+                    <section className="space-y-8">
+                        <SectionHeader 
+                            title="Lớp Live đang tuyển sinh" 
+                            description={`Các lớp học trực tuyến sắp khai giảng trong tháng ${monthLabel}`} 
+                            scrollRef={liveScrollRef} 
+                            cardCount={liveItems.length}
+                        />
                         {liveQuery.isLoading ? (
-                            <div className="flex justify-center py-16">
-                                <Spinner className="h-8 w-8 text-primary" />
+                            <div className="flex justify-center py-20">
+                                <Spinner className="size-6 text-primary/40" />
                             </div>
                         ) : liveItems.length === 0 ? (
-                            <Card>
-                                <CardContent className="py-10 text-center text-muted-foreground text-sm">
-                                    Không có lớp Live phù hợp. Thử đổi cấp độ.
-                                </CardContent>
-                            </Card>
+                            <NoItemsFound text="Chưa có lớp Live phù hợp với tiêu chí tìm kiếm." />
                         ) : (
-                            <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory">
+                            <HorizontalScrollCarousel cardCount={liveItems.length} scrollRef={liveScrollRef}>
                                 {liveItems.map((klass: CatalogListItem) => (
-                                    <div
-                                        key={klass.id}
-                                        className="snap-start w-[280px] sm:w-[340px] lg:w-[400px] shrink-0"
-                                    >
+                                    <div key={klass.id} className="snap-start w-[300px] sm:w-[340px] lg:w-[380px] shrink-0">
                                         <ClassLiveCard klass={klass} />
                                     </div>
                                 ))}
-                            </div>
+                            </HorizontalScrollCarousel>
                         )}
                     </section>
-                ) : null}
+                )}
 
-                {showVod ? (
-                    <section className="space-y-4">
-                        <div className="flex flex-col gap-1">
-                            <h2 className="text-xl font-semibold">Khóa VOD</h2>
-                            <p className="text-sm text-muted-foreground">Chọn lớp phù hợp theo trình độ.</p>
-                        </div>
+                {showVod && (
+                    <section className="space-y-8">
+                        <SectionHeader 
+                            title="Khóa học VOD" 
+                            description="Học tập chủ động với hệ thống video bài giảng chuyên sâu" 
+                            scrollRef={vodScrollRef} 
+                            cardCount={vodItems.length}
+                        />
                         {vodQuery.isLoading ? (
-                            <div className="flex justify-center py-16">
-                                <Spinner className="h-8 w-8 text-primary" />
+                            <div className="flex justify-center py-20">
+                                <Spinner className="size-6 text-primary/40" />
                             </div>
                         ) : vodItems.length === 0 ? (
-                            <Card>
-                                <CardContent className="py-10 text-center text-muted-foreground text-sm">
-                                    Không có khóa VOD phù hợp.
-                                </CardContent>
-                            </Card>
+                            <NoItemsFound text="Chưa có khóa học VOD phù hợp với tiêu chí tìm kiếm." />
                         ) : (
-                            <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 snap-x snap-mandatory">
+                            <HorizontalScrollCarousel cardCount={vodItems.length} scrollRef={vodScrollRef}>
                                 {vodItems.map((klass: CatalogListItem) => (
-                                    <div
-                                        key={klass.id}
-                                        className="snap-start w-[280px] sm:w-[340px] lg:w-[400px] shrink-0"
-                                    >
+                                    <div key={klass.id} className="snap-start w-[300px] sm:w-[340px] lg:w-[380px] shrink-0">
                                         <ClassVodCard klass={klass} />
                                     </div>
                                 ))}
-                            </div>
+                            </HorizontalScrollCarousel>
                         )}
                     </section>
-                ) : null}
+                )}
             </div>
+        </div>
+    )
+}
 
+function NoItemsFound({ text }: { text: string }) {
+    return (
+        <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-border/50 py-20 text-center bg-muted/5">
+            <div className="size-16 items-center justify-center rounded-2xl bg-muted/10 flex text-muted-foreground/20">
+                <BookOpen className="size-8" />
+            </div>
+            <div className="space-y-1 px-6">
+                <p className="text-sm font-bold text-foreground/60">{text}</p>
+                <p className="text-xs font-semibold text-muted-foreground/30">Hãy kiểm tra lại bộ lọc hoặc quay lại sau.</p>
+            </div>
         </div>
     )
 }
 
 function ClassVodCard({ klass }: { klass: CatalogListItem }) {
     const profile = klass.courseProfile
-    const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
+    const thumb = klass.thumbnailUrl || profile?.thumbnailUrl || '/course-placeholder.jpg'
     const title = klass.title || klass.name || profile?.title || 'Khóa học'
     const level = profile?.level || '—'
     const { basePrice, displayPrice, hasDiscount } = catalogPriceParts(klass)
 
     return (
-        <Card className="gap-0 py-0">
-            <CardContent className="p-0">
-                <div className="relative aspect-video w-full border-b border-border bg-muted">
-                    <Image src={thumb} alt="" fill className="object-cover" sizes="(max-width: 640px) 280px, 400px" />
-                    <div className="absolute top-3 left-3 flex gap-2">
-                        <Badge className="bg-white/90 backdrop-blur-sm text-foreground hover:bg-white border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+        <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full flex flex-col pt-0 pb-0">
+            <CardContent className="p-0 flex flex-col h-full">
+                <div className="relative aspect-[16/10] w-full bg-muted/10 overflow-hidden">
+                    <Image src={thumb} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 300px, 400px" />
+                    <div className="absolute top-4 left-4 flex gap-2">
+                        <Badge className="bg-white text-primary border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
                             {level}
                         </Badge>
-                        <Badge variant="secondary" className="bg-primary/90 text-primary-foreground border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+                        <Badge className="bg-primary text-white border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
                             VOD
                         </Badge>
                     </div>
                 </div>
-                <div className="p-4 space-y-3">
-                    <div>
-                        <h3 className="font-semibold leading-snug">{title}</h3>
-                        <p className="text-xs text-muted-foreground font-mono">{klass.code}</p>
+                <div className="p-6 flex-1 flex flex-col space-y-4">
+                    <div className="space-y-1.5 flex-1">
+                        <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2">{title}</h3>
+                        <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
-                    {klass.instructor?.displayName ? (
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <User className="h-4 w-4 shrink-0" />
-                            <span>
-                                Giảng viên:{' '}
-                                <Link
-                                    href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
-                                    className="text-foreground underline-offset-4 hover:underline"
-                                >
-                                    {klass.instructor.displayName}
-                                </Link>
-                            </span>
-                        </p>
-                    ) : null}
 
-                    <Separator />
-
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-lg font-semibold text-primary">{formatNumber(displayPrice)} đ</span>
-                            {hasDiscount ? (
-                                <span className="text-sm text-muted-foreground line-through">{formatNumber(basePrice)} đ</span>
-                            ) : null}
+                    <div className="space-y-4 pt-4 border-t border-border/20">
+                        <div className="flex items-center justify-between gap-3 pt-1">
+                            <div className="flex flex-col">
+                                <span className="text-lg font-bold text-primary tabular-nums tracking-tighter">{formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span></span>
+                                {hasDiscount && (
+                                    <span className="text-[11px] text-muted-foreground/30 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
+                                )}
+                            </div>
+                            <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+                                <Link href={`/dashboard/available-courses/class/${klass.id}?mode=VOD`}>Chi tiết</Link>
+                            </Button>
                         </div>
-                        <Button size="sm" asChild>
-                            <Link href={`/dashboard/available-courses/class/${klass.id}?mode=VOD`}>Chi tiết lớp</Link>
-                        </Button>
                     </div>
                 </div>
             </CardContent>
@@ -257,8 +328,8 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
 
 function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
     const profile = klass.cohort?.courseProfile ?? klass.courseProfile
-    const thumb = profile?.thumbnailUrl || '/course-placeholder.jpg'
-    const title = klass.name || profile?.title || 'Lớp học'
+    const thumb = klass.thumbnailUrl || profile?.thumbnailUrl || '/course-placeholder.jpg'
+    const title = klass.name || profile?.title || 'Lớp học Live'
     const level = profile?.level || '—'
     const { basePrice, displayPrice, hasDiscount } = catalogPriceParts(klass)
     const term = klass.term ?? (klass.cohort ? {
@@ -276,94 +347,91 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
     } : null
 
     return (
-        <Card className="gap-0 py-0">
-            <CardContent className="p-0">
-                <div className="relative aspect-video w-full border-b border-border bg-muted">
-                    <Image src={thumb} alt="" fill className="object-cover" sizes="(max-width: 640px) 280px, 400px" />
-                    <div className="absolute top-3 left-3 flex gap-2">
-                        <Badge className="bg-white/90 backdrop-blur-sm text-foreground hover:bg-white border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
+        <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full flex flex-col pt-0 pb-0">
+            <CardContent className="p-0 flex flex-col h-full">
+                <div className="relative aspect-[16/10] w-full bg-muted/10 overflow-hidden">
+                    <Image src={thumb} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 300px, 400px" />
+                    <div className="absolute top-4 left-4 flex gap-2">
+                        <Badge className="bg-white text-primary border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
                             {level}
                         </Badge>
-                        <Badge variant="destructive" className="bg-red-500/90 text-white border-none px-2.5 py-0.5 rounded-full font-bold text-[10px] shadow-sm">
-                            Đang tuyển sinh
+                        <Badge className="bg-red-500 text-white border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
+                            Tuyển sinh
                         </Badge>
                     </div>
                 </div>
-                <div className="p-4 space-y-3">
-                    <div>
-                        <h3 className="font-semibold leading-snug">{title}</h3>
-                        <p className="text-xs text-muted-foreground font-mono">{klass.code}</p>
+                <div className="p-6 flex-1 flex flex-col space-y-5">
+                    <div className="space-y-1.5 flex-1">
+                        <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2">{title}</h3>
+                        <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
-                    {term?.openingDate ? (
-                        <p className="text-sm flex items-center gap-2 text-muted-foreground">
-                            <Calendar className="h-4 w-4 shrink-0" />
-                            Khai giảng:{' '}
-                            {new Date(term.openingDate).toLocaleDateString('vi-VN')}
-                        </p>
-                    ) : null}
-                    {klass.instructor?.displayName ? (
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <User className="h-4 w-4 shrink-0" />
-                            <span>
-                                Giảng viên:{' '}
-                                <Link
-                                    href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
-                                    className="text-foreground underline-offset-4 hover:underline"
-                                >
-                                    {klass.instructor.displayName}
-                                </Link>
-                            </span>
-                        </p>
-                    ) : null}
 
-                    <Collapsible>
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm" className="w-full justify-between px-0">
-                                <span className="flex items-center gap-2 text-muted-foreground">
-                                    <Clock className="h-4 w-4" />
-                                    Lịch học & chỗ
-                                </span>
-                                <ChevronDown className="h-4 w-4" />
+                    <div className="space-y-3.5 pt-4 border-t border-border/20">
+                        {klass.instructor?.displayName && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <User className="size-4 text-primary/60" />
+                                <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
+                            </div>
+                        )}
+
+                        {term?.openingDate && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="size-4 text-primary/60" />
+                                <span>Khai giảng: {new Date(term.openingDate).toLocaleDateString('vi-VN')}</span>
+                            </div>
+                        )}
+
+                        <Collapsible>
+                            <CollapsibleTrigger asChild>
+                                <Button variant="ghost" size="sm" className="w-full justify-between h-auto p-0 hover:bg-transparent text-muted-foreground/60 transition-colors group/btn">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover/btn:text-foreground transition-colors">
+                                        <Clock className="size-4 text-primary/60" />
+                                        <span>Lịch học & Sĩ số</span>
+                                    </div>
+                                    <ChevronDown className="size-3.5 opacity-40 group-hover/btn:opacity-100 transition-opacity" />
+                                </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="space-y-3 pt-3">
+                                {schedules.length > 0 ? (
+                                    <div className="p-3 rounded-xl bg-muted/20 border border-border/20 space-y-1.5">
+                                        {schedules.map((s: any) => (
+                                            <div key={s.id} className="flex justify-between items-center text-sm text-muted-foreground">
+                                                <span>{WEEKDAY_VI[s.weekday ?? 0] ?? '?'}</span>
+                                                <span className="text-foreground">{s.startTime} – {s.endTime}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">Chưa cập nhật lịch</p>
+                                )}
+                                
+                                {liveEnrollment && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Users className="size-4 text-primary/60" />
+                                        <span className={cn(
+                                            liveEnrollment.isFull ? "text-destructive" : "text-muted-foreground"
+                                        )}>
+                                            {liveEnrollment.maxStudents == null
+                                                ? `${liveEnrollment.activeEnrollmentCount ?? 0} học viên đang học`
+                                                : `Đã nộp: ${liveEnrollment.activeEnrollmentCount ?? 0}/${liveEnrollment.maxStudents} chỗ`}
+                                            {liveEnrollment.isFull ? ' (Đã hết chỗ)' : ''}
+                                        </span>
+                                    </div>
+                                )}
+                            </CollapsibleContent>
+                        </Collapsible>
+
+                        <div className="flex items-center justify-between gap-3 pt-2">
+                            <div className="flex flex-col">
+                                <span className="text-lg font-bold text-primary tabular-nums tracking-tighter">{formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span></span>
+                                {hasDiscount && (
+                                    <span className="text-[11px] text-muted-foreground/30 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
+                                )}
+                            </div>
+                            <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+                                <Link href={`/dashboard/available-courses/class/${klass.id}?mode=LIVE`}>Chi tiết</Link>
                             </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-2 pt-1">
-                            {schedules.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">Chưa có khung giờ cố định.</p>
-                            ) : (
-                                <ul className="text-xs space-y-1 border rounded-md p-2 bg-muted/30">
-                                    {schedules.map((s: any) => (
-                                        <li key={s.id} className="flex justify-between gap-2">
-                                            <span>
-                                                {WEEKDAY_VI[s.weekday ?? 0] ?? '?'} · {s.startTime}–{s.endTime}
-                                            </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            {liveEnrollment != null ? (
-                                <p className="text-xs flex items-center gap-1 text-muted-foreground">
-                                    <Users className="h-3.5 w-3.5" />
-                                    {liveEnrollment.maxStudents == null
-                                        ? `${liveEnrollment.activeEnrollmentCount ?? 0} học viên`
-                                        : `${liveEnrollment.activeEnrollmentCount ?? 0}/${liveEnrollment.maxStudents} học viên`}
-                                    {liveEnrollment.isFull ? ' — Đã đầy' : ''}
-                                </p>
-                            ) : null}
-                        </CollapsibleContent>
-                    </Collapsible>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-lg font-semibold text-primary">{formatNumber(displayPrice)} đ</span>
-                            {hasDiscount ? (
-                                <span className="text-sm text-muted-foreground line-through">{formatNumber(basePrice)} đ</span>
-                            ) : null}
                         </div>
-                        <Button size="sm" asChild>
-                            <Link href={`/dashboard/available-courses/class/${klass.id}?mode=LIVE`}>Chi tiết lớp</Link>
-                        </Button>
                     </div>
                 </div>
             </CardContent>

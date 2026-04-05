@@ -19,6 +19,7 @@ export class SessionService implements ISessionService {
    */
   async createSession(
     userId: string,
+    metadata?: { deviceInfo?: string; ipAddress?: string; userAgent?: string },
   ): Promise<{ refreshToken: string; sessionId: string }> {
     // 1. Pre-generate the stable session ID (sid)
     const sessionId = randomUUID();
@@ -39,7 +40,9 @@ export class SessionService implements ISessionService {
         userId,
         tokenHash,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        deviceInfo: 'Unknown Device',
+        deviceInfo: metadata?.deviceInfo || 'Unknown Device',
+        userAgent: metadata?.userAgent,
+        ipAddress: metadata?.ipAddress,
       },
     });
 
@@ -185,6 +188,8 @@ export class SessionService implements ISessionService {
       select: {
         id: true,
         deviceInfo: true,
+        userAgent: true,
+        ipAddress: true,
         createdAt: true,
         tokenHash: true, // Needed to identify "current" session on frontend
       },

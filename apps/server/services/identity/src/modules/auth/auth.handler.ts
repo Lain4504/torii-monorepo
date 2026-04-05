@@ -8,6 +8,7 @@ import {
   AUTH_SERVICE_TOKEN,
   SESSION_SERVICE_TOKEN,
 } from '@server/identity/interfaces/services';
+import { parseUserAgent } from '@server/shared';
 import type {
   UserRegistrationDTO,
   UserLoginDTO,
@@ -63,8 +64,14 @@ export class AuthHandler {
   }
 
   @MessagePattern({ cmd: 'identity.session.create' })
-  async createSession(@Payload() data: { userId: string }) {
-    const result = await this.sessionService.createSession(data.userId);
+  async createSession(
+    @Payload() data: { userId: string; userAgent?: string; ip?: string },
+  ) {
+    const result = await this.sessionService.createSession(data.userId, {
+      deviceInfo: parseUserAgent(data.userAgent),
+      userAgent: data.userAgent,
+      ipAddress: data.ip,
+    });
     return result.refreshToken;
   }
 

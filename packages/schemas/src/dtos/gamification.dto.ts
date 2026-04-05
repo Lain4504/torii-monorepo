@@ -190,6 +190,7 @@ export const gamificationHistoryDTOSchema = z.object({
     type: z.nativeEnum(GamificationTransactionType),
     activityType: ActivityTypeSchema.nullable(),
     description: z.string().nullable(),
+    currency: z.string().optional(),
     metadata: z.record(z.any()).default({}),
     createdAt: z.date(),
 });

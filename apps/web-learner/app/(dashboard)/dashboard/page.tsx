@@ -24,6 +24,9 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
+import { cn } from '@workspace/ui/lib/utils';
+
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -41,182 +44,214 @@ function getSessionLiveClassId(session: { liveClassId?: string; classId?: string
     return session.liveClassId || session.classId;
 }
 
-function GuestDashboardPreview() {
+function GuestLandingPage() {
     return (
-        <div className="space-y-8 animate-in fade-in duration-1000">
-            {/* Minimal Dashboard Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
-                <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Cổng thông tin Torii</h1>
-                    <p className="text-muted-foreground text-sm">Trung tâm Nhật ngữ thông minh hỗ trợ bởi AI Sensei.</p>
+        <div className="space-y-24 pb-20 -mt-6">
+            {/* 1. Hero Section - Stunning & Bold */}
+            <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden rounded-2xl border shadow-2xl shadow-primary/5">
+                <div className="absolute inset-0 z-0">
+                    <img 
+                        src="https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=2070&auto=format&fit=crop"
+                        alt="Torii Nihongo Hero" 
+                        className="w-full h-full object-cover transition-transform duration-[20s] hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
                 </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href="/login">Đăng nhập</Link>
-                    </Button>
-                    <Button size="sm" asChild>
-                        <Link href="/register">Tham gia ngay</Link>
-                    </Button>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Content Area (Matches Dashboard Column 1&2 style) */}
-                <div className="lg:col-span-2 space-y-8">
-                    {/* Welcome Announcement Card */}
-                    <Card className="bg-muted/10 border-primary/20 shadow-none">
-                        <CardHeader className="pb-4">
-                            <div className="flex items-center gap-2 text-primary font-bold mb-1">
-                                <Sparkles className="size-4" />
-                                <span className="text-xs uppercase tracking-widest">Tin mới nhất</span>
-                            </div>
-                            <CardTitle className="text-xl">Chào mừng bạn đến với Torii Nihongo!</CardTitle>
-                            <CardDescription>
-                                Khám phá lộ trình học tiếng Nhật toàn diện từ N5 đến N1. Đăng ký tài khoản để bắt đầu lưu lại tiến trình học tập của bạn.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardFooter>
-                            <Button className="font-bold gap-2" variant="ghost" asChild>
-                                <Link href="/dashboard/blogs">Tìm hiểu về lộ trình học <ArrowRight className="size-4" /></Link>
+                
+                <div className="relative z-10 w-full px-8 md:px-16 py-20">
+                    <div className="max-w-3xl space-y-8">
+                        <div className="space-y-4">
+                            <Badge className="bg-primary/20 text-primary border-primary/30 backdrop-blur-md px-4 py-1.5 rounded-lg font-semibold text-[10px]">
+                                🌟 Nền tảng học tiếng Nhật 4.0
+                            </Badge>
+                            <h1 className="text-4xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight">
+                                Chinh phục JLPT <br />
+                                <span className="text-primary">vượt trội cùng AI.</span>
+                            </h1>
+                            <p className="text-xl md:text-2xl text-white/80 font-medium leading-relaxed max-w-2xl">
+                                Lộ trình học toàn diện N5-N1 kết hợp cùng gia sư AI Sensei hỗ trợ 24/7. 
+                                Cùng <span className="text-white font-bold underline underline-offset-4 decoration-primary">5,000+ học viên</span> bắt đầu hành trình ngay hôm nay.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-4 pt-4">
+                            <Button size="lg" className="h-16 px-10 rounded-xl font-bold text-lg shadow-2xl shadow-primary/40 group bg-primary hover:bg-primary/90" asChild>
+                                <Link href="/register">
+                                    Bắt đầu miễn phí <ArrowRight className="ml-2 size-6 group-hover:translate-x-1 transition-transform" />
+                                </Link>
                             </Button>
-                        </CardFooter>
-                    </Card>
+                            <Button size="lg" variant="outline" className="h-16 px-10 rounded-xl font-bold text-lg bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white hover:text-black transition-all" asChild>
+                                <Link href="/dashboard/available-courses">Khám phá khóa học</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                    {/* Featured Tracks Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="hover:border-primary/50 transition-colors shadow-sm">
-                            <CardHeader>
-                                <div className="p-2 rounded-xl bg-orange-500/10 text-orange-600 w-fit mb-2">
-                                    <GraduationCap className="size-5" />
+            {/* 2. Trust & Numbers Section */}
+            <section className="px-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                    {[
+                        { label: 'Học viên tin dùng', value: '5,000+', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                        { label: 'Bài giảng chất lượng', value: '1,200+', icon: BookOpen, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                        { label: 'Tỷ lệ đỗ JLPT', value: '98%', icon: Trophy, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
+                        { label: 'Gia sư AI hỗ trợ', value: '24/7', icon: Bot, color: 'text-primary', bg: 'bg-primary/10' },
+                    ].map((stat, i) => (
+                        <div key={i} className="flex flex-col items-center text-center space-y-3 group cursor-default">
+                            <div className={cn("p-5 rounded-2xl border border-transparent group-hover:border-border group-hover:bg-muted/30 transition-all duration-500", stat.bg, stat.color)}>
+                                <stat.icon className="size-8" />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-3xl md:text-4xl font-bold tracking-tight">{stat.value}</p>
+                                <p className="text-[10px] font-semibold text-muted-foreground/50">{stat.label}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* 3. Core Features - High Impact Grid */}
+            <section className="space-y-12 px-4">
+                <div className="text-center space-y-4 max-w-3xl mx-auto">
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">Tại sao chọn Torii Academy?</h2>
+                    <p className="text-muted-foreground text-lg leading-relaxed font-medium">Sự kết hợp hoàn hảo giữa phương pháp đào tạo truyền thống và công nghệ trí tuệ nhân tạo đột phá.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                        {
+                            title: 'Lộ trình chuẩn quốc tế',
+                            desc: 'Hệ thống bài giảng từ N5 đến N1 được tinh gọn, tập trung vào thực hành và phản xạ tự nhiên.',
+                            icon: GraduationCap,
+                            color: 'bg-orange-500',
+                            img: 'https://images.unsplash.com/photo-1524230572899-a752b3835840?q=80&w=1936&auto=format&fit=crop'
+                        },
+                        {
+                            title: 'AI Sensei Đồng hành',
+                            desc: 'Giải đáp mọi thắc mắc ngữ pháp, chỉnh sửa phát âm và luyện hội thoại bất kỳ lúc nào bạn muốn.',
+                            icon: Bot,
+                            color: 'bg-primary',
+                            img: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop'
+                        },
+                        {
+                            title: 'Học mọi lúc, mọi nơi',
+                            desc: 'Đồng bộ hóa tiến trình học trên mọi thiết bị. Học qua Web hoặc App mobile cực kỳ tiện lợi.',
+                            icon: Sparkles,
+                            color: 'bg-blue-500',
+                            img: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop'
+                        }
+                    ].map((feature, i) => (
+                        <Card key={i} className="group overflow-hidden rounded-2xl border border-border/50 bg-card/60 backdrop-blur-md shadow-lg shadow-primary/5 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col">
+                            <div className="relative h-56 overflow-hidden">
+                                <img src={feature.img} alt={feature.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                                <div className={cn("absolute bottom-6 left-6 p-4 rounded-2xl text-white shadow-2xl", feature.color)}>
+                                    <feature.icon className="size-6" />
                                 </div>
-                                <CardTitle className="text-lg">Khóa học JLPT</CardTitle>
-                                <CardDescription className="text-xs">Lộ trình được thiết kế chuẩn kỳ thi quốc tế.</CardDescription>
+                            </div>
+                            <CardHeader className="pt-4 flex-1">
+                                <CardTitle className="text-2xl font-bold mb-2">{feature.title}</CardTitle>
+                                <CardDescription className="text-md leading-relaxed text-muted-foreground font-medium">
+                                    {feature.desc}
+                                </CardDescription>
                             </CardHeader>
-                            <CardContent className="text-sm">
-                                Các khóa học từ sơ cấp đến cao cấp với hơn 500+ bài giảng video chất lượng cao và quiz tương tác.
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="link" className="p-0 text-primary font-bold h-fit" asChild>
-                                    <Link href="/dashboard/available-courses">Xem danh mục <ArrowRight className="ml-1 size-3" /></Link>
+                            <CardFooter className="pt-0">
+                                <Button variant="ghost" className="p-0 font-bold text-primary hover:bg-transparent group/btn" asChild>
+                                    <Link href="/register">Xem chi tiết <ArrowRight className="ml-2 size-4 group-hover/btn:translate-x-1 transition-transform" /></Link>
                                 </Button>
                             </CardFooter>
                         </Card>
-                        <Card className="hover:border-primary/50 transition-colors shadow-sm">
-                            <CardHeader>
-                                <div className="p-2 rounded-xl bg-primary/10 text-primary w-fit mb-2">
-                                    <Bot className="size-5" />
+                    ))}
+                </div>
+            </section>
+
+            {/* 4. Testimonials Section - Social Proof */}
+            <section className="py-24 -mx-4 px-8 rounded-2xl space-y-16 bg-muted/30">
+                <div className="max-w-7xl mx-auto space-y-16">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-1 text-yellow-500">
+                                {[...Array(5)].map((_, i) => <Star key={i} className="size-5 fill-yellow-500" />)}
+                            </div>
+                            <h2 className="text-3xl md:text-6xl font-bold tracking-tight leading-tight">Học viên nói gì về Torii?</h2>
+                            <p className="text-muted-foreground text-xl leading-relaxed max-w-2xl font-medium">Hàng ngàn phản hồi tích cực từ cộng đồng học tập tiếng Nhật lớn nhất hiện nay.</p>
+                        </div>
+                        <Button size="lg" variant="outline" className="rounded-xl font-bold h-16 px-10 border-border bg-card shadow-sm hover:shadow-md transition-all shrink-0" asChild>
+                            <Link href="/dashboard/available-courses">Đăng ký tham gia ngay</Link>
+                        </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                name: 'Hoàng Minh',
+                                role: 'Học viên N3',
+                                content: 'Giao diện cực kỳ hiện đại và chuyên nghiệp. Đặc biệt là AI Sensei trả lời ngữ pháp rất thông minh, giúp mình học nhanh hơn gấp 2 lần.',
+                                avatar: 'https://i.pravatar.cc/150?u=1'
+                            },
+                            {
+                                name: 'Linh Chi',
+                                role: 'Học viên N2',
+                                content: 'Các buổi Live session rất thú vị, giảng viên tận tâm và giáo trình tinh gọn. Mình đã đỗ N2 ngay lần thi đầu tiên nhờ Torii.',
+                                avatar: 'https://i.pravatar.cc/150?u=2'
+                            },
+                            {
+                                name: 'Duy Anh',
+                                role: 'Học viên N4',
+                                content: 'Hệ thống học liệu phong phú và lộ trình rõ ràng. Phù hợp cho những người bận rộn muốn học tiếng Nhật linh hoạt.',
+                                avatar: 'https://i.pravatar.cc/150?u=3'
+                            }
+                        ].map((review, i) => (
+                            <Card key={i} className="p-10 rounded-2xl border-none bg-card shadow-xl shadow-primary/5 relative group hover:shadow-primary/10 transition-shadow">
+                                <Star className="absolute top-10 right-10 size-10 text-primary/10 group-hover:text-primary/20 transition-colors" />
+                                <div className="space-y-8 relative z-10">
+                                    <div className="flex items-center gap-5">
+                                        <Avatar className="h-14 w-14 ring-4 ring-primary/5">
+                                            <AvatarImage src={review.avatar} />
+                                            <AvatarFallback className="font-bold">{review.name[0]}</AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <p className="font-bold text-xl leading-none">{review.name}</p>
+                                            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mt-2">{review.role}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-muted-foreground text-lg leading-relaxed font-medium italic">"{review.content}"</p>
                                 </div>
-                                <CardTitle className="text-lg">Gia sư AI Sensei</CardTitle>
-                                <CardDescription className="text-xs">Hỗ trợ học tập 24/7 bất kỳ lúc nào.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-sm">
-                                Công nghệ AI trí tuệ nhân tạo độc quyền giúp bạn luyện phản xạ giao tiếp và giải đáp ngữ pháp tức thì.
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="link" className="p-0 text-primary font-bold h-fit" asChild>
-                                    <Link href="/login">Trò chuyện thử <ArrowRight className="ml-1 size-3" /></Link>
-                                </Button>
-                            </CardFooter>
-                        </Card>
+                            </Card>
+                        ))}
                     </div>
-
-                    {/* Simple Data Table (Example Class Schedule) */}
-                    <Card className="shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Lịch khai giảng dự kiến</CardTitle>
-                            <CardDescription>Các lớp học tương tác trực tuyến sắp tới.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="font-bold">Lớp học</TableHead>
-                                        <TableHead className="font-bold">Trình độ</TableHead>
-                                        <TableHead className="font-bold">Khai giảng</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {[
-                                        { class: 'N5 Cấp tốc', level: 'Sơ cấp', start: '01/04/2026' },
-                                        { class: 'N4 Giao tiếp', level: 'Sơ trung', start: '15/04/2026' },
-                                        { class: 'N3 Đọc hiểu', level: 'Trung cấp', start: '20/04/2026' },
-                                    ].map((row, i) => (
-                                        <TableRow key={i}>
-                                            <TableCell className="font-medium">{row.class}</TableCell>
-                                            <TableCell><Badge variant="outline">{row.level}</Badge></TableCell>
-                                            <TableCell className="text-muted-foreground">{row.start}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
                 </div>
+            </section>
 
-                {/* Sidebar inside Dashboard Content Area */}
-                <div className="space-y-6">
-                    {/* Quick Community Card */}
-                    <Card className="bg-primary text-primary-foreground border-none shadow-xl">
-                        <CardHeader>
-                            <div className="flex items-center justify-between mb-2">
-                                <Users className="size-6 opacity-80" />
-                                <Badge variant="secondary" className="bg-white/20 text-white border-none">5k+ Thành viên</Badge>
-                            </div>
-                            <CardTitle className="text-xl">Tham gia cộng đồng học tập</CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-sm opacity-90 leading-relaxed">
-                            Cùng hàng ngàn học viên chinh phục tiếng Nhật mỗi ngày. Đặc quyền nhận ngay tài liệu học tập miễn phí khi đăng ký!
-                        </CardContent>
-                        <CardFooter>
-                            <Button variant="secondary" className="w-full font-bold shadow-md" asChild>
-                                <Link href="/register">Đăng ký thành viên</Link>
+            {/* 5. Final CTA - Converting Section */}
+            <section className="px-4">
+                <div className="relative overflow-hidden rounded-2xl bg-foreground p-12 md:p-24 text-center space-y-10 shadow-2xl">
+                    <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                        <div className="absolute -top-20 -left-20 size-96 bg-primary rounded-full blur-[120px]" />
+                        <div className="absolute -bottom-20 -right-20 size-[30rem] bg-indigo-500 rounded-full blur-[150px]" />
+                    </div>
+                    
+                    <div className="relative z-10 max-w-4xl mx-auto space-y-8">
+                        <h2 className="text-4xl md:text-7xl font-bold text-background leading-[1.1] tracking-tight">
+                            Sẵn sàng khởi đầu <br className="hidden md:block" /> hành trình của bạn?
+                        </h2>
+                        <p className="text-xl md:text-2xl text-background/70 font-medium max-w-2xl mx-auto">
+                            Đăng ký ngay để nhận lộ trình tư vấn miễn phí và trải nghiệm hệ sinh thái học tập thông minh bậc nhất.
+                        </p>
+                        <div className="pt-6">
+                            <Button size="lg" className="h-20 px-16 rounded-xl font-bold text-2xl shadow-2xl group bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-all" asChild>
+                                <Link href="/register">
+                                    Khám phá ngay <ArrowRight className="ml-3 size-8 group-hover:translate-x-1 transition-transform" />
+                                </Link>
                             </Button>
-                        </CardFooter>
-                    </Card>
-
-                    {/* Resources List Card */}
-                    <Card className="shadow-sm">
-                        <CardHeader className="pb-3 border-b">
-                            <CardTitle className="text-base font-bold uppercase tracking-wider text-muted-foreground">Tài nguyên công khai</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="divide-y text-sm">
-                                <Link href="/dashboard/blogs" className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                        <Newspaper className="size-4 text-muted-foreground" />
-                                        <span>Blog kiến thức</span>
-                                    </div>
-                                    <ArrowRight className="size-3 text-muted-foreground/40" />
-                                </Link>
-                                <Link href="/dashboard/faq" className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                        <HelpCircle className="size-4 text-muted-foreground" />
-                                        <span>Giải đáp FAQs</span>
-                                    </div>
-                                    <ArrowRight className="size-3 text-muted-foreground/40" />
-                                </Link>
-                                <Link href="/dashboard/available-courses" className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                        <BookOpen className="size-4 text-muted-foreground" />
-                                        <span>Thư viện tài liệu</span>
-                                    </div>
-                                    <ArrowRight className="size-3 text-muted-foreground/40" />
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Minimal Info Card */}
-                    <div className="mx-2 p-4 rounded-2xl bg-muted/30 border border-dashed flex flex-col items-center text-center gap-1">
-                        <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Cần hỗ trợ?</Badge>
-                        <p className="text-xs text-muted-foreground">Torii Learning Center sẵn sàng giải đáp thắc mắc của bạn.</p>
-                        <Button variant="link" size="sm" className="h-6 p-0 text-xs font-bold">Liên hệ ngay</Button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }
+
 
 function AuthenticatedDashboardPage() {
     const { user } = useAppSelector((state) => state.auth);
@@ -332,9 +367,9 @@ function AuthenticatedDashboardPage() {
                     {/* Current Course Card */}
                     <section data-purpose="current-course">
                         {coursesLoading ? (
-                            <div className="bg-card rounded-3xl border border-border h-48 animate-pulse" />
+                            <div className="bg-card rounded-2xl border border-border h-48 animate-pulse" />
                         ) : mainCourse ? (
-                            <div className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm hover-lift">
+                            <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover-lift">
                                 <div className="md:flex">
                                     <div className="md:w-1/3 relative aspect-video md:aspect-[4/3] overflow-hidden bg-muted">
                                         {mainCourse.thumbnailUrl ? (
@@ -368,9 +403,9 @@ function AuthenticatedDashboardPage() {
                                                     style={{ width: `${mainCourse.progress}%` }}
                                                 />
                                             </div>
-                                            <div className="flex justify-between text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                                            <div className="flex justify-between text-[10px] text-muted-foreground font-semibold">
                                                 <span>{mainCourse.progress}% Hoàn thành</span>
-                                                <span>{mainCourse.completedLessons}/{mainCourse.totalLessons} Bài học</span>
+                                                <span>{mainCourse.completedLessons}/{mainCourse.totalLessons} bài học</span>
                                             </div>
                                         </div>
                                         <Link
@@ -385,7 +420,7 @@ function AuthenticatedDashboardPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-card rounded-3xl border border-border border-dashed p-12 text-center flex flex-col items-center">
+                            <div className="bg-card rounded-2xl border border-border border-dashed p-12 text-center flex flex-col items-center">
                                 <BookOpen className="size-12 text-muted-foreground/30 mb-4" />
                                 <h3 className="text-xl font-bold mb-2">Bạn chưa bắt đầu khóa học nào</h3>
                                 <p className="text-muted-foreground mb-6">Khám phá kho khóa học để bắt đầu hành trình chinh phục tiếng Nhật.</p>
@@ -399,7 +434,7 @@ function AuthenticatedDashboardPage() {
                     {/* Analytics & Progress */}
                     <section className="grid grid-cols-1 md:grid-cols-2 gap-6" data-purpose="analytics">
                         {/* Circular Goal Tracker */}
-                        <div className="bg-card p-6 rounded-3xl border border-border shadow-sm">
+                        <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
                             <h3 className="font-bold mb-6">Mục tiêu {jlptTarget}</h3>
                             <div className="flex items-center justify-around">
                                 <div className="relative flex items-center justify-center">
@@ -419,20 +454,20 @@ function AuthenticatedDashboardPage() {
                                     </svg>
                                     <div className="absolute text-center">
                                         <span className="block text-2xl font-bold">{progressPercent}%</span>
-                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-normaler">Sẵn sàng</span>
+                                        <span className="text-[10px] text-muted-foreground font-semibold">Sẵn sàng</span>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase font-bold">Giờ học</div>
+                                        <div className="text-[10px] text-muted-foreground font-semibold">Giờ học</div>
                                         <div className="text-lg font-bold">{totalHours}h</div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase font-bold">Kinh nghiệm (XP)</div>
+                                        <div className="text-[10px] text-muted-foreground font-semibold">Kinh nghiệm (XP)</div>
                                         <div className="text-lg font-bold">{totalXp.toLocaleString('vi-VN')} XP</div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] text-muted-foreground uppercase font-bold">Điểm thưởng (Point)</div>
+                                        <div className="text-[10px] text-muted-foreground font-semibold">Điểm thưởng (Point)</div>
                                         <div className="text-lg font-bold text-primary">{points.toLocaleString('vi-VN')} P</div>
                                     </div>
                                 </div>
@@ -440,7 +475,7 @@ function AuthenticatedDashboardPage() {
                         </div>
 
                         {/* Skill bars — giữ nguyên UI, data từ averageProgress */}
-                        <div className="bg-card p-6 rounded-3xl border border-border shadow-sm space-y-4">
+                        <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
                             <h3 className="font-bold mb-2">Kỹ năng chi tiết</h3>
                             <div className="space-y-1">
                                 <div className="flex justify-between text-xs font-bold">
@@ -477,7 +512,7 @@ function AuthenticatedDashboardPage() {
 
                     {/* Upcoming Live Sessions (nếu có) */}
                     {upcomingSessions.length > 0 && (
-                        <section className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm" data-purpose="upcoming-sessions">
+                        <section className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm" data-purpose="upcoming-sessions">
                             <div className="p-5 border-b border-border flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-lg">
@@ -493,10 +528,10 @@ function AuthenticatedDashboardPage() {
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-muted/30">
-                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chủ đề</th>
-                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Giảng viên</th>
-                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Thời gian</th>
-                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Trạng thái</th>
+                                            <th className="px-5 py-3 text-[10px] font-semibold text-muted-foreground/60">Chủ đề</th>
+                                            <th className="px-5 py-3 text-[10px] font-semibold text-muted-foreground/60">Giảng viên</th>
+                                            <th className="px-5 py-3 text-[10px] font-semibold text-muted-foreground/60">Thời gian</th>
+                                            <th className="px-5 py-3 text-[10px] font-semibold text-muted-foreground/60 text-right">Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
@@ -541,7 +576,7 @@ function AuthenticatedDashboardPage() {
                         </section>
                     )}
                     {/* Recent Activity (Moved from bottom to fit on the left of quick links) */}
-                    <section className="bg-card p-5 rounded-3xl border border-border shadow-sm" data-purpose="recent-activity">
+                    <section className="bg-card p-5 rounded-2xl border border-border shadow-sm" data-purpose="recent-activity">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-base font-bold">Hoạt động gần đây</h3>
                         </div>
@@ -555,7 +590,7 @@ function AuthenticatedDashboardPage() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="text-[10px] text-muted-foreground uppercase font-bold border-b border-border">
+                                        <tr className="text-[10px] text-muted-foreground/60 font-semibold border-b border-border">
                                             <th className="pb-3 px-2">Bài học</th>
                                             <th className="pb-3 px-2">Khóa học</th>
                                             <th className="pb-3 px-2">Tiến độ</th>
@@ -589,7 +624,7 @@ function AuthenticatedDashboardPage() {
                 {/* Sidebar */}
                 <aside className="space-y-8">
                     {/* AI Sensei CTA */}
-                    <section className="bg-gradient-to-br from-primary to-primary/80 p-6 rounded-3xl text-primary-foreground shadow-xl shadow-primary/20" data-purpose="ai-sensei">
+                    <section className="bg-gradient-to-br from-primary to-primary/80 p-6 rounded-2xl text-primary-foreground shadow-xl shadow-primary/20" data-purpose="ai-sensei">
                         <div className="flex items-center gap-4 mb-4">
                             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
                                 <Bot className="size-6" />
@@ -609,28 +644,28 @@ function AuthenticatedDashboardPage() {
                     </section>
 
                     {/* Gamification Card */}
-                    <section className="bg-card p-6 rounded-3xl border border-border shadow-sm" data-purpose="gamification">
+                    <section className="bg-card p-6 rounded-2xl border border-border shadow-sm" data-purpose="gamification">
                         <h3 className="font-bold mb-6">Thành tích học tập</h3>
                         <div className="flex justify-between mb-8">
                             <div className="text-center group cursor-pointer">
                                 <div className="w-12 h-12 mx-auto bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                                     <Flame className="size-5 text-orange-600 dark:text-orange-300" />
                                 </div>
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase">Chuỗi</span>
+                                <span className="text-[10px] font-semibold text-muted-foreground/50">Chuỗi</span>
                                 <p className="font-bold">{currentStreak} Ngày</p>
                             </div>
                             <div className="text-center group cursor-pointer">
                                 <div className="w-12 h-12 mx-auto bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                                     <Star className="size-5 text-yellow-600 dark:text-yellow-300" />
                                 </div>
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase">Cấp độ</span>
+                                <span className="text-[10px] font-semibold text-muted-foreground/50">Cấp độ</span>
                                 <p className="font-bold">Lv. {level}</p>
                             </div>
                             <div className="text-center group cursor-pointer">
                                 <div className="w-12 h-12 mx-auto bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                                     <Trophy className="size-5 text-blue-600 dark:text-blue-300" />
                                 </div>
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase">Danh hiệu</span>
+                                <span className="text-[10px] font-semibold text-muted-foreground/50">Danh hiệu</span>
                                 <p className="font-bold">{achievementCount}</p>
                             </div>
                         </div>
@@ -679,7 +714,7 @@ export default function DashboardClientPage() {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
 
     if (!isAuthenticated) {
-        return <GuestDashboardPreview />;
+        return <GuestLandingPage />;
     }
 
     return <AuthenticatedDashboardPage />;

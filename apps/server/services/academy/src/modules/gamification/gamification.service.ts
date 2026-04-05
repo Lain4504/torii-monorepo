@@ -304,15 +304,16 @@ export class GamificationService {
 
     if (activityType === ActivityType.LOGIN) {
       // LOGIN chỉ thưởng một lần/ngày (bất kỳ bản ghi EARN nào: XP hoặc POINT)
+      // Sử dụng metadata.date (chuỗi YYYY-MM-DD theo giờ VN) để đảm bảo chính xác theo múi giờ
       const existingLoginAward =
         await this.prisma.gamificationHistory.findFirst({
           where: {
             userId,
             activityType: ActivityType.LOGIN,
             type: GamificationTransactionType.EARN,
-            createdAt: {
-              gte: new Date(`${dateString}T00:00:00.000Z`),
-              lt: new Date(`${dateString}T23:59:59.999Z`),
+            metadata: {
+              path: ['date'],
+              equals: dateString,
             },
           },
         });
@@ -382,8 +383,7 @@ export class GamificationService {
       }
 
       // --- Caps & dedup ---
-      const start = new Date(`${dateString}T00:00:00.000Z`);
-      const end = new Date(`${dateString}T23:59:59.999Z`);
+
 
       // Dedup per object for mini-games (optional metadata keys)
       const dedupKey = metadata?.lessonId
@@ -402,8 +402,10 @@ export class GamificationService {
             userId,
             activityType,
             type: GamificationTransactionType.EARN,
-            createdAt: { gte: start, lte: end },
-            metadata: { path: ['dedupKey'], equals: dedupKey },
+            AND: [
+              { metadata: { path: ['date'], equals: dateString } },
+              { metadata: { path: ['dedupKey'], equals: dedupKey } },
+            ],
           },
         });
         if (existing) {
@@ -428,7 +430,7 @@ export class GamificationService {
             activityType,
             currency: GamificationCurrency.XP,
             type: GamificationTransactionType.EARN,
-            createdAt: { gte: start, lte: end },
+            metadata: { path: ['date'], equals: dateString },
           },
           _sum: { amount: true },
         });
@@ -444,7 +446,7 @@ export class GamificationService {
             activityType,
             currency: GamificationCurrency.POINT,
             type: GamificationTransactionType.EARN,
-            createdAt: { gte: start, lte: end },
+            metadata: { path: ['date'], equals: dateString },
           },
           _sum: { amount: true },
         });
@@ -914,6 +916,7 @@ export class GamificationService {
             rewardType: 'COUPON',
             couponCode: created.code,
             couponId: created.id,
+            date: this.getVnDateString(),
             ...config,
           },
         },

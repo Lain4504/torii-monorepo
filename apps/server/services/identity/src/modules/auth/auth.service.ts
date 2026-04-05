@@ -16,6 +16,7 @@ import {
   REDIS_CLIENT,
   BlacklistService,
   AppConfigService,
+  parseUserAgent,
 } from '@server/shared';
 import type {
   IUsersRepository,
@@ -241,7 +242,7 @@ export class AuthService implements IAuthService {
   async login(dto: UserLoginDTO): Promise<LoginResponse> {
     const email = dto.email.toLowerCase();
     const user = await this.usersRepository.findByEmail(email);
-    const result = await this.processLoginFlow(user, { ...dto, email });
+    const result = await this.processLoginFlow(user, dto);
 
     // Emit activity if login complete (not requiring 2FA)
     if (!result.requiresTwoFactor && user) {
@@ -273,14 +274,14 @@ export class AuthService implements IAuthService {
       }
     }
 
-    return this.processLoginFlow(user, { ...dto, email });
+    return this.processLoginFlow(user, dto);
   }
 
   /**
    * Shared logic for processing login after user is found (F1, F3, F4)
    */
   private async processLoginFlow(
-    user: User | null,
+    user: any,
     dto: UserLoginDTO,
   ): Promise<LoginResponse> {
     if (!user || !user.password) {
@@ -328,9 +329,14 @@ export class AuthService implements IAuthService {
     // Update last sign in
     await this.usersRepository.update(user.id, { lastSignInAt: new Date() });
 
-    // Create session
+    // Create session with metadata
     const { refreshToken, sessionId } = await this.sessionService.createSession(
       user.id,
+      {
+        deviceInfo: parseUserAgent(dto.userAgent),
+        userAgent: dto.userAgent,
+        ipAddress: dto.ip,
+      },
     );
 
     const { permissions } = await this.authorizationService.getUserPermissions(

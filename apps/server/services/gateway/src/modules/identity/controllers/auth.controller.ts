@@ -280,7 +280,14 @@ export class AuthController {
   ) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'identity.auth.adminLogin' }, dto),
+        this.natsClient.send(
+          { cmd: 'identity.auth.adminLogin' },
+          {
+            ...dto,
+            userAgent: req.headers['user-agent'],
+            ip: req.ip,
+          },
+        ),
       );
       return await this.handleLoginResult(result, req, res);
     } catch (error: any) {
@@ -297,7 +304,14 @@ export class AuthController {
   ) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'identity.auth.login' }, dto),
+        this.natsClient.send(
+          { cmd: 'identity.auth.login' },
+          {
+            ...dto,
+            userAgent: req.headers['user-agent'],
+            ip: req.ip,
+          },
+        ),
       );
       return await this.handleLoginResult(result, req, res);
     } catch (error: any) {
@@ -378,6 +392,8 @@ export class AuthController {
           { cmd: 'identity.session.create' },
           {
             userId: user.id,
+            userAgent: req.headers['user-agent'],
+            ip: req.ip,
           },
         ),
       );
@@ -436,6 +452,8 @@ export class AuthController {
           { cmd: 'identity.session.create' },
           {
             userId: user.id,
+            userAgent: req.headers['user-agent'],
+            ip: req.ip,
           },
         ),
       );

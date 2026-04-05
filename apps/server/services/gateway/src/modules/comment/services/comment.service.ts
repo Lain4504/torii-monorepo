@@ -49,35 +49,21 @@ export class CommentService {
     const replyCount = replyCountOverride ?? comment?._count?.replies ?? 0;
     const likeCount = comment?._count?.likes ?? 0;
 
-    // --- Official Reply Logic (Internal Roles) ---
+    // --- Official Reply Logic ---
+    // Only lecturers/instructors get the official "Giảng viên" badge.
+    // Admin/staff cannot post in discussions (enforced by assertCanPostToDiscussion).
+    // No anonymization: everyone always shows their real display name and avatar.
     const userRole = comment.user?.role;
     const isInstructor = userRole === 'lecturer' || userRole === 'instructor';
-    const isAdminOrStaff =
-      userRole === 'admin' ||
-      userRole === 'staff' ||
-      userRole === 'staff-academic' ||
-      userRole === 'staff-operations';
 
-    const isOfficialReply = isAdminOrStaff || isInstructor;
-
-    // Mapping labels:
-    let authorRoleLabel: string | undefined = undefined;
-
-    if (isOfficialReply) {
-      authorRoleLabel = isInstructor ? 'Giảng viên' : 'Torii Support';
-    }
+    const isOfficialReply = isInstructor;
+    const authorRoleLabel: string | undefined = isInstructor ? 'Giảng viên' : undefined;
 
     const authorData = comment.user
       ? {
         id: comment.user.id,
-        displayName:
-          isOfficialReply && isVODContext
-            ? 'Torii Support'
-            : comment.user.displayName,
-        avatarUrl:
-          isOfficialReply && isVODContext
-            ? undefined
-            : (comment.user.avatarUrl ?? undefined),
+        displayName: comment.user.displayName,
+        avatarUrl: comment.user.avatarUrl ?? undefined,
       }
       : undefined;
 

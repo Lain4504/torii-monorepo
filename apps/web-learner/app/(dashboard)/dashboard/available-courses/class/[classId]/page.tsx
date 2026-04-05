@@ -209,156 +209,142 @@ export default function ClassCatalogDetailPage() {
   })()
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* 1. Dashboard-style Header Banner Redesigned with Thumb */}
-      <header className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-[2.5rem] -z-10 blur-xl transition-all group-hover:blur-2xl duration-700 opacity-50" />
-        <Card className="rounded-[2.5rem] border-none bg-card/60 backdrop-blur-md shadow-2xl shadow-primary/5 overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12">
-            {/* Info Left (8/12) */}
-            <div className="lg:col-span-8 p-8 md:p-12 space-y-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <Button variant="ghost" size="sm" className="rounded-full h-8 px-3 text-muted-foreground hover:bg-muted/50 -ml-2" asChild>
+    <div className="max-w-7xl mx-auto space-y-8 py-6">
+      {/* 1. Standardized Hero Section */}
+      <section className="relative overflow-hidden rounded-xl border bg-card">
+        <div className="grid grid-cols-1 lg:grid-cols-12">
+          {/* Content Left (8/12) */}
+          <div className="lg:col-span-7 p-6 md:p-10 space-y-8 self-center">
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button variant="outline" size="sm" className="h-7 px-2 rounded-md text-xs" asChild>
                   <Link href="/dashboard/available-courses">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Danh sách
+                    <ArrowLeft className="mr-1.5 h-3 w-3" />
+                    Quay lại
                   </Link>
                 </Button>
-                <Separator orientation="vertical" className="h-4" />
-                <Badge className={cn(
-                  "px-4 py-1 rounded-full font-bold text-xs border-none",
-                  isLIVE ? "bg-red-500/90 hover:bg-red-500 text-white" : "bg-primary/90 hover:bg-primary text-white"
-                )}>
-                  {isLIVE ? 'Lớp học trực tiếp' : 'Khóa học VOD'}
+                <Badge variant={isLIVE ? "destructive" : "default"} className="px-2.5 py-0.5 rounded-md font-medium text-[10px]">
+                  {isLIVE ? 'LỚP HỌC TRỰC TIẾP' : 'KHÓA HỌC VOD'}
                 </Badge>
                 {jlptLevel && (
-                  <Badge variant="outline" className="px-4 py-1 rounded-full font-bold text-xs border-primary/20 text-primary">
-                    Trình độ JLPT {jlptLevel}
+                  <Badge variant="secondary" className="px-2.5 py-0.5 rounded-md font-medium text-[10px]">
+                    JLPT {jlptLevel}
                   </Badge>
                 )}
-                <span className="text-xs font-bold text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full border border-border/40">
-                  Mã lớp: {klass.code}
+                <span className="text-[10px] text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-md border border-border/10">
+                  {klass.code}
                 </span>
               </div>
 
-              <div className="space-y-4 max-w-4xl">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              <div className="space-y-2">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground leading-tight">
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="text-xl md:text-2xl text-muted-foreground font-medium tracking-tight">
+                  <p className="text-lg text-muted-foreground font-normal">
                     {subtitle}
                   </p>
                 )}
               </div>
-
-              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-4 border-t border-border/40">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 ring-2 ring-primary/10">
-                    <AvatarImage src={klass.instructor?.avatarUrl} />
-                    <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
-                      {instructorName[0] || 'T'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-0.5">
-                    <div className="text-xs font-semibold text-muted-foreground leading-none">Giảng viên</div>
-                    <div className="text-sm font-bold">{instructorName}</div>
-                  </div>
-                </div>
-
-                {openingDate && (
-                  <div className="space-y-0.5">
-                    <div className="text-xs font-semibold text-muted-foreground leading-none flex items-center gap-1.5">
-                      <Calendar className="size-3" /> Khai giảng
-                    </div>
-                    <div className="text-sm font-bold">{new Date(openingDate).toLocaleDateString('vi-VN')}</div>
-                  </div>
-                )}
-
-                <div className="space-y-0.5">
-                  <div className="text-xs font-semibold text-muted-foreground leading-none flex items-center gap-1.5">
-                    <BookOpen className="size-3" /> Nội dung
-                  </div>
-                  <div className="text-sm font-bold">{lessonCount} bài giảng</div>
-                </div>
-
-                <div className="space-y-0.5">
-                  <div className="text-xs font-semibold text-muted-foreground leading-none flex items-center gap-1.5">
-                    <Users className="size-3" /> Học viên
-                  </div>
-                  <div className="text-sm font-bold">{activeEnrollmentCount} đã đăng ký</div>
-                </div>
-              </div>
             </div>
 
-            {/* Thumbnail Right (4/12) */}
-            <div className="lg:col-span-4 relative min-h-[340px] lg:min-h-full overflow-hidden group/image sm:rounded-b-[2.5rem] lg:rounded-r-[2.5rem] lg:rounded-bl-none">
-              <Image 
-                src={thumb} 
-                alt={title} 
-                fill 
-                className="object-cover grayscale-[0.2] group-hover/image:grayscale-0 group-hover/image:scale-110 transition-all duration-1000"
-              />
-              <div className="absolute inset-0 bg-gradient-to-l from-black/20 via-transparent to-card/60 lg:to-card/80 hidden lg:block" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
-              <div className="absolute bottom-6 left-6 right-6 flex flex-col items-start gap-2 lg:hidden">
-                <Badge className="bg-white/20 backdrop-blur-md text-white border-white/20 font-bold text-xs">Xem trước khóa học</Badge>
+            <div className="grid grid-cols-2 md:flex md:items-center gap-x-8 gap-y-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <AvatarImage src={klass.instructor?.avatarUrl} />
+                  <AvatarFallback className="bg-primary/5 text-primary text-xs font-medium">
+                    {instructorName[0] || 'T'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider leading-none">Giảng viên</p>
+                  <p className="text-sm font-semibold">{instructorName}</p>
+                </div>
+              </div>
+
+              {openingDate && (
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider leading-none flex items-center gap-1.5">
+                    <Calendar className="size-3" /> Khai giảng
+                  </p>
+                  <p className="text-sm font-semibold">{new Date(openingDate).toLocaleDateString('vi-VN')}</p>
+                </div>
+              )}
+
+              <div className="space-y-0.5">
+                <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider leading-none flex items-center gap-1.5">
+                  <BookOpen className="size-3" /> Nội dung
+                </p>
+                <p className="text-sm font-semibold">{lessonCount} bài giảng</p>
+              </div>
+
+              <div className="space-y-0.5">
+                <p className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider leading-none flex items-center gap-1.5">
+                  <Users className="size-3" /> Đã tham gia
+                </p>
+                <p className="text-sm font-semibold">{activeEnrollmentCount} học viên</p>
               </div>
             </div>
           </div>
-        </Card>
-      </header>
 
-      {/* 2. Content Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-10 items-start">
-        <div className="xl:col-span-2 space-y-12">
+          {/* Media Right (5/12) */}
+          <div className="lg:col-span-5 relative min-h-[280px] lg:min-h-full border-t lg:border-t-0 lg:border-l">
+            <Image 
+              src={thumb} 
+              alt={title} 
+              fill 
+              className="object-cover transition-transform duration-700 hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Main Content Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+        <div className="xl:col-span-2 space-y-10">
           
           {/* Section: Overview */}
-          <section className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold flex items-center gap-3">
-                <Zap className="size-6 text-primary fill-primary/20" />
-                Tổng quan khóa học
-              </h2>
-              <p className="text-xs text-muted-foreground font-semibold px-1">Tìm hiểu những gì bạn sẽ đạt được</p>
-            </div>
-            <Card className="rounded-3xl border-border/50 bg-card/40 backdrop-blur-sm overflow-hidden p-8">
-              <div className="prose prose-slate dark:prose-invert max-w-none text-muted-foreground leading-relaxed font-medium">
-                {profile?.description ? (
-                  <div dangerouslySetInnerHTML={{ __html: profile.description }} />
-                ) : (
-                  <p>Khóa học này được thiết kế để mang đến lộ trình tinh gọn, giúp bạn làm chủ kiến thức và kỹ năng Nhật ngữ một cách hiệu quả nhất thông qua tương tác và các bài giảng được biên soạn chuyên sâu.</p>
-                )}
-              </div>
+          <section className="space-y-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Zap className="size-5 text-primary" />
+              Tổng quan khóa học
+            </h2>
+            <Card className="rounded-xl border shadow-sm">
+              <CardContent className="p-6 md:p-8">
+                <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed font-normal">
+                  {profile?.description ? (
+                    <div dangerouslySetInnerHTML={{ __html: profile.description }} />
+                  ) : (
+                    <p>Khóa học này được thiết kế để cung cấp cho bạn một lộ trình học tập hiệu quả, tập trung vào thực tế và các kiến thức trọng tâm.</p>
+                  )}
+                </div>
+              </CardContent>
             </Card>
           </section>
 
           {/* Section: Schedule (If LIVE) */}
           {isLIVE && schedules.length > 0 && (
-            <section className="space-y-6">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <Calendar className="size-6 text-primary fill-primary/20" />
-                  Lịch học trực tiếp
-                </h2>
-                <p className="text-xs text-muted-foreground font-bold px-1">Lịch sinh hoạt cố định hàng tuần</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="space-y-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Calendar className="size-5 text-primary" />
+                Lịch học trực tiếp
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {schedules.map((s: any) => (
-                  <div key={s.id} className="flex items-center justify-between p-6 rounded-3xl bg-muted/40 border border-border/50 group hover:border-primary/30 transition-all">
+                  <div key={s.id} className="flex items-center justify-between p-4 rounded-xl bg-card border shadow-sm hover:border-primary/20 transition-all">
                     <div className="flex items-center gap-4">
-                      <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg">
+                      <div className="size-10 rounded-lg bg-primary/5 flex items-center justify-center text-primary font-bold">
                         {WEEKDAY_VI[s.weekday ?? 0] ?? '?'}
                       </div>
                       <div className="space-y-0.5">
-                        <div className="text-xs font-semibold text-muted-foreground">Thời gian học</div>
-                        <div className="text-sm font-bold flex items-center gap-2">
-                          <Clock className="size-3.5" />
+                        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider">Thời gian</p>
+                        <p className="text-sm font-medium flex items-center gap-1.5">
+                          <Clock className="size-3.5 opacity-60" />
                           {s.startTime} - {s.endTime}
-                        </div>
+                        </p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold text-xs">Đang diễn ra</Badge>
                   </div>
                 ))}
               </div>
@@ -366,46 +352,43 @@ export default function ClassCatalogDetailPage() {
           )}
 
           {/* Section: Curriculum */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between px-1">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold flex items-center gap-3">
-                  <BookOpen className="size-6 text-primary fill-primary/20" />
-                  Chương trình đào tạo
-                </h2>
-                <p className="text-xs text-muted-foreground font-semibold">Lộ trình bài giảng chi tiết</p>
-              </div>
-              <Badge variant="secondary" className="rounded-xl px-4 py-1.5 font-bold">{lessonCount} bài học</Badge>
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <BookOpen className="size-5 text-primary" />
+                Chương trình đào tạo
+              </h2>
+              <span className="text-xs font-medium text-muted-foreground">{lessonCount} bài học</span>
             </div>
 
             {chapters.length === 0 ? (
-              <div className="rounded-[2.5rem] border border-dashed p-12 text-center text-muted-foreground font-medium bg-muted/20">
-                Chương trình học đang được cập nhật.
-              </div>
+              <Card className="rounded-xl border border-dashed p-10 text-center">
+                <p className="text-sm text-muted-foreground">Chương trình học đang được cập nhật.</p>
+              </Card>
             ) : (
-              <Accordion type="multiple" className="w-full space-y-4">
+              <Accordion type="single" collapsible className="w-full space-y-3">
                 {chapters.map((chapter: any, index: number) => (
                   <AccordionItem 
                     key={chapter.id || index} 
                     value={`item-${index}`}
-                    className="border border-border/50 rounded-3xl bg-card px-6 overflow-hidden data-[state=open]:shadow-lg transition-all"
+                    className="border rounded-xl bg-card px-4 md:px-6 overflow-hidden shadow-sm"
                   >
-                    <AccordionTrigger className="hover:no-underline py-6">
-                      <div className="flex flex-col items-start text-left gap-1">
-                        <span className="text-xs font-semibold text-primary">Chương {index + 1}</span>
-                        <span className="text-lg font-bold tracking-tight leading-tight">{chapter.title || `Module ${index + 1}`}</span>
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex flex-col items-start gap-0.5 text-left">
+                        <span className="text-[10px] font-bold text-primary uppercase tracking-widest leading-none">Phần {index + 1}</span>
+                        <span className="font-semibold">{chapter.title || `Module ${index + 1}`}</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-6 space-y-2">
+                    <AccordionContent className="pb-4 space-y-2 border-t pt-4">
                       {chapter.items?.map((item: any, itemIdx: number) => (
-                        <div key={item.id || itemIdx} className="flex items-center gap-4 p-4 rounded-2xl bg-muted/30 border border-transparent hover:border-border/50 hover:bg-muted/50 transition-all group">
-                          <div className="size-8 rounded-xl bg-background border border-border/50 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
-                            {item.kind === 'VIDEO' ? <PlayCircle className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                        <div key={item.id || itemIdx} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
+                          <div className="size-7 rounded-md bg-muted flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors border">
+                            {item.kind === 'VIDEO' ? <PlayCircle className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
                           </div>
-                          <div className="flex-1 text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors overflow-hidden truncate">
+                          <p className="flex-1 text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors truncate">
                             {item.title}
-                          </div>
-                          <Badge variant="ghost" className="text-xs font-bold text-muted-foreground/50">{item.kind}</Badge>
+                          </p>
+                          <span className="text-[10px] font-medium text-muted-foreground/40">{item.kind}</span>
                         </div>
                       ))}
                     </AccordionContent>
@@ -416,167 +399,151 @@ export default function ClassCatalogDetailPage() {
           </section>
 
           {/* Section: Reviews */}
-          <section className="space-y-6">
-            <div className="flex items-center justify-between px-1">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-yellow-500">
-                  <Star className="size-4 fill-yellow-500" />
-                  <span className="text-xl font-bold">{avgRating}</span>
-                </div>
-                <Badge variant="secondary" className="rounded-xl px-4 py-1.5 font-bold">{totalReviews} đánh giá</Badge>
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Star className="size-5 text-primary" />
+                Đánh giá học viên
+              </h2>
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Star className="size-4 fill-yellow-500 text-yellow-500" />
+                <span>{avgRating} ({totalReviews})</span>
               </div>
             </div>
 
             {reviews.length === 0 ? (
-              <div className="rounded-[2.5rem] border border-dashed p-12 text-center text-muted-foreground font-medium bg-muted/20">
-                Chưa có đánh giá nào cho khóa học này.
-              </div>
+              <Card className="rounded-xl border border-dashed p-10 text-center">
+                <p className="text-sm text-muted-foreground">Chưa có đánh giá nào.</p>
+              </Card>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {reviews.map((r: any) => (
-                  <div key={r.id} className="p-8 rounded-[2rem] bg-card border border-border/50 space-y-4 hover:shadow-lg transition-all relative overflow-hidden group">
-                    <div className="flex items-center justify-between relative z-10">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-10 w-10 ring-2 ring-primary/10">
-                          <AvatarImage src={r.user?.avatarUrl} />
-                          <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
-                            {(r.user?.displayName || 'U')[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-0.5">
-                          <div className="text-sm font-bold">{r.user?.displayName || 'Học viên Torii'}</div>
-                          <div className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full inline-block">Đã hoàn thành khóa học</div>
+                  <Card key={r.id} className="rounded-xl border shadow-sm group">
+                    <CardContent className="p-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={r.user?.avatarUrl} />
+                            <AvatarFallback className="text-[10px] font-bold">
+                              {(r.user?.displayName || 'U')[0]}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="space-y-0.5">
+                            <p className="text-sm font-semibold">{r.user?.displayName || 'Học viên Torii'}</p>
+                            <p className="text-[10px] font-medium text-muted-foreground">Hồ sơ đã xác thực</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={cn(
+                                "size-3",
+                                i < r.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/10"
+                              )} 
+                            />
+                          ))}
                         </div>
                       </div>
-                      <div className="flex items-center gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className={cn(
-                              "size-3.5",
-                              i < r.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"
-                            )} 
-                          />
-                        ))}
+                      <div className="space-y-1">
+                        {r.title && <h4 className="text-sm font-semibold">{r.title}</h4>}
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {r.content}
+                        </p>
                       </div>
-                    </div>
-                    <div className="relative z-10">
-                      {r.title && <h4 className="font-bold text-foreground mb-1">{r.title}</h4>}
-                      <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                        {r.content}
+                      <p className="text-[10px] font-medium text-muted-foreground/40 border-t pt-3">
+                        {new Date(r.createdAt).toLocaleDateString('vi-VN')}
                       </p>
-                    </div>
-                    <div className="text-xs font-semibold text-muted-foreground/30 pt-2 border-t border-border/10">
-                      Cập nhật ngày {new Date(r.createdAt).toLocaleDateString('vi-VN')}
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
           </section>
         </div>
 
-        {/* Column: Sidebar */}
-        <aside className="space-y-8">
-          {/* Progress Widget (Only if Enrolled) */}
+        {/* Sidebar: Purchase Widget */}
+        <aside className="space-y-6 xl:sticky xl:top-24">
           {isEnrolled && (
-            <Card className="rounded-3xl border-border/50 bg-card shadow-sm overflow-hidden animate-in zoom-in-95 duration-500">
-              <div className="p-8 space-y-6">
+            <Card className="rounded-xl border shadow-lg border-primary/10 overflow-hidden bg-primary/5">
+              <CardContent className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold">Tiến trình lớp học</h3>
-                  <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-semibold text-xs">Trực tuyến</Badge>
+                  <h3 className="text-sm font-bold tracking-tight">TIẾN TRÌNH HỌC</h3>
+                  <Badge variant="secondary" className="h-5 px-1.5 rounded text-[10px]">{progress}%</Badge>
                 </div>
-                <div className="p-6 rounded-3xl bg-muted/40 border border-border/50 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-125 transition-transform">
-                    <Star className="size-16" />
+                <div className="space-y-2">
+                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-primary transition-all duration-700" style={{ width: `${progress}%` }} />
                   </div>
-                  <div className="relative space-y-4">
-                    <div className="flex items-end justify-between">
-                      <div className="text-4xl font-bold text-primary tracking-tight">{progress}%</div>
-                      <div className="text-xs font-semibold text-muted-foreground/60 tracking-wider">Hoàn thành</div>
-                    </div>
-                    <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(var(--primary),0.3)]" style={{ width: `${progress}%` }} />
-                    </div>
-                    <p className="text-xs font-semibold text-muted-foreground italic leading-relaxed">
-                      * Dựa trên số lượng bài giảng và file học liệu bạn đã truy cập.
-                    </p>
-                  </div>
+                  <p className="text-[10px] text-muted-foreground italic text-center">Tiếp tục nỗ lực để hoàn thành khóa học nhé!</p>
                 </div>
-              </div>
+              </CardContent>
             </Card>
           )}
 
-          <Card className="rounded-3xl border-none bg-card shadow-2xl shadow-primary/5 overflow-hidden ring-1 ring-border/50">
-            <CardContent className="p-8 space-y-8">
+          <Card className="rounded-xl border shadow-xl shadow-primary/5 overflow-hidden">
+            <CardContent className="p-6 space-y-6">
               <div className="space-y-1">
-                <div className="text-xs font-bold text-muted-foreground">Giá niêm yết</div>
+                <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">Học phí trọn gói</p>
                 {(() => {
-                    const basePrice = Number(klass?.price ?? 0)
-                    const discountPrice = Number(klass?.discountPrice ?? 0)
-                    const hasDiscount = discountPrice > 0 && discountPrice < basePrice
-                    const displayPrice = hasDiscount ? discountPrice : basePrice
+                  const basePrice = Number(klass?.price ?? 0)
+                  const discountPrice = Number(klass?.discountPrice ?? 0)
+                  const hasDiscount = discountPrice > 0 && discountPrice < basePrice
+                  const displayPrice = hasDiscount ? discountPrice : basePrice
                   return (
-                    <div className="space-y-2">
-                      <div className="text-4xl font-bold text-primary tracking-tight">
-                        {displayPrice === 0 ? 'Miễn phí' : `${formatNumber(displayPrice)} đ`}
+                    <div className="space-y-1.5">
+                      <div className="text-3xl font-bold text-primary tracking-tighter">
+                        {displayPrice === 0 ? 'Miễn phí' : `${formatNumber(displayPrice)}đ`}
                       </div>
-                      {hasDiscount ? (
-                        <p className="text-sm text-muted-foreground line-through">
-                          {formatNumber(basePrice)} đ
+                      {hasDiscount && (
+                        <p className="text-xs text-muted-foreground line-through opacity-60">
+                          {formatNumber(basePrice)}đ
                         </p>
-                      ) : null}
+                      )}
                     </div>
                   )
                 })()}
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {ctaButton}
-                <p className="text-xs text-center text-muted-foreground font-semibold italic">
-                  * Thanh toán một lần, sở hữu vĩnh viễn
-                </p>
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 font-medium italic">
+                  <ShieldCheck className="size-3" /> Cam kết chất lượng từ Torii
+                </div>
               </div>
 
               <Separator />
 
-              <div className="space-y-5">
-                <div className="text-xs font-semibold text-muted-foreground/60 px-1">Đặc quyền khóa học</div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 group">
-                    <div className="size-10 rounded-xl bg-orange-100 dark:bg-orange-950/40 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Zap className="size-5 fill-orange-600/20" />
-                    </div>
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase">Đặc quyền khóa học</p>
+                <div className="space-y-3.5">
+                  <div className="flex items-start gap-3">
+                    <Zap className="size-4 text-primary mt-0.5" />
                     <div>
-                      <div className="text-sm font-bold leading-tight">Giao diện học tập Torii</div>
-                      <div className="text-xs text-muted-foreground font-medium">Trải nghiệm hiện đại & mượt mà</div>
+                      <p className="text-xs font-semibold">Tương tác thực tế</p>
+                      <p className="text-[10px] text-muted-foreground">Môi trường học tập hiện đại</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 group">
-                    <div className="size-10 rounded-xl bg-blue-100 dark:bg-blue-950/40 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <GraduationCap className="size-5 fill-blue-600/20" />
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <GraduationCap className="size-4 text-primary mt-0.5" />
                     <div>
-                      <div className="text-sm font-bold leading-tight">Chứng chỉ hoàn thành</div>
-                      <div className="text-xs text-muted-foreground font-medium">Cấp bởi Torii Academy</div>
+                      <p className="text-xs font-semibold">Chứng chỉ Torii</p>
+                      <p className="text-[10px] text-muted-foreground">Cấp sau khi hoàn thành khóa học</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 group">
-                    <div className="size-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Star className="size-5 fill-emerald-600/20" />
-                    </div>
+                  <div className="flex items-start gap-3">
+                    <Gift className="size-4 text-primary mt-0.5" />
                     <div>
-                      <div className="text-sm font-bold leading-tight">Học liệu độc quyền</div>
-                      <div className="text-xs text-muted-foreground font-medium">PDF & bài tập tương tác AI</div>
+                      <p className="text-xs font-semibold">Học liệu độc quyền</p>
+                      <p className="text-[10px] text-muted-foreground">PDF và tài liệu thực hành</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <Button variant="ghost" className="w-full justify-between h-auto py-5 px-6 rounded-3xl hover:bg-primary/5 group/share border border-transparent hover:border-primary/10 transition-all mt-4" asChild>
+              <Button variant="ghost" className="w-full text-xs h-10 rounded-lg hover:bg-primary/5 text-muted-foreground hover:text-primary transition-all border border-border/50" asChild>
                 <Link href="#">
-                  <span className="text-xs font-semibold text-muted-foreground group-hover/share:text-primary transition-colors">Yêu cầu tư vấn lộ trình</span>
-                  <ChevronRight className="size-4 opacity-30 group-hover/share:translate-x-1 group-hover/share:opacity-100 transition-all text-primary" />
+                  Nhận tư vấn lộ trình học
                 </Link>
               </Button>
             </CardContent>

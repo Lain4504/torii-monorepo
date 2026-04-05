@@ -1,373 +1,321 @@
-'use client'
+"use client"
 
+import * as React from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { useGamificationProfile, useAchievements, useStreak } from '@/lib/api/services/gamification-api'
-import { useCertificates } from '@/lib/api/services/certificate-api'
-import { useMyCoupons } from '@/lib/api/services/coupon-api'
-import { useAcademyMyCourses } from '@/lib/api/services/academy-learning-progress-api'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
-import { Badge } from '@workspace/ui/components/badge'
 import { Progress } from '@workspace/ui/components/progress'
-import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import {
     Award,
     Trophy,
     Star,
-    Ticket,
-    BookOpen,
     GraduationCap,
     Flame,
-    ChevronRight,
-    MapPin,
-    Calendar,
     Mail,
+    Calendar,
+    Target,
     User,
-    ArrowUpRight,
+    Flag,
     Clock,
-    CheckCircle2,
-    Target
+    Zap,
+    MapPin,
+    LucideIcon
 } from 'lucide-react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { formatDate, formatNumber } from '@/utils/format-utils'
-
-const container = {
-    hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1
-        }
-    }
-}
-
-const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-}
+import { cn } from '@workspace/ui/lib/utils'
 
 export default function ProfilePage() {
     const { user } = useAppSelector((state) => state.auth)
-    const { data: gamification, isLoading: loadingGamification } = useGamificationProfile()
+    const { data: gamification } = useGamificationProfile()
     const { data: streak } = useStreak()
-    const { data: achievementsData, isLoading: loadingAchievements } = useAchievements()
-    const { data: certsResp, isLoading: loadingCerts } = useCertificates({ limit: '3' })
-    const { data: coupons, isLoading: loadingCoupons } = useMyCoupons()
-    const { data: courses, isLoading: loadingCourses } = useAcademyMyCourses()
+    const { data: achievementsData } = useAchievements()
 
-    const certificates = certsResp?.data || []
+    const currentXpProgress = React.useMemo(() => {
+        if (!gamification) return 0
+        const max = 100 * (gamification.level + 1)
+        return Math.floor((gamification.currentXp / max) * 100)
+    }, [gamification])
 
-    // Calculate achievement stats
-    const achievementStats = (() => {
-        if (!achievementsData) return { total: 0, earned: 0 }
-        return {
-            total: achievementsData.length,
-            earned: achievementsData.filter(a => a.isUnlocked).length
-        }
-    })()
+    const stats = [
+        { 
+            label: 'Điểm tích lũy', 
+            value: formatNumber(gamification?.points || 0), 
+            icon: Star, 
+            color: 'text-amber-500', 
+            bg: 'bg-amber-500/5' 
+        },
+        { 
+            label: 'Chuỗi học tập', 
+            value: `${streak?.currentStreak || 0} ngày`, 
+            icon: Flame, 
+            color: 'text-orange-500', 
+            bg: 'bg-orange-500/5' 
+        },
+        { 
+            label: 'Cấp độ', 
+            value: `Level ${gamification?.level || 1}`, 
+            icon: Zap, 
+            color: 'text-indigo-500', 
+            bg: 'bg-indigo-500/5' 
+        },
+        { 
+            label: 'Huy hiệu', 
+            value: achievementsData?.filter(a => a.isUnlocked).length || 0, 
+            icon: Trophy, 
+            color: 'text-emerald-500', 
+            bg: 'bg-emerald-500/5' 
+        },
+    ]
 
     return (
-        <div className="container max-w-6xl mx-auto py-8 sm:py-12 space-y-10">
-            {/* Extended Profile Header */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card/50 backdrop-blur-xl shadow-2xl"
-            >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 -z-10" />
-                <div className="relative px-8 sm:px-12 py-10 sm:py-14 flex flex-col md:flex-row items-center gap-8">
-                    <Avatar className="size-36 sm:size-44 border-8 border-background shadow-2xl">
+        <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20 px-2 sm:px-6">
+            {/* Minimalist Profile Header */}
+            <div className="flex flex-col items-center text-center space-y-6 pt-4 pb-2">
+                <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent blur-xl rounded-full opacity-50 group-hover:opacity-80 transition-opacity" />
+                    <Avatar className="size-24 sm:size-32 rounded-[2rem] border-2 border-background shadow-2xl relative z-10 transition-transform group-hover:scale-[1.02]">
                         <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName} />
-                        <AvatarFallback className="bg-primary/10 text-primary text-5xl font-bold">
+                        <AvatarFallback className="bg-muted text-muted-foreground/30 text-3xl font-bold">
                             {user?.displayName?.charAt(0) || 'U'}
                         </AvatarFallback>
                     </Avatar>
-
-                    <div className="flex-1 text-center md:text-left space-y-4">
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{user?.displayName}</h1>
-                            {gamification && (
-                                <Badge className="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-bold">
-                                    CẤP {gamification.level}
-                                </Badge>
-                            )}
-                        </div>
-                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-muted-foreground text-sm font-bold">
-                            <span className="flex items-center gap-2"><Mail className="size-4 text-primary" /> {user?.email}</span>
-                            <span className="flex items-center gap-2"><Calendar className="size-4 text-primary" /> Tham gia {user?.createdAt ? formatDate(user.createdAt) : '2024'}</span>
-                        </div>
+                    <div className="absolute -bottom-1 -right-1 z-20 size-8 sm:size-10 bg-primary shadow-xl rounded-2xl flex items-center justify-center border-4 border-background">
+                        <Zap className="size-4 sm:size-5 text-white fill-white" />
                     </div>
-
-
                 </div>
-            </motion.div>
 
-            <Tabs defaultValue="overview" className="w-full space-y-10">
-                <TabsList className="bg-muted/30 p-1.5 rounded-2xl border border-border/50 h-16 w-full overflow-hidden flex">
-                    {[
-                        { value: 'overview', label: 'TỔNG QUAN', icon: Trophy },
-                        { value: 'courses', label: 'KHÓA HỌC', icon: BookOpen },
-                        { value: 'achievements', label: 'THÀNH TỰU', icon: Award },
-                        { value: 'coupons', label: 'ƯU ĐÃI', icon: Ticket },
-                        { value: 'onboarding', label: 'LỘ TRÌNH', icon: Target },
-                    ].map((tab) => (
-                        <TabsTrigger
-                            key={tab.value}
-                            value={tab.value}
-                            className="flex-1 px-4 py-3 rounded-xl font-bold text-xs tracking-wider data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all shrink-0"
-                        >
-                            <tab.icon className="size-4 mr-2" />
-                            {tab.label}
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground/90">{user?.displayName}</h1>
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                        <span className="flex items-center gap-1.5"><Mail className="size-3.5" /> {user?.email}</span>
+                        <span className="hidden sm:inline opacity-30">•</span>
+                        <span className="flex items-center gap-1.5"><Calendar className="size-3.5" /> gia nhập {user?.createdAt ? formatDate(user.createdAt) : '2024'}</span>
+                    </div>
+                </div>
+            </div>
 
-                {/* --- OVERVIEW TAB --- */}
-                <TabsContent value="overview" className="outline-none">
-                    <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <motion.div variants={item} className="lg:col-span-2">
-                            <Card className="rounded-[2.5rem] border-2 border-border bg-card/30 backdrop-blur-sm p-8 sm:p-12 h-full">
-                                <div className="space-y-10">
-                                    <div className="flex items-center justify-between">
-                                        <h2 className="text-2xl font-bold flex items-center gap-3"><Trophy className="size-7 text-amber-500" /> Hành trình học tập</h2>
-                                        <Badge variant="outline" className="px-4 py-1.5 rounded-xl font-bold text-primary border-primary/20">{gamification?.currentXp || 0} XP</Badge>
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row items-center gap-10">
-                                        <div className="relative size-40 shrink-0 flex flex-col items-center justify-center rounded-full bg-primary/5 border-4 border-primary/10">
-                                            <span className="text-7xl font-bold text-primary leading-none">{gamification?.level || 1}</span>
-                                            <span className="text-[10px] font-bold text-muted-foreground tracking-widest mt-1">CẤP ĐỘ</span>
-                                        </div>
-                                        <div className="flex-1 space-y-6 w-full">
-                                            <div className="space-y-3">
-                                                <div className="flex justify-between text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                                                    <span>Tiến trình hiện tại</span>
-                                                    <span className="text-foreground">{Math.floor(gamification ? (gamification.currentXp / (100 * (gamification.level + 1))) * 100 : 0)}%</span>
-                                                </div>
-                                                <Progress value={gamification ? (gamification.currentXp / (100 * (gamification.level + 1))) * 100 : 0} className="h-4 rounded-full bg-muted/50 border" />
-                                            </div>
-                                            <p className="text-sm font-bold text-muted-foreground leading-relaxed italic">
-                                                * Bạn chỉ còn cách cấp độ tiếp theo <span className="text-primary font-bold underline underline-offset-4">{gamification ? (100 * (gamification.level + 1)) - gamification.currentXp : 0} XP</span>. Hãy bền bỉ nhé!
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
-                        </motion.div>
-
-                        <motion.div variants={item} className="grid gap-6">
-                            {[
-                                { icon: Star, label: 'ĐIỂM TORII', value: gamification?.points || 0, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                                { icon: Flame, label: 'HỌC LIÊN TIẾP', value: streak?.currentStreak || 0, color: 'text-orange-500', bg: 'bg-orange-500/10' }
-                            ].map((stat, i) => (
-                                <div key={i} className="p-8 rounded-[2rem] border-2 border-border bg-card shadow-lg flex items-center justify-between group hover:-translate-y-1 transition-transform">
-                                    <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}><stat.icon className="size-8" /></div>
-                                    <div className="text-right">
-                                        <p className="text-4xl font-bold text-foreground">{stat.value}</p>
-                                        <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mt-1">{stat.label}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </motion.div>
-                    </motion.div>
-                </TabsContent>
-
-                {/* --- COURSES TAB --- */}
-                <TabsContent value="courses" className="outline-none">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid md:grid-cols-2 gap-8">
-                        {loadingCourses ? (
-                            [1, 2].map(i => <Skeleton key={i} className="h-56 w-full rounded-[2.5rem]" />)
-                        ) : courses && courses.length > 0 ? (
-                            courses.map((course: any) => (
-                                <Card key={course.id} className="group rounded-[2.5rem] border-2 border-border bg-card/50 hover:border-primary/40 transition-all overflow-hidden flex flex-col sm:flex-row gap-6 p-6">
-                                    <div className="size-36 sm:size-44 bg-muted rounded-2xl overflow-hidden shrink-0 shadow-lg relative">
-                                        {course.thumbnailUrl ? (
-                                            <img src={course.thumbnailUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-primary/5 text-primary/20"><BookOpen className="size-12" /></div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
-                                        <div className="space-y-3">
-                                            <h3 className="text-xl font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.courseTitle}</h3>
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between text-[10px] font-bold text-muted-foreground tracking-widest uppercase">
-                                                    <span>Tiến độ</span>
-                                                    <span className="text-primary">{course.progress}%</span>
-                                                </div>
-                                                <Progress value={course.progress} className="h-2 rounded-full" />
-                                            </div>
-                                        </div>
-                                        <Link href={`/courses/${course.classId}/learn`} className="mt-6">
-                                            <Button className="w-full rounded-xl font-bold text-xs h-10 tracking-widest">HỌC TIẾP</Button>
-                                        </Link>
-                                    </div>
-                                </Card>
-                            ))
-                        ) : (
-                            <div className="md:col-span-2 py-24 text-center bg-muted/10 rounded-[3rem] border-4 border-dashed border-border/50">
-                                <BookOpen className="size-20 text-muted-foreground/20 mx-auto mb-6" />
-                                <p className="text-xl font-bold text-muted-foreground">Bạn chưa đăng ký khóa học nào.</p>
+            {/* Performance Grid Overview */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                {stats.map((stat, i) => (
+                    <Card key={i} className="border-border/40 bg-card hover:bg-muted/5 transition-all duration-300 rounded-3xl shadow-none p-5 sm:p-6 group">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <div className={cn("size-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110", stat.bg, stat.color)}>
+                                <stat.icon className="size-5 sm:size-6" />
                             </div>
-                        )}
-                    </motion.div>
+                            <div className="space-y-1">
+                                <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none">{stat.label}</p>
+                                <p className="text-xl sm:text-2xl font-bold tracking-tight text-foreground/80">{stat.value}</p>
+                            </div>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+
+            {/* Main Tabs Area */}
+            <Tabs defaultValue="progress" className="w-full space-y-10">
+                <div className="flex justify-center">
+                    <TabsList className="bg-muted/30 p-1.5 rounded-[1.25rem] border border-border/40 h-10 sm:h-12 w-full sm:w-auto shadow-sm">
+                        <TabsTrigger value="progress" className="px-5 sm:px-10 h-full rounded-xl text-xs font-bold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-md transition-all">Tổng quan</TabsTrigger>
+                        <TabsTrigger value="achievements" className="px-5 sm:px-10 h-full rounded-xl text-xs font-bold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-md transition-all">Thành tựu</TabsTrigger>
+                        <TabsTrigger value="goals" className="px-5 sm:px-10 h-full rounded-xl text-xs font-bold data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-md transition-all">Lộ trình</TabsTrigger>
+                    </TabsList>
+                </div>
+
+                {/* --- PROGRESS TAB --- */}
+                <TabsContent value="progress" className="focus-visible:outline-none animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="max-w-3xl mx-auto">
+                        <Card className="border-border/40 bg-card/50 backdrop-blur-sm rounded-[2rem] shadow-none p-8 sm:p-12 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                            
+                            <div className="space-y-10">
+                                <div className="space-y-3">
+                                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground/80 flex items-center gap-3">
+                                        <Target className="size-6 text-primary" />
+                                        Tiến trình thăng hạng
+                                    </h3>
+                                    <p className="text-sm font-medium text-muted-foreground/60 leading-relaxed">
+                                        Bạn đang tiến rất gần đến bậc trình độ tiếp theo. <br className="hidden sm:block" />
+                                        Tích lũy thêm <span className="font-bold text-primary/80">{(100 * ((gamification?.level || 1) + 1)) - (gamification?.currentXp || 0)} XP</span> để thăng hạng Level {(gamification?.level || 1) + 1}.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-end px-1">
+                                        <span className="text-xs font-bold text-primary/60">{currentXpProgress}% hoàn thành</span>
+                                        <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground/30 tabular-nums">
+                                            <span className="text-foreground/60">{gamification?.currentXp || 0}</span>
+                                            <span>/</span>
+                                            <span>{100 * ((gamification?.level || 1) + 1)} XP</span>
+                                        </div>
+                                    </div>
+                                    <Progress value={currentXpProgress} className="h-3 bg-muted/60 rounded-full" indicatorClassName="bg-gradient-to-r from-primary/80 to-primary" />
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                                    <div className="p-5 rounded-2xl bg-muted/20 border border-border/20 flex items-center gap-4">
+                                        <div className="size-10 rounded-xl bg-background flex items-center justify-center text-primary border shadow-sm">
+                                            <Award className="size-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">Danh hiệu</p>
+                                            <p className="text-sm font-bold">Học viên tiên phong</p>
+                                        </div>
+                                    </div>
+                                    <div className="p-5 rounded-2xl bg-muted/20 border border-border/20 flex items-center gap-4">
+                                        <div className="size-10 rounded-xl bg-background flex items-center justify-center text-primary border shadow-sm">
+                                            <Trophy className="size-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">Rank hiện tại</p>
+                                            <p className="text-sm font-bold">Đồng hạng I</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
                 </TabsContent>
 
                 {/* --- ACHIEVEMENTS TAB --- */}
-                <TabsContent value="achievements" className="outline-none">
-                    <div className="grid lg:grid-cols-2 gap-10">
-                        <Card className="rounded-[2.5rem] border-2 border-border bg-card p-10 space-y-10">
-                            <h2 className="text-2xl font-bold flex items-center gap-4"><Award className="size-6 text-purple-500" /> Huy hiệu vinh danh</h2>
-                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-5">
-                                {achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => (
-                                    <motion.div key={achievement.id} whileHover={{ scale: 1.1, rotate: 10 }} className="aspect-square rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-lg cursor-help" title={achievement.achievement.title}>
-                                        <Trophy className="size-10 text-primary" />
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </Card>
-                        <Card className="rounded-[2.5rem] border-2 border-border bg-card p-10 space-y-10">
-                            <h2 className="text-2xl font-bold flex items-center gap-4"><GraduationCap className="size-6 text-primary" /> Chứng chỉ đã đạt</h2>
-                            <div className="space-y-4">
-                                {certificates.map((cert: any) => (
-                                    <div key={cert.id} className="p-5 border border-border rounded-2xl bg-muted/20 flex items-center gap-5 hover:bg-muted/30 transition-colors">
-                                        <div className="size-12 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-500/20"><CheckCircle2 className="size-6" /></div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="font-bold text-foreground truncate">{cert.courseRun?.courseMaster?.title}</p>
-                                            <p className="text-xs font-bold text-muted-foreground uppercase">{formatDate(cert.issueDate)}</p>
+                <TabsContent value="achievements" className="focus-visible:outline-none animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="max-w-4xl mx-auto space-y-8">
+                        <div className="text-center space-y-2 mb-10">
+                            <h2 className="text-2xl font-bold tracking-tight">Huy hiệu & Khen thưởng</h2>
+                            <p className="text-sm text-muted-foreground font-medium">Tất cả những cột mốc quan trọng bạn đã vượt qua.</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            {achievementsData?.filter(a => a.isUnlocked).length ? (
+                                achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => (
+                                    <Card key={achievement.id} className="border-border/40 bg-card hover:bg-primary/5 transition-all duration-300 rounded-[1.5rem] shadow-none p-4 text-center group cursor-default">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <div className="size-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 text-primary shadow-inner group-hover:scale-110 transition-transform">
+                                                <Trophy className="size-8" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-xs font-bold leading-tight line-clamp-1">{achievement.achievement.title}</p>
+                                                <p className="text-[9px] font-medium text-muted-foreground opacity-50 uppercase tracking-tighter">Đã đạt được</p>
+                                            </div>
                                         </div>
+                                    </Card>
+                                ))
+                            ) : (
+                                <div className="col-span-full py-24 flex flex-col items-center justify-center text-center gap-6 bg-muted/5 border border-dashed border-border/40 rounded-[2.5rem]">
+                                    <div className="size-20 rounded-3xl bg-muted/10 flex items-center justify-center text-muted-foreground/10 group">
+                                        <Award className="size-10 group-hover:scale-110 transition-transform" />
                                     </div>
-                                ))}
-                            </div>
-                        </Card>
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-bold text-foreground/40">Chưa có huy hiệu nào</p>
+                                        <p className="text-xs text-muted-foreground/30 font-medium">Hãy học tập chăm chỉ để nhận được huy hiệu đầu tiên nhé!</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </TabsContent>
 
-                {/* --- COUPONS TAB --- */}
-                <TabsContent value="coupons" className="outline-none">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                        <Card className="rounded-[3rem] border-2 border-border bg-card/40 backdrop-blur-md p-10 sm:p-14">
-                            {loadingCoupons ? (
-                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-48 w-full rounded-[2rem]" />)}
+                {/* --- GOALS / ONBOARDING TAB --- */}
+                <TabsContent value="goals" className="focus-visible:outline-none animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="max-w-4xl mx-auto">
+                        <Card className="border-border/40 bg-card/60 backdrop-blur-sm rounded-[2rem] shadow-none p-8 sm:p-12 space-y-12">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="space-y-3">
+                                    <h3 className="text-2xl font-bold tracking-tight text-foreground/80 flex items-center gap-3">
+                                        <Flag className="size-7 text-primary" />
+                                        Mục tiêu học tập
+                                    </h3>
+                                    <p className="text-sm font-medium text-muted-foreground/60 leading-relaxed">
+                                        Lộ trình được thiết kế cá nhân hóa dựa trên khảo sát của bạn.
+                                    </p>
                                 </div>
-                            ) : coupons && coupons.length > 0 ? (
-                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {coupons.map((coupon: any) => (
-                                        <div key={coupon.id} className="group p-8 border-2 border-dashed border-primary/30 rounded-[2rem] bg-primary/5 flex flex-col items-center text-center space-y-6 hover:border-primary transition-all">
-                                            <div className="size-16 rounded-full bg-white flex items-center justify-center text-primary shadow-xl relative overflow-hidden group-hover:scale-110 transition-transform">
-                                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                <Ticket className="size-8" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-xl font-bold text-foreground tracking-normal">{coupon.code}</p>
-                                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono text-center">
-                                                    {(() => {
-                                                        const discType = String(coupon.discountType || '').toUpperCase();
-                                                        const val = Number(coupon.discountValue || coupon.discountAmount || 0);
-                                                        const isPerc = discType.includes('PERCENT');
-                                                        const formattedVal = isPerc ? `${val}%` : `${formatNumber(val)}đ`;
-                                                        return `${isPerc ? 'Giảm phần trăm' : 'Giảm trực tiếp'} • ${formattedVal}`;
-                                                    })()}
-                                                </p>
-                                            </div>
-                                            <Button variant="outline" className="w-full rounded-xl border-2 font-bold text-xs h-10" onClick={() => navigator.clipboard.writeText(coupon.code)}>SAO CHÉP</Button>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="py-20 text-center">
-                                    <Ticket className="size-20 text-muted-foreground/20 mx-auto mb-6" />
-                                    <p className="text-xl font-bold text-muted-foreground">Bạn chưa sở hữu mã ưu đãi nào.</p>
-                                    <p className="text-sm font-bold text-muted-foreground/60 mt-2 italic">Tích lũy điểm Torii để đổi ưu đãi nhé!</p>
-                                </div>
-                            )}
-                        </Card>
-                    </motion.div>
-                </TabsContent>
+                                {user?.onboardingSurvey && (
+                                    <Button asChild variant="outline" size="sm" className="rounded-xl font-bold text-[10px] uppercase tracking-widest border-border/60 text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all shadow-none">
+                                        <Link href="/onboarding">Thiết lập lại</Link>
+                                    </Button>
+                                )}
+                            </div>
 
-                {/* --- ONBOARDING TAB --- */}
-                <TabsContent value="onboarding" className="outline-none">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                        <Card className="rounded-[3rem] border-2 border-border bg-card/40 backdrop-blur-md p-10 sm:p-14">
                             {user?.onboardingSurvey ? (
-                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {[
-                                        { icon: Target, label: 'Thời gian mục tiêu', value: user?.onboardingSurvey?.targetCompletionTime || 'Càng nhanh càng tốt' },
+                                        { 
+                                            label: 'Thời gian mục tiêu', 
+                                            value: user?.onboardingSurvey?.targetCompletionTime || 'Linh hoạt',
+                                            icon: Clock,
+                                            color: 'text-blue-500'
+                                        },
                                         {
-                                            icon: Trophy,
-                                            label: 'Lý do học tập',
+                                            label: 'Mục đích chính',
                                             value: (() => {
                                                 const p = user?.onboardingSurvey?.purpose;
                                                 const map: any = {
-                                                    'JLPT': 'Thi JLPT',
-                                                    'Work': 'Đi làm IT / Công ty Nhật',
-                                                    'Study': 'Du học',
-                                                    'Travel': 'Sở thích / Du lịch',
-                                                    'Communicate': 'Giao tiếp cơ bản',
-                                                    'Others': 'Lý do khác'
+                                                    'JLPT': 'Lấy bằng JLPT',
+                                                    'Work': 'Việc làm / Sự nghiệp',
+                                                    'Study': 'Học thuật / Du học',
+                                                    'Travel': 'Du lịch / Sở thích',
+                                                    'Communicate': 'Giao tiếp',
+                                                    'Others': 'Khác'
                                                 };
                                                 return map[p || ''] || p || 'Khám phá';
-                                            })()
+                                            })(),
+                                            icon: Target,
+                                            color: 'text-red-500'
                                         },
-                                        { icon: Calendar, label: 'Dự kiến thi', value: user?.onboardingSurvey?.jlptTargetDate ? formatDate(user.onboardingSurvey.jlptTargetDate) : 'Chưa quyết định' },
-                                        { icon: Clock, label: 'Thời lượng mỗi ngày', value: (user?.onboardingSurvey as any)?.studyTimePerSession || 'Chưa đặt' },
-                                        {
-                                            icon: Award,
-                                            label: 'Trình độ xuất phát',
+                                        { 
+                                            label: 'Dự kiến thi', 
+                                            value: user?.onboardingSurvey?.jlptTargetDate ? formatDate(user.onboardingSurvey.jlptTargetDate) : 'Chưa đặt',
+                                            icon: Calendar,
+                                            color: 'text-amber-500'
+                                        },
+                                        { 
+                                            label: 'Trình độ nền', 
                                             value: (() => {
                                                 const cl = user?.onboardingSurvey?.currentLevel;
                                                 const map: any = {
-                                                    'NEVER': 'Chưa biết gì',
-                                                    'N5': 'Biết bảng chữ cái Hiragana/Katakana',
-                                                    'N4': 'Đã học cơ bản (N5–N4)',
+                                                    'NEVER': 'Mới bắt đầu',
+                                                    'N5': 'Cơ bản (N5)',
+                                                    'N4': 'Sơ cấp (N4)',
                                                     'N3': 'Trung cấp (N3)',
-                                                    'N2': 'Nâng cao (N2–N1)',
-                                                    'N1': 'Nâng cao (N2–N1)'
+                                                    'N2': 'Cao cấp (N2)',
+                                                    'N1': 'Nâng cao (N1)'
                                                 };
-                                                return map[cl || ''] || cl || 'Chưa biết gì';
-                                            })()
-                                        },
-                                        {
-                                            icon: Star,
-                                            label: 'Mục tiêu học tập',
-                                            value: (() => {
-                                                const currentTechnical = user?.onboardingSurvey?.currentLevel || 'NEVER';
-                                                const map: Record<string, string> = {
-                                                    'NEVER': 'N5',
-                                                    'N5': 'N5+',
-                                                    'N4': 'N3',
-                                                    'N3': 'N2',
-                                                    'N2': 'N1',
-                                                    'N1': 'N1+',
-                                                };
-                                                return map[currentTechnical] || 'N5';
-                                            })()
-                                        },
+                                                return map[cl || ''] || cl || 'Khởi đầu';
+                                            })(),
+                                            icon: GraduationCap,
+                                            color: 'text-emerald-500'
+                                        }
                                     ].map((item, i) => (
-                                        <div key={i} className="p-8 rounded-[2rem] border-2 border-border bg-card shadow-lg flex flex-col items-center text-center space-y-4 hover:-translate-y-1 transition-transform">
-                                            <div className="p-4 rounded-2xl bg-primary/10 text-primary"><item.icon className="size-8" /></div>
-                                            <div className="space-y-1">
-                                                <p className="text-xl font-bold text-foreground line-clamp-1">{item.value}</p>
-                                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.label}</p>
+                                        <div key={i} className="flex gap-5 p-6 bg-card/40 border border-border/40 rounded-3xl transition-all hover:bg-card hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 group">
+                                            <div className={cn("size-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm border", item.color, "bg-white dark:bg-slate-900 border-border/10")}>
+                                                <item.icon className="size-5" />
+                                            </div>
+                                            <div className="flex flex-col justify-center space-y-1">
+                                                <p className="text-[10px] text-muted-foreground opacity-40 font-bold uppercase tracking-widest leading-none">{item.label}</p>
+                                                <p className="text-base font-bold text-foreground/80 tracking-tight leading-tight">{item.value}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="py-20 text-center">
-                                    <Target className="size-20 text-muted-foreground/20 mx-auto mb-6" />
-                                    <p className="text-xl font-bold text-muted-foreground">Bạn chưa hoàn thành khảo sát lộ trình.</p>
-                                    <Link href="/onboarding" className="mt-6 inline-block">
-                                        <Button className="rounded-xl font-bold px-8 py-6 h-auto text-lg hover:scale-105 transition-transform">XÂY DỰNG LỘ TRÌNH NGAY</Button>
-                                    </Link>
+                                <div className="py-24 flex flex-col items-center justify-center text-center gap-8 bg-muted/5 border border-dashed border-border/40 rounded-[2.5rem]">
+                                    <div className="size-20 rounded-3xl bg-muted/10 flex items-center justify-center text-muted-foreground/10 group">
+                                        <Target className="size-10 group-hover:scale-110 transition-transform" />
+                                    </div>
+                                    <div className="space-y-2 px-6">
+                                        <h3 className="text-base font-bold text-foreground/60">Chưa có lộ trình học tập</h3>
+                                        <p className="text-sm font-medium text-muted-foreground/30">Hãy hoàn thành khảo sát ngắn để Torii giúp bạn lên kế hoạch nhé!</p>
+                                    </div>
+                                    <Button asChild className="px-10 h-12 rounded-2xl font-bold text-xs shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                                        <Link href="/onboarding">Khởi hành ngay</Link>
+                                    </Button>
                                 </div>
                             )}
                         </Card>
-                    </motion.div>
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>

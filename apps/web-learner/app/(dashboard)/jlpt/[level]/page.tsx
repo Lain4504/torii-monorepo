@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, CalendarDays, FileText, AlertCircle } from "lucide-react"
+import { ArrowLeft, CalendarDays, FileText, AlertCircle, ChevronRight, BookOpen, Clock, Activity } from "lucide-react"
 import { jlptMockApi, useJlptMockTemplates, type JlptMockAttempt } from "@/lib/api/services/jlpt-mock-api"
 import {
   AlertDialog,
@@ -11,11 +11,16 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { toast } from "@workspace/ui/components/sonner"
-
-const LEVEL_BADGE_COLOR = "bg-amber-400 text-amber-950 dark:text-amber-50"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import { PageLoading } from "@workspace/ui/components/page-loading"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { cn } from "@workspace/ui/lib/utils"
 
 export default function JlptLevelExamPage() {
   const params = useParams<{ level: string }>()
@@ -34,8 +39,8 @@ export default function JlptLevelExamPage() {
         id: tpl.id,
         title: tpl.title,
         code: tpl.code,
-        duration: tpl.totalDurationMinutes ? `Tổng ${tpl.totalDurationMinutes} phút` : "Không giới hạn thời gian",
-        sections: "Kanji – Từ vựng · Ngữ pháp – Đọc hiểu · Nghe hiểu",
+        duration: tpl.totalDurationMinutes ? `${tpl.totalDurationMinutes} phút` : "Không giới hạn",
+        sections: "Kanji · Từ vựng · Ngữ pháp · Đọc hiểu · Nghe hiểu",
       })),
     [templates],
   )
@@ -60,115 +65,108 @@ export default function JlptLevelExamPage() {
     }
   }
 
+  if (isLoading) return <PageLoading className="h-screen" />
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-700">
-      <div className="max-w-6xl mx-auto">
-        <nav className="flex items-center gap-2 mb-6">
-          <Link
-            href="/dashboard/jlpt-list-exam"
-            className="text-sm text-muted-foreground flex items-center gap-1 hover:underline"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Chọn cấp độ JLPT
-          </Link>
-          <span
-            className={`${LEVEL_BADGE_COLOR} text-[12px] font-bold px-3 py-0.5 rounded-full ml-2`}
-          >
-            {levelCode}
-          </span>
-        </nav>
-
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Danh sách đề thi JLPT {levelCode}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Chọn một đề thi bên dưới để vào màn hình chọn phần thi (Kanji, Ngữ pháp – Đọc hiểu, Nghe hiểu).
-          </p>
+    <div className="space-y-12 animate-in fade-in duration-700 max-w-5xl mx-auto py-10 px-4">
+      {/* Minimal Header */}
+      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-border/30 pb-8">
+        <div className="flex items-center gap-5">
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/40 hover:bg-muted" asChild>
+            <Link href="/dashboard/jlpt-list-exam">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2.5">
+                <Badge className="px-2 py-0 rounded-md font-bold text-[10px] uppercase tracking-wider bg-primary/10 text-primary border-none">
+                    Mô phỏng JLPT {levelCode}
+                </Badge>
+                <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{items.length} đề thi</span>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase">
+              Danh sách đề luyện tập
+            </h1>
+          </div>
         </div>
+      </header>
 
-        <div className="space-y-4">
-          {isLoading ? (
-            <p className="text-sm text-muted-foreground">Đang tải danh sách đề thi...</p>
-          ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Chưa có đề thi mô phỏng nào cho cấp độ này.</p>
-          ) : (
-            items.map((exam) => (
-              <button
-                key={exam.id}
-                type="button"
-                disabled={starting}
-                onClick={() => {
-                  setPendingTemplateId(exam.id)
-                  setShowConfirmStart(true)
-                }}
-                className="bg-card rounded-2xl border border-border shadow-sm p-5 flex items-center justify-between gap-4 hover:shadow-md transition-shadow group text-left"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                    {levelCode}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.16em]">
-                      {exam.code}
-                    </p>
-                    <h2 className="text-base md:text-lg font-bold text-foreground">{exam.title}</h2>
-                    <p className="text-xs text-muted-foreground mt-1">{exam.sections}</p>
-                  </div>
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {items.length === 0 ? (
+          <div className="col-span-full text-center py-24 bg-muted/5 border border-dashed border-border/60 rounded-xl">
+            <p className="text-[13px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Hiện chưa có đề thi nào cho cấp độ này.</p>
+          </div>
+        ) : (
+          items.map((exam) => (
+            <button
+              key={exam.id}
+              type="button"
+              disabled={starting}
+              onClick={() => {
+                setPendingTemplateId(exam.id)
+                setShowConfirmStart(true)
+              }}
+              className="text-left group"
+            >
+              <Card className="border-border/50 hover:border-primary/20 hover:shadow-sm transition-all duration-300 rounded-xl overflow-hidden group-hover:-translate-y-0.5">
+                <CardContent className="p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="size-9 rounded-lg bg-muted/40 group-hover:bg-primary/5 flex items-center justify-center text-muted-foreground/40 group-hover:text-primary transition-colors">
+                            <FileText className="size-4" />
+                        </div>
+                        <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-4 border-border/50 text-muted-foreground/40">
+                            {exam.code}
+                        </Badge>
+                    </div>
 
-                <div className="flex flex-col items-end gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <CalendarDays className="w-4 h-4" />
-                    <span>Kỳ thi mô phỏng</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    <span>{exam.duration}</span>
-                  </div>
-                  <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary group-hover:text-primary/80">
-                    Nhấn để chọn đề
-                  </span>
-                </div>
-              </button>
-            ))
-          )}
-        </div>
+                    <div className="space-y-1">
+                        <h2 className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                            {exam.title}
+                        </h2>
+                        <div className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                <Clock className="size-3" />
+                                {exam.duration}
+                            </div>
+                            <span className="opacity-40">•</span>
+                            <div className="flex items-center gap-1.5 italic lowercase">
+                                <Activity className="size-3" />
+                                full 3 phần thi
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+              </Card>
+            </button>
+          ))
+        )}
       </div>
 
-      {/* Confirm start exam */}
+      {/* Standard AlertDialog */}
       <AlertDialog open={showConfirmStart} onOpenChange={setShowConfirmStart}>
-        <AlertDialogContent className="max-w-[420px] p-0 overflow-hidden border-none bg-transparent shadow-none">
-          <div className="bg-background border rounded-[2rem] overflow-hidden shadow-2xl">
-            <div className="p-8 text-center space-y-6">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-primary" />
-              </div>
-
-              <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-tight">
-                  Xác nhận làm đề?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
-                  Bạn sẽ bắt đầu đề {pendingExam?.title ?? ""}. Hành động này có thể không thể hủy ngay lập tức.
-                </AlertDialogDescription>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <AlertDialogCancel className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] border-2 hover:bg-muted transition-all active:scale-95">
-                  Hủy
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={confirmStart}
-                  disabled={starting || !pendingTemplateId}
-                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
-                >
-                  Bắt đầu
-                </AlertDialogAction>
-              </div>
+        <AlertDialogContent className="rounded-2xl max-w-md">
+          <AlertDialogHeader>
+            <div className="mx-auto size-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+                <AlertCircle className="size-8 text-primary" />
             </div>
-          </div>
+            <AlertDialogTitle className="text-center text-xl font-bold">Xác nhận bắt đầu thi?</AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-sm font-medium">
+                Bạn đã sẵn sàng cho đề thi <span className="text-foreground font-bold">{pendingExam?.title}</span>? 
+                Thời gian sẽ bắt đầu trôi ngay khi bạn nhấn xác nhận.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3 pt-4">
+            <AlertDialogCancel className="flex-1 h-12 rounded-xl font-bold mt-0 border-zinc-200">Quay lại</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmStart}
+              disabled={starting || !pendingTemplateId}
+              className="flex-1 h-12 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+            >
+              Vào thi ngay
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
   )
 }
-

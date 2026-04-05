@@ -47,7 +47,7 @@ export const blogApi = {
      */
     findBySlug: async (slug: string): Promise<BlogResponseDTO | null> => {
         try {
-            const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/slug/${slug}`);
+            const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/slug/${encodeURIComponent(slug)}`);
 
             const responseData = response.data;
             if (!responseData.success || !responseData.data) {

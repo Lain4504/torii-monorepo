@@ -147,11 +147,11 @@ export default function QuestionsPage() {
         ]}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="lg" className="h-10 gap-2 border-primary/20 text-primary hover:bg-primary/5" onClick={() => setCategoryDialogOpen(true)}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setCategoryDialogOpen(true)}>
               <Tag className="h-4 w-4" />
               Quản lý danh mục
             </Button>
-            <Button size="lg" className="h-10 gap-2 shadow-sm" onClick={handleCreate}>
+            <Button size="sm" className="gap-2 shadow-sm" onClick={handleCreate}>
               <Plus className="h-4 w-4" />
               Thêm câu hỏi
             </Button>
@@ -261,7 +261,7 @@ export default function QuestionsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-1.5 border-emerald-500/40 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        className="gap-1.5"
                         onClick={() => handleEdit(q)}
                       >
                         <Pencil className="h-4 w-4" />
@@ -270,7 +270,7 @@ export default function QuestionsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+                        className="gap-1.5"
                         onClick={() => handleDelete(q.id)}
                       >
                         <Trash2 className="h-4 w-4" />

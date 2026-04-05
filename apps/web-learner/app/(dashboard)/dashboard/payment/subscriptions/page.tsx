@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, Zap, Star, Crown, ArrowRight, BadgeCheck, Coins } from "lucide-react"
+import { Check, Zap, Star, Crown, ArrowRight, BadgeCheck, Coins, HelpCircle } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
@@ -12,6 +12,20 @@ import { toast } from "@workspace/ui/components/sonner"
 import { orderApi } from "@/lib/api/services/order-api"
 import { PaymentMethod } from "@workspace/schemas"
 import { useAppSelector } from "@/hooks/hooks"
+import { useQuery } from "@tanstack/react-query"
+import { agentApi } from "@/lib/api/services/agent-api"
+import { Separator } from "@workspace/ui/components/separator"
+import { 
+    AlertDialog, 
+    AlertDialogAction, 
+    AlertDialogCancel, 
+    AlertDialogContent, 
+    AlertDialogDescription, 
+    AlertDialogFooter, 
+    AlertDialogHeader, 
+    AlertDialogTitle 
+} from "@workspace/ui/components/alert-dialog"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 
 interface Tier {
     id: string
@@ -80,12 +94,12 @@ const tiers: Tier[] = [
     }
 ]
 
-import { useQuery } from "@tanstack/react-query"
-import { agentApi } from "@/lib/api/services/agent-api"
 
 export default function SubscriptionsPage() {
     const router = useRouter()
     const [loadingTier, setLoadingTier] = React.useState<string | null>(null)
+    const [selectedTier, setSelectedTier] = React.useState<{ tier: Tier, method: PaymentMethod } | null>(null)
+    const [confirmOpen, setConfirmOpen] = React.useState(false)
 
     const { data: quota } = useQuery({
         queryKey: ['quota-status'],
@@ -142,7 +156,7 @@ export default function SubscriptionsPage() {
 
     const user = useAppSelector(state => state.auth.user)
 
-    const handleSubscribe = async (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS) => {
+    const handleConfirmSubscribe = (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS) => {
         const targetTierIndex = tiers.findIndex(t => t.id === tier.id)
 
         if (targetTierIndex < currentTierIndex && currentTier !== 'free') {
@@ -160,10 +174,20 @@ export default function SubscriptionsPage() {
             return
         }
 
+        setSelectedTier({ tier, method })
+        setConfirmOpen(true)
+    }
+
+    const processSubscription = async () => {
+        if (!selectedTier) return
+        
+        const { tier, method } = selectedTier
+        setConfirmOpen(false)
         setLoadingTier(tier.id)
+        
         try {
             const response = await orderApi.createOrder({
-                subscriptionPlanIds: [tier.id], // Fix: use subscriptionPlanIds
+                subscriptionPlanIds: [tier.id],
                 description: `Đăng ký gói ${tier.name} - Torii AI Sensei`,
                 couponCode: "",
                 paymentMethod: method
@@ -180,6 +204,7 @@ export default function SubscriptionsPage() {
             toast.error(error.message || "Không thể khởi tạo thanh toán. Vui lòng thử lại sau.")
         } finally {
             setLoadingTier(null)
+            setSelectedTier(null)
         }
     }
 
@@ -187,12 +212,26 @@ export default function SubscriptionsPage() {
         return (
             <div className="container max-w-6xl mx-auto py-12 px-4 space-y-12">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="h-8 w-64 bg-muted animate-pulse rounded-lg" />
-                    <div className="h-12 w-96 bg-muted animate-pulse rounded-lg" />
+                    <Skeleton className="h-8 w-64 rounded-full" />
+                    <Skeleton className="h-12 w-3/4 sm:w-[500px]" />
+                    <Skeleton className="h-6 w-1/2 sm:w-[400px]" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-[500px] rounded-3xl bg-muted/30 animate-pulse border border-border" />
+                        <Card key={i} className="h-[600px] border-border/50">
+                            <CardHeader className="space-y-4">
+                                <Skeleton className="h-12 w-12 rounded-2xl" />
+                                <Skeleton className="h-8 w-32" />
+                                <Skeleton className="h-4 w-full" />
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-32 w-full" />
+                            </CardContent>
+                            <CardFooter>
+                                <Skeleton className="h-12 w-full rounded-xl" />
+                            </CardFooter>
+                        </Card>
                     ))}
                 </div>
             </div>
@@ -200,113 +239,109 @@ export default function SubscriptionsPage() {
     }
 
     return (
-        <div className="container max-w-6xl mx-auto py-12 px-4 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="text-center space-y-4">
-                <Badge variant="outline" className="px-4 py-1 rounded-full border-primary/30 text-primary font-bold animate-pulse">
-                    AI SENSEI SUBSCRIPTIONS
-                </Badge>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                    Nâng cấp kỹ năng Tiếng Nhật cùng AI
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium">
-                    Chọn gói đăng ký phù hợp để tận dụng tối đa sức mạnh của AI Sensei trong hành trình chinh phục ngôn ngữ.
+        <div className="space-y-8 animate-in fade-in duration-700 pb-8">
+            {/* Standard Header */}
+            <div className="space-y-4 pb-8 border-b border-border">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Nâng tầm học tập</h1>
+                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                    Mở khóa toàn bộ tiềm năng của AI Sensei và đẩy nhanh hành trình học Tiếng Nhật của bạn thông qua các gói dịch vụ cao cấp.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {tiers.map((tier, index) => {
                     const isCurrent = tier.code === currentTier
                     const isDowngrade = index < currentTierIndex && currentTier !== 'free'
+                    
                     return (
                         <Card key={tier.id} className={cn(
-                            "relative flex flex-col h-full border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-visible",
-                            tier.popular ? "border-amber-500 shadow-amber-500/10" : "border-border hover:border-primary/50",
-                            isCurrent && "border-primary shadow-lg shadow-primary/5 bg-primary/5"
+                            "relative flex flex-col h-full border-border/40 bg-card hover:bg-muted/5 transition-all duration-300 rounded-2xl overflow-hidden shadow-none group",
+                            isCurrent && "border-primary/50 bg-primary/[0.02]"
                         )}>
-                            {isCurrent ? (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
-                                    <BadgeCheck className="size-3 fill-white" /> Kế hoạch hiện tại
+                            
+                            {tier.popular && (
+                                <div className="absolute top-4 right-4">
+                                    <Badge className="bg-amber-500 text-white border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
+                                        Phổ biến
+                                    </Badge>
                                 </div>
-                            ) : tier.popular ? (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
-                                    <Star className="size-3 fill-white" /> Phổ biến nhất
-                                </div>
-                            ) : null}
+                            )}
 
-                            <CardHeader className="space-y-4 pt-8">
-                                <div className={cn(
-                                    "size-12 rounded-2xl flex items-center justify-center mb-2",
-                                    tier.color
-                                )}>
+                            <CardHeader className="space-y-3 pt-6 pb-4">
+                                <div className="size-10 rounded-xl flex items-center justify-center bg-primary/5 text-primary [&>svg]:size-5">
                                     {tier.icon}
                                 </div>
-                                <div>
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
-                                        {isCurrent && <Badge variant="secondary" className="bg-primary/20 text-primary border-none font-bold text-[10px]">CURRENT</Badge>}
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <CardTitle className="text-lg font-bold tracking-tight">{tier.name}</CardTitle>
+                                        {isCurrent && (
+                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold h-5 text-[9px]">
+                                                Hiện tại
+                                            </Badge>
+                                        )}
                                     </div>
-                                    <CardDescription className="text-sm font-medium h-10 mt-2">
+                                    <CardDescription className="text-[12px] font-medium text-muted-foreground/60 line-clamp-2">
                                         {tier.description}
                                     </CardDescription>
                                 </div>
-                                <div className="py-4 border-y border-border/50">
+                            </CardHeader>
+
+                            <CardContent className="flex-1 space-y-6 pt-0">
+                                <div className="space-y-2">
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-bold">{tier.price === 0 ? "0đ" : formatCurrency(tier.price)}</span>
-                                        <span className="text-muted-foreground font-bold text-sm">/tháng</span>
+                                        <span className="text-2xl font-bold tracking-tight">
+                                            {tier.price === 0 ? "Miễn phí" : formatCurrency(tier.price)}
+                                        </span>
+                                        {tier.price > 0 && <span className="text-[10px] font-semibold text-muted-foreground/40 leading-none ml-0.5">/tháng</span>}
                                     </div>
-                                    <div className="mt-2 flex items-center gap-2 text-primary font-bold text-sm">
-                                        <Zap className="size-3.5 fill-primary" />
+                                    <div className="flex items-center gap-2 text-primary font-bold text-[10px] bg-primary/5 w-fit px-2.5 py-1 rounded-lg">
+                                        <Zap className="size-3 fill-primary" />
                                         {tier.quota}
                                     </div>
                                 </div>
-                            </CardHeader>
 
-                            <CardContent className="flex-1">
-                                <ul className="space-y-3">
+                                <Separator className="bg-border/20" />
+
+                                <ul className="space-y-2.5">
                                     {tier.features.map((feature, idx) => (
-                                        <li key={idx} className="flex items-start gap-3 text-sm font-medium">
-                                            <div className="mt-0.5 rounded-full bg-emerald-500/10 p-0.5">
-                                                <Check className="size-3.5 text-emerald-600" />
-                                            </div>
-                                            {feature}
+                                        <li key={idx} className="flex items-start gap-2.5 text-[12px] font-medium leading-tight text-foreground/70">
+                                            <Check className="size-3.5 text-primary shrink-0 mt-0.5" />
+                                            <span>{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </CardContent>
 
-                            <CardFooter className="pt-8">
+                            <CardFooter className="flex flex-col gap-2 pb-6 pt-2">
                                 <Button
                                     className={cn(
-                                        "w-full h-12 rounded-xl font-bold text-base transition-all group",
-                                        tier.popular ? "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20" : "bg-primary hover:bg-primary/90",
-                                        (isCurrent || isDowngrade) && "bg-muted text-muted-foreground hover:bg-muted cursor-default border-none shadow-none"
+                                        "w-full h-9 rounded-xl font-bold text-[11px] transition-all shadow-none",
+                                        tier.popular ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-primary hover:bg-primary/95",
+                                        (isCurrent || isDowngrade) && "bg-muted text-muted-foreground hover:bg-muted cursor-default border-transparent"
                                     )}
-                                    onClick={() => handleSubscribe(tier, PaymentMethod.PAYOS)}
+                                    onClick={() => handleConfirmSubscribe(tier, PaymentMethod.PAYOS)}
                                     disabled={loadingTier === tier.id || isCurrent || isDowngrade}
                                 >
                                     {loadingTier === tier.id ? (
-                                        "Đang xử lý..."
+                                        <Zap className="size-3 animate-spin mr-1.5" />
                                     ) : isCurrent ? (
-                                        "Gói hiện tại"
-                                    ) : isDowngrade ? (
-                                        "Đã vượt qua gói này"
-                                    ) : (
-                                        <>
-                                            {tier.price === 0 ? "Bắt đầu ngay" : "Nâng cấp ngay"}
-                                            <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
+                                        <BadgeCheck className="size-3.5 mr-1.5" />
+                                    ) : null}
+                                    
+                                    {isCurrent ? "Đang sử dụng" : isDowngrade ? "Đã vượt gói" : tier.price === 0 ? "Bắt đầu ngay" : "Nâng cấp gói"}
                                 </Button>
 
                                 {user?.walletBalance !== undefined && user.walletBalance >= tier.price && tier.price > 0 && !isCurrent && !isDowngrade && (
-                                    <button 
-                                        className="w-full mt-3 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors group/coin"
-                                        onClick={() => handleSubscribe(tier, PaymentMethod.COIN)}
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="w-full text-[10px] font-bold text-muted-foreground/50 hover:text-primary transition-colors px-0 flex items-center justify-center gap-1.5 h-auto py-1.5"
+                                        onClick={() => handleConfirmSubscribe(tier, PaymentMethod.COIN)}
                                         disabled={loadingTier === tier.id}
                                     >
-                                        <Coins className="size-3 transition-transform group-hover/coin:scale-110" />
-                                        Thanh toán bằng {tier.price.toLocaleString()} Xu
-                                    </button>
+                                        <Coins className="size-3" />
+                                        Dùng {tier.price.toLocaleString()} Xu
+                                    </Button>
                                 )}
                             </CardFooter>
                         </Card>
@@ -314,14 +349,56 @@ export default function SubscriptionsPage() {
                 })}
             </div>
 
-            <div className="text-center bg-muted/30 p-8 rounded-3xl border border-border/50 max-w-3xl mx-auto mt-12">
-                <h3 className="text-lg font-bold mb-2">Câu hỏi thường gặp?</h3>
-                <p className="text-sm text-muted-foreground font-medium">
-                    Bạn có thể nâng cấp hoặc hủy gói đăng ký bất kỳ lúc nào. Lượt sử dụng AI sẽ được reset vào 00:00 mỗi ngày.
-                    <br />
-                    Mọi thắc mắc xin vui lòng liên hệ <span className="text-primary font-bold">support@torii.com</span>
-                </p>
+            <div className="max-w-3xl mx-auto rounded-2xl border border-border/50 bg-muted/20 p-8 sm:p-10 transition-colors hover:bg-muted/30">
+                <div className="flex flex-col sm:flex-row gap-6">
+                    <div className="size-12 shrink-0 rounded-2xl bg-background flex items-center justify-center shadow-sm border border-border/50">
+                        <HelpCircle className="size-6 text-primary" />
+                    </div>
+                    <div className="space-y-4 text-center sm:text-left">
+                        <h3 className="text-xl font-bold">Bạn có câu hỏi?</h3>
+                        <p className="text-[14px] text-muted-foreground font-medium leading-relaxed">
+                            Mọi thắc mắc về các gói đăng ký hoặc yêu cầu hỗ trợ đặc biệt, xin vui lòng liên hệ đội ngũ Torii tại <span className="text-primary font-bold hover:underline cursor-pointer">support@torii.com</span>. Chúng tôi luôn sẵn sàng đồng hành cùng bạn trên con đường chinh phục Tiếng Nhật.
+                        </p>
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-2 text-[12px] font-bold text-muted-foreground/80 tracking-wider">
+                            <span>Hủy bất cứ lúc nào</span>
+                            <span className="hidden sm:inline opacity-30">•</span>
+                            <span>Mã hóa bảo mật</span>
+                            <span className="hidden sm:inline opacity-30">•</span>
+                            <span>Hỗ trợ 24/7</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialogContent className="rounded-2xl max-w-[400px]">
+                    <AlertDialogHeader className="space-y-3">
+                        <div className="size-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-1">
+                            <Zap className="size-6 text-amber-600 fill-amber-600" />
+                        </div>
+                        <AlertDialogTitle className="text-xl font-bold">Xác nhận nâng cấp gói</AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm font-medium leading-relaxed">
+                            Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span> với mức phí <span className="text-primary font-bold">{selectedTier?.tier.price ? formatCurrency(selectedTier.tier.price) : "0đ"}</span> / tháng. 
+                            <br /><br />
+                            Bạn có đồng ý tiến hành thanh toán và kích hoạt gói ngay bây giờ không?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="pt-4 flex-col sm:flex-row gap-3">
+                        <AlertDialogCancel className="rounded-xl font-bold border-none bg-muted text-muted-foreground hover:bg-muted/80 h-10 sm:flex-1">
+                            Hủy bỏ
+                        </AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={(e) => {
+                                e.preventDefault()
+                                processSubscription()
+                            }}
+                            className="rounded-xl font-bold bg-primary hover:bg-primary/90 h-10 sm:flex-1"
+                        >
+                            Đồng ý nâng cấp
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

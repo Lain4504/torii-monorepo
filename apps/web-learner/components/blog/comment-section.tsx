@@ -4,21 +4,31 @@ import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { commentApi } from '@/lib/api/services/comment-api'
 import { CommentTargetType, type CommentResponseDTO } from '@workspace/schemas'
-import { User, Heart, Reply, MoreHorizontal, Send, Edit, Trash, MessageSquare, Shield } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@workspace/ui/components/dropdown-menu'
-import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyHeader } from '@workspace/ui/components/empty'
-import { formatDistanceToNow } from 'date-fns'
-import { FEATURE_FLAGS } from '@/lib/feature-flags'
-import { vi } from 'date-fns/locale'
-import { formatNumber } from '@/utils/format-utils'
-import Link from 'next/link'
-import { toast } from '@workspace/ui/components/sonner'
-import { Spinner } from '@workspace/ui/components/spinner'
-import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
-import { Badge } from '@workspace/ui/components/badge'
+import {
+    MessageSquare,
+    User,
+    Heart,
+    Reply,
+    Shield,
+    MoreVertical,
+    Pencil,
+    Trash2,
+    Edit,
+    Trash,
+    Send
+} from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Textarea } from '@workspace/ui/components/textarea'
-import { cn } from '@workspace/ui/lib/utils'
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { Badge } from '@workspace/ui/components/badge'
+import { toast } from '@workspace/ui/components/sonner'
+import { Spinner } from '@workspace/ui/components/spinner'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@workspace/ui/components/dropdown-menu'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,6 +39,22 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
+import { formatDistanceToNow } from 'date-fns'
+import { vi } from 'date-fns/locale'
+import { cn } from '@workspace/ui/lib/utils'
+import { formatNumber } from '@/utils/format-utils'
+import { Separator } from '@workspace/ui/components/separator'
+import Link from 'next/link'
+
+interface CommentInputProps {
+    user: any
+    onSubmit: (text: string) => Promise<void>
+    placeholder?: string
+    autoFocus?: boolean
+    initialValue?: string
+    submitLabel?: string
+    onCancel?: () => void
+}
 
 interface CommentSectionProps {
     blogId?: string
@@ -56,8 +82,6 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                 ...(blogId ? { blogId } : feedId ? { feedId } : { discussionId, classId }),
             })
 
-            // Flatten nested structure: backend returns root comments with nested replies
-            // We need to flatten this into a single array for our rendering logic
             const flatComments: CommentResponseDTO[] = []
 
             const flatten = (items: any[]) => {
@@ -76,9 +100,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
             setComments(flatComments)
         } catch (error: any) {
             console.error('Failed to fetch comments:', error)
-            toast.error('Không thể tải bình luận', {
-                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
-            })
+            toast.error('Không thể tải bình luận')
         } finally {
             setLoading(false)
         }
@@ -91,10 +113,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
     }, [blogId, feedId, discussionId, classId])
 
     const handleSubmitComment = async (content: string, parentId?: string) => {
-        if (!content.trim()) {
-            toast.error('Vui lòng nhập nội dung bình luận')
-            return
-        }
+        if (!content.trim()) return
 
         if (!isAuthenticated || !user?.id) {
             toast.error('Vui lòng đăng nhập để bình luận')
@@ -102,11 +121,6 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
         }
 
         try {
-            if (!blogId && !feedId && !discussionId) {
-                toast.error('Không thể xác định bài viết')
-                return
-            }
-
             const targetPayload = blogId
                 ? { entityId: blogId, targetType: CommentTargetType.BLOG, blogId }
                 : feedId
@@ -121,23 +135,19 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
             })
 
             setReplyTo(null)
-            setComments(prev => [...prev, newComment]) // Optimistic add
-
-            // Notify parent to update comment count
+            setComments(prev => [...prev, newComment])
             onCommentCountChange?.(1)
 
-            toast.success(parentId ? 'Đã trả lời bình luận' : 'Đã gửi bình luận thành công')
+            toast.success(parentId ? 'Đã trả lời bình luận' : 'Đã gửi bình luận')
         } catch (error: any) {
             console.error('Failed to post comment:', error)
-            toast.error('Không thể gửi bình luận', {
-                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
-            })
+            toast.error('Không thể gửi bình luận')
         }
     }
 
     const handleLikeComment = async (commentId: string) => {
         if (!isAuthenticated || !user?.id) {
-            toast.error('Vui lòng đăng nhập để thích bình luận')
+            toast.error('Thích bình luận yêu cầu đăng nhập')
             return
         }
 
@@ -156,7 +166,6 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
 
         try {
             const result = await commentApi.toggleLike(commentId)
-            // Sync with server result just in case
             setComments(prev => prev.map(c => {
                 if (c.id === commentId) {
                     return {
@@ -169,10 +178,10 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
             }))
         } catch (error: any) {
             console.error('Failed to like comment:', error)
-            // Revert optimistic update
+            // Revert
             setComments(prev => prev.map(c => {
                 if (c.id === commentId) {
-                    const isLiked = !c.isLiked // Revert
+                    const isLiked = !c.isLiked
                     return {
                         ...c,
                         isLiked,
@@ -181,51 +190,34 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                 }
                 return c
             }))
-            toast.error('Không thể thích bình luận', {
-                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
-            })
+            toast.error('Lỗi khi thích bình luận')
         }
     }
 
     const handleUpdateComment = async (commentId: string, content: string) => {
         try {
             const updatedComment = await commentApi.update(commentId, { content })
-
-            // Update local state
             setComments(prev => prev.map(c => c.id === commentId ? { ...c, content: updatedComment.content } : c))
-
-            toast.success('Đã cập nhật bình luận')
+            toast.success('Đã cập nhật')
         } catch (error: any) {
             console.error('Failed to update comment:', error)
-            toast.error('Không thể cập nhật bình luận', {
-                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
-            })
+            toast.error('Lỗi khi cập nhật')
         }
     }
 
     const handleDeleteComment = async (commentId: string) => {
         try {
             await commentApi.delete(commentId)
-
-            // Remove from local state
             setComments(prev => prev.filter(c => c.id !== commentId))
             setDeleteConfirmId(null)
-
-            // Notify parent to update comment count
             onCommentCountChange?.(-1)
-
-            toast.success('Đã xóa bình luận')
+            toast.success('Đã xóa')
         } catch (error: any) {
             console.error('Failed to delete comment:', error)
-            toast.error('Không thể xóa bình luận', {
-                description: error?.userMessage || error?.message || 'Vui lòng thử lại sau'
-            })
+            toast.error('Lỗi khi xóa bình luận')
         }
     }
 
-    // Filter root comments and replies
-    // If we have a discussionId, the top-level comments for display are the direct replies to the discussion topic.
-    // Otherwise (for blogs/feeds), top-level comments are those without a parentId.
     const rootComments = discussionId
         ? comments.filter(c => c.parentId === discussionId)
         : comments.filter(c => !c.parentId)
@@ -233,85 +225,85 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
     const getReplies = (parentId: string) => comments.filter(c => c.parentId === parentId)
 
     return (
-        <section className="space-y-8">
-            {/* Header with Count */}
-            <div className="flex items-center justify-between pb-4 border-b">
-                <h3 className="font-bold text-lg flex items-center gap-2.5">
-                    <MessageSquare className="size-5 text-primary" />
-                    Bình luận
-                    <Badge variant="secondary" className="ml-1 font-bold text-[10px] px-2">
-                        {formatNumber(comments.length - 1)}
-                    </Badge>
-                </h3>
-            </div>
+        <section className="space-y-10">
+            {/* Thread Header */}
+            {!discussionId && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                        <MessageSquare className="size-4 text-muted-foreground/60" />
+                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Phản hồi</h3>
+                        <Badge variant="outline" className="rounded-full px-2 py-0 border-border/60 text-[9px] h-4">
+                            {formatNumber(comments.length - 1)}
+                        </Badge>
+                    </div>
+                </div>
+            )}
 
-            {/* Comment List */}
+        
+            {/* List */}
             <div className="space-y-4">
                 {loading ? (
-                    <div className="py-16 flex justify-center">
-                        <Spinner className="w-8 h-8 text-primary animate-spin" />
+                    <div className="py-20 flex flex-col items-center gap-6">
+                        <Spinner className="size-5 text-primary" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 animate-pulse">Synchronizing thoughts...</span>
                     </div>
                 ) : rootComments.length > 0 ? (
-                    rootComments.map(comment => (
-                        <CommentItem
-                            key={comment.id}
-                            comment={comment}
-                            replies={getReplies(comment.id)}
-                            allComments={comments}
-                            isAuthenticated={isAuthenticated}
-                            onReplyClick={(id) => setReplyTo(id === replyTo ? null : id)}
-                            replyingToId={replyTo}
-                            onReplySubmit={handleSubmitComment}
-                            onLikeComment={handleLikeComment}
-                            user={user}
-                            onUpdateComment={handleUpdateComment}
-                            onDeleteComment={handleDeleteComment}
-                            onRequestDelete={setDeleteConfirmId}
-                            canLike={!!blogId || !!feedId || !!discussionId}
-                        />
+                    rootComments.map((comment, index) => (
+                        <div key={comment.id}>
+                            <CommentItem
+                                comment={comment}
+                                replies={getReplies(comment.id)}
+                                allComments={comments}
+                                isAuthenticated={isAuthenticated}
+                                onReplyClick={(id) => setReplyTo(id === replyTo ? null : id)}
+                                replyingToId={replyTo}
+                                onReplySubmit={handleSubmitComment}
+                                onLikeComment={handleLikeComment}
+                                user={user}
+                                onUpdateComment={handleUpdateComment}
+                                onDeleteComment={handleDeleteComment}
+                                onRequestDelete={setDeleteConfirmId}
+                                canLike={!!blogId || !!feedId || !!discussionId}
+                            />
+                            {index < rootComments.length - 1 && <div className="h-px bg-border/10 mx-6 my-4" />}
+                        </div>
                     ))
                 ) : (
-                    <div className="py-12 flex justify-center bg-muted/20 rounded-lg border border-dashed border-border/50">
-                        <Empty>
-                            <EmptyHeader>
-                                <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border">
-                                    <User className="text-muted-foreground w-6 h-6" />
-                                </EmptyMedia>
-                                <EmptyTitle className="text-base font-bold text-foreground">Bạn hãy lên tiếng!</EmptyTitle>
-                                <EmptyDescription className="text-sm text-muted-foreground">
-                                    Chưa có bình luận nào. Hãy là người đầu tiên!
-                                </EmptyDescription>
-                            </EmptyHeader>
-                        </Empty>
+                    <div className="py-24 text-center space-y-8 rounded-[3rem] bg-muted/10 border border-dashed border-border/20">
+                        <User className="size-10 text-muted-foreground/10 mx-auto" />
+                        <div className="space-y-2">
+                            <p className="text-xl font-black tracking-tight">Vùng im lặng</p>
+                            <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest leading-relaxed">Hãy là người thắp sáng cuộc thảo luận này.</p>
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* Main Comment Input - Always visible at bottom for root comments */}
-            <div className="pt-2">
+            {/* Main Input Area */}
+            <div className="pt-12">
                 <CommentInput
                     user={user}
                     onSubmit={(text) => handleSubmitComment(text)}
-                    placeholder="Viết bình luận..."
+                    placeholder="Tham gia thảo luận..."
                 />
             </div>
 
-            {/* Delete Confirmation Dialog */}
+            {/* Delete Confirmation */}
             <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác.
+                <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-10">
+                    <AlertDialogHeader className="space-y-4">
+                        <AlertDialogTitle className="text-2xl font-black tracking-tight">XÓA VĨNH VIỄN?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm font-medium text-muted-foreground leading-relaxed italic">
+                            Lời nói đã thốt ra không thể rút lại, nhưng bình luận này thì có thể biến mất mãi mãi. Bạn chắc chứ?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                    <AlertDialogFooter className="mt-8 gap-4">
+                        <AlertDialogCancel className="rounded-full font-black text-[10px] uppercase tracking-widest border-none hover:bg-muted">Giữ lại</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => deleteConfirmId && handleDeleteComment(deleteConfirmId)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                            className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 font-black text-[10px] uppercase tracking-widest px-10 h-10"
                         >
-                            Xóa bình luận
+                            Xác nhận xóa
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -334,7 +326,7 @@ function CommentItem({
     onDeleteComment,
     onRequestDelete,
     canLike = true,
-    depth
+    depth = 0
 }: {
     comment: CommentResponseDTO,
     replies: CommentResponseDTO[],
@@ -351,11 +343,6 @@ function CommentItem({
     canLike?: boolean,
     depth?: number
 }) {
-    const MAX_DEPTH = 3
-    const actualDepth = depth || 0
-    const shouldIndent = actualDepth < MAX_DEPTH
-
-    const getNestedReplies = (parentId: string) => allComments.filter(c => c.parentId === parentId)
     const isReplying = replyingToId === comment.id
     const isOwner = isAuthenticated && user?.id === comment.author?.id
     const [isEditing, setIsEditing] = useState(false)
@@ -366,123 +353,101 @@ function CommentItem({
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex gap-4">
-                {/* Avatar */}
-                <Link href={`/user/${comment.author?.id}`} className="flex-shrink-0">
-                    <Avatar className="size-10 border">
-                        <AvatarImage src={comment.author?.avatarUrl || undefined} />
-                        <AvatarFallback className="bg-muted text-muted-foreground">
-                            <User className="size-5" />
-                        </AvatarFallback>
-                    </Avatar>
-                </Link>
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
+            <div className="flex gap-6">
+                <Avatar className="size-10 shadow-lg border border-background shrink-0 mt-1">
+                    <AvatarImage src={comment.author?.avatarUrl || undefined} />
+                    <AvatarFallback className="bg-primary/5 text-primary font-black text-[10px]">
+                        {(comment.author?.displayName || 'U')[0]}
+                    </AvatarFallback>
+                </Avatar>
 
-                {/* Content */}
-                <div className="flex-1 space-y-2">
-                    {/* Author & Time */}
-                    <div className="flex items-center gap-2">
-                        <Link href={comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE ? '#' : `/user/${comment.author?.id}`} className={cn("font-bold text-sm transition-colors", comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE ? "text-primary hover:text-primary cursor-default" : "hover:text-primary")}>
-                            {comment.author?.displayName || 'Unknown User'}
-                        </Link>
-                        {comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE && (
-                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-bold uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
-                                <Shield className="size-2.5 fill-current" />
-                                {comment.authorRoleLabel || 'Torii Support'}
+                <div className="flex-1 min-w-0 space-y-3">
+                    <div className="flex items-center gap-4 flex-wrap">
+                        <span className="font-black text-[11px] uppercase tracking-widest text-foreground">
+                            {comment.author?.displayName || 'Anonymous'}
+                        </span>
+                        {comment.isOfficialReply && comment.authorRoleLabel && (
+                            <Badge className="bg-primary text-primary-foreground border-none text-[8px] font-black uppercase tracking-tighter h-4 px-2">
+                                Official
                             </Badge>
                         )}
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">
-                            • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
+                        <span className="text-[9px] font-mono font-bold uppercase tracking-tighter text-muted-foreground/30">
+                            {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: vi })}
                         </span>
                     </div>
 
-                    {/* Tag if exists */}
-                    {comment.tags && comment.tags.length > 0 && (
-                        <div className="flex gap-2">
-                            {comment.tags.slice(0, 1).map((tag: string) => (
-                                <Badge key={tag} variant="secondary" className="text-[9px] font-bold uppercase tracking-widest px-1.5 h-4">
-                                    {tag.toUpperCase()}
-                                </Badge>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Comment Text or Edit Form */}
                     {isEditing ? (
-                        <div className="mt-4">
+                        <div className="pt-2">
                             <CommentInput
                                 user={user}
                                 onSubmit={handleUpdate}
                                 initialValue={comment.content}
-                                placeholder="Viết bình luận..."
+                                placeholder="Hiệu chỉnh nội dung..."
                                 autoFocus
                                 onCancel={() => setIsEditing(false)}
                                 submitLabel="Lưu"
                             />
                         </div>
                     ) : (
-                        <div className="bg-muted/30 rounded-lg p-4 border">
-                            <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap break-words">
-                                {comment.content}
-                            </p>
-                        </div>
+                        <p className="text-sm text-foreground/70 leading-relaxed whitespace-pre-wrap break-words italic selection:bg-primary/20">
+                            {comment.content}
+                        </p>
                     )}
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-8 pt-2">
                         {canLike && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
+                            <button
                                 className={cn(
-                                    "h-auto p-0 text-[10px] font-bold uppercase tracking-widest hover:bg-transparent",
-                                    comment.isLiked ? "text-destructive" : "text-muted-foreground hover:text-destructive"
+                                    "flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all hover:scale-110",
+                                    comment.isLiked ? "text-destructive" : "text-muted-foreground/40 hover:text-destructive"
                                 )}
                                 onClick={() => onLikeComment(comment.id)}
                             >
-                                <Heart className={cn("size-3.5 mr-1.5", comment.isLiked && "fill-current")} />
-                                <span>{formatNumber(comment.likeCount || 0)} Yêu thích</span>
-                            </Button>
+                                <Heart className={cn("size-3.5", comment.isLiked && "fill-current")} />
+                                <span className="font-mono">{formatNumber(comment.likeCount || 0)}</span>
+                            </button>
                         )}
-                        <Button
-                            variant="ghost"
-                            size="sm"
+                        
+                        <button
                             className={cn(
-                                "h-auto p-0 text-[10px] font-bold uppercase tracking-widest hover:bg-transparent",
-                                isReplying ? "text-primary" : "text-muted-foreground hover:text-primary"
+                                "flex items-center gap-2 text-[9px] font-black uppercase tracking-widest transition-all",
+                                isReplying ? "text-primary" : "text-muted-foreground/40 hover:text-primary"
                             )}
                             onClick={() => onReplyClick(comment.id)}
                             disabled={!isAuthenticated}
                         >
-                            <Reply className="size-3.5 mr-1.5" />
-                            <span>Trả lời</span>
-                        </Button>
+                            <Reply className="size-3.5" />
+                            <span>Reply</span>
+                        </button>
+
+                        {isOwner && !isEditing && (
+                            <div className="flex items-center gap-4">
+                                <button onClick={() => setIsEditing(true)} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 hover:text-foreground transition-colors">Edit</button>
+                                <button onClick={() => onRequestDelete(comment.id)} className="text-[9px] font-black uppercase tracking-widest text-destructive/20 hover:text-destructive transition-colors">Delete</button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Inline Reply Form */}
                     {isReplying && (
-                        <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-700">
                             <CommentInput
                                 user={user}
                                 onSubmit={(text) => onReplySubmit(text, comment.id)}
-                                placeholder={`Trả lời ${comment.author?.displayName || '...'}`}
+                                placeholder={`Phản hồi cho ${comment.author?.displayName || '...'}`}
                                 autoFocus
                                 onCancel={() => onReplyClick(comment.id)}
                             />
                         </div>
                     )}
 
-                    {/* Recursively Render Replies */}
                     {replies.length > 0 && (
-                        <div className={cn(
-                            "mt-6 space-y-6",
-                            shouldIndent ? "pl-6 border-l-2 border-primary/10" : "pl-2 border-l-2 border-primary/5"
-                        )}>
+                        <div className="mt-8 space-y-10 pl-6 sm:pl-10 border-l border-border/10">
                             {replies.map(reply => (
                                 <CommentItem
                                     key={reply.id}
                                     comment={reply}
-                                    replies={getNestedReplies(reply.id)}
+                                    replies={allComments.filter(c => c.parentId === reply.id)}
                                     allComments={allComments}
                                     isAuthenticated={isAuthenticated}
                                     onReplyClick={onReplyClick}
@@ -494,49 +459,15 @@ function CommentItem({
                                     onDeleteComment={onDeleteComment}
                                     onRequestDelete={onRequestDelete}
                                     canLike={canLike}
-                                    depth={actualDepth + 1}
+                                    depth={depth + 1}
                                 />
                             ))}
                         </div>
                     )}
                 </div>
-
-                {/* More Options */}
-                {isOwner && !isEditing && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
-                                <MoreHorizontal className="size-4 text-muted-foreground" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                <Edit className="w-4 h-4 mr-2" />
-                                Chỉnh sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => onRequestDelete(comment.id)}
-                                className="text-destructive focus:text-destructive"
-                            >
-                                <Trash className="w-4 h-4 mr-2" />
-                                Xóa
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
             </div>
         </div>
     )
-}
-
-interface CommentInputProps {
-    user: any
-    onSubmit: (text: string) => Promise<void>
-    placeholder?: string
-    autoFocus?: boolean
-    initialValue?: string
-    submitLabel?: string
-    onCancel?: () => void
 }
 
 function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", autoFocus, onCancel, initialValue = '', submitLabel }: CommentInputProps) {
@@ -545,57 +476,56 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
 
     const handleSubmit = async () => {
         if (!text.trim()) return
-
         try {
             setSubmitting(true)
             await onSubmit(text)
             setText('')
         } catch (error) {
-            // Error handling handled by parent usually
+            console.error(error)
         } finally {
             setSubmitting(false)
         }
     }
 
     return (
-        <div className="flex gap-4 items-start w-full">
-            <Avatar className="size-10 border shrink-0">
+        <div className="flex gap-6 items-start animate-in fade-in duration-1000">
+            <Avatar className="size-10 shadow-md border border-background shrink-0 mt-1">
                 <AvatarImage src={user?.avatarUrl || undefined} />
-                <AvatarFallback className="bg-muted text-muted-foreground font-bold">
-                    {(user?.displayName || 'U').charAt(0).toUpperCase()}
+                <AvatarFallback className="bg-primary/5 text-primary font-black text-[10px]">
+                    {(user?.displayName || 'U')[0]}
                 </AvatarFallback>
             </Avatar>
-            <div className="flex-1 space-y-3">
-                <div className="relative group">
-                    <Textarea
-                        placeholder={placeholder}
-                        className="min-h-[100px] w-full bg-muted/30 border-border/40 focus:border-primary/40 focus:bg-background transition-all rounded-lg resize-none p-4 text-sm"
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        autoFocus={autoFocus}
-                    />
-                </div>
+            <div className="flex-1 space-y-6">
+                <Textarea
+                    placeholder={placeholder}
+                    className="min-h-[120px] w-full bg-muted/20 border-none focus-visible:ring-0 transition-all rounded-[2rem] resize-none p-6 text-sm leading-relaxed shadow-inner italic"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    autoFocus={autoFocus}
+                />
 
-                <div className="flex items-center justify-end gap-3">
+                <div className="flex items-center justify-end gap-6 pb-2">
                     {onCancel && (
                         <Button
                             variant="ghost"
-                            size="sm"
-                            className="font-bold text-xs uppercase tracking-widest text-muted-foreground"
                             onClick={onCancel}
+                            className="font-black text-[10px] uppercase tracking-widest text-muted-foreground/40 hover:text-foreground hover:bg-transparent"
                         >
-                            Hủy
+                            Cancel
                         </Button>
                     )}
 
                     <Button
                         onClick={handleSubmit}
                         disabled={submitting || !text.trim()}
-                        className="font-bold text-xs uppercase tracking-widest px-6"
+                        className={cn(
+                            "rounded-full px-12 h-10 font-black text-[10px] uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all",
+                            submitting ? "opacity-50" : ""
+                        )}
                     >
                         {submitting ? (
-                            <Spinner className="size-4 animate-spin" />
-                        ) : submitLabel || 'Gửi bình luận'}
+                            <Spinner className="size-4 animate-spin text-background" />
+                        ) : submitLabel || 'Publish'}
                     </Button>
                 </div>
             </div>

@@ -77,121 +77,161 @@ export function PasswordTab() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <Card className="rounded-2xl border-none shadow-sm bg-card/50 backdrop-blur-sm overflow-hidden">
-                <CardHeader className="border-b border-border/50 bg-muted/20 pb-6">
-                    <CardTitle className="text-xl font-bold">{hasPassword ? 'Đổi mật khẩu' : 'Thiết lập mật khẩu'}</CardTitle>
-                    <CardDescription className="text-sm font-medium">
-                        {hasPassword 
-                            ? 'Cập nhật mật khẩu để bảo vệ tài khoản của bạn khỏi bị truy cập trái phép.'
-                            : 'Thiết lập mật khẩu gốc để có thể đăng nhập trực tiếp bằng email.'}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                    {hasPassword && (
-                        <Field className="space-y-2">
-                            <FieldLabel className="text-xs font-semibold text-muted-foreground mr-2">Mật khẩu hiện tại</FieldLabel>
-                            <div className="relative">
-                                <Input
-                                    id="currentPassword"
-                                    type={showCurrentPassword ? 'text' : 'password'}
-                                    value={passwordForm.currentPassword}
-                                    onChange={(e) =>
-                                        setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
-                                    }
-                                    placeholder="Nhập mật khẩu đang sử dụng"
-                                    className="h-12 rounded-xl"
-                                    autoComplete="current-password"
-                                />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute right-0 top-0 h-full w-12 hover:bg-transparent text-muted-foreground"
-                                    onClick={() => setShowCurrentPassword((v) => !v)}
-                                >
-                                    {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                                </Button>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Sidebar: Security Info */}
+            <div className="lg:col-span-4">
+                <Card className="border-none shadow-sm bg-card/60 backdrop-blur-md overflow-hidden h-full">
+                    <CardHeader className="border-b bg-muted/20">
+                        <CardTitle className="text-lg font-bold">Bảo mật mật khẩu</CardTitle>
+                        <CardDescription>Giữ cho tài khoản của bạn luôn an toàn.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="py-8 space-y-6">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <div className="p-4 rounded-3xl bg-primary/10 text-primary shadow-inner">
+                                <Lock className="size-10" />
                             </div>
-                        </Field>
-                    )}
+                            <div>
+                                <h3 className="font-bold text-foreground">Mật khẩu mạnh</h3>
+                                <p className="text-xs text-muted-foreground mt-1 max-w-[200px] mx-auto">
+                                    Sử dụng ít nhất 8 ký tự, bao gồm cả chữ cái, số và ký hiệu đặc biệt.
+                                </p>
+                            </div>
+                        </div>
 
-                    <Field className="space-y-2">
-                        <FieldLabel className="text-xs font-semibold text-muted-foreground mr-2">Mật khẩu mới</FieldLabel>
-                        <div className="relative">
-                            <Input
-                                id="newPassword"
-                                type={showNewPassword ? 'text' : 'password'}
-                                value={passwordForm.newPassword}
-                                onChange={(e) =>
-                                    setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
-                                }
-                                placeholder="Tối thiểu 8 ký tự"
-                                className="h-12 rounded-xl"
-                                autoComplete="new-password"
-                            />
+                        <div className="pt-6 border-t border-border/50">
+                            <ul className="space-y-3">
+                                {[
+                                    'Không sử dụng mật khẩu cũ',
+                                    'Định kỳ đổi mật khẩu',
+                                    'Sử dụng mật khẩu duy nhất'
+                                ].map((tip, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                        <Shield className="size-3 text-emerald-500" />
+                                        {tip}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Main Password Form */}
+            <div className="lg:col-span-8">
+                <Card className="border-none shadow-sm">
+                    <CardHeader>
+                        <CardTitle>{hasPassword ? 'Đổi mật khẩu' : 'Thiết lập mật khẩu'}</CardTitle>
+                        <CardDescription>
+                            {hasPassword 
+                                ? 'Cập nhật mật khẩu để bảo vệ tài khoản của bạn khỏi bị truy cập trái phép.'
+                                : 'Thiết lập mật khẩu gốc để có thể đăng nhập trực tiếp bằng email.'}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {hasPassword && (
+                            <Field>
+                                <FieldLabel>Mật khẩu hiện tại</FieldLabel>
+                                <div className="relative group">
+                                    <Input
+                                        id="currentPassword"
+                                        type={showCurrentPassword ? 'text' : 'password'}
+                                        value={passwordForm.currentPassword}
+                                        onChange={(e) =>
+                                            setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
+                                        }
+                                        placeholder="Nhập mật khẩu đang sử dụng"
+                                        className="pr-12"
+                                        autoComplete="current-password"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full w-10 hover:bg-transparent text-muted-foreground transition-colors group-hover:text-foreground"
+                                        onClick={() => setShowCurrentPassword((v) => !v)}
+                                    >
+                                        {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                    </Button>
+                                </div>
+                            </Field>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Field>
+                                <FieldLabel>Mật khẩu mới</FieldLabel>
+                                <div className="relative group">
+                                    <Input
+                                        id="newPassword"
+                                        type={showNewPassword ? 'text' : 'password'}
+                                        value={passwordForm.newPassword}
+                                        onChange={(e) =>
+                                            setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
+                                        }
+                                        placeholder="Tối thiểu 8 ký tự"
+                                        className="pr-12"
+                                        autoComplete="new-password"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full w-10 hover:bg-transparent text-muted-foreground transition-colors group-hover:text-foreground"
+                                        onClick={() => setShowNewPassword((v) => !v)}
+                                    >
+                                        {showNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                    </Button>
+                                </div>
+                            </Field>
+
+                            <Field>
+                                <FieldLabel>Xác nhận mật khẩu mới</FieldLabel>
+                                <div className="relative group">
+                                    <Input
+                                        id="confirmNewPassword"
+                                        type={showConfirmNewPassword ? 'text' : 'password'}
+                                        value={passwordForm.confirmNewPassword}
+                                        onChange={(e) =>
+                                            setPasswordForm((prev) => ({ ...prev, confirmNewPassword: e.target.value }))
+                                        }
+                                        placeholder="Xác nhận mật khẩu mới"
+                                        className="pr-12"
+                                        autoComplete="new-password"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full w-10 hover:bg-transparent text-muted-foreground transition-colors group-hover:text-foreground"
+                                        onClick={() => setShowConfirmNewPassword((v) => !v)}
+                                    >
+                                        {showConfirmNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                    </Button>
+                                </div>
+                            </Field>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/50">
                             <Button
                                 type="button"
                                 variant="ghost"
-                                size="icon"
-                                className="absolute right-0 top-0 h-full w-12 hover:bg-transparent text-muted-foreground"
-                                onClick={() => setShowNewPassword((v) => !v)}
+                                onClick={() => setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' })}
+                                disabled={changePasswordMutation.isPending}
                             >
-                                {showNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                Xóa trường
                             </Button>
-                        </div>
-                    </Field>
-
-                    <Field className="space-y-2">
-                        <FieldLabel className="text-xs font-semibold text-muted-foreground mr-2">Xác nhận mật khẩu mới</FieldLabel>
-                        <div className="relative">
-                            <Input
-                                id="confirmNewPassword"
-                                type={showConfirmNewPassword ? 'text' : 'password'}
-                                value={passwordForm.confirmNewPassword}
-                                onChange={(e) =>
-                                    setPasswordForm((prev) => ({ ...prev, confirmNewPassword: e.target.value }))
-                                }
-                                placeholder="Xác nhận mật khẩu mới"
-                                className="h-12 rounded-xl"
-                                autoComplete="new-password"
-                            />
                             <Button
                                 type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-0 top-0 h-full w-12 hover:bg-transparent text-muted-foreground"
-                                onClick={() => setShowConfirmNewPassword((v) => !v)}
+                                className="font-bold"
+                                onClick={handleChangePassword}
+                                disabled={changePasswordMutation.isPending}
                             >
-                                {showConfirmNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                {changePasswordMutation.isPending && <Spinner className="mr-2 h-4 w-4" />}
+                                {hasPassword ? 'Lưu mật khẩu mới' : 'Thiết lập mật khẩu'}
                             </Button>
                         </div>
-                    </Field>
-
-                    <div className="pt-6 border-t border-border/50 flex flex-col gap-3">
-                        <Button
-                            type="button"
-                            className="w-full h-12 rounded-xl text-md"
-                            onClick={handleChangePassword}
-                            disabled={changePasswordMutation.isPending}
-                        >
-                            {changePasswordMutation.isPending && <Spinner className="mr-2 h-4 w-4" />}
-                            {hasPassword ? 'Lưu mật khẩu mới' : 'Thiết lập mật khẩu'}
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            className="w-full h-10 rounded-xl font-semibold text-xs"
-                            onClick={() =>
-                                setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
-                            }
-                            disabled={changePasswordMutation.isPending}
-                        >
-                            Xóa trường
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     )
 }

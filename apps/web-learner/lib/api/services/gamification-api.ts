@@ -313,7 +313,6 @@ export function useGamificationProfile() {
 }
 
 /**
-/**
  * Hook: Get gamification history
  */
 export function useGamificationHistory(

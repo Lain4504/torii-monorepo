@@ -1,125 +1,114 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ReviewItem } from './review-item'
-import { academyClassReviewsClient as reviewApi, type ClassReview as ReviewResponse } from '@/lib/api/services/academy-class-reviews'
-import { MessageSquareOff } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@workspace/ui/components/alert-dialog"
-import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty"
+} from '@workspace/ui/components/alert-dialog'
+import { toast } from '@workspace/ui/components/sonner'
+import { Button } from '@workspace/ui/components/button'
+import { academyClassReviewHooks } from '@/lib/api/services/academy-class-reviews'
+import type { ReviewRow } from './reviews-columns'
+import { ReviewsTable } from './reviews-table'
+import { ReviewDetailDialog } from './review-detail-dialog'
 
-interface ReviewListProps {
-    learnerId: string
-}
+export function ReviewList() {
+    const { data: axiosRes, isLoading } = academyClassReviewHooks.useListMine()
+    const hideMutation = academyClassReviewHooks.useHideReview()
 
-export function ReviewList({ learnerId }: ReviewListProps) {
-    const [reviews, setReviews] = useState<(ReviewResponse & { courseTitle?: string; courseSlug?: string })[]>([])
-    const [loading, setLoading] = useState(true)
-    const [deleteId, setDeleteId] = useState<string | null>(null)
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const reviews = useMemo((): ReviewRow[] => {
+        const raw = axiosRes?.data?.data ?? []
+        return raw.map((r: ReviewRow) => ({
+            ...r,
+            courseTitle: r.class?.courseProfile?.title || 'Khóa học',
+        }))
+    }, [axiosRes])
 
-    useEffect(() => {
-        const fetchReviews = async () => {
-            setLoading(true)
-            try {
-                // Use listMine as it's specifically for the current user
-                const response = await reviewApi.listMine()
-                const data = (response.data.data || []).map((r: any) => ({
-                    ...r,
-                    courseTitle: r.class?.courseProfile?.title || 'Khóa học',
-                }))
+    const [detailOpen, setDetailOpen] = useState(false)
+    const [detailReview, setDetailReview] = useState<ReviewRow | null>(null)
 
-                setReviews(data)
-            } catch (error) {
-                console.error("Failed to fetch reviews", error)
-            } finally {
-                setLoading(false)
-            }
-        }
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [pendingRemove, setPendingRemove] = useState<ReviewRow | null>(null)
 
-        fetchReviews()
-    }, [learnerId])
-
-    const handleDeleteRequest = (reviewId: string) => {
-        setDeleteId(reviewId)
-        setIsDeleteDialogOpen(true)
+    const openDetail = (r: ReviewRow) => {
+        setDetailReview(r)
+        setDetailOpen(true)
     }
 
-    const confirmDelete = async () => {
-        if (!deleteId) return
-
-        try {
-            await reviewApi.hide(deleteId)
-            setReviews(reviews.filter(r => r.id !== deleteId))
-        } catch (error) {
-            console.error("Failed to delete review", error)
-            alert('Có lỗi xảy ra khi xóa đánh giá')
-        } finally {
-            setIsDeleteDialogOpen(false)
-            setDeleteId(null)
-        }
+    const requestRemove = (r: ReviewRow) => {
+        setPendingRemove(r)
+        setConfirmOpen(true)
     }
 
-    if (loading) {
-        return (
-            <div className="grid gap-6 md:grid-cols-2">
-                {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-40 rounded-lg" />
-                ))}
-            </div>
-        )
-    }
-
-    if (reviews.length === 0) {
-        return (
-            <Empty className="py-16">
-                <EmptyHeader>
-                    <EmptyMedia variant="icon" className="bg-muted">
-                        <MessageSquareOff className="text-muted-foreground" />
-                    </EmptyMedia>
-                    <EmptyTitle>Chưa có đánh giá nào</EmptyTitle>
-                    <EmptyDescription>
-                        Học viên này chưa nhận được đánh giá nào từ giảng viên hoặc bạn học.
-                    </EmptyDescription>
-                </EmptyHeader>
-            </Empty>
-        )
+    const confirmRemove = () => {
+        if (!pendingRemove) return
+        const id = pendingRemove.id
+        hideMutation.mutate(id, {
+            onSuccess: () => {
+                toast.success('Đã gỡ đánh giá.')
+                setConfirmOpen(false)
+                setPendingRemove(null)
+                if (detailReview?.id === id) {
+                    setDetailOpen(false)
+                    setDetailReview(null)
+                }
+            },
+            onError: () => {
+                toast.error('Không thể gỡ đánh giá. Vui lòng thử lại.')
+            },
+        })
     }
 
     return (
         <>
-            <div className="flex flex-col gap-6 w-full">
-                {reviews.map((review) => (
-                    <ReviewItem
-                        key={review.id}
-                        review={review}
-                        onDelete={handleDeleteRequest}
-                    />
-                ))}
-            </div>
+            <ReviewsTable
+                data={reviews}
+                isLoading={isLoading}
+                onViewDetail={openDetail}
+                onRemove={requestRemove}
+                page={1}
+                limit={50}
+            />
 
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <ReviewDetailDialog
+                open={detailOpen}
+                onOpenChange={(open) => {
+                    setDetailOpen(open)
+                    if (!open) setDetailReview(null)
+                }}
+                review={detailReview}
+                onRequestRemove={requestRemove}
+            />
+
+            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Xóa đánh giá?</AlertDialogTitle>
+                        <AlertDialogTitle>Gỡ đánh giá này?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Hành động này không thể hoàn tác. Đánh giá của bạn sẽ bị xóa vĩnh viễn khỏi hệ thống.
+                            Đánh giá sẽ bị ẩn khỏi hệ thống. Bạn có thể đánh giá lại sau tại trang khóa học nếu cần.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} variant="destructive">
-                            Xóa
-                        </AlertDialogAction>
+                        <AlertDialogCancel
+                            onClick={() => {
+                                setPendingRemove(null)
+                            }}
+                        >
+                            Hủy
+                        </AlertDialogCancel>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            disabled={hideMutation.isPending}
+                            onClick={confirmRemove}
+                        >
+                            {hideMutation.isPending ? 'Đang xử lý…' : 'Gỡ đánh giá'}
+                        </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

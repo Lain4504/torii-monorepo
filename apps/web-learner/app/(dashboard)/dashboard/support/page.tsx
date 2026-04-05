@@ -50,12 +50,12 @@ export default function SupportPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-4">
-                <div className="min-w-0 space-y-1">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between pb-8 border-b border-border">
+                <div className="min-w-0 space-y-4">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                         Hỗ trợ
                     </h1>
-                    <p className="max-w-2xl text-sm text-muted-foreground">
+                    <p className="max-w-2xl text-sm font-medium text-muted-foreground">
                         Theo dõi và quản lý các yêu cầu hỗ trợ của bạn.
                     </p>
                 </div>

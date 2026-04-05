@@ -40,7 +40,7 @@ export default function DashboardReviewsPage() {
                 </div>
             </div>
 
-            <ReviewList learnerId={user.id} />
+            <ReviewList />
         </div>
     )
 }

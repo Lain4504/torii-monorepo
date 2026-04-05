@@ -19,6 +19,7 @@ import {
     MessagesSquare,
     Languages,
     Search,
+    MonitorPlay,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -101,9 +102,13 @@ export function CommandMenu() {
                             <Bot className="mr-2 h-4 w-4" />
                             <span>Chat với AI</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/roleplay"))}>
+                        <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/roleplay/interactive"))}>
                             <MessagesSquare className="mr-2 h-4 w-4" />
-                            <span>Hội thoại nhập vai</span>
+                            <span>Hội thoại tự do</span>
+                        </CommandItem>
+                        <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/roleplay/voice"))}>
+                            <MonitorPlay className="mr-2 h-4 w-4" />
+                            <span>Live Voice Roleplay</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/translate"))}>
                             <Languages className="mr-2 h-4 w-4" />

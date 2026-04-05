@@ -19,7 +19,7 @@ import { createGoogleGsiLoadingGuard, shouldEndFlowFromPromptMoment } from '@/li
 
 export function SecurityTab() {
     const { data: status, isLoading } = use2FAStatus();
-    const { data: linkedProviders, isLoading: isLoadingProviders } = useLinkedProviders();
+    const { data: linkedProviders } = useLinkedProviders();
     const unlinkMutation = useUnlinkProvider();
     const linkGoogleMutation = useLinkGoogle();
     const linkFacebookMutation = useLinkFacebook();
@@ -32,7 +32,6 @@ export function SecurityTab() {
     const [facebookLoading, setFacebookLoading] = useState(false);
 
     useEffect(() => {
-        // Load Google SDK
         if (typeof window !== 'undefined' && !document.getElementById('google-gsi-script')) {
             const googleScript = document.createElement('script');
             googleScript.id = 'google-gsi-script';
@@ -45,35 +44,27 @@ export function SecurityTab() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center py-12">
-                <div className="size-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            <div className="flex items-center justify-center py-20">
+                <Spinner className="size-8" />
             </div>
         );
     }
 
     const isEnabled = status?.isEnabled || false;
-
     const providers = linkedProviders?.providers || [];
     const hasPassword = linkedProviders?.hasPassword || false;
     const hasGoogle = providers.includes('google');
     const hasFacebook = providers.includes('facebook');
-
-    // Count available methods: social providers + password
     const totalMethods = providers.length + (hasPassword ? 1 : 0);
 
     const handleUnlink = async (provider: 'google' | 'facebook') => {
         if (totalMethods <= 1) {
-            toast.error('Không thể hủy liên kết phương thức đăng nhập cuối cùng. Vui lòng đặt mật khẩu hoặc liên kết phương thức khác trước.');
+            toast.error('Không thể hủy liên kết phương thức cuối cùng.');
             return;
         }
-
         try {
             const res = await unlinkMutation.mutateAsync(provider);
-            if (res.success) {
-                toast.success(`Đã hủy liên kết ${provider === 'google' ? 'Google' : 'Facebook'}`);
-            } else {
-                toast.error(res.message || 'Hủy liên kết thất bại');
-            }
+            if (res.success) toast.success(`Đã hủy liên kết ${provider === 'google' ? 'Google' : 'Facebook'}`);
         } catch (error: any) {
             toast.error(error?.message || 'Hủy liên kết thất bại');
         }
@@ -81,17 +72,9 @@ export function SecurityTab() {
 
     const handleLinkGoogle = () => {
         const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-        if (!googleClientId) {
-            toast.error('Google OAuth chưa được cấu hình');
-            return;
-        }
+        if (!googleClientId) return toast.error('Google OAuth chưa được cấu hình');
+        
         setGoogleLoading(true);
-        if (typeof window === 'undefined' || !(window as any).google?.accounts?.id) {
-            toast.error('Google SDK chưa tải. Vui lòng thử lại sau.');
-            setGoogleLoading(false);
-            return;
-        }
-
         const guard = createGoogleGsiLoadingGuard(setGoogleLoading, 90_000);
 
         (window as any).google.accounts.id.initialize({
@@ -99,13 +82,7 @@ export function SecurityTab() {
             callback: async (response: any) => {
                 try {
                     const res = await linkGoogleMutation.mutateAsync(response.credential);
-                    if (res.success) {
-                        toast.success('Liên kết Google thành công');
-                    } else {
-                        toast.error(res.message || 'Liên kết Google thất bại');
-                    }
-                } catch (error: any) {
-                    toast.error(error?.message || 'Liên kết Google thất bại');
+                    if (res.success) toast.success('Liên kết Google thành công');
                 } finally {
                     guard.disarm();
                     setGoogleLoading(false);
@@ -113,7 +90,6 @@ export function SecurityTab() {
             },
         });
 
-        // Use standard button rendering to bypass strict One Tap origin checks in some browsers
         const buttonWrapper = document.createElement('div');
         buttonWrapper.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:0;height:0';
         document.body.appendChild(buttonWrapper);
@@ -121,275 +97,145 @@ export function SecurityTab() {
 
         setTimeout(() => {
             const btn = buttonWrapper.querySelector('div[role="button"]') as HTMLElement;
-            if (btn) {
-                btn.click();
-            } else {
-                try {
-                    (window as any).google.accounts.id.prompt((notification: unknown) => {
-                        if (shouldEndFlowFromPromptMoment(notification)) {
-                            guard.disarm();
-                            setGoogleLoading(false);
-                        }
-                    });
-                } catch {
-                    guard.disarm();
-                    setGoogleLoading(false);
-                    toast.error('Không thể khởi tạo Google Sign-In');
-                }
-            }
-            setTimeout(() => {
-                if (buttonWrapper.parentNode) {
-                    document.body.removeChild(buttonWrapper);
-                }
-            }, 2000);
+            if (btn) btn.click();
+            setTimeout(() => buttonWrapper.parentNode && document.body.removeChild(buttonWrapper), 2000);
         }, 100);
     };
 
-    const handleLinkFacebook = () => {
-        const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
-        if (!facebookAppId) {
-            toast.error('Facebook App ID chưa được cấu hình');
-            return;
-        }
-
-        if (typeof window === 'undefined' || !(window as any).FB) {
-            toast.error('Facebook SDK chưa tải. Vui lòng thử lại sau.');
-            return;
-        }
-
-        setFacebookLoading(true);
-        (window as any).FB.login(
-            (response: any) => {
-                if (response.authResponse) {
-                    const { accessToken } = response.authResponse;
-                    linkFacebookMutation
-                        .mutateAsync(accessToken)
-                        .then((res) => {
-                            if (res.success) {
-                                toast.success('Liên kết Facebook thành công');
-                            } else {
-                                toast.error(res.message || 'Liên kết Facebook thất bại');
-                            }
-                        })
-                        .catch((error: any) => {
-                            toast.error(error?.message || 'Liên kết Facebook thất bại');
-                        })
-                        .finally(() => {
-                            setFacebookLoading(false);
-                        });
-                } else {
-                    setFacebookLoading(false);
-                    toast.error('Liên kết Facebook bị hủy');
-                }
-            },
-            { scope: 'public_profile,email' }
-        );
-    };
-
     return (
-        <div className="space-y-4">
-            {/* Security Header */}
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-4">
-                <Shield className="w-4 h-4 text-primary" />
-                Bảo mật tài khoản
-            </h3>
-
-            {/* Two-Factor Authentication Card */}
-            <Card>
-                <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-6">
-                    <div className="space-y-1">
-                        <CardTitle className="text-lg font-bold">
-                            Xác thực hai yếu tố (2FA)
-                        </CardTitle>
-                        <CardDescription>
-                            Sử dụng Authenticator App để tạo mã xác minh khi đăng nhập.
-                        </CardDescription>
-                    </div>
-                    <Badge variant="secondary">
-                        {isEnabled ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
-                    </Badge>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {/* Status Info */}
-                    {isEnabled && status && (
-                        <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="rounded-lg border bg-muted/50 p-4 space-y-1">
-                                <p className="text-xs font-medium text-muted-foreground">Phương thức</p>
-                                <p className="text-sm font-bold">
-                                    {status.method === 'totp' ? 'Authenticator App' : 'Không xác định'}
-                                </p>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Sidebar: Security Overview */}
+            <div className="lg:col-span-4 space-y-6">
+                <Card className="border-none shadow-sm bg-card/60 backdrop-blur-md overflow-hidden">
+                    <CardHeader className="border-b bg-muted/20">
+                        <CardTitle className="text-lg font-bold">Trạng thái bảo mật</CardTitle>
+                        <CardDescription>Tổng quan các lớp bảo vệ tài khoản.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="py-8 space-y-6">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
+                                <div className="flex items-center gap-3">
+                                    <Shield className={`size-4 ${isEnabled ? 'text-emerald-500' : 'text-muted-foreground'}`} />
+                                    <span className="text-xs font-bold">Xác thực 2FA</span>
+                                </div>
+                                <Badge variant={isEnabled ? 'default' : 'secondary'} className="text-[10px] font-bold">
+                                    {isEnabled ? 'Bật' : 'Tắt'}
+                                </Badge>
                             </div>
-                            <div className="rounded-lg border bg-muted/50 p-4 space-y-1">
-                                <p className="text-xs font-medium text-muted-foreground">Mã dự phòng</p>
-                                <p className="text-sm font-bold">
-                                    {status.backupCodesRemaining || 0} mã còn lại
-                                </p>
+                            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
+                                <div className="flex items-center gap-3">
+                                    <Mail className="size-4 text-primary" />
+                                    <span className="text-xs font-bold">Mật khẩu gốc</span>
+                                </div>
+                                <Badge variant={hasPassword ? 'outline' : 'secondary'} className="text-[10px] font-bold">
+                                    {hasPassword ? 'Có' : 'Không'}
+                                </Badge>
                             </div>
                         </div>
-                    )}
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-3">
-                        {!isEnabled ? (
-                            <Button
-                                onClick={() => setShowEnableDialog(true)}
-                                size="sm"
-                            >
-                                Bật xác thực 2FA
-                            </Button>
-                        ) : (
-                            <>
-                                <Button
-                                    onClick={() => setShowBackupCodesDialog(true)}
-                                    variant="outline"
-                                    size="sm"
-                                >
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    Mã dự phòng
-                                </Button>
-                                <Button
-                                    onClick={() => setShowDisableDialog(true)}
-                                    variant="destructive"
-                                    size="sm"
-                                >
-                                    Tắt 2FA
-                                </Button>
-                            </>
+                        {isEnabled && (
+                            <Alert className="bg-emerald-500/5 border-emerald-500/20 py-3">
+                                <AlertDescription className="text-[11px] font-medium text-emerald-600 leading-relaxed text-center italic">
+                                    Tài khoản của bạn đang được bảo vệ bởi lớp xác thực cấp hai.
+                                </AlertDescription>
+                            </Alert>
                         )}
-                    </div>
+                    </CardContent>
+                </Card>
+            </div>
 
-                    {/* Warning for backup codes */}
-                    {isEnabled && status && status.backupCodesRemaining !== undefined && status.backupCodesRemaining < 3 && (
-                        <Alert className="bg-destructive/10 text-destructive border-destructive/20">
-                            <AlertTriangle className="h-4 w-4 text-destructive" />
-                            <AlertTitle className="text-destructive font-bold">Mã dự phòng sắp hết</AlertTitle>
-                            <AlertDescription className="text-destructive/90">
-                                Bạn chỉ còn {status.backupCodesRemaining} mã dự phòng. Hãy tạo mã mới để tránh bị khóa tài khoản.
-                            </AlertDescription>
-                        </Alert>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Social login / linked providers */}
-            <Card>
-                <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-                    <div className="space-y-1">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2">
-                            <LinkIcon className="w-4 h-4 text-primary" />
-                            Tài khoản liên kết
-                        </CardTitle>
-                        <CardDescription>
-                            Quản lý việc liên kết tài khoản Google / Facebook với tài khoản Torii của bạn.
-                        </CardDescription>
-                    </div>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                        {hasPassword ? <Mail className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
-                        Đăng nhập chính: {hasPassword ? 'Email & Password' : 'Social OAuth'}
-                    </Badge>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {isLoadingProviders ? (
-                        <p className="text-sm text-muted-foreground">Đang tải trạng thái tài khoản liên kết...</p>
-                    ) : (
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-3">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-medium">Google</span>
-                                    <span className="text-xs text-muted-foreground">
-                                        Dùng tài khoản Google để đăng nhập nhanh.
-                                    </span>
+            {/* Main Security Actions */}
+            <div className="lg:col-span-8 space-y-6">
+                {/* 2FA Section */}
+                <Card className="border-none shadow-sm">
+                    <CardHeader>
+                        <CardTitle>Xác thực hai yếu tố (2FA)</CardTitle>
+                        <CardDescription>Sử dụng mã OTP từ Authenticator App để đảm bảo chỉ bạn mới có thể truy cập.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {isEnabled ? (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="rounded-xl border bg-muted/20 p-4 space-y-1">
+                                    <p className="text-[10px] font-bold text-muted-foreground">Phương thức</p>
+                                    <p className="text-sm font-bold">Authenticator App</p>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge
-                                        variant={hasGoogle ? 'default' : 'secondary'}
-                                        className="text-xs font-semibold"
-                                    >
-                                        {hasGoogle ? 'Đã liên kết' : 'Chưa liên kết'}
+                                <div className="rounded-xl border bg-muted/20 p-4 space-y-1">
+                                    <p className="text-[10px] font-bold text-muted-foreground">Mã dự phòng còn lại</p>
+                                    <p className="text-sm font-bold text-emerald-600">{status?.backupCodesRemaining || 0} mã</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <Alert variant="default" className="bg-primary/5 border-primary/20">
+                                <AlertTriangle className="size-4 text-primary" />
+                                <AlertTitle className="text-xs font-bold">Khuyến khích kích hoạt</AlertTitle>
+                                <AlertDescription className="text-xs text-muted-foreground font-medium">
+                                    Lớp bảo mật bổ sung này sẽ ngăn chặn các truy cập trái phép ngay cả khi mật khẩu của bạn bị lộ.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+
+                        <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/50">
+                            {!isEnabled ? (
+                                <Button onClick={() => setShowEnableDialog(true)}>
+                                    Kích hoạt 2FA
+                                </Button>
+                            ) : (
+                                <>
+                                    <Button onClick={() => setShowBackupCodesDialog(true)} variant="outline">
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        Mã dự phòng
+                                    </Button>
+                                    <Button onClick={() => setShowDisableDialog(true)} variant="destructive">
+                                        Tắt 2FA
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Social Accounts */}
+                <Card className="border-none shadow-sm">
+                    <CardHeader>
+                        <CardTitle>Tài khoản liên kết</CardTitle>
+                        <CardDescription>Quản lý các phương thức đăng nhập nhanh qua đối tác cung cấp dịch vụ.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between rounded-xl border bg-muted/10 p-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-2 bg-muted rounded-lg border border-border/50">
+                                        <LinkIcon className="size-4 text-muted-foreground" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-bold">Google account</span>
+                                        <span className="text-[11px] text-muted-foreground font-medium">Dùng Google để đăng nhập torii.sbs</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Badge variant={hasGoogle ? 'default' : 'secondary'} className="text-[10px] font-bold h-5">
+                                        {hasGoogle ? 'Đã kết nối' : 'Chưa kết nối'}
                                     </Badge>
                                     {hasGoogle ? (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled={unlinkMutation.isPending}
-                                            onClick={() => handleUnlink('google')}
-                                        >
-                                            <Unlink className="w-3 h-3 mr-1.5" />
-                                            Hủy liên kết
+                                        <Button variant="ghost" size="sm" className="h-8 text-[11px] font-bold text-destructive hover:bg-destructive/10" disabled={unlinkMutation.isPending} onClick={() => handleUnlink('google')}>
+                                            <Unlink className="w-3 h-3 mr-1.5" /> Hủy
                                         </Button>
                                     ) : (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled={googleLoading}
-                                            onClick={handleLinkGoogle}
-                                        >
-                                            {googleLoading ? <Spinner className="w-3 h-3 mr-1.5" /> : <Plus className="w-3 h-3 mr-1.5" />}
-                                            Kết nối Google
+                                        <Button variant="outline" size="sm" className="h-8 text-[11px] font-bold" disabled={googleLoading} onClick={handleLinkGoogle}>
+                                            <Plus className="w-3 h-3 mr-1.5" /> Kết nối
                                         </Button>
                                     )}
                                 </div>
                             </div>
-
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-3">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-medium">Facebook</span>
-                                    <span className="text-xs text-muted-foreground">
-                                        Dùng tài khoản Facebook để đăng nhập nhanh.
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge
-                                        variant={hasFacebook ? 'default' : 'secondary'}
-                                        className="text-xs font-semibold"
-                                    >
-                                        {hasFacebook ? 'Đã liên kết' : 'Chưa liên kết'}
-                                    </Badge>
-                                    {hasFacebook ? (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled={unlinkMutation.isPending}
-                                            onClick={() => handleUnlink('facebook')}
-                                        >
-                                            <Unlink className="w-3 h-3 mr-1.5" />
-                                            Hủy liên kết
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled={facebookLoading}
-                                            onClick={handleLinkFacebook}
-                                        >
-                                            {facebookLoading ? <Spinner className="w-3 h-3 mr-1.5" /> : <Plus className="w-3 h-3 mr-1.5" />}
-                                            Kết nối Facebook
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-
-                            <p className="text-xs text-muted-foreground">
-                                Ngoài việc đăng nhập bằng Google/Facebook trực tiếp, bạn có thể liên kết chúng tại đây để quản lý tài khoản thuận tiện hơn.
-                            </p>
                         </div>
-                    )}
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Dialogs */}
-            <EnableTwoFactorDialog
-                open={showEnableDialog}
-                onOpenChange={setShowEnableDialog}
-            />
-            <DisableTwoFactorDialog
-                open={showDisableDialog}
-                onOpenChange={setShowDisableDialog}
-            />
-            <BackupCodesDialog
-                open={showBackupCodesDialog}
-                onOpenChange={setShowBackupCodesDialog}
-            />
+            <EnableTwoFactorDialog open={showEnableDialog} onOpenChange={setShowEnableDialog} />
+            <DisableTwoFactorDialog open={showDisableDialog} onOpenChange={setShowDisableDialog} />
+            <BackupCodesDialog open={showBackupCodesDialog} onOpenChange={setShowBackupCodesDialog} />
         </div>
     );
 }

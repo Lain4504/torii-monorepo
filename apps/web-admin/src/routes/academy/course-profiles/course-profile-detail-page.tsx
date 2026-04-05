@@ -233,7 +233,12 @@ export default function CourseProfileDetailPage() {
 
   // Sau khi đã gửi duyệt / được duyệt (PENDING_APPROVAL / PUBLISHED) thì không được chỉnh sửa curriculum nữa.
   const isLocked = profile.status !== "DRAFT"
-  const modules = profile.modules ?? []
+  const modules = [...(profile.modules ?? [])]
+    .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+    .map(m => ({
+      ...m,
+      lessons: [...(m.lessons ?? [])].sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+    }));
 
   return (
     <div className="flex flex-col gap-6">

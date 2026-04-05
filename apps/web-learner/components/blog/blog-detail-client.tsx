@@ -21,7 +21,7 @@ interface BlogDetailClientProps {
 }
 
 export function BlogDetailClient({ slug }: BlogDetailClientProps) {
-    const { data: blog, isLoading, error } = useBlogBySlug(slug);
+    const { data: blog, isLoading, error } = useBlogBySlug(slug ? decodeURIComponent(slug).trim() : null);
 
     // Increment view count on mount
     useEffect(() => {

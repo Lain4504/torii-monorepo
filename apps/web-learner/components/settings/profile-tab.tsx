@@ -225,10 +225,11 @@ export function ProfileTab() {
                             />
                         </Field>
 
-                        <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                        <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/50">
                             <Button
                                 type="button"
                                 variant="ghost"
+                                className="h-10 px-6 rounded-xl font-bold transition-all"
                                 onClick={handleCancel}
                                 disabled={updateMutation.isPending}
                             >
@@ -236,11 +237,15 @@ export function ProfileTab() {
                             </Button>
                             <Button
                                 type="button"
+                                className="h-10 px-8 rounded-xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-primary/20"
                                 onClick={() => updateMutation.mutate(formData)}
                                 disabled={updateMutation.isPending}
                             >
-                                {updateMutation.isPending && <Spinner className="mr-2 h-4 w-4" />}
-                                {updateMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
+                                {updateMutation.isPending ? (
+                                    <><Spinner className="mr-2 h-4 w-4" /> Đang lưu...</>
+                                ) : (
+                                    'Lưu thay đổi'
+                                )}
                             </Button>
                         </div>
                     </CardContent>

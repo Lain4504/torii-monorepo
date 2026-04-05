@@ -8,10 +8,15 @@ export const metadata: Metadata = {
 
 export default function StudySetsPage() {
     return (
-        <div className="flex-1 space-y-4">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-normal">
-                Thẻ ghi nhớ của tôi
-            </h2>
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <div className="space-y-4 pb-8 border-b border-border">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                    Thẻ ghi nhớ của tôi
+                </h1>
+                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                    Hệ thống lưu trữ và ôn tập từ vựng, ngữ pháp qua phương pháp Flashcards thông minh.
+                </p>
+            </div>
             <StudySetsList />
         </div>
     );

@@ -44,9 +44,9 @@ export default function MyFoldersPage() {
                         <ArrowLeft className="size-4" />
                         Quay lại danh sách lớp
                     </Button>
-                    <div>
+                    <div className="space-y-4 pb-8 border-b border-border">
                         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Tài liệu: {selectedClass?.className}</h1>
-                        <p className="text-muted-foreground">Xem danh sách các thư mục và tài nguyên học tập được chia sẻ.</p>
+                        <p className="text-muted-foreground text-sm font-medium">Xem danh sách các thư mục và tài nguyên học tập được chia sẻ.</p>
                     </div>
                 </div>
                 <AcademyResourceList classId={selectedClassId} />
@@ -56,10 +56,10 @@ export default function MyFoldersPage() {
 
     return (
         <div className="flex flex-col gap-8 animate-in fade-in duration-500">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-1">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border">
+                <div className="space-y-4">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thư mục của tôi</h1>
-                    <p className="text-muted-foreground">Quản lý và truy cập nhanh các tài liệu từ tất cả các lớp học bạn tham gia.</p>
+                    <p className="text-muted-foreground text-sm font-medium max-w-xl">Quản lý và truy cập nhanh các tài liệu từ tất cả các lớp học bạn tham gia.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                     <div className="bg-card px-4 py-2 rounded-full border border-border flex items-center gap-2 shadow-sm">
@@ -71,7 +71,7 @@ export default function MyFoldersPage() {
                         <span className="text-sm font-semibold">{classList.length} Lớp học</span>
                     </div>
                 </div>
-            </header>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {isLoading ? (
@@ -82,7 +82,7 @@ export default function MyFoldersPage() {
                     classList.map((cls) => (
                         <Card
                             key={cls.id}
-                            className="group cursor-pointer hover:border-primary/40 hover:shadow-lg transition-all rounded-3xl overflow-hidden border-zinc-100"
+                            className="group cursor-pointer hover:border-primary/40 hover:shadow-lg transition-all rounded-2xl overflow-hidden border-border"
                             onClick={() => setSelectedClassId(cls.id)}
                         >
                             <CardContent className="p-6">
@@ -110,9 +110,9 @@ export default function MyFoldersPage() {
                         </Card>
                     ))
                 ) : (
-                    <div className="col-span-full py-24 text-center border-2 border-dashed rounded-[40px] bg-zinc-50/50">
-                        <div className="size-20 rounded-full bg-zinc-100 flex items-center justify-center mx-auto mb-6">
-                            <Folder className="size-10 text-zinc-300" />
+                    <div className="col-span-full py-24 text-center border-2 border-dashed rounded-2xl bg-muted/30">
+                        <div className="size-20 rounded-full bg-background flex items-center justify-center mx-auto mb-6 border border-border">
+                            <Folder className="size-10 text-muted-foreground/30" />
                         </div>
                         <h3 className="text-xl font-bold mb-2">Chưa có tài liệu nào</h3>
                         <p className="text-muted-foreground max-w-sm mx-auto">

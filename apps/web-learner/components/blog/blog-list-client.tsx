@@ -86,53 +86,45 @@ export function BlogListClient() {
                 <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {blogs.map((blog) => (
-                            <article
-                                key={blog.id}
-                                className="bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-border/50 group flex flex-col"
-                            >
-                                <div className="relative h-52 overflow-hidden">
-                                    {blog.coverImageUrl ? (
-                                        <img
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                            alt={blog.title}
-                                            src={blog.coverImageUrl}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Preview</span>
-                                        </div>
-                                    )}
-                                    {blog.tags && blog.tags.length > 0 && (
-                                        <Badge className="absolute top-4 left-4 bg-primary/90 backdrop-blur-md border-none text-[10px] font-bold uppercase tracking-widest">
-                                            {blog.tags[0]}
-                                        </Badge>
-                                    )}
-                                </div>
-                                <div className="p-6 flex flex-col flex-1 gap-4">
-                                    <div className="space-y-2">
-                                        <p className="text-primary text-[10px] font-bold uppercase tracking-[0.2em]">
-                                            {blog.publishedAt && formatDate(blog.publishedAt.toString())}
-                                        </p>
-                                        <h4 className="text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors leading-tight">
-                                            {blog.title}
-                                        </h4>
+                            <Link key={blog.id} href={`/dashboard/blogs/${blog.slug}`} className="block h-full">
+                                <article
+                                    className="bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-border/50 group flex flex-col h-full"
+                                >
+                                    <div className="relative h-50 overflow-hidden">
+                                        {blog.coverImageUrl ? (
+                                            <img
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                alt={blog.title}
+                                                src={blog.coverImageUrl}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-muted flex items-center justify-center">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Preview</span>
+                                            </div>
+                                        )}
+                                        {blog.tags && blog.tags.length > 0 && (
+                                            <Badge className="absolute top-4 left-4 bg-primary/95 backdrop-blur-md border-none text-[10px] font-bold uppercase tracking-widest px-2 py-0.5">
+                                                {blog.tags[0]}
+                                            </Badge>
+                                        )}
                                     </div>
-                                    {blog.excerpt && (
-                                        <p className="text-muted-foreground text-sm line-clamp-2 font-medium leading-relaxed">
-                                            {blog.excerpt}
-                                        </p>
-                                    )}
-                                    <Link
-                                        href={`/dashboard/blogs/${blog.slug}`}
-                                        className="text-foreground text-xs font-bold uppercase tracking-widest flex items-center gap-2 mt-auto pt-4 w-fit group/link"
-                                    >
-                                        Đọc chi tiết
-                                        <div className="p-1 rounded-full bg-primary/10 text-primary group-hover/link:bg-primary group-hover/link:text-white transition-all">
-                                            <ChevronRight className="size-3" strokeWidth={3} />
+                                    <div className="p-5 flex flex-col flex-1 gap-3">
+                                        <div className="space-y-1.5">
+                                            <p className="text-primary/70 text-[10px] font-bold uppercase tracking-[0.2em]">
+                                                {blog.publishedAt && formatDate(blog.publishedAt.toString())}
+                                            </p>
+                                            <h4 className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+                                                {blog.title}
+                                            </h4>
                                         </div>
-                                    </Link>
-                                </div>
-                            </article>
+                                        {blog.excerpt && (
+                                            <p className="text-muted-foreground text-xs line-clamp-2 font-medium leading-relaxed">
+                                                {blog.excerpt}
+                                            </p>
+                                        )}
+                                    </div>
+                                </article>
+                            </Link>
                         ))}
                     </div>
 

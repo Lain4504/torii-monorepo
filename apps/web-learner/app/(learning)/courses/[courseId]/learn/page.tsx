@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo, type SyntheticEvent } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { endOfDay, isBefore } from 'date-fns';
 import { useAcademyClass, useCurriculum, type CurriculumLesson, type CurriculumModule } from '@/lib/api/services/academy-classes';
 import { useAcademyVodPackage, useAcademyVodCurriculum, useAcademyVodEnrollmentCheck, useAcademyVodCompletedLessonIds, academyVodLearningProgressApi } from '@/lib/api/services/academy-vod';
@@ -9,48 +9,31 @@ import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment
 import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/api/services/academy-learning-progress-api';
 import { useAcademyLesson } from '@/lib/api/services/academy-lesson-api';
 import { useAcademyLearnerAssessmentStatus, type AcademyAssessmentStatus } from '@/lib/api/services/academy-assessment-plan-api';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from '@workspace/ui/components/sonner';
+import { Progress } from '@workspace/ui/components/progress';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@workspace/ui/components/accordion';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
+import { Separator } from '@workspace/ui/components/separator';
+import { toast } from '@workspace/ui/components/sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { cn } from '@workspace/ui/lib/utils';
 import {
-    ChevronLeft, ChevronDown, ChevronUp, Menu, X,
-    CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
+    ChevronLeft, CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
     MessageSquare, ChevronRight, Download, Send,
     AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
-    Paperclip, PenTool
+    Paperclip, PenTool, MessageCircle, Menu, X, ChevronDown
 } from 'lucide-react';
 import type { AcademyLessonModel } from '@workspace/schemas';
-import { useAppSelector } from '@/hooks/hooks';
-import { RootState } from '@/store/store';
 import { LessonDiscussion } from '@/components/courses/lesson-discussion';
 import { AcademyResourceList } from '@/components/courses/academy-resource-list';
 import { CourseCompletionModal } from '@/components/courses/course-completion-modal';
 
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
-
-function fmtDuration(seconds?: number) {
-    if (!seconds) return '';
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${String(s).padStart(2, '0')}`;
-}
-
-// ─── Lesson icon ──────────────────────────────────────────────────────────────
-
-function LessonIcon({ lesson, isActive, isCompleted, unlocked }: {
-    lesson: CurriculumLesson; isActive: boolean; isCompleted: boolean; unlocked: boolean;
-}) {
-    if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
-    if (!unlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
-    if (normalizeItemKind(lesson.kind) === 'READING') {
-        return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-500' : 'text-muted-foreground/60'}`} />;
-    }
-    return <PlayCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`} />;
-}
+// ─── Constants & Utils ────────────────────────────────────────────────────────
 
 function normalizeItemKind(kind?: string) {
     return (kind || '').toUpperCase();
@@ -61,19 +44,163 @@ function isTrackableLessonKind(kind?: string) {
     return k === 'VIDEO' || k === 'READING';
 }
 
-/** ID lưu trong tiến độ server — dùng node curriculum id */
 function lessonProgressId(lesson: { id: string; referenceId?: string | null }) {
     return lesson.id;
 }
 
-// ─── Video Player — tự đánh dấu hoàn thành khi xem ≥95% hoặc khi video kết thúc (READING: không dùng component này) ─
+function fmtDuration(seconds?: number) {
+    if (!seconds) return '';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+}
 
-function VideoPlayer({ lesson, onComplete }: { lesson: AcademyLessonModel | undefined; onComplete: () => void; }) {
+// ─── Components ─────────────────────────────────────────────────────────────
+
+function LessonIcon({ lesson, isActive, isCompleted, unlocked }: {
+    lesson: any; isActive: boolean; isCompleted: boolean; unlocked: boolean;
+}) {
+    if (!unlocked) return <Lock className="size-3.5 text-muted-foreground/30 shrink-0" />;
+    if (isCompleted) return <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0" />;
+
+    const kind = normalizeItemKind(lesson.kind);
+    switch (kind) {
+        case 'VIDEO': return <PlayCircle className={cn("size-3.5 shrink-0", isActive ? "text-primary" : "text-muted-foreground/60")} />;
+        case 'READING': return <BookOpen className={cn("size-3.5 shrink-0", isActive ? "text-primary" : "text-muted-foreground/60")} />;
+        default: return <FileText className={cn("size-3.5 shrink-0", isActive ? "text-primary" : "text-muted-foreground/60")} />;
+    }
+}
+
+function MilestoneItem({ milestone, onClick, forceLocked }: {
+    milestone: any;
+    onClick: () => void;
+    forceLocked?: boolean;
+}) {
+    const isLocked = forceLocked || milestone.status === 'LOCKED';
+    const isPassed = milestone.status === 'PASSED';
+
+    return (
+        <Button
+            variant="ghost"
+            className={cn(
+                "w-full justify-start h-auto py-3 px-3 gap-3 rounded-lg border border-transparent transition-all group",
+                isLocked && "opacity-50 grayscale pointer-events-none"
+            )}
+            onClick={onClick}
+            disabled={isLocked}
+        >
+            <div className={cn(
+                "size-8 rounded-full flex items-center justify-center shrink-0 border border-border bg-background group-hover:border-primary/30 transition-colors",
+                isPassed && "border-emerald-200 bg-emerald-50 text-emerald-600",
+            )}>
+                {isPassed ? <Trophy className="size-4" /> : <FileText className="size-4" />}
+            </div>
+            <div className="flex-1 text-left min-w-0">
+                <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-tight leading-none mb-1">
+                    {milestone.kind === 'FINAL_EXAM' ? 'Thử thách cuối khóa' : 'Bài kiểm tra'}
+                </p>
+                <p className="text-xs font-semibold truncate group-hover:text-primary transition-colors">
+                    {milestone.examTitle || milestone.title}
+                </p>
+                {isPassed && milestone.percentage !== undefined && (
+                    <span className="text-[10px] text-emerald-600 font-semibold uppercase tracking-tight">
+                        {Math.round(milestone.percentage)}% Đạt
+                    </span>
+                )}
+            </div>
+            {isPassed ? (
+                <CheckCircle2 className="size-4 text-emerald-500" />
+            ) : !isLocked && (
+                <ChevronRight className="size-4 text-muted-foreground/40 group-hover:translate-x-0.5 transition-transform" />
+            ) }
+        </Button>
+    );
+}
+
+function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, milestones, onSelectMilestone, onSelectLesson }: {
+    mod: any;
+    currentLessonId: string | null;
+    completedIds: Set<string>;
+    isLessonUnlocked: (l: any) => boolean;
+    milestones: any[];
+    onSelectMilestone: (m: any) => void;
+    onSelectLesson: (l: any) => void;
+}) {
+    const hasActive = mod.lessons?.some((l: any) => l.id === currentLessonId);
+
+    return (
+        <AccordionItem value={mod.id} className="border-none px-2">
+            <AccordionTrigger className={cn(
+                "hover:no-underline py-3 px-3 rounded-lg transition-all group text-left",
+                hasActive && "bg-primary/5"
+            )}>
+                <div className="flex flex-col items-start gap-1 min-w-0">
+                    <span className={cn("text-sm font-semibold group-hover:text-primary transition-colors", hasActive && "text-primary")}>
+                        {mod.title}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-semibold opacity-60">
+                        {mod.lessons?.length || 0} bài học
+                    </span>
+                </div>
+            </AccordionTrigger>
+            <AccordionContent className="pt-1 pb-3 space-y-0.5">
+                {mod.lessons?.map((lesson: any) => {
+                    const isActive = lesson.id === currentLessonId;
+                    const isDone = completedIds.has(lessonProgressId(lesson));
+                    const unlocked = isLessonUnlocked(lesson);
+                    const lessonMilestones = milestones?.filter(m => m.triggerLessonId === lesson.id) || [];
+
+                    return (
+                        <div key={lesson.id} className="px-1">
+                            <Button
+                                variant="ghost"
+                                className={cn(
+                                    "w-full justify-start h-auto py-2.5 px-3 gap-3 rounded-md border border-transparent transition-all",
+                                    isActive && "bg-accent/50 border-accent text-accent-foreground",
+                                    !isActive && "hover:bg-muted/80"
+                                )}
+                                onClick={() => onSelectLesson(lesson)}
+                                disabled={!unlocked}
+                            >
+                                <LessonIcon lesson={lesson} isActive={isActive} isCompleted={isDone} unlocked={unlocked} />
+                                <div className="flex flex-col items-start min-w-0 text-left">
+                                    <span className={cn(
+                                        "text-xs font-semibold truncate",
+                                        isActive ? "text-primary" : "text-foreground/80",
+                                        !unlocked && "opacity-40"
+                                    )}>
+                                        {lesson.title}
+                                    </span>
+                                    {lesson.videoDuration ? (
+                                        <span className="text-[10px] text-muted-foreground/60 flex items-center gap-1 mt-0.5">
+                                            <Clock className="size-2.5" />
+                                            {fmtDuration(lesson.videoDuration)}
+                                        </span>
+                                    ) : null}
+                                </div>
+                                {isActive && <div className="size-1.5 rounded-full bg-primary ml-auto shadow-[0_0_8px_rgba(var(--primary),0.5)]" />}
+                            </Button>
+
+                            {lessonMilestones.map(m => (
+                                <div key={m.assessmentId} className="pl-6 mt-1 border-l-2 border-primary/10 ml-5">
+                                    <MilestoneItem
+                                        milestone={m}
+                                        forceLocked={!isDone}
+                                        onClick={() => onSelectMilestone(m)}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })}
+            </AccordionContent>
+        </AccordionItem>
+    );
+}
+
+function VideoPlayer({ lesson, onComplete }: { lesson: any; onComplete: () => void }) {
     const autoMarkedRef = useRef(false);
-
-    useEffect(() => {
-        autoMarkedRef.current = false;
-    }, [lesson?.id]);
+    useEffect(() => { autoMarkedRef.current = false; }, [lesson?.id]);
 
     const markOnce = useCallback(() => {
         if (autoMarkedRef.current) return;
@@ -81,300 +208,95 @@ function VideoPlayer({ lesson, onComplete }: { lesson: AcademyLessonModel | unde
         onComplete();
     }, [onComplete]);
 
-    const onTimeUpdate = useCallback(
-        (e: SyntheticEvent<HTMLVideoElement>) => {
-            const v = e.currentTarget;
-            const d = v.duration;
-            if (!d || !Number.isFinite(d) || d <= 0) return;
-            if (v.currentTime / d >= 0.95) {
-                markOnce();
-            }
-        },
-        [markOnce],
+    const onTimeUpdate = (e: any) => {
+        const v = e.currentTarget;
+        if (v.duration && v.currentTime / v.duration >= 0.95) markOnce();
+    };
+
+    if (!lesson?.videoUrl) return (
+        <div className="aspect-video bg-muted/40 flex items-center justify-center rounded-xl border border-dashed m-4">
+            <div className="text-center space-y-3 px-4">
+                <div className="size-12 rounded-full bg-background flex items-center justify-center mx-auto border shadow-sm">
+                    <PlayCircle className="size-6 text-muted-foreground/30" />
+                </div>
+                <p className="text-xs font-semibold text-muted-foreground/60 italic">Nội dung bài học đang được xử lý...</p>
+            </div>
+        </div>
     );
 
-    if (!lesson) {
-        return (
-            <div className="aspect-video bg-black flex items-center justify-center">
-                <div className="text-white/30 flex flex-col items-center gap-2">
-                    <PlayCircle className="h-16 w-16" />
-                    <p className="text-sm">Đang tải bài học...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!lesson.videoUrl) {
-        return (
-            <div className="aspect-video bg-black flex items-center justify-center">
-                <div className="text-white/50 flex flex-col items-center gap-3 text-center px-4">
-                    <AlertCircle className="h-12 w-12" />
-                    <p className="text-sm">Video chưa được tải lên</p>
-                    <p className="text-xs text-white/40 max-w-sm">Nhấn bên dưới để đánh dấu hoàn thành thủ công.</p>
-                    <Button type="button" size="sm" onClick={onComplete}>
-                        Đánh dấu hoàn thành
-                    </Button>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="aspect-video bg-black w-full">
+        <div className="relative aspect-video bg-black overflow-hidden shadow-2xl xl:rounded-xl ring-1 ring-white/10 group/player">
             <video
-                key={lesson.id}
-                src={lesson.videoUrl ?? undefined}
+                key={lesson?.id}
+                src={lesson?.videoUrl}
+                className="w-full h-full object-contain"
                 controls
                 controlsList="nodownload"
-                playsInline
-                preload="metadata"
-                className="w-full h-full"
                 onEnded={markOnce}
                 onTimeUpdate={onTimeUpdate}
-            >
-                Trình duyệt của bạn không hỗ trợ video.
-            </video>
+                playsInline
+                preload="auto"
+            />
         </div>
     );
 }
 
-// ─── Article Viewer ───────────────────────────────────────────────────────────
-
-function ArticleViewer({
-    lesson,
-    onComplete,
-    onPrev,
-    onNext,
-    navDisabledPrev,
-    navDisabledNext,
-    courseClassId,
-}: {
-    lesson: AcademyLessonModel;
-    onComplete: () => void;
-    onPrev?: () => void;
-    onNext?: () => void;
-    navDisabledPrev?: boolean;
-    navDisabledNext?: boolean;
-    courseClassId: string;
-}) {
+function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, navDisabledNext, courseClassId }: any) {
     return (
-        <div className="p-6 sm:p-10 max-w-3xl mx-auto">
-            {(onPrev || onNext) && (
-                <div className="flex flex-wrap gap-2 mb-6">
-                    {onPrev && (
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onPrev}
-                            disabled={navDisabledPrev}
-                            className="font-semibold"
-                        >
-                            <ChevronLeft className="h-4 w-4" /> Bài trước
-                        </Button>
-                    )}
-                    {onNext && (
-                        <Button
-                            type="button"
-                            onClick={onNext}
-                            disabled={navDisabledNext}
-                            className="font-semibold"
-                        >
-                            Bài tiếp theo <ChevronRight className="h-4 w-4" />
-                        </Button>
-                    )}
-                </div>
-            )}
-            <div className="flex items-center gap-3 mb-6 pb-6 border-b border-border">
-                <div className="p-3 rounded-xl bg-primary/10">
-                    <FileText className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                    <h2 className="text-xl font-bold text-foreground">{lesson.title}</h2>
-                    <p className="text-sm text-muted-foreground">Bài đọc</p>
-                </div>
-            </div>
-
-            {lesson.content ? (
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                    <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: lesson.content }} />
-                </div>
-            ) : (
-                <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">
-                    <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                    <p>Nội dung bài đọc chưa được cập nhật.</p>
-                </div>
-            )}
-
-            <p className="mt-8 text-sm text-muted-foreground">
-                Bài đọc chỉ được lưu tiến độ khi bạn nhấn nút hoàn thành bên dưới.
-            </p>
-            <div className="mt-4 pt-4 border-t border-border">
-                <Button type="button" size="sm" onClick={onComplete} className="gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
-                    Hoàn thành bài học
-                </Button>
-            </div>
-
-            {/* Lesson discussion */}
-            <div className="mt-10">
-                <LessonDiscussion
-                    classId={courseClassId}
-                    lessonId={(lesson as any).id}
-                    moduleId={(lesson as any).moduleId}
-                />
-            </div>
-        </div>
-    );
-}
-
-
-
-function MilestoneItem({
-    milestone,
-    onClick,
-    forceLocked
-}: {
-    milestone: AcademyAssessmentStatus;
-    onClick: () => void;
-    forceLocked?: boolean;
-}) {
-    const isLocked = milestone.status === 'LOCKED' || forceLocked;
-    const isPassed = milestone.status === 'PASSED';
-    const isInProgress = milestone.status === 'IN_PROGRESS';
-
-    return (
-        <Button
-            variant="ghost"
-            disabled={isLocked}
-            onClick={() => !isLocked && onClick()}
-            className={`w-full h-auto rounded-none px-5 py-4 flex items-center gap-3 text-left font-normal border-l-4 transition-all
-                ${isInProgress ? 'border-amber-500 bg-amber-50/50' : isPassed ? 'border-emerald-500 bg-emerald-50/30' : 'border-transparent hover:bg-muted/30'}
-                ${isLocked ? 'opacity-50 cursor-not-allowed grayscale' : 'cursor-pointer'}
-            `}
-        >
-            <div className={`p-2 rounded-lg shrink-0 ${isPassed ? 'bg-emerald-100 text-emerald-600' : isLocked ? 'bg-slate-100 text-slate-400' : 'bg-primary/10 text-primary'}`}>
-                {isPassed ? <Trophy className="h-4 w-4" /> : <BookOpen className="h-4 w-4" />}
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className={`text-sm font-bold truncate ${isPassed ? 'text-emerald-700' : isLocked ? 'text-slate-500' : 'text-slate-800'}`}>
-                    [KIỂM TRA] {milestone.examTitle || 'Bài kiểm tra'}
-                </p>
-                <div className="flex items-center gap-2 mt-1 text-[11px]">
-                    {isLocked ? (
-                        <span className="text-slate-400 flex items-center gap-1"><Lock className="h-3 w-3" /> Hoàn thành bài trước để mở</span>
-                    ) : isPassed ? (
-                        <span className="text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> Đã vượt qua ({Math.round(milestone.percentage || 0)}%)</span>
-                    ) : isInProgress ? (
-                        <span className="text-amber-600 font-bold flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Đang làm dở</span>
-                    ) : (
-                        <span className="text-primary font-bold">Sẵn sàng để thi</span>
-                    )}
-                </div>
-            </div>
-            {!isLocked && !isPassed && (
-                <ChevronRight className="h-4 w-4 text-slate-300" />
-            )}
-        </Button>
-    );
-}
-
-function ModuleItem({
-    mod, isExpanded, onToggle, currentLessonId, completedIds, onSelectLesson, isLessonUnlocked, milestones, onSelectMilestone
-}: {
-    mod: CurriculumModule;
-    isExpanded: boolean;
-    onToggle: () => void;
-    currentLessonId: string | null;
-    completedIds: Set<string>;
-    onSelectLesson: (l: CurriculumLesson) => void;
-    isLessonUnlocked: (l: CurriculumLesson) => boolean;
-    milestones?: AcademyAssessmentStatus[];
-    onSelectMilestone?: (m: AcademyAssessmentStatus) => void;
-}) {
-    const hasActive = mod.lessons.some(l => l.id === currentLessonId);
-    const trackableInMod = mod.lessons.filter((l) => isTrackableLessonKind(l.kind));
-    const denom = trackableInMod.length > 0 ? trackableInMod.length : mod.lessons.length;
-    const doneCount = mod.lessons.filter((lesson) => {
-        if (!isTrackableLessonKind(lesson.kind)) return false;
-        return completedIds.has(lessonProgressId(lesson));
-    }).length;
-
-    return (
-        <div className="border-b border-border last:border-0">
-            <Button
-                variant="ghost"
-                className={`w-full h-auto rounded-none px-5 py-3.5 flex items-center justify-between text-left font-normal transition-colors group ${hasActive ? 'bg-primary/5' : 'hover:bg-muted/40'}`}
-                onClick={onToggle}
-            >
-                <div className="min-w-0 pr-3">
-                    <p className={`text-sm font-semibold truncate ${hasActive ? 'text-primary' : 'text-foreground'}`}>{mod.title}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{doneCount}/{denom} bài{mod.durationMinutes ? ` · ${mod.durationMinutes} phút` : ''}</p>
-                </div>
-                {isExpanded
-                    ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
-                    : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                }
-            </Button>
-
-            {isExpanded && (
-                <div className="bg-background/50">
-                    {mod.lessons.map(lesson => {
-                        const isActive = lesson.id === currentLessonId;
-                        const unlocked = isLessonUnlocked(lesson);
-                        const isDone = isTrackableLessonKind(lesson.kind)
-                            ? completedIds.has(lessonProgressId(lesson))
-                            : false;
-
-                        const lessonMilestones = milestones?.filter(m => m.triggerLessonId === lesson.id) || [];
-
-                        return (
-                            <div key={lesson.id}>
-                                <Button
-                                    variant="ghost"
-                                    disabled={!unlocked}
-                                    onClick={() => unlocked && onSelectLesson(lesson)}
-                                    className={`w-full h-auto rounded-none px-5 py-3 flex items-center gap-3 text-left font-normal border-l-4 transition-colors
-                                        ${isActive ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/30'}
-                                        ${!unlocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                                    `}
-                                >
-                                    <LessonIcon lesson={lesson} isActive={isActive} isCompleted={isDone} unlocked={unlocked} />
-                                    <div className="flex-1 min-w-0">
-                                        <p className={`text-sm truncate ${isActive ? 'font-bold text-foreground' : isDone ? 'text-muted-foreground' : 'text-foreground/80'}`}>
-                                            {lesson.title}
-                                        </p>
-                                        <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
-                                            {isActive && <span className="text-primary font-semibold">Đang học</span>}
-                                            {isDone && !isActive && <span className="text-emerald-500">Hoàn thành</span>}
-                                            {!isActive && !isDone && unlocked && <span>Chưa học</span>}
-                                            {!unlocked && <span>Đã khóa</span>}
-                                            {lesson.videoDuration && <span>· {fmtDuration(lesson.videoDuration)}</span>}
-                                        </div>
-                                    </div>
-                                </Button>
-                                {lessonMilestones.map(m => (
-                                    <MilestoneItem
-                                        key={m.assessmentId}
-                                        milestone={m}
-                                        forceLocked={!isDone}
-                                        onClick={() => onSelectMilestone?.(m)}
-                                    />
-                                ))}
+        <article className="animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-in-out">
+            <div className="max-w-3xl mx-auto space-y-12">
+                <header className="space-y-8">
+                    <div className="flex flex-col items-center sm:items-start gap-4">
+                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                            Tài liệu học tập
+                        </Badge>
+                        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight text-center sm:text-left [text-wrap:balance]">
+                            {lesson?.title}
+                        </h1>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-8 border-t border-border/40 gap-6">
+                         <div className="flex items-center gap-4 text-left">
+                            <div className="size-10 rounded-full bg-muted text-foreground flex items-center justify-center text-[10px] font-bold border truncate uppercase">
+                                TA
                             </div>
-                        );
-                    })}
+                            <div>
+                                <p className="text-xs font-bold">Torii Academy</p>
+                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-tight">Verified Article</p>
+                            </div>
+                         </div>
+                         <div className="flex items-center justify-center gap-2">
+                            <Button variant="ghost" size="sm" onClick={onPrev} disabled={navDisabledPrev} className="rounded-full border px-4 h-9 font-semibold text-xs uppercase transition-all hover:bg-primary/5 hover:text-primary">
+                                <ChevronLeft className="size-4 mr-1" /> Trước
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={onNext} disabled={navDisabledNext} className="rounded-full border px-4 h-9 font-semibold text-xs uppercase transition-all hover:bg-primary/5 hover:text-primary">
+                                Tiếp <ChevronRight className="size-4 ml-1" />
+                            </Button>
+                         </div>
+                    </div>
+                </header>
 
-                    {milestones?.filter(m => !m.triggerLessonId).map(m => (
-                        <MilestoneItem
-                            key={m.assessmentId}
-                            milestone={m}
-                            forceLocked={doneCount < denom}
-                            onClick={() => onSelectMilestone?.(m)}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
+                <div 
+                    className="prose prose-slate dark:prose-invert max-w-none prose-p:text-base prose-p:leading-relaxed prose-headings:font-bold prose-img:rounded-2xl prose-img:shadow-lg prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-xl"
+                    dangerouslySetInnerHTML={{ __html: lesson?.content || '<p class="text-muted-foreground italic text-lg text-center py-20">Nội dung đang được soạn thảo...</p>' }} 
+                />
+
+                <footer className="mt-24 p-12 rounded-3xl bg-primary/[0.02] border border-primary/10 text-center space-y-8 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                         <CheckCircle2 className="size-32" />
+                    </div>
+                    <div className="space-y-4 relative z-10">
+                        <h3 className="text-2xl font-bold tracking-tight">Bạn đã nắm vững kiến thức?</h3>
+                        <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                            Tuyệt vời! Hãy xác nhận hoàn thành bài học này để ghi nhận tiến độ.
+                        </p>
+                    </div>
+                    <Button onClick={onComplete} size="lg" className="relative h-12 px-12 rounded-full font-bold text-sm uppercase tracking-tight transition-all active:scale-95">
+                        Xác nhận hoàn thành
+                    </Button>
+                </footer>
+            </div>
+        </article>
     );
 }
 
@@ -384,6 +306,7 @@ export default function CourseLearnPage() {
     const params = useParams<{ courseId: string }>();
     const classId = params.courseId;
     const router = useRouter();
+    const pathname = usePathname();
     const searchParams = useSearchParams();
     const requestedMode = searchParams.get('mode')?.toUpperCase();
     const queryClient = useQueryClient();
@@ -455,6 +378,7 @@ export default function CourseLearnPage() {
             (liveClassError as any)?.response?.status === 404 &&
             (isVodCandidate ? (vodLoading || !vodPackageData) : true);
 
+
         if (!hasHandledForbiddenRef.current && isNotFound) {
             hasHandledForbiddenRef.current = true;
             toast.error('Không tìm thấy thông tin lớp học.');
@@ -462,9 +386,25 @@ export default function CourseLearnPage() {
         }
     }, [enrollmentData, enrollmentError, liveClassError, isLoading, classData, isVodCandidate, vodLoading, vodPackageData, router]);
 
+    // ── Computed data & State ─────────────────────────────────────────────
     const completedIds = useMemo(() => new Set(completedContentItemIds), [completedContentItemIds]);
 
-    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap((m: any) => m.lessons) ?? [];
+    // ── Sorting Logic ──────────────────────────────────────────────────────
+    const sortedModules = useMemo(() => {
+        if (!curriculum) return [];
+        return [...curriculum.modules]
+            .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+            .map((mod: any) => ({
+                ...mod,
+                lessons: [...mod.lessons].sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+            }));
+    }, [curriculum]);
+
+    const allLessons: CurriculumLesson[] = useMemo(() => 
+        sortedModules.flatMap((m: any) => m.lessons),
+        [sortedModules]
+    );
+
     const trackableOrdered = useMemo(
         () => allLessons.filter((l) => isTrackableLessonKind(l.kind)),
         [allLessons],
@@ -489,148 +429,121 @@ export default function CourseLearnPage() {
     const currentLessonKind = normalizeItemKind(currentLesson?.kind);
     const shouldFetchLessonDetail = !!currentLesson?.referenceId;
 
-    // ── Load curriculum → pick first uncompleted lesson + expand all ───────
+    // ── Load curriculum → sync selected lesson ────────────────────────────
     useEffect(() => {
         if (!curriculum) return;
-        // Expand all modules
         setExpandedModules(new Set(curriculum.modules.map((m: any) => m.id)));
 
-        // Pick first unlocked uncompleted lesson
-        if (currentLesson) return; // already selected
         const flat = curriculum.modules.flatMap((m: any) => m.lessons) as CurriculumLesson[];
         const requestedLessonId = searchParams.get('lesson');
-        if (requestedLessonId) {
-            for (const mod of curriculum.modules) {
-                const requested = mod.lessons.find((lesson: CurriculumLesson) => lesson.id === requestedLessonId);
-                if (requested && effectiveLessonUnlocked(requested)) {
-                    setCurrentLesson(requested);
-                    return;
+
+        const pickDefaultLesson = (): CurriculumLesson | null => {
+            let pick: CurriculumLesson | null = null;
+            for (const lesson of flat) {
+                const completed = isTrackableLessonKind(lesson.kind)
+                    ? completedIds.has(lessonProgressId(lesson))
+                    : false;
+                if (effectiveLessonUnlocked(lesson) && !completed) {
+                    pick = lesson;
+                    break;
                 }
             }
-        }
-        let pick: CurriculumLesson | null = null;
-        for (const lesson of flat) {
-            const completed = isTrackableLessonKind(lesson.kind)
-                ? completedIds.has(lessonProgressId(lesson))
-                : false;
-            if (effectiveLessonUnlocked(lesson) && !completed) {
-                pick = lesson;
-                break;
+            if (!pick) pick = curriculum.modules[0]?.lessons[0] ?? null;
+            return pick;
+        };
+
+        const replaceLessonQuery = (lessonId: string) => {
+            const next = new URLSearchParams(searchParams.toString());
+            next.set('lesson', lessonId);
+            const q = next.toString();
+            router.replace(q ? `${pathname}?${q}` : pathname);
+        };
+
+        if (requestedLessonId) {
+            const requested = flat.find((l) => l.id === requestedLessonId) ?? null;
+            if (requested && effectiveLessonUnlocked(requested)) {
+                setCurrentLesson(requested);
+                return;
             }
+            const pick = pickDefaultLesson();
+            setCurrentLesson(pick);
+            if (pick) replaceLessonQuery(pick.id);
+        } else {
+            setCurrentLesson((prev) => (prev ? prev : pickDefaultLesson()));
         }
-        // fallback: first lesson at all
-        if (!pick) pick = curriculum.modules[0]?.lessons[0] ?? null;
-        setCurrentLesson(pick);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [curriculum?.courseId, searchParams, completedContentItemIds]);
+    }, [curriculum, searchParams, completedContentItemIds, effectiveLessonUnlocked, router, pathname]);
 
     // ── Check Course Completion ───────────────────────────────────────────
     useEffect(() => {
-        if (!classId || !classData) return;
-        const total = allLessons.filter(l => isTrackableLessonKind(l.kind)).length || allLessons.length;
-        const done = allLessons.filter(l => isTrackableLessonKind(l.kind) && completedIds.has(lessonProgressId(l))).length;
-        
-        const isCompletedProgress = total > 0 && done === total;
-        if (!isCompletedProgress) return;
+        if (!classId || !classData || allLessons.length === 0) return;
+        const trackable = allLessons.filter(l => isTrackableLessonKind(l.kind));
+        const total = trackable.length;
+        const done = trackable.filter(l => completedIds.has(lessonProgressId(l))).length;
+        const allMilestonesPassed = milestones.length === 0 || milestones.every(m => m.status === 'PASSED');
 
-        // For LIVE classes, wait until endDate before showing celebration
-        if (!isVodCandidate) {
-            const endDateString = (classData as any)?.cohort?.endDate || (classData as any)?.endDate;
-            if (endDateString) {
-                const now = new Date();
-                const endOfClassDay = endOfDay(new Date(endDateString));
-                if (isBefore(now, endOfClassDay)) {
-                    // It is 100% but the class hasn't officially ended
-                    return;
-                }
+        if (total > 0 && done === total && allMilestonesPassed) {
+             // For LIVE classes, wait until endDate
+            if (!isVodCandidate) {
+                const endDateString = (classData as any)?.cohort?.endDate || (classData as any)?.endDate;
+                if (endDateString && isBefore(new Date(), endOfDay(new Date(endDateString)))) return;
+            }
+
+            const key = `course_completed_${classId}`;
+            if (!localStorage.getItem(key)) {
+                setShowCompletionModal(true);
+                localStorage.setItem(key, 'true');
             }
         }
+    }, [classId, classData, allLessons, completedIds, isVodCandidate, milestones]);
 
-        const key = `course_completed_${classId}`;
-        const shown = localStorage.getItem(key);
-        if (!shown) {
-            setShowCompletionModal(true);
-            localStorage.setItem(key, 'true');
-        }
-    }, [classId, classData, allLessons, completedIds, isVodCandidate]);
-
-    // ── Fetch current lesson details (video url, article content etc.) ─────
+    // ── Lesson Details ────────────────────────────────────────────────────
     const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(
         currentLesson?.referenceId ?? '',
         { enabled: shouldFetchLessonDetail },
     );
 
-    // ── Progress ───────────────────────────────────────────────────────────
+    // ── Actions ────────────────────────────────────────────────────────────
     const markLessonComplete = useCallback(async () => {
-        if (!currentLesson) return;
-        if (!isTrackableLessonKind(currentLesson.kind)) {
-            toast.info('Loại nội dung này không được tính vào tiến độ học.');
-            return;
-        }
-        if (completedIds.has(lessonProgressId(currentLesson))) { toast.info('Nội dung này đã được hoàn thành!'); return; }
+        if (!currentLesson || !isTrackableLessonKind(currentLesson.kind)) return;
+        if (completedIds.has(lessonProgressId(currentLesson))) return;
+        
         try {
             if (isVodCandidate) {
-                await academyVodLearningProgressApi.trackProgress({
-                    lessonId: currentLesson.id,
-                    packageId: classId!,
-                });
-                await queryClient.invalidateQueries({
-                    queryKey: ['academy-vod-learning', 'completed-lessons', classId],
-                });
+                await academyVodLearningProgressApi.trackProgress({ lessonId: currentLesson.id, packageId: classId! });
+                await queryClient.invalidateQueries({ queryKey: ['academy-vod-learning', 'completed-lessons', classId] });
             } else {
-                await academyLearningProgressApi.trackProgress({
-                    lessonId: currentLesson.id,
-                    classId: classId!,
-                });
-                await queryClient.invalidateQueries({
-                    queryKey: ['academy-learning', 'completed-lessons', classId],
-                });
+                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, classId: classId! });
+                await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', classId] });
             }
-            // Refresh My Courses progress bar & stats after lesson completion
-            await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ['academy-learning', 'my-courses'] }),
-                queryClient.invalidateQueries({ queryKey: ['academy-learning', 'stats'] }),
-                queryClient.invalidateQueries({ queryKey: ['academy-enrollments', 'me'] }),
-            ]);
-            toast.success('Đã hoàn thành nội dung! 🎉');
+            toast.success('Bài học đã hoàn thành! 🎉');
         } catch (e: any) {
-            toast.error(e?.userMessage || 'Không thể cập nhật tiến độ.');
+            toast.error(e?.userMessage || 'Lỗi cập nhật tiến độ.');
         }
     }, [currentLesson, completedIds, queryClient, classId, isVodCandidate]);
 
-    // ── Nav ────────────────────────────────────────────────────────────────
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
     const nextLesson = currentIndex < allLessons.length - 1 ? (allLessons[currentIndex + 1] ?? null) : null;
 
     const goTo = (lesson: CurriculumLesson | null) => {
-        if (!lesson || !effectiveLessonUnlocked(lesson)) return;
-        setCurrentLesson(lesson);
-        setSidebarOpen(false);
-        setActiveTab('content');
+        if (lesson && effectiveLessonUnlocked(lesson)) {
+            setCurrentLesson(lesson);
+            setSidebarOpen(false);
+            setActiveTab('content');
+        }
     };
 
 
-
-    const toggleModule = (id: string) => setExpandedModules(prev => {
-        const next = new Set(prev);
-        next.has(id) ? next.delete(id) : next.add(id);
-        return next;
-    });
-
-    // ── Computed ───────────────────────────────────────────────────────────
-    const progressLessons = allLessons.filter((lesson) => isTrackableLessonKind(lesson.kind));
-    const totalLessons = progressLessons.length || allLessons.length;
-    const completedCount = (progressLessons.length
-        ? progressLessons.filter((lesson) => completedIds.has(lessonProgressId(lesson)))
-        : []
-    ).length;
+    // ── Final Progress Stats ──────────────────────────────────────────────
+    const trackableLessons = trackableOrdered;
+    const totalTrackableLessons = trackableLessons.length;
+    const completedLessonsCount = trackableLessons.filter(l => completedIds.has(lessonProgressId(l))).length;
+    const passedMilestonesCount = milestones.filter(m => m.status === 'PASSED').length;
+    const totalLessons = totalTrackableLessons + milestones.length;
+    const completedCount = completedLessonsCount + passedMilestonesCount;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-    const radius = 24, circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = circumference - (progressPct / 100) * circumference;
-    const isCurrentDone = !!currentLesson &&
-        isTrackableLessonKind(currentLesson.kind) &&
-        completedIds.has(lessonProgressId(currentLesson));
+    
+    const isCurrentDone = !!currentLesson && completedIds.has(lessonProgressId(currentLesson));
 
     // ── Loading ────────────────────────────────────────────────────────────
     if (isLoading) {
@@ -684,266 +597,234 @@ export default function CourseLearnPage() {
     const isArticleLesson = currentLessonKind === 'READING';
 
 
-    // ─────────────────────────────────────────────────────────────────────────
     return (
         <div className="bg-background text-foreground font-sans antialiased h-screen flex flex-col overflow-hidden">
-            <style>{`
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
 
             {/* ── HEADER ─────────────────────────────────────────────────── */}
-            <header className="bg-card border-b border-border h-16 flex items-center justify-between px-4 sm:px-6 z-50 flex-shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
-                    <Button variant="ghost" size="icon-sm" className="shrink-0 rounded-full" onClick={() => router.back()} title="Quay lại">
-                        <ChevronLeft className="h-5 w-5 text-foreground" />
-                    </Button>
-                    <div className="hidden sm:block min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
-                            {classData?.name}
-                        </p>
-                        {currentLesson && <p className="text-sm font-bold text-foreground truncate">{currentLesson.title}</p>}
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:flex flex-col items-end gap-1">
-                        <span className="text-xs font-medium text-muted-foreground">Tiến độ: {progressPct}%</span>
-                        <div className="w-40 h-2 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            <header className="h-16 border-b bg-card flex items-center justify-between px-4 sm:px-6 z-50 shrink-0 shadow-sm">
+                <div 
+                    className="flex items-center gap-4 cursor-pointer group hover:bg-muted/30 px-2 -ml-2 rounded-lg transition-colors overflow-hidden" 
+                    onClick={() => setSidebarOpen(true)}
+                >
+                    <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-semibold uppercase tracking-tight text-primary font-mono">Học tập</span>
+                            <Separator orientation="vertical" className="h-2.5 bg-border/50" />
+                            <span className="text-[10px] font-medium text-muted-foreground/60 truncate max-w-[120px] sm:max-w-none uppercase tracking-tight">
+                                {classData?.name}
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                            <h1 className="text-sm sm:text-base font-bold tracking-tight group-hover:text-primary transition-colors truncate max-w-[200px] sm:max-w-[400px]">
+                                {currentLesson?.title ?? 'Chọn bài học'}
+                            </h1>
+                            <ChevronDown className="size-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
                         </div>
                     </div>
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
-                        {(classData?.name ?? 'T')[0] ?? 'T'}
+                </div>
+
+                <div className="flex items-center gap-6">
+                    <div className="hidden md:flex flex-col items-end gap-1.5">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-muted-foreground/60">Tiến độ khóa học</span>
+                            <span className="text-sm font-bold text-primary">{progressPct}%</span>
+                        </div>
+                        <div className="w-48 h-1 bg-muted rounded-full overflow-hidden">
+                            <div 
+                                className="h-full bg-primary rounded-full transition-all duration-1000 ease-out" 
+                                style={{ width: `${progressPct}%` }} 
+                            />
+                        </div>
+                    </div>
+                    
+                    <Separator orientation="vertical" className="h-6 bg-border/40 hidden md:block" />
+                    
+                    <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+                            {(classData?.name ?? 'T')[0] ?? 'T'}
+                        </div>
                     </div>
                 </div>
             </header>
 
             {/* ── BODY ───────────────────────────────────────────────────── */}
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden relative">
 
-                {/* ── MAIN ─────────────────────────────────────────────── */}
-                <main className="flex-1 overflow-y-auto no-scrollbar">
+                {/* ── MAIN CONTENT ─────────────────────────────────────────── */}
+                <main className="flex-1 flex flex-col relative overflow-y-auto no-scrollbar scroll-smooth">
+                    
+                    {/* Video / Content Section */}
+                    <div className="flex-none w-full">
+                        {isVideoLesson && (
+                            <div className="video-sticky-container group/video shadow-2xl shadow-black/5">
+                                <VideoPlayer lesson={lessonDetail} onComplete={markLessonComplete} />
+                                {!isCurrentDone && lessonDetail?.videoUrl && (
+                                    <div className="bg-primary/5 border-b border-primary/10 px-4 py-2 transition-all flex items-center justify-center gap-2">
+                                        <Timer className="size-3 text-primary animate-pulse" />
+                                        <p className="text-[11px] font-semibold text-primary/80">
+                                            Video sẽ tự động hoàn thành sau khi xem hết 95% thời lượng
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
-                    {/* Content area */}
-                    {isVideoLesson && (
-                        <>
-                            <VideoPlayer lesson={lessonDetail} onComplete={markLessonComplete} />
-                            {!isCurrentDone && lessonDetail?.videoUrl && (
-                                <p className="border-b border-border bg-muted/25 px-3 py-2 text-center text-xs text-muted-foreground sm:px-4">
-                                    Video được lưu tiến độ tự động khi bạn xem đến cuối hoặc đã xem ít nhất 95% thời lượng.
-                                </p>
-                            )}
-                        </>
-                    )}
-
-                    {/* Lesson details & meta — ẩn với bài READING để tránh trùng tiêu đề/tab với ArticleViewer */}
-                    {!isArticleLesson && (
-                        <section className="p-5 sm:p-8 lg:p-10 max-w-5xl mx-auto">
-                            {/* Title + nav */}
-                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
-                                <div className="min-w-0">
-                                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-                                        {currentLesson?.title ?? 'Chọn bài học'}
-                                    </h2>
-                                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                        {currentLesson?.videoDuration && <span>⏱ {fmtDuration(currentLesson.videoDuration)}</span>}
-                                        {isCurrentDone && (
-                                            <span className="text-emerald-500 font-semibold flex items-center gap-1">
-                                                <CheckCircle2 className="h-3.5 w-3.5" /> Đã hoàn thành
-                                            </span>
-                                        )}
+                    <div className="flex-1 w-full max-w-5xl mx-auto py-10 px-4 sm:px-6">
+                        {!isArticleLesson && (
+                            <section className="space-y-8">
+                                <div className="space-y-4">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Badge variant="outline">Bài học {currentIndex + 1}</Badge>
+                                        {isCurrentDone && <Badge className="bg-emerald-500 text-white border-none">Đã hoàn thành</Badge>}
+                                    </div>
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                                            {currentLesson?.title ?? 'Chọn bài học'}
+                                        </h2>
+                                        <div className="flex items-center gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => goTo(prevLesson)} disabled={!prevLesson}>
+                                                <ChevronLeft className="mr-1 size-4" /> Trước
+                                            </Button>
+                                            <Button variant="outline" size="sm" onClick={() => goTo(nextLesson)} disabled={!nextLesson}>
+                                                Tiếp <ChevronRight className="ml-1 size-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-wrap gap-2 shrink-0">
-                                    <Button
-                                        variant="outline"
-                                        className="font-semibold shadow-none"
-                                        onClick={() => goTo(prevLesson)}
-                                        disabled={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
-                                    >
-                                        <ChevronLeft className="h-4 w-4" /> Bài trước
-                                    </Button>
-                                    {/* VIDEO: tự động khi xem xong / ≥95%; READING & loại khác: người học bấm Hoàn thành */}
-                                    {!isCurrentDone && currentLesson && !isVideoLesson && (
-                                        <Button type="button" size="sm" onClick={markLessonComplete} className="gap-1.5">
-                                            <CheckCircle2 className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
-                                            Hoàn thành
-                                        </Button>
-                                    )}
-                                    <Button
-                                        className="font-semibold shadow-lg shadow-primary/20"
-                                        onClick={() => goTo(nextLesson)}
-                                        disabled={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
-                                    >
-                                        Bài tiếp theo <ChevronRight className="h-4 w-4" />
-                                    </Button>
+
+                                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+                                    <TabsList className="w-full justify-start border-b rounded-none bg-transparent h-10 p-0 gap-6">
+                                        <TabsTrigger value="content" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 h-10">TỔNG QUAN</TabsTrigger>
+                                        <TabsTrigger value="discussion" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 h-10">THẢO LUẬN</TabsTrigger>
+                                        <TabsTrigger value="resources" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 h-10">TÀI LIỆU</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="content" className="py-6 space-y-4">
+                                        <h3 className="text-lg font-bold">Giới thiệu bài học</h3>
+                                        <p className="text-sm text-muted-foreground leading-relaxed">
+                                            {(lessonDetail as any)?.description || "Nội dung đang được cập nhật."}
+                                        </p>
+                                        {!isCurrentDone && currentLesson && !isVideoLesson && (
+                                            <Button onClick={markLessonComplete} className="w-full sm:w-auto">
+                                                Đánh dấu hoàn thành
+                                            </Button>
+                                        )}
+                                    </TabsContent>
+
+                                    <TabsContent value="discussion" className="py-6">
+                                        <LessonDiscussion
+                                            classId={classId as string}
+                                            lessonId={(currentLesson as any)?.id ?? ''}
+                                            moduleId={(currentLesson as any)?.moduleId}
+                                        />
+                                    </TabsContent>
+
+                                    <TabsContent value="resources" className="py-6">
+                                        <AcademyResourceList classId={classId as string} />
+                                    </TabsContent>
+                                </Tabs>
+                            </section>
+                        )}
+
+                        {isArticleLesson && currentLesson && !lessonLoading && (
+                            <div className="animate-in fade-in duration-700">
+                                <ArticleViewer
+                                    lesson={lessonDetail!}
+                                    onComplete={markLessonComplete}
+                                    onPrev={() => goTo(prevLesson)}
+                                    onNext={() => goTo(nextLesson)}
+                                    navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
+                                    navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
+                                    courseClassId={classId as string}
+                                />
+                            </div>
+                        )}
+
+                        {lessonLoading && (
+                            <div className="p-12 space-y-8 max-w-3xl mx-auto">
+                                <Skeleton className="h-10 w-2/3 rounded-full" />
+                                <div className="space-y-4">
+                                    <Skeleton className="h-4 w-full rounded-full" />
+                                    <Skeleton className="h-4 w-5/6 rounded-full" />
+                                    <Skeleton className="h-4 w-4/6 rounded-full" />
                                 </div>
                             </div>
-
-                            {/* Tabs */}
-                            <Tabs
-                                value={activeTab}
-                                onValueChange={(v) => setActiveTab(v as 'content' | 'discussion' | 'resources')}
-                                className="w-full"
-                            >
-
-                                <div className="border-b border-border mb-8 overflow-x-auto no-scrollbar">
-                                    <TabsList variant="line" className="w-full min-h-0 justify-start rounded-none border-0 bg-transparent p-0 h-auto gap-0">
-                                        <TabsTrigger value="content" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary rounded-none">
-                                            <BookOpen className="h-4 w-4" />
-                                            Tổng quan
-                                        </TabsTrigger>
-                                        <TabsTrigger value="discussion" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary rounded-none">
-                                            <MessageSquare className="h-4 w-4" />
-                                            Thảo luận
-                                        </TabsTrigger>
-                                        <TabsTrigger value="resources" className="py-4 px-4 gap-1.5 data-[state=active]:text-primary rounded-none">
-                                            <Paperclip className="h-4 w-4" />
-                                            Tài liệu
-                                        </TabsTrigger>
-                                    </TabsList>
-                                </div>
-
-
-                                <TabsContent value="content" className="mt-0 space-y-5 outline-none">
-                                    <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        {(lessonDetail as any)?.description || (currentLesson
-                                            ? `Bài học "${currentLesson.title}" thuộc khóa học ${classData?.name}.`
-                                            : 'Chọn một bài học để bắt đầu.')}
-                                    </p>
-                                </TabsContent>
-
-                                <TabsContent value="discussion" className="mt-0 outline-none">
-                                    <LessonDiscussion
-                                        classId={classId as string}
-                                        lessonId={(currentLesson as any)?.id ?? ''}
-                                        moduleId={(currentLesson as any)?.moduleId}
-                                    />
-                                </TabsContent>
-
-                                <TabsContent value="resources" className="mt-0 outline-none">
-                                    <div className="space-y-6">
-                                        <div className="flex flex-col gap-1">
-                                            <h3 className="text-xl font-bold text-foreground">Tài liệu học tập</h3>
-                                            <p className="text-sm text-muted-foreground">Tất cả tài liệu được chia sẻ cho khoá học này.</p>
-                                        </div>
-                                        <AcademyResourceList classId={classId as string} />
-                                    </div>
-                                </TabsContent>
-
-                            </Tabs>
-                        </section>
-                    )}
-
-                    {/* Article lesson — một luồng duy nhất: điều hướng nằm trong ArticleViewer */}
-                    {isArticleLesson && currentLesson && !lessonLoading && (
-                        <ArticleViewer
-                            lesson={lessonDetail!}
-                            onComplete={markLessonComplete}
-                            onPrev={() => goTo(prevLesson)}
-                            onNext={() => goTo(nextLesson)}
-                            navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
-                            navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
-                            courseClassId={classId as string}
-                        />
-                    )}
-
-                    {/* Loading lesson detail */}
-                    {lessonLoading && (
-                        <div className="p-8 space-y-4 max-w-3xl mx-auto">
-                            <Skeleton className="h-8 w-2/3" />
-                            <Skeleton className="h-32 w-full" />
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </main>
 
-                {/* ── SIDEBAR ──────────────────────────────────────────── */}
+                {/* ── SIDEBAR DRAWER / ASIDE ────────────────────────────── */}
                 <aside
-                    className={`
-                        flex-col w-full xl:w-[380px] bg-card border-l border-border
-                        fixed xl:static inset-0 xl:inset-auto z-40 xl:z-auto
-                        transition-transform duration-300
-                        ${sidebarOpen ? 'flex' : 'hidden xl:flex'}
-                    `}
+                    className={cn(
+                        "flex flex-col w-full xl:w-[350px] bg-card border-l fixed xl:static inset-0 z-[60] xl:z-auto transition-transform duration-300",
+                        sidebarOpen ? "translate-x-0" : "translate-x-full xl:translate-x-0"
+                    )}
                 >
-                    {/* Mobile close */}
-                    <div className="flex items-center justify-between p-4 border-b border-border xl:hidden shrink-0">
-                        <span className="font-bold text-foreground">Nội dung khoá học</span>
-                        <Button variant="ghost" size="icon-sm" className="rounded-full" onClick={() => setSidebarOpen(false)}>
-                            <X className="h-5 w-5" />
+                    <div className="p-4 border-b flex items-center justify-between xl:hidden">
+                        <span className="font-bold">Nội dung khóa học</span>
+                        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}>
+                            <X className="size-4" />
                         </Button>
                     </div>
 
-                    {/* Header */}
-                    <div className="p-5 border-b border-border shrink-0">
-                        <h3 className="text-base font-bold text-foreground mb-4 hidden xl:block">Nội dung khoá học</h3>
+                    <div className="p-6 border-b space-y-4">
                         <div className="flex items-center gap-4">
-                            <div className="relative h-14 w-14 shrink-0">
-                                <svg className="h-14 w-14 -rotate-90" viewBox="0 0 64 64">
-                                    <circle className="text-muted" cx="32" cy="32" fill="transparent" r={radius} stroke="currentColor" strokeWidth="5" />
-                                    <circle className="text-primary" cx="32" cy="32" fill="transparent" r={radius} stroke="currentColor"
-                                        strokeLinecap="round" strokeWidth="5"
-                                        strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
-                                        style={{ transition: 'stroke-dashoffset 0.5s ease' }}
-                                    />
-                                </svg>
-                                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">{progressPct}%</span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold text-foreground">{completedCount}/{totalLessons} bài học</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                    {progressPct > 0
-                                        ? `Đã hoàn thành ${progressPct}%`
-                                        : 'Đang học'}
-                                </p>
-                            </div>
+                            <Progress value={progressPct} className="flex-1 h-2" />
+                            <span className="text-sm font-bold text-primary">{progressPct}%</span>
                         </div>
+                        <p className="text-xs text-muted-foreground font-medium">
+                            Đã học {completedCount} / {totalLessons} nội dung
+                        </p>
                     </div>
 
-                    {/* Module list — fix: pass per-module isExpanded so each module controls independently */}
-                    <div className="flex-1 overflow-y-auto no-scrollbar">
-                        {curriculum?.modules.map((mod: any) => (
-                            <ModuleItem
-                                key={mod.id}
-                                mod={mod}
-                                isExpanded={expandedModules.has(mod.id)}
-                                onToggle={() => toggleModule(mod.id)}
-                                currentLessonId={currentLesson?.id ?? null}
-                                completedIds={completedIds}
-                                isLessonUnlocked={effectiveLessonUnlocked}
-                                milestones={milestones.filter(m =>
-                                    m.kind !== 'FINAL_EXAM' && (
-                                        m.moduleId === mod.id ||
-                                        (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
-                                    )
-                                )}
-                                onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
-                                onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
-                            />
-                        ))}
-                        {/* Final Exams at the bottom */}
-                        {milestones.filter(m => m.kind === 'FINAL_EXAM').map(m => (
-                            <MilestoneItem
-                                key={m.assessmentId}
-                                milestone={m}
-                                forceLocked={progressPct < 100}
-                                onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
-                            />
-                        ))}
-                    </div>
+                    <ScrollArea className="flex-1">
+                        <Accordion type="multiple" defaultValue={Array.from(expandedModules)} className="w-full">
+                            {curriculum?.modules.map((mod: any) => (
+                                <ModuleItem
+                                    key={mod.id}
+                                    mod={mod}
+                                    currentLessonId={currentLesson?.id ?? null}
+                                    completedIds={completedIds}
+                                    isLessonUnlocked={effectiveLessonUnlocked}
+                                    milestones={milestones.filter(m =>
+                                        m.kind !== 'FINAL_EXAM' && (
+                                            m.moduleId === mod.id ||
+                                            (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
+                                        )
+                                    )}
+                                    onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
+                                    onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
+                                />
+                            ))}
+                        </Accordion>
+
+                        {/* Final Challenge Section */}
+                        {milestones.some(m => m.kind === 'FINAL_EXAM') && (
+                            <div className="p-4 bg-muted/30 m-4 rounded-lg">
+                                <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-4 tracking-wider">Thử thách cuối khóa</h4>
+                                {milestones.filter(m => m.kind === 'FINAL_EXAM').map(m => (
+                                    <MilestoneItem
+                                        key={m.assessmentId}
+                                        milestone={m}
+                                        forceLocked={completedLessonsCount < totalTrackableLessons}
+                                        onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </ScrollArea>
                 </aside>
-            </div>
 
-            {/* ── MOBILE FAB ─────────────────────────────────────────────── */}
-            <Button
-                size="icon-lg"
-                className="xl:hidden fixed bottom-6 right-6 z-[60] h-14 w-14 rounded-full shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-transform"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Mở danh sách bài học"
-            >
-                <Menu className="h-6 w-6" />
-            </Button>
+                {/* Overlays for mobile */}
+                {sidebarOpen && (
+                    <div 
+                        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] xl:hidden animate-in fade-in duration-300" 
+                        onClick={() => setSidebarOpen(false)}
+                    />
+                )}
+            </div>
 
             <CourseCompletionModal
                 isOpen={showCompletionModal}

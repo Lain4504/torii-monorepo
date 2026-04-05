@@ -3,19 +3,34 @@
 import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@workspace/ui/components/button"
-import { AlertCircle, Clock, Maximize2, Send, Settings } from "lucide-react"
+import { AlertCircle, Clock, Maximize2, Send, List, ChevronRight, BookOpen, Volume2, Trophy, Activity } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@workspace/ui/components/sheet"
+import { Progress } from "@workspace/ui/components/progress"
+import { Badge } from "@workspace/ui/components/badge"
+import { Card, CardContent } from "@workspace/ui/components/card"
+import { Separator } from "@workspace/ui/components/separator"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { jlptMockApi, type JlptMockTemplate, type JlptMockTemplateQuestion } from "@/lib/api/services/jlpt-mock-api"
 import { storageApi } from "@/lib/api/services/storage-api"
 import { ListeningPlayer } from "@/components/learning/jlpt/listening-player"
 import { toast } from "@workspace/ui/components/sonner"
+import { cn } from "@workspace/ui/lib/utils"
 
 type MondaiSection = {
   mondaiId: string | null
@@ -57,18 +72,14 @@ export default function JlptMockSectionPage() {
   const [showConfirmExit, setShowConfirmExit] = useState(false)
   const [pendingNextSectionOrder, setPendingNextSectionOrder] = useState<number | null>(null)
   const [pendingNextEndsAtIso, setPendingNextEndsAtIso] = useState<string | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  // Map theo templateQuestionId: optionId được chọn.
-  // Dùng state để bấm chọn đáp án và submit sẽ lưu vào DB.
   const [selectedOptionByTemplateQuestionId, setSelectedOptionByTemplateQuestionId] = useState<
     Record<string, string | undefined>
   >({})
 
   const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined)
   const [questionImageUrls, setQuestionImageUrls] = useState<Record<string, string>>({})
-
-  // Câu (templateQuestionId) vừa được chọn gần nhất.
-  // Sidebar sẽ sáng item tương ứng với câu này.
   const [activeQuestionTemplateId, setActiveQuestionTemplateId] = useState<string | null>(null)
 
   const endsAtMs = endsAtIsoState ? Date.parse(endsAtIsoState) : null
@@ -135,7 +146,6 @@ export default function JlptMockSectionPage() {
     return map
   }, [sectionQuestionsSorted])
 
-  // When switching part/section inside the same page, reset mondai + question highlight.
   useEffect(() => {
     setActiveMondaiId(null)
     setActiveMondaiIndex(0)
@@ -152,7 +162,6 @@ export default function JlptMockSectionPage() {
   const PART_TOTAL = SECTION_ORDERS.length
   const isLastSection = PART_TOTAL > 0 && currentSectionIdx === PART_TOTAL - 1
 
-  // Khi sectionQuestions thay đổi (switch template/route), đảm bảo state luôn có key.
   useEffect(() => {
     if (!sectionQuestions.length) return
     setSelectedOptionByTemplateQuestionId((prev) => {
@@ -169,7 +178,6 @@ export default function JlptMockSectionPage() {
   }, [sectionQuestions])
 
   const MONDAI_SECTIONS: MondaiSection[] = useMemo(() => {
-    // Prefer mondai ordering coming from backend.
     const mondaiFromApi: Array<{ id: string; code?: string | null; orderIndex: number; titleVi?: string | null; titleJa?: string | null }> =
       ((currentSection as any)?.mondai ?? []).map((m: any) => ({
         id: m.id,
@@ -190,41 +198,36 @@ export default function JlptMockSectionPage() {
       return sorted.map((m, idx) => ({
         mondaiId: m.id,
         mondaiCode: m.code ?? null,
-        title: `問題${idx + 1}`,
+        title: `Mondai ${idx + 1}`,
         description: (() => {
           const label = (m.titleJa ?? m.titleVi ?? m.code ?? "").toString().trim()
           const count = counts.get(m.code ?? null) ?? 0
           const answered = sectionQuestions.filter(q => q.mondai?.code === m.code && selectedOptionByTemplateQuestionId[q.id]).length
-          return label ? `${label}·${answered}/${count}` : `${answered}/${count}`
+          return label ? `${label} · ${answered}/${count}` : `${answered}/${count}`
         })(),
         orderIndex: idx,
       }))
     }
 
-    // Fallback: group-by mondai code order of appearance
     const uniqCodes = Array.from(new Set(sectionQuestions.map((q) => q.mondai?.code ?? null)))
     return uniqCodes.map((code, idx) => ({
       mondaiId: sectionQuestions.find(q => q.mondai?.code === code)?.mondaiId ?? null,
       mondaiCode: code,
-      title: `問題${idx + 1}`,
+      title: `Mondai ${idx + 1}`,
       description: `0/${counts.get(code) ?? 0}`,
       orderIndex: idx,
     }))
-  }, [sectionQuestions])
+  }, [sectionQuestions, selectedOptionByTemplateQuestionId])
 
-  // Initialize active mondai (first one) once we have MONDAI_SECTIONS.
   useEffect(() => {
     if (MONDAI_SECTIONS.length === 0) return
-
-    // Always initialize/reset to the first mondai when switching section 
-    // or if no mondai is active.
     const first = MONDAI_SECTIONS[0]
     if (first) {
       setActiveMondaiId(first.mondaiId)
       setActiveMondaiIndex(0)
       setActiveMondaiCode(first.mondaiCode ?? null)
     }
-  }, [MONDAI_SECTIONS])
+  }, [MONDAI_SECTIONS.length])
 
   const activeMondaiQuestions: JlptMockTemplateQuestion[] = useMemo(() => {
     return sectionQuestions.filter((q) => (q.mondai?.code ?? null) === activeMondaiCode)
@@ -236,14 +239,14 @@ export default function JlptMockSectionPage() {
         id: questionIndexByTemplateQuestionId.get(q.id) ?? idx + 1,
         templateQuestionId: q.id,
         sentence: (
-          <>
+          <div className="space-y-2">
             {q.question.contextText && (
-              <span className="block mb-2 text-base text-muted-foreground">
+              <span className="block text-sm text-muted-foreground font-medium">
                 {q.question.contextText}
               </span>
             )}
-            <span>{q.question.stemText}</span>
-          </>
+            <span className="text-lg sm:text-xl font-bold text-foreground">{q.question.stemText}</span>
+          </div>
         ),
         options: q.question.options.map((opt) => ({
           id: opt.id,
@@ -253,8 +256,9 @@ export default function JlptMockSectionPage() {
     [activeMondaiQuestions, questionIndexByTemplateQuestionId],
   )
 
-  // Sidebar "CÂU HỎI" phản ánh tổng câu hỏi của cả section.
   const QUESTION_COUNT = sectionQuestionsSorted.length
+  const ANSWERED_COUNT = Object.keys(selectedOptionByTemplateQuestionId).filter(k => sectionQuestions.some(sq => sq.id === k) && selectedOptionByTemplateQuestionId[k]).length
+  const PROGRESS_VALUE = QUESTION_COUNT > 0 ? (ANSWERED_COUNT / QUESTION_COUNT) * 100 : 0
 
   const countdown = (() => {
     if (endsAtMs == null || Number.isNaN(endsAtMs)) return "-- : --"
@@ -263,8 +267,12 @@ export default function JlptMockSectionPage() {
     const seconds = Math.floor((diffMs % 60_000) / 1000)
     const mm = String(minutes).padStart(2, "0")
     const ss = String(seconds).padStart(2, "0")
-    return `${mm} : ${ss}`
+    return `${mm}:${ss}`
   })()
+
+  const activeMondaiObject = useMemo(() => {
+    return ((currentSection as any)?.mondai ?? []).find((m: any) => m.id === activeMondaiId)
+  }, [currentSection, activeMondaiId])
 
   const problemInstruction = [
     "のことばの読み方として最もよいものを、1・2・3・4から一つえらびなさい。",
@@ -273,10 +281,6 @@ export default function JlptMockSectionPage() {
     "に意味が最も近いものを、1・2・3・4 từ一つえらびなさい。",
     "つぎのことばの使い方として最もよいものを、1・2・3・4 từ一つえらびなさい。",
   ]
-
-  const activeMondaiObject = useMemo(() => {
-    return ((currentSection as any)?.mondai ?? []).find((m: any) => m.id === activeMondaiId)
-  }, [currentSection, activeMondaiId])
 
   const activeProblemInstruction =
     activeMondaiObject?.instructionJa ||
@@ -291,30 +295,25 @@ export default function JlptMockSectionPage() {
     }
     try {
       setLoading(true)
-
       const answers = sectionQuestions.map((q) => ({
         templateQuestionId: q.id,
         selectedOptionId: selectedOptionByTemplateQuestionId[q.id],
       }))
-
       await jlptMockApi.saveAnswers({ attemptId, answers })
 
-      // Nộp theo từng phần: phần cuối mới gọi submitAttempt.
       if (isLastSection) {
         await jlptMockApi.submitAttempt({ attemptId })
-        toast.success("Đã nộp bài JLPT mock")
+        toast.success("Đã nộp bài JLPT mock thành công!")
         router.push(`/jlpt/attempt/history/${attemptId}`)
         return
       }
 
       const next = await jlptMockApi.nextSection({ attemptId, currentSectionOrder })
-
-      // Tạm tắt timer UI của phần hiện tại cho đúng với "timer chạy khi bấm vào phần đó".
       setEndsAtIsoState(null)
       setPendingNextSectionOrder(next.currentSectionOrder)
       setPendingNextEndsAtIso(next.endsAt ?? null)
       setShowConfirmNextSection(true)
-      toast.success(`Đã nộp phần ${PART_NUMBER}`)
+      toast.success(`Đã hoàn thành phần ${PART_NUMBER}`)
     } catch (e: any) {
       console.error(e)
       toast.error(e?.message ?? "Không thể nộp bài JLPT")
@@ -323,18 +322,11 @@ export default function JlptMockSectionPage() {
     }
   }
 
-  const confirmExit = () => {
-    router.push("/dashboard/jlpt-list-exam")
-  }
+  const confirmExit = () => router.push("/dashboard/jlpt-list-exam")
+  const goBackToLevel = () => router.push(`/jlpt/${level.toLowerCase()}`)
 
-  const goBackToLevel = () => {
-    router.push(`/jlpt/${level.toLowerCase()}`)
-  }
-
-  // Hydrate đáp án đã lưu (khi tải lại trang).
   useEffect(() => {
-    if (!attemptId) return
-    if (!sectionQuestionsSorted.length) return
+    if (!attemptId || !sectionQuestionsSorted.length) return
       ; (async () => {
         try {
           const items = await jlptMockApi.getAttemptAnswers(attemptId)
@@ -352,7 +344,6 @@ export default function JlptMockSectionPage() {
           if (lastAnswered?.templateQuestionId) setActiveQuestionTemplateId(lastAnswered.templateQuestionId)
           else if (sectionQuestionsSorted[0]?.id) setActiveQuestionTemplateId(sectionQuestionsSorted[0].id)
 
-          // Fetch audio if listening
           if (currentSection?.isListening) {
             const firstListenQ = sectionQuestionsSorted.find(q => q.question.audioAssetId)
             if (firstListenQ?.question.audioAssetId) {
@@ -361,7 +352,6 @@ export default function JlptMockSectionPage() {
             }
           }
 
-          // Fetch images for questions in this section
           const questionsWithImages = sectionQuestionsSorted.filter(q => q.question.imageAssetId)
           for (const q of questionsWithImages) {
             if (q.question.imageAssetId) {
@@ -369,366 +359,358 @@ export default function JlptMockSectionPage() {
               setQuestionImageUrls(prev => ({ ...prev, [q.id]: signedUrl }))
             }
           }
-
         } catch (e) {
           console.error(e)
         }
       })()
-  }, [attemptId, sectionQuestionsSorted.length, questionIndexByTemplateQuestionId, currentSection?.isListening])
+  }, [attemptId, sectionQuestionsSorted.length, currentSection?.isListening])
 
   const handleSelectOption = async (templateQuestionId: string, optionId: string) => {
-    if (!attemptId) {
-      toast.error("Thiếu attemptId")
-      return
-    }
-
-    setSelectedOptionByTemplateQuestionId((prev) => ({
-      ...prev,
-      [templateQuestionId]: optionId,
-    }))
+    if (!attemptId) return
+    setSelectedOptionByTemplateQuestionId((prev) => ({ ...prev, [templateQuestionId]: optionId }))
     setActiveQuestionTemplateId(templateQuestionId)
-
     try {
-      // Persist ngay để reload trang không bị mất.
-      await jlptMockApi.saveAnswers({
-        attemptId,
-        answers: [{ templateQuestionId, selectedOptionId: optionId }],
-      })
+      await jlptMockApi.saveAnswers({ attemptId, answers: [{ templateQuestionId, selectedOptionId: optionId }] })
     } catch (e: any) {
       console.error(e)
-      toast.error(e?.message ?? "Không thể lưu đáp án")
     }
   }
 
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1">
+        <div className="p-5 space-y-8">
+            <section className="space-y-4">
+                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+                    <BookOpen className="size-4" />
+                    <span>Cấu trúc phần thi</span>
+                </div>
+                <div className="space-y-1">
+                    {MONDAI_SECTIONS.map((m, index) => (
+                    <Button
+                        key={`${m.mondaiId ?? "null"}-${index}`}
+                        variant={(m.mondaiId ?? null) === activeMondaiId ? "default" : "ghost"}
+                        className={cn(
+                            "w-full justify-start text-left h-auto py-3 px-4 rounded-xl",
+                            (m.mondaiId ?? null) === activeMondaiId && "shadow-sm"
+                        )}
+                        onClick={() => {
+                            setActiveMondaiId(m.mondaiId)
+                            setActiveMondaiIndex(index)
+                            setActiveMondaiCode(m.mondaiCode ?? null)
+                            setIsSidebarOpen(false)
+                        }}
+                    >
+                        <div className="flex flex-col items-start gap-0.5">
+                            <span className="font-bold text-sm">{m.title}</span>
+                            <span className={cn(
+                                "text-[10px] font-medium",
+                                (m.mondaiId ?? null) === activeMondaiId ? "opacity-90" : "text-muted-foreground"
+                            )}>
+                                {m.description}
+                            </span>
+                        </div>
+                    </Button>
+                    ))}
+                </div>
+            </section>
+
+            <section className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        <List className="size-4" />
+                        <span>Câu hỏi</span>
+                    </div>
+                    <Badge variant="secondary" className="font-bold text-[10px]">{ANSWERED_COUNT}/{QUESTION_COUNT}</Badge>
+                </div>
+                <div className="grid grid-cols-5 gap-1.5 px-1">
+                    {sectionQuestionsSorted.map((q, idx) => {
+                    const num = idx + 1
+                    const isActive = q.id === activeQuestionTemplateId
+                    const isAnswered = selectedOptionByTemplateQuestionId[q.id] != null
+                    return (
+                        <Button
+                            key={q.id}
+                            variant={isActive ? "default" : "outline"}
+                            size="icon"
+                            className={cn(
+                                "size-9 rounded-lg text-xs font-bold transition-all",
+                                isActive ? "shadow-md ring-2 ring-primary ring-offset-2" : isAnswered ? "bg-primary/5 border-primary/20 text-primary" : "text-muted-foreground border-border/50"
+                            )}
+                            onClick={() => {
+                                setActiveQuestionTemplateId(q.id)
+                                const targetMondaiCode = q.mondai?.code ?? null
+                                const mondaiItem = MONDAI_SECTIONS.find((m) => (m.mondaiCode ?? null) === targetMondaiCode)
+                                if (mondaiItem) {
+                                    setActiveMondaiId(mondaiItem.mondaiId)
+                                    setActiveMondaiIndex(mondaiItem.orderIndex)
+                                    setActiveMondaiCode(mondaiItem.mondaiCode ?? null)
+                                }
+                                setIsSidebarOpen(false)
+                            }}
+                        >
+                        {num}
+                        </Button>
+                    )
+                    })}
+                </div>
+            </section>
+        </div>
+      </ScrollArea>
+    </div>
+  )
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <header className="bg-card border-b border-border px-6 py-3 flex items-center justify-between z-10">
-        <div className="flex items-center space-x-4">
-          <div className="bg-destructive text-destructive-foreground px-3 py-1 rounded text-sm font-bold">
+    <div className="fixed inset-0 flex flex-col bg-background font-sans overflow-hidden">
+      <header className="h-16 shrink-0 bg-background border-b px-4 flex items-center justify-between z-50">
+        <div className="flex items-center gap-3">
+          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="md:hidden size-10 rounded-xl">
+                <List className="size-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-80">
+              <SheetHeader className="p-6 border-b">
+                <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                    <Trophy className="size-5 text-primary" />
+                    <span>JLPT MOCK TEST</span>
+                </SheetTitle>
+              </SheetHeader>
+              <SidebarContent />
+            </SheetContent>
+          </Sheet>
+
+          <Badge variant="secondary" className="h-7 px-2 rounded-md text-[10px] font-bold uppercase tracking-wider">
             {level}
-          </div>
-          <div className="flex flex-col">
-            <h1 className="font-bold text-foreground">
-              {currentSection?.code === "LANGUAGE_VOCAB" && "Kanji - Từ vựng"}
-              {currentSection?.code === "LANGUAGE_GRAMMAR_READING" && "Ngữ pháp - Đọc hiểu"}
+          </Badge>
+          
+          <div className="hidden lg:flex flex-col">
+            <h1 className="font-bold text-sm leading-none text-foreground">
+              {currentSection?.code === "LANGUAGE_VOCAB" && "Kiến thức (Từ vựng/Kanji)"}
+              {currentSection?.code === "LANGUAGE_GRAMMAR_READING" && "Ngữ pháp/Đọc hiểu"}
               {currentSection?.code === "LISTENING" && "Nghe hiểu"}
               {!currentSection && "Phần thi JLPT"}
             </h1>
-            {PART_TOTAL > 0 && (
-              <span className="text-xs text-muted-foreground">
-                Phần {PART_NUMBER}/{PART_TOTAL}
-              </span>
-            )}
-            <span className="text-xs text-muted-foreground">
-              {Object.keys(selectedOptionByTemplateQuestionId).filter(k =>
-                sectionQuestions.some(sq => sq.id === k) && selectedOptionByTemplateQuestionId[k]
-              ).length}/{QUESTION_COUNT} câu
-            </span>
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                Phần thi {PART_NUMBER} của {PART_TOTAL}
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 text-xl font-semibold text-foreground">
-          <Clock className="w-5 h-5" />
-          <span>{countdown}</span>
+        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full border border-border/50">
+          <Clock className="size-3.5 text-primary" />
+          <span className="text-base font-bold tabular-nums text-foreground">{countdown}</span>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-2">
           <Button
-            className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md flex items-center text-sm font-medium transition-colors shadow-none"
+            size="sm"
+            className="rounded-xl h-9 px-4 font-bold bg-primary hover:bg-primary/90 text-white shadow-sm"
             onClick={() => setShowConfirmSubmit(true)}
             disabled={loading || sectionQuestionsSorted.length === 0}
           >
-            <Send className="w-4 h-4 mr-2" />
-            {isLastSection ? "Nộp bài" : `Nộp phần ${PART_NUMBER}`}
+            <Send className="size-3.5 mr-2 hidden sm:inline" />
+            <span>{isLastSection ? "Nộp bài" : "Tiếp theo"}</span>
           </Button>
           <Button
-            variant="outline"
-            className="px-4 py-2 rounded-md flex items-center text-sm font-medium transition-colors"
+            variant="ghost"
+            size="icon"
+            className="rounded-lg h-9 w-9 text-muted-foreground"
             onClick={() => setShowConfirmExit(true)}
             disabled={loading}
           >
-            <Maximize2 className="w-4 h-4 mr-2" />
-            Thoát
+            <Maximize2 className="size-4" />
           </Button>
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-[280px] bg-card border-r border-border flex flex-col overflow-y-auto">
-          <div className="p-6 space-y-8">
-            <section>
-              <h2 className="text-xs font-bold text-muted-foreground tracking-wider mb-4 uppercase">
-                PHẦN THI
-              </h2>
-              <nav className="space-y-1">
-                {MONDAI_SECTIONS.map((m, index) => (
-                  <button
-                    key={`${m.mondaiId ?? "null"}-${index}`}
-                    type="button"
-                    className={`block w-full text-left p-3 rounded-lg transition-colors ${(m.mondaiId ?? null) === activeMondaiId
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "hover:bg-accent"
-                      }`}
-                    onClick={() => {
-                      setActiveMondaiId(m.mondaiId)
-                      setActiveMondaiIndex(index)
-                      setActiveMondaiCode(m.mondaiCode ?? null)
-                    }}
-                  >
-                    <p className="font-bold text-sm">
-                      {m.title}
-                    </p>
-                    <p
-                      className={`text-xs ${(m.mondaiId ?? null) === activeMondaiId
-                        ? "opacity-90"
-                        : "text-muted-foreground"
-                        }`}
-                    >
-                      {m.description}
-                    </p>
-                  </button>
-                ))}
-              </nav>
-            </section>
-
-            <section>
-              <h2 className="text-xs font-bold text-muted-foreground tracking-wider mb-4 uppercase">
-                CÂU HỎI
-              </h2>
-              <div className="grid grid-cols-7 gap-1">
-                {sectionQuestionsSorted.map((q, idx) => {
-                  const num = idx + 1
-                  const isActive = q.id === activeQuestionTemplateId
-                  const isAnswered = selectedOptionByTemplateQuestionId[q.id] != null
-                  return (
-                    <button
-                      key={q.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveQuestionTemplateId(q.id)
-                        const targetMondaiCode = q.mondai?.code ?? null
-                        const mondaiItem = MONDAI_SECTIONS.find(
-                          (m) => (m.mondaiCode ?? null) === targetMondaiCode,
-                        )
-                        if (mondaiItem) {
-                          setActiveMondaiId(mondaiItem.mondaiId)
-                          setActiveMondaiIndex(mondaiItem.orderIndex)
-                          setActiveMondaiCode(mondaiItem.mondaiCode ?? null)
-                        }
-                      }}
-                      className={`w-full aspect-square text-[10px] flex items-center justify-center border rounded hover:transition-colors transition-colors ${isActive
-                        ? "border-primary bg-primary/10 text-primary"
-                        : isAnswered
-                          ? "border-primary/40 bg-primary/5 text-primary"
-                          : "border-border text-muted-foreground hover:bg-primary/5 hover:text-primary"
-                        }`}
-                    >
-                      {num}
-                    </button>
-                  )
-                })}
-              </div>
-            </section>
-          </div>
-
-          <div className="mt-auto p-4 flex justify-start">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-          </div>
+      <div className="flex-1 flex overflow-hidden">
+        <aside className="hidden md:flex w-72 lg:w-80 border-r bg-muted/5 flex-col shrink-0">
+          <SidebarContent />
         </aside>
 
-        <main className="flex-1 overflow-y-auto bg-background p-8 relative">
-          <div className="max-w-4xl mx-auto space-y-6 pb-24">
-            {currentSection?.isListening && (
-              <ListeningPlayer audioUrl={audioUrl} autoPlay />
-            )}
-
-            <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-6">
-              <p className="text-foreground font-medium">
-                {`問題${activeMondaiIndex + 1}　＿＿＿${activeProblemInstruction}`}
-              </p>
+        <main className="flex-1 overflow-y-auto bg-zinc-50/50">
+          <div className="max-w-3xl mx-auto p-4 sm:p-12 space-y-12 pb-40">
+            
+            <div className="space-y-3">
+                <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
+                    <span>Tiến độ</span>
+                    <span>{ANSWERED_COUNT}/{QUESTION_COUNT} câu</span>
+                </div>
+                <Progress value={PROGRESS_VALUE} className="h-1 bg-muted rounded-full overflow-hidden" />
             </div>
 
+            {currentSection?.isListening && (
+                <Card className="border-primary/20 bg-primary/5 rounded-2xl overflow-hidden shadow-none mb-8">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <Volume2 className="size-4" />
+                            </div>
+                            <h3 className="font-bold text-base">Nghe hiểu</h3>
+                        </div>
+                        <ListeningPlayer audioUrl={audioUrl} autoPlay />
+                    </CardContent>
+                </Card>
+            )}
+
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-5 border-border/50 text-muted-foreground">Hướng dẫn</Badge>
+                </div>
+                <p className="text-xl font-bold leading-relaxed Japanese-text text-foreground/90">
+                    {`問題${activeMondaiIndex + 1} ＿＿＿ ${activeProblemInstruction}`}
+                </p>
+            </div>
+
+            <div className="space-y-8">
             {QUESTION_BLOCKS.map((q) => (
-              <div
-                key={q.id}
-                className="bg-card border border-border rounded-xl shadow-sm p-8 space-y-6"
-              >
+              <div key={q.id} className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center border-2 border-foreground rounded-md font-bold">
-                    {q.id}
-                  </span>
-                  <p className="text-xl text-foreground">
-                    {q.sentence}
-                  </p>
+                    <div className="shrink-0 size-8 rounded-lg bg-foreground text-white flex items-center justify-center font-bold text-sm shadow-sm ring-4 ring-foreground/5">
+                        {q.id}
+                    </div>
+                    <div className="flex-1 pt-0.5 Japanese-text">
+                        {q.sentence}
+                    </div>
                 </div>
 
                 {activeMondaiQuestions.find(amq => amq.id === q.templateQuestionId)?.question.imageAssetId && (
-                  <div className="ml-12 mb-6 border rounded-lg overflow-hidden bg-accent/20">
-                    <img
-                      src={questionImageUrls[q.templateQuestionId]}
-                      alt="Question Content"
-                      className="max-w-full h-auto object-contain mx-auto"
-                    />
-                  </div>
+                    <div className="sm:ml-12 rounded-xl overflow-hidden border border-border bg-white p-1">
+                        <img
+                            src={questionImageUrls[q.templateQuestionId]}
+                            alt="Question context"
+                            className="max-w-full h-auto object-contain mx-auto rounded-lg"
+                        />
+                    </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-12">
-                  {q.options.map((opt, index) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => handleSelectOption(q.templateQuestionId, opt.id)}
-                      aria-pressed={selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id}
-                      className={`option-card border rounded-lg p-4 text-left transition-all flex items-center space-x-3 group bg-card ${selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border"
-                        }`}
-                    >
-                      <span
-                        className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs ${selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
-                          }`}
-                      >
-                        {index + 1}
-                      </span>
-                      <span>{opt.label}</span>
-                    </button>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:ml-12">
+                    {q.options.map((opt, index) => (
+                        <button
+                            key={opt.id}
+                            type="button"
+                            className={cn(
+                                "flex items-center gap-4 w-full h-auto py-4 px-5 rounded-xl border-2 text-left transition-all",
+                                selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id 
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm" 
+                                    : "border-border/50 bg-white hover:border-primary/30 hover:bg-muted/30"
+                            )}
+                            onClick={() => handleSelectOption(q.templateQuestionId, opt.id)}
+                        >
+                            <span className={cn(
+                                "shrink-0 size-6 rounded-lg flex items-center justify-center font-bold text-[11px] border",
+                                selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id 
+                                    ? "bg-primary text-white border-primary" 
+                                    : "bg-muted text-muted-foreground border-transparent"
+                            )}>
+                                {index + 1}
+                            </span>
+                            <span className="text-base font-semibold Japanese-text flex-1">
+                                {opt.label}
+                            </span>
+                        </button>
+                    ))}
                 </div>
+                <Separator className="sm:ml-12 opacity-50" />
               </div>
             ))}
+            </div>
           </div>
         </main>
       </div>
 
-      {/* Confirm submit */}
       <AlertDialog open={showConfirmSubmit} onOpenChange={setShowConfirmSubmit}>
-        <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden border-none bg-transparent shadow-none">
-          <div className="bg-background border rounded-[2rem] overflow-hidden shadow-2xl">
-            <div className="p-8 text-center space-y-6">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-primary" />
-              </div>
-
-              <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-normal">
-                  {isLastSection ? "Xác nhận nộp bài" : `Xác nhận nộp phần ${PART_NUMBER}`}
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
-                  {isLastSection
-                    ? "Bạn có chắc chắn muốn kết thúc bài thi này không? Hành động này không thể hoàn tác."
-                    : "Bạn có chắc chắn muốn nộp phần thi hiện tại không? Phần tiếp theo sẽ được kích hoạt trong cùng attempt."}
-                </AlertDialogDescription>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <AlertDialogCancel className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] border-2 hover:bg-muted transition-all active:scale-95">
-                  Hủy
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={confirmSubmit}
-                  disabled={loading}
-                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
-                >
-                  {isLastSection ? "Nộp bài" : `Nộp phần ${PART_NUMBER}`}
-                </AlertDialogAction>
-              </div>
+        <AlertDialogContent className="rounded-2xl max-w-sm">
+          <AlertDialogHeader>
+            <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+                <Send className="size-8 text-primary" />
             </div>
-          </div>
+            <AlertDialogTitle className="text-center text-xl font-bold">
+                {isLastSection ? "Xác nhận nộp bài toàn bộ?" : `Nộp phần thi ${PART_NUMBER}?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-sm font-medium">
+                Bạn đã hoàn thành các câu hỏi trong phần này. {isLastSection ? "Toàn bộ bài thi sẽ được gửi đi để chấm điểm." : "Bạn sẽ được chuyển sang phần thi tiếp theo."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3 pt-4">
+            <AlertDialogCancel className="flex-1 h-12 rounded-xl font-bold mt-0 border-zinc-200">Quay lại</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmSubmit}
+              disabled={loading}
+              className="flex-1 h-12 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+            >
+              Nộp ngay
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Confirm next section */}
       <AlertDialog open={showConfirmNextSection} onOpenChange={setShowConfirmNextSection}>
-        <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden border-none bg-transparent shadow-none">
-          <div className="bg-background border rounded-[2rem] overflow-hidden shadow-2xl">
-            <div className="p-8 text-center space-y-6">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-primary" />
-              </div>
-
-              <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-normal">
-                  Tiến hành phần thi tiếp theo?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
-                  Bạn sẽ bắt đầu phần tiếp theo ngay. Nếu quay lại, attempt vẫn được giữ lại.
-                </AlertDialogDescription>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <AlertDialogCancel
-                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] border-2 hover:bg-muted transition-all active:scale-95"
-                  onClick={() => {
-                    setShowConfirmNextSection(false)
-                    goBackToLevel()
-                  }}
-                >
-                  Quay lại
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    setShowConfirmNextSection(false)
-                    if (pendingNextSectionOrder == null) return
-                    setCurrentSectionOrder(pendingNextSectionOrder)
-                    setEndsAtIsoState(pendingNextEndsAtIso)
-                  }}
-                  disabled={loading || pendingNextSectionOrder == null}
-                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
-                >
-                  Bắt đầu
-                </AlertDialogAction>
-              </div>
+        <AlertDialogContent className="rounded-2xl max-w-sm">
+          <AlertDialogHeader>
+            <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+                <Activity className="size-8 text-primary" />
             </div>
+            <AlertDialogTitle className="text-center text-xl font-bold">Chuyển sang phần thi mới</AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-sm font-medium">
+                Bạn đã nộp thành công phần thi vừa rồi. Bạn sẵn sàng chuyển sang phần thi tiếp theo ngay bây giờ chứ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="grid grid-cols-2 gap-3 pt-4 px-6 pb-6">
+            <Button
+                variant="outline"
+                className="h-12 rounded-xl font-bold border-zinc-200"
+                onClick={() => {
+                setShowConfirmNextSection(false)
+                goBackToLevel()
+                }}
+            >
+                Để sau
+            </Button>
+            <Button
+                onClick={() => {
+                setShowConfirmNextSection(false)
+                if (pendingNextSectionOrder == null) return
+                setCurrentSectionOrder(pendingNextSectionOrder)
+                setEndsAtIsoState(pendingNextEndsAtIso)
+                }}
+                disabled={loading || pendingNextSectionOrder == null}
+                className="h-12 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+            >
+                Bắt đầu
+            </Button>
           </div>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Confirm exit */}
       <AlertDialog open={showConfirmExit} onOpenChange={setShowConfirmExit}>
-        <AlertDialogContent className="max-w-[400px] p-0 overflow-hidden border-none bg-transparent shadow-none">
-          <div className="bg-background border rounded-[2rem] overflow-hidden shadow-2xl">
-            <div className="p-8 text-center space-y-6">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <AlertCircle className="w-8 h-8 text-primary" />
-              </div>
-
-              <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-normal">
-                  Thoát bài thi?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
-                  Bạn có chắc chắn muốn thoát khỏi bài thi không? Tiến trình hiện tại sẽ bị bỏ qua.
-                </AlertDialogDescription>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <AlertDialogCancel className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] border-2 hover:bg-muted transition-all active:scale-95">
-                  Quay lại
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    setShowConfirmExit(false)
-                    confirmExit()
-                  }}
-                  disabled={loading}
-                  className="h-12 rounded-xl font-bold uppercase tracking-widest text-[11px] bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
-                >
-                  Thoát
-                </AlertDialogAction>
-              </div>
+        <AlertDialogContent className="rounded-2xl max-w-sm">
+          <AlertDialogHeader>
+            <div className="mx-auto size-16 bg-destructive/10 rounded-2xl flex items-center justify-center mb-4 text-destructive">
+                <AlertCircle className="size-8" />
             </div>
-          </div>
+            <AlertDialogTitle className="text-center text-xl font-bold">Thoát bài thi này?</AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-sm font-medium">
+                Tiến trình làm bài của bạn sẽ được lưu lại (nhưng thời gian dự kiến vẫn có thể tiếp tục trôi tùy theo thiết lập đề thi).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3 pt-4">
+            <AlertDialogCancel className="flex-1 h-12 rounded-xl font-bold mt-0 border-zinc-200">Quay lại</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowConfirmExit(false)
+                confirmExit()
+              }}
+              disabled={loading}
+              className="flex-1 h-12 rounded-xl font-bold bg-destructive text-white hover:bg-destructive/90"
+            >
+              Thoát ra
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
   )
 }
-

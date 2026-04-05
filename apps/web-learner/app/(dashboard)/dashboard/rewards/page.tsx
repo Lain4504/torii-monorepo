@@ -63,23 +63,21 @@ export default function RewardsPage() {
     }
 
     return (
-        <div className="space-y-10 animate-in fade-in duration-500">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-2">
-                <div>
+        <div className="space-y-8 animate-in fade-in duration-700 pb-8">
+            {/* Standard Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border">
+                <div className="space-y-4">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Cửa hàng quà tặng</h1>
-                    <p className="text-muted-foreground mt-2">Dùng điểm tích lũy để đổi lấy các ưu đãi đặc quyền.</p>
+                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
+                        Dùng điểm tích lũy để đổi lấy các ưu đãi đặc quyền từ Torii Academy.
+                    </p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="bg-primary/5 border border-primary/10 rounded-xl px-6 py-4 flex items-center gap-4 shadow-sm">
-                        <div className="size-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                            <Star className="size-6 text-primary fill-primary" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Điểm hiện có</p>
-                            <p className="text-2xl font-bold text-primary">{formatNumber(profile?.points) || 0} Points</p>
-                        </div>
+                <div className="flex items-center gap-3 bg-muted/30 border border-border/40 px-4 py-2 rounded-xl">
+                    <Star className="size-4 text-primary fill-primary/10" />
+                    <div>
+                        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-none">Điểm hiện có</p>
+                        <p className="text-xl font-bold text-primary tabular-nums">{formatNumber(profile?.points) || 0} POINTS</p>
                     </div>
                 </div>
             </div>
@@ -91,34 +89,29 @@ export default function RewardsPage() {
                         reward.name.toLowerCase().includes('bùa bảo vệ chuỗi');
 
                     return (
-                        <Card key={reward.id} className={cn(
-                            "relative overflow-hidden group hover:shadow-xl transition-all duration-300 border-border/50 flex flex-col h-full",
-                            isStreakFreeze && "hover:border-blue-500/50"
-                        )}>
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                {isStreakFreeze ? <Snowflake className="size-16" /> : <Gift className="size-16" />}
-                            </div>
-
-                            <CardHeader className="flex-1">
+                        <Card key={reward.id} className="relative transition-colors duration-300 border-border/40 flex flex-col h-full bg-card rounded-2xl shadow-none hover:bg-muted/5 group">
+                            <CardHeader className="flex-1 space-y-4">
                                 <div className={cn(
-                                    "size-10 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform",
-                                    isStreakFreeze ? "bg-blue-500/10" : "bg-primary/10"
+                                    "size-10 rounded-xl flex items-center justify-center border border-border/40",
+                                    isStreakFreeze ? "bg-blue-500/5 text-blue-500/60" : "bg-primary/5 text-primary/60"
                                 )}>
                                     {isStreakFreeze ? (
-                                        <Snowflake className="size-5 text-blue-500" />
+                                        <Snowflake className="size-5" />
                                     ) : (
-                                        reward.config?.discountType === 'PERCENTAGE' ? <TrendingUp className="size-5 text-primary" /> : <Ticket className="size-5 text-primary" />
+                                        reward.config?.discountType === 'PERCENTAGE' ? <TrendingUp className="size-5" /> : <Ticket className="size-5" />
                                     )}
                                 </div>
-                                <CardTitle className="text-xl line-clamp-1" title={reward.name}>{reward.name}</CardTitle>
-                                <CardDescription className="line-clamp-2 min-h-[40px] mt-1.5 leading-snug" title={reward.description || undefined}>{reward.description}</CardDescription>
-                                <div className="flex flex-wrap gap-2 mt-2">
+                                <div className="space-y-1.5">
+                                    <CardTitle className="text-xl font-bold tracking-tight uppercase line-clamp-1" title={reward.name}>{reward.name}</CardTitle>
+                                    <CardDescription className="text-xs font-medium text-muted-foreground/50 leading-relaxed uppercase tracking-tight line-clamp-2 min-h-[40px]" title={reward.description || undefined}>{reward.description}</CardDescription>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
                                     {reward.config?.minOrderValue ? (
-                                        <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                            Đơn tối thiểu: {formatCurrency(reward.config.minOrderValue)}
+                                        <Badge variant="outline" className="px-2 py-0 border-primary/20 text-primary/60 rounded-md font-bold text-[9px] uppercase tracking-widest leading-none">
+                                            Min: {formatCurrency(reward.config.minOrderValue)}
                                         </Badge>
                                     ) : isStreakFreeze ? (
-                                        <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal bg-blue-50 text-blue-600 border-none">
+                                        <Badge variant="outline" className="px-2 py-0 border-blue-500/20 text-blue-500/60 rounded-md font-bold text-[9px] uppercase tracking-widest leading-none">
                                             Vật phẩm bảo vệ
                                         </Badge>
                                     ) : null}
@@ -126,21 +119,21 @@ export default function RewardsPage() {
                             </CardHeader>
 
                             <CardContent>
-                                <div className="flex items-center gap-2 text-primary font-bold">
-                                    <Star className="size-4 fill-primary" />
-                                    <span>{formatNumber(reward.costPoints)} Points</span>
+                                <div className="flex items-center gap-2 text-primary/60 font-bold text-[11px] uppercase tracking-widest font-mono">
+                                    <Star className="size-3.5 fill-primary/10" />
+                                    <span>{formatNumber(reward.costPoints)} POINTS</span>
                                 </div>
                             </CardContent>
 
                             <CardFooter>
                                 <Button
-                                    className="w-full"
-                                    variant={(profile?.points || 0) >= reward.costPoints ? (isStreakFreeze ? "outline" : "default") : "outline"}
+                                    className="w-full h-11 rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-none transition-all"
+                                    variant={(profile?.points || 0) >= reward.costPoints ? "default" : "outline"}
                                     disabled={(profile?.points || 0) < reward.costPoints || redeemMutation.isPending}
                                     onClick={() => handleRedeemClick(reward)}
                                 >
                                     {(profile?.points || 0) >= reward.costPoints ? 'Đổi ngay' : 'Chưa đủ điểm'}
-                                    <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="ml-2 size-3.5" />
                                 </Button>
                             </CardFooter>
                         </Card>

@@ -20,6 +20,7 @@ export * from './guards/subscription.guard';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';
+export * from './utils/user-agent';
 
 /**
  * Utils module

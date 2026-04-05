@@ -51,7 +51,9 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
             </div>
 
             <div className="space-y-4">
-                {profile.modules.map((module: any) => {
+                {[...(profile.modules ?? [])]
+                    .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                    .map((module: any) => {
                     const isExpanded = !!expandedModules[module.id]
                     return (
                         <Card key={module.id} className="overflow-hidden">
@@ -84,7 +86,9 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
                             {isExpanded && (
                                 <CardContent className="pt-0 pb-4">
                                     <div className="space-y-1 mt-2 border-t pt-2">
-                                        {module.lessons?.map((lesson: any) => (
+                                        {[...(module.lessons ?? [])]
+                                            .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                                            .map((lesson: any) => (
                                             <div
                                                 key={lesson.id}
                                                 className="flex items-center justify-between gap-3 rounded-md px-3 py-2 hover:bg-muted/50"

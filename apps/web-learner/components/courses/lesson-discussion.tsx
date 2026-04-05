@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { FEATURE_FLAGS } from '@/lib/feature-flags'
 import { useAppSelector } from '@/hooks/hooks'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '@/lib/api/services/comment-api'
@@ -23,7 +22,6 @@ import {
     Trash2
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
-import { Input } from '@workspace/ui/components/input'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
@@ -50,6 +48,12 @@ import {
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { cn } from '@workspace/ui/lib/utils'
+import { Separator } from '@workspace/ui/components/separator'
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@workspace/ui/components/collapsible"
 
 interface LessonDiscussionProps {
     classId: string
@@ -107,6 +111,7 @@ function useDeleteDiscussion() {
     })
 }
 
+
 export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const { data: discussions, isLoading, isError } = useDiscussions(lessonId, classId)
@@ -115,323 +120,186 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
     const deleteDiscussion = useDeleteDiscussion()
 
     const [isCreating, setIsCreating] = useState(false)
-    const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null)
     const [editingTopicId, setEditingTopicId] = useState<string | null>(null)
     const [editContent, setEditContent] = useState('')
 
     const handleCreateTopic = async () => {
-        if (!content.trim()) {
-            toast.error('Vui lòng nhập nội dung câu hỏi')
-            return
-        }
-
-        if (!isAuthenticated) {
-            toast.error('Vui lòng đăng nhập để đặt câu hỏi')
-            return
-        }
-
+        if (!content.trim() || !isAuthenticated) return;
         try {
-            await createDiscussion.mutateAsync({
-                content: content.trim(),
-                classId,
-                moduleId,
-                lessonId,
-                category: 'QUESTION'
-            })
-
-            setContent('')
-            setIsCreating(false)
-            toast.success('Đã gửi câu hỏi thành công')
+            await createDiscussion.mutateAsync({ content: content.trim(), classId, moduleId, lessonId, category: 'QUESTION' })
+            setContent(''); setIsCreating(false);
+            toast.success('Gửi câu hỏi thành công! 🚀')
         } catch (error: any) {
-            console.error('Failed to create discussion:', error)
-            toast.error('Không thể gửi câu hỏi. Vui lòng thử lại.')
+            toast.error('Gửi câu hỏi thất bại.')
         }
     }
 
     const handleUpdateTopic = async (id: string) => {
-        if (!editContent.trim()) {
-            toast.error('Vui lòng nhập nội dung câu hỏi')
-            return
-        }
-
+        if (!editContent.trim()) return;
         try {
             await updateDiscussion.mutateAsync({ id, content: editContent.trim() })
-            setEditingTopicId(null)
-            setEditContent('')
-            toast.success('Đã cập nhật câu hỏi thành công')
+            setEditingTopicId(null); setEditContent('');
+            toast.success('Cập nhật thành công.')
         } catch (error: any) {
-            console.error('Failed to update discussion:', error)
-            toast.error('Không thể cập nhật câu hỏi. Vui lòng thử lại.')
+            toast.error('Lỗi khi cập nhật.')
         }
     }
 
     const handleDeleteTopic = async (id: string) => {
         try {
             await deleteDiscussion.mutateAsync(id)
-            toast.success('Đã xóa câu hỏi thành công')
+            toast.success('Đã xóa thảo luận.')
         } catch (error: any) {
-            console.error('Failed to delete discussion:', error)
-            toast.error('Không thể xóa câu hỏi. Vui lòng thử lại.')
+            toast.error('Lỗi khi xóa.')
         }
     }
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <Spinner className="size-8 text-primary" />
-                <p className="text-sm text-muted-foreground font-medium">Đang tải thảo luận...</p>
-            </div>
-        )
-    }
-
-    if (isError) {
-        return (
-            <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 rounded-lg border border-destructive/20 bg-destructive/5">
-                <AlertCircle className="size-10 text-destructive/50" />
-                <div className="space-y-1">
-                    <p className="text-base font-bold text-foreground">Không thể tải nội dung thảo luận</p>
-                    <p className="text-sm text-muted-foreground">Vui lòng làm mới trang hoặc thử lại sau</p>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                    Thử lại
-                </Button>
-            </div>
-        )
-    }
+    if (isLoading) return (
+        <div className="flex flex-col items-center justify-center py-20 space-y-6">
+            <Spinner className="size-6 text-primary" />
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground animate-pulse">Linh hồn thảo luận đang tập hợp...</p>
+        </div>
+    )
 
     const topics = discussions?.data || []
 
     return (
-        <div className="space-y-8 pb-10">
-            {/* Header & New Question Action */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                    <h3 className="text-xl font-bold tracking-normal text-foreground flex items-center gap-2.5">
-                        <MessageSquare className="size-5 text-primary" />
-                        Hỏi đáp bài học
-                        <Badge variant="secondary" className="ml-1 font-bold">
+        <div className="max-w-4xl mx-auto space-y-16 pb-20">
+            {/* ── HEADER ─────────────────────────────────────────── */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 pb-8 border-b border-border/40">
+                <div className="space-y-3">
+                    <div className="flex items-center gap-4">
+                        <h3 className="text-3xl sm:text-4xl font-black tracking-tight uppercase">Thảo luận</h3>
+                        <Badge variant="outline" className="rounded-full bg-primary/5 text-primary border-primary/20 px-3 h-6 text-[11px] font-black">
                             {topics.length}
                         </Badge>
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                        Nơi trao đổi, giải đáp thắc mắc về nội dung bài học.
-                    </p>
+                    </div>
+                    <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed">Kết nối trí tuệ — Giải đáp thắc mắc</p>
                 </div>
 
                 {!isCreating && (
-                    <Button onClick={() => setIsCreating(true)} className="gap-2 shrink-0">
-                        <Plus className="size-4" /> Đặt câu hỏi mới
+                    <Button 
+                        onClick={() => setIsCreating(true)} 
+                        className="rounded-full px-10 h-12 gap-3 bg-foreground text-background hover:bg-foreground/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-2xl active:scale-95"
+                    >
+                        <Plus className="size-4" /> Đặt câu hỏi
                     </Button>
                 )}
             </div>
 
-            {/* Create Question Form */}
+            {/* ── CREATE QUESTION ─────────────────────────────────── */}
             {isCreating && (
-                <Card className="border-primary/20 bg-primary/5 animate-in fade-in slide-in-from-top-4 duration-300 overflow-hidden">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-base">Đặt câu hỏi mới</CardTitle>
-                        <CardDescription>Mô tả chi tiết thắc mắc của bạn để nhận được phản hồi chính xác nhất.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Nội dung câu hỏi</label>
-                            <Textarea
-                                placeholder="Hãy mô tả chi tiết thắc mắc của bạn..."
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                className="min-h-[120px] bg-background border-border/40 focus:border-primary/40 transition-all resize-none p-4"
-                            />
-                        </div>
-                        <div className="flex items-center justify-end gap-3 pt-2">
-                            <Button variant="ghost" size="sm" onClick={() => setIsCreating(false)} className="font-bold text-xs uppercase tracking-widest">
-                                Hủy bỏ
-                            </Button>
-                            <Button
-                                size="sm"
-                                onClick={handleCreateTopic}
-                                disabled={createDiscussion.isPending || !content.trim()}
-                                className="gap-2 font-bold text-xs uppercase tracking-widest px-6"
-                            >
-                                {createDiscussion.isPending ? <Spinner className="size-3" /> : <Send className="size-3" />}
-                                Gửi câu hỏi
-                            </Button>
+                <Card className="border-none shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden bg-muted/30 rounded-3xl animate-in fade-in slide-in-from-top-6 duration-700">
+                    <CardContent className="p-8 space-y-6">
+                        <Textarea
+                            placeholder="Vấn đề bạn đang gặp phải là gì?"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            className="min-h-[160px] bg-background border-none focus-visible:ring-0 transition-all resize-none p-6 text-base font-medium leading-relaxed rounded-2xl shadow-inner italic"
+                            autoFocus
+                        />
+                        <div className="flex items-center justify-end gap-4">
+                            <Button variant="ghost" onClick={() => setIsCreating(false)} className="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-transparent">Hủy bỏ</Button>
+                            <Button onClick={handleCreateTopic} disabled={createDiscussion.isPending || !content.trim()} className="rounded-full px-12 h-12 font-black text-[10px] uppercase tracking-[0.2em] shadow-xl">Gửi thảo luận</Button>
                         </div>
                     </CardContent>
                 </Card>
             )}
 
-            {/* List of Discussions */}
+            {/* ── TOPICS LIST ─────────────────────────────────────── */}
             <div className="space-y-4">
                 {topics.length === 0 ? (
-                    <div className="py-16 flex flex-col items-center justify-center text-center bg-muted/20 rounded-xl border border-dashed border-border/50">
-                        <div className="size-16 bg-background rounded-full flex items-center justify-center border shadow-sm mb-4">
-                            <MessageCircle className="size-8 text-muted-foreground/30" />
+                    <div className="py-24 text-center space-y-8 animate-in fade-in duration-1000">
+                        <div className="size-24 rounded-[3rem] bg-muted/20 flex items-center justify-center mx-auto border-2 border-dashed border-border/60">
+                            <MessageCircle className="size-10 text-muted-foreground/20" />
                         </div>
-                        <p className="text-base font-bold text-foreground/70 mb-1">Chưa có thảo luận nào</p>
-                        <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
-                            Hãy là người đầu tiên đặt câu hỏi để nhận được sự giải đáp từ giảng viên.
-                        </p>
-                        {!isCreating && (
-                            <Button variant="outline" size="sm" onClick={() => setIsCreating(true)} className="gap-2">
-                                <Plus className="size-4" /> Đặt câu hỏi đầu tiên
-                            </Button>
-                        )}
+                        <div className="space-y-2">
+                            <p className="text-xl font-black tracking-tight">Chưa có ai lên tiếng</p>
+                            <p className="text-sm text-muted-foreground/60 font-bold uppercase tracking-tighter">Hãy là người đầu tiên khơi mào cho bài học này.</p>
+                        </div>
                     </div>
                 ) : (
-                    topics.map((topic) => (
-                        <Card
-                            key={topic.id}
-                            className={cn(
-                                "group border-border/40 hover:border-primary/30 transition-all duration-300 overflow-hidden",
-                                expandedTopicId === topic.id ? "ring-1 ring-primary/20 shadow-lg translate-y-[-2px]" : "hover:bg-muted/5"
-                            )}
-                        >
-                            <CardHeader
-                                className="cursor-pointer p-6 select-none"
-                                onClick={() => setExpandedTopicId(expandedTopicId === topic.id ? null : topic.id)}
+                    topics.map((topic, index) => (
+                        <div key={topic.id} className="group">
+                            <Collapsible
+                                open={expandedTopicId === topic.id}
+                                onOpenChange={() => setExpandedTopicId(expandedTopicId === topic.id ? null : topic.id)}
                             >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1 flex gap-4 min-w-0">
-                                        <Avatar className="size-10 border border-border/60 shrink-0">
+                                <div className={cn(
+                                    "relative py-10 px-6 transition-all duration-700 rounded-[2.5rem]",
+                                    expandedTopicId === topic.id ? "bg-muted/40 ring-1 ring-border/40" : "hover:bg-muted/20"
+                                )}>
+                                    <div className="flex items-start gap-6">
+                                        <Avatar className="size-12 border-2 border-background shadow-xl shrink-0">
                                             <AvatarImage src={topic.author?.avatarUrl || undefined} />
-                                            <AvatarFallback className="bg-muted text-muted-foreground">
-                                                <User className="size-5" />
-                                            </AvatarFallback>
+                                            <AvatarFallback className="bg-primary/5 text-primary font-black text-xs">{(topic.author?.displayName || 'U')[0]}</AvatarFallback>
                                         </Avatar>
-                                        <div className="flex-1 space-y-1.5 min-w-0">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <span className={cn("text-sm font-bold truncate", (topic.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE) ? "text-primary" : "text-foreground/90")}>
-                                                    {topic.author?.displayName || 'Unknown Student'}
+
+                                        <div className="flex-1 min-w-0 space-y-4">
+                                            <div className="flex items-center gap-3 flex-wrap">
+                                                <span className={cn("text-xs font-black uppercase tracking-widest", topic.isOfficialReply ? "text-primary" : "text-foreground")}>
+                                                    {topic.author?.displayName || 'Unknown Warrior'}
                                                 </span>
-                                                {topic.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE && (
-                                                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-bold uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
-                                                        <Shield className="size-2.5 fill-current" />
-                                                        {topic.authorRoleLabel || 'Torii Support'}
-                                                    </Badge>
+                                                {topic.isOfficialReply && topic.authorRoleLabel && (
+                                                    <Badge className="bg-foreground text-background border-none text-[8px] font-black uppercase tracking-tighter px-2 h-4">Verified Source</Badge>
                                                 )}
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 flex items-center gap-1.5 shrink-0">
-                                                    <Clock className="size-3" />
-                                                    {formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })}
-                                                </span>
+                                                <span className="text-[10px] font-mono font-bold text-muted-foreground/40 uppercase tracking-tighter">{formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })}</span>
                                             </div>
+
                                             {editingTopicId === topic.id ? (
-                                                <div className="w-full space-y-4 mt-3" onClick={(e) => e.stopPropagation()}>
+                                                <div className="space-y-4 pt-2">
                                                     <Textarea
-                                                        value={editContent}
-                                                        onChange={(e) => setEditContent(e.target.value)}
-                                                        className="w-full min-h-[140px] bg-background border-primary/20 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all shadow-sm resize-none p-5 text-sm leading-relaxed"
-                                                        placeholder="Chỉnh sửa nội dung thảo luận..."
+                                                        value={editContent} onChange={(e) => setEditContent(e.target.value)}
+                                                        className="min-h-[140px] bg-background border-none focus-visible:ring-1 ring-primary/20 p-6 text-sm rounded-[2rem] shadow-sm italic"
                                                         autoFocus
                                                     />
                                                     <div className="flex items-center justify-end gap-3">
-                                                        <Button 
-                                                            variant="ghost" 
-                                                            size="sm" 
-                                                            onClick={() => {
-                                                                setEditingTopicId(null)
-                                                                setEditContent('')
-                                                            }}
-                                                            className="font-bold text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground"
-                                                        >
-                                                            Hủy bỏ
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => handleUpdateTopic(topic.id)}
-                                                            disabled={updateDiscussion.isPending || !editContent.trim()}
-                                                            className="gap-2 font-bold text-xs uppercase tracking-widest px-6"
-                                                        >
-                                                            {updateDiscussion.isPending ? <Spinner className="size-3" /> : <Send className="size-3" />}
-                                                            Lưu thay đổi
-                                                        </Button>
+                                                        <Button variant="ghost" onClick={() => setEditingTopicId(null)} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Hủy</Button>
+                                                        <Button onClick={() => handleUpdateTopic(topic.id)} disabled={updateDiscussion.isPending || !editContent.trim()} className="rounded-full px-8 h-10 text-[10px] font-black uppercase tracking-widest">Cập nhật</Button>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <CardTitle className="text-base font-medium text-foreground group-hover:text-primary transition-colors leading-relaxed whitespace-pre-wrap">
-                                                    {topic.content}
-                                                </CardTitle>
+                                                <CollapsibleTrigger asChild>
+                                                    <h4 className="text-lg font-bold leading-relaxed text-foreground/90 cursor-pointer hover:text-primary transition-colors tracking-tight [text-wrap:balance]">
+                                                        {topic.content}
+                                                    </h4>
+                                                </CollapsibleTrigger>
                                             )}
+
+                                            <div className="flex items-center gap-8 pt-2">
+                                                <button
+                                                    onClick={() => setExpandedTopicId(expandedTopicId === topic.id ? null : topic.id)}
+                                                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-primary transition-all group/btn"
+                                                >
+                                                    <MessageCircle className="size-4 group-hover/btn:scale-110 transition-transform" />
+                                                    {expandedTopicId === topic.id ? 'Thu gọn thảo luận' : `${topic.replies?.length || 0} Phản hồi`}
+                                                </button>
+
+                                                {user?.id === topic.author?.id && (
+                                                    <div className="flex items-center gap-4">
+                                                        <button onClick={() => { setEditingTopicId(topic.id); setEditContent(topic.content); }} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-colors">Chỉnh sửa</button>
+                                                        <button onClick={() => { if(confirm('Xác nhận xóa thảo luận này?')) handleDeleteTopic(topic.id); }} className="text-[10px] font-black uppercase tracking-widest text-destructive/40 hover:text-destructive transition-colors">Xóa</button>
+                                                    </div>
+                                                )}
+                                                
+                                                {topic.status === 'ANSWERED' && (
+                                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[8px] font-black uppercase px-2 h-4">Solved</Badge>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-end gap-2 shrink-0">
-                                        <div className="flex items-center gap-3">
-                                            {/* Three dots menu for owner */}
-                                            {user?.id === topic.author?.id && (
-                                                <div onClick={(e) => e.stopPropagation()}>
-                                                    <AlertDialog>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="size-8 rounded-full hover:bg-muted">
-                                                                    <MoreVertical className="size-4 text-muted-foreground" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="w-40">
-                                                                <DropdownMenuItem 
-                                                                    onClick={() => {
-                                                                        setEditingTopicId(topic.id)
-                                                                        setEditContent(topic.content)
-                                                                    }}
-                                                                    className="gap-2"
-                                                                >
-                                                                    <Pencil className="size-3.5" />
-                                                                    <span>Chỉnh sửa</span>
-                                                                </DropdownMenuItem>
-                                                                <AlertDialogTrigger asChild>
-                                                                    <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive focus:bg-destructive/10">
-                                                                        <Trash2 className="size-3.5" />
-                                                                        <span>Xóa câu hỏi</span>
-                                                                    </DropdownMenuItem>
-                                                                </AlertDialogTrigger>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                        
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Xóa câu hỏi này?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    Hành động này không thể hoàn tác. Tất cả các bình luận phản hồi trong câu hỏi này cũng sẽ bị xóa.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Hủy bỏ</AlertDialogCancel>
-                                                                <AlertDialogAction 
-                                                                    onClick={() => handleDeleteTopic(topic.id)}
-                                                                    variant="destructive"
-                                                                >
-                                                                    Xác nhận xóa
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </div>
-                                            )}
-                                            {/* Removed comment icon and count */}
-                                            {expandedTopicId === topic.id ? <ChevronUp className="size-5 text-primary" /> : <ChevronDown className="size-5 text-muted-foreground/50 group-hover:text-primary/50 transition-colors" />}
-                                        </div>
-                                        {topic.status === 'ANSWERED' && (
-                                            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[9px] font-bold uppercase tracking-wider h-5">
-                                                Đã trả lời
-                                            </Badge>
-                                        )}
-                                    </div>
-                                </div>
-                            </CardHeader>
-
-                            {expandedTopicId === topic.id && (
-                                <CardContent className="pt-0 border-t border-border/10 bg-muted/5 animate-in fade-in duration-500">
-                                    <div className="py-6 px-4">
-                                        {/* Replies Section using existing CommentSection.
-                                            Backend enables self-target by topic.id, so the topic + its nested replies will be returned. */}
-                                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                    <CollapsibleContent className="animate-in fade-in slide-in-from-top-4 duration-1000">
+                                        <div className="pt-10 mt-10 border-t border-border/40">
                                             <CommentSection discussionId={topic.id} classId={classId} />
                                         </div>
-                                    </div>
-                                </CardContent>
-                            )}
-                        </Card>
+                                    </CollapsibleContent>
+                                </div>
+                            </Collapsible>
+                            {index < topics.length - 1 && <div className="h-px bg-border/20 mx-10 my-2" />}
+                        </div>
                     ))
                 )}
             </div>

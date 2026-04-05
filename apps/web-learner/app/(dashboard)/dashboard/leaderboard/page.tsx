@@ -26,14 +26,14 @@ export default function LeaderboardPage() {
     const others = leaderboard?.users?.slice(3) || []
 
     return (
-        <div className="animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-700 pb-8">
             <LeaderboardHeader
                 type={leaderboardType}
                 onTypeChange={setLeaderboardType}
             />
 
-            {/* Podium: mobile xếp 1→2→3; md: podium 2 | 1 | 3 */}
-            <div className="mb-8 flex flex-col gap-8 md:mb-12 md:grid md:grid-cols-3 md:items-end md:gap-6">
+            {/* Podium: Always 2 | 1 | 3 podium layout now on all screens */}
+            <div className="mb-8 grid grid-cols-3 items-end gap-1 sm:gap-4 md:mb-12 md:gap-6">
                 {topThree.length >= 2 && (
                     <PodiumCard
                         user={topThree[1]!}

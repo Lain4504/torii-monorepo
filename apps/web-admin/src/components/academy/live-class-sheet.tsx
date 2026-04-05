@@ -316,7 +316,6 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                                   const n = parseInt(raw, 10)
                                   field.onChange(isNaN(n) ? null : n)
                                 }}
-                                className="h-10"
                               />
                               <p className="text-[10px] text-muted-foreground italic">* Mỗi lớp học tối đa 30 học viên theo quy định.</p>
                             </div>
@@ -336,7 +335,6 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                                 min={0}
                                 value={field.value ?? 0}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="h-10"
                               />
                             )}
                           />
@@ -354,7 +352,6 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                                 placeholder="Không giảm"
                                 value={field.value ?? ""}
                                 onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
-                                className="h-10"
                               />
                             )}
                           />
@@ -395,7 +392,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-7 text-[10px] uppercase font-bold gap-1.5"
+                          className="gap-1.5"
                           onClick={() => replace([
                             { weekday: 1, startTime: "18:00", endTime: "20:00" },
                             { weekday: 3, startTime: "18:00", endTime: "20:00" },
@@ -409,7 +406,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="h-7 text-[10px] uppercase font-bold gap-1.5"
+                          className="gap-1.5"
                           onClick={() => replace([
                             { weekday: 2, startTime: "18:00", endTime: "20:00" },
                             { weekday: 4, startTime: "18:00", endTime: "20:00" },
@@ -449,7 +446,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                                     onValueChange={(val) => field.onChange(parseInt(val, 10))}
                                     value={field.value?.toString() ?? ""}
                                   >
-                                    <SelectTrigger className="h-8 text-xs">
+                                    <SelectTrigger>
                                       <SelectValue placeholder="Chọn thứ" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -467,7 +464,6 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                               <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Bắt đầu</FieldLabel>
                               <Input
                                 type="time"
-                                className="h-8 text-xs"
                                 {...control.register(`schedules.${index}.startTime`)}
                               />
                             </div>
@@ -475,7 +471,6 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                               <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Kết thúc</FieldLabel>
                               <Input
                                 type="time"
-                                className="h-8 text-xs"
                                 {...control.register(`schedules.${index}.endTime`)}
                               />
                             </div>
@@ -499,7 +494,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="w-full border-dashed border h-8 text-xs gap-2"
+                          className="w-full border-dashed border"
                           onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
                         >
                           <Plus className="size-3" /> Thêm khung giờ

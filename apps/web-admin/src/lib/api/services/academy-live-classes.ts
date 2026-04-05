@@ -43,6 +43,7 @@ export type AcademyLiveClass = {
   cohort?: {
     id: string
     name: string
+    status: string
     courseProfileId: string
     startDate?: string | null
     endDate?: string | null
@@ -51,6 +52,7 @@ export type AcademyLiveClass = {
     courseProfile?: {
       id: string
       title: string
+      thumbnailUrl?: string | null
       level?: string | null
     } | null
   } | null

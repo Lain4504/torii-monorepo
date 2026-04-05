@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useAcademyEnrollmentCheck } from "@/lib/api/services/academy-enrollment-api"
 import { LiveClassDashboard } from "@/components/courses/live-class-dashboard"
 import { useEffect } from "react"
-import { Spinner } from "@workspace/ui/components/spinner"
+import { PageLoading } from "@workspace/ui/components/page-loading"
 
 /**
  * LiveClass Dashboard Page (Integrated into Dashboard)
@@ -37,12 +37,7 @@ export default function LiveClassDashboardPage() {
     }, [enrollmentData, isLoading, courseId, router]);
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                <Spinner className="size-8 text-primary" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 animate-pulse">Torii Loading...</p>
-            </div>
-        );
+        return <PageLoading />
     }
 
     // If LIVE enrollment -> Render Dashboard
@@ -52,9 +47,5 @@ export default function LiveClassDashboardPage() {
     }
 
     // Default loading while redirect
-    return (
-        <div className="flex items-center justify-center min-h-[60vh]">
-            <Spinner className="size-8 text-primary" />
-        </div>
-    );
+    return <PageLoading />
 }

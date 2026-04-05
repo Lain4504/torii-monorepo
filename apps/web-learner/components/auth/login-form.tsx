@@ -94,10 +94,24 @@ export function LoginForm() {
             setGoogleLoading(false)
             return
         }
-        const guard = createGoogleGsiLoadingGuard(setGoogleLoading, 90_000)
+        const guard = createGoogleGsiLoadingGuard(setGoogleLoading, 60_000)
+        
+        // Listen for window focus to detect popup closure
+        const handleFocus = () => {
+            // Small delay to allow the Google SDK callback to fire first if it was a success
+            setTimeout(() => {
+                setGoogleLoading(false)
+                guard.disarm()
+                window.removeEventListener('focus', handleFocus)
+            }, 1000)
+        }
+        window.addEventListener('focus', handleFocus)
+
         ; (window as any).google.accounts.id.initialize({
             client_id: googleClientId,
             callback: async (response: any) => {
+                // Remove focus listener as we have a response
+                window.removeEventListener('focus', handleFocus)
                 try {
                     const result = await googleAuthMutation.mutateAsync(response.credential)
                     const authAction = await dispatch(checkAuth())
@@ -130,11 +144,13 @@ export function LoginForm() {
                 try {
                     ; (window as any).google.accounts.id.prompt((notification: unknown) => {
                         if (shouldEndFlowFromPromptMoment(notification)) {
+                            window.removeEventListener('focus', handleFocus)
                             guard.disarm()
                             setGoogleLoading(false)
                         }
                     })
                 } catch {
+                    window.removeEventListener('focus', handleFocus)
                     guard.disarm()
                     setGoogleLoading(false)
                     toast.error('Không thể khởi tạo Google Sign-In')

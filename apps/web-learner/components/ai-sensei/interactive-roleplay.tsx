@@ -2,12 +2,10 @@
 
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Send, User, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play, Zap } from "lucide-react"
+import { Send, User, Sparkles, RefreshCcw, CheckCircle, Mic, MicOff, Volume2, PhoneOff, Settings, Play, Zap } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import {
     Dialog,
     DialogContent,
@@ -16,7 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
+import { Card, CardContent } from "@workspace/ui/components/card"
 import {
     Select,
     SelectContent,
@@ -25,7 +23,6 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { Switch } from "@workspace/ui/components/switch"
-import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { cn } from "@workspace/ui/lib/utils"
@@ -93,21 +90,17 @@ export function InteractiveRoleplay() {
     // Voice State
     const [isListening, setIsListening] = React.useState(false)
     const [isSpeaking, setIsSpeaking] = React.useState(false)
-    const [autoPlay, setAutoPlay] = React.useState(true) // Auto-play AI responses
+    const [autoPlay, setAutoPlay] = React.useState(true) 
     const queryClient = useQueryClient()
     const recognitionRef = React.useRef<any>(null)
-    const [voiceError, setVoiceError] = React.useState<string | null>(null)
     const [isSpeechSupported, setIsSpeechSupported] = React.useState(false)
-    const [isSupportChecked, setIsSupportChecked] = React.useState(false)
 
     // TTS Voice Management
     const [availableVoices, setAvailableVoices] = React.useState<SpeechSynthesisVoice[]>([])
-    const [selectedVoiceURI, setSelectedVoiceURI] = React.useState<string>("")
-    const [voiceRate, setVoiceRate] = React.useState(1.0)
-    const [voicePitch, setVoicePitch] = React.useState(1.0)
+    const [selectedVoiceURI, setSelectedVoiceURI] = React.useState<string>("ja-JP-NanamiNeural")
     const [showSettings, setShowSettings] = React.useState(false)
-    const audioRef = React.useRef<HTMLAudioElement | null>(null) // Track backend audio instance
-    const ttsRequestId = React.useRef<number>(0) // Track TTS requests to prevent race conditions
+    const audioRef = React.useRef<HTMLAudioElement | null>(null)
+    const ttsRequestId = React.useRef<number>(0)
 
     // Scroll to bottom on new messages
     React.useEffect(() => {
@@ -141,7 +134,7 @@ export function InteractiveRoleplay() {
                 const recognition = new SpeechRecognition()
                 recognition.continuous = true
                 recognition.interimResults = true
-                recognition.lang = 'ja-JP' // Default to Japanese
+                recognition.lang = 'ja-JP'
 
                 recognition.onresult = (event: any) => {
                     let finalTranscript = ''
@@ -152,20 +145,6 @@ export function InteractiveRoleplay() {
                     }
                     if (finalTranscript) {
                         inputForm.setValue("text", inputForm.getValues("text") + finalTranscript)
-                        // Optional: Auto-send if silence detected? For now manual send.
-                    }
-                }
-
-                recognition.onerror = (event: any) => {
-                    console.error("Speech recognition error", event.error)
-                    if (event.error === 'not-allowed') {
-                        setVoiceError("Vui lòng cấp quyền truy cập microphone để sử dụng tính năng này.")
-                        setIsListening(false)
-                    } else if (event.error === 'no-speech') {
-                        // Ignore no-speech errors
-                    } else {
-                        setVoiceError(`Lỗi nhận diện giọng nói: ${event.error}`)
-                        setIsListening(false)
                     }
                 }
 
@@ -174,15 +153,11 @@ export function InteractiveRoleplay() {
                 }
 
                 recognitionRef.current = recognition
-            } else {
-                setIsSpeechSupported(false)
             }
         }
 
-        // --- Cleanup deduction logic ---
         const backgroundDeductAndRefresh = async (topic: string, history: any[]) => {
             try {
-                console.log('[billing] Background session deduction started');
                 await agentApi.sensei.roleplay(topic, "", history, true);
             } catch (err) {
                 console.error('[billing] Background deduction failed', err);
@@ -190,191 +165,111 @@ export function InteractiveRoleplay() {
         }
 
         const triggerFinalCleanup = () => {
-            // Only trigger if started, not finished, and has at least one user message
             const turnCount = historyRef.current.filter(m => m.role === 'user').length
             if (isStartedRef.current && !isFinishedRef.current && turnCount > 0) {
                 backgroundDeductAndRefresh(topicRef.current, historyRef.current);
             }
         }
 
-        const handleBeforeUnload = () => {
-            triggerFinalCleanup()
-        }
-
+        const handleBeforeUnload = () => triggerFinalCleanup()
         window.addEventListener('beforeunload', handleBeforeUnload)
 
         return () => {
-            triggerFinalCleanup() // Component unmount
+            triggerFinalCleanup()
             window.removeEventListener('beforeunload', handleBeforeUnload)
-
             if (recognitionRef.current) {
                 try {
                     recognitionRef.current.abort()
                     recognitionRef.current = null
-                } catch (e) {
-                    // Ignore errors during cleanup
-                }
+                } catch (e) {}
             }
         }
     }, [])
+
     const toggleListening = () => {
         if (!isSpeechSupported || !recognitionRef.current) {
-            setVoiceError("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói. Vui lòng thử Chrome hoặc Edge.")
+            toast.error("Trình duyệt không hỗ trợ nhận diện giọng nói.")
             return
         }
 
         if (isListening) {
             recognitionRef.current.stop()
-            setIsListening(false)
         } else {
             try {
                 recognitionRef.current.start()
                 setIsListening(true)
-                setVoiceError(null)
             } catch (e: any) {
                 console.error("Failed to start recognition", e)
-                if (e.message && e.message.includes('already started')) {
-                    setIsListening(true)
-                    setVoiceError(null)
-                } else {
-                    setVoiceError("Không thể bắt đầu ghi âm. Vui lòng tải lại trang.")
-                    setIsListening(false)
-                }
+                setIsListening(false)
             }
         }
     }
 
     const speak = (text: string) => {
-        // Stop any current audio and invalidate pending requests
         stopSpeaking()
-
-        // If sound is disabled, do nothing
         if (!autoPlay) return
 
         const currentId = ttsRequestId.current + 1
         ttsRequestId.current = currentId
 
-        // Check if selected voice is a browser voice
         const isBrowserVoice = availableVoices.some(v => v.voiceURI === selectedVoiceURI)
 
-        // If server voice is explicitly selected (and not found in browser availability)
         if (!isBrowserVoice && (selectedVoiceURI === 'server-voice' || selectedVoiceURI.includes('Neural'))) {
             const voice = selectedVoiceURI === 'server-voice' ? undefined : selectedVoiceURI
             playBackendAudio(text, currentId, voice)
             return
         }
 
-        // Try Browser TTS first
         if (typeof window !== 'undefined' && window.speechSynthesis) {
-            // window.speechSynthesis.cancel() // Already called in stopSpeaking
-
-            // Retry loading voices if empty
-            if (availableVoices.length === 0) {
-                const voices = window.speechSynthesis.getVoices()
-                if (voices.length > 0) setAvailableVoices(voices)
-            }
-
-            // If still no voices and no server voice selected yet, default to backend
-            if (availableVoices.length === 0) {
-                playBackendAudio(text, currentId)
-                return
-            }
-
             const utterance = new SpeechSynthesisUtterance(text)
             utterance.lang = 'ja-JP'
-            utterance.rate = voiceRate
-            utterance.pitch = voicePitch
-
-            // Use selected voice or fallback
             const voice = availableVoices.find(v => v.voiceURI === selectedVoiceURI)
-            if (voice) {
-                utterance.voice = voice
-            }
+            if (voice) utterance.voice = voice
 
             utterance.onstart = () => setIsSpeaking(true)
             utterance.onend = () => setIsSpeaking(false)
-            utterance.onerror = (e) => {
-                console.error("Browser TTS failed, trying backend...", e)
+            utterance.onerror = () => {
                 setIsSpeaking(false)
-                // Fallback to Backend TTS if current request is still valid
-                if (ttsRequestId.current === currentId) {
-                    playBackendAudio(text, currentId)
-                }
+                if (ttsRequestId.current === currentId) playBackendAudio(text, currentId)
             }
-
-            try {
-                window.speechSynthesis.speak(utterance)
-            } catch (e) {
-                console.error("Speech synthesis exception", e)
-                if (ttsRequestId.current === currentId) {
-                    playBackendAudio(text, currentId)
-                }
-            }
+            window.speechSynthesis.speak(utterance)
         } else {
-            // No browser support, use backend directly
             playBackendAudio(text, currentId)
         }
     }
 
     const playBackendAudio = async (text: string, requestId: number, voice?: string) => {
         try {
-            if (ttsRequestId.current !== requestId) return // Cancel if new request started
-
+            if (ttsRequestId.current !== requestId) return
             setIsSpeaking(true)
-            console.log("Requesting backend TTS for:", text, "Voice:", voice)
             const data = await agentApi.sensei.tts(text, voice)
-
-            if (ttsRequestId.current !== requestId) return // Check again after await
-
-
-            console.log("Received backend audio data length:", data.url?.length)
+            if (ttsRequestId.current !== requestId) return
 
             if (data.url) {
                 const audio = new Audio(data.url)
-                audioRef.current = audio // Store reference
-
+                audioRef.current = audio
                 audio.onended = () => {
                     if (ttsRequestId.current === requestId) setIsSpeaking(false)
-                    if (audioRef.current === audio) audioRef.current = null
                 }
-                audio.onerror = (e) => {
-                    console.error("Backend audio playback failed", e)
+                audio.onerror = () => {
                     if (ttsRequestId.current === requestId) setIsSpeaking(false)
-                    if (audioRef.current === audio) audioRef.current = null
-
-                    const errorMsg = (audio.error && audio.error.code === 4)
-                        ? "Trình duyệt không hỗ trợ định dạng âm thanh này (thiếu codec MP3?)."
-                        : "Lỗi phát âm thanh từ server."
-                    setVoiceError(errorMsg)
                 }
                 await audio.play()
             } else {
-                console.error("No audio URL returned from backend")
                 setIsSpeaking(false)
             }
         } catch (error) {
-            if (ttsRequestId.current !== requestId) return
-            console.error("Backend TTS request failed", error)
-            setIsSpeaking(false)
-            setVoiceError("Lỗi kết nối tới máy chủ TTS.")
+            if (ttsRequestId.current === requestId) setIsSpeaking(false)
         }
     }
 
     const stopSpeaking = () => {
-        // Invalidate any pending requests
         ttsRequestId.current += 1
-
-        // Stop Browser TTS
-        if (typeof window !== 'undefined' && window.speechSynthesis) {
-            window.speechSynthesis.cancel()
-        }
-
-        // Stop Backend Audio
+        if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel()
         if (audioRef.current) {
             audioRef.current.pause()
             audioRef.current = null
         }
-
         setIsSpeaking(false)
     }
 
@@ -396,8 +291,6 @@ export function InteractiveRoleplay() {
         try {
             const res = await agentApi.sensei.roleplay(topicValue, "", [])
             addTokenUsage(res.tokenUsage)
-
-            // Add the initial AI greeting
             const aiMsg: Message = {
                 id: Date.now().toString(),
                 role: 'assistant',
@@ -408,13 +301,9 @@ export function InteractiveRoleplay() {
             setMessages([aiMsg])
             setHistory([{ role: 'model', content: JSON.stringify(res) }])
             queryClient.invalidateQueries({ queryKey: ["quota-status"] })
-
-            if (res.response && autoPlay) {
-                speak(res.response)
-            }
+            if (res.response && autoPlay) speak(res.response)
         } catch (error: any) {
-            console.error("Failed to start roleplay", error)
-            toast.error(error.message || "Không thể bắt đầu hội thoại. Vui lòng thử lại.")
+            toast.error(error.message || "Không thể bắt đầu hội thoại.")
             setIsStarted(false)
         } finally {
             setIsLoading(false)
@@ -423,12 +312,7 @@ export function InteractiveRoleplay() {
 
     const handleSend = async (data: InputFormData) => {
         if (!data.text.trim() || isLoading) return
-
-        // Auto-stop voice recognition when sending
-        if (isListening && recognitionRef.current) {
-            recognitionRef.current.stop()
-            setIsListening(false)
-        }
+        if (isListening && recognitionRef.current) recognitionRef.current.stop()
 
         const userMsgText = data.text
         inputForm.reset({ text: "" })
@@ -443,41 +327,36 @@ export function InteractiveRoleplay() {
         setIsLoading(true)
 
         try {
-            const currentHistory = history
-            const nextHistory = [...currentHistory, { role: 'user', content: userMsgText }]
-
-            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), userMsgText, nextHistory)
-            addTokenUsage(data.tokenUsage)
+            const nextHistory = [...history, { role: 'user', content: userMsgText }]
+            const res = await agentApi.sensei.roleplay(topicForm.getValues("topic"), userMsgText, nextHistory)
+            addTokenUsage(res.tokenUsage)
 
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: data.response,
-                romaji: data.romaji,
-                vietnamese: data.vietnamese
+                content: res.response,
+                romaji: res.romaji,
+                vietnamese: res.vietnamese
             }
 
             setMessages(prev => [...prev, aiMsg])
-            setHistory([...nextHistory, { role: 'model', content: JSON.stringify(data) }])
+            setHistory([...nextHistory, { role: 'model', content: JSON.stringify(res) }])
             queryClient.invalidateQueries({ queryKey: ["quota-status"] })
 
-            if (data.response && autoPlay) {
-                speak(data.response)
-            }
+            if (res.response && autoPlay) speak(res.response)
 
-            if (data.isFinished && data.feedback) {
+            if (res.isFinished && res.feedback) {
                 const feedbackMsg: Message = {
                     id: (Date.now() + 2).toString(),
                     role: 'assistant',
-                    content: data.feedback,
+                    content: res.feedback,
                     isFeedback: true
                 }
                 setMessages(prev => [...prev, feedbackMsg])
+                setIsFinished(true)
             }
-
         } catch (error: any) {
-            console.error("Failed to reply", error)
-            toast.error(error.message || "Không thể gửi tin nhắn. Vui lòng thử lại.")
+            toast.error(error.message || "Không thể gửi tin nhắn.")
         } finally {
             setIsLoading(false)
         }
@@ -491,7 +370,6 @@ export function InteractiveRoleplay() {
     }
 
     const handleReset = () => {
-        // Optimistic UI: Close immediately
         const wasStarted = isStarted
         const wasFinished = isFinished
         const currentHistory = history
@@ -503,31 +381,20 @@ export function InteractiveRoleplay() {
         setSessionTokens({ prompt: 0, completion: 0, total: 0 })
         topicForm.reset({ topic: "" })
         inputForm.reset({ text: "" })
-        setVoiceError(null)
         setIsFinished(false)
 
-        // Background deduction
         const userTurns = currentHistory.filter(m => m.role === 'user').length
         if (wasStarted && !wasFinished && userTurns > 0) {
-            console.log('[billing] Background deduction triggered by reset');
-            agentApi.sensei.roleplay(currentTopic, "", currentHistory, true).catch(err => {
-                console.error('[billing] Reset deduction failed', err);
-            });
+            agentApi.sensei.roleplay(currentTopic, "", currentHistory, true).catch(() => {});
         }
     }
 
     const handleFinish = async () => {
-        console.log('[DEBUG] handleFinish called', { isLoading, turnCount, historyLength: history.length });
         if (isLoading) return
         setIsLoading(true)
-
         try {
-            console.log('[DEBUG] Calling roleplay API with isFinal=true');
-            // Signal backend to finish and generate feedback
-            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
-            console.log('[DEBUG] Roleplay API response:', data);
+            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true)
             addTokenUsage(data.tokenUsage)
-
             if (data.isFinished && data.feedback) {
                 const feedbackMsg: Message = {
                     id: (Date.now() + 2).toString(),
@@ -535,9 +402,6 @@ export function InteractiveRoleplay() {
                     content: data.feedback,
                     isFeedback: true
                 }
-                setMessages(prev => [...prev, feedbackMsg])
-
-                // Final closing message if any
                 if (data.response) {
                     const closingMsg: Message = {
                         id: Date.now().toString(),
@@ -546,374 +410,307 @@ export function InteractiveRoleplay() {
                         romaji: data.romaji,
                         vietnamese: data.vietnamese
                     }
-                    // Insert closing message before feedback
-                    setMessages(prev => {
-                        const newMsgs = [...prev]
-                        newMsgs.pop() // Remove feedback temporarily
-                        newMsgs.push(closingMsg)
-                        newMsgs.push(feedbackMsg)
-                        return newMsgs
-                    })
-
+                    setMessages(prev => [...prev, closingMsg, feedbackMsg])
                     if (autoPlay) speak(data.response)
+                } else {
+                    setMessages(prev => [...prev, feedbackMsg])
                 }
-
-                // Mark as finished to show return button
                 setIsFinished(true)
             }
-        } catch (error) {
-            console.error("Failed to finish roleplay", error)
-        } finally {
+        } catch (error) {} finally {
             setIsLoading(false)
         }
     }
 
-    const testVoice = () => {
-        speak("こんにちは、音声テストです。")
-    }
-
-    // Calculate turns (user messages count)
     const turnCount = messages.filter(m => m.role === 'user').length
 
     if (!isStarted) {
         return (
-            <div className="h-full flex flex-col items-center justify-center animate-in fade-in duration-500 max-w-2xl mx-auto p-6 w-full">
-                <div className="w-full space-y-6">
-                    <div className="text-center space-y-4">
-                        <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
-                            <Sparkles className="size-8 text-primary" />
+            <div className="h-full flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-500 p-4 sm:p-6">
+                <Card className="w-full max-w-2xl border-border/40 shadow-none rounded-3xl overflow-hidden bg-card relative">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40" />
+                    <CardContent className="p-8 sm:p-12 flex flex-col items-center gap-10">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
+                            <div className="relative size-20 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20 shadow-inner group">
+                                <Sparkles className="size-10 text-primary transition-transform duration-700 group-hover:rotate-12" />
+                            </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <h2 className="text-2xl font-bold">Roleplay với Sensei</h2>
-                            <p className="text-sm text-muted-foreground">
-                                Chọn một chủ đề và bắt đầu hội thoại. Sensei sẽ đóng vai và phản hồi sau khi kết thúc.
+                        <div className="text-center space-y-3">
+                            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Hội thoại với Sensei</h2>
+                            <p className="text-muted-foreground text-sm sm:text-base max-w-sm mx-auto leading-relaxed">
+                                Chọn một chủ đề và bắt đầu luyện tập hội thoại tiếng Nhật tự do cùng AI Sensei.
                             </p>
                         </div>
-                    </div>
-                    <div className="space-y-6">
-                        <div className="space-y-4 max-w-md mx-auto">
+                        <div className="w-full max-w-md space-y-4">
                             <Controller
                                 name="topic"
                                 control={topicForm.control}
                                 render={({ field, fieldState }) => (
-                                    <Field>
+                                    <div className="space-y-2">
                                         <Input
                                             {...field}
-                                            id={field.name}
-                                            placeholder="Nhập chủ đề (VD: Mua vé tàu, Phỏng vấn xin việc)..."
-                                            className="h-11 rounded-xl"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') topicForm.handleSubmit(handleStart)()
-                                            }}
+                                            placeholder="Nhập chủ đề (VD: Đi du lịch, Mua sắm...)"
+                                            className="h-12 rounded-2xl px-6 text-base border-border/40 focus:ring-primary/20 transition-all shadow-sm"
+                                            onKeyDown={(e) => { if (e.key === 'Enter') topicForm.handleSubmit(handleStart)() }}
                                         />
-                                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                                    </Field>
+                                        {fieldState.invalid && <p className="text-[10px] font-bold text-destructive px-4">{fieldState.error?.message}</p>}
+                                    </div>
                                 )}
                             />
                             <Button
                                 size="lg"
-                                className="w-full h-11 font-bold uppercase tracking-widest text-[10px] rounded-xl"
+                                className="w-full h-12 font-bold rounded-2xl text-sm shadow-md shadow-primary/20 hover:scale-[1.01] active:scale-100 transition-all"
                                 onClick={topicForm.handleSubmit(handleStart)}
-                                disabled={!topicForm.watch("topic").trim() || isLoading}
+                                disabled={!currentTopic.trim() || isLoading}
                             >
-                                {isLoading ? <Spinner className="mr-2" /> : null}
-                                Bắt đầu hội thoại
+                                {isLoading ? <Spinner className="mr-2" /> : <Play className="mr-2 size-4" />}
+                                Bắt đầu ngay
                             </Button>
                         </div>
-
-                        <div className="pt-6 border-t border-border/30">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center mb-4">Gợi ý chủ đề</p>
+                        <div className="w-full border-t border-border/40 pt-8">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center mb-5 opacity-40">Chủ đề gợi ý</p>
                             <div className="flex flex-wrap justify-center gap-2">
-                                {["Đi siêu thị", "Gọi điện thoại", "Hỏi đường", "Kết bạn mới", "Tại sân bay"].map(t => (
+                                {["Tại sân bay", "Gọi món ăn", "Kết bạn mới", "Phỏng vấn", "Hỏi đường"].map(t => (
                                     <Button
                                         key={t}
                                         variant="outline"
                                         size="sm"
                                         onClick={() => topicForm.setValue("topic", t)}
-                                        className="rounded-full text-[10px] font-bold uppercase tracking-wider h-8"
+                                        className="rounded-xl text-[10px] font-bold h-8 px-4 border-border/60 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all"
                                     >
                                         {t}
                                     </Button>
                                 ))}
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </CardContent>
+                </Card>
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col h-full bg-background overflow-hidden relative">
-            {/* Header */}
-            <div className="flex-none flex items-center justify-between p-4 border-b border-border bg-card/50 backdrop-blur-sm z-10">
-                <div className="flex items-center gap-3">
-                    <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Sparkles className="size-5 text-primary" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-base leading-none">{topicForm.getValues("topic")}</h3>
-                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-                                {isFinished ? "Đã kết thúc" : `${turnCount} lượt trao đổi • Đang hội thoại`}
-                            </p>
-                            {sessionTokens.total > 0 && (
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
-                                    <Zap className="size-3 text-yellow-500 shrink-0" />
-                                    <span className="text-muted-foreground">{sessionTokens.total.toLocaleString()} tokens</span>
-                                </div>
-                            )}
+        <div className="flex flex-col h-full bg-background/50 overflow-hidden relative">
+            <div className="flex-none w-full px-4 pt-4 pb-2 z-20">
+                <div className="max-w-4xl mx-auto flex items-center justify-between p-3 sm:p-4 bg-card border border-border/40 rounded-3xl shadow-sm backdrop-blur-md">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                            <Sparkles className="size-5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                            <h3 className="font-bold text-sm sm:text-base leading-none truncate">{topicForm.getValues("topic")}</h3>
+                            <div className="flex items-center gap-2 mt-1.5">
+                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tight opacity-50 shrink-0">
+                                    {isFinished ? "Hoàn thành" : `${turnCount} lượt nói • Đang học`}
+                                </p>
+                                {sessionTokens.total > 0 && (
+                                    <div className="flex items-center gap-1 text-[9px] font-bold tracking-tight bg-primary/5 px-2 py-0.5 rounded-lg border border-primary/10 text-muted-foreground shrink-0">
+                                        <Zap className="size-2.5 text-yellow-500" />
+                                        {sessionTokens.total.toLocaleString()}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    {/* Return Button after finish */}
-                    {isFinished && (
-                        <Button
-                            variant="default"
-                            size="sm"
-                            className="h-9 px-4 font-bold uppercase tracking-widest text-[10px]"
-                            onClick={() => {
-                                setIsStarted(false)
-                                setMessages([])
-                                setHistory([])
-                                topicForm.reset({ topic: "" })
-                                setIsFinished(false)
-                            }}
-                        >
-                            <RefreshCcw className="size-3.5 mr-2" /> Quay về
-                        </Button>
-                    )}
 
-                    {/* Finish Button */}
-                    {!isFinished && turnCount >= 5 && (
-                        <Button
-                            variant="default"
-                            size="sm"
-                            className="h-9 px-4 font-bold uppercase tracking-widest text-[10px]"
-                            onClick={handleFinish}
-                            disabled={isLoading}
-                        >
-                            <CheckCircle className="size-3.5 mr-2" /> Kết thúc & Đánh giá
-                        </Button>
-                    )}
-
-                    <Dialog open={showSettings} onOpenChange={setShowSettings}>
-                        <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-9 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
-                                <Settings className="size-3.5 mr-2" /> Cài đặt
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                        {isFinished && (
+                            <Button
+                                variant="default"
+                                size="sm"
+                                className="h-9 px-4 font-bold text-[10px] rounded-xl shadow-md shadow-primary/10"
+                                onClick={() => {
+                                    setIsStarted(false)
+                                    setMessages([])
+                                    setHistory([])
+                                    topicForm.reset({ topic: "" })
+                                    setIsFinished(false)
+                                }}
+                            >
+                                <RefreshCcw className="size-3.5 mr-2" /> Quay về
                             </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle className="text-xl font-bold">Cài đặt hội thoại</DialogTitle>
-                                <DialogDescription>
-                                    Tùy chỉnh giọng đọc và hiển thị phụ đề của AI.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-6 py-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-0.5">
-                                        <FieldLabel className="text-sm font-bold">Hiển thị Romaji & Tiếng Việt</FieldLabel>
-                                        <p className="text-xs text-muted-foreground">
-                                            Hiển thị cách phát âm và bản dịch cho câu thoại của Sensei
-                                        </p>
-                                    </div>
-                                    <Switch
-                                        checked={showTranslation}
-                                        onCheckedChange={setShowTranslation}
-                                    />
-                                </div>
-                                <Field>
-                                    <FieldLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Giọng đọc (Voice)</FieldLabel>
-                                    <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Chọn giọng đọc..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="server-voice" className="font-medium">
-                                                Server (Google - Cơ bản)
-                                            </SelectItem>
-                                            <SelectItem value="ja-JP-NanamiNeural" className="font-medium text-primary">
-                                                Server (Nanami - Nữ, Tự nhiên)
-                                            </SelectItem>
-                                            <SelectItem value="ja-JP-KeitaNeural" className="font-medium text-primary">
-                                                Server (Keita - Nam, Tự nhiên)
-                                            </SelectItem>
+                        )}
 
-                                            {availableVoices.length > 0 && (
-                                                <div className="mx-2 my-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider opacity-60">
-                                                    Giọng từ trình duyệt
-                                                </div>
-                                            )}
+                        {!isFinished && turnCount >= 5 && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9 px-4 font-bold text-[10px] rounded-xl border-primary/40 text-primary hover:bg-primary/5 hidden sm:flex"
+                                onClick={handleFinish}
+                                disabled={isLoading}
+                            >
+                                <CheckCircle className="size-3.5 mr-2" /> Kết thúc
+                            </Button>
+                        )}
 
-                                            {availableVoices.map(voice => (
-                                                <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
-                                                    {voice.name} ({voice.lang})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </Field>
-
-                                <Button onClick={testVoice} className="w-full font-bold uppercase tracking-widest text-[10px]" variant="secondary">
-                                    <Play className="size-3.5 mr-2" /> Nghe thử giọng nói
+                        <Dialog open={showSettings} onOpenChange={setShowSettings}>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-muted-foreground/40 hover:text-primary transition-colors">
+                                    <Settings className="size-4" />
                                 </Button>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[400px] rounded-3xl border-border/40 shadow-2xl">
+                                <DialogHeader className="text-center sm:text-left">
+                                    <DialogTitle className="text-xl font-bold tracking-tight">Học cùng Sensei AI</DialogTitle>
+                                    <DialogDescription className="text-sm">
+                                        Thiết lập giọng nói và hỗ trợ để học hiệu quả hơn.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-6 py-4">
+                                    <div className="flex items-center justify-between p-4 bg-muted/20 rounded-2xl border border-border/40">
+                                        <div className="space-y-0.5">
+                                            <p className="text-sm font-bold">Dịch thuật & Phiên âm</p>
+                                            <p className="text-[10px] text-muted-foreground">Hiển thị Romaji và nghĩa tiếng Việt</p>
+                                        </div>
+                                        <Switch checked={showTranslation} onCheckedChange={setShowTranslation} />
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50 px-1">Giọng nói Nhật Bản</p>
+                                        <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
+                                            <SelectTrigger className="h-12 rounded-2xl border-border/40 bg-card">
+                                                <SelectValue placeholder="Chọn giọng..." />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-2xl shadow-xl">
+                                                <SelectItem value="ja-JP-NanamiNeural" className="font-bold text-sm text-primary py-3">Nanami (Nữ - Tự nhiên)</SelectItem>
+                                                <SelectItem value="ja-JP-KeitaNeural" className="font-bold text-sm text-primary py-3">Keita (Nam - Tự nhiên)</SelectItem>
+                                                <SelectItem value="server-voice" className="text-sm py-3">Google Voice (Mặc định)</SelectItem>
+                                                {availableVoices.length > 0 && <div className="mx-2 my-2 border-t pt-2 text-[9px] font-bold uppercase opacity-30">Local Browser</div>}
+                                                {availableVoices.map(voice => (
+                                                    <SelectItem key={voice.voiceURI} value={voice.voiceURI} className="text-sm py-3">{voice.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <Button onClick={() => speak("こんにちは")} className="w-full font-bold h-11 rounded-2xl text-xs bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 transition-all" variant="outline">
+                                        <Play className="size-3.5 mr-2" /> Kiểm tra âm thanh
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className={cn("w-full h-11 rounded-2xl font-bold text-xs transition-colors", autoPlay ? "text-primary bg-primary/5" : "text-muted-foreground bg-muted/20")}
+                                        onClick={() => { setAutoPlay(!autoPlay); if (autoPlay) stopSpeaking(); }}
+                                    >
+                                        {autoPlay ? <Volume2 className="size-3.5 mr-2" /> : <Volume2 className="size-3.5 mr-2 opacity-30" />}
+                                        Tự động phát âm thanh: {autoPlay ? "Bật" : "Tắt"}
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
 
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                            const newState = !autoPlay
-                            setAutoPlay(newState)
-                            if (!newState) stopSpeaking()
-                        }}
-                        className={cn("h-9 font-bold uppercase tracking-widest text-[10px] transition-colors", autoPlay ? "text-primary bg-primary/10" : "text-muted-foreground")}
-                    >
-                        {autoPlay ? <Volume2 className="size-3.5 mr-2" /> : <VolumeX className="size-3.5 mr-2" />}
-                        {autoPlay ? "Bật" : "Tắt"}
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={handleReset} className="h-9 font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
-                        <RefreshCcw className="size-3.5 mr-2" /> Thoát
-                    </Button>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={handleReset} 
+                            className="h-9 w-9 rounded-xl text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-all"
+                        >
+                            <PhoneOff className="size-4" />
+                        </Button>
+                    </div>
                 </div>
             </div>
 
-            {/* Chat Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6 scroll-smooth" ref={scrollRef}>
-                <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8 pt-4 scroll-smooth scrollbar-none" ref={scrollRef}>
+                <div className="max-w-4xl mx-auto space-y-8">
                     {messages.map((msg) => (
-                        <div
-                            key={msg.id}
-                            className={cn(
-                                "flex w-full animate-in fade-in slide-in-from-bottom-2 duration-300",
-                                msg.role === 'user' ? "justify-end" : "justify-start"
-                            )}
-                        >
-                            <div className={cn(
-                                "max-w-[85%] md:max-w-[75%]",
-                                msg.role === 'user' ? "items-end" : "items-start"
-                            )}>
-                                {/* Message bubble */}
-                                <div className={cn(
-                                    "relative space-y-2",
-                                    msg.role === 'user' ? "ml-auto" : "mr-auto"
-                                )}>
-                                    <div className={cn(
-                                        "p-4 rounded-xl text-base leading-relaxed border shadow-sm",
-                                        msg.role === 'user'
-                                            ? "bg-primary text-primary-foreground border-primary"
-                                            : msg.isFeedback
-                                                ? "bg-muted border-border font-medium"
-                                                : "bg-card border-border"
-                                    )}>
+                        <div key={msg.id} className={cn("flex w-full animate-in fade-in slide-in-from-bottom-3 duration-500", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                            <div className={cn("flex gap-3 items-end max-w-[85%] sm:max-w-[70%]", msg.role === 'user' ? "flex-row-reverse" : "flex-row")}>
+                                <div className={cn("size-8 rounded-xl border flex items-center justify-center shrink-0 transition-opacity", msg.role === 'user' ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border shadow-sm")}>
+                                    {msg.role === 'user' ? <User className="size-4" /> : <Sparkles className="size-4 text-primary" />}
+                                </div>
+                                <div className={cn("space-y-2", msg.role === 'user' ? "text-right" : "text-left")}>
+                                    <div className={cn("relative p-4 rounded-2xl text-[15px] leading-relaxed shadow-sm border transition-shadow hover:shadow-md",
+                                        msg.role === 'user' ? "bg-primary text-primary-foreground border-primary rounded-tr-none" : msg.isFeedback ? "bg-muted/80 border-border/60 font-medium text-sm backdrop-blur-sm rounded-tl-none" : "bg-card border-border/50 text-foreground rounded-tl-none shadow-border/5")}>
                                         {msg.isFeedback ? (
-                                            <div className="prose prose-sm dark:prose-invert max-w-none">
-                                                <div className="whitespace-pre-wrap">{msg.content}</div>
-                                            </div>
+                                            <div className="prose prose-sm dark:prose-invert max-w-none"><div className="whitespace-pre-wrap leading-relaxed opacity-90">{msg.content}</div></div>
                                         ) : (
-                                            <div className="flex items-start gap-4 break-all">
-                                                <p className="flex-1 break-words">{msg.content}</p>
+                                            <div className="flex flex-col gap-3">
+                                                <p className="whitespace-pre-wrap">{msg.content}</p>
                                                 {msg.role === 'assistant' && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => speak(msg.content)}
-                                                        className="h-8 w-8 rounded-full shrink-0"
-                                                    >
-                                                        <Volume2 className="size-4" />
-                                                    </Button>
+                                                    <div className="flex justify-end border-t border-border/10 pt-2 -mx-1">
+                                                        <Button variant="ghost" size="icon" onClick={() => speak(msg.content)} className="h-7 w-7 rounded-lg text-muted-foreground/30 hover:text-primary transition-colors">
+                                                            <Volume2 className="size-3.5" />
+                                                        </Button>
+                                                    </div>
                                                 )}
                                             </div>
                                         )}
                                     </div>
-
-                                    {/* Helper text for AI responses */}
                                     {msg.role === 'assistant' && !msg.isFeedback && showTranslation && (
-                                        <div className="px-1 space-y-1">
-                                            {msg.romaji && <p className="text-[10px] text-primary/70 font-bold italic tracking-wider">{msg.romaji}</p>}
-                                            {msg.vietnamese && <p className="text-xs text-muted-foreground font-medium">{msg.vietnamese}</p>}
+                                        <div className="px-2 space-y-1 animate-in fade-in slide-in-from-top-1 duration-500">
+                                            {msg.romaji && <p className="text-[10px] text-primary/60 font-bold italic tracking-tight">{msg.romaji}</p>}
+                                            {msg.vietnamese && <p className="text-[11px] text-muted-foreground/70 font-medium leading-relaxed">{msg.vietnamese}</p>}
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
                     ))}
-
-                    {/* Show Typing Indicator */}
                     {isLoading && (
-                        <div className="flex justify-start w-full animate-pulse">
-                            <div className="bg-muted border border-border rounded-lg p-4 flex items-center gap-2">
-                                <div className="size-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <div className="size-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <div className="size-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <div className="flex justify-start w-full animate-in fade-in duration-300">
+                            <div className="flex gap-2 items-center px-4 py-3 bg-muted/40 border border-border/40 rounded-2xl rounded-tl-none">
+                                <div className="size-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                <div className="size-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                <div className="size-1.5 bg-primary/40 rounded-full animate-bounce" />
                             </div>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Input Area */}
-            <div className="flex-none p-4 bg-background border-t border-border">
-                {/* Listening UI */}
-                {isListening && (
-                    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-destructive/10 text-destructive px-6 py-2 rounded-full border border-destructive/20 backdrop-blur-sm z-20 flex items-center gap-2 animate-pulse">
-                        <div className="flex items-center gap-1 h-4">
-                            <span className="w-1 h-3 bg-destructive rounded-full" />
-                            <span className="w-1 h-2 bg-destructive rounded-full" />
-                            <span className="w-1 h-4 bg-destructive rounded-full" />
-                            <span className="w-1 h-2 bg-destructive rounded-full" />
+            <div className="flex-none w-full p-4 pb-6 sm:pb-8">
+                <div className="max-w-3xl mx-auto relative">
+                    {isListening && (
+                        <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground px-5 py-2 rounded-2xl border border-destructive/20 shadow-2xl backdrop-blur-md z-30 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="flex items-center gap-1 h-3 shrink-0">
+                                <span className="w-1 h-3 bg-white rounded-full animate-bounce [animation-delay:-0.2s]" />
+                                <span className="w-1 h-1 bg-white rounded-full animate-bounce [animation-delay:-0.1s]" />
+                                <span className="w-1 h-2 bg-white rounded-full animate-bounce" />
+                            </div>
+                            <span className="font-bold text-[11px] uppercase tracking-wider">Sensei đang nghe...</span>
+                            <div className="size-2 bg-white rounded-full animate-ping" />
                         </div>
-                        <span className="font-bold text-sm">Đang lắng nghe...</span>
-                    </div>
-                )}
+                    )}
 
+                    <div className={cn("flex items-end gap-3 p-2 bg-card border border-border/40 rounded-[2rem] shadow-xl transition-all relative overflow-hidden", isListening && "border-destructive/40 shadow-destructive/10")}>
+                        <Button
+                            size="icon"
+                            variant={isListening ? "destructive" : "ghost"}
+                            className={cn("h-12 w-12 rounded-full shrink-0 transition-all", isListening ? "animate-pulse" : "text-muted-foreground/40 hover:text-primary hover:bg-primary/5")}
+                            onClick={toggleListening}
+                            disabled={!isSpeechSupported || isFinished}
+                        >
+                            {isListening ? <MicOff className="size-5" /> : <Mic className="size-5" />}
+                        </Button>
 
-                <div className="max-w-3xl mx-auto flex gap-2">
-                    <Button
-                        size="icon"
-                        variant={isListening ? "destructive" : "outline"}
-                        className={cn(
-                            "h-12 w-12 rounded-lg",
-                            isListening && "ring-2 ring-destructive ring-offset-2"
-                        )}
-                        onClick={toggleListening}
-                        disabled={!isSpeechSupported || isFinished}
-                    >
-                        {isListening ? <MicOff className="size-5" /> : <Mic className="size-5" />}
-                    </Button>
-
-                    <Controller
-                        name="text"
-                        control={inputForm.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid} className="flex-1">
-                                <div className="relative">
+                        <Controller
+                            name="text"
+                            control={inputForm.control}
+                            render={({ field, fieldState }) => (
+                                <div className="flex-1 relative pb-1">
                                     <Textarea
                                         {...field}
                                         id={field.name}
-                                        placeholder={isFinished ? "Cuộc hội thoại đã kết thúc" : "Nhập tin nhắn tiếng Nhật..."}
-                                        className="min-h-12 py-3 pr-12 overflow-hidden"
+                                        rows={1}
+                                        placeholder={isFinished ? "Hội thoại đã hoàn thành" : "Nhập lời thoại tiếng Nhật..."}
+                                        className="w-full min-h-[48px] max-h-[120px] py-3 px-1 text-base border-none focus-visible:ring-0 resize-none bg-transparent shadow-none"
                                         onKeyDown={handleKeyDown}
                                         disabled={isLoading || isFinished}
-                                        aria-invalid={fieldState.invalid}
                                     />
-                                    <Button
-                                        size="icon"
-                                        className="absolute right-1 bottom-1 h-10 w-10"
-                                        onClick={inputForm.handleSubmit(handleSend)}
-                                        disabled={!field.value.trim() || isLoading || isFinished}
-                                    >
-                                        <Send className="size-4" />
-                                    </Button>
+                                    {fieldState.invalid && <p className="absolute -bottom-4 left-0 text-[9px] font-bold text-destructive">{fieldState.error?.message}</p>}
                                 </div>
-                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                            </Field>
-                        )}
-                    />
+                            )}
+                        />
+
+                        <Button
+                            size="icon"
+                            className="h-12 w-12 rounded-full shrink-0 shadow-lg shadow-primary/20 transition-all active:scale-95"
+                            onClick={inputForm.handleSubmit(handleSend)}
+                            disabled={!inputText.trim() || isLoading || isFinished}
+                        >
+                            {isLoading ? <Spinner className="size-4" /> : <Send className="size-5" />}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

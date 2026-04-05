@@ -19,41 +19,29 @@ export default function ModernUserSettings() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-10">
-            <div className="flex flex-col gap-1">
+            <div className="space-y-4 pb-8 border-b border-border">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Cài đặt tài khoản</h1>
-                <p className="text-muted-foreground font-medium">Quản lý thông tin cá nhân, bảo mật và các phiên đăng nhập của bạn.</p>
+                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">Quản lý thông tin cá nhân, bảo mật và các phiên đăng nhập của bạn.</p>
             </div>
 
             <Tabs defaultValue="profile" className="w-full space-y-6">
-                <TabsList className="w-full flex justify-start h-12 bg-muted/50 p-1 rounded-xl overflow-x-auto scrollbar-none">
-                    <TabsTrigger 
-                        value="profile" 
-                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
-                    >
+                <TabsList className="w-full flex justify-start overflow-x-auto scrollbar-none">
+                    <TabsTrigger value="profile">
                         <User className="size-4" />
                         Hồ sơ
                     </TabsTrigger>
                     
-                    <TabsTrigger 
-                        value="security" 
-                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
-                    >
+                    <TabsTrigger value="security">
                         <Shield className="size-4" />
                         Bảo mật
                     </TabsTrigger>
                     
-                    <TabsTrigger 
-                        value="password" 
-                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
-                    >
+                    <TabsTrigger value="password">
                         <Lock className="size-4" />
                         {hasPassword ? 'Mật khẩu' : 'Thiết lập mật khẩu'}
                     </TabsTrigger>
                     
-                    <TabsTrigger 
-                        value="sessions" 
-                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
-                    >
+                    <TabsTrigger value="sessions">
                         <Monitor className="size-4" />
                         Phiên đăng nhập
                     </TabsTrigger>

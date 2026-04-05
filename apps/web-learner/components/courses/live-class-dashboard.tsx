@@ -18,12 +18,13 @@ import {
     Calendar, Clock, Video, BookOpen, Users, 
     ChevronRight, Trophy, FileText, Sparkles,
     PlayCircle, Star, ShieldCheck, MoreHorizontal,
-    ArrowRight
+    ArrowRight, FileIcon
 } from "lucide-react"
 import { format, isSameDay, startOfWeek, addDays } from "date-fns"
 import { vi } from "date-fns/locale"
 import { CourseCurriculum } from "@/components/courses/course-curriculum"
 import { AcademyResourceList } from "./academy-resource-list"
+import { AcademyAssignmentList } from "./academy-assignment-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useCurriculum } from "@/lib/api/services/academy-classes"
 import { toast } from "sonner"
@@ -38,11 +39,20 @@ export function LiveClassDashboard() {
     const params = useParams();
     const router = useRouter();
     const classId = params.courseId as string;
+    
+    // Check URL params for active tab and selected assignment
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            return searchParams.get('tab') || "curriculum";
+        }
+        return "curriculum";
+    });
+
     const { data: academyClass, isLoading: classLoading } = useAcademyClass(classId);
     const { data: schedule, isLoading: scheduleLoading } = useClassSchedule(classId);
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
     const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(classId);
-    const [activeTab, setActiveTab] = useState("curriculum");
 
     const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
@@ -312,23 +322,30 @@ export function LiveClassDashboard() {
                                         className="rounded-xl font-bold px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all flex-1 sm:flex-none"
                                     >
                                         <BookOpen className="size-4 mr-2" />
-                                        Chương trình học
+                                        Chương trình
+                                    </TabsTrigger>
+                                    <TabsTrigger 
+                                        value="assignments" 
+                                        className="rounded-xl font-bold px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all flex-1 sm:flex-none"
+                                    >
+                                        <FileText className="size-4 mr-2" />
+                                        Bài tập
                                     </TabsTrigger>
                                     <TabsTrigger 
                                         value="resources" 
                                         className="rounded-xl font-bold px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all flex-1 sm:flex-none"
                                     >
-                                        <FileText className="size-4 mr-2" />
-                                        Tài liệu & Bài tập
+                                        <FileIcon className="size-4 mr-2" />
+                                        Tài liệu
                                     </TabsTrigger>
                                 </TabsList>
                                 <Button variant="ghost" className="hidden sm:flex text-xs font-bold text-muted-foreground hover:text-primary" onClick={() => router.push(`/courses/${classId}/learn`)}>
-                                    Mở trình học tập <ChevronRight className="ml-1 size-3" />
+                                    Học VOD <ChevronRight className="ml-1 size-3" />
                                 </Button>
                             </div>
 
-                            <TabsContent value="curriculum" className="mt-0 focus-visible:outline-none">
-                                <Card className="rounded-[2rem] border-border/50 shadow-sm overflow-hidden">
+                            <TabsContent value="curriculum" className="mt-0 focus-visible:outline-none focus:outline-none outline-none">
+                                <Card className="rounded-[2.5rem] border-border/50 shadow-sm overflow-hidden">
                                     <div className="p-1 md:p-3">
                                         {curriculum ? (
                                             <CourseCurriculum
@@ -338,15 +355,19 @@ export function LiveClassDashboard() {
                                         ) : (
                                             <div className="text-center py-20 bg-muted/10">
                                                 <div className="size-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin mx-auto mb-4"></div>
-                                                <p className="text-sm font-medium text-muted-foreground">Đang biên soạn học liệu...</p>
+                                                <p className="text-sm font-medium text-muted-foreground">Đang tải chương trình học...</p>
                                             </div>
                                         )}
                                     </div>
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="resources" className="mt-0 focus-visible:outline-none">
-                                <Card className="rounded-[2rem] border-border/50 shadow-sm overflow-hidden p-6">
+                            <TabsContent value="assignments" className="mt-0 focus-visible:outline-none focus:outline-none outline-none">
+                                <AcademyAssignmentList classId={classId} />
+                            </TabsContent>
+
+                            <TabsContent value="resources" className="mt-0 focus-visible:outline-none focus:outline-none outline-none">
+                                <Card className="rounded-[2.5rem] border-border/50 shadow-sm overflow-hidden p-8">
                                     <AcademyResourceList classId={classId} />
                                 </Card>
                             </TabsContent>

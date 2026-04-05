@@ -543,6 +543,8 @@ model Session {
 
   // Device & Metadata
   deviceInfo String? @map("device_info") @db.VarChar(100) // e.g., "iPhone 13, iOS 15" or "Chrome on Windows"
+  userAgent  String? @map("user_agent")  @db.Text
+  ipAddress  String? @map("ip_address") @db.VarChar(45)  // Support IPv6
 
   expiresAt DateTime  @map("expires_at") @db.Timestamp()
   revokedAt DateTime? @map("revoked_at") @db.Timestamp()

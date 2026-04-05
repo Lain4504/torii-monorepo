@@ -26,6 +26,7 @@ import { useAppSelector } from '@/hooks/hooks'
 import { Progress } from '@workspace/ui/components/progress'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
+import { Badge } from '@workspace/ui/components/badge'
 import { useAcademyMyCourses as useMyCourses, academyLearningProgressApi as learningProgressApi } from '@/lib/api/services/academy-learning-progress-api'
 import { useGamificationProfile, useStreak, useAchievements, useLeaderboard } from '@/lib/api/services/gamification-api'
 import { useQuery } from '@tanstack/react-query'
@@ -91,7 +92,7 @@ export default function ModernDashboard() {
 
                     {/* Current Course Spotlight */}
                     {mainCourse ? (
-                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
+                        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all pt-0 pb-0">
                             <div className="flex flex-col sm:flex-row h-full">
                                 <div className="w-full sm:w-56 h-48 sm:h-auto overflow-hidden">
                                     <img
@@ -169,7 +170,7 @@ export default function ModernDashboard() {
                     </div>
 
                     {/* Achievement Mini Cards */}
-                    <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl">
+                    <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl font-bold">
                         <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Achievements</h4>
                         <div className="grid grid-cols-3 gap-4">
                             <div className="flex flex-col items-center gap-2 group">
@@ -393,17 +394,5 @@ export default function ModernDashboard() {
                 </div>
             </div>
         </div>
-    )
-}
-
-function Badge({ children, variant = "outline", className }: { children: React.ReactNode, variant?: "outline" | "secondary", className?: string }) {
-    return (
-        <span className={cn(
-            "px-2.5 py-1 rounded-full text-[10px] font-bold",
-            variant === "outline" ? "border" : "bg-muted",
-            className
-        )}>
-            {children}
-        </span>
     )
 }

@@ -13,6 +13,7 @@ export interface ISessionService {
    */
   createSession(
     userId: string,
+    metadata?: { deviceInfo?: string; ipAddress?: string; userAgent?: string },
   ): Promise<{ refreshToken: string; sessionId: string }>;
 
   /**

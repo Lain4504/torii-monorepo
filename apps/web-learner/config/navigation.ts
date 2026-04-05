@@ -16,11 +16,14 @@ import {
     MessageSquare,
     Receipt,
     Gift,
+    Ticket,
     Languages,
     MessagesSquare,
     CalendarDays,
     Newspaper,
     Folder,
+    MonitorPlay,
+    FileText,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -37,6 +40,7 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khám phá khóa học', href: '/dashboard/available-courses', icon: BookOpen },
+    { name: 'Bài tập', href: '/dashboard/assignments', icon: FileText },
     { name: 'Blog kiến thức', href: '/dashboard/blogs', icon: Newspaper },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
@@ -56,6 +60,7 @@ export const progressNav: NavItem[] = [
 export const accountNav: NavItem[] = [
     { name: 'Hồ sơ học tập', href: '/dashboard/profile', icon: User },
     { name: 'Đánh giá & Phản hồi', href: '/dashboard/reviews', icon: MessageSquare },
+    { name: 'Mã giảm giá', href: '/dashboard/coupons', icon: Ticket },
     { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: Receipt },
     { name: 'Hỗ trợ', href: '/dashboard/support', icon: LifeBuoy },
     { name: 'Cài đặt', href: '/dashboard/settings', icon: Settings },
@@ -63,7 +68,8 @@ export const accountNav: NavItem[] = [
 
 export const aiSenseiNav: NavItem[] = [
     { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
-    { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
+    { name: 'Hội thoại tự do', href: '/ai-sensei/roleplay/interactive', icon: MessagesSquare },
+    { name: 'Live Voice Roleplay', href: '/ai-sensei/roleplay/voice', icon: MonitorPlay },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
     { name: 'Gói dịch vụ AI', href: '/dashboard/payment/subscriptions', icon: CreditCard },
 ]
