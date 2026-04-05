@@ -51,7 +51,7 @@ export function ExamHistory() {
                 <Empty className="max-w-md">
                     <EmptyHeader>
                         <EmptyMedia variant="icon" className="bg-background shadow-sm border border-border"><Inbox className="text-primary w-8 h-8" /></EmptyMedia>
-                        <EmptyTitle className="text-xl font-bold tracking-tight">Chưa có lịch sử thi</EmptyTitle>
+                        <EmptyTitle className="text-xl font-bold tracking-normal">Chưa có lịch sử thi</EmptyTitle>
                         <EmptyDescription className="font-medium text-muted-foreground/60">
                             Bạn chưa thực hiện bài thi nào. Hãy bắt đầu thử thách ngay hôm nay!
                         </EmptyDescription>
@@ -98,7 +98,7 @@ export function ExamHistory() {
                                 </TableCell>
                                 <TableCell className="py-8">
                                     <div className="space-y-1">
-                                        <h4 className="text-sm font-bold uppercase tracking-tight text-foreground group-hover:text-primary transition-colors">
+                                        <h4 className="text-sm font-bold uppercase tracking-normal text-foreground group-hover:text-primary transition-colors">
                                             {exam?.title || 'N/A'}
                                         </h4>
                                         <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground/30">
@@ -113,7 +113,7 @@ export function ExamHistory() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="py-8 text-center">
-                                    <span className="text-lg font-bold tracking-tight text-foreground leading-none">
+                                    <span className="text-lg font-bold tracking-normal text-foreground leading-none">
                                         {session.score !== undefined && session.maxScore !== undefined
                                             ? `${session.score}/${session.maxScore}`
                                             : '-'}

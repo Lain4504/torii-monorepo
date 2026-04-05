@@ -198,7 +198,7 @@ export default function PaymentHistoryPage() {
                     <CardContent>
                         <div className="flex items-baseline gap-2">
                             <span className="text-3xl font-bold text-foreground">{(balanceData || 0).toLocaleString()}</span>
-                            <span className="text-sm font-bold text-amber-600 uppercase tracking-tighter">Xu</span>
+                            <span className="text-sm font-bold text-amber-600 uppercase tracking-normaler">Xu</span>
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-1 font-medium italic">Sử dụng để thanh toán các dịch vụ & khóa học.</p>
                     </CardContent>
@@ -208,8 +208,8 @@ export default function PaymentHistoryPage() {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 border-b border-border">
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-bold text-foreground">
-                        Thanh toán & Ví
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                        Lịch sử thanh toán
                     </h1>
                     <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
                         Theo dõi các giao dịch, trạng thái thanh toán và số dư Ví Torii.
@@ -307,7 +307,7 @@ export default function PaymentHistoryPage() {
                                                             <div className="flex items-center gap-2">
                                                                 <span className="font-semibold text-foreground truncate max-w-[300px]">{order.description || 'Thanh toán khóa học'}</span>
                                                                 {(order as any).orderType === 'refund' && (
-                                                                    <Badge variant="outline" className="text-[9px] h-4 bg-amber-50 text-amber-600 border-amber-200 uppercase font-black tracking-tighter">Hoàn trả</Badge>
+                                                                    <Badge variant="outline" className="text-[9px] h-4 bg-amber-50 text-amber-600 border-amber-200 uppercase font-bold tracking-normaler">Hoàn trả</Badge>
                                                                 )}
                                                             </div>
                                                             <span className="text-xs text-muted-foreground font-medium">{order.paymentMethod || 'Cổng thanh toán'}</span>
@@ -427,21 +427,21 @@ export default function PaymentHistoryPage() {
                                                                     <div className="p-1 bg-emerald-500/10 rounded-lg">
                                                                         <ArrowUpCircle className="size-3" />
                                                                     </div>
-                                                                    <span className="font-bold tracking-tight">HOÀN TIỀN</span>
+                                                                    <span className="font-bold tracking-normal">HOÀN TIỀN</span>
                                                                 </div>
                                                             ) : tx.type === 'PURCHASE' ? (
                                                                 <div className="flex items-center gap-1.5 text-red-600">
                                                                     <div className="p-1 bg-red-500/10 rounded-lg">
                                                                         <ArrowDownCircle className="size-3" />
                                                                     </div>
-                                                                    <span className="font-bold tracking-tight">THANH TOÁN</span>
+                                                                    <span className="font-bold tracking-normal">THANH TOÁN</span>
                                                                 </div>
                                                             ) : (
                                                                 <div className="flex items-center gap-1.5 text-amber-600">
                                                                     <div className="p-1 bg-amber-500/10 rounded-lg">
                                                                         <Coins className="size-3" />
                                                                     </div>
-                                                                    <span className="font-bold tracking-tight">THIẾT LẬP</span>
+                                                                    <span className="font-bold tracking-normal">THIẾT LẬP</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -453,7 +453,7 @@ export default function PaymentHistoryPage() {
                                                         {formatDateTime(tx.createdAt)}
                                                     </TableCell>
                                                     <TableCell className={cn(
-                                                        "py-3 px-4 text-xs whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-black tabular-nums tracking-tighter",
+                                                        "py-3 px-4 text-xs whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-bold tabular-nums tracking-normaler",
                                                         tx.type === 'REFUND' || tx.type === 'BONUS' ? "text-emerald-600" : "text-red-500"
                                                     )}>
                                                         {tx.type === 'REFUND' || tx.type === 'BONUS' ? "+" : "-"}{tx.amount.toLocaleString()}

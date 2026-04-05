@@ -386,7 +386,7 @@ function CommentItem({
                             {comment.author?.displayName || 'Unknown User'}
                         </Link>
                         {comment.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE && (
-                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-black uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
+                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-bold uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
                                 <Shield className="size-2.5 fill-current" />
                                 {comment.authorRoleLabel || 'Torii Support'}
                             </Badge>

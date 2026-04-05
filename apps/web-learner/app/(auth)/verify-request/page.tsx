@@ -11,7 +11,7 @@ export default function VerifyRequestPage() {
             leftPanel={
                 <div className="space-y-8">
                     <div className="space-y-3">
-                        <h2 className="text-4xl font-bold tracking-tight leading-tight">
+                        <h2 className="text-4xl font-bold tracking-normal leading-tight">
                             Kiểm tra{' '}
                             <span className="text-primary">Email.</span>
                         </h2>

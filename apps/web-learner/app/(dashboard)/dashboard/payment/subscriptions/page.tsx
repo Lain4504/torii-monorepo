@@ -205,7 +205,7 @@ export default function SubscriptionsPage() {
                 <Badge variant="outline" className="px-4 py-1 rounded-full border-primary/30 text-primary font-bold animate-pulse">
                     AI SENSEI SUBSCRIPTIONS
                 </Badge>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-indigo-600">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                     Nâng cấp kỹ năng Tiếng Nhật cùng AI
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium">
@@ -224,11 +224,11 @@ export default function SubscriptionsPage() {
                             isCurrent && "border-primary shadow-lg shadow-primary/5 bg-primary/5"
                         )}>
                             {isCurrent ? (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
                                     <BadgeCheck className="size-3 fill-white" /> Kế hoạch hiện tại
                                 </div>
                             ) : tier.popular ? (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
                                     <Star className="size-3 fill-white" /> Phổ biến nhất
                                 </div>
                             ) : null}
@@ -242,8 +242,8 @@ export default function SubscriptionsPage() {
                                 </div>
                                 <div>
                                     <div className="flex items-center justify-between">
-                                        <CardTitle className="text-2xl font-black">{tier.name}</CardTitle>
-                                        {isCurrent && <Badge variant="secondary" className="bg-primary/20 text-primary border-none font-black text-[10px]">CURRENT</Badge>}
+                                        <CardTitle className="text-2xl font-bold">{tier.name}</CardTitle>
+                                        {isCurrent && <Badge variant="secondary" className="bg-primary/20 text-primary border-none font-bold text-[10px]">CURRENT</Badge>}
                                     </div>
                                     <CardDescription className="text-sm font-medium h-10 mt-2">
                                         {tier.description}
@@ -251,10 +251,10 @@ export default function SubscriptionsPage() {
                                 </div>
                                 <div className="py-4 border-y border-border/50">
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-black">{tier.price === 0 ? "0đ" : formatCurrency(tier.price)}</span>
+                                        <span className="text-4xl font-bold">{tier.price === 0 ? "0đ" : formatCurrency(tier.price)}</span>
                                         <span className="text-muted-foreground font-bold text-sm">/tháng</span>
                                     </div>
-                                    <div className="mt-2 flex items-center gap-2 text-primary font-black text-sm">
+                                    <div className="mt-2 flex items-center gap-2 text-primary font-bold text-sm">
                                         <Zap className="size-3.5 fill-primary" />
                                         {tier.quota}
                                     </div>
@@ -300,7 +300,7 @@ export default function SubscriptionsPage() {
 
                                 {user?.walletBalance !== undefined && user.walletBalance >= tier.price && tier.price > 0 && !isCurrent && !isDowngrade && (
                                     <button 
-                                        className="w-full mt-3 text-[10px] font-black text-amber-600 hover:text-amber-700 uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors group/coin"
+                                        className="w-full mt-3 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors group/coin"
                                         onClick={() => handleSubscribe(tier, PaymentMethod.COIN)}
                                         disabled={loadingTier === tier.id}
                                     >

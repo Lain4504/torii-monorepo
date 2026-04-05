@@ -19,7 +19,7 @@ export default function ResendVerificationPage() {
             leftPanel={
                 <div className="space-y-8">
                     <div className="space-y-3">
-                        <h2 className="text-4xl font-bold tracking-tight leading-tight">
+                        <h2 className="text-4xl font-bold tracking-normal leading-tight">
                             Kích hoạt{' '}
                             <span className="text-primary">Lại.</span>
                         </h2>

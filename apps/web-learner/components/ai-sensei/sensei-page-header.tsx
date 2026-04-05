@@ -28,7 +28,7 @@ export function SenseiPageHeader({
                         <Icon className="size-6 text-primary fill-primary/20" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight">
+                        <h1 className="text-3xl font-extrabold tracking-normal">
                             {title}
                         </h1>
                         <p className="text-muted-foreground font-medium text-sm">{description}</p>

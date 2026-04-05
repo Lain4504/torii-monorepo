@@ -208,7 +208,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
             {/* Header & New Question Action */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="space-y-1">
-                    <h3 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+                    <h3 className="text-xl font-bold tracking-normal text-foreground flex items-center gap-2.5">
                         <MessageSquare className="size-5 text-primary" />
                         Hỏi đáp bài học
                         <Badge variant="secondary" className="ml-1 font-bold">
@@ -306,7 +306,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                                     {topic.author?.displayName || 'Unknown Student'}
                                                 </span>
                                                 {topic.isOfficialReply && FEATURE_FLAGS.ENABLE_OFFICIAL_DISCUSSION_BADGE && (
-                                                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-black uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
+                                                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-bold uppercase tracking-wider h-5 flex items-center gap-1 shadow-none">
                                                         <Shield className="size-2.5 fill-current" />
                                                         {topic.authorRoleLabel || 'Torii Support'}
                                                     </Badge>
@@ -412,7 +412,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                             {expandedTopicId === topic.id ? <ChevronUp className="size-5 text-primary" /> : <ChevronDown className="size-5 text-muted-foreground/50 group-hover:text-primary/50 transition-colors" />}
                                         </div>
                                         {topic.status === 'ANSWERED' && (
-                                            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[9px] font-black uppercase tracking-wider h-5">
+                                            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-[9px] font-bold uppercase tracking-wider h-5">
                                                 Đã trả lời
                                             </Badge>
                                         )}

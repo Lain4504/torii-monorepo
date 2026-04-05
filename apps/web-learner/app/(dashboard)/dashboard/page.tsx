@@ -47,7 +47,7 @@ function GuestDashboardPreview() {
             {/* Minimal Dashboard Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Cổng thông tin Torii</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Cổng thông tin Torii</h1>
                     <p className="text-muted-foreground text-sm">Trung tâm Nhật ngữ thông minh hỗ trợ bởi AI Sensei.</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -245,8 +245,9 @@ function AuthenticatedDashboardPage() {
     const level = profile?.level ?? 1;
     const totalXp = profile?.totalXp ?? 0;
     const points = profile?.points ?? 0;
-    const xpForNextLevel = (level) * 1000;
-    const xpProgress = Math.min(100, (totalXp % 1000) / 10);
+    const currentXpInLevel = profile?.currentXp ?? 0;
+    const xpNeededForNextLevel = 100 * (level + 1);
+    const xpProgress = Math.min(100, (currentXpInLevel / xpNeededForNextLevel) * 100);
 
     // Achievements count
     const achievementCount = achievements?.length ?? 0;
@@ -279,7 +280,7 @@ function AuthenticatedDashboardPage() {
             {/* Welcome Header */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6" data-purpose="welcome-section">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight">
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                         Chào mừng trở lại, {firstName}! <Hand className="inline-block size-6 translate-y-0.5" />
                     </h1>
                     <p className="text-muted-foreground">Hôm nay là một ngày tuyệt vời để học tiếng Nhật.</p>
@@ -418,7 +419,7 @@ function AuthenticatedDashboardPage() {
                                     </svg>
                                     <div className="absolute text-center">
                                         <span className="block text-2xl font-bold">{progressPercent}%</span>
-                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Sẵn sàng</span>
+                                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-normaler">Sẵn sàng</span>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
@@ -492,10 +493,10 @@ function AuthenticatedDashboardPage() {
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-muted/30">
-                                            <th className="px-5 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Chủ đề</th>
-                                            <th className="px-5 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Giảng viên</th>
-                                            <th className="px-5 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Thời gian</th>
-                                            <th className="px-5 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest text-right">Trạng thái</th>
+                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chủ đề</th>
+                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Giảng viên</th>
+                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Thời gian</th>
+                                            <th className="px-5 py-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Trạng thái</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
@@ -636,7 +637,7 @@ function AuthenticatedDashboardPage() {
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs font-bold">
                                 <span>Đến Lv. {level + 1}</span>
-                                <span>{(totalXp % 1000).toLocaleString('vi-VN')} / 1,000 XP</span>
+                                <span>{currentXpInLevel.toLocaleString('vi-VN')} / {xpNeededForNextLevel.toLocaleString('vi-VN')} XP</span>
                             </div>
                             <div className="w-full bg-muted rounded-full h-2">
                                 <div

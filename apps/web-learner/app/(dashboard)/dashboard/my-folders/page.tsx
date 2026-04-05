@@ -45,7 +45,7 @@ export default function MyFoldersPage() {
                         Quay lại danh sách lớp
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Tài liệu: {selectedClass?.className}</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Tài liệu: {selectedClass?.className}</h1>
                         <p className="text-muted-foreground">Xem danh sách các thư mục và tài nguyên học tập được chia sẻ.</p>
                     </div>
                 </div>
@@ -58,7 +58,7 @@ export default function MyFoldersPage() {
         <div className="flex flex-col gap-8 animate-in fade-in duration-500">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight">Thư mục của tôi</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thư mục của tôi</h1>
                     <p className="text-muted-foreground">Quản lý và truy cập nhanh các tài liệu từ tất cả các lớp học bạn tham gia.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">

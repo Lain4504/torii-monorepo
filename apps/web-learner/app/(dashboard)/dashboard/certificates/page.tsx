@@ -34,7 +34,7 @@ export default function CertificatesPage() {
         <div className="space-y-10 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div className="space-y-3">
-                <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                     Chứng chỉ của tôi
                 </h1>
                 <p className="text-base text-muted-foreground max-w-2xl leading-relaxed font-medium">
@@ -135,7 +135,7 @@ export default function CertificatesPage() {
                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                                 <span>Đã cấp chính thức</span>
                                             </div>
-                                            <div className="text-xs font-mono text-muted-foreground/60 px-2 py-1 rounded bg-muted/40 uppercase tracking-tighter break-all w-fit mt-1">
+                                            <div className="text-xs font-mono text-muted-foreground/60 px-2 py-1 rounded bg-muted/40 uppercase tracking-normaler break-all w-fit mt-1">
                                                 ID: {certCode}
                                             </div>
                                         </div>

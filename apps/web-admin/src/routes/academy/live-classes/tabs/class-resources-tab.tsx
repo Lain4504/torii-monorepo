@@ -12,10 +12,8 @@ import { storageApi } from "@/lib/api/services/storage-api"
 import {
     Folder,
     FileText,
-    Link as LinkIcon,
     Plus,
     Trash2,
-    ExternalLink,
     Download,
     MoreVertical,
     Eye,
@@ -100,12 +98,14 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
         description: string;
         type: AcademyResourceType;
         fileAssetId: string;
+        externalUrl: string;
         visibility: AcademyResourceVisibility;
     }>({
         title: "",
         description: "",
         type: AcademyResourceType.FILE,
         fileAssetId: "",
+        externalUrl: "",
         visibility: AcademyResourceVisibility.PUBLIC
     })
 
@@ -189,6 +189,7 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                 description: "",
                 type: AcademyResourceType.FILE,
                 fileAssetId: "",
+                externalUrl: "",
                 visibility: AcademyResourceVisibility.PUBLIC
             })
         } catch (error) {

@@ -15,6 +15,7 @@ import { formatDateTime, vi } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
 import { toast } from 'sonner';
 import { orderApi } from '@/lib/api/services/order-api';
+import { extractErrorMessage } from '@/lib/api/api-client';
 import { OrderStatus } from '@workspace/schemas';
 import {
     Field,
@@ -52,8 +53,8 @@ export function ExportOrdersDialog({ open, onOpenChange, filters }: ExportOrders
 
             toast.success('Đã xuất dữ liệu thành công');
             onOpenChange(false);
-        } catch (error: any) {
-            toast.error('Lỗi khi xuất dữ liệu: ' + (error?.message || 'Lỗi không xác định'));
+        } catch (error: unknown) {
+            toast.error('Lỗi khi xuất dữ liệu: ' + (extractErrorMessage(error as any) || 'Lỗi không xác định'));
         } finally {
             setIsExporting(false);
         }

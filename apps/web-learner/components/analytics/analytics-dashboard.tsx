@@ -118,7 +118,7 @@ function AIInsightsPanel({ snapshot, targetLevel }: { snapshot: AnalyticsSnapsho
                                 <h3 className="font-bold text-foreground">Mức độ sẵn sàng {targetLevel}</h3>
                                 <p className="text-sm text-muted-foreground">Dựa trên kết quả bài tập và bài test</p>
                             </div>
-                            <span className="text-4xl font-black text-primary">{readinessScore}%</span>
+                            <span className="text-4xl font-bold text-primary">{readinessScore}%</span>
                         </div>
                         <div className="w-full bg-muted h-3 rounded-full overflow-hidden mb-3">
                             <div className="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
@@ -288,7 +288,7 @@ export function AnalyticsDashboard() {
             {/* ── Header ──────────────────────── */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-black tracking-tight text-foreground">Phân Tích Tiến Độ</h1>
+                    <h1 className="text-3xl font-bold tracking-normal text-foreground">Phân Tích Tiến Độ</h1>
                     <p className="text-muted-foreground mt-1 text-sm">Cá nhân hóa lộ trình và theo dõi mục tiêu JLPT của bạn.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 bg-secondary/30 p-1.5 rounded-2xl border">
@@ -376,7 +376,7 @@ export function AnalyticsDashboard() {
                                 </div>
                                 <div>
                                     <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Study Streak</p>
-                                    <p className="text-2xl font-black text-foreground line-height-1 mt-0.5">{stats?.streak ?? 0} Ngày</p>
+                                    <p className="text-2xl font-bold text-foreground line-height-1 mt-0.5">{stats?.streak ?? 0} Ngày</p>
                                 </div>
                             </div>
                             {stats?.streak > 0 && <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold px-2 py-1 rounded-lg">🔥 ON FIRE</span>}
@@ -396,7 +396,7 @@ export function AnalyticsDashboard() {
                         <Zap className="absolute -bottom-4 -right-4 h-32 w-32 opacity-10 group-hover:scale-110 transition-transform duration-700" />
                         <div className="relative z-10">
                             <p className="text-[10px] uppercase font-bold tracking-widest opacity-70">Mục tiêu hôm nay</p>
-                            <h3 className="text-2xl font-black mt-1">{chartData[6]?.value ?? 0} / {displayGoal}</h3>
+                            <h3 className="text-2xl font-bold mt-1">{chartData[6]?.value ?? 0} / {displayGoal}</h3>
                             <p className="text-xs mt-2 opacity-80 leading-relaxed font-medium">
                                 {Number(chartData[6]?.value) >= displayGoal
                                     ? "Thật tuyệt vời! Bạn đã hoàn thành mục tiêu ngày hôm nay. 🎉"
@@ -458,7 +458,7 @@ export function AnalyticsDashboard() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-2">
                                                 <p className="text-sm font-bold text-foreground truncate">{course.courseTitle}</p>
-                                                <span className="text-sm font-black text-primary ml-2">{Math.round(course.progress ?? 0)}%</span>
+                                                <span className="text-sm font-bold text-primary ml-2">{Math.round(course.progress ?? 0)}%</span>
                                             </div>
                                             <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
                                                 <div className="bg-primary h-full rounded-full transition-all duration-700"
@@ -483,7 +483,7 @@ export function AnalyticsDashboard() {
 
                 <div className="pt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
                     <header className="mb-6">
-                        <h2 className="text-2xl font-black text-foreground flex items-center gap-2">
+                        <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
                              <Sparkles className="h-6 w-6 text-primary" /> Phân Tích Chuyên Sâu
                         </h2>
                         <p className="text-muted-foreground text-sm">Hiểu rõ năng lực và nhận lộ trình tối ưu từ chuyên gia AI.</p>
@@ -515,7 +515,7 @@ function StatMetric({ icon, label, value, sub, progress }: {
                 <div className="p-2.5 rounded-2xl bg-muted/50 border shrink-0">{icon}</div>
                 <div>
                     <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{label}</p>
-                    <p className="text-xl font-black text-foreground mt-0.5">{value}</p>
+                    <p className="text-xl font-bold text-foreground mt-0.5">{value}</p>
                 </div>
             </div>
             {progress !== undefined && (
@@ -541,7 +541,7 @@ function AICallToAction({ targetLevel, onRequest, isLoading }: {
                 <Sparkles className="h-10 w-10 text-primary-foreground" />
             </div>
             <div className="relative z-10">
-                <h3 className="text-xl font-black text-foreground mb-3">Phân tích AI Sensei</h3>
+                <h3 className="text-xl font-bold text-foreground mb-3">Phân tích AI Sensei</h3>
                 <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-medium">
                     Để AI phân tích dữ liệu học tập của bạn và đưa ra lộ trình tối ưu nhất cho mục tiêu <strong>{targetLevel}</strong>.
                 </p>

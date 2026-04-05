@@ -189,7 +189,7 @@ export function SecurityTab() {
     return (
         <div className="space-y-4">
             {/* Security Header */}
-            <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-4">
                 <Shield className="w-4 h-4 text-primary" />
                 Bảo mật tài khoản
             </h3>
@@ -205,7 +205,7 @@ export function SecurityTab() {
                             Sử dụng Authenticator App để tạo mã xác minh khi đăng nhập.
                         </CardDescription>
                     </div>
-                    <Badge variant="secondary" className={isEnabled ? "bg-primary/20 text-primary border-primary/20" : "bg-muted text-muted-foreground"}>
+                    <Badge variant="secondary">
                         {isEnabled ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
                     </Badge>
                 </CardHeader>
@@ -293,7 +293,7 @@ export function SecurityTab() {
                         <p className="text-sm text-muted-foreground">Đang tải trạng thái tài khoản liên kết...</p>
                     ) : (
                         <div className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2.5">
+                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-3">
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium">Google</span>
                                     <span className="text-xs text-muted-foreground">
@@ -303,7 +303,7 @@ export function SecurityTab() {
                                 <div className="flex items-center gap-2">
                                     <Badge
                                         variant={hasGoogle ? 'default' : 'secondary'}
-                                        className="text-[10px] uppercase font-bold"
+                                        className="text-xs font-semibold"
                                     >
                                         {hasGoogle ? 'Đã liên kết' : 'Chưa liên kết'}
                                     </Badge>
@@ -331,7 +331,7 @@ export function SecurityTab() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2.5">
+                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-3">
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium">Facebook</span>
                                     <span className="text-xs text-muted-foreground">
@@ -341,7 +341,7 @@ export function SecurityTab() {
                                 <div className="flex items-center gap-2">
                                     <Badge
                                         variant={hasFacebook ? 'default' : 'secondary'}
-                                        className="text-[10px] uppercase font-bold"
+                                        className="text-xs font-semibold"
                                     >
                                         {hasFacebook ? 'Đã liên kết' : 'Chưa liên kết'}
                                     </Badge>

@@ -20,7 +20,7 @@ export function Footer() {
                         <Link href="/" className="flex items-center gap-3">
                             <Image src={logo} alt="Torii Nihongo" width={56} height={56} className="w-10 h-auto object-contain" />
                             <div className="flex flex-col">
-                                <span className="text-xl font-black tracking-tighter text-foreground leading-none font-space uppercase">Torii</span>
+                                <span className="text-xl font-bold tracking-normaler text-foreground leading-none uppercase">Torii</span>
                                 <span className="text-[9px] font-bold text-muted-foreground tracking-[0.4em] leading-none mt-1 uppercase">Nihongo</span>
                             </div>
                         </Link>
@@ -39,7 +39,7 @@ export function Footer() {
                     </div>
 
                     <div className="space-y-8">
-                        <h4 className="text-foreground font-black text-xs uppercase tracking-[0.2em] font-space">Học tập</h4>
+                        <h4 className="text-foreground font-bold text-xs uppercase tracking-[0.2em]">Học tập</h4>
                         <ul className="space-y-4">
                             <li><Link href="/dashboard/available-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Thư viện VOD JLPT</Link></li>
                             <li><Link href="/live-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Lịch khai giảng Live</Link></li>
@@ -49,31 +49,31 @@ export function Footer() {
                     </div>
 
                     <div className="space-y-8">
-                        <h4 className="text-foreground font-black text-xs uppercase tracking-[0.2em] font-space">Kết nối</h4>
+                        <h4 className="text-foreground font-bold text-xs uppercase tracking-[0.2em]">Kết nối</h4>
                         <ul className="space-y-4">
                             <li className="flex flex-col gap-1">
-                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Hotline</span>
+                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Hotline</span>
                                 <span className="text-sm font-bold text-foreground">1900 1234</span>
                             </li>
                             <li className="flex flex-col gap-1">
-                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Email</span>
+                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Email</span>
                                 <span className="text-sm font-bold text-foreground">contact@toriinihongo.edu.vn</span>
                             </li>
                             <li className="flex flex-col gap-1">
-                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-black">Địa chỉ</span>
+                                <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Địa chỉ</span>
                                 <span className="text-sm font-bold text-foreground leading-relaxed">123 Đường Trần Phú, Quận Hải Châu, TP. Đà Nẵng</span>
                             </li>
                         </ul>
                     </div>
 
                     <div className="space-y-8">
-                        <h4 className="text-foreground font-black text-xs uppercase tracking-[0.2em] font-space">Newsletter</h4>
+                        <h4 className="text-foreground font-bold text-xs uppercase tracking-[0.2em]">Newsletter</h4>
                         <p className="text-sm text-muted-foreground font-medium leading-relaxed">
                             Nhận lịch khai giảng ưu đãi và tài liệu JLPT miễn phí hàng tuần.
                         </p>
                         <div className="flex flex-col gap-3">
                             <Input placeholder="Email của bạn..." className="bg-muted/30 border-border rounded-xl h-12 px-4 focus-visible:ring-primary font-medium" />
-                            <Button className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20">Đăng ký ngay</Button>
+                            <Button className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20">Đăng ký ngay</Button>
                         </div>
                     </div>
                 </div>

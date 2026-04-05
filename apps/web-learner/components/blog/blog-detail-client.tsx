@@ -7,20 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/av
 import {
     Calendar,
     Clock,
-    Facebook,
-    Twitter,
-    Link as LinkIcon,
     Eye,
-    MessageCircle,
+    ChevronLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { useBlogBySlug, blogApi } from '@/lib/api/services/blog-api';
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { toast } from 'sonner';
-
-const CopyLink = LinkIcon;
 
 interface BlogDetailClientProps {
     slug: string;
@@ -175,22 +169,6 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
         );
     };
 
-    const handleShareFacebook = () => {
-        const url = encodeURIComponent(window.location.href);
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
-    };
-
-    const handleShareTwitter = () => {
-        const url = encodeURIComponent(window.location.href);
-        const text = encodeURIComponent(blog?.title || '');
-        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-    };
-
-    const handleCopyLink = () => {
-        navigator.clipboard.writeText(window.location.href);
-        toast.success("Đã sao chép liên kết bài viết!");
-    };
-
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background">
@@ -233,82 +211,70 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
     return (
         <div className="min-h-screen bg-background font-sans text-foreground">
             <main className="container mx-auto px-4 lg:px-8 py-10 md:py-16">
-                {/* Header */}
-                <div className="max-w-5xl mx-auto text-center mb-10">
-                    {blog.tags && blog.tags.length > 0 && (
-                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-6 uppercase tracking-wider font-bold">
-                            {blog.tags[0]}
-                        </Badge>
-                    )}
-                    <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight md:leading-[1.1] mb-6">
-                        {blog.title}
-                    </h1>
-                    {blog.excerpt && (
-                        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-                            {blog.excerpt}
-                        </p>
-                    )}
+                {/* Header Section */}
+                <div className="max-w-4xl mx-auto mb-12">
+                    <div className="flex flex-col gap-6 text-left">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <Link href="/dashboard/blogs" className="text-muted-foreground hover:text-primary transition-colors text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 border border-border/50">
+                                <ChevronLeft className="size-3" strokeWidth={3} />
+                                Quay lại
+                            </Link>
+                            {blog.tags && blog.tags.length > 0 && (
+                                <Badge className="bg-primary/10 text-primary border-none text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1">
+                                    {blog.tags[0]}
+                                </Badge>
+                            )}
+                        </div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground font-medium">
-                        {blog.publishedAt && (
-                            <>
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground leading-tight">
+                            {blog.title}
+                        </h1>
+
+                        {blog.excerpt && (
+                            <p className="text-lg md:text-xl text-muted-foreground font-medium leading-relaxed max-w-3xl border-l-4 border-primary/20 pl-6 italic">
+                                {blog.excerpt}
+                            </p>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-y-4 gap-x-8 text-xs sm:text-sm text-muted-foreground font-bold uppercase tracking-widest mt-2 border-t border-border/50 pt-6">
+                            {blog.publishedAt && (
                                 <div className="flex items-center gap-2">
-                                    <Calendar className="size-4" strokeWidth={2} />
+                                    <div className="p-1.5 rounded-lg bg-muted text-primary"><Calendar className="size-4" /></div>
                                     <span>{formatDate(blog.publishedAt.toString())}</span>
                                 </div>
-                                <div className="w-1 h-1 rounded-full bg-border hidden md:block"></div>
-                            </>
-                        )}
-                        <div className="flex items-center gap-2">
-                            <Clock className="size-4" strokeWidth={2} />
-                            <span>{getReadingTime(blog.content)}</span>
-                        </div>
-                        {blog.viewCount !== undefined && (
-                            <>
-                                <div className="w-1 h-1 rounded-full bg-border hidden md:block"></div>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 rounded-lg bg-muted text-primary"><Clock className="size-4" /></div>
+                                <span>{getReadingTime(blog.content)}</span>
+                            </div>
+                            {blog.viewCount !== undefined && (
                                 <div className="flex items-center gap-2">
-                                    <Eye className="size-4" strokeWidth={2} />
+                                    <div className="p-1.5 rounded-lg bg-muted text-primary"><Eye className="size-4" /></div>
                                     <span>{blog.viewCount} lượt xem</span>
                                 </div>
-                            </>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="max-w-5xl mx-auto">
-                    <div>
-                        {renderContent(blog.content)}
+                {/* Featured Image */}
+                {blog.coverImageUrl && (
+                    <div className="max-w-5xl mx-auto mb-16 px-0 sm:px-4">
+                        <div className="aspect-[21/9] rounded-[2rem] overflow-hidden shadow-2xl border border-border/50">
+                            <img
+                                src={blog.coverImageUrl}
+                                className="w-full h-full object-cover"
+                                alt={blog.title}
+                            />
+                        </div>
                     </div>
+                )}
 
-                    {/* Social Share */}
-                    <div className="mt-12 flex items-center justify-center gap-4">
-                        <span className="text-sm font-bold text-muted-foreground">Chia sẻ:</span>
-                        <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="rounded-full hover:bg-blue-500 hover:text-white transition-colors"
-                            onClick={handleShareFacebook}
-                        >
-                            <Facebook className="size-4" />
-                        </Button>
-                        <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="rounded-full hover:bg-sky-400 hover:text-white transition-colors"
-                            onClick={handleShareTwitter}
-                        >
-                            <Twitter className="size-4" />
-                        </Button>
-                        <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="rounded-full hover:bg-primary hover:text-white transition-colors"
-                            onClick={handleCopyLink}
-                        >
-                            <CopyLink className="size-4" />
-                        </Button>
-                    </div>
+                {/* Main Content Area */}
+                <div className="max-w-4xl mx-auto">
+                    <article className="prose-container">
+                        {renderContent(blog.content)}
+                    </article>
                 </div>
             </main>
         </div>

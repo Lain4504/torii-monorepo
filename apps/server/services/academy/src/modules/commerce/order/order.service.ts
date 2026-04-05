@@ -682,7 +682,7 @@ export class OrderService {
         include: {
           user: { select: { email: true, displayName: true } },
           items: {
-            include: { vodPackage: true, cohort: true, subscriptionPlan: true },
+            include: { vodPackage: true, cohort: true, liveClass: true, subscriptionPlan: true },
           },
           transactions: true,
         },
@@ -719,7 +719,7 @@ export class OrderService {
       include: {
         user: { select: { email: true, displayName: true } },
         items: {
-          include: { vodPackage: true, cohort: true, subscriptionPlan: true },
+          include: { vodPackage: true, cohort: true, liveClass: true, subscriptionPlan: true },
         },
         transactions: true,
       },
@@ -756,7 +756,7 @@ export class OrderService {
       where: { code, userId },
       include: {
         items: {
-          include: { vodPackage: true, cohort: true, subscriptionPlan: true },
+          include: { vodPackage: true, cohort: true, liveClass: true, subscriptionPlan: true },
         },
         enrollments: { select: { liveClassId: true, vodPackageId: true } },
       },
@@ -774,6 +774,7 @@ export class OrderService {
               include: {
                 vodPackage: true,
                 cohort: true,
+                liveClass: true,
                 subscriptionPlan: true,
               },
             },

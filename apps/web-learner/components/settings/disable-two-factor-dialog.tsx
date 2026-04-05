@@ -53,7 +53,7 @@ export function DisableTwoFactorDialog({ open, onOpenChange }: DisableTwoFactorD
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-md rounded-2xl border-border/20 bg-background/95 backdrop-blur-xl shadow-2xl shadow-primary/5">
                 <DialogHeader className="space-y-3">
-                    <DialogTitle className="flex items-center gap-3 text-2xl font-sans font-bold italic tracking-tight text-foreground">
+                    <DialogTitle className="flex items-center gap-3 text-2xl font-sans font-bold italic tracking-normal text-foreground">
                         <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                             <AlertTriangle className="size-5" />
                         </div>

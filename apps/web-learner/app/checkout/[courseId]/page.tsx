@@ -284,7 +284,7 @@ export default function CheckoutPage() {
                 </Button>
 
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Thanh toán</h1>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thanh toán</h1>
                     <p className="text-muted-foreground mt-1">Hoàn tất đơn hàng để bắt đầu hành trình học tập.</p>
                 </div>
 
@@ -315,14 +315,12 @@ export default function CheckoutPage() {
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
                                                 <ItemContent><ItemTitle>{formatNumber(lessonCount)} bài học</ItemTitle></ItemContent>
                                             </Item>
-                                            {isLIVE && selectedClass && liveCapacityLabel(selectedClass) && (
-                                                <Item size="sm">
-                                                    <ItemMedia variant="icon"><Users /></ItemMedia>
-                                                    <ItemContent>
-                                                        <ItemTitle>{liveCapacityLabel(selectedClass)}</ItemTitle>
-                                                    </ItemContent>
-                                                </Item>
-                                            )}
+                                            <Item size="sm">
+                                                <ItemMedia variant="icon"><Users /></ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle className="text-sm">{liveCapacityLabel(selectedClass)}</ItemTitle>
+                                                </ItemContent>
+                                            </Item>
                                         </ItemGroup>
                                     </div>
                                 </div>
@@ -412,15 +410,15 @@ export default function CheckoutPage() {
 
                                     {/* Coin Payment Option */}
                                     {user?.walletBalance !== undefined && user.walletBalance > 0 && (
-                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-center justify-between group mt-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-amber-500/20 rounded-lg">
-                                                    <Coins className="size-4 text-amber-600" />
+                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between group mt-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-amber-500/20 rounded-lg">
+                                                    <Coins className="size-5 text-amber-600" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Ví Xu Torii</p>
-                                                    <p className="text-xs font-semibold text-amber-900">
-                                                        Bạn có {formatNumber(user.walletBalance)} Xu
+                                                    <p className="text-sm font-semibold text-amber-900">Ví Xu Torii</p>
+                                                    <p className="text-xs text-amber-800">
+                                                        Bạn có {formatNumber(user.walletBalance)} xu
                                                     </p>
                                                 </div>
                                             </div>
@@ -428,11 +426,11 @@ export default function CheckoutPage() {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="h-7 px-2 text-[10px] font-black uppercase text-amber-600 hover:text-white hover:bg-amber-500 border border-amber-500/30 rounded-lg transition-all"
+                                                    className="h-8 px-3 text-xs font-semibold text-amber-600 hover:text-white hover:bg-amber-500 border border-amber-500/30 rounded-lg transition-all"
                                                     onClick={() => handlePayment(PaymentMethod.COIN)}
                                                     disabled={isProcessing}
                                                 >
-                                                    Thanh toán bằng Xu
+                                                    Thanh toán bằng xu
                                                 </Button>
                                             )}
                                         </div>

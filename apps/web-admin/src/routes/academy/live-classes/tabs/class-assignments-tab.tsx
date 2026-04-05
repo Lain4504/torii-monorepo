@@ -117,10 +117,9 @@ export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsT
   }
 
   const handleGoToGrading = (ca: AcademyClassAssignment) => {
-    const baseUrl = vodPackageId
-      ? `/academy/vod-packages/${vodPackageId}`
-      : `/academy/live-classes/${classId}`;
-    navigate(`${baseUrl}/assignments/${ca.id}/submissions`)
+    if (vodPackageId) return
+    if (!classId) return
+    navigate(`/academy/live-classes/${classId}/assignments/${ca.id}/submissions`)
   }
 
   if (isLoadingAssignments) {
@@ -219,6 +218,7 @@ export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsT
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {!vodPackageId ? (
                       <Button
                         size="sm"
                         variant="outline"
@@ -227,6 +227,7 @@ export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsT
                         <CheckCircle2 className="size-3 mr-1" />
                         Chấm điểm
                       </Button>
+                      ) : null}
                       {(!ca.deadline || new Date(ca.deadline) >= new Date()) && (
                         <Button
                           size="sm"

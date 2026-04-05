@@ -9,6 +9,7 @@ export const academyLiveClassCreateDTOSchema = z.object({
   status: z.enum(['DRAFT', 'OPENING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
   price: z.coerce.number().min(0).optional().nullable(),
   discountPrice: z.coerce.number().min(0).optional().nullable(),
+  thumbnailUrl: z.string().url().optional().nullable(),
   schedules: z.array(z.object({
     weekday: z.number().int().min(0).max(6),
     startTime: z.string(),

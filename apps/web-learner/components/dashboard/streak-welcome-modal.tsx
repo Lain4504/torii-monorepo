@@ -185,7 +185,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
           <div className="bg-background">
             <div className="px-3 pt-6 pb-4 sm:px-8 sm:pt-8 sm:pb-6">
               <div className="space-y-1 text-center">
-                <div className="text-xl font-black tracking-tight text-foreground">
+                <div className="text-xl font-bold tracking-normal text-foreground">
                   {currentStreak || 0}{' '}
                   <span className="text-primary">ngày streak</span>
                 </div>
@@ -216,12 +216,12 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                         )}
                       >
                         {d.status === 'done' && (
-                          <div className="absolute inset-0 flex items-center justify-center text-primary-foreground text-base font-black">
+                          <div className="absolute inset-0 flex items-center justify-center text-primary-foreground text-base font-bold">
                             ✓
                           </div>
                         )}
                         {d.status === 'frozen' && (
-                          <div className="absolute inset-0 flex items-center justify-center text-blue-500 text-base font-black">
+                          <div className="absolute inset-0 flex items-center justify-center text-blue-500 text-base font-bold">
                             <Shield className="h-5 w-5 fill-blue-500 text-white" />
                           </div>
                         )}
@@ -239,7 +239,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
 
               <div className="mt-8 flex items-center justify-between">
                 <div className="text-sm font-semibold text-muted-foreground">
-                  Freeze: <span className="font-black text-foreground">{freezeCount || 0}</span>
+                  Freeze: <span className="font-bold text-foreground">{freezeCount || 0}</span>
                 </div>
 
                 <Button
@@ -256,20 +256,20 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
           <div className="bg-background px-3 py-6 sm:px-8 sm:py-8">
             <div className="mx-auto w-full max-w-2xl">
               <div className="text-center">
-                <div className="text-xl font-black tracking-tight text-foreground">
+                <div className="text-xl font-bold tracking-normal text-foreground">
                   {currentStreak || 0}{' '}
                   <span className="text-primary">ngày streak</span>
                 </div>
               </div>
 
-              <div className="mt-5 text-base font-black text-foreground">Lịch sử học</div>
+              <div className="mt-5 text-base font-bold text-foreground">Lịch sử học</div>
 
               <div className="mt-4 w-full rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-10 w-10 rounded-full p-0 text-xl font-black text-muted-foreground hover:bg-muted/60"
+                    className="h-10 w-10 rounded-full p-0 text-xl font-bold text-muted-foreground hover:bg-muted/60"
                     onClick={() =>
                       setDetailMonth((d) =>
                         new Date(d.getFullYear(), d.getMonth() - 1, 1),
@@ -278,13 +278,13 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   >
                     ‹
                   </Button>
-                  <div className="text-sm font-black text-foreground">
+                  <div className="text-sm font-bold text-foreground">
                     {monthLabel}
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-10 w-10 rounded-full p-0 text-xl font-black text-muted-foreground hover:bg-muted/60"
+                    className="h-10 w-10 rounded-full p-0 text-xl font-bold text-muted-foreground hover:bg-muted/60"
                     onClick={() =>
                       setDetailMonth((d) =>
                         new Date(d.getFullYear(), d.getMonth() + 1, 1),
@@ -295,7 +295,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   </Button>
                 </div>
 
-              <div className="mx-auto mt-5 grid w-fit grid-cols-7 gap-3 text-center text-xs font-black text-muted-foreground">
+              <div className="mx-auto mt-5 grid w-fit grid-cols-7 gap-3 text-center text-xs font-bold text-muted-foreground">
                 <div className="w-10">SUN</div>
                 <div className="w-10">MON</div>
                 <div className="w-10">TUE</div>
@@ -310,7 +310,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   <div
                     key={idx}
                     className={cn(
-                      'h-10 w-10 rounded-lg text-center text-sm font-black leading-10',
+                      'h-10 w-10 rounded-lg text-center text-sm font-bold leading-10',
                       c.label == null && 'opacity-0',
                       c.label != null && c.state === 'todo' && 'bg-muted/40 text-muted-foreground',
                       c.label != null && c.state === 'done' && 'bg-primary/15 text-primary',

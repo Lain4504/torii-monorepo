@@ -76,6 +76,7 @@ export class VodPackageService {
         status: (data.status as any) ?? 'DRAFT',
         rejectionReason: data.rejectionReason,
         instructorId: data.instructorId,
+        thumbnailUrl: data.thumbnailUrl,
         submittedForApprovalAt:
           data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },
@@ -111,6 +112,7 @@ export class VodPackageService {
         status: data.status as any,
         rejectionReason: data.rejectionReason,
         instructorId: data.instructorId,
+        thumbnailUrl: data.thumbnailUrl,
         submittedForApprovalAt:
           data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
       },

@@ -52,7 +52,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                         <ItemMedia>
                             <span
                                 className={cn(
-                                    'w-5 text-center text-xs font-black',
+                                    'w-5 text-center text-xs font-bold',
                                     idx === 0 ? 'text-warning' : idx === 1 ? 'text-muted-foreground' : idx === 2 ? 'text-orange-600' : 'text-muted-foreground/50',
                                 )}
                             >
@@ -70,7 +70,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                         </ItemContent>
                         <ItemActions>
                             <Star className="size-3 fill-warning text-warning" />
-                            <span className="text-xs font-black tabular-nums">{item.xp}</span>
+                            <span className="text-xs font-bold tabular-nums">{item.xp}</span>
                         </ItemActions>
                     </Item>
                 ))}
@@ -84,7 +84,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                         </div>
                         <Item size="xs" variant="outline" className="border-primary/10 bg-primary/5">
                             <ItemMedia>
-                                <span className="w-5 text-center text-xs font-black text-primary">
+                                <span className="w-5 text-center text-xs font-bold text-primary">
                                     {data.currentUser.rank}
                                 </span>
                             </ItemMedia>
@@ -93,7 +93,7 @@ export function LeaderboardPreview({ data, isLoading }: LeaderboardPreviewProps)
                             </ItemContent>
                             <ItemActions>
                                 <Star className="size-3 fill-warning text-warning" />
-                                <span className="text-xs font-black tabular-nums">{data.currentUser.xp}</span>
+                                <span className="text-xs font-bold tabular-nums">{data.currentUser.xp}</span>
                             </ItemActions>
                         </Item>
                     </>

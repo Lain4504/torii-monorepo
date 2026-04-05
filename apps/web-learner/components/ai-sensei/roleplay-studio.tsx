@@ -71,7 +71,7 @@ export function RoleplayStudio() {
     return (
         <div className="max-w-5xl py-8 space-y-8">
             <header className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">Hội thoại Roleplay</h1>
+                <h1 className="text-3xl font-bold tracking-normal">Hội thoại Roleplay</h1>
                 <p className="text-muted-foreground">Luyện tập hội thoại tiếng Nhật theo nhiều tình huống khác nhau.</p>
             </header>
 
@@ -179,7 +179,7 @@ export function RoleplayStudio() {
                                             </Avatar>
                                             <div className="space-y-2 flex-1">
                                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{line.speaker}</p>
-                                                <p className={cn("text-lg font-medium leading-relaxed tracking-tight transition-all", isPracticeMode ? 'blur-md hover:blur-none cursor-help bg-muted/50 rounded p-1' : '')}>
+                                                <p className={cn("text-lg font-medium leading-relaxed tracking-normal transition-all", isPracticeMode ? 'blur-md hover:blur-none cursor-help bg-muted/50 rounded p-1' : '')}>
                                                     {line.japanese}
                                                 </p>
                                                 <p className="text-sm text-muted-foreground italic leading-relaxed">

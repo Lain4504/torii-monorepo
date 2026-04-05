@@ -3,10 +3,9 @@
 
 import { useState, useMemo, useEffect } from "react"
 import {
-    Command,
     LayoutGrid,
     BookOpen,
-    Users,
+    Building2,
 } from "lucide-react"
 
 import { NavMain } from "@/components/layout/nav-main"
@@ -24,82 +23,89 @@ import { selectUser } from "@/store/slices/auth-slice"
 import { academicNavItems, operationsNavItems, financeNavItems, personnelNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 import { UserRole } from "@workspace/schemas"
 
-// Workspace theo rbac-config.yaml v3.1: Academic Hub = nội dung + lớp/lịch; Operations = đơn/coupon/support + đọc academy
+/**
+ * Workspace sidebar bám `apps/server/config/rbac-config.yaml` v3.1:
+ * - admin: một workspace tổng (toàn menu), không lặp lại 4–5 mục con.
+ * - staff-academic + lecturer: một workspace học vụ; nhóm Người dùng chỉ cho staff-academic (user.view).
+ * - staff-operations: một workspace vận hành gồm blog/support, kinh doanh, user (xem), audit.
+ */
 interface Workspace extends Team {
     id: string;
-    roles: string[];
     navItems: { labelKey: string; items: NavItem[] }[];
 }
 
-const WORKSPACES: Workspace[] = [
-    {
-        id: "academic",
-        name: "Academic Hub",
-        logo: BookOpen,
-        plan: "Hệ thống Học tập",
-        roles: [UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF_ACADEMIC],
-        navItems: [
-            { labelKey: "Đào tạo", items: academicNavItems }
-        ]
-    },
-    {
-        id: "operations",
-        name: "Operations & Business",
-        logo: LayoutGrid,
-        plan: "Vận hành & Kinh doanh",
-        roles: [UserRole.ADMIN, UserRole.STAFF_OPERATIONS],
-        navItems: [
-            { labelKey: "Vận hành", items: operationsNavItems },
-            { labelKey: "Kinh doanh & Tài chính", items: financeNavItems }
-        ]
-    },
-    {
-        id: "personnel",
-        name: "HR & Personnel",
-        logo: Users,
-        plan: "Quản trị Nhân sự",
-        roles: [UserRole.ADMIN, UserRole.STAFF_ACADEMIC, UserRole.STAFF_OPERATIONS],
-        navItems: [
-            { labelKey: "Nhân sự", items: personnelNavItems }
-        ]
-    },
-    {
-        id: "system",
-        name: "System Security",
-        logo: Command,
-        plan: "Quản trị Hệ thống",
-        roles: [UserRole.ADMIN],
-        navItems: [
-            { labelKey: "Hệ thống", items: systemNavItems }
-        ]
-    },
-];
+function navUniversal(): Workspace["navItems"] {
+    return [
+        { labelKey: "Đào tạo", items: academicNavItems },
+        { labelKey: "Vận hành", items: operationsNavItems },
+        { labelKey: "Kinh doanh", items: financeNavItems },
+        { labelKey: "Người dùng", items: personnelNavItems },
+        { labelKey: "Hệ thống", items: systemNavItems },
+    ];
+}
 
-function workspaceVisibleForRole(ws: Workspace, userRole: string): boolean {
-    const r = userRole.trim().toLowerCase();
-    return ws.roles.includes(r);
+function navAcademic(role: UserRole): Workspace["navItems"] {
+    const groups: Workspace["navItems"] = [{ labelKey: "Đào tạo", items: academicNavItems }];
+    if (role === UserRole.STAFF_ACADEMIC) {
+        groups.push({ labelKey: "Người dùng", items: personnelNavItems });
+    }
+    return groups;
+}
+
+function navOperations(): Workspace["navItems"] {
+    return [
+        { labelKey: "Vận hành", items: operationsNavItems },
+        { labelKey: "Kinh doanh", items: financeNavItems },
+        { labelKey: "Người dùng", items: personnelNavItems },
+        { labelKey: "Hệ thống", items: systemNavItems },
+    ];
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const user = useAppSelector(selectUser);
 
-    // Filter workspaces based on user role
-    const availableWorkspaces = useMemo(() => {
-        if (!user) return [];
-        const userRole = user.role as string;
-        const filtered = WORKSPACES.filter((ws) => workspaceVisibleForRole(ws, userRole));
-        if (userRole.trim().toLowerCase() === UserRole.ADMIN) {
-            const universal: Workspace = {
-                id: "universal",
-                name: "Toàn bộ hệ thống",
-                logo: LayoutGrid,
-                plan: "Toàn quyền quản trị",
-                roles: [UserRole.ADMIN],
-                navItems: WORKSPACES.flatMap((ws) => ws.navItems),
-            };
-            return [universal, ...filtered];
+    const availableWorkspaces = useMemo((): Workspace[] => {
+        if (!user?.role) return [];
+        const role = user.role as UserRole;
+
+        if (role === UserRole.ADMIN) {
+            return [
+                {
+                    id: "universal",
+                    name: "Toàn bộ hệ thống",
+                    logo: LayoutGrid,
+                    plan: "Quản trị viên — toàn quyền hệ thống",
+                    navItems: navUniversal(),
+                },
+            ];
         }
-        return filtered;
+
+        const list: Workspace[] = [];
+
+        if (role === UserRole.LECTURER || role === UserRole.STAFF_ACADEMIC) {
+            list.push({
+                id: "academic",
+                name: "Học vụ & Đào tạo",
+                logo: BookOpen,
+                plan:
+                    role === UserRole.LECTURER
+                        ? "Giảng viên — lớp học & chấm điểm"
+                        : "Học vụ — nội dung, lớp, người dùng (chỉ xem)",
+                navItems: navAcademic(role),
+            });
+        }
+
+        if (role === UserRole.STAFF_OPERATIONS) {
+            list.push({
+                id: "operations",
+                name: "Vận hành & Kinh doanh",
+                logo: Building2,
+                plan: "Vận hành — đơn hàng, hỗ trợ, blog, nhật ký",
+                navItems: navOperations(),
+            });
+        }
+
+        return list;
     }, [user?.role]);
 
     const [activeWorkspace, setActiveWorkspace] = useState<Workspace | undefined>(undefined);

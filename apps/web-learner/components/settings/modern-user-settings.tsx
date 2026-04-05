@@ -1,514 +1,83 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
-import { User, Shield, Camera, Lock, Monitor, Eye, EyeOff } from 'lucide-react'
-import { useAppSelector, useAppDispatch } from '@/hooks/hooks'
-import { Button } from '@workspace/ui/components/button'
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@workspace/ui/components/card'
-import {
-    Field,
-    FieldDescription,
-    FieldGroup,
-    FieldLabel,
-    FieldLegend,
-    FieldSet,
-} from '@workspace/ui/components/field'
-import { profileApi } from '@/lib/api/services/profile-api'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchProfile } from '@/store/slices/authSlice'
-import { toast } from 'sonner'
-import { SecurityTab } from './security-tab'
-import { SessionsManagement } from './sessions-management'
-import { useAvatarUrl } from '@/hooks/useAvatarUrl'
+import React from 'react'
+import { User, Shield, Lock, Monitor } from 'lucide-react'
+import { useAppSelector } from '@/hooks/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
-import { Input } from '@workspace/ui/components/input'
-import { Spinner } from '@workspace/ui/components/spinner'
-import { useChangePassword, useLinkedProviders } from '@/lib/api/services/auth-api'
+import { useLinkedProviders } from '@/lib/api/services/auth-api'
+
+// Tab Components
+import { ProfileTab } from './profile-tab'
+import { SecurityTab } from './security-tab'
+import { PasswordTab } from './password-tab'
+import { SessionsManagement } from './sessions-management'
 
 export default function ModernUserSettings() {
     const { user } = useAppSelector((state) => state.auth)
-    const dispatch = useAppDispatch()
-    const queryClient = useQueryClient()
-    const fileInputRef = useRef<HTMLInputElement>(null)
-
-    const userMeta = (user as any)?.userMetadata ?? {}
-
-    const [formData, setFormData] = useState({
-        displayName: user?.displayName || '',
-        email: user?.email || '',
-        phone: (userMeta?.phone as string) || '',
-        address: (userMeta?.address as string) || '',
-        bio: (userMeta?.bio as string) || '',
-        dateOfBirth: (userMeta?.dateOfBirth as string) || '', // yyyy-mm-dd or ISO
-    })
-
-    const [passwordForm, setPasswordForm] = useState({
-        currentPassword: '',
-        newPassword: '',
-        confirmNewPassword: '',
-    })
-    const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-    const [showNewPassword, setShowNewPassword] = useState(false)
-    const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false)
-
-    const updateMutation = useMutation({
-        mutationFn: (data: typeof formData) =>
-            profileApi.updateProfile({
-                displayName: data.displayName,
-                userMetadata: {
-                    ...userMeta,
-                    phone: data.phone || undefined,
-                    address: data.address || undefined,
-                    bio: data.bio || undefined,
-                    dateOfBirth: data.dateOfBirth || undefined,
-                },
-            }),
-        onSuccess: async () => {
-            await dispatch(fetchProfile())
-            queryClient.invalidateQueries({ queryKey: ['profile'] })
-            toast.success('Cập nhật cài đặt thành công!')
-        },
-        onError: (error: any) => {
-            toast.error(error?.message || 'Cập nhật thất bại')
-        }
-    })
-
-    const uploadAvatarMutation = useMutation({
-        mutationFn: (file: File) => profileApi.uploadAvatar(file),
-        onSuccess: async () => {
-            await dispatch(fetchProfile())
-            queryClient.invalidateQueries({ queryKey: ['profile'] })
-            queryClient.invalidateQueries({ queryKey: ['auth'] })
-            toast.success('Đã cập nhật ảnh đại diện!')
-        }
-    })
-
-    const changePasswordMutation = useChangePassword()
-
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) uploadAvatarMutation.mutate(file)
-    }
-
-    const handleCancel = () => {
-        setFormData({
-            displayName: user?.displayName || '',
-            email: user?.email || '',
-            phone: (userMeta?.phone as string) || '',
-            address: (userMeta?.address as string) || '',
-            bio: (userMeta?.bio as string) || '',
-            dateOfBirth: (userMeta?.dateOfBirth as string) || '',
-        })
-    }
-
     const { data: linkedProviders } = useLinkedProviders()
-    const hasPassword = linkedProviders?.hasPassword ?? true // Default to true to avoid UI flicker
-
-    const handleChangePassword = async () => {
-        const currentPassword = passwordForm.currentPassword.trim()
-        const newPassword = passwordForm.newPassword.trim()
-        const confirmNewPassword = passwordForm.confirmNewPassword.trim()
-
-        if (hasPassword && !currentPassword) {
-            toast.error('Vui lòng nhập mật khẩu hiện tại')
-            return
-        }
-        if (newPassword.length < 8) {
-            toast.error('Mật khẩu mới phải có ít nhất 8 ký tự')
-            return
-        }
-        if (newPassword !== confirmNewPassword) {
-            toast.error('Mật khẩu xác nhận không khớp')
-            return
-        }
-        if (hasPassword && newPassword === currentPassword) {
-            toast.error('Mật khẩu mới phải khác mật khẩu hiện tại')
-            return
-        }
-
-        try {
-            const res = await changePasswordMutation.mutateAsync({
-                oldPassword: hasPassword ? currentPassword : '', // Send empty if no old password
-                newPassword,
-            })
-            if (res.success) {
-                toast.success(hasPassword ? 'Đổi mật khẩu thành công' : 'Thiết lập mật khẩu thành công')
-                setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
-                setShowCurrentPassword(false)
-                setShowNewPassword(false)
-                setShowConfirmNewPassword(false)
-            } else {
-                toast.error(res.message || (hasPassword ? 'Đổi mật khẩu thất bại' : 'Thiết lập mật khẩu thất bại'))
-            }
-        } catch (error: any) {
-            toast.error(error?.message || (hasPassword ? 'Đổi mật khẩu thất bại' : 'Thiết lập mật khẩu thất bại'))
-        }
-    }
-
-    const avatarSrc = useAvatarUrl(user?.avatarUrl || null)
+    const hasPassword = linkedProviders?.hasPassword ?? true
 
     return (
-        <div>
-            <Tabs defaultValue="profile" className="space-y-6">
-                <div className="overflow-x-auto pb-1">
-                    <TabsList className="w-full whitespace-nowrap">
-                        <TabsTrigger value="profile" className="gap-2">
-                            <User className="size-4" />
-                            Hồ sơ
-                        </TabsTrigger>
-                        <TabsTrigger value="security" className="gap-2">
-                            <Shield className="size-4" />
-                            Bảo mật
-                        </TabsTrigger>
-                        <TabsTrigger value="password" className="gap-2">
-                            <Lock className="size-4" />
-                            {hasPassword ? 'Đổi mật khẩu' : 'Thiết lập mật khẩu'}
-                        </TabsTrigger>
-                        <TabsTrigger value="sessions" className="gap-2">
-                            <Monitor className="size-4" />
-                            Phiên đăng nhập
-                        </TabsTrigger>
-                    </TabsList>
+        <div className="max-w-6xl mx-auto space-y-8 pb-10">
+            <div className="flex flex-col gap-1">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Cài đặt tài khoản</h1>
+                <p className="text-muted-foreground font-medium">Quản lý thông tin cá nhân, bảo mật và các phiên đăng nhập của bạn.</p>
+            </div>
+
+            <Tabs defaultValue="profile" className="w-full space-y-6">
+                <TabsList className="w-full flex justify-start h-12 bg-muted/50 p-1 rounded-xl overflow-x-auto scrollbar-none">
+                    <TabsTrigger 
+                        value="profile" 
+                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
+                    >
+                        <User className="size-4" />
+                        Hồ sơ
+                    </TabsTrigger>
+                    
+                    <TabsTrigger 
+                        value="security" 
+                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
+                    >
+                        <Shield className="size-4" />
+                        Bảo mật
+                    </TabsTrigger>
+                    
+                    <TabsTrigger 
+                        value="password" 
+                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
+                    >
+                        <Lock className="size-4" />
+                        {hasPassword ? 'Mật khẩu' : 'Thiết lập mật khẩu'}
+                    </TabsTrigger>
+                    
+                    <TabsTrigger 
+                        value="sessions" 
+                        className="flex-shrink-0 gap-2 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm font-semibold text-xs transition-all"
+                    >
+                        <Monitor className="size-4" />
+                        Phiên đăng nhập
+                    </TabsTrigger>
+                </TabsList>
+
+                <div className="pt-2">
+                    <TabsContent value="profile" className="mt-0 outline-none">
+                        <ProfileTab />
+                    </TabsContent>
+
+                    <TabsContent value="security" className="mt-0 outline-none">
+                        <SecurityTab />
+                    </TabsContent>
+
+                    <TabsContent value="password" className="mt-0 outline-none">
+                        <PasswordTab />
+                    </TabsContent>
+
+                    <TabsContent value="sessions" className="mt-0 outline-none">
+                        <SessionsManagement />
+                    </TabsContent>
                 </div>
-
-                <TabsContent value="profile" className="mt-0 outline-none">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                        <div className="lg:col-span-4 space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Hồ sơ</CardTitle>
-                                    <CardDescription>
-                                        Ảnh đại diện và thông tin hiển thị công khai.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-5">
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative shrink-0">
-                                            <div className="h-20 w-20 rounded-full bg-muted overflow-hidden ring-1 ring-border">
-                                                <img
-                                                    alt="Profile"
-                                                    className="h-full w-full object-cover"
-                                                    src={
-                                                        avatarSrc ||
-                                                        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop'
-                                                    }
-                                                />
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="absolute -bottom-1 -right-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow"
-                                                aria-label="Đổi ảnh đại diện"
-                                            >
-                                                <Camera className="size-4" />
-                                            </button>
-                                            <input
-                                                ref={fileInputRef}
-                                                type="file"
-                                                className="hidden"
-                                                accept="image/*"
-                                                onChange={handleAvatarChange}
-                                            />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <p className="font-semibold leading-tight truncate">
-                                                {user?.displayName || 'Người dùng'}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground truncate">
-                                                {user?.email || ''}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground">
-                                        JPG, PNG, GIF. Tối đa 2MB.
-                                    </div>
-
-                                    <div className="flex flex-col gap-2 sm:flex-row">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            className="sm:flex-1"
-                                            onClick={() => fileInputRef.current?.click()}
-                                            disabled={uploadAvatarMutation.isPending}
-                                        >
-                                            {uploadAvatarMutation.isPending ? 'Đang tải...' : 'Tải ảnh lên'}
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        <div className="lg:col-span-8 space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Thông tin tài khoản</CardTitle>
-                                    <CardDescription>
-                                        Cập nhật thông tin cơ bản của bạn.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <FieldGroup>
-                                        <FieldSet>
-                                            <FieldLegend>Thông tin cơ bản</FieldLegend>
-                                            <FieldDescription>
-                                                Tên hiển thị sẽ được dùng trong học tập và tương tác.
-                                            </FieldDescription>
-
-                                            <Field>
-                                                <FieldLabel htmlFor="displayName">Tên hiển thị</FieldLabel>
-                                                <Input
-                                                    id="displayName"
-                                                    value={formData.displayName}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, displayName: e.target.value })
-                                                    }
-                                                />
-                                            </Field>
-
-                                            <Field>
-                                                <FieldLabel htmlFor="email">Địa chỉ email</FieldLabel>
-                                                <Input id="email" type="email" value={formData.email} disabled />
-                                                <FieldDescription>
-                                                    Email được dùng để đăng nhập và nhận thông báo hệ thống.
-                                                </FieldDescription>
-                                            </Field>
-
-                                            <Field>
-                                                <FieldLabel htmlFor="phone">Số điện thoại</FieldLabel>
-                                                <Input
-                                                    id="phone"
-                                                    inputMode="tel"
-                                                    value={formData.phone}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, phone: e.target.value })
-                                                    }
-                                                    placeholder="VD: 090xxxxxxx"
-                                                />
-                                            </Field>
-
-                                            <Field>
-                                                <FieldLabel htmlFor="address">Địa chỉ</FieldLabel>
-                                                <Input
-                                                    id="address"
-                                                    value={formData.address}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, address: e.target.value })
-                                                    }
-                                                    placeholder="VD: Quận 1, TP.HCM"
-                                                />
-                                            </Field>
-
-                                            <Field>
-                                                <FieldLabel htmlFor="dateOfBirth">Ngày sinh</FieldLabel>
-                                                <Input
-                                                    id="dateOfBirth"
-                                                    type="date"
-                                                    value={formData.dateOfBirth}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, dateOfBirth: e.target.value })
-                                                    }
-                                                />
-                                                <FieldDescription>
-                                                    Trường này được lưu trong metadata của tài khoản.
-                                                </FieldDescription>
-                                            </Field>
-
-                                            <Field>
-                                                <FieldLabel htmlFor="bio">Giới thiệu</FieldLabel>
-                                                <Input
-                                                    id="bio"
-                                                    value={formData.bio}
-                                                    onChange={(e) =>
-                                                        setFormData({ ...formData, bio: e.target.value })
-                                                    }
-                                                    placeholder="Một vài dòng về bạn…"
-                                                />
-                                            </Field>
-                                        </FieldSet>
-
-                                        <Field orientation="horizontal">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={handleCancel}
-                                                disabled={updateMutation.isPending}
-                                            >
-                                                Hủy
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                onClick={() => updateMutation.mutate(formData)}
-                                                disabled={updateMutation.isPending}
-                                            >
-                                                {updateMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
-                                            </Button>
-                                        </Field>
-                                    </FieldGroup>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
-                </TabsContent>
-
-                <TabsContent value="security" className="space-y-6 mt-0 outline-none">
-                    <SecurityTab />
-                </TabsContent>
-
-                <TabsContent value="password" className="space-y-6 mt-0 outline-none">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{hasPassword ? 'Đổi mật khẩu' : 'Thiết lập mật khẩu'}</CardTitle>
-                            <CardDescription>
-                                {hasPassword 
-                                    ? 'Cập nhật mật khẩu đăng nhập của bạn. Mật khẩu mới phải có ít nhất 8 ký tự.'
-                                    : 'Tên đăng nhập của bạn là email. Hãy thiết lập mật khẩu để có thể đăng nhập bằng email & mật khẩu.'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <FieldGroup>
-                                <FieldSet>
-                                    <FieldLegend>Mật khẩu</FieldLegend>
-                                    {hasPassword && (
-                                        <Field>
-                                            <FieldLabel htmlFor="currentPassword">Mật khẩu hiện tại</FieldLabel>
-                                            <div className="relative">
-                                                <Input
-                                                    id="currentPassword"
-                                                    type={showCurrentPassword ? 'text' : 'password'}
-                                                    value={passwordForm.currentPassword}
-                                                    onChange={(e) =>
-                                                        setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
-                                                    }
-                                                    placeholder="••••••••"
-                                                    className="pr-10"
-                                                    autoComplete="current-password"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                    onClick={() => setShowCurrentPassword((v) => !v)}
-                                                >
-                                                    {showCurrentPassword ? (
-                                                        <EyeOff className="size-4 text-muted-foreground" />
-                                                    ) : (
-                                                        <Eye className="size-4 text-muted-foreground" />
-                                                    )}
-                                                    <span className="sr-only">Hiện/ẩn mật khẩu</span>
-                                                </Button>
-                                            </div>
-                                        </Field>
-                                    )}
-
-                                    <Field>
-                                        <FieldLabel htmlFor="newPassword">Mật khẩu mới</FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                id="newPassword"
-                                                type={showNewPassword ? 'text' : 'password'}
-                                                value={passwordForm.newPassword}
-                                                onChange={(e) =>
-                                                    setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
-                                                }
-                                                placeholder="••••••••"
-                                                className="pr-10"
-                                                autoComplete="new-password"
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                onClick={() => setShowNewPassword((v) => !v)}
-                                            >
-                                                {showNewPassword ? (
-                                                    <EyeOff className="size-4 text-muted-foreground" />
-                                                ) : (
-                                                    <Eye className="size-4 text-muted-foreground" />
-                                                )}
-                                                <span className="sr-only">Hiện/ẩn mật khẩu</span>
-                                            </Button>
-                                        </div>
-                                        <FieldDescription>
-                                            Tối thiểu 8 ký tự. Nên dùng kết hợp chữ hoa, chữ thường và số.
-                                        </FieldDescription>
-                                    </Field>
-
-                                    <Field>
-                                        <FieldLabel htmlFor="confirmNewPassword">Xác nhận mật khẩu mới</FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                id="confirmNewPassword"
-                                                type={showConfirmNewPassword ? 'text' : 'password'}
-                                                value={passwordForm.confirmNewPassword}
-                                                onChange={(e) =>
-                                                    setPasswordForm((prev) => ({ ...prev, confirmNewPassword: e.target.value }))
-                                                }
-                                                placeholder="••••••••"
-                                                className="pr-10"
-                                                autoComplete="new-password"
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                onClick={() => setShowConfirmNewPassword((v) => !v)}
-                                            >
-                                                {showConfirmNewPassword ? (
-                                                    <EyeOff className="size-4 text-muted-foreground" />
-                                                ) : (
-                                                    <Eye className="size-4 text-muted-foreground" />
-                                                )}
-                                                <span className="sr-only">Hiện/ẩn mật khẩu</span>
-                                            </Button>
-                                        </div>
-                                    </Field>
-                                </FieldSet>
-
-                                <Field orientation="horizontal">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() =>
-                                            setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
-                                        }
-                                        disabled={changePasswordMutation.isPending}
-                                    >
-                                        Xóa
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        onClick={handleChangePassword}
-                                        disabled={changePasswordMutation.isPending}
-                                    >
-                                        {changePasswordMutation.isPending ? (
-                                            <>
-                                                <Spinner className="mr-2 h-4 w-4" />
-                                                Đang cập nhật...
-                                            </>
-                                        ) : (
-                                            hasPassword ? 'Cập nhật mật khẩu' : 'Thiết lập mật khẩu'
-                                        )}
-                                    </Button>
-                                </Field>
-                            </FieldGroup>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="sessions" className="space-y-6 mt-0 outline-none">
-                    <SessionsManagement />
-                </TabsContent>
             </Tabs>
         </div>
     )
 }
+

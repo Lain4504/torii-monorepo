@@ -107,7 +107,7 @@ export function LearningSidebar({
                                     expandedSections.includes(moduleIndex) && 'rotate-180 text-primary',
                                 )} />
                                 <div className="space-y-0.5 overflow-hidden">
-                                    <h4 className="truncate text-xs font-bold uppercase tracking-tight text-foreground">
+                                    <h4 className="truncate text-xs font-bold uppercase tracking-normal text-foreground">
                                         {module.title}
                                     </h4>
                                     <p className="text-left text-[10px] font-medium text-muted-foreground/40">

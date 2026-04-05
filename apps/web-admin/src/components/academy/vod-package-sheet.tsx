@@ -14,6 +14,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
   Field,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldError,
@@ -38,6 +39,7 @@ import { Loader2 } from "lucide-react"
 import { InstructorPicker } from "@/components/academy/instructor-picker"
 import { useUsers } from "@/lib/api/services/users"
 import { UserRole } from "@workspace/schemas"
+import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 
 const vodPackageSchema = z.object({
   courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
@@ -47,6 +49,7 @@ const vodPackageSchema = z.object({
   discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   status: z.string().optional(),
   instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
+  thumbnailUrl: z.string().url().optional().nullable(),
 }).refine(data => {
   if (data.discountPrice != null && data.price != null) {
     return data.discountPrice < data.price;
@@ -88,6 +91,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
       discountPrice: null,
       status: "DRAFT",
       instructorId: "",
+      thumbnailUrl: "",
     },
   })
 
@@ -101,6 +105,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         discountPrice: vodPackage.discountPrice ? Number(vodPackage.discountPrice) : null,
         status: vodPackage.status ?? "DRAFT",
         instructorId: vodPackage.instructorId ?? "",
+        thumbnailUrl: vodPackage.thumbnailUrl || "",
       })
     } else {
       reset({
@@ -111,6 +116,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         discountPrice: null,
         status: "DRAFT",
         instructorId: "",
+        thumbnailUrl: "",
       })
     }
   }, [vodPackage, reset])
@@ -125,6 +131,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
         discountPrice: values.discountPrice,
         status: values.status as any,
         instructorId: values.instructorId,
+        thumbnailUrl: values.thumbnailUrl?.trim() ? values.thumbnailUrl : undefined,
       }
 
       if (isEditing && vodPackage) {
@@ -271,6 +278,27 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                       </Field>
                     </div>
                   </FieldGroup>
+                </FieldSet>
+
+                <FieldSet>
+                  <FieldLegend>Hình ảnh</FieldLegend>
+                  <FieldDescription>
+                    Ảnh đại diện (banner) cho gói VOD này. Nếu để trống, hệ thống sẽ dùng ảnh của hồ sơ khóa học.
+                  </FieldDescription>
+                  <Controller
+                    name="thumbnailUrl"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <LessonMediaUploader
+                        value={field.value || null}
+                        onChange={(url) => field.onChange(url ?? "")}
+                        label="Ảnh banner gói VOD"
+                        description="Kích thước gợi ý: 1200x630px. Hỗ trợ JPG, PNG, WebP."
+                        accept="image/*"
+                        errorMessage={fieldState.error?.message}
+                      />
+                    )}
+                  />
                 </FieldSet>
               </FieldGroup>
             </form>

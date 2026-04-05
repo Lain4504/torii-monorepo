@@ -215,7 +215,7 @@ export function SurveyFlow() {
       {/* Header & Progress */}
       <div className="flex flex-col gap-2 flex-shrink-0 w-full">
         <Progress value={progress} className="h-1.5" />
-        <div className="flex items-center justify-between text-[10px] font-black tracking-widest text-muted-foreground/60 uppercase">
+        <div className="flex items-center justify-between text-[10px] font-bold tracking-widest text-muted-foreground/60 uppercase">
           <span>Tiến độ {Math.round(progress)}%</span>
           <span>{currentStep + 1} / {activeSteps.length}</span>
         </div>
@@ -281,7 +281,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
             <Sparkles className="w-12 h-12" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl nhai-text-gradient">
+            <h1 className="text-3xl font-extrabold tracking-normal sm:text-4xl nhai-text-gradient">
               Chào mừng tới Torii Nihongo
             </h1>
             <p className="text-muted-foreground text-lg max-w-md mx-auto">
@@ -294,7 +294,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
       return (
         <div className="w-full max-w-2xl space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold tracking-normal flex items-center justify-center gap-2">
               <Target className="w-6 h-6 text-primary" /> Bạn dự tính sẽ học trong bao lâu?
             </h2>
             <p className="text-muted-foreground">Chọn thời gian bạn mong muốn đạt được mục tiêu.</p>
@@ -315,7 +315,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
       return (
         <div className="w-full max-w-2xl space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold tracking-normal flex items-center justify-center gap-2">
               <Trophy className="w-6 h-6 text-blue-500" /> Lý do bạn học tiếng Nhật?
             </h2>
             <p className="text-muted-foreground">Chọn động lực chính của bạn.</p>
@@ -343,7 +343,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
       return (
         <div className="w-full max-w-2xl space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold tracking-normal flex items-center justify-center gap-2">
               <Calendar className="w-6 h-6 text-red-500" /> Khi nào bạn dự định thi JLPT?
             </h2>
             <p className="text-muted-foreground">Chọn kỳ thi bạn muốn đạt mục tiêu.</p>
@@ -364,7 +364,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
       return (
         <div className="w-full max-w-2xl space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold tracking-normal flex items-center justify-center gap-2">
               <Clock className="w-6 h-6 text-yellow-500" /> Thời gian học mỗi ngày
             </h2>
             <p className="text-muted-foreground">Bạn có thể dành bao nhiêu phút mỗi ngày cho tiếng Nhật?</p>
@@ -390,7 +390,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
       return (
         <div className="w-full max-w-2xl space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold tracking-normal flex items-center justify-center gap-2">
               <GraduationCap className="w-6 h-6 text-purple-500" /> Trình độ hiện tại
             </h2>
             <p className="text-muted-foreground">Bạn đã có nền tảng như thế nào rồi?</p>
@@ -418,7 +418,7 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
       return (
         <div className="w-full max-w-2xl space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-bold tracking-normal flex items-center justify-center gap-2">
               <Sparkles className="w-6 h-6 text-purple-500" /> Xác định trình độ
             </h2>
             <p className="text-muted-foreground">Bạn có muốn làm bài kiểm tra để chúng tôi xác định trình độ chính xác nhất cho bạn không?</p>
@@ -459,16 +459,16 @@ function renderStepContent(key: string, data: any, setData: any, jlptDates: stri
           </div>
           <div className="space-y-6">
             <div className="space-y-2">
-              <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Lộ trình dành cho bạn đã sẵn sàng!</h2>
+              <h2 className="text-2xl font-extrabold tracking-normal sm:text-3xl">Lộ trình dành cho bạn đã sẵn sàng!</h2>
               <p className="text-muted-foreground text-lg">
-                Bạn có thể đạt <span className="text-primary font-black">{targetLevel}</span> trong khoảng <span className="text-primary font-black">{targetTime}</span>
+                Bạn có thể đạt <span className="text-primary font-bold">{targetLevel}</span> trong khoảng <span className="text-primary font-bold">{targetTime}</span>
               </p>
             </div>
 
             <Button
               onClick={onFinish}
               disabled={isSubmitting}
-              className="w-full max-w-xs bg-primary text-primary-foreground shadow-xl shadow-primary/20 rounded-2xl font-black text-sm h-14 hover:scale-105 transition-all"
+              className="w-full max-w-xs bg-primary text-primary-foreground shadow-xl shadow-primary/20 rounded-2xl font-bold text-sm h-14 hover:scale-105 transition-all"
             >
               BẮT ĐẦU HỌC NGAY!
             </Button>

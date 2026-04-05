@@ -81,7 +81,7 @@ export default function ModernDashboard() {
             <div className="flex flex-col lg:flex-row gap-8">
                 <div className="flex-1 space-y-6">
                     <div className="space-y-2">
-                        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                        <h1 className="text-4xl font-bold text-slate-900 dark:text-white tracking-normal">
                             Xin chào, <span className="text-primary">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>!
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 font-medium">
@@ -170,7 +170,7 @@ export default function ModernDashboard() {
 
                     {/* Achievement Mini Cards */}
                     <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Achievements</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Achievements</h4>
                         <div className="grid grid-cols-3 gap-4">
                             <div className="flex flex-col items-center gap-2 group">
                                 <div className={cn(
@@ -235,7 +235,7 @@ export default function ModernDashboard() {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-3xl font-black">{progressPercent}%</span>
+                                        <span className="text-3xl font-bold">{progressPercent}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -268,12 +268,12 @@ export default function ModernDashboard() {
                             {/* Quick Stats Column */}
                             <div className="md:col-span-3 flex flex-col justify-center gap-4">
                                 <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/10 border border-primary/10">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Study Time</p>
-                                    <p className="text-2xl font-black text-primary">{statsData?.totalLearningHours || 0} <span className="text-sm font-bold opacity-70">hrs</span></p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Study Time</p>
+                                    <p className="text-2xl font-bold text-primary">{statsData?.totalLearningHours || 0} <span className="text-sm font-bold opacity-70">hrs</span></p>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Points</p>
-                                    <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{formatNumber(profile?.points || 0)}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Points</p>
+                                    <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{formatNumber(profile?.points || 0)}</p>
                                 </div>
                             </div>
                         </div>
@@ -297,10 +297,10 @@ export default function ModernDashboard() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/30">
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Topic</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sensei</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Time</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Action</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Topic</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Sensei</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Time</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-right">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">

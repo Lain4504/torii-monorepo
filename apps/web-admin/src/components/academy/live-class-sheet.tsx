@@ -40,6 +40,7 @@ import { UserRole } from "@workspace/schemas"
 import { toast } from "sonner"
 import { Loader2, Plus, Trash2, Calendar, Zap } from "lucide-react"
 import { useCreateAcademyLiveSchedule } from "@/lib/api/services/academy-live-schedules"
+import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 
 const scheduleItemSchema = z.object({
   weekday: z.number().int().min(0).max(6),
@@ -64,6 +65,7 @@ const liveClassSchema = z.object({
   maxStudents: z.number().int().min(1).optional().nullable(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional().nullable(),
   discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
+  thumbnailUrl: z.string().url().optional().nullable(),
   schedules: z.array(scheduleItemSchema).optional(),
 })
   .refine(data => {
@@ -110,6 +112,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
       maxStudents: null,
       price: 0,
       discountPrice: null,
+      thumbnailUrl: "",
       schedules: [],
     },
   })
@@ -140,6 +143,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         maxStudents: academyClass.maxStudents ?? null,
         price: (academyClass as any).price ? Number((academyClass as any).price) : 0,
         discountPrice: (academyClass as any).discountPrice ? Number((academyClass as any).discountPrice) : null,
+        thumbnailUrl: academyClass.thumbnailUrl || "",
       })
     } else {
       reset({
@@ -151,6 +155,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         maxStudents: null,
         price: 0,
         discountPrice: null,
+        thumbnailUrl: "",
         schedules: [],
       })
     }
@@ -168,6 +173,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
             maxStudents: values.maxStudents === null ? undefined : values.maxStudents,
             price: values.price === null ? undefined : values.price,
             discountPrice: values.discountPrice === null ? undefined : values.discountPrice,
+            thumbnailUrl: values.thumbnailUrl?.trim() ? values.thumbnailUrl : undefined,
           },
         })
         toast.success("Cập nhật Lớp học LIVE thành công")
@@ -181,6 +187,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           maxStudents: values.maxStudents === null ? undefined : values.maxStudents,
           price: values.price === null ? undefined : values.price,
           discountPrice: values.discountPrice === null ? undefined : values.discountPrice,
+          thumbnailUrl: values.thumbnailUrl?.trim() ? values.thumbnailUrl : undefined,
           schedules: values.schedules,
         } as any)
 
@@ -352,6 +359,27 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                       </div>
                     </div>
                   </FieldGroup>
+                </FieldSet>
+
+                <FieldSet>
+                  <FieldLegend>Hình ảnh</FieldLegend>
+                  <FieldDescription>
+                    Ảnh đại diện (banner) cho lớp học này. Nếu để trống, hệ thống sẽ dùng ảnh của hồ sơ khóa học.
+                  </FieldDescription>
+                  <Controller
+                    name="thumbnailUrl"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <LessonMediaUploader
+                        value={field.value || null}
+                        onChange={(url) => field.onChange(url ?? "")}
+                        label="Ảnh banner lớp học"
+                        description="Kích thước gợi ý: 1200x630px. Hỗ trợ JPG, PNG, WebP."
+                        accept="image/*"
+                        errorMessage={fieldState.error?.message}
+                      />
+                    )}
+                  />
                 </FieldSet>
 
                 {!isEditing && (

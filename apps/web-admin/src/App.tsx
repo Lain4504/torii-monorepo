@@ -46,6 +46,7 @@ import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles-page.tsx'
 import CourseProfileDetailPage from '@/routes/academy/course-profiles/course-profile-detail-page.tsx'
 import LiveClassesPage from '@/routes/academy/live-classes/live-classes-page'
+import LiveRescheduleRequestsPage from '@/routes/academy/live-classes/live-reschedule-requests-page'
 import LiveClassStudentsPage from '@/routes/academy/live-classes/live-class-students-page'
 import CohortsPage from '@/routes/academy/cohorts/cohorts-page'
 import CohortDetailPage from '@/routes/academy/cohorts/cohort-detail-page'
@@ -124,6 +125,7 @@ function App() {
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
                     <Route path="academy/course-profiles/:profileId/detail" element={<CourseProfileDetailPage />} />
                     <Route path="academy/live-classes" element={<LiveClassesPage />} />
+                    <Route path="academy/live-classes/reschedule-requests" element={<LiveRescheduleRequestsPage />} />
                     <Route path="academy/live-classes/:classId/detail" element={<LiveClassStudentsPage />} />
                     <Route path="academy/live-classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
                     <Route path="academy/live-classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />

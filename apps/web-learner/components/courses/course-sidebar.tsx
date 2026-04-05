@@ -76,7 +76,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             {/* Enrollment Card */}
             <div className="bg-card p-6 rounded-2xl border shadow-xl space-y-6">
                 <div className="space-y-1">
-                    <p className="text-3xl font-black">
+                    <p className="text-3xl font-bold">
                         {isFree
                             ? 'MIỄN PHÍ'
                             : course.discountPrice

@@ -18,10 +18,10 @@ export default function NotFound() {
         <div className="flex items-center justify-center min-h-screen p-6 bg-background">
             <Empty className="border-none max-w-sm">
                 <EmptyHeader>
-                    <div className="text-6xl font-black text-muted-foreground/20 leading-none mb-4 select-none">
+                    <div className="text-6xl font-bold text-muted-foreground/20 leading-none mb-4 select-none">
                         404
                     </div>
-                    <EmptyTitle className="text-2xl font-black">Không tìm thấy trang</EmptyTitle>
+                    <EmptyTitle className="text-2xl font-bold">Không tìm thấy trang</EmptyTitle>
                     <EmptyDescription>
                         Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển khỏi hệ thống.
                     </EmptyDescription>

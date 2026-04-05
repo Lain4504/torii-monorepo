@@ -618,7 +618,7 @@ export default function JlptMockSectionPage() {
               </div>
 
               <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-tight">
+                <AlertDialogTitle className="text-2xl font-bold tracking-normal">
                   {isLastSection ? "Xác nhận nộp bài" : `Xác nhận nộp phần ${PART_NUMBER}`}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
@@ -655,7 +655,7 @@ export default function JlptMockSectionPage() {
               </div>
 
               <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-tight">
+                <AlertDialogTitle className="text-2xl font-bold tracking-normal">
                   Tiến hành phần thi tiếp theo?
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">
@@ -701,7 +701,7 @@ export default function JlptMockSectionPage() {
               </div>
 
               <div className="space-y-2">
-                <AlertDialogTitle className="text-2xl font-bold tracking-tight">
+                <AlertDialogTitle className="text-2xl font-bold tracking-normal">
                   Thoát bài thi?
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-muted-foreground text-base px-2 uppercase text-[10px] font-bold tracking-widest">

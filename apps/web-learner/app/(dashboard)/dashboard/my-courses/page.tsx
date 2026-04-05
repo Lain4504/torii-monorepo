@@ -91,13 +91,11 @@ export default function MyCoursesPage() {
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="space-y-4 pb-2 border-b border-border">
-                <h1 className="text-3xl font-bold text-foreground">
+            <div className="flex flex-col gap-1 border-b pb-6">
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                     Khóa học của tôi
                 </h1>
-                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
-                    Tiếp tục hành trình chinh phục kiến thức của bạn. Theo dõi tiến độ và hoàn thành các mục tiêu.
-                </p>
+                <p className="text-muted-foreground font-medium">Tiếp tục hành trình chinh phục kiến thức của bạn. Theo dõi tiến độ và hoàn thành các mục tiêu.</p>
             </div>
 
             {/* Stats Row */}
@@ -112,7 +110,7 @@ export default function MyCoursesPage() {
                                 </div>
                             </div>
                             <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                            <p className="text-xs font-medium text-muted-foreground mt-1">{stat.label}</p>
+                            <p className="text-xs font-semibold text-muted-foreground mt-1">{stat.label}</p>
                         </div>
                     )
                 })}
@@ -182,19 +180,19 @@ export default function MyCoursesPage() {
                                 </div>
                             </div>
 
-                            {course.progress >= 100 && (
-                                <Badge className="absolute top-3 right-3 bg-emerald-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
-                                    <Award className="w-3 h-3" /> Hoàn thành
+                             {course.progress >= 100 && (
+                                <Badge className="absolute top-3 right-3 bg-emerald-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2.5 py-1 text-[10px] font-bold z-20 rounded-full">
+                                    <Award className="w-3.5 h-3.5" /> Hoàn thành
                                 </Badge>
                             )}
-                            {course.type?.toLowerCase() === 'live' && (
-                                <Badge className="absolute top-3 left-3 bg-red-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
-                                    <Video className="w-3 h-3" /> Live
+                             {course.type?.toLowerCase() === 'live' && (
+                                <Badge className="absolute top-3 left-3 bg-red-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2.5 py-1 text-[10px] font-bold z-20 rounded-full">
+                                    <Video className="w-3.5 h-3.5" /> Live
                                 </Badge>
                             )}
-                            {course.expiresAt && new Date(course.expiresAt) < new Date() && (
-                                <Badge className="absolute top-3 left-3 bg-destructive text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
-                                    <Clock className="w-3 h-3" /> Hết hạn
+                             {course.expiresAt && new Date(course.expiresAt) < new Date() && (
+                                <Badge className="absolute top-3 left-3 bg-destructive text-white border-none shadow-sm flex gap-1.5 items-center px-2.5 py-1 text-[10px] font-bold z-20 rounded-full">
+                                    <Clock className="w-3.5 h-3.5" /> Hết hạn
                                 </Badge>
                             )}
                             {course.type?.toLowerCase() !== 'live' && (
@@ -214,7 +212,7 @@ export default function MyCoursesPage() {
                             <div className="space-y-3">
                                 {course.type?.toLowerCase() !== 'live' && (
                                     <div className="space-y-2">
-                                        <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                                         <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
                                             <span>Tiến độ</span>
                                             <span className="text-primary">{course.progress}%</span>
                                         </div>
@@ -230,10 +228,10 @@ export default function MyCoursesPage() {
                                         <Clock className="w-3.5 h-3.5" />
                                         {course.lastAccessed ? formatDate(course.lastAccessed) : 'Mới'}
                                     </span>
-                                    {course.type?.toLowerCase() === 'live' && (
-                                        <span className="flex items-center gap-1 text-red-500 font-bold">
+                                     {course.type?.toLowerCase() === 'live' && (
+                                        <span className="flex items-center gap-1.5 text-red-500 font-bold">
                                             <Video className="w-3.5 h-3.5" />
-                                            Live Session
+                                            Lớp học trực tiếp
                                         </span>
                                     )}
                                 </div>

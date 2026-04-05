@@ -21,7 +21,7 @@ export default function ResetPasswordPage() {
             leftPanel={
                 <div className="space-y-8">
                     <div className="space-y-3">
-                        <h2 className="text-4xl font-bold tracking-tight leading-tight">
+                        <h2 className="text-4xl font-bold tracking-normal leading-tight">
                             Mật khẩu{' '}
                             <span className="text-primary">Mới hơn.</span>
                         </h2>

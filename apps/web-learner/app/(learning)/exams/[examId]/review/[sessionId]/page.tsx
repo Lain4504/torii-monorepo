@@ -61,7 +61,7 @@ export default function ExamReviewPage() {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black uppercase tracking-tighter italic text-foreground flex items-center gap-3">
+                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                             Kết quả bài thi
                         </h1>
                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">

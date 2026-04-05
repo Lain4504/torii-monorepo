@@ -21,6 +21,7 @@ export type AcademyLiveClass = {
     avatarUrl?: string | null
   } | null
   maxStudents?: number | null
+  thumbnailUrl?: string | null
   startDate?: string | null
   endDate?: string | null
   createdAt: string

@@ -1,7 +1,21 @@
 'use client'
 
 import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
-import { Bell, Check } from 'lucide-react'
+import {
+    BarChart2,
+    Bell,
+    BookOpen,
+    Check,
+    CheckCheck,
+    CreditCard,
+    MessageSquare,
+    MessageSquareReply,
+    Package,
+    Settings2,
+    Trophy,
+    Video,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from '@workspace/ui/components/button'
 import {
     DropdownMenu,
@@ -10,27 +24,40 @@ import {
 } from '@workspace/ui/components/dropdown-menu'
 import { cn } from '@workspace/ui/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import Link from 'next/link'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle, ItemDescription } from '@workspace/ui/components/item'
+import { Item, ItemContent, ItemMedia, ItemTitle, ItemDescription } from '@workspace/ui/components/item'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/api/services/notification-api'
-import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
+import type { NotificationResponseDTO } from '@workspace/schemas'
+import { NotificationType } from "@workspace/schemas";
 
-type UINotificationType = 'info' | 'success' | 'warning' | 'error';
-
-function mapNotificationType(notificationType: NotificationType): UINotificationType {
-    switch (notificationType) {
-        case 'course':
-        case 'achievement':
-            return 'success';
-        case 'system':
-        case 'live_class':
-        case 'reminder':
-            return 'info';
-        case 'payment':
-            return 'success';
+function notificationIcon(type: NotificationType): LucideIcon {
+    switch (type) {
+        case NotificationType.SYSTEM:
+            return Settings2;
+        case NotificationType.COURSE:
+            return BookOpen;
+        case NotificationType.LIVE_CLASS:
+            return Video;
+        case NotificationType.PAYMENT:
+            return CreditCard;
+        case NotificationType.ACHIEVEMENT:
+            return Trophy;
+        case NotificationType.REMINDER:
+            return Bell;
+        case NotificationType.COMMENT_REPLY:
+            return MessageSquareReply;
+        case NotificationType.COMMENT:
+            return MessageSquare;
+        case NotificationType.BLOG_ANALYTICS:
+            return BarChart2;
+        case NotificationType.ORDER_SUCCESS:
+            return CheckCheck;
+        case NotificationType.ORDER_STATUS_UPDATE:
+            return Package;
         default:
-            return 'info';
+            return Bell;
     }
 }
 
@@ -40,7 +67,7 @@ interface UINotification {
     message: string;
     time: string;
     read: boolean;
-    type: UINotificationType;
+    notificationType: NotificationType;
 }
 
 function mapNotificationToUI(notification: NotificationResponseDTO): UINotification {
@@ -48,9 +75,9 @@ function mapNotificationToUI(notification: NotificationResponseDTO): UINotificat
         id: notification.id,
         title: notification.title,
         message: notification.message,
-        time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
+        time: formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: vi }),
         read: notification.isRead,
-        type: mapNotificationType(notification.notificationType),
+        notificationType: notification.notificationType,
     };
 }
 
@@ -71,45 +98,32 @@ export function NotificationsDropdown() {
         markAllAsReadMutation.mutate();
     };
 
-    const getTypeColor = (type: UINotificationType) => {
-        switch (type) {
-            case 'success':
-                return 'text-success bg-success/10';
-            case 'warning':
-                return 'text-warning bg-warning/10';
-            case 'error':
-                return 'text-destructive bg-destructive/10';
-            default:
-                return 'text-primary bg-primary/10';
-        }
-    };
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative"
+                    className="relative hover:bg-muted/50 transition-colors"
                 >
                     <Bell className="size-4" />
                     {unreadCount > 0 && (
-                        <span className="absolute right-2 top-2 size-2 animate-pulse rounded-full bg-destructive ring-2 ring-background" />
+                        <span className="absolute right-2.5 top-2.5 size-1.5 animate-pulse rounded-full bg-primary ring-2 ring-background" />
                     )}
                 </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
                 align="end"
-                className="w-[90vw] sm:w-[380px] p-0"
+                className="w-[90vw] sm:w-[380px] p-0 rounded-xl overflow-hidden shadow-2xl border-border/60"
             >
                 {/* Header */}
-                <div className="border-b px-4 py-3">
+                <div className="border-b px-4 py-3.5 bg-background/50 backdrop-blur-sm">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h3 className="text-sm font-semibold">Thông báo</h3>
-                            <p className="text-xs text-muted-foreground">
-                                {unreadCount > 0 ? `Bạn có ${unreadCount} tin nhắn chưa đọc` : 'Bạn đã xem hết thông báo'}
+                            <h3 className="text-sm font-bold tracking-normal">Thông báo</h3>
+                            <p className="text-[10px] font-medium text-muted-foreground mt-0.5">
+                                {unreadCount > 0 ? `Bạn có ${unreadCount} tin mới` : 'Bạn đã xem hết'}
                             </p>
                         </div>
                         {unreadCount > 0 && (
@@ -118,10 +132,10 @@ export function NotificationsDropdown() {
                                 size="sm"
                                 onClick={markAllAsRead}
                                 disabled={markAllAsReadMutation.isPending}
-                                className="h-7 px-2 text-xs"
+                                className="h-7 px-2 text-[10px] font-bold hover:bg-transparent hover:text-primary transition-colors"
                             >
-                                <Check className="mr-1 size-3.5" />
-                                {markAllAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc tất cả'}
+                                <Check className="mr-1 size-3" strokeWidth={3} />
+                                Đã đọc hết
                             </Button>
                         )}
                     </div>
@@ -131,73 +145,79 @@ export function NotificationsDropdown() {
                 <div className="custom-scrollbar max-h-[60vh] overflow-y-auto sm:max-h-[420px]">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center space-y-3 py-12">
-                            <Spinner className="h-6 w-6 text-muted-foreground/30" />
-                            <p className="text-xs font-medium text-muted-foreground/50">Đang tải thông báo...</p>
+                            <Spinner className="h-5 w-5 text-muted-foreground/30" />
+                            <p className="text-[10px] font-bold text-muted-foreground/50 tracking-widest uppercase">Đang tải...</p>
                         </div>
                     ) : notifications.length > 0 ? (
-                        <div className="divide-y divide-border/5">
-                            {notifications.map((notification) => (
-                                <Item
-                                    key={notification.id}
-                                    variant={notification.read ? "default" : "muted"}
-                                    className={cn(
-                                        'cursor-pointer px-4 py-3',
-                                        markAsReadMutation.isPending && 'cursor-wait opacity-50'
-                                    )}
-                                    onClick={() => !notification.read && markAsRead(notification.id)}
-                                >
-                                    <ItemMedia>
-                                        <div className={cn(
-                                            'flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/10',
-                                            getTypeColor(notification.type),
-                                        )}>
-                                            <Bell className="size-4" />
-                                        </div>
-                                    </ItemMedia>
-                                    <ItemContent>
-                                        <div className="flex items-start justify-between gap-2">
-                                            <ItemTitle className={cn(
-                                                'text-xs font-semibold',
-                                                !notification.read ? 'text-foreground' : 'text-muted-foreground',
+                        <div className="divide-y divide-border/40">
+                            {notifications.map((notification) => {
+                                const Icon = notificationIcon(notification.notificationType);
+                                return (
+                                    <Item
+                                        key={notification.id}
+                                        variant={notification.read ? "default" : "muted"}
+                                        className={cn(
+                                            'cursor-pointer px-4 py-4 transition-all duration-300',
+                                            !notification.read ? 'bg-muted/10' : 'hover:bg-muted/30',
+                                            markAsReadMutation.isPending && 'cursor-wait opacity-50'
+                                        )}
+                                        onClick={() => !notification.read && markAsRead(notification.id)}
+                                    >
+                                        <ItemMedia>
+                                            <div className={cn(
+                                                'flex size-8 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-background/80 shadow-sm',
+                                                !notification.read ? 'text-foreground' : 'text-muted-foreground/60',
                                             )}>
-                                                {notification.title}
-                                            </ItemTitle>
-                                            {!notification.read && (
-                                                <div className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                                                <Icon className="size-3.5 stroke-[1.75]" />
+                                            </div>
+                                        </ItemMedia>
+                                        <ItemContent>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <ItemTitle className={cn(
+                                                    'text-[12px] leading-snug',
+                                                    !notification.read ? 'font-bold text-foreground' : 'font-medium text-muted-foreground',
+                                                )}>
+                                                    {notification.title}
+                                                </ItemTitle>
+                                                {!notification.read && (
+                                                    <div className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                                                )}
+                                            </div>
+                                            {notification.message && (
+                                                <ItemDescription className="line-clamp-2 text-[11px] leading-relaxed mt-0.5 text-muted-foreground/80">
+                                                    {notification.message}
+                                                </ItemDescription>
                                             )}
-                                        </div>
-                                        <ItemDescription className="line-clamp-2 text-xs">
-                                            {notification.message}
-                                        </ItemDescription>
-                                        <div className="pt-0.5">
-                                            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/50">
-                                                {notification.time}
-                                            </span>
-                                        </div>
-                                    </ItemContent>
-                                </Item>
-                            ))}
+                                            <div className="mt-1.5">
+                                                <span className="text-[10px] font-bold text-muted-foreground/40 tabular-nums">
+                                                    {notification.time}
+                                                </span>
+                                            </div>
+                                        </ItemContent>
+                                    </Item>
+                                );
+                            })}
                         </div>
                     ) : (
                         <Empty className="border-none py-12">
-                            <EmptyMedia variant="icon" className="border border-border/10 bg-muted/30">
-                                <Bell className="size-5 text-muted-foreground/30" />
+                            <EmptyMedia variant="icon" className="border border-border/10 bg-muted/20">
+                                <Bell className="size-5 text-muted-foreground/20" />
                             </EmptyMedia>
                             <EmptyContent>
-                                <EmptyTitle className="text-xs">Không có thông báo mới</EmptyTitle>
-                                <EmptyDescription className="text-[10px]">Bạn đã cập nhật tất cả thông tin.</EmptyDescription>
+                                <EmptyTitle className="text-xs font-bold">Không có thông báo</EmptyTitle>
+                                <EmptyDescription className="text-[10px]">Cập nhật mới sẽ hiển thị tại đây.</EmptyDescription>
                             </EmptyContent>
                         </Empty>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="p-2 border-t">
+                <div className="p-2 border-t border-border/60 bg-muted/5">
                     <Button
                         asChild
-                        variant="link"
+                        variant="ghost"
                         size="sm"
-                        className="w-full text-xs"
+                        className="w-full text-[11px] font-bold hover:bg-primary/5 hover:text-primary transition-all"
                     >
                         <Link href="/dashboard/notifications">
                             Xem tất cả thông báo
@@ -208,3 +228,4 @@ export function NotificationsDropdown() {
         </DropdownMenu>
     )
 }
+

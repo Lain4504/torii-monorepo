@@ -140,7 +140,7 @@ export function EnableTwoFactorDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader className="space-y-3">
-          <DialogTitle className="flex items-center gap-3 text-2xl font-sans font-bold italic tracking-tight text-foreground">
+          <DialogTitle className="flex items-center gap-3 text-2xl font-sans font-bold italic tracking-normal text-foreground">
             <Smartphone className="size-5" />
             Bật xác thực hai yếu tố
           </DialogTitle>
