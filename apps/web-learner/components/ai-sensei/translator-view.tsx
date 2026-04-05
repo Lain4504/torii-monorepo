@@ -265,19 +265,26 @@ export function TranslatorView() {
 
             {/* Detailed Grammar Analysis Result */}
             {grammarResult && (
-                <Card className="shadow-none border-border animate-in zoom-in-95 duration-500 overflow-hidden">
-                    <div className="p-6 space-y-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                {grammarResult.isCorrect ? (
-                                    <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white uppercase tracking-widest text-[9px] font-bold">Chính xác</Badge>
-                                ) : (
-                                    <Badge variant="destructive" className="uppercase tracking-widest text-[9px] font-bold">Cần lưu ý</Badge>
-                                )}
-                                <span className="font-bold text-lg">Phân tích chi tiết ngữ pháp</span>
-                            </div>
-                            <Button variant="ghost" size="icon" onClick={() => setGrammarResult(null)} className="h-8 w-8"><X className="size-4" /></Button>
+                <div className="bg-background rounded-2xl border border-border animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden flex flex-col max-h-[600px]">
+                    <div className="p-6 border-b shrink-0 flex items-center justify-between bg-muted/20">
+                        <div className="flex items-center gap-3">
+                            {grammarResult.isCorrect ? (
+                                <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white uppercase tracking-widest text-[9px] font-bold">Chính xác</Badge>
+                            ) : (
+                                <Badge variant="destructive" className="uppercase tracking-widest text-[9px] font-bold">Cần lưu ý</Badge>
+                            )}
+                            <span className="font-bold text-lg">Phân tích chi tiết ngữ pháp</span>
                         </div>
+                        <Button variant="ghost" size="icon" onClick={() => setGrammarResult(null)} className="h-8 w-8"><X className="size-4" /></Button>
+                    </div>
+                    
+                    <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
+                        <style>{`
+                            .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                            .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(var(--primary), 0.1); border-radius: 10px; }
+                            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(var(--primary), 0.2); }
+                        `}</style>
 
                         {/* Comparison box */}
                         <div className="grid sm:grid-cols-[1fr,32px,1fr] gap-4 items-center">
@@ -335,7 +342,7 @@ export function TranslatorView() {
                             </div>
                         )}
                     </div>
-                </Card>
+                </div>
             )}
         </div>
     )

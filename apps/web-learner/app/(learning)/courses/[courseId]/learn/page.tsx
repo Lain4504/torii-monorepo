@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo, type SyntheticEvent } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { endOfDay, isBefore } from 'date-fns';
 import { useAcademyClass, useCurriculum, type CurriculumLesson, type CurriculumModule } from '@/lib/api/services/academy-classes';
 import { useAcademyVodPackage, useAcademyVodCurriculum, useAcademyVodEnrollmentCheck, useAcademyVodCompletedLessonIds, academyVodLearningProgressApi } from '@/lib/api/services/academy-vod';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
@@ -26,6 +27,7 @@ import { useAppSelector } from '@/hooks/hooks';
 import { RootState } from '@/store/store';
 import { LessonDiscussion } from '@/components/courses/lesson-discussion';
 import { AcademyResourceList } from '@/components/courses/academy-resource-list';
+import { CourseCompletionModal } from '@/components/courses/course-completion-modal';
 
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -433,6 +435,7 @@ export default function CourseLearnPage() {
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'content' | 'discussion' | 'resources'>('content');
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
 
 
     useEffect(() => {
@@ -520,6 +523,36 @@ export default function CourseLearnPage() {
         setCurrentLesson(pick);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [curriculum?.courseId, searchParams, completedContentItemIds]);
+
+    // ── Check Course Completion ───────────────────────────────────────────
+    useEffect(() => {
+        if (!classId || !classData) return;
+        const total = allLessons.filter(l => isTrackableLessonKind(l.kind)).length || allLessons.length;
+        const done = allLessons.filter(l => isTrackableLessonKind(l.kind) && completedIds.has(lessonProgressId(l))).length;
+        
+        const isCompletedProgress = total > 0 && done === total;
+        if (!isCompletedProgress) return;
+
+        // For LIVE classes, wait until endDate before showing celebration
+        if (!isVodCandidate) {
+            const endDateString = (classData as any)?.cohort?.endDate || (classData as any)?.endDate;
+            if (endDateString) {
+                const now = new Date();
+                const endOfClassDay = endOfDay(new Date(endDateString));
+                if (isBefore(now, endOfClassDay)) {
+                    // It is 100% but the class hasn't officially ended
+                    return;
+                }
+            }
+        }
+
+        const key = `course_completed_${classId}`;
+        const shown = localStorage.getItem(key);
+        if (!shown) {
+            setShowCompletionModal(true);
+            localStorage.setItem(key, 'true');
+        }
+    }, [classId, classData, allLessons, completedIds, isVodCandidate]);
 
     // ── Fetch current lesson details (video url, article content etc.) ─────
     const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(
@@ -912,6 +945,11 @@ export default function CourseLearnPage() {
                 <Menu className="h-6 w-6" />
             </Button>
 
+            <CourseCompletionModal
+                isOpen={showCompletionModal}
+                courseName={classData?.name}
+                onClose={() => setShowCompletionModal(false)}
+            />
         </div>
     );
 }
