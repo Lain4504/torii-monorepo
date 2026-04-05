@@ -9,7 +9,7 @@ import {
     CollapsibleTrigger,
 } from '@workspace/ui/components/collapsible'
 import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group'
-import { Calendar, ChevronDown, Clock, Users } from 'lucide-react'
+import { Calendar, ChevronDown, Clock, User, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -218,16 +218,21 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                         <p className="text-xs text-muted-foreground font-mono">{klass.code}</p>
                     </div>
                     {klass.instructor?.displayName ? (
-                        <p className="text-sm text-muted-foreground">
-                            Giảng viên:{' '}
-                            <Link
-                                href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
-                                className="text-foreground underline-offset-4 hover:underline"
-                            >
-                                {klass.instructor.displayName}
-                            </Link>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                            <User className="h-4 w-4 shrink-0" />
+                            <span>
+                                Giảng viên:{' '}
+                                <Link
+                                    href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
+                                    className="text-foreground underline-offset-4 hover:underline"
+                                >
+                                    {klass.instructor.displayName}
+                                </Link>
+                            </span>
                         </p>
                     ) : null}
+
+                    <Separator />
 
                     <div className="flex items-center justify-between gap-2 pt-1">
                         <div className="flex items-baseline gap-2">
@@ -289,14 +294,17 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                         </p>
                     ) : null}
                     {klass.instructor?.displayName ? (
-                        <p className="text-sm text-muted-foreground">
-                            Giảng viên:{' '}
-                            <Link
-                                href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
-                                className="text-foreground underline-offset-4 hover:underline"
-                            >
-                                {klass.instructor.displayName}
-                            </Link>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                            <User className="h-4 w-4 shrink-0" />
+                            <span>
+                                Giảng viên:{' '}
+                                <Link
+                                    href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName)}`}
+                                    className="text-foreground underline-offset-4 hover:underline"
+                                >
+                                    {klass.instructor.displayName}
+                                </Link>
+                            </span>
                         </p>
                     ) : null}
 

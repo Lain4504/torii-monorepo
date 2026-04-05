@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+} from "recharts"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -30,6 +39,7 @@ import { useQueries } from "@tanstack/react-query"
 import {
     format,
     startOfWeek,
+    startOfDay,
     addDays,
     isSameDay,
     isToday,
@@ -143,6 +153,7 @@ function LecturerTimetableSessionCard({
 }
 
 export default function LecturerDashboard() {
+    const narrow = useNarrowMobile()
     const { user } = useAuth()
     const instructorId = user?.id as string | undefined
 
@@ -211,6 +222,26 @@ export default function LecturerDashboard() {
                 return (a.startTime || "").localeCompare(b.startTime || "")
             })
     }, [allSessions, now])
+
+    const sessionsNext14Days = useMemo(() => {
+        const start = startOfDay(new Date())
+        const end = addDays(start, 13)
+        const counts = new Map<string, number>()
+        for (const s of upcomingSessions) {
+            const d = sessionToDate(s)
+            if (d < start || d > end) continue
+            const key = format(d, "yyyy-MM-dd")
+            counts.set(key, (counts.get(key) ?? 0) + 1)
+        }
+        return Array.from({ length: 14 }, (_, i) => {
+            const day = addDays(start, i)
+            const key = format(day, "yyyy-MM-dd")
+            return {
+                label: format(day, "dd/MM", { locale: vi }),
+                sessionCount: counts.get(key) ?? 0,
+            }
+        })
+    }, [upcomingSessions])
 
     const timetableSessions = useMemo(() => {
         return [...allSessions].sort((a, b) => {

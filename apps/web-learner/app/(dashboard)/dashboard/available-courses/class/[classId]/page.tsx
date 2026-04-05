@@ -17,6 +17,7 @@ import {
   AccordionTrigger,
 } from '@workspace/ui/components/accordion'
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api'
+import { academyClassReviewHooks } from '@/lib/api/services/academy-class-reviews'
 import {
   ArrowLeft,
   ArrowRight,
@@ -57,6 +58,23 @@ export default function ClassCatalogDetailPage() {
 
   const isLIVE = mode === 'LIVE' || klass?.mode === 'LIVE'
   const isVOD = mode === 'VOD' || klass?.mode === 'VOD'
+
+  const cohortId = klass?.cohortId || klass?.cohort?.id || '';
+  const { data: liveReviewsResponse } = academyClassReviewHooks.useListByClass(cohortId, { limit: 10, offset: 0 })
+  const { data: vodReviewsResponse } = academyClassReviewHooks.useListByVodPackage(classId || '', { limit: 10, offset: 0 })
+
+  const reviews = isLIVE 
+    ? (liveReviewsResponse?.data?.data?.items ?? [] as any[]) 
+    : (vodReviewsResponse?.data?.data?.items ?? [] as any[])
+    
+  const totalReviews = isLIVE 
+    ? (liveReviewsResponse?.data?.data?.total ?? 0) 
+    : (vodReviewsResponse?.data?.data?.total ?? 0)
+  
+  const avgRating = reviews && reviews.length > 0 
+    ? (reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1) 
+    : "5.0"
+
   const profile = klass?.courseProfile
   const chapters = Array.isArray(profile?.modules)
     ? profile.modules.map((mod: any) => ({
@@ -394,6 +412,73 @@ export default function ClassCatalogDetailPage() {
                   </AccordionItem>
                 ))}
               </Accordion>
+            )}
+          </section>
+
+          {/* Section: Reviews */}
+          <section className="space-y-6">
+            <div className="flex items-center justify-between px-1">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-black flex items-center gap-3">
+                  <Star className="size-6 text-yellow-500 fill-yellow-500/20" />
+                  Đánh giá từ học viên
+                </h2>
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Phản hồi thực tế từ người học</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 text-yellow-500">
+                  <Star className="size-4 fill-yellow-500" />
+                  <span className="text-xl font-black">{avgRating}</span>
+                </div>
+                <Badge variant="secondary" className="rounded-xl px-4 py-1.5 font-bold">{totalReviews} đánh giá</Badge>
+              </div>
+            </div>
+
+            {reviews.length === 0 ? (
+              <div className="rounded-[2.5rem] border border-dashed p-12 text-center text-muted-foreground font-medium bg-muted/20">
+                Chưa có đánh giá nào cho khóa học này.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {reviews.map((r: any) => (
+                  <div key={r.id} className="p-8 rounded-[2rem] bg-card border border-border/50 space-y-4 hover:shadow-lg transition-all relative overflow-hidden group">
+                    <div className="flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+                          <AvatarImage src={r.user?.avatarUrl} />
+                          <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
+                            {(r.user?.displayName || 'U')[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-0.5">
+                          <div className="text-sm font-bold">{r.user?.displayName || 'Học viên Torii'}</div>
+                          <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest leading-none bg-muted px-2 py-0.5 rounded-full inline-block">Đã học xong</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={cn(
+                              "size-3.5",
+                              i < r.rating ? "text-yellow-500 fill-yellow-500" : "text-muted-foreground/20"
+                            )} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="relative z-10">
+                      {r.title && <h4 className="font-bold text-foreground mb-1">{r.title}</h4>}
+                      <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+                        {r.content}
+                      </p>
+                    </div>
+                    <div className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest pt-2 border-t border-border/10">
+                      {new Date(r.createdAt).toLocaleDateString('vi-VN')}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </section>
         </div>

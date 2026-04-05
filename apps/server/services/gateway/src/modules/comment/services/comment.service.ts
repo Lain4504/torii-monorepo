@@ -167,26 +167,40 @@ export class CommentService {
 
     let current = entityId;
     for (let i = 0; i < 5; i++) {
-      // 1) entityId is already a class id
-      const klass = await this.prisma.liveClass.findUnique({
-        where: { id: current },
-        select: { id: true },
-      });
+      // 1) entityId is already a class id or vod package id
+      const [klass, vod] = await Promise.all([
+        this.prisma.liveClass.findUnique({
+          where: { id: current },
+          select: { id: true },
+        }),
+        this.prisma.vodPackage.findUnique({
+          where: { id: current },
+          select: { id: true },
+        }),
+      ]);
       if (klass) return [klass.id];
+      if (vod) return [vod.id];
 
-      // 2) entityId is a lesson id -> map to all classes of the course profile
+      // 2) entityId is a lesson id -> map to all classes and packages of the course profile
       const lesson = await this.prisma.lesson.findUnique({
         where: { id: current },
         select: { module: { select: { courseProfileId: true } } },
       });
       if (lesson?.module?.courseProfileId) {
-        const classes = await this.prisma.liveClass.findMany({
-          where: {
-            cohort: { courseProfileId: lesson.module.courseProfileId },
-          },
-          select: { id: true },
-        });
-        if (classes.length) return classes.map((c) => c.id);
+        const [classes, packages] = await Promise.all([
+          this.prisma.liveClass.findMany({
+            where: {
+              cohort: { courseProfileId: lesson.module.courseProfileId },
+            },
+            select: { id: true },
+          }),
+          this.prisma.vodPackage.findMany({
+            where: { courseProfileId: lesson.module.courseProfileId },
+            select: { id: true },
+          }),
+        ]);
+        const ids = [...classes.map((c) => c.id), ...packages.map((p) => p.id)];
+        if (ids.length) return ids;
       }
 
       // 3) entityId is a topic comment id -> resolve targetId, then continue.
@@ -203,7 +217,7 @@ export class CommentService {
     }
 
     throw new NotFoundException(
-      'Discussion target not found (cannot resolve course classes)',
+      'Discussion target not found (cannot resolve course classes or packages)',
     );
   }
 
@@ -213,12 +227,12 @@ export class CommentService {
     targetType: string,
     entityId: string,
     isWrite: boolean = true,
-  ): Promise<void> {
+    classId?: string,
+  ): Promise<string[]> {
     // 1. Resolve which classes or packages this discussion belongs to.
-    const classIds = await this.resolveClassIdsFromDiscussionEntity(
-      targetType,
-      entityId,
-    );
+    const candidateIds = classId
+      ? [classId]
+      : await this.resolveClassIdsFromDiscussionEntity(targetType, entityId);
 
     // 2. Load the user's explicit role to handle role-based restrictions
     const user = await this.prisma.user.findUnique({
@@ -229,7 +243,10 @@ export class CommentService {
 
     // 3. Admin & Staff Check
     const isStaffOrAdminByPerm = this.hasStaffOverride(requesterPermissions);
-    const isInternalRole = role === 'admin' || role === 'staff-academic' || role === 'staff-operations';
+    const isInternalRole =
+      role === 'admin' ||
+      role === 'staff-academic' ||
+      role === 'staff-operations';
 
     if (isWrite) {
       // Per Requirement: Admin and Staff cannot ask or answer questions in Academy Discussion.
@@ -240,45 +257,71 @@ export class CommentService {
       }
     } else {
       // For viewing (isWrite = false), always allow internal staff/admin
-      if (isStaffOrAdminByPerm || isInternalRole) return;
+      if (isStaffOrAdminByPerm || isInternalRole) return candidateIds;
     }
 
-    // 4. Lecturer Check: Must be the assigned instructor for the class
-    const classes = await this.prisma.liveClass.findMany({
-      where: { id: { in: classIds } },
-      select: { instructorId: true },
-    });
+    // 4. Lecturer Check: Must be the assigned instructor for the class or package
+    const [classes, packages] = await Promise.all([
+      this.prisma.liveClass.findMany({
+        where: { id: { in: candidateIds }, instructorId: requesterId },
+        select: { id: true },
+      }),
+      this.prisma.vodPackage.findMany({
+        where: { id: { in: candidateIds }, instructorId: requesterId },
+        select: { id: true },
+      }),
+    ]);
 
-    const isAssignedInstructor = classes.some(
-      (c) => c.instructorId && c.instructorId === requesterId,
-    );
+    const assignedIds = [
+      ...classes.map((c) => c.id),
+      ...packages.map((p) => p.id),
+    ];
 
-    if (isAssignedInstructor) {
-      return; // Full access for assigned instructor
+    if (assignedIds.length > 0) {
+      return assignedIds; // Access only to self-managed cohorts/packages
     }
 
     if (isWrite && (role === 'lecturer' || role === 'instructor')) {
-      // Lecturer but not assigned to this specific class
-      throw new ForbiddenException('Chỉ giảng viên phụ trách khóa học này mới có quyền tham gia thảo luận.');
+      // Lecturer but not assigned to any of the candidate classes
+      throw new ForbiddenException(
+        'Chỉ giảng viên phụ trách khóa học này mới có quyền tham gia thảo luận.',
+      );
     }
 
     // 5. Learner Check & Enrollment (Fallback)
     // If not a staff/admin and not the assigned lecturer, must be enrolled.
-    for (const classId of classIds) {
+    const authorizedIds: string[] = [];
+    for (const targetId of candidateIds) {
+      // Determine if it's a Live Class or VOD Package for the correct enrollment check
+      let enrollmentTargetType: 'CLASS' | 'COURSE' = 'CLASS';
+      const isVodPackage = await this.prisma.vodPackage.findFirst({
+        where: { id: targetId },
+        select: { id: true },
+      });
+      if (isVodPackage) enrollmentTargetType = 'COURSE';
+
       const result = await firstValueFrom(
         this.natsClient.send(
           { cmd: 'academy.enrollment.checkEligibility' },
           {
             userId: requesterId,
-            targetId: classId,
-            targetType: 'CLASS',
+            targetId: targetId,
+            targetType: enrollmentTargetType,
           },
         ),
       );
-      if (result?.isEnrolled) return;
+      if (result?.isEnrolled) {
+        authorizedIds.push(targetId);
+      }
     }
 
-    throw new ForbiddenException('Bạn không có quyền tham gia thảo luận này. Vui lòng đăng ký khóa học.');
+    if (authorizedIds.length > 0) {
+      return authorizedIds;
+    }
+
+    throw new ForbiddenException(
+      'Bạn không có quyền tham gia thảo luận này. Vui lòng đăng ký khóa học.',
+    );
   }
 
   async findAllComments(
@@ -295,16 +338,18 @@ export class CommentService {
       throw new BadRequestException('entityId and targetType are required');
     }
 
+    let allowedIds: string[] = [];
     if (String(query.targetType) === 'DISCUSSION') {
       if (!currentUserId) {
         throw new ForbiddenException('Unauthorized');
       }
-      await this.assertCanPostToDiscussion(
+      allowedIds = await this.assertCanPostToDiscussion(
         currentUserId,
         requesterPermissions,
         query.targetType,
         query.entityId,
         false, // isWrite = false (view list)
+        query.classId,
       );
     }
 
@@ -324,8 +369,9 @@ export class CommentService {
         },
       };
 
-      // Optional: Narrow down by classId if provided (for Live Classes)
-      if (query.classId && query.targetType !== 'DISCUSSION') {
+      // Optional: Narrow down by classIds either from query or authorized list
+      const filterTargetIds = query.classId ? [query.classId] : allowedIds;
+      if (filterTargetIds.length > 0) {
         where.AND = [
           {
             targets: {
@@ -334,7 +380,7 @@ export class CommentService {
           },
           {
             targets: {
-              some: { targetId: query.classId, targetType: 'CLASS' },
+              some: { targetId: { in: filterTargetIds } },
             },
           },
         ];
@@ -352,7 +398,7 @@ export class CommentService {
         },
         {
           targets: {
-            some: { targetId: query.classId, targetType: 'CLASS' },
+            some: { targetId: query.classId },
           },
         },
       ];
@@ -493,6 +539,7 @@ export class CommentService {
       targetType,
       entityId,
       true, // isWrite = true (creating)
+      dto.classId,
     );
 
     if (parentId) {

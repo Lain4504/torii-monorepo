@@ -48,6 +48,24 @@ export interface DashboardRevenueDayDTO {
   amount: number;
 }
 
+/** Đơn gần đây (mọi trạng thái) — bảng dashboard admin */
+export interface DashboardRecentOrderRowDTO {
+  id: string;
+  code: string;
+  status: string;
+  amount: string;
+  userName: string;
+  userEmail: string;
+  /** Ngày hiển thị: paidAt hoặc createdAt (YYYY-MM-DD) */
+  date: string;
+}
+
+/** Doanh thu đơn PAID gộp theo ngày (UTC date) */
+export interface DashboardRevenueDayDTO {
+  date: string;
+  amount: number;
+}
+
 export interface StaffOperationsDashboardResponseDTO {
   stats: {
     totalRevenue: number;

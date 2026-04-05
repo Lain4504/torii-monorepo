@@ -77,17 +77,15 @@ export function TicketDetailDialog({ open, onOpenChange, ticket, isLoading }: Ti
     return (
         <>
             <Dialog open={open} onOpenChange={onOpenChange}>
-                <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+                <DialogContent className="sm:max-w-[500px] h-full max-h-[600px] p-0 flex flex-col overflow-hidden">
                     {isLoading ? (
-                        <>
-                            <DialogHeader className="p-6 border-b">
-                                <DialogTitle>Đang tải thông tin...</DialogTitle>
-                            </DialogHeader>
-                            <div className="p-12 flex justify-center"><ComponentLoading /></div>
-                        </>
+                        <div className="flex-1 flex flex-col items-center justify-center p-12">
+                            <Spinner className="w-8 h-8 text-primary" />
+                            <p className="text-sm text-muted-foreground mt-2">Đang tải thông tin...</p>
+                        </div>
                     ) : ticket ? (
                         <>
-                            <DialogHeader className="p-6 border-b">
+                            <DialogHeader className="p-6 border-b shrink-0">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[10px] font-mono text-muted-foreground uppercase">#{ticket.id.slice(0, 8)}</span>
                                     <Badge variant={getStatusInfo(ticket.status as TicketStatus).variant}>
@@ -101,28 +99,32 @@ export function TicketDetailDialog({ open, onOpenChange, ticket, isLoading }: Ti
                                 </DialogDescription>
                             </DialogHeader>
 
-                            <ScrollArea className="max-h-[50vh]">
+                            <ScrollArea className="flex-1 min-h-0">
                                 <div className="p-6 space-y-6">
                                     <div>
                                         <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Nội dung</h4>
-                                        <p className="text-sm p-3 rounded-md bg-muted/50 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
+                                        <p className="text-sm p-4 rounded-xl bg-muted/30 whitespace-pre-wrap leading-relaxed break-all">
+                                            {ticket.description}
+                                        </p>
                                     </div>
 
                                     {ticket.response && (
                                         <div>
                                             <h4 className="text-xs font-bold uppercase text-primary mb-2">Phản hồi từ hỗ trợ</h4>
-                                            <p className="text-sm p-4 rounded-md bg-primary/5 border border-primary/20 leading-relaxed italic">{ticket.response}</p>
+                                            <p className="text-sm p-4 rounded-xl bg-primary/5 border border-primary/10 leading-relaxed italic break-all">
+                                                {ticket.response}
+                                            </p>
                                         </div>
                                     )}
                                 </div>
                             </ScrollArea>
 
-                            <DialogFooter className="p-6 border-t sm:justify-between flex-row justify-between items-center w-full">
+                            <DialogFooter className="m-0 p-6 border-t sm:justify-between flex-row justify-between items-center w-full shrink-0">
                                 {ticket.status === TicketStatus.PENDING ? (
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 -ml-2"
                                         onClick={() => setConfirmCancelOpen(true)}
                                     >
                                         <XCircle className="w-4 h-4 mr-2" />
@@ -131,19 +133,15 @@ export function TicketDetailDialog({ open, onOpenChange, ticket, isLoading }: Ti
                                 ) : (
                                     <div className="flex-1" />
                                 )}
-                                <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
+                                <Button variant="outline" className="rounded-xl" onClick={() => onOpenChange(false)}>Đóng</Button>
                             </DialogFooter>
                         </>
                     ) : (
-                        <>
-                            <DialogHeader className="p-6 border-b">
-                                <DialogTitle>Thông báo</DialogTitle>
-                            </DialogHeader>
-                            <div className="p-12 text-center text-muted-foreground">
-                                <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                                <p>Không tìm thấy thông tin</p>
-                            </div>
-                        </>
+                        <div className="p-12 text-center flex-1 flex flex-col items-center justify-center">
+                            <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                            <DialogTitle>Không tìm thấy thông tin</DialogTitle>
+                            <Button variant="outline" className="mt-4" onClick={() => onOpenChange(false)}>Quay lại</Button>
+                        </div>
                     )}
                 </DialogContent>
             </Dialog>

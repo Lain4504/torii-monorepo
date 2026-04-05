@@ -35,8 +35,9 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { StudyModeSelection } from '@/components/study/study-mode-selection';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog';
 
 export default function StudySetDetailPage() {
     const params = useParams<{ setId: string }>();
@@ -68,11 +69,7 @@ export default function StudySetDetailPage() {
     const [openCreateDialog, setOpenCreateDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-    const [newTerm, setNewTerm] = useState('');
-    const [newDefinition, setNewDefinition] = useState('');
     const [editingCard, setEditingCard] = useState<any | null>(null);
-    const [editTerm, setEditTerm] = useState('');
-    const [editDefinition, setEditDefinition] = useState('');
     const [deletingCard, setDeletingCard] = useState<any | null>(null);
 
     if (isLoading) {
@@ -97,24 +94,23 @@ export default function StudySetDetailPage() {
     const leftColumn = paginatedCards.filter((_, idx) => idx % 2 === 0);
     const rightColumn = paginatedCards.filter((_, idx) => idx % 2 !== 0);
 
-    const handleCreateCard = async () => {
+    const handleCreateCard = async (values: FlashcardFormValues) => {
         if (!canCreateCard || !setId) return;
-        if (!newTerm.trim() || !newDefinition.trim()) {
-            toast.error('Vui lòng nhập đủ từ vựng và định nghĩa');
-            return;
-        }
         try {
             await createCard.mutateAsync({
                 setId,
                 payload: {
-                    term: newTerm.trim(),
-                    definition: newDefinition.trim(),
+                    term: values.term.trim(),
+                    definition: values.definition.trim(),
+                    hint: values.note.trim() || undefined,
+                    languageDetails: {
+                        phonetic: values.phonetic.trim(),
+                        type: values.type,
+                    }
                 },
             });
             toast.success('Đã tạo thẻ mới');
             setOpenCreateDialog(false);
-            setNewTerm('');
-            setNewDefinition('');
             setPage(1);
         } catch (e: any) {
             toast.error(e?.message || 'Không tạo được thẻ');
@@ -123,30 +119,27 @@ export default function StudySetDetailPage() {
 
     const handleOpenEdit = (card: any) => {
         setEditingCard(card);
-        setEditTerm(card.term || '');
-        setEditDefinition(card.definition || '');
         setOpenEditDialog(true);
     };
 
-    const handleSaveEdit = async () => {
+    const handleSaveEdit = async (values: FlashcardFormValues) => {
         if (!editingCard) return;
-        if (!editTerm.trim() || !editDefinition.trim()) {
-            toast.error('Vui lòng nhập đủ từ vựng và định nghĩa');
-            return;
-        }
         try {
             await updateCard.mutateAsync({
                 cardId: editingCard.id,
                 payload: {
-                    term: editTerm.trim(),
-                    definition: editDefinition.trim(),
+                    term: values.term.trim(),
+                    definition: values.definition.trim(),
+                    hint: values.note.trim() || undefined,
+                    languageDetails: {
+                        phonetic: values.phonetic.trim(),
+                        type: values.type,
+                    }
                 },
             });
             toast.success('Đã cập nhật thẻ');
             setOpenEditDialog(false);
             setEditingCard(null);
-            setEditTerm('');
-            setEditDefinition('');
         } catch (e: any) {
             toast.error(e?.message || 'Không cập nhật được thẻ');
         }
@@ -197,8 +190,25 @@ export default function StudySetDetailPage() {
         <div className="rounded-xl border border-border/70 bg-card p-4 transition-colors hover:bg-muted/20">
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <p className="text-lg font-semibold">{card.term}</p>
-                    <p className="text-[22px] text-muted-foreground">{card.definition}</p>
+                    <div className="flex items-center gap-2">
+                        <p className="text-lg font-semibold">{card.term}</p>
+                        {card.languageDetails?.type && (
+                            <span className="rounded-md bg-secondary px-2 py-0.5 text-[10px] uppercase text-secondary-foreground">
+                                {card.languageDetails.type}
+                            </span>
+                        )}
+                    </div>
+                    {card.languageDetails?.phonetic && (
+                        <p className="text-xs text-muted-foreground italic mb-1">
+                            {card.languageDetails.phonetic}
+                        </p>
+                    )}
+                    <p className="text-xl text-muted-foreground">{card.definition}</p>
+                    {card.hint && (
+                        <p className="mt-1 text-xs text-muted-foreground/80">
+                            Note: {card.hint}
+                        </p>
+                    )}
                 </div>
                 {canCreateCard ? (
                     <div className="flex items-center gap-1">
@@ -277,50 +287,21 @@ export default function StudySetDetailPage() {
                 <CardHeader className="pb-3">
                     <div className="flex items-center justify-between gap-3">
                         <CardTitle>Danh sách thẻ ({cards.length})</CardTitle>
-                        <Dialog open={openCreateDialog} onOpenChange={setOpenCreateDialog}>
-                            <DialogTrigger asChild>
-                                <Button
-                                    data-requires-auth={!canCreateCard ? 'true' : undefined}
-                                    disabled={!canCreateCard}
-                                >
-                                    Tạo thẻ
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Tạo thẻ mới</DialogTitle>
-                                    <DialogDescription>
-                                        Nhập từ vựng và định nghĩa để thêm vào bộ thẻ.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-3">
-                                    <Input
-                                        placeholder="Từ vựng (ví dụ: 勉強)"
-                                        value={newTerm}
-                                        onChange={(e) => setNewTerm(e.target.value)}
-                                    />
-                                    <Input
-                                        placeholder="Định nghĩa (ví dụ: Học tập)"
-                                        value={newDefinition}
-                                        onChange={(e) => setNewDefinition(e.target.value)}
-                                    />
-                                </div>
-                                <DialogFooter>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setOpenCreateDialog(false)}
-                                    >
-                                        Hủy
-                                    </Button>
-                                    <Button
-                                        onClick={handleCreateCard}
-                                        disabled={createCard.isPending || !newTerm.trim() || !newDefinition.trim()}
-                                    >
-                                        {createCard.isPending ? 'Đang tạo...' : 'Tạo thẻ'}
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                        <Button
+                            data-requires-auth={!canCreateCard ? 'true' : undefined}
+                            disabled={!canCreateCard}
+                            onClick={() => setOpenCreateDialog(true)}
+                        >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Tạo thẻ
+                        </Button>
+                        <FlashcardFormDialog
+                            open={openCreateDialog}
+                            onOpenChange={setOpenCreateDialog}
+                            onSave={handleCreateCard}
+                            isPending={createCard.isPending}
+                            title="Tạo thẻ mới"
+                        />
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -339,39 +320,20 @@ export default function StudySetDetailPage() {
                 </CardContent>
             </Card>
 
-            <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Chỉnh sửa thẻ</DialogTitle>
-                        <DialogDescription>
-                            Cập nhật từ vựng và định nghĩa của thẻ đã chọn.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-3">
-                        <Input
-                            placeholder="Từ vựng"
-                            value={editTerm}
-                            onChange={(e) => setEditTerm(e.target.value)}
-                        />
-                        <Input
-                            placeholder="Định nghĩa"
-                            value={editDefinition}
-                            onChange={(e) => setEditDefinition(e.target.value)}
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setOpenEditDialog(false)}>
-                            Hủy
-                        </Button>
-                        <Button
-                            onClick={handleSaveEdit}
-                            disabled={updateCard.isPending || !editTerm.trim() || !editDefinition.trim()}
-                        >
-                            {updateCard.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <FlashcardFormDialog
+                open={openEditDialog}
+                onOpenChange={setOpenEditDialog}
+                initialValues={editingCard ? {
+                    term: editingCard.term,
+                    definition: editingCard.definition,
+                    phonetic: editingCard.languageDetails?.phonetic || "",
+                    note: editingCard.hint || "",
+                    type: editingCard.languageDetails?.type || "Từ vựng"
+                } : undefined}
+                onSave={handleSaveEdit}
+                isPending={updateCard.isPending}
+                title="Chỉnh sửa thẻ"
+            />
 
             <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
                 <AlertDialogContent>

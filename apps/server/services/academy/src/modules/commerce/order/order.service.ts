@@ -437,6 +437,15 @@ export class OrderService {
           },
         });
 
+        if (order.couponId) {
+          await this.couponService.recordUsage(
+            tx,
+            order.couponId,
+            order.userId,
+            order.id,
+          );
+        }
+
         // 4. Record internal transaction record for bookkeeping
         await tx.transaction.create({
           data: {
