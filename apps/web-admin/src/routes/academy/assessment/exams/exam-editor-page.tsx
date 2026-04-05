@@ -12,7 +12,7 @@ import {
   SelectValue
 } from "@workspace/ui/components/select"
 import { toast } from "sonner"
-import { ArrowLeft, Save, Plus, Trash2, Check, Clock, Info, Layout } from "lucide-react"
+import { ArrowLeft, Save, Plus, Trash2, Clock, Info, Layout } from "lucide-react"
 import { QuestionPickerModal } from "./components/question-picker-modal"
 import { Badge } from "@workspace/ui/components/badge"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
@@ -42,10 +42,7 @@ export default function AcademyExamEditorPage() {
 
   const [pickerOpen, setPickerOpen] = useState(false)
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
-  const [isSaved, setIsSaved] = useState(false)
-  const [isDirty, setIsDirty] = useState(false)
   const [removeTargetId, setRemoveTargetId] = useState<string | null>(null)
-  const [isAutoSaving, setIsAutoSaving] = useState(false)
 
   const [formData, setFormData] = useState({
     title: "",
@@ -78,8 +75,6 @@ export default function AcademyExamEditorPage() {
         points: 1
       }))
       setLocalQuestions([...localQuestions, ...mapped])
-      setIsDirty(true)
-      setIsSaved(false)
       return
     }
 
@@ -102,7 +97,6 @@ export default function AcademyExamEditorPage() {
     
     if (!isEditing) {
       setLocalQuestions(localQuestions.filter(q => q.id !== removeTargetId))
-      setIsDirty(true)
       setRemoveTargetId(null)
       return
     }
@@ -243,8 +237,6 @@ export default function AcademyExamEditorPage() {
                   value={formData.title}
                   onChange={(e) => {
                     setFormData({ ...formData, title: e.target.value })
-                    setIsDirty(true)
-                    setIsSaved(false)
                   }}
                   placeholder="VD: Bài kiểm tra General English 1..."
                   className="text-lg font-medium h-12 focus-visible:ring-sky-500"
@@ -258,8 +250,6 @@ export default function AcademyExamEditorPage() {
                   value={formData.description}
                   onChange={(e) => {
                     setFormData({ ...formData, description: e.target.value })
-                    setIsDirty(true)
-                    setIsSaved(false)
                   }}
                   placeholder="Nhập mô tả hoặc hướng dẫn làm bài cho học viên..."
                   rows={6}
@@ -366,8 +356,6 @@ export default function AcademyExamEditorPage() {
                   value={formData.examType}
                   onValueChange={(val) => {
                     setFormData({ ...formData, examType: val })
-                    setIsDirty(true)
-                    setIsSaved(false)
                   }}
                 >
                   <SelectTrigger className="h-10 bg-white dark:bg-slate-950">
@@ -387,8 +375,6 @@ export default function AcademyExamEditorPage() {
                   value={formData.status}
                   onValueChange={(val) => {
                     setFormData({ ...formData, status: val })
-                    setIsDirty(true)
-                    setIsSaved(false)
                   }}
                 >
                   <SelectTrigger className="h-10 bg-white dark:bg-slate-950">
@@ -410,8 +396,6 @@ export default function AcademyExamEditorPage() {
                     value={formData.totalTimeLimitMinutes}
                     onChange={(e) => {
                       setFormData({ ...formData, totalTimeLimitMinutes: parseInt(e.target.value) || 0 })
-                      setIsDirty(true)
-                      setIsSaved(false)
                     }}
                     min={0}
                     className="h-10 pr-12 focus-visible:ring-sky-500"

@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add delete confirmation dialog for flashcard sets and improve UI components">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/admin-dashboard-v2.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/support/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/support/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-columns.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-detail-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-detail-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/support/ticket-table.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(ui): enhance ticket management UI with improved layout and functionality">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -405,14 +402,6 @@
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
     </task>
-    <task id="LOCAL-01055" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774359389433</created>
-      <option name="number" value="01055" />
-      <option name="presentableId" value="LOCAL-01055" />
-      <option name="project" value="LOCAL" />
-      <updated>1774359389433</updated>
-    </task>
     <task id="LOCAL-01056" summary="feat: implement sharing functionality for study sets with public access">
       <option name="closed" value="true" />
       <created>1774359472940</created>
@@ -797,7 +786,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775316411648</updated>
     </task>
-    <option name="localTasksCounter" value="1104" />
+    <task id="LOCAL-01104" summary="feat(ui): enhance ticket management UI with improved layout and functionality">
+      <option name="closed" value="true" />
+      <created>1775383664239</created>
+      <option name="number" value="01104" />
+      <option name="presentableId" value="LOCAL-01104" />
+      <option name="project" value="LOCAL" />
+      <updated>1775383664242</updated>
+    </task>
+    <option name="localTasksCounter" value="1105" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -814,7 +811,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="update-web-learner-fix-ui" />
                       </list>
                     </value>
                   </entry>
@@ -832,7 +829,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add staff admin to view resource (#316)" />
     <MESSAGE value="fix: handle potential undefined values in time slot calculations" />
     <MESSAGE value="feat: add whiteboard embed mode and corresponding UI component" />
     <MESSAGE value="fix(breakout): improve metadata handling and error logging for breakout room creation" />
@@ -857,7 +853,8 @@
     <MESSAGE value="style: improve layout and spacing in dashboard components" />
     <MESSAGE value="fix ui web-adin" />
     <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
+    <MESSAGE value="feat(ui): enhance ticket management UI with improved layout and functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): enhance ticket management UI with improved layout and functionality" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
