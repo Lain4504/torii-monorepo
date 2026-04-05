@@ -14,7 +14,7 @@ export class OrderListener {
     private readonly audit: AuditLoggerService,
     private readonly orderService: OrderService,
     private readonly roadmapService: RoadmapService,
-  ) {}
+  ) { }
 
   @EventPattern('order.paid')
   async handleOrderPaid(@Payload() data: { orderId: string }) {
@@ -52,13 +52,21 @@ export class OrderListener {
         targetLiveClassId = snapshot?.selectedClassId;
       }
 
-      if (!targetLiveClassId) continue;
+      console.log(
+        `[Academy] Processing item for enrollment: liveClassId=${item.liveClassId}, cohortId=${item.cohortId}, resolvedLiveClassId=${targetLiveClassId}`,
+      );
+
+      if (!targetLiveClassId && !item.vodPackageId) {
+        console.warn(`[Academy] Skipping enrollment for item: No resolved liveClassId or vodPackageId found.`);
+        continue;
+      }
 
       try {
         console.log(
-          `[Academy] Enrolling user ${targetUserId} into specific class: ${targetLiveClassId} (Source Order: ${order.id})`,
+          `[Academy] Enrolling user ${targetUserId} into specific class: ${targetLiveClassId || 'VOD'} (Source Order: ${order.id})`,
         );
-          const created = await this.enrollments.enroll(
+
+        const created = await this.enrollments.enroll(
           {
             userId: targetUserId,
             vodPackageId: item.vodPackageId ?? undefined,
@@ -68,6 +76,7 @@ export class OrderListener {
           },
           'SYSTEM',
         );
+
         enrolledCount++;
         if (created?.id) {
           await this.roadmapService.bootstrapRoadmapForEnrollment(

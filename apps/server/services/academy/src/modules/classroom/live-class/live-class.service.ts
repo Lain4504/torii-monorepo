@@ -140,6 +140,17 @@ export class LiveClassService {
         },
         cohort: {
           include: {
+            liveClasses: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+                price: true,
+                discountPrice: true,
+                maxStudents: true,
+                _count: { select: { enrollments: { where: { status: 'ACTIVE' } } } },
+              },
+            },
             courseProfile: {
               include: {
                 modules: { include: { lessons: true } },

@@ -43,7 +43,11 @@ function normalizeProductForLearner(item: any) {
         ? [primaryClass]
         : [];
 
-  const siblingClasses = Array.isArray(item.siblingClasses) ? item.siblingClasses : [];
+  const siblingClasses = Array.isArray(item.siblingClasses)
+    ? item.siblingClasses
+    : (item.cohort?.liveClasses && Array.isArray(item.cohort.liveClasses))
+      ? item.cohort.liveClasses
+      : [];
   // Gói LIVE gắn cohort: API trả siblingClasses (lớp cùng đợt), không set item.class
   if (isLive && siblingClasses.length > 0) {
     classes = siblingClasses;
@@ -54,15 +58,23 @@ function normalizeProductForLearner(item: any) {
   let rawDiscountPrice = item.discountPrice ?? null;
 
   if (isLive && classes.length > 0) {
-    // For listing/detail, we usually show the price of the "primary" or "first" class
-    const sampleClass = primaryClass || classes[0];
+    // Try to find selected class from URL to show correct initial price
+    let sampleClass = primaryClass || classes[0];
+
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const classId = urlParams.get('classId');
+      if (classId) {
+        const found = classes.find((c: any) => c.id === classId);
+        if (found) sampleClass = found;
+      }
+    }
+
     if (sampleClass) {
       rawPrice = sampleClass.price ?? rawPrice;
       rawDiscountPrice = sampleClass.discountPrice ?? rawDiscountPrice;
     }
   }
-
-  // console.log('[Normalize] Item:', { id: item.id, mode: item.mode, isLive, classesCount: classes.length, rawPrice });
 
   const parsedPrice = Number(rawPrice);
   const parsedDiscountPrice = rawDiscountPrice ? Number(rawDiscountPrice) : null;

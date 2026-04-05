@@ -32,8 +32,11 @@ export interface OrderCheckoutDTO {
 
 export interface OrderPreviewResponse {
     subtotal: number;
+    subTotal?: number;
     discount: number;
+    discountTotal?: number;
     total: number;
+    grandTotal?: number;
     items: any[];
 }
 
@@ -140,8 +143,11 @@ export const orderApi = {
         const payload = response.data.data as any;
         return {
             subtotal: Number(payload.subTotal ?? 0),
+            subTotal: Number(payload.subTotal ?? 0),
             discount: Number(payload.discountTotal ?? 0),
+            discountTotal: Number(payload.discountTotal ?? 0),
             total: Number(payload.grandTotal ?? 0),
+            grandTotal: Number(payload.grandTotal ?? 0),
             items: payload.products ?? [],
         };
     },
