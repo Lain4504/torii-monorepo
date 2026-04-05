@@ -58,6 +58,17 @@ export const academyClassReviewsClient = {
         );
     },
 
+    /** Public: List reviews for a VOD package */
+    listByVodPackage: async (
+        vodPackageId: string,
+        query?: AcademyCourseReviewQueryDTO,
+    ) => {
+        return apiClient.get<ClassReviewListResponse>(
+            `/api/academy/reviews/vod-packages/${vodPackageId}`,
+            { params: query },
+        );
+    },
+
     /** Auth: List current user's reviews */
     listMine: async () => {
         return apiClient.get<ClassReviewMyListResponse>(
@@ -95,6 +106,14 @@ export const academyClassReviewHooks = {
             queryKey: ['class-reviews', classId, query],
             queryFn: () => academyClassReviewsClient.listByClass(classId, query),
             enabled: !!classId,
+        });
+    },
+
+    useListByVodPackage: (vodId: string, query?: AcademyCourseReviewQueryDTO) => {
+        return useQuery({
+            queryKey: ['vod-reviews', vodId, query],
+            queryFn: () => academyClassReviewsClient.listByVodPackage(vodId, query),
+            enabled: !!vodId,
         });
     },
 
