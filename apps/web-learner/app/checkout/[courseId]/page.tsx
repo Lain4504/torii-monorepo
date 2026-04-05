@@ -162,7 +162,7 @@ export default function CheckoutPage() {
         if (product?.id) {
             handlePreview()
         }
-    }, [product?.id, couponCode, selectedClassId])
+    }, [product?.id, couponCode, selectedClassId, isGift])
 
     const handlePreview = async () => {
         if (!product?.id) return
@@ -192,6 +192,10 @@ export default function CheckoutPage() {
             const result = await orderApi.previewOrder({
                 ...checkoutPayload,
                 couponCode: couponCode.trim() || undefined,
+                metadata: {
+                    isGift,
+                    recipientEmail: isGift ? recipientEmail : undefined,
+                }
             })
             setPreview(result)
         } catch (error: unknown) {
@@ -453,10 +457,14 @@ export default function CheckoutPage() {
                             <CheckCircle2 className="h-6 w-6 text-green-500" />
                             Thanh toán thành công!
                         </DialogTitle>
-                        <DialogDescription>Cảm ơn bạn đã tin tưởng Torii Academy.</DialogDescription>
+                        <DialogDescription>
+                            {isGift ? `Khóa học đã được gửi tặng tới ${recipientEmail}.` : 'Cảm ơn bạn đã tin tưởng Torii Academy.'}
+                        </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button onClick={() => router.push('/dashboard/my-courses')}>Vào học ngay</Button>
+                        <Button onClick={() => router.push(isGift ? '/dashboard/my-orders' : '/dashboard/my-courses')}>
+                            {isGift ? 'Xem đơn hàng' : 'Vào học ngay'}
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

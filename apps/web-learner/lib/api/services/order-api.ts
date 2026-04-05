@@ -15,6 +15,7 @@ export interface OrderPreviewDTO {
     liveClassIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
+    metadata?: any;
     liveClassIdByCohort?: Record<string, string>;
 }
 

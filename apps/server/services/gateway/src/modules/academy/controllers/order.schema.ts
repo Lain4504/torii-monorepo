@@ -42,6 +42,7 @@ export const orderPreviewSchema = z.object({
   liveClassIdByCohort: liveClassIdByCohortSchema,
   subscriptionPlanIds: z.array(z.string().uuid()).optional(),
   couponCode: z.string().optional(),
+  metadata: z.any().optional(),
   description: z.string().optional(),
 
   // Legacy compatibility

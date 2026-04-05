@@ -42,6 +42,8 @@ export class OrderService {
     const subscriptionPlanIds = Array.from(
       new Set(input.subscriptionPlanIds ?? []),
     );
+    const isGift = input.metadata?.isGift === true;
+    const recipientEmail = input.metadata?.recipientEmail;
     const now = new Date();
 
     if (
@@ -84,6 +86,15 @@ export class OrderService {
       throw new BadRequestException('Một số lớp học không khả dụng (hoặc đã đóng)');
 
     for (const vod of vodPackages) {
+      // If gift, skip own check for buyer (they can buy multiple times to gift)
+      if (isGift) {
+        if (recipientEmail) {
+          const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, vod.id);
+          if (res.isEnrolled) throw new BadRequestException(`Người nhận đã sở hữu gói VOD ${vod.title}`);
+        }
+        continue;
+      }
+
       const existing = await this.prisma.enrollment.findFirst({
         where: {
           userId,
@@ -110,17 +121,24 @@ export class OrderService {
       }
 
       // 2. Check if user already enrolled in this cohort (any class)
-      const existing = await this.prisma.enrollment.findFirst({
-        where: {
-          userId,
-          status: { in: ['ACTIVE', 'COMPLETED'] },
-          liveClass: { cohortId: cohort.id },
-        },
-      });
-      if (existing)
-        throw new BadRequestException(
-          `Bạn đã đăng ký một lớp trong đợt học ${cohort.name} rồi`,
-        );
+      if (isGift) {
+        if (recipientEmail) {
+          const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
+          if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký khóa học ${cohort.name}`);
+        }
+      } else {
+        const existing = await this.prisma.enrollment.findFirst({
+          where: {
+            userId,
+            status: { in: ['ACTIVE', 'COMPLETED'] },
+            liveClass: { cohortId: cohort.id },
+          },
+        });
+        if (existing)
+          throw new BadRequestException(
+            `Bạn đã đăng ký một lớp trong đợt học ${cohort.name} rồi`,
+          );
+      }
 
       // 3. Check capacity
       if (lc.maxStudents && lc._count.enrollments >= lc.maxStudents) {
@@ -141,17 +159,24 @@ export class OrderService {
         );
       }
 
-      const existing = await this.prisma.enrollment.findFirst({
-        where: {
-          userId,
-          status: { in: ['ACTIVE', 'COMPLETED'] },
-          liveClass: { cohortId: cohort.id },
-        },
-      });
-      if (existing)
-        throw new BadRequestException(
-          `Bạn đã đăng ký đợt học ${cohort.name} rồi`,
-        );
+      if (isGift) {
+        if (recipientEmail) {
+          const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
+          if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký đợt học ${cohort.name}`);
+        }
+      } else {
+        const existing = await this.prisma.enrollment.findFirst({
+          where: {
+            userId,
+            status: { in: ['ACTIVE', 'COMPLETED'] },
+            liveClass: { cohortId: cohort.id },
+          },
+        });
+        if (existing)
+          throw new BadRequestException(
+            `Bạn đã đăng ký đợt học ${cohort.name} rồi`,
+          );
+      }
 
       const selectedLiveClassId = input.liveClassIdByCohort?.[cohort.id];
       if (!selectedLiveClassId)

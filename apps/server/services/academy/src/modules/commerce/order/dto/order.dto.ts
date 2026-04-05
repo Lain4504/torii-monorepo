@@ -81,6 +81,9 @@ export class OrderPreviewDto {
   description?: string;
 
   @IsOptional()
+  metadata?: any;
+
+  @IsOptional()
   @IsObject()
   liveClassIdByCohort?: Record<string, string>;
 }
