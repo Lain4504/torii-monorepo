@@ -34,6 +34,8 @@ function normalizeProductForLearner(item: any) {
     curriculum = { chapters };
   }
 
+  const isLive = item.mode === 'LIVE' || item.type === 'LIVE' || !!item.liveClasses || !!item.cohortId;
+
   let classes =
     item.classes && Array.isArray(item.classes) && item.classes.length > 0
       ? item.classes
@@ -43,14 +45,27 @@ function normalizeProductForLearner(item: any) {
 
   const siblingClasses = Array.isArray(item.siblingClasses) ? item.siblingClasses : [];
   // Gói LIVE gắn cohort: API trả siblingClasses (lớp cùng đợt), không set item.class
-  if (item.mode === 'LIVE' && siblingClasses.length > 0) {
+  if (isLive && siblingClasses.length > 0) {
     classes = siblingClasses;
   }
 
-  const isLive = item.mode === 'LIVE';
+  // Derive price from classes if it's a LIVE product
+  let rawPrice = item.originalPrice ?? item.price ?? 0;
+  let rawDiscountPrice = item.discountPrice ?? null;
 
-  const rawPrice = item.originalPrice ?? item.price ?? 0;
+  if (isLive && classes.length > 0) {
+    // For listing/detail, we usually show the price of the "primary" or "first" class
+    const sampleClass = primaryClass || classes[0];
+    if (sampleClass) {
+      rawPrice = sampleClass.price ?? rawPrice;
+      rawDiscountPrice = sampleClass.discountPrice ?? rawDiscountPrice;
+    }
+  }
+
+  // console.log('[Normalize] Item:', { id: item.id, mode: item.mode, isLive, classesCount: classes.length, rawPrice });
+
   const parsedPrice = Number(rawPrice);
+  const parsedDiscountPrice = rawDiscountPrice ? Number(rawDiscountPrice) : null;
 
   const normalizedClasses = classes.map((cls: any) => {
     if (curriculum && !Array.isArray(cls.curriculum?.chapters)) {
@@ -77,6 +92,7 @@ function normalizeProductForLearner(item: any) {
     /** Luôn có khi curriculum lấy từ courseProfile (kể cả LIVE không có class 1:1) */
     curriculum: curriculum ?? null,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
+    discountPrice: parsedDiscountPrice,
     thumbnailUrl:
       item.thumbnailUrl ||
       profile?.thumbnailUrl ||
@@ -168,8 +184,9 @@ export const academyClassCatalogApi = {
       { params: mode ? { mode } : undefined },
     );
     const item = response.data.data!.item as any;
+    const isLive = item?.mode === 'LIVE' || !!item?.cohortId || !!item?.liveSchedules;
 
-    if (item?.mode === 'LIVE') {
+    if (isLive) {
       const prices = academyClassCatalogApi.normalizePrice(item)
       return {
         ...item,

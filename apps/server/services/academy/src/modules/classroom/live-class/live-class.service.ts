@@ -177,6 +177,8 @@ export class LiveClassService {
         instructorId: data.instructorId ?? null,
         maxStudents: data.maxStudents,
         status: (data.status as any) ?? 'DRAFT',
+        price: data.price,
+        discountPrice: data.discountPrice,
       },
     });
 
@@ -207,6 +209,8 @@ export class LiveClassService {
         status: data.status as any,
         instructorId: data.instructorId,
         maxStudents: data.maxStudents,
+        price: data.price,
+        discountPrice: data.discountPrice,
       },
     });
   }
