@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(ui): enhance ticket management UI with improved layout and functionality">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/team-switcher.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/team-switcher.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -402,22 +403,6 @@
       <workItem from="1775223495745" duration="3269000" />
       <workItem from="1775287880059" duration="4339000" />
     </task>
-    <task id="LOCAL-01056" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774359472940</created>
-      <option name="number" value="01056" />
-      <option name="presentableId" value="LOCAL-01056" />
-      <option name="project" value="LOCAL" />
-      <updated>1774359472940</updated>
-    </task>
-    <task id="LOCAL-01057" summary="feat: implement sharing functionality for study sets with public access">
-      <option name="closed" value="true" />
-      <created>1774359573729</created>
-      <option name="number" value="01057" />
-      <option name="presentableId" value="LOCAL-01057" />
-      <option name="project" value="LOCAL" />
-      <updated>1774359573729</updated>
-    </task>
     <task id="LOCAL-01058" summary="feat: remove study note functionality and related components">
       <option name="closed" value="true" />
       <created>1774360271191</created>
@@ -794,7 +779,23 @@
       <option name="project" value="LOCAL" />
       <updated>1775383664242</updated>
     </task>
-    <option name="localTasksCounter" value="1105" />
+    <task id="LOCAL-01105" summary="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling">
+      <option name="closed" value="true" />
+      <created>1775383889387</created>
+      <option name="number" value="01105" />
+      <option name="presentableId" value="LOCAL-01105" />
+      <option name="project" value="LOCAL" />
+      <updated>1775383889387</updated>
+    </task>
+    <task id="LOCAL-01106" summary="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling">
+      <option name="closed" value="true" />
+      <created>1775383926768</created>
+      <option name="number" value="01106" />
+      <option name="presentableId" value="LOCAL-01106" />
+      <option name="project" value="LOCAL" />
+      <updated>1775383926768</updated>
+    </task>
+    <option name="localTasksCounter" value="1107" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -829,7 +830,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: handle potential undefined values in time slot calculations" />
     <MESSAGE value="feat: add whiteboard embed mode and corresponding UI component" />
     <MESSAGE value="fix(breakout): improve metadata handling and error logging for breakout room creation" />
     <MESSAGE value="fix(insights): update AI chat model configuration and pricing structure" />
@@ -854,7 +854,8 @@
     <MESSAGE value="fix ui web-adin" />
     <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
     <MESSAGE value="feat(ui): enhance ticket management UI with improved layout and functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): enhance ticket management UI with improved layout and functionality" />
+    <MESSAGE value="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -113,7 +113,7 @@ export function BlogListClient() {
                                         <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em]">
                                             {blog.publishedAt && formatDate(blog.publishedAt.toString())}
                                         </p>
-                                        <h4 className="text-xl font-black line-clamp-2 group-hover:text-primary transition-colors font-space tracking-tight leading-tight">
+                                        <h4 className="text-xl font-black line-clamp-2 group-hover:text-primary transition-colors tracking-tight leading-tight">
                                             {blog.title}
                                         </h4>
                                     </div>

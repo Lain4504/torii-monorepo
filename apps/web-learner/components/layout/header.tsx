@@ -55,7 +55,7 @@ export function Header() {
                 <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
                     <Image src={logo} alt="Torii Nihongo" width={48} height={48} className="w-9 h-9 object-contain" />
                     <div className="flex flex-col leading-none">
-                        <span className="text-base font-black tracking-tight text-foreground font-space">Torii</span>
+                        <span className="text-base font-black tracking-tight text-foreground">Torii</span>
                         <span className="text-[11px] font-semibold text-muted-foreground mt-1">Nihongo</span>
                     </div>
                 </Link>

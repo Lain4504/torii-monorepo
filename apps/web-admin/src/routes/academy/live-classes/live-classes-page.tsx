@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, Search, Eye, Pencil, Rocket } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Rocket, CalendarSync } from 'lucide-react';
 import {
     useAcademyLiveClasses,
     usePublishClassDirectly,
@@ -122,10 +122,16 @@ export default function LiveClassesPage() {
                 subtitle={isLecturer ? "Quản lý bài giảng, điểm danh và bài tập cho các lớp bạn phụ trách." : "Giám sát và vận hành toàn bộ các lớp học trực tiếp (LIVE)."}
                 stats={stats}
                 actions={isStaff && (
-                    <Button size="lg" onClick={handleCreate}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Tạo Lớp mới
-                    </Button>
+                    <div className="flex gap-4">
+                        <Button variant="outline" size="lg" onClick={() => navigate('/academy/live-classes/reschedule-requests')}>
+                            <CalendarSync className="mr-2 h-4 w-4" />
+                            Duyệt dời lịch
+                        </Button>
+                        <Button size="lg" onClick={handleCreate}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Tạo Lớp mới
+                        </Button>
+                    </div>
                 )}
             />
 
