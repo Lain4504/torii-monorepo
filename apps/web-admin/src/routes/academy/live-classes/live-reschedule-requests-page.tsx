@@ -12,10 +12,10 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { 
-  useAcademyLiveScheduleRequests, 
-  useApproveAcademyLiveScheduleRequest, 
-  useRejectAcademyLiveScheduleRequest 
+import {
+  useAcademyLiveScheduleRequests,
+  useApproveAcademyLiveScheduleRequest,
+  useRejectAcademyLiveScheduleRequest
 } from "@/lib/api/services/academy-live-schedule-requests"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { format, parseISO } from "date-fns"
@@ -24,9 +24,9 @@ import { ChevronRight, CalendarSync, CheckCircle2, XCircle, Clock, Search } from
 import { toast } from "sonner"
 import type { AcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { Input } from "@workspace/ui/components/input"
-import { 
-  listPageSearchIconClass, 
-  listPageSearchInputClass, 
+import {
+  listPageSearchIconClass,
+  listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass
 } from "@/lib/ui-shell"
@@ -34,7 +34,7 @@ import {
 export default function LiveRescheduleRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("PENDING")
   const [search, setSearch] = useState("")
-  
+
   const { data: allRequests = [], isLoading: isLoadingRequests } = useAcademyLiveScheduleRequests({
     status: statusFilter === "all" ? undefined : (statusFilter as any)
   })
@@ -89,12 +89,12 @@ export default function LiveRescheduleRequestsPage() {
     if (!search) return allRequests
     const s = search.toLowerCase()
     return allRequests.filter(req => {
-        const classInfo = classMap.get(req.liveClassId || req.session?.liveClassId || "")
-        return (
-            classInfo?.code.toLowerCase().includes(s) || 
-            classInfo?.name.toLowerCase().includes(s) ||
-            req.requester?.displayName.toLowerCase().includes(s)
-        )
+      const classInfo = classMap.get(req.liveClassId || req.session?.liveClassId || "")
+      return (
+        classInfo?.code.toLowerCase().includes(s) ||
+        classInfo?.name.toLowerCase().includes(s) ||
+        req.requester?.displayName.toLowerCase().includes(s)
+      )
     })
   }, [allRequests, search, classMap])
 
@@ -120,39 +120,39 @@ export default function LiveRescheduleRequestsPage() {
 
       <div className="space-y-4">
         <div className={listPageToolbarRootClass}>
-            <div className={listPageSearchWrapClass}>
-                <Search className={listPageSearchIconClass} />
-                <Input
-                    placeholder="Tìm theo mã lớp, tên lớp hoặc tên giảng viên..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className={listPageSearchInputClass}
-                />
-            </div>
-            <div className="flex items-center gap-2">
-                <Button 
-                    variant={statusFilter === 'PENDING' ? 'default' : 'outline'} 
-                    size="sm" 
-                    onClick={() => setStatusFilter('PENDING')}
-                    className="h-10 px-4"
-                >
-                    Đang chờ duyệt
-                </Button>
-                <Button 
-                    variant={statusFilter === 'all' ? 'default' : 'outline'} 
-                    size="sm" 
-                    onClick={() => setStatusFilter('all')}
-                    className="h-10 px-4"
-                >
-                    Tất cả lịch sử
-                </Button>
-            </div>
+          <div className={listPageSearchWrapClass}>
+            <Search className={listPageSearchIconClass} />
+            <Input
+              placeholder="Tìm theo mã lớp, tên lớp hoặc tên giảng viên..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className={listPageSearchInputClass}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={statusFilter === 'PENDING' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('PENDING')}
+              className="h-10 px-4"
+            >
+              Đang chờ duyệt
+            </Button>
+            <Button
+              variant={statusFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter('all')}
+              className="h-10 px-4"
+            >
+              Tất cả lịch sử
+            </Button>
+          </div>
         </div>
 
         <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
-            <Table>
+          <Table>
             <TableHeader className="bg-muted/30">
-                <TableRow className="hover:bg-transparent">
+              <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-6 py-4">Lớp học</TableHead>
                 <TableHead>Buổi học gốc</TableHead>
                 <TableHead>Loại yêu cầu</TableHead>
@@ -160,119 +160,121 @@ export default function LiveRescheduleRequestsPage() {
                 <TableHead>Giảng viên & Lý do</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead className="pr-6 text-right">Thao tác</TableHead>
-                </TableRow>
+              </TableRow>
             </TableHeader>
             <TableBody>
-                {isLoading ? (
+              {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                        <TableCell className="pl-6"><Skeleton className="h-4 w-20" /><Skeleton className="h-3 w-32 mt-2" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16 mt-2" /></TableCell>
-                        <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16 mt-2" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-32" /><Skeleton className="h-3 w-40 mt-2" /></TableCell>
-                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                        <TableCell className="text-right pr-6"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
-                    </TableRow>
+                  <TableRow key={i}>
+                    <TableCell className="pl-6"><Skeleton className="h-4 w-20" /><Skeleton className="h-3 w-32 mt-2" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16 mt-2" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16 mt-2" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /><Skeleton className="h-3 w-40 mt-2" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                    <TableCell className="text-right pr-6"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
+                  </TableRow>
                 ))
-                ) : filteredRequests.length === 0 ? (
+              ) : filteredRequests.length === 0 ? (
                 <TableRow>
-                    <TableCell colSpan={7} className="h-48 text-center text-muted-foreground italic">
+                  <TableCell colSpan={7} className="h-48 text-center text-muted-foreground italic">
                     <div className="flex flex-col items-center justify-center gap-2">
-                        <CalendarSync className="size-8 opacity-20" />
-                        <span>Không tìm thấy yêu cầu nào phù hợp.</span>
+                      <CalendarSync className="size-8 opacity-20" />
+                      <span>Không tìm thấy yêu cầu nào phù hợp.</span>
                     </div>
-                    </TableCell>
+                  </TableCell>
                 </TableRow>
-                ) : (
+              ) : (
                 filteredRequests.map((req: AcademyLiveScheduleRequest) => {
-                    const classId = req.liveClassId || req.session?.liveClassId || ""
-                    const classInfo = classMap.get(classId)
-                    return (
+                  const classId = req.liveClassId || req.session?.liveClassId || ""
+                  const classInfo = classMap.get(classId)
+                  return (
                     <TableRow key={req.id} className="hover:bg-muted/5 transition-colors group">
-                        <TableCell className="pl-6 py-4">
+                      <TableCell className="pl-6 py-4">
                         <div className="flex flex-col">
-                            <span className="font-bold text-sm text-primary group-hover:underline cursor-pointer" onClick={() => window.open(`/academy/live-classes/${classId}/detail?tab=schedule`, '_blank')}>
-                                {classInfo?.code || "N/A"}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground truncate max-w-[180px]" title={classInfo?.name}>
-                                {classInfo?.name || "N/A"}
-                            </span>
+                          <span className="font-bold text-sm text-primary group-hover:underline cursor-pointer" onClick={() => window.open(`/academy/live-classes/${classId}/detail?tab=schedule`, '_blank')}>
+                            {classInfo?.code || "N/A"}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground truncate max-w-[180px]" title={classInfo?.name}>
+                            {classInfo?.name || "N/A"}
+                          </span>
                         </div>
-                        </TableCell>
-                        <TableCell>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex flex-col">
-                            <span className="font-bold text-sm tracking-tight">{req.session ? formatDateLabel(req.session.sessionDate) : "N/A"}</span>
-                            <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-black bg-muted/50 w-fit px-1.5 py-0.5 rounded mt-1">
-                                <Clock className="size-3" /> {req.session?.startTime} - {req.session?.endTime}
-                            </div>
+                          <span className="font-bold text-sm tracking-tight">{req.session ? formatDateLabel(req.session.sessionDate) : "N/A"}</span>
+                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-black bg-muted/50 w-fit px-1.5 py-0.5 rounded mt-1">
+                            <Clock className="size-3" /> {req.session?.startTime} - {req.session?.endTime}
+                          </div>
                         </div>
-                        </TableCell>
-                        <TableCell>
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={req.type === 'RESCHEDULE' ? 'default' : 'destructive'} className="text-[9px] font-black uppercase tracking-tighter">
-                            {req.type === 'RESCHEDULE' ? 'Dời lịch' : 'Nghỉ phép'}
+                          {req.type === 'RESCHEDULE' ? 'Dời lịch' : 'Nghỉ phép'}
                         </Badge>
-                        </TableCell>
-                        <TableCell>
+                      </TableCell>
+                      <TableCell>
                         {req.type === 'RESCHEDULE' ? (
-                            <div className="flex flex-col border-l-2 border-emerald-500/40 pl-2 py-0.5">
+                          <div className="flex flex-col border-l-2 border-emerald-500/40 pl-2 py-0.5">
                             <span className="font-bold text-sm text-emerald-600 dark:text-emerald-500">{req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "N/A"}</span>
                             <span className="text-[10px] text-emerald-600/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
-                            </div>
+                          </div>
                         ) : (
-                            <span className="text-muted-foreground text-xs italic opacity-60">Hủy buổi học</span>
+                          <span className="text-muted-foreground text-xs italic opacity-60">Hủy buổi học</span>
                         )}
-                        </TableCell>
-                        <TableCell>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex flex-col max-w-[220px]">
-                            <span className="text-xs font-bold text-foreground/80">{req.requester?.displayName || "Giảng viên"}</span>
-                            <p className="text-[10px] text-muted-foreground italic line-clamp-2 mt-1 leading-relaxed" title={req.reason || ""}>
-                                “{req.reason || "Không có lý do chi tiết"}”
-                            </p>
+                          <span className="text-xs font-bold text-foreground/80">{req.requester?.displayName || "Giảng viên"}</span>
+                          <p className="text-[10px] text-muted-foreground italic line-clamp-2 mt-1 leading-relaxed" title={req.reason || ""}>
+                            “{req.reason || "Không có lý do chi tiết"}”
+                          </p>
                         </div>
-                        </TableCell>
-                        <TableCell>
+                      </TableCell>
+                      <TableCell>
                         {getRequestStatusBadge(req.status)}
-                        </TableCell>
-                        <TableCell className="pr-6 text-right">
+                      </TableCell>
+                      <TableCell className="pr-6 text-right">
                         {req.status === 'PENDING' ? (
-                            <div className="flex justify-end gap-2">
-                            <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="h-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200 font-bold" 
-                                onClick={() => handleApproveRequest(req.id)}
-                                disabled={approveRequestMutation.isPending}
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 gap-1.5 border-emerald-500/40 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-medium"
+                              onClick={() => handleApproveRequest(req.id)}
+                              disabled={approveRequestMutation.isPending}
                             >
-                                <CheckCircle2 className="size-3.5 mr-1" /> Duyệt
+                              <CheckCircle2 className="h-4 w-4" />
+                              Duyệt
                             </Button>
-                            <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="h-8 text-destructive hover:bg-destructive/5 border-destructive/20 font-bold" 
-                                onClick={() => handleRejectRequest(req.id)}
-                                disabled={rejectRequestMutation.isPending}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/5 font-medium"
+                              onClick={() => handleRejectRequest(req.id)}
+                              disabled={rejectRequestMutation.isPending}
                             >
-                                <XCircle className="size-3.5 mr-1" /> Từ chối
+                              <XCircle className="h-4 w-4" />
+                              Từ chối
                             </Button>
-                            </div>
+                          </div>
                         ) : (
-                            <div className="flex flex-col items-end gap-1">
-                                <span className="text-[10px] text-muted-foreground font-medium italic">Đã xử lý</span>
-                                {req.reviewedBy && (
-                                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 font-normal">
-                                        bởi {req.reviewer?.displayName || "Admin"}
-                                    </Badge>
-                                )}
-                            </div>
+                          <div className="flex flex-col items-end gap-1">
+                            <span className="text-[10px] text-muted-foreground font-medium italic uppercase tracking-wider opacity-60">Đã xử lý</span>
+                            {req.reviewedBy && (
+                              <Badge variant="outline" className="text-[9px] px-2 py-0.5 font-bold bg-muted/30">
+                                bởi {req.reviewer?.displayName || "Admin"}
+                              </Badge>
+                            )}
+                          </div>
                         )}
-                        </TableCell>
+                      </TableCell>
                     </TableRow>
-                    )
+                  )
                 })
-                )}
+              )}
             </TableBody>
-            </Table>
+          </Table>
         </div>
       </div>
     </div>

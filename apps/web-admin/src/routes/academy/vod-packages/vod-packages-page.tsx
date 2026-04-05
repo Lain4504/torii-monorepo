@@ -202,19 +202,19 @@ export default function VodPackagesPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 gap-2 border-sky-500/30 text-sky-700 bg-transparent hover:bg-sky-50 hover:text-sky-700"
+                                                    className="h-8 gap-1.5 border-sky-500/40 text-sky-700 hover:bg-sky-50 font-medium"
                                                     onClick={() => goToDetail(pkg.id)}
                                                 >
-                                                    <Eye className="size-3.5" /> Chi tiết
+                                                    <Eye className="h-4 w-4" /> Chi tiết
                                                 </Button>
                                                 {pkg.status === 'DRAFT' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 hover:bg-emerald-50 font-medium"
                                                         onClick={() => handleEdit(pkg)}
                                                     >
-                                                        <Pencil className="size-3.5" /> Chỉnh sửa
+                                                        <Pencil className="h-4 w-4" /> Sửa
                                                     </Button>
                                                 )}
 
@@ -222,7 +222,7 @@ export default function VodPackagesPage() {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-indigo-500/30 text-indigo-700 bg-transparent hover:bg-indigo-50 hover:text-indigo-700"
+                                                        className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 hover:bg-indigo-50 font-medium"
                                                         onClick={async () => {
                                                             try {
                                                                 await submitForApprovalMutation.mutateAsync(pkg.id)
@@ -233,7 +233,7 @@ export default function VodPackagesPage() {
                                                         }}
                                                         disabled={submitForApprovalMutation.isPending}
                                                     >
-                                                        <Send className="size-3.5" /> Gửi duyệt
+                                                        <Send className="h-4 w-4" /> Gửi duyệt
                                                     </Button>
                                                 )}
                                             </div>

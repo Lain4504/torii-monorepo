@@ -62,7 +62,7 @@ const liveClassSchema = z.object({
   name: z.string().min(3, "Tên lớp phải có ít nhất 3 ký tự"),
   instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
   status: z.string().optional(),
-  maxStudents: z.number().int().min(1).optional().nullable(),
+  maxStudents: z.number().int().min(1, "Ít nhất 1 học viên").max(30, "Số học viên tối đa là 30").optional().nullable(),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional().nullable(),
   discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   thumbnailUrl: z.string().url().optional().nullable(),
@@ -300,22 +300,26 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                           name="maxStudents"
                           control={control}
                           render={({ field }) => (
-                            <Input
-                              type="number"
-                              min={1}
-                              placeholder="Không giới hạn"
-                              value={field.value ?? ""}
-                              onChange={(e) => {
-                                const raw = e.target.value
-                                if (raw === "") {
-                                  field.onChange(null)
-                                  return
-                                }
-                                const n = parseInt(raw, 10)
-                                field.onChange(isNaN(n) ? null : n)
-                              }}
-                              className="h-10"
-                            />
+                            <div className="space-y-1">
+                              <Input
+                                type="number"
+                                min={1}
+                                max={30}
+                                placeholder="Học viên (Tối đa 30)"
+                                value={field.value ?? ""}
+                                onChange={(e) => {
+                                  const raw = e.target.value
+                                  if (raw === "") {
+                                    field.onChange(null)
+                                    return
+                                  }
+                                  const n = parseInt(raw, 10)
+                                  field.onChange(isNaN(n) ? null : n)
+                                }}
+                                className="h-10"
+                              />
+                              <p className="text-[10px] text-muted-foreground italic">* Mỗi lớp học tối đa 30 học viên theo quy định.</p>
+                            </div>
                           )}
                         />
                         <FieldError errors={[errors.maxStudents]} />

@@ -8,7 +8,7 @@ import {
 } from "@workspace/ui/components/table"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
-import { Edit2, Trash2, Star, Ticket, Percent, Banknote } from "lucide-react"
+import { Pencil, Trash2, Star, Ticket, Percent, Banknote } from "lucide-react"
 import type { PointRewardDTO } from "@workspace/schemas"
 import { formatCurrency, formatNumber } from "@/lib/format-utils"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -120,21 +120,21 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                                 <div className="flex justify-end gap-2">
                                     <Button
                                         variant="outline"
-                                        size="icon"
-                                        className="h-8 w-8"
+                                        size="sm"
+                                        className="h-8 gap-1.5"
                                         onClick={() => onEdit(reward)}
-                                        title="Chỉnh sửa"
                                     >
-                                        <Edit2 className="h-4 w-4" />
+                                        <Pencil className="h-4 w-4" />
+                                        Sửa
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        size="icon"
-                                        className="h-8 w-8 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                                        size="sm"
+                                        className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
                                         onClick={() => onDelete(reward)}
-                                        title="Xóa"
                                     >
                                         <Trash2 className="h-4 w-4" />
+                                        Xóa
                                     </Button>
                                 </div>
                             </TableCell>

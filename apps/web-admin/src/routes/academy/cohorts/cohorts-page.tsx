@@ -91,8 +91,8 @@ export default function CohortsPage() {
                 title="Đợt khai giảng"
                 subtitle="Quản lý các đợt khai giảng và ngày khai giảng cho các lớp LIVE."
                 actions={
-                    <Button size="lg" onClick={handleCreate}>
-                        <Plus className="mr-2 h-4 w-4" /> Tạo Đợt khai giảng mới
+                    <Button size="lg" className="h-10 gap-2 shadow-sm" onClick={handleCreate}>
+                        <Plus className="h-4 w-4" /> Tạo Đợt khai giảng mới
                     </Button>
                 }
             />
@@ -185,19 +185,19 @@ export default function CohortsPage() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 gap-2 border-sky-500/30 text-sky-700 bg-transparent hover:bg-sky-50 hover:text-sky-700"
+                                                    className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50"
                                                     onClick={() => goToCohortDetail(cohort.id)}
                                                 >
-                                                    <Eye className="size-3.5" /> Chi tiết
+                                                    <Eye className="h-4 w-4" /> Chi tiết
                                                 </Button>
                                                 {cohort.status === 'DRAFT' && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-emerald-500/30 text-emerald-700 bg-transparent hover:bg-emerald-50 hover:text-emerald-700"
+                                                        className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 bg-transparent hover:bg-emerald-50"
                                                         onClick={() => handleEdit(cohort)}
                                                     >
-                                                        <Pencil className="size-3.5" /> Chỉnh sửa
+                                                        <Pencil className="h-4 w-4" /> Chỉnh sửa
                                                     </Button>
                                                 )}
 
@@ -205,7 +205,7 @@ export default function CohortsPage() {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 gap-2 border-indigo-500/30 text-indigo-700 bg-transparent hover:bg-indigo-50 hover:text-indigo-700"
+                                                        className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 bg-transparent hover:bg-indigo-50"
                                                         onClick={async () => {
                                                             try {
                                                                 await submitForApprovalMutation.mutateAsync(cohort.id)
@@ -217,7 +217,7 @@ export default function CohortsPage() {
                                                         disabled={submitForApprovalMutation.isPending || !cohort._count?.liveClasses}
                                                         title={!cohort._count?.liveClasses ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
                                                     >
-                                                        <Send className="size-3.5" /> Gửi duyệt
+                                                        <Send className="h-4 w-4" /> Gửi duyệt
                                                     </Button>
                                                 )}
                                             </div>
