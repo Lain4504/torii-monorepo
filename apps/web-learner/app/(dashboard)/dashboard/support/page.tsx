@@ -27,12 +27,7 @@ export default function SupportPage() {
         }
     };
 
-    const handleCancelTicket = (id: string) => {
-        // This will be handled inside TicketDetailDialog now
-        // But we can re-fetch data on success
-    };
-
-    const { data: singleTicketData, isLoading: isSingleTicketLoading } = useQuery({
+    const { isLoading: isSingleTicketLoading } = useQuery({
         queryKey: ['ticket', selectedTicket?.id],
         queryFn: () => {
             // This is a bit of a hack to get the ticket data for the dialog
@@ -54,28 +49,38 @@ export default function SupportPage() {
     } : null;
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold">Yêu cầu hỗ trợ</h1>
-                    <p className="text-muted-foreground">
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-4">
+                <div className="min-w-0 space-y-1">
+                    <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                        Yêu cầu hỗ trợ
+                    </h1>
+                    <p className="max-w-2xl text-sm text-muted-foreground">
                         Theo dõi và quản lý các yêu cầu hỗ trợ của bạn.
                     </p>
                 </div>
-                <Button onClick={() => setCreateOpen(true)}>
+                <Button onClick={() => setCreateOpen(true)} className="shrink-0">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Tạo yêu cầu mới
                 </Button>
             </div>
 
-            <TicketTable data={tickets} onView={handleViewDetails} onDelete={handleCancelTicket} isLoading={isLoading} />
-            <SmartPagination
-                page={page}
-                totalPages={meta?.totalPages || 0}
-                totalItems={meta?.total || 0}
-                onPageChange={setPage}
-                itemName="yêu cầu"
-            />
+            <div className="space-y-4">
+                <TicketTable
+                    data={tickets}
+                    onView={handleViewDetails}
+                    isLoading={isLoading}
+                    page={page}
+                    limit={10}
+                />
+                <SmartPagination
+                    page={page}
+                    totalPages={meta?.totalPages || 0}
+                    totalItems={meta?.total || 0}
+                    onPageChange={setPage}
+                    itemName="yêu cầu"
+                />
+            </div>
 
             <CreateTicketDialog open={isCreateOpen} onOpenChange={setCreateOpen} />
             <TicketDetailDialog
