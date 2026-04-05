@@ -22,8 +22,10 @@ export class CohortHandler {
   }
 
   @MessagePattern({ cmd: 'academy.cohort.update' })
-  update(@Payload() data: any) {
-    return this.service.update(data.id, data.input);
+  update(
+    @Payload() data: { id: string; input: any; requesterId?: string },
+  ) {
+    return this.service.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.cohort.delete' })

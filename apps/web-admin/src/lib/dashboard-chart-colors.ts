@@ -83,5 +83,28 @@ export function academyPipelineBarFill(statusName: string): string {
   return 'var(--chart-2)'
 }
 
-/** Cột doanh thu theo level — một metric, một màu brand */
+/**
+ * Màu lát pie cố định (hex) — tránh trùng nhau khi theme không định nghĩa --chart-* khác biệt.
+ */
+const DISTINCT_PIE_FILLS = [
+  '#2563eb',
+  '#16a34a',
+  '#d97706',
+  '#dc2626',
+  '#7c3aed',
+  '#db2777',
+  '#0891b2',
+  '#65a30d',
+] as const
+
+/** Mỗi lát pie theo thứ tự (doanh thu Level, duyệt chờ, …) */
+export function distinctPieSliceFill(index: number): string {
+  return DISTINCT_PIE_FILLS[index % DISTINCT_PIE_FILLS.length]
+}
+
+export function revenueLevelPieFill(_levelName: string, index: number): string {
+  return distinctPieSliceFill(index)
+}
+
+/** Cột doanh thu theo level (dashboard khác) — một metric, một màu brand */
 export const revenueBarFill = 'var(--primary)'

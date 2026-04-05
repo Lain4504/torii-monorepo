@@ -4,8 +4,8 @@
 # Version: 3.1.0 - Academy Centric RBAC
 #
 # Design Philosophy:
-# - staff-academic: nội dung (content) + triển khai lớp/lịch (delivery) + mở bán offering (cohort/VOD via commerce.write)
-# - staff-operations: đơn hàng / coupon / subscription + marketing (blog) + gamification + support + đọc academy (read-only) để phục vụ KH
+# - staff-academic: nội dung (content) + triển khai lớp/lịch (delivery) + soạn offering (commerce.write) + duyệt xuất bản (commerce.approve)
+# - staff-operations: đơn hàng / coupon / subscription + marketing (blog) + gamification + support + đọc academy + duyệt xuất bản offering (commerce.approve), không commerce.write
 # - Meet: schedule.view (giám sát phòng) vs live_class.manage (điều khiển, ví dụ end room)
 # - Actors: admin, staff-academic, staff-operations, lecturer, learner
 
@@ -23,11 +23,11 @@ roles:
     
   - code: staff-academic
     name: Academic Staff
-    description: Nội dung, lớp/lịch live, duyệt yêu cầu lịch; mở bán cohort/VOD (commerce.write); không quản đơn/coupon/subscription/blog/gamification
+    description: Nội dung, lớp/lịch live, duyệt yêu cầu lịch; soạn & duyệt xuất bản cohort/VOD (commerce.write + commerce.approve); không quản đơn/coupon/subscription/blog/gamification
     
   - code: staff-operations
     name: Operations Staff
-    description: Đơn hàng, coupon, Sensei subscription, blog, gamification, support, audit; chỉ đọc academy (content/delivery/commerce.read)
+    description: Đơn hàng, coupon, Sensei subscription, blog, gamification, support, audit; đọc academy; duyệt xuất bản cohort/VOD (commerce.approve)
     
   - code: lecturer
     name: Instructor
@@ -71,7 +71,7 @@ permissions:
     description: Manage course offerings and pricing
     category: Academy Commerce
   - code: academy.commerce.approve
-    description: (Dự phòng SoD) Duyệt xuất bản offering — hiện gateway dùng commerce.write cho approve cohort/VOD
+    description: Phê duyệt / từ chối xuất bản offering (cohort, VOD package) — tách khỏi commerce.write (SoD)
     category: Academy Commerce
 
   # Meet / LiveKit (web-admin room tools)
@@ -162,7 +162,7 @@ default_role_permissions:
   admin:
     - "*"
     
-  # Học vụ: toàn quyền content + delivery + approve lịch; commerce.write = CRUD + mở bán cohort & VOD
+  # Học vụ: toàn quyền content + delivery + approve lịch; commerce.write = soạn offering; commerce.approve = duyệt xuất bản
   staff-academic:
     - user.view
     - academy.content.read
@@ -173,12 +173,13 @@ default_role_permissions:
     - academy.delivery.approve
     - academy.commerce.read
     - academy.commerce.write
+    - academy.commerce.approve
     - schedule.view
     - live_class.manage
     - exam.manage
     - report.view
 
-  # Vận hành: không có content/delivery/commerce.write — chỉ đọc academy; kinh doanh + hỗ trợ
+  # Vận hành: không có content/delivery/commerce.write — đọc academy + duyệt offering; kinh doanh + hỗ trợ
   staff-operations:
     - user.view
     - report.view
@@ -186,6 +187,7 @@ default_role_permissions:
     - academy.content.read
     - academy.delivery.read
     - academy.commerce.read
+    - academy.commerce.approve
     - schedule.view
     - academy:order:admin
     - academy:coupon:admin

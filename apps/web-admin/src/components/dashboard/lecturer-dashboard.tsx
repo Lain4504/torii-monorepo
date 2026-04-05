@@ -26,7 +26,6 @@ import {
     Clock,
     PenLine,
     Users,
-    BarChart3,
 } from "lucide-react"
 import { StatsCard } from "./stats-card"
 import { useAuth } from "@/hooks/use-auth"
@@ -36,11 +35,6 @@ import {
     academyLiveSessionsApi,
 } from "@/lib/api/services/academy-live-sessions"
 import { useLecturerDashboard } from "@/lib/api/services/dashboard"
-import {
-    DASHBOARD_CHART_H,
-    DashboardChartScroll,
-    useNarrowMobile,
-} from "@/components/dashboard/dashboard-responsive"
 import { useQueries } from "@tanstack/react-query"
 import {
     format,
@@ -483,50 +477,6 @@ export default function LecturerDashboard() {
                     </CardContent>
                 </Card>
             ) : null}
-
-            <Card className="border-border/60 shadow-sm">
-                <CardHeader className="pb-2">
-                    <div className="flex items-center gap-2">
-                        <BarChart3 className="size-4 text-muted-foreground" aria-hidden />
-                        <div>
-                            <CardTitle className="text-base">Tải buổi dạy 14 ngày tới</CardTitle>
-                            <CardDescription className="text-xs">
-                                Đếm buổi theo ngày (từ lịch đã tải) — biểu đồ cột cho chuỗi thời gian ngắn
-                            </CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <DashboardChartScroll>
-                        <div className={cn(DASHBOARD_CHART_H, narrow && "min-w-[320px]")}>
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={sessionsNext14Days}
-                                    margin={{ top: 8, right: 8, left: narrow ? -4 : -8, bottom: narrow ? 4 : 0 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
-                                    <XAxis
-                                        dataKey="label"
-                                        tick={{ fontSize: narrow ? 9 : 10 }}
-                                        interval={narrow ? "preserveStartEnd" : 0}
-                                        angle={narrow ? 0 : -35}
-                                        textAnchor={narrow ? "middle" : "end"}
-                                        height={narrow ? 28 : 52}
-                                    />
-                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={narrow ? 24 : 28} />
-                                    <Tooltip
-                                        formatter={(v: number | undefined) =>
-                                            v != null ? [`${v} buổi`, "Số buổi"] : ["", ""]
-                                        }
-                                        labelFormatter={(l) => String(l)}
-                                    />
-                                    <Bar dataKey="sessionCount" name="Số buổi" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </DashboardChartScroll>
-                </CardContent>
-            </Card>
 
             <Tabs defaultValue="timetable" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 sm:max-w-md">

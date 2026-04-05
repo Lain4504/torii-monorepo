@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
@@ -28,12 +28,35 @@ import {
   listPageSearchInputClass,
   listPageSearchWrapClass,
 } from "@/lib/ui-shell"
+import { usePermissions } from "@/hooks/use-permissions"
 
 type ApprovalTab = "cohorts" | "vodPackages" | "courseProfiles"
 
 export default function ApprovalsPage() {
+  const { can, isAdmin } = usePermissions()
+  const showCourseProfileApprovals =
+    isAdmin || can("academy.content.approve")
+  const showOfferingApprovals = isAdmin || can("academy.commerce.approve")
+
   const [tab, setTab] = useState<ApprovalTab>("cohorts")
-  
+
+  useEffect(() => {
+    if (
+      tab === "courseProfiles" &&
+      !showCourseProfileApprovals &&
+      showOfferingApprovals
+    ) {
+      setTab("cohorts")
+    }
+    if (
+      (tab === "cohorts" || tab === "vodPackages") &&
+      !showOfferingApprovals &&
+      showCourseProfileApprovals
+    ) {
+      setTab("courseProfiles")
+    }
+  }, [tab, showCourseProfileApprovals, showOfferingApprovals])
+
   const [cohortSearch, setCohortSearch] = useState("")
   const [debouncedCohortSearch] = useDebounceValue(cohortSearch, 500)
 
@@ -100,21 +123,27 @@ export default function ApprovalsPage() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as ApprovalTab)}>
         <TabsList className="w-full overflow-x-auto whitespace-nowrap">
-          <TabsTrigger value="cohorts" className="gap-2">
-            <Package className="size-4" />
-            Cohorts
-            <Badge variant="secondary">{pendingCohorts.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="vodPackages" className="gap-2">
-            <Package className="size-4" />
-            VOD Packages
-            <Badge variant="secondary">{pendingVodPackages.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="courseProfiles" className="gap-2">
-            <BookOpen className="size-4" />
-            Course Profiles
-            <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
-          </TabsTrigger>
+          {showOfferingApprovals ? (
+            <TabsTrigger value="cohorts" className="gap-2">
+              <Package className="size-4" />
+              Cohorts
+              <Badge variant="secondary">{pendingCohorts.length}</Badge>
+            </TabsTrigger>
+          ) : null}
+          {showOfferingApprovals ? (
+            <TabsTrigger value="vodPackages" className="gap-2">
+              <Package className="size-4" />
+              VOD Packages
+              <Badge variant="secondary">{pendingVodPackages.length}</Badge>
+            </TabsTrigger>
+          ) : null}
+          {showCourseProfileApprovals ? (
+            <TabsTrigger value="courseProfiles" className="gap-2">
+              <BookOpen className="size-4" />
+              Course Profiles
+              <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
+            </TabsTrigger>
+          ) : null}
         </TabsList>
 
         <div className="mt-6">

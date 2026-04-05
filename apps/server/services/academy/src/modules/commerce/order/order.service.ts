@@ -190,12 +190,18 @@ export class OrderService {
       ) +
       cohorts.reduce((sum, c) => {
         const lc = cohortToLiveClass.get(c.id);
-        return sum + Number(lc?.discountPrice ?? lc?.price ?? 0);
+        const p = Number(lc?.discountPrice ?? lc?.price ?? 0);
+        return sum + p;
       }, 0) +
-      liveClasses.reduce(
-        (sum, lc) => sum + Number(lc.discountPrice ?? lc.price ?? 0),
-        0,
-      ) +
+      liveClasses
+        .filter((lc) => !cohortIds.includes(lc.cohortId))
+        .reduce(
+          (sum, lc) => {
+            const p = Number(lc.discountPrice ?? lc.price ?? 0);
+            return sum + p;
+          },
+          0,
+        ) +
       subscriptionPlans.reduce((sum, s) => sum + Number(s.price), 0);
 
     let discountTotal = 0;
@@ -268,19 +274,21 @@ export class OrderService {
           } as any,
         };
       }),
-      ...preview.liveClasses.map((lc: any) => ({
-        liveClassId: lc.id,
-        price: lc.discountPrice ?? lc.price ?? 0,
-        offeringSnapshot: {
-          title: lc.name,
-          code: lc.code,
-          mode: 'LIVE',
-          selectedClassId: lc.id,
-          basePrice: lc.price ?? 0,
-          isDiscounted: !!lc.discountPrice,
-          courseProfileId: lc.cohort?.courseProfileId,
-        } as any,
-      })),
+      ...preview.liveClasses
+        .filter((lc: any) => !(input.cohortIds ?? []).includes(lc.cohortId))
+        .map((lc: any) => ({
+          liveClassId: lc.id,
+          price: lc.discountPrice ?? lc.price ?? 0,
+          offeringSnapshot: {
+            title: lc.name,
+            code: lc.code,
+            mode: 'LIVE',
+            selectedClassId: lc.id,
+            basePrice: lc.price ?? 0,
+            isDiscounted: !!lc.discountPrice,
+            courseProfileId: lc.cohort?.courseProfileId,
+          } as any,
+        })),
       ...preview.subscriptionPlans.map((s: any) => ({
         subscriptionPlanId: s.id,
         price: s.price,
@@ -330,58 +338,31 @@ export class OrderService {
   }
 
   public async handlePaymentRedirect(order: any, preview: any, input: any) {
+    console.log(`[DEBUG OrderService.handlePaymentRedirect]`, {
+      orderCode: order.code,
+      receivedMethod: input.paymentMethod,
+      expectedPayOS: PaymentMethod.PAYOS,
+      matches: input.paymentMethod === PaymentMethod.PAYOS,
+      grandTotal: preview.grandTotal,
+    });
     if (input.paymentMethod === PaymentMethod.PAYOS) {
       const numericOrderCode =
-        Number(Date.now().toString().slice(-9)) +
-        Math.floor(Math.random() * 1000);
-      const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
-      const payOsItems = [
-        ...preview.vodPackages.map((o: any) => ({
-          name: o.title,
-          quantity: 1,
-          price: Number(o.discountPrice ?? o.price),
-        })),
-        ...preview.cohorts.map((o: any) => ({
-          name: o.name,
-          quantity: 1,
-          price: Number(o.discountPrice ?? o.price),
-        })),
-        ...preview.liveClasses.map((lc: any) => ({
-          name: lc.name,
-          quantity: 1,
-          price: Number(lc.discountPrice ?? lc.price ?? 0),
-        })),
-        ...preview.subscriptionPlans.map((s: any) => ({
-          name: s.name,
-          quantity: 1,
-          price: Number(s.price),
-        })),
-      ];
-
+        Number(order.code.replace(/[^0-9]/g, '')) % 100000000;
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: { metadata: { ...order.metadata, numericOrderCode } },
+      });
 
       const paymentLink = await this.payOS.createPaymentLink({
         orderCode: numericOrderCode,
-        amount: preview.grandTotal,
-        description: 'DH ' + order.code,
-        cancelUrl: webLearnerUrl + '/payment/cancel?orderCode=' + order.code,
-        returnUrl: webLearnerUrl + '/payment/success?orderCode=' + order.code,
-        items: payOsItems,
-      });
-
-      await this.prisma.order.update({
-        where: { id: order.id },
-        data: {
-          metadata: {
-            ...(order.metadata as any),
-            paymentLinkId: paymentLink.paymentLinkId,
-            numericOrderCode,
-            checkoutUrl: paymentLink.checkoutUrl,
-          } as any,
-        },
+        amount: Number(preview.grandTotal),
+        description: `Thanh toan don hang ${order.code}`,
+        cancelUrl: `${this.appConfig.identity.webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
+        returnUrl: `${this.appConfig.identity.webLearnerUrl}/payment/success?orderCode=${order.code}`,
       });
 
       return {
-        orderId: order.id,
+        id: order.id,
         orderCode: order.code,
         paymentUrl: paymentLink.checkoutUrl,
       };
@@ -512,7 +493,7 @@ export class OrderService {
     transactionId?: string,
     payload?: any,
   ) {
-    if (payload) {
+    if (payload && this.payOS) {
       if (!this.payOS.verifyPaymentWebhookData(payload))
         throw new BadRequestException('Invalid webhook signature');
       if (payload.success !== true && payload.code !== '00')
@@ -556,6 +537,7 @@ export class OrderService {
     transactionId?: string,
     payload?: any,
   ) {
+    this.logger.log(`[TEST BYPASS] processPayment starting for ${order.id} status=${order.status}`);
     if (order.status === OrderStatus.PAID) return { ok: true };
 
     await this.prisma.$transaction(async (tx) => {

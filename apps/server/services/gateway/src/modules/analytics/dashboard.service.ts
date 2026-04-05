@@ -57,35 +57,59 @@ export class DashboardService {
     const pendingApprovals =
       pendingCourseProfiles + pendingCohorts + pendingVodPackages;
 
-    const [courseGroups, cohortGroups, vodGroups] = await Promise.all([
-      this.prisma.courseProfile.groupBy({
-        by: ['status'],
-        _count: { _all: true },
+    const [pendingCourseRows, pendingCohortRows, pendingVodRows] = await Promise.all([
+      this.prisma.courseProfile.findMany({
+        where: { status: 'PENDING_APPROVAL' },
+        orderBy: { updatedAt: 'desc' },
+        take: 20,
+        select: { id: true, title: true, code: true, updatedAt: true },
       }),
-      this.prisma.cohort.groupBy({
-        by: ['status'],
-        _count: { _all: true },
+      this.prisma.cohort.findMany({
+        where: { status: 'PENDING_APPROVAL' },
+        orderBy: { updatedAt: 'desc' },
+        take: 20,
+        select: { id: true, name: true, code: true, updatedAt: true },
       }),
-      this.prisma.vodPackage.groupBy({
-        by: ['status'],
-        _count: { _all: true },
+      this.prisma.vodPackage.findMany({
+        where: { status: 'PENDING_APPROVAL' },
+        orderBy: { updatedAt: 'desc' },
+        take: 20,
+        select: { id: true, title: true, code: true, updatedAt: true },
       }),
     ]);
 
-    const pipelineByStatus = this.mergeGroupCounts([
-      ...courseGroups.map((g) => ({
-        status: g.status as string,
-        count: g._count._all,
+    const pendingApprovalPreview = [
+      ...pendingCourseRows.map((r) => ({
+        id: r.id,
+        kind: 'COURSE_PROFILE' as const,
+        title: r.title,
+        code: r.code,
+        updatedAt: r.updatedAt,
       })),
-      ...cohortGroups.map((g) => ({
-        status: g.status as string,
-        count: g._count._all,
+      ...pendingCohortRows.map((r) => ({
+        id: r.id,
+        kind: 'COHORT' as const,
+        title: r.name,
+        code: r.code,
+        updatedAt: r.updatedAt,
       })),
-      ...vodGroups.map((g) => ({
-        status: g.status as string,
-        count: g._count._all,
+      ...pendingVodRows.map((r) => ({
+        id: r.id,
+        kind: 'VOD_PACKAGE' as const,
+        title: r.title,
+        code: r.code,
+        updatedAt: r.updatedAt,
       })),
-    ]).sort((a, b) => b.value - a.value);
+    ]
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .slice(0, 20)
+      .map((r) => ({
+        id: r.id,
+        kind: r.kind,
+        title: r.title,
+        code: r.code,
+        updatedAt: r.updatedAt.toISOString(),
+      }));
 
     const pendingApprovalsByType: DashboardChartDatum[] = [
       { name: 'Course Profiles', value: pendingCourseProfiles },
@@ -101,7 +125,7 @@ export class DashboardService {
         pendingApprovals,
       },
       pendingApprovalsByType,
-      pipelineByStatus,
+      pendingApprovalPreview,
     };
   }
 
@@ -407,15 +431,5 @@ export class DashboardService {
     };
   }
 
-  private mergeGroupCounts(
-    groups: { status: string; count: number }[],
-  ): DashboardChartDatum[] {
-    const map = new Map<string, number>();
-    for (const g of groups) {
-      const prev = map.get(g.status) ?? 0;
-      map.set(g.status, prev + g.count);
-    }
-    return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
-  }
 }
 

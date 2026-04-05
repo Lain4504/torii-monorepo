@@ -3,6 +3,21 @@ export interface DashboardChartDatum {
   value: number;
 }
 
+/** Mục chờ duyệt (Course / Cohort / VOD) — ưu tiên theo cập nhật gần nhất */
+export type StaffAcademicPendingApprovalKind =
+  | 'COURSE_PROFILE'
+  | 'COHORT'
+  | 'VOD_PACKAGE';
+
+export interface StaffAcademicPendingApprovalItemDTO {
+  id: string;
+  kind: StaffAcademicPendingApprovalKind;
+  title: string;
+  code: string;
+  /** ISO 8601 */
+  updatedAt: string;
+}
+
 export interface StaffAcademicDashboardResponseDTO {
   stats: {
     totalCourses: number;
@@ -11,7 +26,26 @@ export interface StaffAcademicDashboardResponseDTO {
     pendingApprovals: number;
   };
   pendingApprovalsByType: DashboardChartDatum[];
-  pipelineByStatus: DashboardChartDatum[];
+  /** Tối đa 20 mục PENDING_APPROVAL, gộp 3 loại, sắp xếp theo updatedAt giảm dần */
+  pendingApprovalPreview: StaffAcademicPendingApprovalItemDTO[];
+}
+
+/** Đơn gần đây (mọi trạng thái) — bảng dashboard admin */
+export interface DashboardRecentOrderRowDTO {
+  id: string;
+  code: string;
+  status: string;
+  amount: string;
+  userName: string;
+  userEmail: string;
+  /** Ngày hiển thị: paidAt hoặc createdAt (YYYY-MM-DD) */
+  date: string;
+}
+
+/** Doanh thu đơn PAID gộp theo ngày (UTC date) */
+export interface DashboardRevenueDayDTO {
+  date: string;
+  amount: number;
 }
 
 /** Đơn gần đây (mọi trạng thái) — bảng dashboard admin */

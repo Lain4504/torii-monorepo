@@ -25,8 +25,7 @@ import {
 import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "sonner"
 import { ChevronRight, CheckCircle2, XCircle, DollarSign, Tag, BookOpen } from "lucide-react"
-import { useAuth } from "@/hooks/use-auth"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
+import { usePermissions } from "@/hooks/use-permissions"
 import {
   useAcademyVodPackage,
   useApproveVodPackage,
@@ -37,7 +36,7 @@ import { formatCurrency, formatDateTime } from "@/lib/format-utils"
 export default function VodPackageApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { can } = usePermissions()
   const { data: pkg, isLoading } = useAcademyVodPackage(id)
   const approveMutation = useApproveVodPackage()
   const rejectMutation = useRejectVodPackage()
@@ -66,8 +65,8 @@ export default function VodPackageApprovalPreviewPage() {
     )
   }
 
-  const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
-  const canApprove = isStaffOrAdmin && pkg.status === "PENDING_APPROVAL"
+  const canApprove =
+    can("academy.commerce.approve") && pkg.status === "PENDING_APPROVAL"
 
   return (
     <div className="flex flex-col gap-6">

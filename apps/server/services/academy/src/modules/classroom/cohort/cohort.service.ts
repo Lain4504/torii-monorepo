@@ -5,10 +5,14 @@ import {
   AcademyCohortUpdateDTO,
   AcademyCohortQueryDTO,
 } from '@workspace/schemas';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class CohortService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) {}
 
   async findAll(query: AcademyCohortQueryDTO) {
     const and: any[] = [];
@@ -102,12 +106,20 @@ export class CohortService {
     });
   }
 
-  async update(id: string, data: AcademyCohortUpdateDTO) {
+  async update(
+    id: string,
+    data: AcademyCohortUpdateDTO,
+    requesterId?: string,
+  ) {
     if (data.status === 'PENDING_APPROVAL' || data.status === 'OPENING') {
       await this.validateHasLiveClasses(id);
+      await this.validateCourseProfilePublished(id);
     }
 
-    return this.prisma.cohort.update({
+    const before = await this.prisma.cohort.findUnique({ where: { id } });
+    if (!before) throw new NotFoundException('Cohort not found');
+
+    const item = await this.prisma.cohort.update({
       where: { id },
       data: {
         code: data.code,
@@ -126,6 +138,34 @@ export class CohortService {
         endDate: data.endDate ? new Date(data.endDate) : undefined,
       },
     });
+
+    if (
+      requesterId &&
+      data.status !== undefined &&
+      data.status !== before.status
+    ) {
+      const action =
+        data.status === 'OPENING' && before.status === 'PENDING_APPROVAL'
+          ? 'APPROVE'
+          : data.status === 'DRAFT' && before.status === 'PENDING_APPROVAL'
+            ? 'REJECT'
+            : 'UPDATE_STATUS';
+      await this.audit.log({
+        userId: requesterId,
+        action,
+        entity: 'Cohort',
+        entityId: id,
+        description: `${action} cohort ${before.code}`,
+        oldValues: { status: before.status },
+        newValues: { status: item.status },
+        metadata:
+          action === 'REJECT'
+            ? { reason: (data as any).rejectionReason }
+            : undefined,
+      });
+    }
+
+    return item;
   }
 
   async delete(id: string) {
@@ -140,6 +180,19 @@ export class CohortService {
     if (classCount === 0) {
       throw new BadRequestException(
         'Đợt khai giảng cần có ít nhất 1 Lớp học LIVE trước khi chuyển sang trạng thái này',
+      );
+    }
+  }
+
+  private async validateCourseProfilePublished(cohortId: string) {
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: cohortId },
+      include: { courseProfile: { select: { status: true } } },
+    });
+    if (!cohort) throw new NotFoundException('Cohort not found');
+    if (cohort.courseProfile.status !== 'PUBLISHED') {
+      throw new BadRequestException(
+        'Hồ sơ nội dung (Course Profile) cần được xuất bản trước khi gửi duyệt hoặc mở đợt khai giảng.',
       );
     }
   }
