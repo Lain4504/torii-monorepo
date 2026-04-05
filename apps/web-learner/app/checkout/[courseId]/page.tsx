@@ -264,8 +264,8 @@ export default function CheckoutPage() {
     if (isLoadingProduct) return <PageLoading />
     if (!courseId || !product) return null
 
-    const displaySubtotal = preview?.subtotal ?? Number(product.price ?? 0)
-    const displayTotal = preview?.total ?? displaySubtotal
+    const displaySubtotal = preview?.subTotal ?? preview?.subtotal ?? Number(product.price ?? 0)
+    const displayTotal = preview?.grandTotal ?? preview?.total ?? displaySubtotal
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -299,7 +299,7 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="flex-1 space-y-3">
                                         <Badge variant="secondary">{product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
-                                        <h3 className="font-bold text-lg">{product.learnerDisplayTitle || product.name}</h3>
+                                        <h3 className="font-bold text-lg">{selectedClass?.name || product.learnerDisplayTitle || product.name}</h3>
                                         {product.liveContextLine && (
                                             <p className="text-sm text-muted-foreground">{product.liveContextLine}</p>
                                         )}
