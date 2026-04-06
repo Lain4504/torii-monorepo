@@ -5,6 +5,24 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@workspace/ui/components/dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import {
     Table,
     TableBody,
     TableCell,
@@ -20,10 +38,12 @@ import {
     Pencil,
     Eye,
     Send,
+    Trash2,
 } from "lucide-react"
 import {
     useAcademyVodPackages,
     type AcademyVodPackage,
+    useDeleteAcademyVodPackage,
     useSubmitVodPackageForApproval,
 } from "@/lib/api/services/academy-vod-packages"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
@@ -60,8 +80,14 @@ export default function VodPackagesPage() {
     const [tab, setTab] = useState<'all' | 'draft' | 'pending' | 'published' | 'archived'>('all')
     const [sheetOpen, setSheetOpen] = useState(false)
     const [selectedPackage, setSelectedPackage] = useState<AcademyVodPackage | null>(null)
+    const [rejectReasonDialog, setRejectReasonDialog] = useState<{
+        open: boolean
+        reason: string
+    }>({ open: false, reason: "" })
+    const [deleteDialogPackage, setDeleteDialogPackage] = useState<AcademyVodPackage | null>(null)
     const navigate = useNavigate()
     const submitForApprovalMutation = useSubmitVodPackageForApproval()
+    const deleteMutation = useDeleteAcademyVodPackage()
 
     const statusFilter = 
         tab === 'all' ? undefined : 
@@ -86,6 +112,21 @@ export default function VodPackagesPage() {
     const handleEdit = (pkg: AcademyVodPackage) => {
         setSelectedPackage(pkg)
         setSheetOpen(true)
+    }
+
+    const handleDeleteDraft = async (pkg: AcademyVodPackage) => {
+        setDeleteDialogPackage(pkg)
+    }
+
+    const handleConfirmDeleteDraft = async () => {
+        if (!deleteDialogPackage) return
+        try {
+            await deleteMutation.mutateAsync(deleteDialogPackage.id)
+            toast.success(`Đã xóa gói ${deleteDialogPackage.code}`)
+            setDeleteDialogPackage(null)
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || err?.message || "Không thể xóa gói VOD")
+        }
     }
 
     return (
@@ -236,6 +277,32 @@ export default function VodPackagesPage() {
                                                         <Send className="h-4 w-4" /> Gửi duyệt
                                                     </Button>
                                                 )}
+                                                {pkg.status === 'DRAFT' && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/5 font-medium"
+                                                        onClick={() => handleDeleteDraft(pkg)}
+                                                        disabled={deleteMutation.isPending}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" /> Xóa nháp
+                                                    </Button>
+                                                )}
+                                                {(pkg.status === 'REJECTED' || !!pkg.rejectionReason) && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8"
+                                                        onClick={() =>
+                                                            setRejectReasonDialog({
+                                                                open: true,
+                                                                reason: pkg.rejectionReason || "Không có lý do cụ thể.",
+                                                            })
+                                                        }
+                                                    >
+                                                        Lý do từ chối
+                                                    </Button>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -251,6 +318,52 @@ export default function VodPackagesPage() {
                 onOpenChange={setSheetOpen}
                 vodPackage={selectedPackage}
             />
+
+            <Dialog
+                open={rejectReasonDialog.open}
+                onOpenChange={(open) =>
+                    setRejectReasonDialog((prev) => (open ? prev : { open: false, reason: "" }))
+                }
+            >
+                <DialogContent className="sm:max-w-[520px]">
+                    <DialogHeader>
+                        <DialogTitle>Lý do từ chối</DialogTitle>
+                        <DialogDescription>
+                            Yêu cầu của bạn đã bị từ chối. Vui lòng xem chi tiết bên dưới.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">
+                        {rejectReasonDialog.reason}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setRejectReasonDialog({ open: false, reason: "" })}>
+                            Đóng
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={!!deleteDialogPackage} onOpenChange={(open) => !open && setDeleteDialogPackage(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa gói nháp</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn chắc chắn muốn xóa gói VOD bản nháp{" "}
+                            <span className="font-semibold">{deleteDialogPackage?.code}</span>? Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleteMutation.isPending}>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmDeleteDraft}
+                            disabled={deleteMutation.isPending}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {deleteMutation.isPending ? "Đang xóa..." : "Xóa gói nháp"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

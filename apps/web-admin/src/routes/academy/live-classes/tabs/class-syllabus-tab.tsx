@@ -41,7 +41,7 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1">
                 <div>
                     <h3 className="text-lg font-bold">Chương trình học</h3>
                     <p className="text-sm text-muted-foreground">
@@ -56,7 +56,7 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
                     .map((module: any) => {
                     const isExpanded = !!expandedModules[module.id]
                     return (
-                        <Card key={module.id} className="overflow-hidden">
+                        <Card key={module.id} className="overflow-hidden border-border/70">
                             <div
                                 className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-muted/30 transition-colors"
                                 onClick={() => toggleModule(module.id)}
@@ -85,13 +85,13 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
 
                             {isExpanded && (
                                 <CardContent className="pt-0 pb-4">
-                                    <div className="space-y-1 mt-2 border-t pt-2">
+                                    <div className="space-y-2 mt-2 border-t pt-3">
                                         {[...(module.lessons ?? [])]
                                             .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
                                             .map((lesson: any) => (
                                             <div
                                                 key={lesson.id}
-                                                className="flex items-center justify-between gap-3 rounded-md px-3 py-2 hover:bg-muted/50"
+                                                className="flex items-start justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-3"
                                             >
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     {lesson.type === "VIDEO" ? (
@@ -107,7 +107,7 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
                                                     </div>
                                                 </div>
                                                 {lesson.duration && (
-                                                    <Badge variant="ghost" className="text-[10px] text-muted-foreground">
+                                                    <Badge variant="outline" className="text-[10px] text-muted-foreground shrink-0">
                                                         {lesson.duration} phút
                                                     </Badge>
                                                 )}

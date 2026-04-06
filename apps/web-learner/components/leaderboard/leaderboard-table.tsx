@@ -34,12 +34,12 @@ function formatStat(item: LeaderboardUserDTO, type: 'global' | 'streak' | 'activ
 
 export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTableProps) {
     return (
-        <Card className="border-border/50 rounded-2xl overflow-hidden shadow-none">
+        <Card className="overflow-hidden shadow-none">
             <CardContent className="p-0">
                 {users.length === 0 ? (
-                    <div className="px-4 py-12 text-center sm:py-16 md:py-20 font-sans">
-                        <Trophy className="mx-auto mb-3 size-12 text-muted-foreground/25 sm:mb-4 sm:size-16" aria-hidden />
-                        <p className="text-sm font-medium text-muted-foreground sm:text-base">
+                    <div className="px-4 py-12 text-center sm:py-14">
+                        <Trophy className="mx-auto mb-3 size-10 text-muted-foreground/30" aria-hidden />
+                        <p className="text-sm text-muted-foreground">
                             Chưa có dữ liệu bảng xếp hạng.
                         </p>
                     </div>
@@ -56,12 +56,12 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                     <li
                                         key={item.id}
                                         className={cn(
-                                            'flex items-center gap-3 px-3 py-3.5',
-                                            isMe && 'bg-primary/[0.04]',
+                                            'flex items-center gap-3 px-3 py-2.5',
+                                            isMe && 'bg-primary/[0.03]',
                                         )}
                                     >
                                         <span className={cn(
-                                            "w-7 shrink-0 text-center text-sm font-bold tabular-nums",
+                                            "w-7 shrink-0 text-center text-sm font-medium tabular-nums",
                                             isRank1 ? "text-amber-500" : isRank2 ? "text-slate-400" : isRank3 ? "text-orange-500" : "text-muted-foreground/30"
                                         )}>
                                             {item.rank}
@@ -72,7 +72,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                 isRank1 ? "border-amber-400/50" : isRank2 ? "border-slate-400/50" : isRank3 ? "border-orange-500/50" : "border-border"
                                             )}>
                                                 <AvatarImage src={item.avatarUrl ?? undefined} />
-                                                <AvatarFallback className="text-sm font-bold">
+                                                <AvatarFallback className="text-sm font-medium">
                                                     {item.displayName.charAt(0)}
                                                 </AvatarFallback>
                                             </Avatar>
@@ -82,7 +82,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex min-w-0 items-center gap-2">
-                                                <h4 className="truncate font-bold leading-tight text-sm text-foreground/80">{item.displayName}</h4>
+                                                <h4 className="truncate text-sm leading-tight">{item.displayName}</h4>
                                                 {isMe && (
                                                     <Badge
                                                         variant="outline"
@@ -92,12 +92,12 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                     </Badge>
                                                 )}
                                             </div>
-                                            <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none mt-1">Cấp {item.level}</p>
+                                            <p className="text-[10px] text-muted-foreground leading-none mt-1">Cấp {item.level}</p>
                                         </div>
                                         <div className="flex shrink-0 flex-col items-end gap-1">
                                             <div className="flex items-center gap-1">
                                                 <StatIcon type={type} />
-                                                <span className="text-sm font-bold tabular-nums">
+                                                <span className="text-sm font-medium tabular-nums">
                                                     {formatStat(item, type)}
                                                 </span>
                                             </div>
@@ -113,10 +113,10 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                             <Table>
                                 <TableHeader>
                                     <TableRow className="hover:bg-transparent border-b border-border/50">
-                                        <TableHead className="w-[80px] pl-6 lg:pl-8 font-semibold text-[10px] text-muted-foreground/40 text-center">Hạng</TableHead>
-                                        <TableHead className="font-semibold text-[10px] text-muted-foreground/40">Học viên</TableHead>
-                                        <TableHead className="text-right font-semibold text-[10px] text-muted-foreground/40">Thành tích</TableHead>
-                                        <TableHead className="w-[100px] pr-6 text-right lg:pr-8 font-semibold text-[10px] text-muted-foreground/40">Xu hướng</TableHead>
+                                        <TableHead className="w-[80px] pl-6 lg:pl-8 text-[11px] text-muted-foreground text-center">Hạng</TableHead>
+                                        <TableHead className="text-[11px] text-muted-foreground">Học viên</TableHead>
+                                        <TableHead className="text-right text-[11px] text-muted-foreground">Thành tích</TableHead>
+                                        <TableHead className="w-[100px] pr-6 text-right lg:pr-8 text-[11px] text-muted-foreground">Xu hướng</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -130,14 +130,14 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                             <TableRow
                                                 key={item.id}
                                                 className={cn(
-                                                    'group border-none transition-colors h-14',
-                                                    isMe ? 'bg-primary/[0.02] hover:bg-primary/[0.04]' : 'hover:bg-muted/5',
+                                                    'group border-none transition-colors h-12',
+                                                    isMe ? 'bg-primary/[0.02] hover:bg-primary/[0.03]' : 'hover:bg-muted/5',
                                                 )}
                                             >
                                                 <TableCell className="pl-6 lg:pl-8">
                                                     <div className="flex items-center justify-center w-8 mx-auto">
                                                         <span className={cn(
-                                                            "text-sm font-bold tabular-nums transition-colors",
+                                                            "text-sm font-medium tabular-nums transition-colors",
                                                             isRank1 ? "text-amber-500" : 
                                                             isRank2 ? "text-slate-400" : 
                                                             isRank3 ? "text-orange-500" : 
@@ -155,10 +155,10 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                                 isRank1 ? "border-amber-400/50 shadow-[0_0_8px_rgba(251,191,36,0.2)]" : 
                                                                 isRank2 ? "border-slate-400/50" : 
                                                                 isRank3 ? "border-orange-500/50" : 
-                                                                "border-border group-hover:border-primary/30"
+                                                                "border-border group-hover:border-primary/20"
                                                             )}>
                                                                 <AvatarImage src={item.avatarUrl ?? undefined} />
-                                                                <AvatarFallback className="font-bold text-[10px]">
+                                                                <AvatarFallback className="font-medium text-[10px]">
                                                                     {item.displayName.charAt(0)}
                                                                 </AvatarFallback>
                                                             </Avatar>
@@ -168,7 +168,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                         </div>
                                                         <div className="min-w-0">
                                                             <div className="flex items-center gap-2">
-                                                                <h4 className="font-bold text-sm text-foreground/80 group-hover:text-primary transition-colors truncate">
+                                                                <h4 className="text-sm group-hover:text-primary transition-colors truncate">
                                                                     {item.displayName}
                                                                 </h4>
                                                                 {isMe && (
@@ -180,7 +180,7 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                                     </Badge>
                                                                 )}
                                                             </div>
-                                                            <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none mt-1">
+                                                            <p className="text-[10px] text-muted-foreground leading-none mt-1">
                                                                 Cấp {item.level}
                                                             </p>
                                                         </div>
@@ -190,12 +190,12 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                     <div className="flex items-center justify-end gap-2">
                                                         <StatIcon type={type} />
                                                         <span className={cn(
-                                                            "text-sm font-bold tabular-nums text-foreground/70",
+                                                            "text-sm font-medium tabular-nums text-foreground/80",
                                                             isMe && "text-primary/70"
                                                         )}>
                                                             {formatStat(item, type)}
                                                         </span>
-                                                        <span className="text-[9px] font-semibold text-muted-foreground/40 hidden lg:inline">
+                                                        <span className="text-[9px] text-muted-foreground hidden lg:inline">
                                                             {type === 'global' ? 'XP' : 'Ngày'}
                                                         </span>
                                                     </div>

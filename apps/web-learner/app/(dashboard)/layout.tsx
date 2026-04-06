@@ -40,13 +40,13 @@ export default function DashboardLayout({
     const layoutContent = (
         <SidebarProvider>
             <AppSidebar />
-            <SidebarInset>
+            <SidebarInset className="min-w-0 overflow-x-hidden">
                 <DashboardHeader
                     onOpenStreakModal={() => setStreakModalOpen(true)}
                     isGuest={!isAuthenticated}
                 />
                 <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none">
-                    <div className="mx-auto w-full max-w-[1600px] px-4 py-6 md:px-6 md:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                    <div className="mx-auto w-full min-w-0 max-w-[1600px] px-4 py-6 md:px-6 md:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                         {children}
                     </div>
                 </main>

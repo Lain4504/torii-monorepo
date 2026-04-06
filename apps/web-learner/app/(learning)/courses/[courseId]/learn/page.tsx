@@ -18,6 +18,16 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Separator } from '@workspace/ui/components/separator';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@workspace/ui/components/alert-dialog';
 import { toast } from '@workspace/ui/components/sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@workspace/ui/lib/utils';
@@ -127,6 +137,17 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
     onSelectLesson: (l: any) => void;
 }) {
     const hasActive = mod.lessons?.some((l: any) => l.id === currentLessonId);
+    const totalLessonsInModule = mod.lessons?.length || 0;
+    const completedLessonsInModule = (mod.lessons || []).filter((lesson: any) =>
+        completedIds.has(lessonProgressId(lesson))
+    ).length;
+    const moduleMilestones =
+        milestones?.filter(
+            (m) =>
+                m.kind === 'MODULE_CHECKPOINT' &&
+                m.moduleId === mod.id &&
+                !m.triggerLessonId
+        ) || [];
 
     return (
         <AccordionItem value={mod.id} className="border-none px-2">
@@ -139,7 +160,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                         {mod.title}
                     </span>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-tight font-semibold opacity-60">
-                        {mod.lessons?.length || 0} bài học
+                        {completedLessonsInModule}/{totalLessonsInModule} bài học
                     </span>
                 </div>
             </AccordionTrigger>
@@ -193,6 +214,28 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                         </div>
                     );
                 })}
+
+                {moduleMilestones.length > 0 && (
+                    <div className="px-1 mt-2 space-y-1.5">
+                        {moduleMilestones.map((m) => {
+                            const moduleLessons = mod.lessons || [];
+                            const canOpenModuleMilestone =
+                                moduleLessons.length > 0 &&
+                                moduleLessons.every((lesson: any) =>
+                                    completedIds.has(lessonProgressId(lesson))
+                                );
+                            return (
+                                <div key={m.assessmentId} className="pl-6 border-l-2 border-primary/10 ml-5">
+                                    <MilestoneItem
+                                        milestone={m}
+                                        forceLocked={!canOpenModuleMilestone}
+                                        onClick={() => onSelectMilestone(m)}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </AccordionContent>
         </AccordionItem>
     );
@@ -241,7 +284,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: any; onComplete: () => vo
     );
 }
 
-function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, navDisabledNext, courseClassId }: any) {
+function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, navDisabledNext, isCompleted }: any) {
     return (
         <article className="animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-in-out">
             <div className="max-w-3xl mx-auto space-y-12">
@@ -255,25 +298,6 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
                         </h1>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-8 border-t border-border/40 gap-6">
-                         <div className="flex items-center gap-4 text-left">
-                            <div className="size-10 rounded-full bg-muted text-foreground flex items-center justify-center text-[10px] font-bold border truncate uppercase">
-                                TA
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold">Torii Academy</p>
-                                <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-tight">Verified Article</p>
-                            </div>
-                         </div>
-                         <div className="flex items-center justify-center gap-2">
-                            <Button variant="ghost" size="sm" onClick={onPrev} disabled={navDisabledPrev} className="rounded-full border px-4 h-9 font-semibold text-xs uppercase transition-all hover:bg-primary/5 hover:text-primary">
-                                <ChevronLeft className="size-4 mr-1" /> Trước
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={onNext} disabled={navDisabledNext} className="rounded-full border px-4 h-9 font-semibold text-xs uppercase transition-all hover:bg-primary/5 hover:text-primary">
-                                Tiếp <ChevronRight className="size-4 ml-1" />
-                            </Button>
-                         </div>
-                    </div>
                 </header>
 
                 <div 
@@ -281,19 +305,32 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
                     dangerouslySetInnerHTML={{ __html: lesson?.content || '<p class="text-muted-foreground italic text-lg text-center py-20">Nội dung đang được soạn thảo...</p>' }} 
                 />
 
-                <footer className="mt-24 p-12 rounded-3xl bg-primary/[0.02] border border-primary/10 text-center space-y-8 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                         <CheckCircle2 className="size-32" />
-                    </div>
-                    <div className="space-y-4 relative z-10">
-                        <h3 className="text-2xl font-bold tracking-tight">Bạn đã nắm vững kiến thức?</h3>
-                        <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                            Tuyệt vời! Hãy xác nhận hoàn thành bài học này để ghi nhận tiến độ.
-                        </p>
-                    </div>
-                    <Button onClick={onComplete} size="lg" className="relative h-12 px-12 rounded-full font-bold text-sm uppercase tracking-tight transition-all active:scale-95">
-                        Xác nhận hoàn thành
-                    </Button>
+                <footer className="mt-10">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base font-normal">
+                                Điều hướng và hoàn thành bài đọc
+                            </CardTitle>
+                            <CardDescription className="font-normal">
+                                Chuyển bài trước/sau hoặc xác nhận hoàn thành để lưu tiến độ.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                                <Button variant="outline" size="sm" onClick={onPrev} disabled={navDisabledPrev} className="font-normal">
+                                    <ChevronLeft className="size-4" />
+                                    Trước
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={onNext} disabled={navDisabledNext} className="font-normal">
+                                    Tiếp
+                                    <ChevronRight className="size-4" />
+                                </Button>
+                            </div>
+                            <Button onClick={onComplete} size="sm" className="font-normal" disabled={isCompleted}>
+                                {isCompleted ? "Đã hoàn thành" : "Xác nhận hoàn thành"}
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </footer>
             </div>
         </article>
@@ -359,6 +396,7 @@ export default function CourseLearnPage() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'content' | 'discussion' | 'resources'>('content');
     const [showCompletionModal, setShowCompletionModal] = useState(false);
+    const [pendingMilestone, setPendingMilestone] = useState<any | null>(null);
 
 
     useEffect(() => {
@@ -432,10 +470,11 @@ export default function CourseLearnPage() {
     // ── Load curriculum → sync selected lesson ────────────────────────────
     useEffect(() => {
         if (!curriculum) return;
-        setExpandedModules(new Set(curriculum.modules.map((m: any) => m.id)));
 
         const flat = curriculum.modules.flatMap((m: any) => m.lessons) as CurriculumLesson[];
         const requestedLessonId = searchParams.get('lesson');
+        const findModuleIdByLessonId = (lessonId: string) =>
+            curriculum.modules.find((m: any) => (m.lessons || []).some((l: any) => l.id === lessonId))?.id;
 
         const pickDefaultLesson = (): CurriculumLesson | null => {
             let pick: CurriculumLesson | null = null;
@@ -463,13 +502,26 @@ export default function CourseLearnPage() {
             const requested = flat.find((l) => l.id === requestedLessonId) ?? null;
             if (requested && effectiveLessonUnlocked(requested)) {
                 setCurrentLesson(requested);
+                const moduleId = findModuleIdByLessonId(requested.id);
+                if (moduleId) setExpandedModules(new Set([moduleId]));
                 return;
             }
             const pick = pickDefaultLesson();
             setCurrentLesson(pick);
+            if (pick) {
+                const moduleId = findModuleIdByLessonId(pick.id);
+                if (moduleId) setExpandedModules(new Set([moduleId]));
+            }
             if (pick) replaceLessonQuery(pick.id);
         } else {
-            setCurrentLesson((prev) => (prev ? prev : pickDefaultLesson()));
+            setCurrentLesson((prev) => {
+                const next = prev ? prev : pickDefaultLesson();
+                if (next) {
+                    const moduleId = findModuleIdByLessonId(next.id);
+                    if (moduleId) setExpandedModules(new Set([moduleId]));
+                }
+                return next;
+            });
         }
     }, [curriculum, searchParams, completedContentItemIds, effectiveLessonUnlocked, router, pathname]);
 
@@ -524,13 +576,31 @@ export default function CourseLearnPage() {
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
     const nextLesson = currentIndex < allLessons.length - 1 ? (allLessons[currentIndex + 1] ?? null) : null;
+    const updateLessonQuery = useCallback((lessonId: string) => {
+        const next = new URLSearchParams(searchParams.toString());
+        next.set('lesson', lessonId);
+        const q = next.toString();
+        router.replace(q ? `${pathname}?${q}` : pathname);
+    }, [searchParams, router, pathname]);
 
     const goTo = (lesson: CurriculumLesson | null) => {
         if (lesson && effectiveLessonUnlocked(lesson)) {
             setCurrentLesson(lesson);
+            updateLessonQuery(lesson.id);
             setSidebarOpen(false);
             setActiveTab('content');
         }
+    };
+
+    const handleOpenMilestoneConfirm = (milestone: any) => {
+        setPendingMilestone(milestone);
+    };
+
+    const handleConfirmMilestone = () => {
+        if (!pendingMilestone?.examId) return;
+        const target = `/exams/${pendingMilestone.examId}${pendingMilestone.latestAttemptId ? `?attemptId=${pendingMilestone.latestAttemptId}` : ''}`;
+        setPendingMilestone(null);
+        router.push(target);
     };
 
 
@@ -625,26 +695,18 @@ export default function CourseLearnPage() {
                 </div>
 
                 <div className="flex items-center gap-6">
-                    <div className="hidden md:flex flex-col items-end gap-1.5">
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-muted-foreground/60">Tiến độ khóa học</span>
-                            <span className="text-sm font-bold text-primary">{progressPct}%</span>
-                        </div>
-                        <div className="w-48 h-1 bg-muted rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-primary rounded-full transition-all duration-1000 ease-out" 
-                                style={{ width: `${progressPct}%` }} 
-                            />
-                        </div>
-                    </div>
-                    
                     <Separator orientation="vertical" className="h-6 bg-border/40 hidden md:block" />
                     
-                    <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                            {(classData?.name ?? 'T')[0] ?? 'T'}
-                        </div>
-                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium text-sm shrink-0"
+                        onClick={() => router.push('/dashboard/profile')}
+                        aria-label="Mở hồ sơ cá nhân"
+                        title="Hồ sơ cá nhân"
+                    >
+                        {(classData?.name ?? 'T')[0] ?? 'T'}
+                    </Button>
                 </div>
             </header>
 
@@ -657,16 +719,22 @@ export default function CourseLearnPage() {
                     {/* Video / Content Section */}
                     <div className="flex-none w-full">
                         {isVideoLesson && (
-                            <div className="video-sticky-container group/video shadow-2xl shadow-black/5">
-                                <VideoPlayer lesson={lessonDetail} onComplete={markLessonComplete} />
-                                {!isCurrentDone && lessonDetail?.videoUrl && (
-                                    <div className="bg-primary/5 border-b border-primary/10 px-4 py-2 transition-all flex items-center justify-center gap-2">
-                                        <Timer className="size-3 text-primary animate-pulse" />
-                                        <p className="text-[11px] font-semibold text-primary/80">
-                                            Video sẽ tự động hoàn thành sau khi xem hết 95% thời lượng
-                                        </p>
-                                    </div>
-                                )}
+                            <div className="w-full border-b bg-card">
+                                <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-3">
+                                    <Card>
+                                        <CardContent className="p-0">
+                                            <VideoPlayer lesson={lessonDetail} onComplete={markLessonComplete} />
+                                        </CardContent>
+                                    </Card>
+                                    {!isCurrentDone && lessonDetail?.videoUrl && (
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <Timer className="size-4" />
+                                            <p className="font-normal">
+                                                Video sẽ tự động hoàn thành sau khi xem hết 95% thời lượng
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -680,34 +748,36 @@ export default function CourseLearnPage() {
                                         {isCurrentDone && <Badge className="bg-emerald-500 text-white border-none">Đã hoàn thành</Badge>}
                                     </div>
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                                        <h2 className="text-2xl sm:text-3xl font-normal tracking-tight">
                                             {currentLesson?.title ?? 'Chọn bài học'}
                                         </h2>
                                         <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => goTo(prevLesson)} disabled={!prevLesson}>
-                                                <ChevronLeft className="mr-1 size-4" /> Trước
+                                            <Button variant="outline" size="sm" onClick={() => goTo(prevLesson)} disabled={!prevLesson} className="font-normal">
+                                                <ChevronLeft className="size-4" />
+                                                Trước
                                             </Button>
-                                            <Button variant="outline" size="sm" onClick={() => goTo(nextLesson)} disabled={!nextLesson}>
-                                                Tiếp <ChevronRight className="ml-1 size-4" />
+                                            <Button variant="outline" size="sm" onClick={() => goTo(nextLesson)} disabled={!nextLesson} className="font-normal">
+                                                Tiếp
+                                                <ChevronRight className="size-4" />
                                             </Button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-                                    <TabsList className="w-full justify-start border-b rounded-none bg-transparent h-10 p-0 gap-6">
-                                        <TabsTrigger value="content" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 h-10">TỔNG QUAN</TabsTrigger>
-                                        <TabsTrigger value="discussion" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 h-10">THẢO LUẬN</TabsTrigger>
-                                        <TabsTrigger value="resources" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 h-10">TÀI LIỆU</TabsTrigger>
+                                    <TabsList>
+                                        <TabsTrigger value="content" className="font-normal">Tổng quan</TabsTrigger>
+                                        <TabsTrigger value="discussion" className="font-normal">Thảo luận</TabsTrigger>
+                                        <TabsTrigger value="resources" className="font-normal">Tài liệu</TabsTrigger>
                                     </TabsList>
 
                                     <TabsContent value="content" className="py-6 space-y-4">
-                                        <h3 className="text-lg font-bold">Giới thiệu bài học</h3>
+                                        <h3 className="text-lg font-normal">Giới thiệu bài học</h3>
                                         <p className="text-sm text-muted-foreground leading-relaxed">
                                             {(lessonDetail as any)?.description || "Nội dung đang được cập nhật."}
                                         </p>
                                         {!isCurrentDone && currentLesson && !isVideoLesson && (
-                                            <Button onClick={markLessonComplete} className="w-full sm:w-auto">
+                                            <Button onClick={markLessonComplete} className="w-full sm:w-auto font-normal">
                                                 Đánh dấu hoàn thành
                                             </Button>
                                         )}
@@ -737,7 +807,7 @@ export default function CourseLearnPage() {
                                     onNext={() => goTo(nextLesson)}
                                     navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
                                     navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
-                                    courseClassId={classId as string}
+                                    isCompleted={isCurrentDone}
                                 />
                             </div>
                         )}
@@ -779,9 +849,14 @@ export default function CourseLearnPage() {
                         </p>
                     </div>
 
-                    <ScrollArea className="flex-1">
-                        <Accordion type="multiple" defaultValue={Array.from(expandedModules)} className="w-full">
-                            {curriculum?.modules.map((mod: any) => (
+                    <ScrollArea className="flex-1 min-h-0">
+                        <Accordion
+                            type="multiple"
+                            value={Array.from(expandedModules)}
+                            onValueChange={(values) => setExpandedModules(new Set(values))}
+                            className="w-full"
+                        >
+                            {sortedModules.map((mod: any) => (
                                 <ModuleItem
                                     key={mod.id}
                                     mod={mod}
@@ -794,8 +869,13 @@ export default function CourseLearnPage() {
                                             (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
                                         )
                                     )}
-                                    onSelectMilestone={m => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
-                                    onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
+                                    onSelectMilestone={handleOpenMilestoneConfirm}
+                                    onSelectLesson={lesson => {
+                                        setCurrentLesson(lesson);
+                                        updateLessonQuery(lesson.id);
+                                        if (lesson?.moduleId) setExpandedModules(new Set([lesson.moduleId]));
+                                        setSidebarOpen(false);
+                                    }}
                                 />
                             ))}
                         </Accordion>
@@ -809,7 +889,7 @@ export default function CourseLearnPage() {
                                         key={m.assessmentId}
                                         milestone={m}
                                         forceLocked={completedLessonsCount < totalTrackableLessons}
-                                        onClick={() => router.push(`/exams/${m.examId}${m.latestAttemptId ? `?attemptId=${m.latestAttemptId}` : ''}`)}
+                                        onClick={() => handleOpenMilestoneConfirm(m)}
                                     />
                                 ))}
                             </div>
@@ -831,6 +911,30 @@ export default function CourseLearnPage() {
                 courseName={classData?.name}
                 onClose={() => setShowCompletionModal(false)}
             />
+
+            <AlertDialog
+                open={!!pendingMilestone}
+                onOpenChange={(open) => {
+                    if (!open) setPendingMilestone(null);
+                }}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận bắt đầu bài kiểm tra</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {pendingMilestone?.examTitle || 'Bạn sắp chuyển sang màn hình làm bài.'}
+                            {' '}
+                            Bạn có muốn bắt đầu ngay bây giờ không?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Để sau</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmMilestone}>
+                            Bắt đầu làm bài
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

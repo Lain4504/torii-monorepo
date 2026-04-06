@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@workspace/ui/components/sheet'
-import { ScrollArea } from '@workspace/ui/components/scroll-area'
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@workspace/ui/components/dialog'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Textarea } from '@workspace/ui/components/textarea'
@@ -65,64 +64,60 @@ export function StudySetCatalogFormSheet({
   }
 
   return (
-    <Sheet
+    <Dialog
       open={open}
       onOpenChange={(v) => {
         if (!isPending) onOpenChange(v)
       }}
     >
-      <SheetContent side="right" className="flex w-full flex-col p-0 sm:max-w-md">
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
-          <SheetHeader className="border-b px-6 py-4 text-left">
-            <SheetTitle>{editing ? 'Sửa bộ hệ thống' : 'Tạo bộ hệ thống'}</SheetTitle>
-            <SheetDescription>
+      <DialogContent className="sm:max-w-lg">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Sửa bộ hệ thống' : 'Tạo bộ hệ thống'}</DialogTitle>
+            <DialogDescription>
               Bộ thẻ mặc định dùng trong mục Khám phá phía học viên khi bật hiển thị public.
-            </SheetDescription>
-          </SheetHeader>
+            </DialogDescription>
+          </DialogHeader>
 
-          <ScrollArea className="flex-1 min-h-0">
-            <div className="space-y-5 px-6 py-4">
-              <Field>
-                <FieldLabel htmlFor="catalog-title">Tên bộ</FieldLabel>
-                <Input
-                  id="catalog-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ví dụ: N5 Kanji cơ bản"
-                  autoComplete="off"
-                />
-              </Field>
+          <Field>
+            <FieldLabel htmlFor="catalog-title">Tên bộ</FieldLabel>
+            <Input
+              id="catalog-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Ví dụ: N5 Kanji cơ bản"
+              autoComplete="off"
+            />
+          </Field>
 
-              <Field>
-                <FieldLabel htmlFor="catalog-desc">Mô tả</FieldLabel>
-                <Textarea
-                  id="catalog-desc"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Mô tả ngắn cho catalog…"
-                  rows={3}
-                />
-              </Field>
+          <Field>
+            <FieldLabel htmlFor="catalog-desc">Mô tả</FieldLabel>
+            <Textarea
+              id="catalog-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Mô tả ngắn cho catalog…"
+              rows={3}
+            />
+          </Field>
 
-              <Field orientation="horizontal" className="items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <FieldLabel htmlFor="catalog-public" className="text-sm font-medium">
-                    Hiển thị trong catalog
-                  </FieldLabel>
-                  <FieldDescription>
-                    Học viên thấy bộ này ở trang khám phá khi bật.
-                  </FieldDescription>
-                </div>
-                <Switch
-                  id="catalog-public"
-                  checked={isPublic}
-                  onCheckedChange={setIsPublic}
-                />
-              </Field>
+          <Field orientation="horizontal" className="items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <FieldLabel htmlFor="catalog-public" className="text-sm font-medium">
+                Hiển thị trong catalog
+              </FieldLabel>
+              <FieldDescription>
+                Học viên thấy bộ này ở trang khám phá khi bật.
+              </FieldDescription>
             </div>
-          </ScrollArea>
+            <Switch
+              id="catalog-public"
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
+            />
+          </Field>
 
-          <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-4 sm:flex-row">
+          <DialogFooter className="gap-2 sm:gap-2">
             <Button
               type="button"
               variant="outline"
@@ -135,9 +130,9 @@ export function StudySetCatalogFormSheet({
               {isPending && <Spinner className="mr-2" />}
               {editing ? 'Cập nhật' : 'Tạo mới'}
             </Button>
-          </SheetFooter>
+          </DialogFooter>
         </form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   )
 }

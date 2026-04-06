@@ -467,9 +467,9 @@ export default function JlptConfigPage() {
                                     <TableCell className="text-right">
                                       <Button
                                         type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className="text-destructive"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5 font-medium"
                                         onClick={() =>
                                           setMappingRowsByDomain((prev) => ({
                                             ...prev,
@@ -478,9 +478,9 @@ export default function JlptConfigPage() {
                                             ),
                                           }))
                                         }
-                                        aria-label="Xóa dòng mapping"
                                       >
                                         <Trash2 className="size-4" />
+                                        Xóa
                                       </Button>
                                     </TableCell>
                                   </TableRow>

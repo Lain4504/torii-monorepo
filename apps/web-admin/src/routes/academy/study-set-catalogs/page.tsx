@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Pencil, Trash2, BookOpen } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import {
   Table,
@@ -177,14 +177,13 @@ export default function StudySetCatalogsPage() {
                         size="sm"
                         onClick={() => navigate(`/academy/study-set-catalogs/${item.id}`)}
                       >
-                        <BookOpen />
                         Quản lý thẻ
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => openEdit(item)}>
-                        <Pencil />
+                        Chỉnh sửa
                       </Button>
                       <Button variant="destructive" size="sm" onClick={() => openDelete(item)}>
-                        <Trash2 />
+                        Xóa
                       </Button>
                     </div>
                   </TableCell>

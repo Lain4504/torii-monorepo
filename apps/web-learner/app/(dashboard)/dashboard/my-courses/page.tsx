@@ -3,17 +3,16 @@
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Progress } from '@workspace/ui/components/progress'
-import { Input } from '@workspace/ui/components/input'
 import { Badge } from '@workspace/ui/components/badge'
 import {
-    Search,
     BookOpen,
     Clock,
     ChevronRight,
     Video,
     Calendar,
     Star,
-    User
+    User,
+    GraduationCap
 } from 'lucide-react'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
@@ -33,16 +32,13 @@ import {
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import { cn } from '@workspace/ui/lib/utils'
-import { formatNumber } from '@/utils/format-utils'
 
 import { ClassReviewDialog } from '@/components/class-reviews/class-review-dialog'
 import { academyClassReviewHooks } from '@/lib/api/services/academy-class-reviews'
 
 export default function MyCoursesPage() {
-    const [searchQuery, setSearchQuery] = useState('')
     const [filter, setFilter] = useState<'all' | 'in-progress' | 'completed'>('all')
     const [courses, setCourses] = useState<any[]>([])
-    const [statsData, setStatsData] = useState<any | null>(null)
     const [loading, setLoading] = useState(true)
     const [expiredCourse, setExpiredCourse] = useState<{ title: string, slug: string } | null>(null)
 
@@ -63,13 +59,10 @@ export default function MyCoursesPage() {
 
     useEffect(() => {
         if (respCourses) setCourses(respCourses);
-        if (respStats) setStatsData(respStats);
         if (!loadingCourses && !loadingStats) setLoading(false);
-    }, [respCourses, respStats, loadingCourses, loadingStats]);
+    }, [respCourses, loadingCourses, loadingStats]);
 
     const filteredCourses = courses.filter((course) => {
-        const matchesSearch = (course.courseTitle || "").toLowerCase().includes(searchQuery.toLowerCase())
-        
         const status = (course.status || "ACTIVE").toUpperCase();
         if (status === 'CANCELLED') return false;
 
@@ -78,45 +71,37 @@ export default function MyCoursesPage() {
             (filter === 'in-progress' && (course.progress || 0) < 100 && status !== 'COMPLETED') ||
             (filter === 'completed' && ((course.progress || 0) >= 100 || status === 'COMPLETED'))
         
-        return matchesSearch && matchesFilter
+        return matchesFilter
     })
 
     const { data: schedule, isLoading: isLoadingSchedule } = useMySchedule();
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 animate-pulse">
-                <Spinner className="size-6 text-primary/40" />
-                <p className="text-[10px] font-semibold text-muted-foreground/40 animate-pulse">Đang đồng bộ dữ liệu...</p>
+            <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
+                <Spinner className="size-6 text-primary" />
+                <p className="text-xs font-bold text-muted-foreground/60 animate-pulse uppercase tracking-widest">Đang chuẩn bị lộ trình...</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 pb-8">
-            {/* Standard Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border">
-                <div className="space-y-4">
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Khóa học của tôi</h1>
-                    <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
-                        Quản lý tiến độ học tập và tiếp tục hành trình chinh phục tiếng Nhật của bạn qua các khóa học đã đăng ký.
-                    </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="relative w-full sm:w-72">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/30" />
-                        <Input
-                            placeholder="Tìm kiếm khóa học..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 h-10 rounded-xl bg-muted/20 border-border/40 focus-visible:ring-primary/20 text-xs font-medium"
-                        />
+        <div className="space-y-8 animate-in fade-in duration-500 pb-8">
+            {/* Header - Minimalist */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border/40">
+                <div className="flex items-center gap-4">
+                    <div className="size-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                        <GraduationCap className="size-6" />
+                    </div>
+                    <div className="space-y-0.5">
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">Khóa học của tôi</h1>
+                        <p className="text-xs font-medium text-muted-foreground/60">Quản lý và tiếp tục hành trình chinh phục tiếng Nhật của bạn.</p>
                     </div>
                 </div>
+
             </div>
 
-            {/* Next Live Session Alert - Subtle & Premium */}
+            {/* Next Live Session Alert - Redesigned to be Premium */}
             {(() => {
                 const now = new Date();
                 if (isLoadingSchedule || !schedule || schedule.length === 0) return null;
@@ -132,78 +117,75 @@ export default function MyCoursesPage() {
                 const isLive = uiState === 'live' || uiState === 'joinable';
 
                 return (
-                    <Card className={cn(
-                        "relative overflow-hidden border border-border/40 bg-card rounded-2xl shadow-none transition-all",
-                        isLive && "border-red-500/20 bg-red-500/[0.02]"
+                    <div className={cn(
+                        "relative overflow-hidden border rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all",
+                        isLive 
+                            ? "bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-900/30" 
+                            : "bg-primary/5 border-primary/10"
                     )}>
-                        <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-                            <div className="flex items-center gap-6">
-                                <div className={cn(
-                                    "hidden sm:flex size-14 rounded-2xl items-center justify-center border",
-                                    isLive ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-primary/5 border-primary/10 text-primary/40"
-                                )}>
-                                    <Video className={cn("size-6", isLive && "animate-pulse")} />
+                        <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                            <div className={cn(
+                                "size-14 rounded-2xl flex items-center justify-center border shrink-0",
+                                isLive ? "bg-red-100 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600" : "bg-card border-border/40 text-primary"
+                            )}>
+                                <Video className={cn("size-6", isLive && "animate-pulse")} />
+                            </div>
+                            <div className="space-y-1.5 focus:outline-none">
+                                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                    <Badge variant={isLive ? "destructive" : "outline"} className="text-[9px] font-bold px-2 py-0.5 rounded-lg border-none">
+                                        {isLive ? "ĐANG DIỄN RA" : "BUỔI HỌC TIẾP THEO"}
+                                    </Badge>
+                                    <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-wider">{nextSession.courseTitle}</span>
                                 </div>
-                                <div className="space-y-1.5 text-center sm:text-left">
-                                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 mb-1 text-[10px] font-bold uppercase tracking-widest leading-none">
-                                        <span className={cn(
-                                            "px-2 py-0.5 rounded-md",
-                                            isLive ? "bg-red-500 text-white" : "bg-primary/10 text-primary border border-primary/20"
-                                        )}>
-                                            {isLive ? "Trực tiếp" : "Buổi học sắp tới"}
-                                        </span>
-                                        <span className="text-muted-foreground/40">{nextSession.courseTitle}</span>
-                                    </div>
-                                    <h2 className="text-xl font-bold tracking-tight text-foreground/80">{nextSession.title}</h2>
-                                    <div className="flex flex-col sm:flex-row items-center gap-4 text-[11px] font-semibold text-muted-foreground/50">
-                                        <span className="flex items-center gap-1.5"><Calendar className="size-3.5 text-primary/40" /> {format(new Date(nextSession.scheduledAt), 'EEEE, dd/MM - HH:mm', { locale: vi })}</span>
-                                        <span className="flex items-center gap-1.5"><Clock className="size-3.5 text-primary/40" /> {nextSession.duration} phút</span>
-                                    </div>
+                                <h2 className="text-xl font-bold tracking-tight text-foreground">{nextSession.title}</h2>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[11px] font-bold text-muted-foreground/60">
+                                    <span className="flex items-center gap-1.5"><Calendar className="size-3.5 text-primary" /> {format(new Date(nextSession.scheduledAt), 'EEEE, dd/MM - HH:mm', { locale: vi })}</span>
+                                    <span className="flex items-center gap-1.5"><Clock className="size-3.5 text-primary" /> {nextSession.duration} phút</span>
                                 </div>
                             </div>
-
-                            {canJoin && (
-                                <Button 
-                                    className="bg-primary text-white hover:bg-primary/90 h-11 px-8 rounded-xl font-bold text-[11px] shadow-none group transition-all"
-                                    onClick={async () => {
-                                        try {
-                                            const joinData = await liveSessionApi.joinSession(nextSession.id);
-                                            const MEET_URL = (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com');
-                                            const url = `${MEET_URL}?access_token=${joinData.token}`;
-                                            window.open(url, '_blank', 'noopener,noreferrer');
-                                        } catch (err: any) {
-                                            console.error('Failed to join:', err);
-                                        }
-                                    }}
-                                >
-                                    Vào lớp ngay
-                                    <ChevronRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
-                                </Button>
-                            )}
                         </div>
-                    </Card>
+
+                        {canJoin && (
+                            <Button 
+                                className="h-12 px-10 rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 shrink-0"
+                                onClick={async () => {
+                                    try {
+                                        const joinData = await liveSessionApi.joinSession(nextSession.id);
+                                        const MEET_URL = (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com');
+                                        const url = `${MEET_URL}?access_token=${joinData.token}`;
+                                        window.open(url, '_blank', 'noopener,noreferrer');
+                                    } catch (err) {}
+                                }}
+                            >
+                                Vào lớp ngay
+                                <ChevronRight className="ml-2 size-4" />
+                            </Button>
+                        )}
+                    </div>
                 );
             })()}
 
-            {/* Simple Grid Controls */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* Filter Tabs */}
+            <div className="flex justify-center md:justify-start pt-2">
                 <Tabs defaultValue="all" className="w-full sm:w-auto" onValueChange={(v) => setFilter(v as any)}>
-                    <TabsList className="bg-muted/30 p-1 rounded-xl border border-border/40">
-                        <TabsTrigger value="all" className="px-8 py-2 rounded-lg text-[10px] font-bold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Tất cả</TabsTrigger>
-                        <TabsTrigger value="in-progress" className="px-8 py-2 rounded-lg text-[10px] font-bold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Đang học</TabsTrigger>
-                        <TabsTrigger value="completed" className="px-8 py-2 rounded-lg text-[10px] font-bold data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Đã xong</TabsTrigger>
+                    <TabsList className="bg-muted/20 p-1 rounded-2xl border border-border/40 w-fit">
+                        <TabsTrigger value="all" className="px-8 py-2 rounded-xl text-xs font-bold data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Tất cả</TabsTrigger>
+                        <TabsTrigger value="in-progress" className="px-8 py-2 rounded-xl text-xs font-bold data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Đang học</TabsTrigger>
+                        <TabsTrigger value="completed" className="px-8 py-2 rounded-xl text-xs font-bold data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Hoàn thành</TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Courses Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {filteredCourses.length > 0 ? (
                     filteredCourses.map((course) => (
                         <Card
                             key={course.id}
-                            className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full flex flex-col pt-0 pb-0"
+                            className="group border border-border/40 bg-card hover:border-primary/30 hover:shadow-xl transition-all duration-500 rounded-3xl overflow-hidden shadow-none h-full flex flex-col"
                         >
-                            <div className="relative aspect-[16/10] bg-muted/10 overflow-hidden">
+                            {/* Course Image */}
+                            <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                                 {course.thumbnailUrl ? (
                                     <img 
                                         src={course.thumbnailUrl} 
@@ -211,56 +193,56 @@ export default function MyCoursesPage() {
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <BookOpen className="size-10 text-muted-foreground/10" />
+                                    <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                                        <BookOpen className="size-12 text-primary/20" />
                                     </div>
                                 )}
                                 
                                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                                     {course.type?.toLowerCase() === 'live' && (
-                                        <Badge className="bg-red-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold">
-                                            TRỰC TIẾP
+                                        <Badge className="bg-red-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm">
+                                            LIVE
                                         </Badge>
                                     )}
                                     {course.progress >= 100 && (
-                                        <Badge className="bg-emerald-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold">
+                                        <Badge className="bg-emerald-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm">
                                             HOÀN THÀNH
                                         </Badge>
                                     )}
                                 </div>
 
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5">
+                                <div className="absolute inset-x-0 bottom-0 h-1 bg-black/10">
                                     <div 
-                                        className="h-full bg-primary transition-all duration-1000 ease-in-out" 
+                                        className="h-full bg-primary shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out" 
                                         style={{ width: `${course.progress}%` }} 
                                     />
                                 </div>
                             </div>
 
-                            <CardContent className="p-6 flex-1 flex flex-col justify-between space-y-6">
+                            <CardContent className="p-6 flex-1 flex flex-col justify-between gap-6">
                                 <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <h3 className="font-bold text-lg tracking-tight text-foreground/80 leading-tight line-clamp-2 transition-colors group-hover:text-primary">
+                                    <div className="space-y-2.5">
+                                        <h3 className="font-bold text-base leading-tight text-foreground line-clamp-2 transition-colors group-hover:text-primary">
                                             {course.courseTitle}
                                         </h3>
-                                        <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground/40">
+                                        <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/60">
                                             <div className="flex items-center gap-1.5">
-                                                <User className="size-3 text-primary/30" />
+                                                <User className="size-3 text-primary" />
                                                 <span className="truncate">{course.instructorName || 'Torii Academy'}</span>
                                             </div>
-                                            <span className="flex items-center gap-1.5 tabular-nums">
-                                                <Clock className="size-3 text-primary/30" />
+                                            <div className="flex items-center gap-1.5 tabular-nums">
+                                                <Clock className="size-3 text-primary" />
                                                 {course.lastAccessed ? format(new Date(course.lastAccessed), 'dd/MM/yyyy') : 'Mới'}
-                                            </span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-center justify-between text-[10px] font-semibold text-muted-foreground/30">
-                                            <span>Tiến độ học tập</span>
-                                            <span className="text-primary/60">{Math.round(course.progress || 0)}%</span>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-[10px] font-bold">
+                                            <span className="text-muted-foreground/60 uppercase tracking-tighter">Tiến độ khóa học</span>
+                                            <span className="text-primary">{Math.round(course.progress || 0)}%</span>
                                         </div>
-                                        <Progress value={course.progress || 0} className="h-1 bg-muted/60" />
+                                        <Progress value={course.progress || 0} className="h-1.5 bg-muted rounded-full" />
                                     </div>
                                 </div>
 
@@ -268,9 +250,7 @@ export default function MyCoursesPage() {
                                     {(() => {
                                         const courseType = course.type?.toLowerCase();
                                         const isLive = courseType === 'live';
-                                        const courseMasterId = isLive
-                                            ? course.liveClassId
-                                            : (course.vodPackageId ?? course.courseProfileId ?? course.id);
+                                        const courseMasterId = isLive ? course.liveClassId : (course.vodPackageId ?? course.courseProfileId ?? course.id);
 
                                         if (course.expiresAt && new Date(course.expiresAt) < new Date()) {
                                             return (
@@ -280,9 +260,9 @@ export default function MyCoursesPage() {
                                                         setExpiredCourse({ title: course.courseTitle || "", slug: course.slug || "" })
                                                     }}
                                                     variant="destructive"
-                                                    className="flex-1 h-10 rounded-xl text-[10px] font-bold shadow-none"
+                                                    className="flex-1 h-10 rounded-2xl text-xs font-bold shadow-none"
                                                 >
-                                                    Gia hạn
+                                                    Gia hạn khóa học
                                                 </Button>
                                             )
                                         }
@@ -296,11 +276,11 @@ export default function MyCoursesPage() {
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 <Button 
-                                                    className="w-full h-10 rounded-xl text-[10px] font-bold shadow-none transition-all"
-                                                    variant={isLive ? 'destructive' : course.progress >= 100 ? "outline" : "default"}
+                                                    className="w-full h-11 rounded-2xl text-[11px] font-bold shadow-md shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                                    variant={isLive ? 'default' : course.progress >= 100 ? "outline" : "default"}
                                                 >
-                                                    {isLive ? 'Vào lớp' : course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Học lại' : 'Tiếp tục'}
-                                                    <ChevronRight className="ml-2 size-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                                    {isLive ? 'Vào lớp học' : course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Học lại' : 'Tiếp tục học'}
+                                                    <ChevronRight className="ml-1 size-3.5" />
                                                 </Button>
                                             </Link>
                                         );
@@ -314,7 +294,7 @@ export default function MyCoursesPage() {
                                         return (
                                             <Button
                                                 variant="outline"
-                                                className="size-10 rounded-xl p-0 border-border/40 hover:bg-amber-50 hover:border-amber-200 transition-colors"
+                                                className="size-11 rounded-2xl p-0 border-border/40 hover:bg-amber-50 hover:border-amber-200 transition-all"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setReviewDialogProps({
@@ -337,16 +317,16 @@ export default function MyCoursesPage() {
                         </Card>
                     ))
                 ) : (
-                    <div className="col-span-full py-20 bg-muted/5 rounded-2xl border border-dashed border-border/50 flex flex-col items-center justify-center gap-6 text-center">
-                        <div className="size-16 rounded-2xl bg-muted/10 flex items-center justify-center text-muted-foreground/20">
-                            <BookOpen className="size-8" />
+                    <div className="col-span-full py-24 bg-muted/20 rounded-3xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-6 text-center">
+                        <div className="size-20 rounded-3xl bg-background flex items-center justify-center text-muted-foreground/20 border border-border">
+                            <BookOpen className="size-10" />
                         </div>
-                        <div className="space-y-1.5 px-6">
-                            <p className="text-sm font-semibold text-foreground/40">Không tìm thấy khóa học nào</p>
-                            <p className="text-[11px] font-medium text-muted-foreground/30">Hãy thử kiểm tra lại bộ lọc hoặc khám phá thêm lộ trình mới.</p>
+                        <div className="space-y-2 px-6">
+                            <h3 className="text-lg font-bold text-foreground">Chưa có khóa học nào</h3>
+                            <p className="text-xs font-medium text-muted-foreground/60 max-w-xs mx-auto">Hãy bắt đầu hành trình chinh phục tiếng Nhật ngay hôm nay.</p>
                         </div>
-                        <Button asChild variant="outline" className="mt-4 px-8 h-11 rounded-xl font-bold text-[10px] border-primary/20 text-primary/60 hover:bg-primary/5 shadow-none">
-                            <Link href="/dashboard/available-courses">Khám phá ngay</Link>
+                        <Button asChild className="mt-2 px-10 h-12 rounded-2xl font-bold text-xs shadow-lg shadow-primary/20">
+                            <Link href="/dashboard/available-courses">Khám phá khóa học</Link>
                         </Button>
                     </div>
                 )}

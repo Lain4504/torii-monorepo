@@ -48,8 +48,29 @@ export class TicketService implements ITicketService {
     let ticketMetadata = dto.metadata;
 
     if (dto.type === TicketType.REFUND) {
-      const liveClassId = (dto as any).liveClassId || (dto as any).classId;
-      const vodPackageId = (dto as any).vodPackageId || (dto as any).courseId;
+      let liveClassId = (dto as any).liveClassId || (dto as any).classId;
+      let vodPackageId = (dto as any).vodPackageId || (dto as any).courseId;
+
+      // Backward-compatible bridge:
+      // some clients still send a single `liveClassId` field for both LIVE and VOD.
+      // Resolve target type explicitly to avoid mis-validating VOD as LIVE.
+      if (liveClassId && !vodPackageId) {
+        const [liveClassExists, vodPackageExists] = await Promise.all([
+          this.prisma.liveClass.findUnique({
+            where: { id: liveClassId },
+            select: { id: true },
+          }),
+          this.prisma.vodPackage.findUnique({
+            where: { id: liveClassId },
+            select: { id: true },
+          }),
+        ]);
+
+        if (!liveClassExists && vodPackageExists) {
+          vodPackageId = liveClassId;
+          liveClassId = undefined;
+        }
+      }
 
       if (!liveClassId && !vodPackageId) {
         throw new BadRequestException('Class or Course ID is required for refund ticket');
@@ -74,6 +95,39 @@ export class TicketService implements ITicketService {
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - enrolledAt.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (liveClassId) {
+          const liveClass = await this.prisma.liveClass.findUnique({
+            where: { id: liveClassId },
+            select: {
+              id: true,
+              status: true,
+              cohort: {
+                select: {
+                  enrollmentOpenAt: true,
+                  enrollmentCloseAt: true,
+                },
+              },
+            },
+          });
+
+          if (!liveClass) {
+            throw new BadRequestException('Lớp LIVE không tồn tại.');
+          }
+
+          const cohortOpenAt = liveClass.cohort?.enrollmentOpenAt ?? null;
+          const cohortCloseAt = liveClass.cohort?.enrollmentCloseAt ?? null;
+          const inEnrollmentWindow =
+            liveClass.status === 'OPENING' &&
+            (!cohortOpenAt || now >= cohortOpenAt) &&
+            (!cohortCloseAt || now <= cohortCloseAt);
+
+          if (!inEnrollmentWindow) {
+            throw new BadRequestException(
+              'Yêu cầu hoàn tiền cho lớp LIVE chỉ hợp lệ khi còn trong thời gian tuyển sinh. Lớp đã vào giai đoạn học sẽ không hỗ trợ hoàn tiền.',
+            );
+          }
+        }
 
         if (diffDays > 14) {
           throw new BadRequestException(

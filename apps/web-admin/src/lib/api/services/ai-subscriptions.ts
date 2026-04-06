@@ -16,7 +16,12 @@ export const aiSubscriptionsApi = {
     },
 
     // GET /api/agents/admin/subscriptions/user-subscriptions
-    async getUserSubscriptions(params: any): Promise<any> {
+    async getUserSubscriptions(params: {
+        page: number;
+        limit: number;
+        search?: string;
+        planCode?: string;
+    }): Promise<any> {
         const response = await apiClient.get<StandardApiResponse<any>>('/api/agents/admin/subscriptions/user-subscriptions', { params });
         return response.data.data;
     },
@@ -45,7 +50,12 @@ export function useUpdateAiSubscriptionPlan() {
     });
 }
 
-export function useAiUserSubscriptions(params: any) {
+export function useAiUserSubscriptions(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    planCode?: string;
+}) {
     return useQuery({
         queryKey: ['ai-user-subscriptions', params],
         queryFn: () => aiSubscriptionsApi.getUserSubscriptions(params),

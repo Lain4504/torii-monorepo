@@ -21,6 +21,7 @@ export type AcademyCourseProfile = {
   submittedBy?: string | null
   approvedAt?: string | null
   approvedBy?: string | null
+  rejectionReason?: string | null
   modules?: any[]
 }
 

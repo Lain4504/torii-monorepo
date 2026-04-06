@@ -5,7 +5,7 @@ import { useAcademyCourseProfile, useSubmitAcademyCourseProfileForApproval } fro
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { useAcademyVodPackages } from "@/lib/api/services/academy-vod-packages"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical } from "lucide-react"
+import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -52,13 +52,6 @@ import {
 } from "@workspace/ui/components/table"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { formatDateTime } from "@/lib/format-utils"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@workspace/ui/components/dropdown-menu"
 import { CreateCourseModuleDialog } from "./components/create-module-dialog"
 import { EditCourseModuleDialog } from "./components/edit-module-dialog"
 import { CreateLessonDialog } from "./components/create-lesson-sheet"
@@ -244,18 +237,20 @@ export default function CourseProfileDetailPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title={
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
             <Link
               to="/academy/course-profiles"
-              className="hover:text-primary text-muted-foreground transition-colors"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
               Hồ sơ khóa học
             </Link>
-            <ChevronRight className="size-4 text-muted-foreground/50" />
-            <span className="font-bold">{profile.code}</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground/50" />
+              <span className="truncate text-base font-bold sm:text-lg">{profile.code}</span>
+            </div>
           </div>
         }
-        subtitle={profile.title}
+        subtitle={<span className="block max-w-full break-words leading-relaxed sm:line-clamp-1">{profile.title}</span>}
         stats={[
           { label: "Mã khóa", value: profile.code },
           { label: "Trình độ", value: profile.level || 'JLPT' },
@@ -263,10 +258,11 @@ export default function CourseProfileDetailPage() {
           { label: "Gói VOD", value: vodPackages?.length || 0 },
         ]}
         actions={
-          <div className="flex gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             {!isLocked && (
                 <Button
                   variant="outline"
+                  className="w-full sm:w-auto"
                   onClick={() => setProfileSheetOpen(true)}
                 >
                   Chỉnh sửa Profile
@@ -277,7 +273,7 @@ export default function CourseProfileDetailPage() {
               <Button
                 disabled={isLocked || submitForApprovalMutation.isPending}
                 onClick={() => setSubmitDialog(true)}
-                className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full gap-2 bg-indigo-600 text-white hover:bg-indigo-700 sm:w-auto"
               >
                 <Send className="size-4" />
                 Gửi duyệt giáo trình
@@ -305,17 +301,17 @@ export default function CourseProfileDetailPage() {
 
         <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <TabsContent value="curriculum" className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-bold">Quản lý chương trình</h3>
                 <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các Module và Bài giảng (Lessons).</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex w-full gap-2 sm:w-auto">
                 {!isLocked && (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium"
+                      className="w-full gap-2 border-primary/20 text-primary font-medium hover:bg-primary/5 sm:w-auto"
                       onClick={() => setCreateModuleOpen(true)}
                     >
                       <Plus className="size-4" /> Thêm Module mới
@@ -395,47 +391,64 @@ export default function CourseProfileDetailPage() {
                                 </div>
 
                                 <div className="flex items-center gap-2 shrink-0">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
+                                  {!isLocked && (
+                                    <>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="hidden sm:inline-flex"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setEditingModule(module)
+                                          setEditModuleOpen(true)
+                                        }}
+                                      >
+                                        Chỉnh sửa
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        className="hidden sm:inline-flex"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setDeleteModuleConfirm({
+                                            open: true,
+                                            moduleId: module.id,
+                                            moduleTitle: module.title,
+                                          })
+                                        }}
+                                      >
+                                        Xóa
+                                      </Button>
                                       <Button
                                         variant="outline"
                                         size="icon"
-                                        disabled={isLocked}
-                                        className="h-8 w-8"
-                                        onClick={(e) => e.stopPropagation()}
+                                        className="sm:hidden h-8 w-8"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setEditingModule(module)
+                                          setEditModuleOpen(true)
+                                        }}
                                       >
-                                        <MoreHorizontal className="size-4" />
+                                        <Pencil className="size-4" />
                                       </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      {!isLocked && (
-                                          <DropdownMenuItem
-                                            className="gap-2"
-                                            onClick={() => {
-                                              setEditingModule(module)
-                                              setEditModuleOpen(true)
-                                            }}
-                                          >
-                                            <Pencil className="size-4" /> Chỉnh sửa
-                                          </DropdownMenuItem>
-                                      )}
-                                      {!isLocked && <DropdownMenuSeparator />}
-                                      {!isLocked && (
-                                          <DropdownMenuItem
-                                            className="gap-2 text-destructive"
-                                            onClick={() => {
-                                              setDeleteModuleConfirm({
-                                                open: true,
-                                                moduleId: module.id,
-                                                moduleTitle: module.title,
-                                              })
-                                            }}
-                                          >
-                                            <Trash2 className="size-4" /> Xóa Module
-                                          </DropdownMenuItem>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="sm:hidden h-8 w-8 text-destructive border-destructive/30"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setDeleteModuleConfirm({
+                                            open: true,
+                                            moduleId: module.id,
+                                            moduleTitle: module.title,
+                                          })
+                                        }}
+                                      >
+                                        <Trash2 className="size-4" />
+                                      </Button>
+                                    </>
+                                  )}
 
                                   <Button
                                     variant="ghost"
@@ -503,21 +516,22 @@ export default function CourseProfileDetailPage() {
                                                   {!isLocked && (
                                                       <Button
                                                         variant="outline"
-                                                        size="icon"
-                                                        className="h-8 w-8"
+                                                        size="sm"
+                                                        className="h-8 px-2"
                                                         onClick={() => {
                                                           setEditingLesson(lesson)
                                                           setEditLessonOpen(true)
                                                         }}
                                                       >
-                                                        <Pencil className="size-4" />
+                                                        <Pencil className="size-4 sm:mr-1" />
+                                                        <span className="hidden sm:inline">Sửa</span>
                                                       </Button>
                                                   )}
                                                   {!isLocked && (
                                                       <Button
-                                                        variant="outline"
-                                                        size="icon"
-                                                        className="h-8 w-8"
+                                                        variant="destructive"
+                                                        size="sm"
+                                                        className="h-8 px-2"
                                                         onClick={() => {
                                                           setDeleteLessonConfirm({
                                                             open: true,
@@ -526,7 +540,8 @@ export default function CourseProfileDetailPage() {
                                                           })
                                                         }}
                                                       >
-                                                        <Trash2 className="size-4" />
+                                                        <Trash2 className="size-4 sm:mr-1" />
+                                                        <span className="hidden sm:inline">Xóa</span>
                                                       </Button>
                                                   )}
                                                 </div>

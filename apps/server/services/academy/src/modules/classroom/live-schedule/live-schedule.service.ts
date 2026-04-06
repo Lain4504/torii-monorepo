@@ -1231,6 +1231,34 @@ export class LiveScheduleService {
       },
     });
 
+    if (request.requestedBy && request.requestedBy !== reviewerId) {
+      try {
+        this.nats.emit(
+          { cmd: 'send_notification' },
+          {
+            recipientId: request.requestedBy,
+            type: 'system',
+            payload: {
+              title: 'Yêu cầu của bạn đã bị từ chối',
+              body: 'Yêu cầu dời lịch của bạn đã bị từ chối.',
+              metadata: {
+                entityType: 'LIVE_SCHEDULE_REQUEST',
+                entityId: request.id,
+                status: 'REJECTED',
+                rejectionReason: input.reviewNote ?? '',
+                sessionId: request.sessionId,
+                liveClassId: request.liveClassId,
+              },
+            },
+          },
+        );
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send reject notification for live schedule request ${id}: ${error?.message || String(error)}`,
+        );
+      }
+    }
+
     await this.audit.log({
       userId: reviewerId,
       action: 'live_schedule_request.reject',

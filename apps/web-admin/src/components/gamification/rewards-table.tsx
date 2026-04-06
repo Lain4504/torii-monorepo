@@ -36,7 +36,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
             <TableHeader className={dataTableHeaderClass}>
                 <TableRow>
                     <TableHead className="w-[80px]">STT</TableHead>
-                    <TableHead>Tên phần thưởng</TableHead>
+                    <TableHead className="w-[240px]">Tên phần thưởng</TableHead>
                     <TableHead>Số điểm cần</TableHead>
                     <TableHead>Loại giảm giá</TableHead>
                     <TableHead>Giá trị</TableHead>
@@ -79,13 +79,10 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                             <TableCell className="px-6 font-medium text-muted-foreground tabular-nums">
                                 {index + 1}
                             </TableCell>
-                            <TableCell>
-                                <div className="flex flex-col">
-                                    <span className="font-medium text-foreground">{reward.name}</span>
-                                    {reward.description && (
-                                        <span className="text-xs text-muted-foreground line-clamp-1">{reward.description}</span>
-                                    )}
-                                </div>
+                            <TableCell className="max-w-[240px]">
+                                <span className="block truncate font-medium text-foreground" title={reward.name}>
+                                    {reward.name}
+                                </span>
                             </TableCell>
                             <TableCell>
                                 <div className="flex items-center gap-1.5 font-bold text-amber-600">

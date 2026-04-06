@@ -36,6 +36,61 @@ import {
     AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog";
 
+const CATEGORY_LABELS_VI: Record<string, string> = {
+    "Academy Content": "Nội dung học tập",
+    "Academy Delivery": "Triển khai lớp học",
+    "Academy Commerce": "Thương mại học tập",
+    "Academy Assessment": "Đánh giá học tập",
+    "Gamification": "Gamification",
+    "Blog": "Bài viết",
+    "Support": "Hỗ trợ",
+    "User Management": "Quản lý người dùng",
+    "Analytics": "Phân tích",
+    "System": "Hệ thống",
+    "Meet": "Lớp học trực tuyến",
+};
+
+const ROLE_NAME_LABELS_VI: Record<string, string> = {
+    admin: "Quản trị hệ thống",
+    "staff-academic": "Nhân sự học vụ",
+    "staff-operations": "Nhân sự vận hành",
+    lecturer: "Giảng viên",
+    learner: "Học viên",
+};
+
+const PERMISSION_DESCRIPTION_VI: Record<string, string> = {
+    "academy.content.read": "Xem thông tin nội dung học tập",
+    "academy.content.write": "Tạo và quản lý nội dung học tập",
+    "academy.content.approve": "Duyệt hoặc từ chối xuất bản nội dung",
+    "academy.delivery.read": "Xem thông tin lớp học và lịch học",
+    "academy.delivery.write": "Quản lý lớp học, lịch học và điểm danh",
+    "academy.delivery.approve": "Duyệt hoặc từ chối yêu cầu vận hành lớp",
+    "academy.commerce.read": "Xem offering và dữ liệu tài chính",
+    "academy.commerce.write": "Quản lý offering và giá bán",
+    "academy.commerce.approve": "Duyệt hoặc từ chối xuất bản offering",
+    "schedule.view": "Xem trạng thái phòng live và lịch sử phòng",
+    "live_class.manage": "Điều khiển phòng live",
+    "academy:order:admin": "Quản trị toàn bộ đơn hàng",
+    "academy:coupon:admin": "Quản trị toàn bộ mã giảm giá",
+    "exam.manage": "Quản lý bài thi và câu hỏi",
+    "submission.grade": "Chấm bài nộp và bài thi",
+    "academy:subscription:admin": "Quản lý gói AI Sensei",
+    "gamification.manage": "Quản lý rewards và cấu hình điểm",
+    "blog.view_restricted": "Xem bài viết nội bộ hoặc bản nháp",
+    "blog.manage": "Quản trị toàn bộ bài viết",
+    "blog.create": "Tạo bài viết mới",
+    "blog.update": "Cập nhật bài viết",
+    "blog.delete": "Xóa bài viết",
+    "blog.publish": "Xuất bản bài viết",
+    "support.view": "Xem yêu cầu hỗ trợ",
+    "support.handle": "Xử lý yêu cầu hỗ trợ",
+    "user.view": "Xem thông tin người dùng",
+    "user.manage": "Quản lý người dùng",
+    "report.view": "Xem báo cáo hệ thống",
+    "audit.view": "Xem nhật ký hệ thống",
+    "system.config": "Cấu hình hệ thống",
+};
+
 export function PermissionsPage() {
     // Data fetching
     const { data: roles, isLoading: rolesLoading } = useRoles();
@@ -256,7 +311,7 @@ export function PermissionsPage() {
                                     className="text-center bg-muted/30 border-r"
                                 >
                                     <span className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
-                                        {category}
+                                        {CATEGORY_LABELS_VI[category] || category}
                                     </span>
                                 </TableHead>
                             ))}
@@ -273,7 +328,7 @@ export function PermissionsPage() {
                                 >
                                     <div className="flex flex-col gap-1">
                                         <span className="text-xs font-medium leading-tight text-foreground">
-                                            {perm.description}
+                                            {PERMISSION_DESCRIPTION_VI[perm.code] || perm.description}
                                         </span>
                                         <span className="text-[10px] font-mono text-muted-foreground">
                                             {perm.code.split('.').pop()}
@@ -296,7 +351,7 @@ export function PermissionsPage() {
                                         isLearner && "bg-muted"
                                     )}>
                                         <div className="flex flex-col">
-                                            <span>{role.name}</span>
+                                            <span>{ROLE_NAME_LABELS_VI[role.code] || role.name}</span>
                                             <span className="text-[10px] text-muted-foreground uppercase">{role.code}</span>
                                         </div>
                                     </TableCell>

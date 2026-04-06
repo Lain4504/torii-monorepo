@@ -92,22 +92,24 @@ export function ViewUserSheet({
                     </div>
                 </div>
 
-                <Tabs defaultValue="basic" className="flex-1 flex flex-col mt-4">
-                    <div className="px-6 border-b">
-                        <TabsList className="w-full justify-start h-12 bg-transparent p-0 gap-6">
-                            <TabsTrigger value="basic" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-1">
+                <Tabs defaultValue="basic" className="mt-4 flex flex-1 flex-col min-w-0">
+                    <div className="border-b px-6 pb-3">
+                        <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                            <TabsList className="inline-flex h-10 w-max min-w-full justify-start gap-1 p-1">
+                            <TabsTrigger value="basic" className="whitespace-nowrap">
                                 <Info className="size-4 mr-2" />
                                 Thông tin cơ bản
                             </TabsTrigger>
-                            <TabsTrigger value="learning" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-1">
+                            <TabsTrigger value="learning" className="whitespace-nowrap">
                                 <BookOpen className="size-4 mr-2" />
                                 Thông tin học tập
                             </TabsTrigger>
-                            <TabsTrigger value="wallet" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-1">
+                            <TabsTrigger value="wallet" className="whitespace-nowrap">
                                 <Wallet className="size-4 mr-2" />
                                 Ví & Giao dịch
                             </TabsTrigger>
-                        </TabsList>
+                            </TabsList>
+                        </div>
                     </div>
 
                     <ScrollArea className="flex-1">

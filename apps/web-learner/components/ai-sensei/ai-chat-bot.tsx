@@ -250,16 +250,16 @@ export function AiChatBot() {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden w-full">
-            {/* Conversation Area */}
-            <Conversation className="flex-1 min-h-0 border-b">
-                <ConversationContent>
+        <div className="flex flex-col h-full overflow-hidden w-full bg-background min-w-0">
+            {/* Conversation Area - Optimized for Mobile Padding */}
+            <Conversation className="flex-1 min-h-0 border-b border-border bg-background">
+                <ConversationContent className="p-3 sm:p-5">
                     {messages.map((msg) => (
                         <MessageBranch defaultBranch={0} key={msg.key}>
                             <MessageBranchContent>
                                 {msg.versions.map((version) => (
-                                    <Message from={msg.from} key={version.id}>
-                                        <div className="flex flex-col gap-2">
+                                    <Message from={msg.from} key={version.id} className="max-w-full">
+                                        <div className="flex flex-col gap-2 min-w-0">
                                             {msg.sources?.length && (
                                                 <Sources>
                                                     <SourcesTrigger count={msg.sources.length} />
@@ -277,7 +277,7 @@ export function AiChatBot() {
                                                 </Reasoning>
                                             )}
                                             <MessageContent>
-                                                <MessageResponse>{version.content}</MessageResponse>
+                                                <MessageResponse className="font-semibold text-sm leading-relaxed whitespace-pre-wrap">{version.content}</MessageResponse>
                                             </MessageContent>
                                         </div>
                                     </Message>
@@ -296,39 +296,41 @@ export function AiChatBot() {
                 <ConversationScrollButton />
             </Conversation>
 
-            {/* Input & Suggestions Area */}
-            <div className="shrink-0 pt-4 space-y-4 shadow-2xl bg-muted/30 min-w-0">
+            {/* Input Area - Compact & Mobile Responsive */}
+            <div className="shrink-0 pt-2 space-y-2 bg-card border-t border-border shadow-inner min-w-0">
                 {suggestions.length > 0 && status === "ready" && (
-                    <Suggestions className="px-4">
+                    <Suggestions className="px-3 overflow-x-auto no-scrollbar">
                         {suggestions.map(s => (
                             <Suggestion
                                 key={s}
                                 onClick={() => handleSend(s)}
                                 suggestion={s}
+                                className="font-bold text-[10px] h-7 px-3"
                             />
                         ))}
                     </Suggestions>
                 )}
 
-                <div className="w-full px-4 pb-4 min-w-0">
-                    <PromptInput multiple onSubmit={handleSubmit}>
-                        <PromptInputHeader>
+                <div className="w-full px-3 pb-3 min-w-0">
+                    <PromptInput multiple onSubmit={handleSubmit} className="border-border">
+                        <PromptInputHeader className="p-0">
                             <PromptInputAttachmentsDisplay />
                         </PromptInputHeader>
-                        <PromptInputBody>
+                        <PromptInputBody className="p-1">
                             <PromptInputTextarea
                                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value)}
                                 value={text}
-                                placeholder="Hỏi AI Sensei về tiếng Nhật..."
-                                className="min-h-[100px]"
+                                placeholder="Hỏi Sensei..."
+                                className="min-h-[48px] max-h-[140px] font-medium placeholder:font-normal text-sm py-2 px-3"
                                 disabled={status === "streaming" || status === "submitted"}
                             />
                         </PromptInputBody>
-                        <PromptInputFooter>
+                        <PromptInputFooter className="p-1 pr-2">
                             <PromptInputTools />
                             <PromptInputSubmit
                                 disabled={!text.trim() || status === "streaming" || status === "submitted"}
                                 status={status === "streaming" || status === "submitted" ? "submitted" : "ready"}
+                                className="h-8 w-8"
                             />
                         </PromptInputFooter>
                     </PromptInput>

@@ -20,8 +20,7 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
-import { Loader2, Volume2 } from "lucide-react"
-import { toast } from "@workspace/ui/components/sonner"
+import { Loader2 } from "lucide-react"
 
 export interface FlashcardFormValues {
   term: string
@@ -78,24 +77,6 @@ export function FlashcardFormDialog({
     }
   }
 
-  const handlePreviewAudio = (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (!values.term.trim()) return
-
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(values.term)
-
-    const isJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(values.term)
-    utterance.lang = isJapanese ? "ja-JP" : "en-US"
-    utterance.rate = 0.9
-
-    utterance.onerror = () => {
-      toast.error("Không phát được âm thanh xem trước.")
-    }
-
-    window.speechSynthesis.speak(utterance)
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -109,25 +90,13 @@ export function FlashcardFormDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <Field>
             <FieldLabel htmlFor="flash-term">Từ</FieldLabel>
-            <div className="flex gap-2">
-              <Input
-                id="flash-term"
-                placeholder="Nhập từ…"
-                value={values.term}
-                onChange={(e) => setValues({ ...values, term: e.target.value })}
-                autoComplete="off"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={handlePreviewAudio}
-                disabled={!values.term.trim()}
-                title="Nghe thử"
-              >
-                <Volume2 />
-              </Button>
-            </div>
+            <Input
+              id="flash-term"
+              placeholder="Nhập từ…"
+              value={values.term}
+              onChange={(e) => setValues({ ...values, term: e.target.value })}
+              autoComplete="off"
+            />
           </Field>
 
           <Field>

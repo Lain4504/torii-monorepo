@@ -55,6 +55,23 @@ export class CouponService {
     throw new BadRequestException('Invalid status');
   }
 
+  private assertDiscountValueValid(
+    discountType: CouponDiscountType,
+    discountValue: number,
+  ) {
+    if (!Number.isFinite(discountValue) || discountValue <= 0) {
+      throw new BadRequestException('Invalid discountValue');
+    }
+    if (
+      discountType === CouponDiscountType.PERCENTAGE &&
+      discountValue > 100
+    ) {
+      throw new BadRequestException(
+        'Phần trăm giảm không được vượt quá 100%',
+      );
+    }
+  }
+
   async findByCode(code: string) {
     const coupon = await this.prisma.coupon.findUnique({
       where: { code: code.toUpperCase() },
@@ -264,12 +281,23 @@ export class CouponService {
       ...rest
     } = data ?? {};
 
+    const normalizedDiscountType = this.normalizeDiscountType(discountType);
+    const normalizedDiscountValue = Number(rest.discountValue);
+    if (!normalizedDiscountType) {
+      throw new BadRequestException('Invalid discountType');
+    }
+    this.assertDiscountValueValid(
+      normalizedDiscountType,
+      normalizedDiscountValue,
+    );
+
     const coupon = await this.prisma.coupon.create({
       data: {
         ...rest,
         ownerId: null,
         code: data.code.toUpperCase(),
-        discountType: this.normalizeDiscountType(discountType),
+        discountType: normalizedDiscountType,
+        discountValue: normalizedDiscountValue,
         status: this.normalizeStatus(status),
         source: (data as { source?: string }).source ?? 'MANUAL',
       },
@@ -305,12 +333,27 @@ export class CouponService {
       ...rest
     } = data ?? {};
 
+    const normalizedDiscountType =
+      this.normalizeDiscountType(discountType) ?? old.discountType;
+    const normalizedDiscountValue =
+      rest.discountValue !== undefined
+        ? Number(rest.discountValue)
+        : Number(old.discountValue);
+    this.assertDiscountValueValid(
+      normalizedDiscountType,
+      normalizedDiscountValue,
+    );
+
     const updated = await this.prisma.coupon.update({
       where: { id },
       data: {
         ...rest,
         code: data.code?.toUpperCase(),
         discountType: this.normalizeDiscountType(discountType),
+        discountValue:
+          rest.discountValue !== undefined
+            ? normalizedDiscountValue
+            : undefined,
         status: this.normalizeStatus(status),
       },
     });

@@ -1,10 +1,10 @@
-'use client'
+"use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, CalendarDays, FileText, AlertCircle, ChevronRight, BookOpen, Clock, Activity } from "lucide-react"
-import { jlptMockApi, useJlptMockTemplates, type JlptMockAttempt } from "@/lib/api/services/jlpt-mock-api"
+import { ArrowLeft, FileText, AlertCircle, ChevronRight, Clock, Activity } from "lucide-react"
+import { jlptMockApi, useJlptMockTemplates } from "@/lib/api/services/jlpt-mock-api"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,6 @@ import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
-import { cn } from "@workspace/ui/lib/utils"
 
 export default function JlptLevelExamPage() {
   const params = useParams<{ level: string }>()
@@ -33,25 +32,13 @@ export default function JlptLevelExamPage() {
   const [showConfirmStart, setShowConfirmStart] = useState(false)
   const [starting, setStarting] = useState(false)
 
-  const items = useMemo(
-    () =>
-      templates.map((tpl) => ({
-        id: tpl.id,
-        title: tpl.title,
-        code: tpl.code,
-        duration: tpl.totalDurationMinutes ? `${tpl.totalDurationMinutes} phút` : "Không giới hạn",
-        sections: "Kanji · Từ vựng · Ngữ pháp · Đọc hiểu · Nghe hiểu",
-      })),
-    [templates],
-  )
-
-  const pendingExam = pendingTemplateId ? items.find((x) => x.id === pendingTemplateId) : null
+  const pendingExam = pendingTemplateId ? templates.find((x) => x.id === pendingTemplateId) : null
 
   const confirmStart = async () => {
     if (!pendingTemplateId) return
     try {
       setStarting(true)
-      const attempt: JlptMockAttempt = await jlptMockApi.startAttempt({ templateId: pendingTemplateId })
+      const attempt = await jlptMockApi.startAttempt({ templateId: pendingTemplateId })
       const endsAtQuery = attempt.endsAt ? `&endsAt=${encodeURIComponent(attempt.endsAt)}` : ""
       router.push(
         `/jlpt/attempt/section?templateId=${pendingTemplateId}&attemptId=${attempt.id}&sectionOrder=1&level=${levelCode}${endsAtQuery}`,
@@ -68,36 +55,39 @@ export default function JlptLevelExamPage() {
   if (isLoading) return <PageLoading className="h-screen" />
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-5xl mx-auto py-10 px-4">
-      {/* Minimal Header */}
-      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-border/30 pb-8">
-        <div className="flex items-center gap-5">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/40 hover:bg-muted" asChild>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-border">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg border" asChild>
             <Link href="/dashboard/jlpt-list-exam">
               <ArrowLeft className="size-4" />
             </Link>
           </Button>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5">
-                <Badge className="px-2 py-0 rounded-md font-bold text-[10px] uppercase tracking-wider bg-primary/10 text-primary border-none">
-                    Mô phỏng JLPT {levelCode}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs font-bold px-2 rounded-lg">
+                    JLPT {levelCode}
                 </Badge>
-                <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{items.length} đề thi</span>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-lg border">
+                    <FileText className="size-3 text-primary" />
+                    <span>{templates.length} đề thi</span>
+                </div>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase">
-              Danh sách đề luyện tập
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Hệ thống đề luyện thi mô phỏng
             </h1>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {items.length === 0 ? (
-          <div className="col-span-full text-center py-24 bg-muted/5 border border-dashed border-border/60 rounded-xl">
-            <p className="text-[13px] font-bold text-muted-foreground/40 uppercase tracking-widest italic">Hiện chưa có đề thi nào cho cấp độ này.</p>
+        {templates.length === 0 ? (
+          <div className="col-span-full py-24 bg-muted border border-dashed rounded-xl flex flex-col items-center gap-3">
+            <Activity className="size-8 text-muted-foreground" />
+            <p className="text-sm font-medium text-muted-foreground">Hiện chưa có đề thi mới cho cấp độ {levelCode}.</p>
           </div>
         ) : (
-          items.map((exam) => (
+          templates.map((exam) => (
             <button
               key={exam.id}
               type="button"
@@ -106,34 +96,38 @@ export default function JlptLevelExamPage() {
                 setPendingTemplateId(exam.id)
                 setShowConfirmStart(true)
               }}
-              className="text-left group"
+              className="text-left group outline-none"
             >
-              <Card className="border-border/50 hover:border-primary/20 hover:shadow-sm transition-all duration-300 rounded-xl overflow-hidden group-hover:-translate-y-0.5">
-                <CardContent className="p-5 space-y-4">
+              <Card className="bg-card hover:bg-muted/50 transition-colors rounded-xl overflow-hidden h-full">
+                <CardContent className="p-5 flex flex-col h-full gap-4">
                     <div className="flex items-center justify-between">
-                        <div className="size-9 rounded-lg bg-muted/40 group-hover:bg-primary/5 flex items-center justify-center text-muted-foreground/40 group-hover:text-primary transition-colors">
+                        <div className="size-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground border">
                             <FileText className="size-4" />
                         </div>
-                        <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-4 border-border/50 text-muted-foreground/40">
+                        <Badge variant="outline" className="text-[10px] font-medium h-5 px-2 rounded-lg text-muted-foreground tabular-nums">
                             {exam.code}
                         </Badge>
                     </div>
 
-                    <div className="space-y-1">
-                        <h2 className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                    <div className="space-y-2 flex-1">
+                        <h2 className="text-base font-bold text-foreground leading-tight">
                             {exam.title}
                         </h2>
-                        <div className="flex items-center gap-3 text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
-                            <div className="flex items-center gap-1.5 shrink-0">
-                                <Clock className="size-3" />
-                                {exam.duration}
+                        <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
+                            <div className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg border">
+                                <Clock className="size-3.5 text-primary" />
+                                {exam.totalDurationMinutes ? `${exam.totalDurationMinutes} phút` : "Bất định"}
                             </div>
-                            <span className="opacity-40">•</span>
-                            <div className="flex items-center gap-1.5 italic lowercase">
-                                <Activity className="size-3" />
-                                full 3 phần thi
+                            <div className="flex items-center gap-1.5">
+                                <Activity className="size-3.5 text-primary" />
+                                đầy đủ các phần thi
                             </div>
                         </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Bắt đầu ngay</span>
+                        <ChevronRight className="size-4 text-muted-foreground" />
                     </div>
                 </CardContent>
               </Card>
@@ -142,27 +136,28 @@ export default function JlptLevelExamPage() {
         )}
       </div>
 
-      {/* Standard AlertDialog */}
       <AlertDialog open={showConfirmStart} onOpenChange={setShowConfirmStart}>
-        <AlertDialogContent className="rounded-2xl max-w-md">
-          <AlertDialogHeader>
-            <div className="mx-auto size-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
+        <AlertDialogContent className="max-w-md p-6">
+          <AlertDialogHeader className="space-y-4">
+            <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center border">
                 <AlertCircle className="size-8 text-primary" />
             </div>
-            <AlertDialogTitle className="text-center text-xl font-bold">Xác nhận bắt đầu thi?</AlertDialogTitle>
-            <AlertDialogDescription className="text-center text-sm font-medium">
-                Bạn đã sẵn sàng cho đề thi <span className="text-foreground font-bold">{pendingExam?.title}</span>? 
-                Thời gian sẽ bắt đầu trôi ngay khi bạn nhấn xác nhận.
-            </AlertDialogDescription>
+            <div className="space-y-2 text-center">
+                <AlertDialogTitle className="text-xl font-bold">Vào phòng thi thử?</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm font-medium leading-relaxed px-4 text-muted-foreground">
+                    Bạn đã sẵn sàng cho kỳ thi <span className="text-foreground font-bold">{pendingExam?.title}</span>? 
+                    <br/> Thời gian làm bài sẽ được tính ngay sau khi bạn xác nhận.
+                </AlertDialogDescription>
+            </div>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row gap-3 pt-4">
-            <AlertDialogCancel className="flex-1 h-12 rounded-xl font-bold mt-0 border-zinc-200">Quay lại</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 pt-6">
+            <AlertDialogCancel className="w-full h-10 rounded-lg font-bold order-2 sm:order-1 sm:flex-1">Quay lại</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmStart}
               disabled={starting || !pendingTemplateId}
-              className="flex-1 h-12 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+              className="w-full h-10 rounded-lg font-bold order-1 sm:order-2 sm:flex-1"
             >
-              Vào thi ngay
+              Vào phòng thi
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

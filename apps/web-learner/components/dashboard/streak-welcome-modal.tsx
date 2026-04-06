@@ -178,18 +178,18 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
 
   return (
     <Dialog open={effectiveOpen} onOpenChange={setEffectiveOpen}>
-      <DialogContent className="max-w-3xl overflow-hidden border-border/60 bg-background/95 p-0 shadow-2xl backdrop-blur-md">
+      <DialogContent className="max-w-2xl p-0">
         <DialogTitle className="sr-only">Streak</DialogTitle>
 
         {mode === 'weekly' ? (
-          <div className="bg-background">
-            <div className="px-3 pt-6 pb-4 sm:px-8 sm:pt-8 sm:pb-6">
+          <div>
+            <div className="px-4 pt-6 pb-4 sm:px-6">
               <div className="space-y-1 text-center">
-                <div className="text-xl font-bold tracking-normal text-foreground">
+                <div className="text-xl font-medium text-foreground">
                   {currentStreak || 0}{' '}
                   <span className="text-primary">ngày streak</span>
                 </div>
-                <div className="text-sm font-medium text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   {streakSavedByFreeze 
                     ? 'Hôm nay bạn đã được bảo vệ bởi Lá chắn! 🔥' 
                     : isActiveToday
@@ -199,12 +199,12 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
               </div>
             </div>
 
-            <div className="px-3 pb-6 sm:px-8 sm:pb-8">
-              <div className="mx-auto w-full max-w-xl rounded-2xl border border-border/60 bg-muted/20 p-3 sm:max-w-2xl sm:p-5">
+            <div className="px-4 pb-6 sm:px-6">
+              <div className="mx-auto w-full rounded-md border p-4">
                 <div className="mx-auto grid w-fit grid-cols-7 gap-2 sm:gap-3">
                   {weekly.map((d, idx) => (
                     <div key={idx} className="flex flex-col items-center gap-2">
-                      <div className="text-xs font-bold text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         {d.dayName}
                       </div>
                       <div
@@ -212,11 +212,11 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                           'relative h-10 w-10 rounded-full border sm:h-11 sm:w-11',
                           d.status === 'done'
                             ? 'border-primary/30 bg-primary text-primary-foreground'
-                            : 'border-border/70 bg-muted/40',
+                            : 'border-border bg-muted/30',
                         )}
                       >
                         {d.status === 'done' && (
-                          <div className="absolute inset-0 flex items-center justify-center text-primary-foreground text-base font-bold">
+                          <div className="absolute inset-0 flex items-center justify-center text-primary-foreground text-base">
                             ✓
                           </div>
                         )}
@@ -230,21 +230,21 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   ))}
                 </div>
 
-                <div className="mt-5 text-center text-sm font-semibold text-muted-foreground">
+                <div className="mt-5 text-center text-sm text-muted-foreground">
                   {currentStreak > 0
                     ? 'Tiếp tục duy trì streak nhé.'
                     : 'Bắt đầu streak bằng một hoạt động học.'}
                 </div>
               </div>
 
-              <div className="mt-8 flex items-center justify-between">
-                <div className="text-sm font-semibold text-muted-foreground">
-                  Freeze: <span className="font-bold text-foreground">{freezeCount || 0}</span>
+              <div className="mt-6 flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Freeze: <span className="font-medium text-foreground">{freezeCount || 0}</span>
                 </div>
 
                 <Button
                   variant="outline"
-                  className="h-10 rounded-xl px-4 font-bold"
+                  className="h-9 font-normal"
                   onClick={() => setMode('detail')}
                 >
                   Xem chi tiết
@@ -253,23 +253,23 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
             </div>
           </div>
         ) : (
-          <div className="bg-background px-3 py-6 sm:px-8 sm:py-8">
+          <div className="px-4 py-6 sm:px-6">
             <div className="mx-auto w-full max-w-2xl">
               <div className="text-center">
-                <div className="text-xl font-bold tracking-normal text-foreground">
+                <div className="text-xl font-medium text-foreground">
                   {currentStreak || 0}{' '}
                   <span className="text-primary">ngày streak</span>
                 </div>
               </div>
 
-              <div className="mt-5 text-base font-bold text-foreground">Lịch sử học</div>
+              <div className="mt-5 text-base font-medium text-foreground">Lịch sử học</div>
 
-              <div className="mt-4 w-full rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-6">
+              <div className="mt-4 w-full rounded-md border p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-10 w-10 rounded-full p-0 text-xl font-bold text-muted-foreground hover:bg-muted/60"
+                    className="h-9 w-9 rounded-md p-0 text-xl text-muted-foreground"
                     onClick={() =>
                       setDetailMonth((d) =>
                         new Date(d.getFullYear(), d.getMonth() - 1, 1),
@@ -278,13 +278,13 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   >
                     ‹
                   </Button>
-                  <div className="text-sm font-bold text-foreground">
+                  <div className="text-sm font-medium text-foreground">
                     {monthLabel}
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-10 w-10 rounded-full p-0 text-xl font-bold text-muted-foreground hover:bg-muted/60"
+                    className="h-9 w-9 rounded-md p-0 text-xl text-muted-foreground"
                     onClick={() =>
                       setDetailMonth((d) =>
                         new Date(d.getFullYear(), d.getMonth() + 1, 1),
@@ -295,7 +295,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   </Button>
                 </div>
 
-              <div className="mx-auto mt-5 grid w-fit grid-cols-7 gap-3 text-center text-xs font-bold text-muted-foreground">
+              <div className="mx-auto mt-5 grid w-fit grid-cols-7 gap-3 text-center text-xs text-muted-foreground">
                 <div className="w-10">SUN</div>
                 <div className="w-10">MON</div>
                 <div className="w-10">TUE</div>
@@ -310,7 +310,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                   <div
                     key={idx}
                     className={cn(
-                      'h-10 w-10 rounded-lg text-center text-sm font-bold leading-10',
+                      'h-10 w-10 rounded-md text-center text-sm leading-10',
                       c.label == null && 'opacity-0',
                       c.label != null && c.state === 'todo' && 'bg-muted/40 text-muted-foreground',
                       c.label != null && c.state === 'done' && 'bg-primary/15 text-primary',
@@ -324,17 +324,17 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
               </div>
             </div>
 
-              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-bold">
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="inline-block h-5 w-5 rounded bg-primary/15" />
+                  <span className="inline-block h-5 w-5 rounded-md bg-primary/15" />
                   <span>Đã học</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="inline-block h-5 w-5 rounded bg-muted/40" />
+                  <span className="inline-block h-5 w-5 rounded-md bg-muted/40" />
                   <span>Chưa học</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="inline-block h-5 w-5 rounded bg-blue-500/20 border border-blue-200 flex items-center justify-center">
+                  <span className="inline-block h-5 w-5 rounded-md bg-blue-500/20 border border-blue-200 flex items-center justify-center">
                     <Shield className="h-3 w-3 fill-blue-500 text-white" />
                   </span>
                   <span>Đóng băng</span>
@@ -343,7 +343,7 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
                 <div className="ml-auto">
                   <Button
                     variant="outline"
-                    className="h-10 rounded-xl px-4 font-bold"
+                    className="h-9 font-normal"
                     onClick={() => setMode('weekly')}
                   >
                     Quay lại

@@ -24,10 +24,10 @@ function HorizontalScrollCarousel({ children, cardCount, scrollRef }: { children
     if (cardCount === 0) return <>{children}</>
 
     return (
-        <div className="relative w-full overflow-hidden">
+        <div className="relative w-full min-w-0 max-w-full overflow-hidden">
             <div
                 ref={scrollRef}
-                className="flex gap-6 overflow-x-auto pb-6 pt-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex w-full min-w-0 max-w-full gap-6 overflow-x-auto pb-6 pt-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
                 {children}
             </div>
@@ -53,7 +53,7 @@ function SectionHeader({
     }
 
     return (
-        <div className="flex items-end justify-between gap-6 border-b border-border/20 pb-5">
+        <div className="flex flex-col gap-4 border-b border-border/20 pb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
             <div className="space-y-1.5 flex-1 min-w-0">
                 <h2 className="text-xl font-bold tracking-tight text-foreground border-l-4 border-primary pl-4 leading-none">
                     {title}
@@ -167,10 +167,10 @@ export default function DashboardCoursesPage() {
     const vodScrollRef = useRef<HTMLDivElement>(null)
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 pb-8 overflow-hidden">
+        <div className="w-full min-w-0 max-w-full overflow-x-clip px-4 pb-8 space-y-8 animate-in fade-in duration-700">
             {/* Standard Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border">
-                <div className="space-y-4">
+            <div className="flex min-w-0 flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border">
+                <div className="min-w-0 space-y-4">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Khám phá lộ trình</h1>
                     <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
                         Lựa chọn hình thức học tập tối ưu: Lớp Live tương tác trực tuyến hoặc khóa VOD chủ động thời gian.
@@ -178,11 +178,11 @@ export default function DashboardCoursesPage() {
                 </div>
 
                 {/* Level filter - Modern segment picker */}
-                <div className="flex items-center gap-2 pb-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1">
+                <div className="flex max-w-full items-center gap-2 pb-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <button
                         onClick={() => setLevel('all')}
                         className={cn(
-                            "group flex flex-col items-center justify-center min-w-[64px] h-14 rounded-2xl border transition-all duration-300 shrink-0",
+                            "group flex flex-col items-center justify-center min-w-[56px] h-14 rounded-2xl border transition-all duration-300 shrink-0",
                             level === 'all'
                                 ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/10"
                                 : "bg-muted/30 border-transparent text-muted-foreground/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
@@ -196,7 +196,7 @@ export default function DashboardCoursesPage() {
                             key={lv}
                             onClick={() => setLevel(lv)}
                             className={cn(
-                                "group flex flex-col items-center justify-center min-w-[64px] h-14 rounded-2xl border transition-all duration-300 shrink-0",
+                                "group flex flex-col items-center justify-center min-w-[56px] h-14 rounded-2xl border transition-all duration-300 shrink-0",
                                 level === lv
                                     ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/10"
                                     : "bg-muted/30 border-transparent text-muted-foreground/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
@@ -209,9 +209,9 @@ export default function DashboardCoursesPage() {
                 </div>
             </div>
 
-            <div className="space-y-20">
+            <div className="min-w-0 max-w-full space-y-20 overflow-x-hidden">
                 {showLive && (
-                    <section className="space-y-8">
+                    <section className="min-w-0 space-y-8">
                         <SectionHeader 
                             title="Lớp Live đang tuyển sinh" 
                             description={`Các lớp học trực tuyến sắp khai giảng trong tháng ${monthLabel}`} 
@@ -227,7 +227,7 @@ export default function DashboardCoursesPage() {
                         ) : (
                             <HorizontalScrollCarousel cardCount={liveItems.length} scrollRef={liveScrollRef}>
                                 {liveItems.map((klass: CatalogListItem) => (
-                                    <div key={klass.id} className="snap-start w-[300px] sm:w-[340px] lg:w-[380px] shrink-0">
+                                    <div key={klass.id} className="snap-start w-[88%] max-w-[380px] min-w-0 shrink-0 sm:w-[340px] lg:w-[380px]">
                                         <ClassLiveCard klass={klass} />
                                     </div>
                                 ))}
@@ -237,7 +237,7 @@ export default function DashboardCoursesPage() {
                 )}
 
                 {showVod && (
-                    <section className="space-y-8">
+                    <section className="min-w-0 space-y-8">
                         <SectionHeader 
                             title="Khóa học VOD" 
                             description="Học tập chủ động với hệ thống video bài giảng chuyên sâu" 
@@ -253,7 +253,7 @@ export default function DashboardCoursesPage() {
                         ) : (
                             <HorizontalScrollCarousel cardCount={vodItems.length} scrollRef={vodScrollRef}>
                                 {vodItems.map((klass: CatalogListItem) => (
-                                    <div key={klass.id} className="snap-start w-[300px] sm:w-[340px] lg:w-[380px] shrink-0">
+                                    <div key={klass.id} className="snap-start w-[88%] max-w-[380px] min-w-0 shrink-0 sm:w-[340px] lg:w-[380px]">
                                         <ClassVodCard klass={klass} />
                                     </div>
                                 ))}
@@ -288,8 +288,8 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
     const { basePrice, displayPrice, hasDiscount } = catalogPriceParts(klass)
 
     return (
-        <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full flex flex-col pt-0 pb-0">
-            <CardContent className="p-0 flex flex-col h-full">
+        <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full min-w-0 max-w-full flex flex-col p-0">
+            <CardContent className="p-0 flex h-full min-w-0 max-w-full flex-col">
                 <div className="relative aspect-[16/10] w-full bg-muted/10 overflow-hidden">
                     <Image src={thumb} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 300px, 400px" />
                     <div className="absolute top-4 left-4 flex gap-2">
@@ -301,21 +301,21 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                         </Badge>
                     </div>
                 </div>
-                <div className="p-6 flex-1 flex flex-col space-y-4">
-                    <div className="space-y-1.5 flex-1">
+                <div className="p-6 flex flex-1 min-w-0 flex-col space-y-4">
+                    <div className="space-y-1.5 flex-1 min-w-0">
                         <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2">{title}</h3>
-                        <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
+                        <p className="truncate text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
 
                     <div className="space-y-4 pt-4 border-t border-border/20">
-                        <div className="flex items-center justify-between gap-3 pt-1">
+                        <div className="flex min-w-0 items-center justify-between gap-3 pt-1">
                             <div className="flex flex-col">
                                 <span className="text-lg font-bold text-primary tabular-nums tracking-tighter">{formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span></span>
                                 {hasDiscount && (
                                     <span className="text-[11px] text-muted-foreground/30 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
                                 )}
                             </div>
-                            <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+                            <Button size="sm" className="h-9 shrink-0 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
                                 <Link href={`/dashboard/available-courses/class/${klass.id}?mode=VOD`}>Chi tiết</Link>
                             </Button>
                         </div>
@@ -347,8 +347,8 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
     } : null
 
     return (
-        <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full flex flex-col pt-0 pb-0">
-            <CardContent className="p-0 flex flex-col h-full">
+        <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full min-w-0 max-w-full flex flex-col p-0">
+            <CardContent className="p-0 flex h-full min-w-0 max-w-full flex-col">
                 <div className="relative aspect-[16/10] w-full bg-muted/10 overflow-hidden">
                     <Image src={thumb} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 300px, 400px" />
                     <div className="absolute top-4 left-4 flex gap-2">
@@ -360,24 +360,24 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                         </Badge>
                     </div>
                 </div>
-                <div className="p-6 flex-1 flex flex-col space-y-5">
-                    <div className="space-y-1.5 flex-1">
+                <div className="p-6 flex flex-1 min-w-0 flex-col space-y-5">
+                    <div className="space-y-1.5 flex-1 min-w-0">
                         <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2">{title}</h3>
-                        <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
+                        <p className="truncate text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
 
                     <div className="space-y-3.5 pt-4 border-t border-border/20">
                         {klass.instructor?.displayName && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
                                 <User className="size-4 text-primary/60" />
                                 <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
                             </div>
                         )}
 
                         {term?.openingDate && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
                                 <Calendar className="size-4 text-primary/60" />
-                                <span>Khai giảng: {new Date(term.openingDate).toLocaleDateString('vi-VN')}</span>
+                                <span className="truncate">Khai giảng: {new Date(term.openingDate).toLocaleDateString('vi-VN')}</span>
                             </div>
                         )}
 
@@ -393,11 +393,11 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                             </CollapsibleTrigger>
                             <CollapsibleContent className="space-y-3 pt-3">
                                 {schedules.length > 0 ? (
-                                    <div className="p-3 rounded-xl bg-muted/20 border border-border/20 space-y-1.5">
+                                    <div className="rounded-xl border border-border/20 bg-muted/20 p-3 space-y-1.5">
                                         {schedules.map((s: any) => (
-                                            <div key={s.id} className="flex justify-between items-center text-sm text-muted-foreground">
-                                                <span>{WEEKDAY_VI[s.weekday ?? 0] ?? '?'}</span>
-                                                <span className="text-foreground">{s.startTime} – {s.endTime}</span>
+                                            <div key={s.id} className="flex min-w-0 items-center justify-between gap-2 text-sm text-muted-foreground">
+                                                <span className="shrink-0">{WEEKDAY_VI[s.weekday ?? 0] ?? '?'}</span>
+                                                <span className="min-w-0 truncate text-foreground">{s.startTime} – {s.endTime}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -406,10 +406,11 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                                 )}
                                 
                                 {liveEnrollment && (
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Users className="size-4 text-primary/60" />
+                                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                                        <Users className="size-4 shrink-0 text-primary/60" />
                                         <span className={cn(
-                                            liveEnrollment.isFull ? "text-destructive" : "text-muted-foreground"
+                                            "truncate",
+                                            liveEnrollment.isFull ? "text-destructive" : "text-muted-foreground",
                                         )}>
                                             {liveEnrollment.maxStudents == null
                                                 ? `${liveEnrollment.activeEnrollmentCount ?? 0} học viên đang học`
@@ -421,14 +422,14 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                             </CollapsibleContent>
                         </Collapsible>
 
-                        <div className="flex items-center justify-between gap-3 pt-2">
+                        <div className="flex min-w-0 items-center justify-between gap-3 pt-2">
                             <div className="flex flex-col">
                                 <span className="text-lg font-bold text-primary tabular-nums tracking-tighter">{formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span></span>
                                 {hasDiscount && (
                                     <span className="text-[11px] text-muted-foreground/30 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
                                 )}
                             </div>
-                            <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+                            <Button size="sm" className="h-9 shrink-0 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
                                 <Link href={`/dashboard/available-courses/class/${klass.id}?mode=LIVE`}>Chi tiết</Link>
                             </Button>
                         </div>

@@ -189,25 +189,44 @@ export function CategoryManagerDialog({ open, onOpenChange }: CategoryManagerDia
                         </TableCell>
                         <TableCell className="text-right">
                           {editingId === cat.id ? (
-                            <div className="flex justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600" onClick={() => handleSaveEdit(cat)}>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 hover:bg-emerald-50 font-medium"
+                                onClick={() => handleSaveEdit(cat)}
+                              >
                                 {updateMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                                Lưu
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={handleCancelEdit}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5"
+                                onClick={handleCancelEdit}
+                              >
                                 <X className="w-3.5 h-3.5" />
+                                Hủy
                               </Button>
                             </div>
                           ) : (
-                            <div className="flex justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleStartEdit(cat)}>
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => handleStartEdit(cat)}>
                                 <Edit2 className="w-3.5 h-3.5" />
+                                Sửa
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteTarget(cat)}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5 font-medium"
+                                onClick={() => setDeleteTarget(cat)}
+                              >
                                 {deleteMutation.isPending && deleteMutation.variables === cat.id ? (
                                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                 ) : (
                                   <Trash2 className="w-3.5 h-3.5" />
                                 )}
+                                Xóa
                               </Button>
                             </div>
                           )}

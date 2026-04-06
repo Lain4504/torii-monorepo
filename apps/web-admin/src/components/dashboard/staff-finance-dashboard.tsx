@@ -15,6 +15,9 @@ import {
   AreaChart,
   Area,
   Cell,
+  PieChart,
+  Pie,
+  Legend,
 } from "recharts";
 import { BarChart3, HandCoins, ReceiptText, Wallet, TrendingUp, ListTodo } from "lucide-react";
 import {
@@ -24,7 +27,7 @@ import {
   elevatedCardHeaderSuccess,
   emptyStateBoxClass,
 } from "@/lib/ui-shell";
-import { orderStatusPieFill, revenueBarFill, orderStatusLabelVi } from "@/lib/dashboard-chart-colors";
+import { orderStatusPieFill, orderStatusLabelVi, revenueLevelPieFill } from "@/lib/dashboard-chart-colors";
 import { cn } from "@workspace/ui/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import {
@@ -93,7 +96,7 @@ export default function StaffFinanceDashboard() {
       <div>
         <h2 className="text-base font-semibold tracking-tight">Tài chính &amp; vận hành đơn</h2>
         <p className="text-xs text-muted-foreground">
-          Chuỗi thời gian doanh thu (area); phân bổ đơn theo trạng thái (cột ngang); so sánh theo Level (cột đứng).
+          Chuỗi thời gian doanh thu (area); phân bổ theo level (pie); đơn hàng theo trạng thái (cột ngang).
         </p>
       </div>
 
@@ -130,73 +133,73 @@ export default function StaffFinanceDashboard() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className={elevatedPanelClass}>
-          <CardHeader className={elevatedCardHeaderOps}>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="size-4 text-muted-foreground" aria-hidden />
-              <div>
-                <CardTitle className="text-base">Doanh thu 30 ngày</CardTitle>
-                <CardDescription className="text-xs">Đơn PAID theo ngày — chuỗi thời gian</CardDescription>
-              </div>
+      <Card className={elevatedPanelClass}>
+        <CardHeader className={elevatedCardHeaderOps}>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="size-4 text-muted-foreground" aria-hidden />
+            <div>
+              <CardTitle className="text-base">Doanh thu 30 ngày</CardTitle>
+              <CardDescription className="text-xs">Đơn PAID theo ngày — chuỗi thời gian</CardDescription>
             </div>
-          </CardHeader>
-          <CardContent className={elevatedPanelContentClass}>
-            {revenueLast30Days.length === 0 ? (
-              <ChartEmpty />
-            ) : (
-              <DashboardChartScroll>
-                <div className={DASHBOARD_CHART_H}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={revenueLast30Days}
-                      margin={{ top: 10, right: 8, left: narrow ? -12 : 0, bottom: 0 }}
-                    >
-                      <defs>
-                        <linearGradient id="staffRevenueArea" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
-                          <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
-                      <XAxis
-                        dataKey="date"
-                        tick={{ fontSize: narrow ? 9 : 10 }}
-                        tickMargin={6}
-                        interval="preserveStartEnd"
-                        tickFormatter={(v: string) => {
-                          const [, m, d] = v.split("-");
-                          return m && d ? `${d}/${m}` : v;
-                        }}
-                      />
-                      <YAxis
-                        allowDecimals={false}
-                        tick={{ fontSize: 11 }}
-                        width={narrow ? 40 : 52}
-                      />
-                      <Tooltip
-                        formatter={(value: number | undefined) => (value != null ? formatCurrency(value) : "")}
-                        labelFormatter={(label) => `Ngày ${label}`}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="amount"
-                        stroke="var(--primary)"
-                        strokeWidth={2}
-                        fill="url(#staffRevenueArea)"
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </DashboardChartScroll>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        </CardHeader>
+        <CardContent className={elevatedPanelContentClass}>
+          {revenueLast30Days.length === 0 ? (
+            <ChartEmpty />
+          ) : (
+            <DashboardChartScroll>
+              <div className={DASHBOARD_CHART_H}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={revenueLast30Days}
+                    margin={{ top: 10, right: 8, left: narrow ? -12 : 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="staffRevenueArea" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: narrow ? 9 : 10 }}
+                      tickMargin={6}
+                      interval="preserveStartEnd"
+                      tickFormatter={(v: string) => {
+                        const [, m, d] = v.split("-");
+                        return m && d ? `${d}/${m}` : v;
+                      }}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                      width={narrow ? 40 : 52}
+                    />
+                    <Tooltip
+                      formatter={(value: number | undefined) => (value != null ? formatCurrency(value) : "")}
+                      labelFormatter={(label) => `Ngày ${label}`}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="var(--primary)"
+                      strokeWidth={2}
+                      fill="url(#staffRevenueArea)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </DashboardChartScroll>
+          )}
+        </CardContent>
+      </Card>
 
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card className={elevatedPanelClass}>
           <CardHeader className={elevatedCardHeaderSuccess}>
             <CardTitle className="text-base">Doanh thu theo Level</CardTitle>
-            <CardDescription className="text-xs">So sánh mức — biểu đồ cột đứng</CardDescription>
+            <CardDescription className="text-xs">Tỷ trọng doanh thu theo nhóm level</CardDescription>
           </CardHeader>
           <CardContent className={elevatedPanelContentClass}>
             {revenueByLevel.length === 0 ? (
@@ -205,22 +208,72 @@ export default function StaffFinanceDashboard() {
               <DashboardChartScroll>
                 <div className={DASHBOARD_CHART_H}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={revenueByLevel}
-                      margin={{ top: 10, right: 8, left: narrow ? -18 : -10, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" vertical={false} />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fontSize: narrow ? 10 : 12 }}
-                        interval={0}
-                        angle={narrow ? -25 : 0}
-                        textAnchor={narrow ? "end" : "middle"}
-                        height={narrow ? 48 : 30}
+                    <PieChart margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+                      <Tooltip
+                        formatter={(v: number | undefined) =>
+                          v != null ? formatCurrency(Number(v)) : ""
+                        }
                       />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={narrow ? 32 : 36} />
-                      <Tooltip formatter={(v) => (v != null ? formatCurrency(Number(v)) : "")} />
-                      <Bar dataKey="value" fill={revenueBarFill} radius={[4, 4, 0, 0]} />
+                      <Pie
+                        data={revenueByLevel}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={narrow ? 32 : 44}
+                        outerRadius={narrow ? 62 : 78}
+                        paddingAngle={2}
+                      >
+                        {revenueByLevel.map((entry, index) => (
+                          <Cell key={`${entry.name}-${index}`} fill={revenueLevelPieFill(entry.name, index)} />
+                        ))}
+                      </Pie>
+                      <Legend
+                        verticalAlign="bottom"
+                        height={narrow ? 56 : 48}
+                        formatter={(value: string) => (
+                          <span className="text-[11px] text-foreground">{value}</span>
+                        )}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </DashboardChartScroll>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className={elevatedPanelClass}>
+          <CardHeader className={elevatedCardHeaderOps}>
+            <CardTitle className="text-base">Đơn hàng theo trạng thái</CardTitle>
+            <CardDescription className="text-xs">Đếm theo status — cột ngang (dễ đọc nhiều trạng thái)</CardDescription>
+          </CardHeader>
+          <CardContent className={elevatedPanelContentClass}>
+            {ordersBarData.length === 0 ? (
+              <ChartEmpty />
+            ) : (
+              <DashboardChartScroll>
+                <div className={cn(DASHBOARD_CHART_H, narrow && "min-w-[300px]")}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={ordersBarData}
+                      margin={{ top: 8, right: 12, left: 4, bottom: 8 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" horizontal />
+                      <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                      <YAxis
+                        type="category"
+                        dataKey="label"
+                        width={narrow ? 92 : 128}
+                        tick={{ fontSize: narrow ? 9 : 10 }}
+                      />
+                      <Tooltip formatter={(v) => (v != null ? formatNumber(Number(v)) : "")} />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                        {ordersBarData.map((e, i) => (
+                          <Cell key={i} fill={orderStatusPieFill(e.statusKey)} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -229,45 +282,6 @@ export default function StaffFinanceDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      <Card className={elevatedPanelClass}>
-        <CardHeader className={elevatedCardHeaderOps}>
-          <CardTitle className="text-base">Đơn hàng theo trạng thái</CardTitle>
-          <CardDescription className="text-xs">Đếm theo status — cột ngang (dễ đọc nhiều trạng thái)</CardDescription>
-        </CardHeader>
-        <CardContent className={elevatedPanelContentClass}>
-          {ordersBarData.length === 0 ? (
-            <ChartEmpty />
-          ) : (
-            <DashboardChartScroll>
-              <div className={cn(DASHBOARD_CHART_H, narrow && "min-w-[300px]")}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    layout="vertical"
-                    data={ordersBarData}
-                    margin={{ top: 8, right: 12, left: 4, bottom: 8 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" horizontal />
-                    <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
-                    <YAxis
-                      type="category"
-                      dataKey="label"
-                      width={narrow ? 92 : 128}
-                      tick={{ fontSize: narrow ? 9 : 10 }}
-                    />
-                    <Tooltip formatter={(v) => (v != null ? formatNumber(Number(v)) : "")} />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                      {ordersBarData.map((e, i) => (
-                        <Cell key={i} fill={orderStatusPieFill(e.statusKey)} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </DashboardChartScroll>
-          )}
-        </CardContent>
-      </Card>
 
       <Card className={elevatedPanelClass}>
         <CardHeader className={elevatedCardHeaderOps}>

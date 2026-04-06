@@ -105,13 +105,27 @@ export class AiSubscriptionService {
     page: number;
     limit: number;
     search?: string;
+    planCode?: string;
   }) {
-    const { page, limit, search } = params;
+    const { page, limit, search, planCode } = params;
     const skip = (page - 1) * limit;
 
     const where: any = {};
+    if (planCode) {
+      where.planCode = planCode;
+    }
     if (search) {
       where.OR = [
+        {
+          user: {
+            displayName: { contains: search, mode: 'insensitive' },
+          },
+        },
+        {
+          user: {
+            email: { contains: search, mode: 'insensitive' },
+          },
+        },
         { userId: { contains: search, mode: 'insensitive' } },
         { planCode: { contains: search, mode: 'insensitive' } },
       ];

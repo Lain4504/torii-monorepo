@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@workspace/ui/components/button"
-import { AlertCircle, Clock, Maximize2, Send, List, ChevronRight, BookOpen, Volume2, Trophy, Activity } from "lucide-react"
+import { AlertCircle, Clock, Maximize2, Send, List, BookOpen, Volume2, Trophy, Activity } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -461,12 +461,12 @@ export default function JlptMockSectionPage() {
   )
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background font-sans overflow-hidden">
+    <div className="fixed inset-0 flex flex-col bg-background overflow-hidden">
       <header className="h-16 shrink-0 bg-background border-b px-4 flex items-center justify-between z-50">
         <div className="flex items-center gap-3">
           <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden size-10 rounded-xl">
+              <Button variant="outline" size="icon" className="md:hidden size-10">
                 <List className="size-5" />
               </Button>
             </SheetTrigger>
@@ -481,7 +481,7 @@ export default function JlptMockSectionPage() {
             </SheetContent>
           </Sheet>
 
-          <Badge variant="secondary" className="h-7 px-2 rounded-md text-[10px] font-bold uppercase tracking-wider">
+          <Badge variant="secondary" className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider">
             {level}
           </Badge>
           
@@ -498,7 +498,7 @@ export default function JlptMockSectionPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full border border-border/50">
+        <div className="flex items-center gap-2 bg-muted px-3 py-1 rounded-md border">
           <Clock className="size-3.5 text-primary" />
           <span className="text-base font-bold tabular-nums text-foreground">{countdown}</span>
         </div>
@@ -506,7 +506,7 @@ export default function JlptMockSectionPage() {
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            className="rounded-xl h-9 px-4 font-bold bg-primary hover:bg-primary/90 text-white shadow-sm"
+            className="h-9 px-4 font-bold"
             onClick={() => setShowConfirmSubmit(true)}
             disabled={loading || sectionQuestionsSorted.length === 0}
           >
@@ -516,7 +516,7 @@ export default function JlptMockSectionPage() {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-lg h-9 w-9 text-muted-foreground"
+            className="h-9 w-9 text-muted-foreground"
             onClick={() => setShowConfirmExit(true)}
             disabled={loading}
           >
@@ -526,26 +526,26 @@ export default function JlptMockSectionPage() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <aside className="hidden md:flex w-72 lg:w-80 border-r bg-muted/5 flex-col shrink-0">
+        <aside className="hidden md:flex w-72 lg:w-80 border-r bg-background flex-col shrink-0">
           <SidebarContent />
         </aside>
 
-        <main className="flex-1 overflow-y-auto bg-zinc-50/50">
-          <div className="max-w-3xl mx-auto p-4 sm:p-12 space-y-12 pb-40">
+        <main className="flex-1 overflow-y-auto bg-background">
+          <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-8 pb-24">
             
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
                     <span>Tiến độ</span>
                     <span>{ANSWERED_COUNT}/{QUESTION_COUNT} câu</span>
                 </div>
-                <Progress value={PROGRESS_VALUE} className="h-1 bg-muted rounded-full overflow-hidden" />
+                <Progress value={PROGRESS_VALUE} className="h-2" />
             </div>
 
             {currentSection?.isListening && (
-                <Card className="border-primary/20 bg-primary/5 rounded-2xl overflow-hidden shadow-none mb-8">
+                <Card className="mb-4">
                     <CardContent className="p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <div className="size-8 rounded-full bg-muted flex items-center justify-center text-primary">
                                 <Volume2 className="size-4" />
                             </div>
                             <h3 className="font-bold text-base">Nghe hiểu</h3>
@@ -557,9 +557,9 @@ export default function JlptMockSectionPage() {
 
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-5 border-border/50 text-muted-foreground">Hướng dẫn</Badge>
+                    <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-5 text-muted-foreground">Hướng dẫn</Badge>
                 </div>
-                <p className="text-xl font-bold leading-relaxed Japanese-text text-foreground/90">
+                <p className="text-base leading-relaxed text-foreground">
                     {`問題${activeMondaiIndex + 1} ＿＿＿ ${activeProblemInstruction}`}
                 </p>
             </div>
@@ -568,10 +568,10 @@ export default function JlptMockSectionPage() {
             {QUESTION_BLOCKS.map((q) => (
               <div key={q.id} className="space-y-6">
                 <div className="flex items-start gap-4">
-                    <div className="shrink-0 size-8 rounded-lg bg-foreground text-white flex items-center justify-center font-bold text-sm shadow-sm ring-4 ring-foreground/5">
+                    <div className="shrink-0 size-8 rounded-md bg-muted text-foreground flex items-center justify-center font-semibold text-sm">
                         {q.id}
                     </div>
-                    <div className="flex-1 pt-0.5 Japanese-text">
+                    <div className="flex-1 pt-0.5">
                         {q.sentence}
                     </div>
                 </div>
@@ -592,22 +592,22 @@ export default function JlptMockSectionPage() {
                             key={opt.id}
                             type="button"
                             className={cn(
-                                "flex items-center gap-4 w-full h-auto py-4 px-5 rounded-xl border-2 text-left transition-all",
+                                "flex items-center gap-4 w-full h-auto py-4 px-5 rounded-md border text-left transition-colors",
                                 selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id 
-                                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm" 
-                                    : "border-border/50 bg-white hover:border-primary/30 hover:bg-muted/30"
+                                    ? "border-primary bg-primary/5" 
+                                    : "border-border bg-background hover:bg-muted"
                             )}
                             onClick={() => handleSelectOption(q.templateQuestionId, opt.id)}
                         >
                             <span className={cn(
-                                "shrink-0 size-6 rounded-lg flex items-center justify-center font-bold text-[11px] border",
+                                "shrink-0 size-6 rounded-md flex items-center justify-center font-bold text-[11px] border",
                                 selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id 
                                     ? "bg-primary text-white border-primary" 
                                     : "bg-muted text-muted-foreground border-transparent"
                             )}>
                                 {index + 1}
                             </span>
-                            <span className="text-base font-semibold Japanese-text flex-1">
+                            <span className="text-base flex-1">
                                 {opt.label}
                             </span>
                         </button>
@@ -622,7 +622,7 @@ export default function JlptMockSectionPage() {
       </div>
 
       <AlertDialog open={showConfirmSubmit} onOpenChange={setShowConfirmSubmit}>
-        <AlertDialogContent className="rounded-2xl max-w-sm">
+        <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
                 <Send className="size-8 text-primary" />
@@ -635,11 +635,11 @@ export default function JlptMockSectionPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 pt-4">
-            <AlertDialogCancel className="flex-1 h-12 rounded-xl font-bold mt-0 border-zinc-200">Quay lại</AlertDialogCancel>
+            <AlertDialogCancel className="flex-1 h-12 font-bold mt-0">Quay lại</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmSubmit}
               disabled={loading}
-              className="flex-1 h-12 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+              className="flex-1 h-12 font-bold"
             >
               Nộp ngay
             </AlertDialogAction>
@@ -648,7 +648,7 @@ export default function JlptMockSectionPage() {
       </AlertDialog>
 
       <AlertDialog open={showConfirmNextSection} onOpenChange={setShowConfirmNextSection}>
-        <AlertDialogContent className="rounded-2xl max-w-sm">
+        <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
                 <Activity className="size-8 text-primary" />
@@ -661,7 +661,7 @@ export default function JlptMockSectionPage() {
           <div className="grid grid-cols-2 gap-3 pt-4 px-6 pb-6">
             <Button
                 variant="outline"
-                className="h-12 rounded-xl font-bold border-zinc-200"
+                className="h-12 font-bold"
                 onClick={() => {
                 setShowConfirmNextSection(false)
                 goBackToLevel()
@@ -677,7 +677,7 @@ export default function JlptMockSectionPage() {
                 setEndsAtIsoState(pendingNextEndsAtIso)
                 }}
                 disabled={loading || pendingNextSectionOrder == null}
-                className="h-12 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+                className="h-12 font-bold"
             >
                 Bắt đầu
             </Button>
@@ -686,7 +686,7 @@ export default function JlptMockSectionPage() {
       </AlertDialog>
 
       <AlertDialog open={showConfirmExit} onOpenChange={setShowConfirmExit}>
-        <AlertDialogContent className="rounded-2xl max-w-sm">
+        <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <div className="mx-auto size-16 bg-destructive/10 rounded-2xl flex items-center justify-center mb-4 text-destructive">
                 <AlertCircle className="size-8" />
@@ -697,14 +697,14 @@ export default function JlptMockSectionPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 pt-4">
-            <AlertDialogCancel className="flex-1 h-12 rounded-xl font-bold mt-0 border-zinc-200">Quay lại</AlertDialogCancel>
+            <AlertDialogCancel className="flex-1 h-12 font-bold mt-0">Quay lại</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 setShowConfirmExit(false)
                 confirmExit()
               }}
               disabled={loading}
-              className="flex-1 h-12 rounded-xl font-bold bg-destructive text-white hover:bg-destructive/90"
+              className="flex-1 h-12 font-bold"
             >
               Thoát ra
             </AlertDialogAction>

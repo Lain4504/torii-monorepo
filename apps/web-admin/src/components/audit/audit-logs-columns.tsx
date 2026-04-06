@@ -82,10 +82,12 @@ export const getAuditLogsColumns = ({
                 <div className="text-right">
                     <Button
                         variant="outline"
-                        size="icon"
+                        size="sm"
+                        className="h-8 gap-1.5"
                         onClick={() => onViewDetails(row.original)}
                     >
                         <Eye className="size-4" />
+                        Xem
                     </Button>
                 </div>
             ),

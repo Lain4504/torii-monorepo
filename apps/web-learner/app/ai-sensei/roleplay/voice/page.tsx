@@ -7,13 +7,13 @@ import { MonitorPlay, Sparkles } from "lucide-react"
 
 export default function VoiceRoleplayPage() {
     return (
-        <div className="flex h-full min-h-0 flex-col px-2 py-3 sm:px-6 sm:py-6 lg:px-8">
+        <div className="flex h-full min-h-0 flex-col px-2 py-2 sm:px-4 sm:py-2 lg:px-6">
             <SenseiPageHeader
                 title="Live Voice Roleplay"
-                description="Luyện tập hội thoại qua video và giọng nói trực tiếp cùng AI Sensei"
+                description="Luyện tập hội thoại trực tiếp cùng AI Sensei"
                 icon={Sparkles}
             />
-            <div className="flex-1 min-h-0 relative mt-4 overflow-y-auto">
+            <div className="flex-1 min-h-0 relative mt-2 overflow-y-auto">
                 <LivekitVoiceAgent />
             </div>
         </div>

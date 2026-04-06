@@ -94,14 +94,14 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Kế hoạch đánh giá (Milestones)</CardTitle>
             <CardDescription>
               Thiết lập các bài thi/kiểm tra bắt buộc học viên phải vượt qua để tiếp tục tiến độ.
             </CardDescription>
           </div>
-          <Button onClick={addItem} size="sm">
+          <Button onClick={addItem} size="sm" className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Thêm Milestone
           </Button>
@@ -112,6 +112,8 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
               Chưa có mốc đánh giá nào được thiết lập.
             </div>
           ) : (
+            <>
+            <div className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -204,22 +206,138 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                       />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="text-red-500" onClick={() => removeItem(index)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5 font-medium"
+                        onClick={() => removeItem(index)}
+                      >
                         <Trash2 className="w-4 h-4" />
+                        Xóa
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            </div>
+
+            <div className="space-y-4 md:hidden">
+              {items.map((item, index) => (
+                <div key={index} className="space-y-3 rounded-xl border p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <GripVertical className="w-4 h-4" />
+                      <span className="font-semibold uppercase">Milestone {index + 1}</span>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => removeItem(index)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Xóa
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Đề thi</p>
+                    <Select
+                      value={item.examId}
+                      onValueChange={(v) => updateItem(index, "examId", v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn đề thi..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {exams?.map(e => (
+                          <SelectItem key={e.id} value={e.id}>{e.title}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Loại mốc</p>
+                    <Select
+                      value={item.assessmentKind}
+                      onValueChange={(v) => updateItem(index, "assessmentKind", v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={AcademyAssessmentKind.LESSON_CHECKPOINT}>Sau bài học</SelectItem>
+                        <SelectItem value={AcademyAssessmentKind.MODULE_CHECKPOINT}>Sau Module</SelectItem>
+                        <SelectItem value={AcademyAssessmentKind.FINAL_EXAM}>Cuối khóa</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Vị trí kích hoạt</p>
+                    {item.assessmentKind === AcademyAssessmentKind.LESSON_CHECKPOINT ? (
+                      <Select
+                        value={item.triggerLessonId || ""}
+                        onValueChange={(v) => updateItem(index, "triggerLessonId", v)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Chọn bài học..." />
+                        </SelectTrigger>
+                        <SelectContent position="popper" className="max-h-[400px]">
+                          {modules.map(m => (
+                            <SelectGroup key={m.id}>
+                              <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>
+                              {(m.lessons || []).map((l: any) => (
+                                <SelectItem key={l.id} value={l.id} className="pl-6">
+                                  {l.title}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : item.assessmentKind === AcademyAssessmentKind.MODULE_CHECKPOINT ? (
+                      <Select
+                        value={item.moduleId || ""}
+                        onValueChange={(v) => updateItem(index, "moduleId", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn module..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {modules.map(m => (
+                            <SelectItem key={m.id} value={m.id}>{m.title}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-sm italic text-muted-foreground">
+                        Kích hoạt khi hoàn thành toàn bộ khóa học
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={item.isRequired}
+                      onCheckedChange={(v) => updateItem(index, "isRequired", !!v)}
+                    />
+                    <span className="text-sm">Bắt buộc hoàn thành</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            </>
           )}
 
-          <div className="mt-6 flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+          <div className="mt-6 flex flex-col gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
               <AlertTriangle className="w-4 h-4" />
               <span>Các mốc "Bắt buộc" sẽ chặn tiến độ học tập của luồng VOD Package cho đến khi hoàn thành.</span>
             </div>
-            <Button onClick={handleSave} disabled={updateMutation.isPending}>
+            <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full sm:w-auto">
               Lưu kế hoạch đánh giá
             </Button>
           </div>

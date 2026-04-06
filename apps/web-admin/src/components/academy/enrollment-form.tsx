@@ -147,7 +147,7 @@ export function EnrollmentForm({
                                                                 value={classSearch}
                                                                 onValueChange={setClassSearch}
                                                             />
-                                                            <CommandList>
+                                                            <CommandList className="max-h-72 overflow-y-auto">
                                                                 {loadingClasses && (
                                                                     <div className="p-4 text-center">
                                                                         <Spinner className="mx-auto" />
@@ -214,7 +214,7 @@ export function EnrollmentForm({
                                                                 value={classSearch}
                                                                 onValueChange={setClassSearch}
                                                             />
-                                                            <CommandList>
+                                                            <CommandList className="max-h-72 overflow-y-auto">
                                                                 {loadingVodPackages && (
                                                                     <div className="p-4 text-center">
                                                                         <Spinner className="mx-auto" />
@@ -282,7 +282,7 @@ export function EnrollmentForm({
                                                         value={search}
                                                         onValueChange={setSearch}
                                                     />
-                                                    <CommandList>
+                                                    <CommandList className="max-h-72 overflow-y-auto">
                                                         {loadingLearners && (
                                                             <div className="p-4 text-center">
                                                                 <Spinner className="mx-auto" />

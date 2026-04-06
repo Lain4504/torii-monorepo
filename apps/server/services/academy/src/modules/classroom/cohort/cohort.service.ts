@@ -1,4 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   AcademyCohortCreateDTO,
@@ -9,10 +16,57 @@ import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class CohortService {
+  private readonly logger = new Logger(CohortService.name);
+
   constructor(
     private prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
+
+  private async resolveRejectRecipient(
+    cohortId: string,
+    reviewerId?: string,
+  ): Promise<string | null> {
+    const latestActor = await this.prisma.auditLog.findFirst({
+      where: {
+        entity: 'Cohort',
+        entityId: cohortId,
+        userId: reviewerId ? { not: reviewerId } : undefined,
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { userId: true },
+    });
+    return latestActor?.userId ?? null;
+  }
+
+  private notifyRejected(payload: {
+    recipientId: string;
+    cohortId: string;
+    cohortCode: string;
+    cohortName: string;
+    reason?: string | null;
+  }) {
+    this.natsClient.emit(
+      { cmd: 'send_notification' },
+      {
+        recipientId: payload.recipientId,
+        type: 'system',
+        payload: {
+          title: 'Yêu cầu của bạn đã bị từ chối',
+          body: `Yêu cầu duyệt Cohort ${payload.cohortCode} đã bị từ chối.`,
+          metadata: {
+            entityType: 'COHORT',
+            entityId: payload.cohortId,
+            code: payload.cohortCode,
+            name: payload.cohortName,
+            status: 'REJECTED',
+            rejectionReason: payload.reason ?? '',
+          },
+        },
+      },
+    );
+  }
 
   async findAll(query: AcademyCohortQueryDTO) {
     const and: any[] = [];
@@ -163,6 +217,29 @@ export class CohortService {
             ? { reason: (data as any).rejectionReason }
             : undefined,
       });
+    }
+
+    if (
+      before.status === 'PENDING_APPROVAL' &&
+      item.status === 'DRAFT' &&
+      requesterId
+    ) {
+      try {
+        const recipientId = await this.resolveRejectRecipient(id, requesterId);
+        if (recipientId && recipientId !== requesterId) {
+          this.notifyRejected({
+            recipientId,
+            cohortId: item.id,
+            cohortCode: item.code,
+            cohortName: item.name,
+            reason: (data as any).rejectionReason ?? null,
+          });
+        }
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send reject notification for cohort ${id}: ${error?.message || String(error)}`,
+        );
+      }
     }
 
     return item;

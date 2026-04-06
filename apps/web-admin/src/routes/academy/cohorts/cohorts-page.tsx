@@ -5,6 +5,14 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@workspace/ui/components/dialog"
+import {
     Table,
     TableBody,
     TableCell,
@@ -56,6 +64,10 @@ export default function CohortsPage() {
     const [tab, setTab] = useState<'all' | 'draft' | 'pending' | 'opening' | 'completed' | 'archived'>('all')
     const [sheetOpen, setSheetOpen] = useState(false)
     const [selectedCohort, setSelectedCohort] = useState<AcademyCohort | null>(null)
+    const [rejectReasonDialog, setRejectReasonDialog] = useState<{
+        open: boolean
+        reason: string
+    }>({ open: false, reason: "" })
     const navigate = useNavigate()
     const submitForApprovalMutation = useSubmitCohortForApproval()
 
@@ -220,6 +232,21 @@ export default function CohortsPage() {
                                                         <Send className="h-4 w-4" /> Gửi duyệt
                                                     </Button>
                                                 )}
+                                                {(cohort.status === 'REJECTED' || !!cohort.rejectionReason) && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8"
+                                                        onClick={() =>
+                                                            setRejectReasonDialog({
+                                                                open: true,
+                                                                reason: cohort.rejectionReason || "Không có lý do cụ thể.",
+                                                            })
+                                                        }
+                                                    >
+                                                        Lý do từ chối
+                                                    </Button>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -235,6 +262,30 @@ export default function CohortsPage() {
                 onOpenChange={setSheetOpen}
                 cohort={selectedCohort}
             />
+
+            <Dialog
+                open={rejectReasonDialog.open}
+                onOpenChange={(open) =>
+                    setRejectReasonDialog((prev) => (open ? prev : { open: false, reason: "" }))
+                }
+            >
+                <DialogContent className="sm:max-w-[520px]">
+                    <DialogHeader>
+                        <DialogTitle>Lý do từ chối</DialogTitle>
+                        <DialogDescription>
+                            Yêu cầu của bạn đã bị từ chối. Vui lòng xem chi tiết bên dưới.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">
+                        {rejectReasonDialog.reason}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setRejectReasonDialog({ open: false, reason: "" })}>
+                            Đóng
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

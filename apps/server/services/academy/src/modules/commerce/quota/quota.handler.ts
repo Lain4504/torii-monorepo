@@ -90,7 +90,13 @@ export class QuotaHandler {
 
   @MessagePattern({ cmd: 'admin.billing.subscription.getUserSubscriptions' })
   async adminGetUserSubscriptions(
-    @Payload() params: { page: number; limit: number; search?: string },
+    @Payload()
+    params: {
+      page: number;
+      limit: number;
+      search?: string;
+      planCode?: string;
+    },
   ) {
     try {
       return await this.aiSubscriptionService.admin_getUserSubscriptions(

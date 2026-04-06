@@ -21,22 +21,22 @@ export function SenseiPageHeader({
     className
 }: SenseiPageHeaderProps) {
     return (
-        <div className={cn("mb-4 mt-0 flex flex-col items-start justify-between gap-4 sm:mb-8 sm:mt-1 sm:gap-6 xl:flex-row xl:items-center", className)}>
-            <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-4">
-                    <div className="bg-primary/10 p-2.5 rounded-2xl shrink-0">
-                        <Icon className="size-6 text-primary fill-primary/20" />
+        <div className={cn("mb-2 mt-0 flex flex-col items-start justify-between gap-2 sm:mb-4 sm:mt-0 sm:gap-4 xl:flex-row xl:items-center", className)}>
+            <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                    <div className="bg-muted p-2 rounded-xl shrink-0 border">
+                        <Icon className="size-5 text-primary" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-normal">
+                        <h1 className="text-xl font-bold tracking-tight">
                             {title}
                         </h1>
-                        <p className="text-muted-foreground font-medium text-sm">{description}</p>
+                        <p className="text-muted-foreground font-medium text-xs">{description}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
+            <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                 {children}
             </div>
         </div>

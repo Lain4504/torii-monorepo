@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react"
-import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import {
   Table,
@@ -20,10 +19,18 @@ import {
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { format, parseISO } from "date-fns"
 import { vi } from "date-fns/locale"
-import { ChevronRight, CalendarSync, CheckCircle2, XCircle, Clock, Search } from "lucide-react"
+import { CalendarSync, CheckCircle2, XCircle, Clock, Search } from "lucide-react"
 import { toast } from "sonner"
 import type { AcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { Input } from "@workspace/ui/components/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog"
 import {
   listPageSearchIconClass,
   listPageSearchInputClass,
@@ -34,6 +41,11 @@ import {
 export default function LiveRescheduleRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("PENDING")
   const [search, setSearch] = useState("")
+  const [rejectReasonDialog, setRejectReasonDialog] = useState<{
+    open: boolean
+    reason: string
+    requestId?: string
+  }>({ open: false, reason: "" })
 
   const { data: allRequests = [], isLoading: isLoadingRequests } = useAcademyLiveScheduleRequests({
     status: statusFilter === "all" ? undefined : (statusFilter as any)
@@ -103,18 +115,7 @@ export default function LiveRescheduleRequestsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={
-          <div className="flex items-center gap-2">
-            <Link
-              to="/academy/live-classes"
-              className="hover:underline text-muted-foreground transition-colors"
-            >
-              Lớp học LIVE
-            </Link>
-            <ChevronRight className="size-4" />
-            <span>Phê duyệt dời lịch học</span>
-          </div>
-        }
+        title="Phê duyệt dời lịch học"
         subtitle="Quản lý và phê duyệt các yêu cầu dời lịch học hoặc nghỉ phép từ giảng viên trên toàn hệ thống."
       />
 
@@ -266,6 +267,22 @@ export default function LiveRescheduleRequestsPage() {
                                 bởi {req.reviewer?.displayName || "Admin"}
                               </Badge>
                             )}
+                            {req.status === 'REJECTED' ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() =>
+                                  setRejectReasonDialog({
+                                    open: true,
+                                    reason: req.reviewNote || "Không có lý do cụ thể.",
+                                    requestId: req.id,
+                                  })
+                                }
+                              >
+                                Xem lý do
+                              </Button>
+                            ) : null}
                           </div>
                         )}
                       </TableCell>
@@ -277,6 +294,32 @@ export default function LiveRescheduleRequestsPage() {
           </Table>
         </div>
       </div>
+
+      <Dialog
+        open={rejectReasonDialog.open}
+        onOpenChange={(open) =>
+          setRejectReasonDialog((prev) =>
+            open ? prev : { open: false, reason: "", requestId: undefined },
+          )
+        }
+      >
+        <DialogContent className="sm:max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Lý do từ chối</DialogTitle>
+            <DialogDescription>
+              Yêu cầu của bạn đã bị từ chối. Vui lòng xem ghi chú chi tiết bên dưới.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">
+            {rejectReasonDialog.reason}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectReasonDialog({ open: false, reason: "" })}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

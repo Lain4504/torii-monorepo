@@ -31,6 +31,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@workspace/ui/components/dialog';
 import { format } from 'date-fns';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { toast } from 'sonner';
@@ -55,6 +63,10 @@ export default function CourseProfilesPage() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [duplicateOpen, setDuplicateOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<AcademyCourseProfile | null>(null);
+    const [rejectReasonDialog, setRejectReasonDialog] = useState<{
+        open: boolean;
+        reason: string;
+    }>({ open: false, reason: '' });
 
     const [archiveDialog, setArchiveDialog] = useState<{
         open: boolean;
@@ -273,6 +285,21 @@ export default function CourseProfilesPage() {
                                                         <span>Lưu trữ</span>
                                                     </Button>
                                                 )}
+                                                {(((profile as any).status === 'REJECTED') || !!(profile as any).rejectionReason) && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8"
+                                                        onClick={() =>
+                                                            setRejectReasonDialog({
+                                                                open: true,
+                                                                reason: (profile as any).rejectionReason || 'Không có lý do cụ thể.',
+                                                            })
+                                                        }
+                                                    >
+                                                        Lý do từ chối
+                                                    </Button>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -370,6 +397,30 @@ export default function CourseProfilesPage() {
                 onOpenChange={setDuplicateOpen}
                 profile={selectedProfile}
             />
+
+            <Dialog
+                open={rejectReasonDialog.open}
+                onOpenChange={(open) =>
+                    setRejectReasonDialog((prev) => (open ? prev : { open: false, reason: '' }))
+                }
+            >
+                <DialogContent className="sm:max-w-[520px]">
+                    <DialogHeader>
+                        <DialogTitle>Lý do từ chối</DialogTitle>
+                        <DialogDescription>
+                            Yêu cầu của bạn đã bị từ chối. Vui lòng xem chi tiết bên dưới.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="rounded-md border bg-muted/30 p-3 text-sm whitespace-pre-wrap">
+                        {rejectReasonDialog.reason}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setRejectReasonDialog({ open: false, reason: '' })}>
+                            Đóng
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

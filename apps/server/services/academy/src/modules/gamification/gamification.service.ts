@@ -866,6 +866,14 @@ export class GamificationService {
       if (!Number.isFinite(discountValue) || discountValue <= 0) {
         throw new BadRequestException('Cấu hình phần thưởng coupon không hợp lệ');
       }
+      if (
+        discountType === CouponDiscountType.PERCENTAGE &&
+        discountValue > 100
+      ) {
+        throw new BadRequestException(
+          'Cấu hình phần thưởng coupon không hợp lệ: phần trăm giảm tối đa là 100%',
+        );
+      }
       const validDays = Math.max(1, Number(config.validDays ?? 30));
       const now = new Date();
       const endDate = new Date(

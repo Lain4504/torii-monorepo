@@ -388,6 +388,7 @@ export class SenseiHandler {
             page: parseInt(query.page) || 1,
             limit: parseInt(query.limit) || 10,
             search: query.search,
+            planCode: query.planCode,
           },
         ),
       );

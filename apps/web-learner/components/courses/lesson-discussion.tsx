@@ -4,50 +4,18 @@ import { useState } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '@/lib/api/services/comment-api'
-import { CommentTargetType, type CommentResponseDTO } from '@workspace/schemas'
+import { CommentTargetType } from '@workspace/schemas'
 import { CommentSection } from '@/components/blog/comment-section'
-import {
-    MessageSquare,
-    Plus,
-    User,
-    ChevronDown,
-    ChevronUp,
-    Clock,
-    MessageCircle,
-    Send,
-    AlertCircle,
-    Shield,
-    MoreVertical,
-    Pencil,
-    Trash2
-} from 'lucide-react'
+import { Plus, MessageCircle } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
+import { CardTitle, CardDescription } from '@workspace/ui/components/card'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from '@workspace/ui/components/dropdown-menu'
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog"
 import { formatDistanceToNow } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import { cn } from '@workspace/ui/lib/utils'
 import { Separator } from '@workspace/ui/components/separator'
 import {
     Collapsible,
@@ -114,7 +82,7 @@ function useDeleteDiscussion() {
 
 export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
-    const { data: discussions, isLoading, isError } = useDiscussions(lessonId, classId)
+    const { data: discussions, isLoading } = useDiscussions(lessonId, classId)
     const createDiscussion = useCreateDiscussion()
     const updateDiscussion = useUpdateDiscussion()
     const deleteDiscussion = useDeleteDiscussion()
@@ -130,7 +98,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
         try {
             await createDiscussion.mutateAsync({ content: content.trim(), classId, moduleId, lessonId, category: 'QUESTION' })
             setContent(''); setIsCreating(false);
-            toast.success('Gửi câu hỏi thành công! 🚀')
+            toast.success('Đã gửi câu hỏi.')
         } catch (error: any) {
             toast.error('Gửi câu hỏi thất bại.')
         }
@@ -157,150 +125,187 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
     }
 
     if (isLoading) return (
-        <div className="flex flex-col items-center justify-center py-20 space-y-6">
+        <div className="flex flex-col items-center justify-center py-12 space-y-3">
             <Spinner className="size-6 text-primary" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground animate-pulse">Linh hồn thảo luận đang tập hợp...</p>
+            <p className="text-sm text-muted-foreground">Đang tải thảo luận...</p>
         </div>
     )
 
     const topics = discussions?.data || []
 
     return (
-        <div className="max-w-4xl mx-auto space-y-16 pb-20">
-            {/* ── HEADER ─────────────────────────────────────────── */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 pb-8 border-b border-border/40">
-                <div className="space-y-3">
-                    <div className="flex items-center gap-4">
-                        <h3 className="text-3xl sm:text-4xl font-black tracking-tight uppercase">Thảo luận</h3>
-                        <Badge variant="outline" className="rounded-full bg-primary/5 text-primary border-primary/20 px-3 h-6 text-[11px] font-black">
+        <div className="max-w-4xl mx-auto space-y-6">
+            <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                        <CardTitle className="font-normal">Thảo luận</CardTitle>
+                        <Badge variant="secondary" className="font-normal">
                             {topics.length}
                         </Badge>
                     </div>
-                    <p className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed">Kết nối trí tuệ — Giải đáp thắc mắc</p>
+                    {!isCreating && (
+                        <Button onClick={() => setIsCreating(true)} size="sm" className="font-normal">
+                            <Plus className="size-4" />
+                            Đặt câu hỏi
+                        </Button>
+                    )}
                 </div>
+                <CardDescription className="font-normal">
+                    Hỏi đáp về bài học này.
+                </CardDescription>
 
-                {!isCreating && (
-                    <Button 
-                        onClick={() => setIsCreating(true)} 
-                        className="rounded-full px-10 h-12 gap-3 bg-foreground text-background hover:bg-foreground/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-2xl active:scale-95"
-                    >
-                        <Plus className="size-4" /> Đặt câu hỏi
-                    </Button>
-                )}
-            </div>
-
-            {/* ── CREATE QUESTION ─────────────────────────────────── */}
-            {isCreating && (
-                <Card className="border-none shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden bg-muted/30 rounded-3xl animate-in fade-in slide-in-from-top-6 duration-700">
-                    <CardContent className="p-8 space-y-6">
+                {isCreating && (
+                    <div className="space-y-3">
                         <Textarea
-                            placeholder="Vấn đề bạn đang gặp phải là gì?"
+                            placeholder={isAuthenticated ? "Nhập câu hỏi của bạn..." : "Bạn cần đăng nhập để đặt câu hỏi."}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            className="min-h-[160px] bg-background border-none focus-visible:ring-0 transition-all resize-none p-6 text-base font-medium leading-relaxed rounded-2xl shadow-inner italic"
+                            className="min-h-28"
+                            disabled={!isAuthenticated}
                             autoFocus
                         />
-                        <div className="flex items-center justify-end gap-4">
-                            <Button variant="ghost" onClick={() => setIsCreating(false)} className="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-transparent">Hủy bỏ</Button>
-                            <Button onClick={handleCreateTopic} disabled={createDiscussion.isPending || !content.trim()} className="rounded-full px-12 h-12 font-black text-[10px] uppercase tracking-[0.2em] shadow-xl">Gửi thảo luận</Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* ── TOPICS LIST ─────────────────────────────────────── */}
-            <div className="space-y-4">
-                {topics.length === 0 ? (
-                    <div className="py-24 text-center space-y-8 animate-in fade-in duration-1000">
-                        <div className="size-24 rounded-[3rem] bg-muted/20 flex items-center justify-center mx-auto border-2 border-dashed border-border/60">
-                            <MessageCircle className="size-10 text-muted-foreground/20" />
-                        </div>
-                        <div className="space-y-2">
-                            <p className="text-xl font-black tracking-tight">Chưa có ai lên tiếng</p>
-                            <p className="text-sm text-muted-foreground/60 font-bold uppercase tracking-tighter">Hãy là người đầu tiên khơi mào cho bài học này.</p>
+                        <div className="flex items-center justify-end gap-2">
+                            <Button variant="outline" onClick={() => { setIsCreating(false); setContent(''); }} className="font-normal">
+                                Hủy
+                            </Button>
+                            <Button
+                                onClick={handleCreateTopic}
+                                disabled={!isAuthenticated || createDiscussion.isPending || !content.trim()}
+                                className="font-normal"
+                            >
+                                Gửi
+                            </Button>
                         </div>
                     </div>
-                ) : (
-                    topics.map((topic, index) => (
-                        <div key={topic.id} className="group">
-                            <Collapsible
-                                open={expandedTopicId === topic.id}
-                                onOpenChange={() => setExpandedTopicId(expandedTopicId === topic.id ? null : topic.id)}
-                            >
-                                <div className={cn(
-                                    "relative py-10 px-6 transition-all duration-700 rounded-[2.5rem]",
-                                    expandedTopicId === topic.id ? "bg-muted/40 ring-1 ring-border/40" : "hover:bg-muted/20"
-                                )}>
-                                    <div className="flex items-start gap-6">
-                                        <Avatar className="size-12 border-2 border-background shadow-xl shrink-0">
-                                            <AvatarImage src={topic.author?.avatarUrl || undefined} />
-                                            <AvatarFallback className="bg-primary/5 text-primary font-black text-xs">{(topic.author?.displayName || 'U')[0]}</AvatarFallback>
-                                        </Avatar>
+                )}
+                <Separator />
+            </div>
 
-                                        <div className="flex-1 min-w-0 space-y-4">
-                                            <div className="flex items-center gap-3 flex-wrap">
-                                                <span className={cn("text-xs font-black uppercase tracking-widest", topic.isOfficialReply ? "text-primary" : "text-foreground")}>
-                                                    {topic.author?.displayName || 'Unknown Warrior'}
-                                                </span>
-                                                {topic.isOfficialReply && topic.authorRoleLabel && (
-                                                    <Badge className="bg-foreground text-background border-none text-[8px] font-black uppercase tracking-tighter px-2 h-4">Verified Source</Badge>
-                                                )}
-                                                <span className="text-[10px] font-mono font-bold text-muted-foreground/40 uppercase tracking-tighter">{formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })}</span>
+            <div className="space-y-4">
+                {topics.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-muted-foreground">
+                        Chưa có thảo luận nào. Bạn có thể là người đầu tiên đặt câu hỏi.
+                    </p>
+                ) : (
+                    topics.map((topic, index) => {
+                        const isExpanded = expandedTopicId === topic.id
+                        const canEdit = user?.id === topic.author?.id
+                        const authorName = topic.author?.displayName || 'Người dùng'
+                        const createdAtLabel = topic.createdAt
+                            ? formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })
+                            : ''
+
+                        return (
+                            <div key={topic.id} className="space-y-4">
+                                <div className="flex items-start gap-3">
+                                        <Avatar className="size-9 shrink-0">
+                                            <AvatarImage src={topic.author?.avatarUrl || undefined} />
+                                            <AvatarFallback className="font-normal">
+                                                {(authorName[0] || 'U').toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="min-w-0 flex-1 space-y-2">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-normal truncate">{authorName}</p>
+                                                    {createdAtLabel ? (
+                                                        <p className="text-xs text-muted-foreground font-normal">
+                                                            {createdAtLabel}
+                                                        </p>
+                                                    ) : null}
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    {topic.status === 'ANSWERED' ? (
+                                                        <Badge variant="secondary" className="font-normal">
+                                                            Đã trả lời
+                                                        </Badge>
+                                                    ) : null}
+                                                    {canEdit ? (
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="font-normal"
+                                                            onClick={() => {
+                                                                if (editingTopicId === topic.id) {
+                                                                    setEditingTopicId(null)
+                                                                    setEditContent('')
+                                                                    return
+                                                                }
+                                                                setEditingTopicId(topic.id)
+                                                                setEditContent(topic.content || '')
+                                                                setExpandedTopicId(topic.id)
+                                                            }}
+                                                        >
+                                                            Sửa
+                                                        </Button>
+                                                    ) : null}
+                                                    {canEdit ? (
+                                                        <Button
+                                                            variant="destructive"
+                                                            size="sm"
+                                                            className="font-normal"
+                                                            onClick={() => {
+                                                                if (confirm('Xác nhận xóa thảo luận này?')) handleDeleteTopic(topic.id)
+                                                            }}
+                                                        >
+                                                            Xóa
+                                                        </Button>
+                                                    ) : null}
+                                                </div>
                                             </div>
 
                                             {editingTopicId === topic.id ? (
-                                                <div className="space-y-4 pt-2">
+                                                <div className="space-y-2">
                                                     <Textarea
-                                                        value={editContent} onChange={(e) => setEditContent(e.target.value)}
-                                                        className="min-h-[140px] bg-background border-none focus-visible:ring-1 ring-primary/20 p-6 text-sm rounded-[2rem] shadow-sm italic"
+                                                        value={editContent}
+                                                        onChange={(e) => setEditContent(e.target.value)}
+                                                        className="min-h-24"
                                                         autoFocus
                                                     />
-                                                    <div className="flex items-center justify-end gap-3">
-                                                        <Button variant="ghost" onClick={() => setEditingTopicId(null)} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Hủy</Button>
-                                                        <Button onClick={() => handleUpdateTopic(topic.id)} disabled={updateDiscussion.isPending || !editContent.trim()} className="rounded-full px-8 h-10 text-[10px] font-black uppercase tracking-widest">Cập nhật</Button>
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            className="font-normal"
+                                                            onClick={() => { setEditingTopicId(null); setEditContent('') }}
+                                                        >
+                                                            Hủy
+                                                        </Button>
+                                                        <Button
+                                                            className="font-normal"
+                                                            onClick={() => handleUpdateTopic(topic.id)}
+                                                            disabled={updateDiscussion.isPending || !editContent.trim()}
+                                                        >
+                                                            Lưu
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <CollapsibleTrigger asChild>
-                                                    <h4 className="text-lg font-bold leading-relaxed text-foreground/90 cursor-pointer hover:text-primary transition-colors tracking-tight [text-wrap:balance]">
-                                                        {topic.content}
-                                                    </h4>
-                                                </CollapsibleTrigger>
+                                                <p className="text-sm font-normal whitespace-pre-wrap">
+                                                    {topic.content}
+                                                </p>
                                             )}
 
-                                            <div className="flex items-center gap-8 pt-2">
-                                                <button
-                                                    onClick={() => setExpandedTopicId(expandedTopicId === topic.id ? null : topic.id)}
-                                                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 hover:text-primary transition-all group/btn"
-                                                >
-                                                    <MessageCircle className="size-4 group-hover/btn:scale-110 transition-transform" />
-                                                    {expandedTopicId === topic.id ? 'Thu gọn thảo luận' : `${topic.replies?.length || 0} Phản hồi`}
-                                                </button>
+                                            <Separator />
 
-                                                {user?.id === topic.author?.id && (
-                                                    <div className="flex items-center gap-4">
-                                                        <button onClick={() => { setEditingTopicId(topic.id); setEditContent(topic.content); }} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-foreground transition-colors">Chỉnh sửa</button>
-                                                        <button onClick={() => { if(confirm('Xác nhận xóa thảo luận này?')) handleDeleteTopic(topic.id); }} className="text-[10px] font-black uppercase tracking-widest text-destructive/40 hover:text-destructive transition-colors">Xóa</button>
-                                                    </div>
-                                                )}
-                                                
-                                                {topic.status === 'ANSWERED' && (
-                                                    <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[8px] font-black uppercase px-2 h-4">Solved</Badge>
-                                                )}
-                                            </div>
+                                            <Collapsible open={isExpanded} onOpenChange={(open) => setExpandedTopicId(open ? topic.id : null)}>
+                                                <div className="flex items-center justify-between">
+                                                    <CollapsibleTrigger asChild>
+                                                        <Button variant="ghost" size="sm" className="font-normal">
+                                                            <MessageCircle className="size-4" />
+                                                            {isExpanded ? 'Thu gọn' : `Xem phản hồi (${topic.replies?.length || 0})`}
+                                                        </Button>
+                                                    </CollapsibleTrigger>
+                                                </div>
+                                                <CollapsibleContent className="pt-4">
+                                                    <CommentSection discussionId={topic.id} classId={classId} />
+                                                </CollapsibleContent>
+                                            </Collapsible>
                                         </div>
-                                    </div>
-
-                                    <CollapsibleContent className="animate-in fade-in slide-in-from-top-4 duration-1000">
-                                        <div className="pt-10 mt-10 border-t border-border/40">
-                                            <CommentSection discussionId={topic.id} classId={classId} />
-                                        </div>
-                                    </CollapsibleContent>
                                 </div>
-                            </Collapsible>
-                            {index < topics.length - 1 && <div className="h-px bg-border/20 mx-10 my-2" />}
-                        </div>
-                    ))
+                                {index < topics.length - 1 ? <Separator /> : null}
+                            </div>
+                        )
+                    })
                 )}
             </div>
         </div>

@@ -92,12 +92,16 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
             const selectedEnrollment = (enrollments as any[]).find(
                 (en: any) => (en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id) === values.courseMasterId,
             );
+            const selectedLiveClassId =
+                selectedEnrollment?.liveClassId ?? selectedEnrollment?.classId ?? undefined;
+            const selectedVodPackageId = selectedEnrollment?.vodPackageId ?? undefined;
 
             await createTicketMutation.mutateAsync({
                 type: values.type,
                 subject: values.subject,
                 description: values.description,
-                liveClassId: values.courseMasterId || undefined,
+                liveClassId: selectedLiveClassId,
+                vodPackageId: selectedVodPackageId,
                 // OrderId is now auto-resolved by backend, so we don't strictly need to pass it
                 metadata: {
                     courseTitle: selectedEnrollment?.class?.name || selectedEnrollment?.courseTitle,

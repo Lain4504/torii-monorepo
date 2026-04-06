@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom"
 import { useState } from "react"
 import {
   useAcademyCohort,
-  academyCohortsApi
+  useSubmitCohortForApproval,
 } from "@/lib/api/services/academy-cohorts"
 import { useCohortOrders, useCohortStats } from "@/lib/api/services/finance"
 import { PageHeader } from "@/components/common/page-header"
@@ -16,13 +16,12 @@ import { formatCurrency, formatDateTime } from "@/lib/format-utils"
 import { OrdersTable } from "@/components/finance/orders-table"
 import { dataTableShellClass } from "@/lib/ui-shell"
 import { SmartPagination } from "@/components/common/smart-pagination"
-import { Plus, Layout, BookOpen, Users, CheckCircle2, Trash2, Edit, Send } from "lucide-react"
+import { Plus, Layout, BookOpen, Users, CheckCircle2, Edit, Send } from "lucide-react"
 import { LiveClassSheet } from "@/components/academy/live-class-sheet"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
-import { useApproveCohort, useDeleteAcademyCohort } from "@/lib/api/services/academy-cohorts"
+import { useApproveCohort } from "@/lib/api/services/academy-cohorts"
 import { toast } from "sonner"
-import { useNavigate } from "react-router-dom"
 
 export default function CohortDetailPage() {
   const { cohortId: id = "" } = useParams<{ cohortId: string }>()
@@ -33,9 +32,8 @@ export default function CohortDetailPage() {
   const { data: liveClasses, isLoading: isLoadingClasses } = useAcademyLiveClasses({ cohortId: id })
   const { data: courseProfile } = useAcademyCourseProfile(cohort?.courseProfileId)
 
-  const navigate = useNavigate()
   const approveMutation = useApproveCohort()
-  const deleteMutation = useDeleteAcademyCohort()
+  const submitForApprovalMutation = useSubmitCohortForApproval()
 
   const handleApprove = async () => {
     try {
@@ -48,22 +46,14 @@ export default function CohortDetailPage() {
 
   const handleUpdateStatus = async (status: string) => {
     try {
-      await academyCohortsApi.update(id, { status: status as any })
+      if (status === "PENDING_APPROVAL") {
+        await submitForApprovalMutation.mutateAsync(id)
+      } else {
+        throw new Error("Unsupported status transition")
+      }
       toast.success(`Đã chuyển trạng thái sang ${status}`)
-      // Invalidate if needed, or window.location.reload()
     } catch (err: any) {
       toast.error(err?.userMessage || err?.message || "Không thể cập nhật trạng thái")
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!confirm("Bạn có chắc chắn muốn xóa đợt học này?")) return
-    try {
-      await deleteMutation.mutateAsync(id)
-      toast.success("Đã xóa đợt học")
-      navigate("/academy/cohorts")
-    } catch (err) {
-      toast.error("Không thể xóa đợt học")
     }
   }
 
@@ -100,25 +90,27 @@ export default function CohortDetailPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title={
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
             <Link
               to="/academy/cohorts"
-              className="hover:underline text-muted-foreground transition-colors"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:underline"
             >
               Đợt khai giảng
             </Link>
-            <ChevronRight className="size-4" />
-            <span>Chi tiết Đợt khai giảng</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <ChevronRight className="size-4 shrink-0" />
+              <span className="truncate">Chi tiết Đợt khai giảng</span>
+            </div>
           </div>
         }
-        subtitle={`Thông tin chi tiết và thống kê kinh doanh cho đợt học #${cohort.code}`}
+        subtitle={<span className="block break-words">Thông tin chi tiết và thống kê kinh doanh cho đợt học #{cohort.code}</span>}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             {cohort.status === 'DRAFT' && (
               <Button
                 onClick={() => handleUpdateStatus('PENDING_APPROVAL')}
-                className="bg-primary hover:bg-primary/90 shadow-none gap-2"
-                disabled={!liveClasses?.length}
+                className="w-full gap-2 bg-primary shadow-none hover:bg-primary/90 sm:w-auto"
+                disabled={!liveClasses?.length || submitForApprovalMutation.isPending}
                 title={!liveClasses?.length ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
               >
                 <Send className="size-4" /> Gửi duyệt
@@ -127,16 +119,13 @@ export default function CohortDetailPage() {
             {cohort.status === 'PENDING_APPROVAL' && (
               <Button
                 onClick={handleApprove}
-                className="bg-emerald-600 hover:bg-emerald-700 shadow-none gap-2"
+                className="w-full gap-2 bg-emerald-600 shadow-none hover:bg-emerald-700 sm:w-auto"
               >
                 <CheckCircle2 className="size-4" /> Phê duyệt & Xuất bản
               </Button>
             )}
-            <Button variant="outline" className="shadow-none group border-primary/20 hover:bg-primary/5">
+            <Button variant="outline" className="w-full border-primary/20 shadow-none group hover:bg-primary/5 sm:w-auto">
               <Edit className="size-4 mr-2 group-hover:text-primary transition-colors" /> Chỉnh sửa
-            </Button>
-            <Button variant="outline" onClick={handleDelete} className="text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5 shadow-none">
-              <Trash2 className="size-4 mr-2" /> Xóa
             </Button>
           </div>
         }
@@ -147,7 +136,7 @@ export default function CohortDetailPage() {
         ]}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2">
@@ -191,7 +180,7 @@ export default function CohortDetailPage() {
 
       {courseProfile && (
         <Card className="overflow-hidden border-primary/10 shadow-sm bg-gradient-to-br from-background to-muted/20">
-          <div className="flex flex-col md:flex-row items-center gap-6 p-6">
+          <div className="flex flex-col items-start gap-4 p-4 sm:p-6 md:flex-row md:items-center md:gap-6">
             <div className="size-24 rounded-2xl overflow-hidden border shadow-inner flex-shrink-0 bg-muted flex items-center justify-center">
               {courseProfile.thumbnailUrl ? (
                 <img src={courseProfile.thumbnailUrl} alt={courseProfile.title} className="w-full h-full object-cover" />
@@ -199,20 +188,20 @@ export default function CohortDetailPage() {
                 <Layout className="size-10 text-muted-foreground/30" />
               )}
             </div>
-            <div className="flex-1 space-y-2 text-center md:text-left">
-              <div className="flex flex-wrap items-center gap-2 justify-center md:justify-start">
+            <div className="flex-1 min-w-0 space-y-2 text-left">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 flex items-center gap-1">
                   <BookOpen className="size-3" /> Chương trình gốc
                 </Badge>
-                <span className="text-xs text-muted-foreground font-mono">{courseProfile.code}</span>
+                <span className="text-xs text-muted-foreground font-mono break-all">{courseProfile.code}</span>
               </div>
-              <h2 className="text-xl font-bold tracking-tight">{courseProfile.title}</h2>
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight break-words">{courseProfile.title}</h2>
               <p className="text-sm text-muted-foreground max-w-2xl line-clamp-2">
                 {(courseProfile as any).headline || (courseProfile as any).description?.replace(/<[^>]*>/g, '').slice(0, 150) + "..."}
               </p>
             </div>
-            <div className="flex-shrink-0">
-              <Button asChild variant="outline" size="sm" className="shadow-none">
+            <div className="flex-shrink-0 w-full md:w-auto">
+              <Button asChild variant="outline" size="sm" className="w-full shadow-none md:w-auto">
                 <Link to={`/academy/course-profiles/${courseProfile.id}/detail`}>
                   Xem hồ sơ gốc
                 </Link>
@@ -223,11 +212,11 @@ export default function CohortDetailPage() {
       )}
 
       <Tabs defaultValue="info" className="w-full">
-        <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="info" className="gap-2">
+        <TabsList className="w-full justify-start overflow-x-auto rounded-lg bg-muted/50 p-1">
+          <TabsTrigger value="info" className="gap-2 whitespace-nowrap px-3 py-2 data-[state=active]:bg-background">
             <Info className="size-4" /> Thông tin Đợt khai giảng
           </TabsTrigger>
-          <TabsTrigger value="orders" className="gap-2">
+          <TabsTrigger value="orders" className="gap-2 whitespace-nowrap px-3 py-2 data-[state=active]:bg-background">
             <ShoppingCart className="size-4" /> Danh sách đơn hàng ({totalOrders})
           </TabsTrigger>
         </TabsList>
@@ -240,7 +229,7 @@ export default function CohortDetailPage() {
                   <CardTitle>Cấu hình chung</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Tên đợt học</p>
                       <p className="text-base font-semibold">{cohort.name}</p>
@@ -249,7 +238,7 @@ export default function CohortDetailPage() {
                       <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã định danh</p>
                       <p className="text-base font-mono font-bold">{cohort.code}</p>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 sm:col-span-2 lg:col-span-1">
                       <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trạng thái</p>
                       <Badge variant="outline" className="font-bold">{cohort.status}</Badge>
                     </div>
@@ -257,7 +246,7 @@ export default function CohortDetailPage() {
 
                   <div className="pt-4 border-t space-y-4">
                     <h4 className="text-sm font-bold flex items-center gap-2"><Plus className="size-4" /> Thời gian đăng ký</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="space-y-1">
                         <p className="text-[10px] text-muted-foreground uppercase">Mở đăng ký</p>
                         <p className="text-sm font-medium">{cohort.enrollmentOpenAt ? formatDateTime(cohort.enrollmentOpenAt, "dd/MM/yyyy") : "—"}</p>
@@ -271,7 +260,7 @@ export default function CohortDetailPage() {
 
                   <div className="pt-4 border-t space-y-4">
                     <h4 className="text-sm font-bold flex items-center gap-2"><Package className="size-4" /> Lịch trình dự kiến</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="space-y-1">
                         <p className="text-[10px] text-muted-foreground uppercase">Khai giảng</p>
                         <p className="text-sm font-medium">{cohort.startDate ? formatDateTime(cohort.startDate, "dd/MM/yyyy") : "—"}</p>
@@ -293,12 +282,12 @@ export default function CohortDetailPage() {
               </Card>
 
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <CardTitle>Lớp học vận hành (Live Classes)</CardTitle>
                     <CardDescription>Các lớp học được kích hoạt và gán cho đợt này.</CardDescription>
                   </div>
-                  <Button size="sm" variant="outline" className="border-primary/40 text-primary hover:bg-primary/5 shadow-none" onClick={() => setSheetOpen(true)}>
+                  <Button size="sm" variant="outline" className="w-full border-primary/40 text-primary shadow-none hover:bg-primary/5 sm:w-auto" onClick={() => setSheetOpen(true)}>
                     <Plus className="size-4 mr-2" /> Tạo lớp mới
                   </Button>
                 </CardHeader>
@@ -309,13 +298,13 @@ export default function CohortDetailPage() {
                     ))
                   ) : liveClasses && liveClasses.length > 0 ? (
                     liveClasses.map((cls) => (
-                      <div key={cls.id} className="flex items-center justify-between p-4 rounded-xl border bg-muted/5 hover:bg-muted/10 transition-colors group">
-                        <div className="space-y-1">
+                      <div key={cls.id} className="flex flex-col gap-3 rounded-xl border bg-muted/5 p-4 transition-colors hover:bg-muted/10 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="space-y-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="text-sm font-bold text-primary">{cls.name}</p>
+                            <p className="text-sm font-bold text-primary break-words">{cls.name}</p>
                             <Badge variant="outline" className="text-[10px] h-4 font-mono">{cls.code}</Badge>
                           </div>
-                          <div className="flex gap-4 items-center">
+                          <div className="flex flex-wrap gap-3 items-center">
                             {cls.instructorId && (
                               <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                                 <div className="size-4 rounded-full bg-primary/10 flex items-center justify-center">
@@ -330,7 +319,7 @@ export default function CohortDetailPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-between gap-2 sm:justify-end">
                           <Badge
                             variant="outline"
                             className={`text-[10px] font-bold ${cls.status === 'OPENING'
@@ -342,9 +331,10 @@ export default function CohortDetailPage() {
                           >
                             {cls.status}
                           </Badge>
-                          <Button asChild size="icon" variant="ghost" className="size-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button asChild size="sm" variant="outline" className="h-8 px-3">
                             <Link to={`/academy/live-classes/${cls.id}/detail`}>
-                              <ChevronRight className="size-4" />
+                              Quản lý lớp
+                              <ChevronRight className="ml-1 size-4" />
                             </Link>
                           </Button>
                         </div>

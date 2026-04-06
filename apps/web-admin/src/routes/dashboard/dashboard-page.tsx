@@ -27,11 +27,12 @@ export default function DashboardPage() {
   const isLecturer = role === UserRole.LECTURER
   const isStaffAcademic = role === UserRole.STAFF_ACADEMIC
   const isStaffFinance = role === UserRole.STAFF_OPERATIONS
+  const fullDisplayName = user?.displayName?.trim() || "ADMIN"
 
   return (
     <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
       <PageHeader
-        title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
+        title={`${getGreeting()}, ${fullDisplayName}`}
         subtitle={
           isLecturer
             ? "Bảng điều khiển giảng viên • Quản lý lớp học và buổi giảng"

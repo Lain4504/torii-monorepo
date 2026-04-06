@@ -93,15 +93,17 @@ export default function ClassStudentsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title={
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
             <Link
               to="/academy/live-classes"
-              className="hover:underline text-muted-foreground transition-colors"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:underline"
             >
               Lớp học
             </Link>
-            <ChevronRight className="size-4" />
-            <span>Quản lý lớp</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <ChevronRight className="size-4 shrink-0" />
+              <span className="truncate">Quản lý lớp</span>
+            </div>
           </div>
         }
         subtitle={
@@ -128,36 +130,36 @@ export default function ClassStudentsPage() {
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setTab} className="w-full">
-          <TabsList className="w-full overflow-x-auto whitespace-nowrap">
-            <TabsTrigger value={TAB_INFO} className="gap-2">
+          <TabsList className="w-full overflow-x-auto whitespace-nowrap rounded-lg bg-muted/50 p-1">
+            <TabsTrigger value={TAB_INFO} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
               <Info className="size-4" />
               Thông tin chung
             </TabsTrigger>
-            <TabsTrigger value={TAB_SYLLABUS} className="gap-2">
+            <TabsTrigger value={TAB_SYLLABUS} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
               <BookOpen className="size-4" />
               Giáo trình
             </TabsTrigger>
-            <TabsTrigger value={TAB_STUDENTS} className="gap-2">
+            <TabsTrigger value={TAB_STUDENTS} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
               <Users className="size-4" />
               Học viên
             </TabsTrigger>
-            <TabsTrigger value={TAB_DISCUSSION} className="gap-2">
+            <TabsTrigger value={TAB_DISCUSSION} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
               <MessageSquare className="size-4" />
               Thảo luận
             </TabsTrigger>
             {availableTabs.schedule && (
-              <TabsTrigger value={TAB_SCHEDULE} className="gap-2">
+              <TabsTrigger value={TAB_SCHEDULE} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
                 <CalendarCheck className="size-4" />
                 Lịch học & Điểm danh
               </TabsTrigger>
             )}
             {availableTabs.assignments && (
-              <TabsTrigger value={TAB_ASSIGNMENTS} className="gap-2">
+              <TabsTrigger value={TAB_ASSIGNMENTS} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
                 <FileText className="size-4" />
                 Bài tập
               </TabsTrigger>
             )}
-            <TabsTrigger value={TAB_RESOURCES} className="gap-2">
+            <TabsTrigger value={TAB_RESOURCES} className="gap-2 px-3 py-2 data-[state=active]:bg-background">
               <Folder className="size-4" />
               Tài liệu chia sẻ
             </TabsTrigger>

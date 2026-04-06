@@ -110,6 +110,7 @@ export function SessionsManagement() {
                     <Table>
                         <TableHeader className="bg-muted/30">
                             <TableRow className="hover:bg-transparent">
+                                <TableHead className="font-bold text-[11px] py-4 pl-6 opacity-70 w-[72px]">STT</TableHead>
                                 <TableHead className="font-bold text-[11px] py-4 pl-6 opacity-70">Thiết bị & Trình duyệt</TableHead>
                                 <TableHead className="font-bold text-[11px] opacity-70">Địa chỉ IP</TableHead>
                                 <TableHead className="font-bold text-[11px] opacity-70">Gần nhất</TableHead>
@@ -120,6 +121,7 @@ export function SessionsManagement() {
                             {isLoading ? (
                                 Array.from({ length: 3 }).map((_, i) => (
                                     <TableRow key={i}>
+                                        <TableCell className="pl-6"><Skeleton className="h-4 w-6 rounded-full" /></TableCell>
                                         <TableCell className="py-5 pl-6"><Skeleton className="h-10 w-48 rounded-lg" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-24 rounded-full" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-32 rounded-full" /></TableCell>
@@ -127,8 +129,11 @@ export function SessionsManagement() {
                                     </TableRow>
                                 ))
                             ) : (
-                                sessions?.map((session) => (
+                                sessions?.map((session, index) => (
                                     <TableRow key={session.id} className="hover:bg-muted/20 transition-colors">
+                                        <TableCell className="pl-6 text-xs font-medium text-muted-foreground">
+                                            {index + 1}
+                                        </TableCell>
                                         <TableCell className="py-5 pl-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="p-2.5 bg-muted rounded-xl text-muted-foreground border border-border/50 shadow-sm">
@@ -176,7 +181,7 @@ export function SessionsManagement() {
                             )}
                             {!isLoading && sessions?.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-48 text-center">
+                                    <TableCell colSpan={5} className="h-48 text-center">
                                         <div className="flex flex-col items-center justify-center gap-2">
                                             <Monitor className="size-10 text-muted-foreground/30" />
                                             <p className="text-sm font-medium text-muted-foreground italic">Không có phiên đăng nhập nào.</p>

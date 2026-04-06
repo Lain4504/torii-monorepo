@@ -118,11 +118,14 @@ export function ClassStudentsTab({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h3 className="text-lg font-bold flex items-center gap-2">
             <Users className="size-5 text-primary" />
             Danh sách học viên
+            <Badge variant="outline" className="text-[10px]">
+              {enrollments.length} học viên
+            </Badge>
           </h3>
           <p className="text-sm text-muted-foreground">
             Quản lý ghi danh, kích hoạt và theo dõi học viên trong lớp học này.
@@ -130,10 +133,12 @@ export function ClassStudentsTab({
         </div>
 
         {canManageEnrollment && (
-          <Button className="gap-2" onClick={() => setEnrollmentSheetOpen(true)}>
-            <Plus className="size-4" />
-            Ghi danh học viên
-          </Button>
+          <div className="w-full sm:w-auto">
+            <Button className="gap-2 w-full sm:w-auto" onClick={() => setEnrollmentSheetOpen(true)}>
+              <Plus className="size-4" />
+              Ghi danh học viên
+            </Button>
+          </div>
         )}
       </div>
       <div className="rounded-md border bg-card overflow-hidden">

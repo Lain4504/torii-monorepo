@@ -1,8 +1,11 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/generated';
 import {
@@ -26,10 +29,41 @@ import { AuditLoggerService } from '../audit-logger.service';
  */
 @Injectable()
 export class CourseProfileService {
+  private readonly logger = new Logger(CourseProfileService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
+
+  private notifyRejected(payload: {
+    recipientId: string;
+    profileId: string;
+    profileCode: string;
+    profileTitle: string;
+    reason: string;
+  }) {
+    this.natsClient.emit(
+      { cmd: 'send_notification' },
+      {
+        recipientId: payload.recipientId,
+        type: 'system',
+        payload: {
+          title: 'Yêu cầu của bạn đã bị từ chối',
+          body: `Yêu cầu duyệt Course Profile ${payload.profileCode} đã bị từ chối.`,
+          metadata: {
+            entityType: 'COURSE_PROFILE',
+            entityId: payload.profileId,
+            code: payload.profileCode,
+            title: payload.profileTitle,
+            status: 'REJECTED',
+            rejectionReason: payload.reason,
+          },
+        },
+      },
+    );
+  }
 
   async findAll(query: AcademyCourseProfileQueryDTO) {
     const andFilters: Prisma.CourseProfileWhereInput[] = [];
@@ -279,6 +313,23 @@ export class CourseProfileService {
         newValues: item,
         metadata: { reason },
       });
+    }
+
+    const recipientId = before.submittedBy;
+    if (recipientId && recipientId !== requesterId) {
+      try {
+        this.notifyRejected({
+          recipientId,
+          profileId: item.id,
+          profileCode: item.code,
+          profileTitle: item.title,
+          reason,
+        });
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send reject notification for course profile ${id}: ${error?.message || String(error)}`,
+        );
+      }
     }
 
     return item;

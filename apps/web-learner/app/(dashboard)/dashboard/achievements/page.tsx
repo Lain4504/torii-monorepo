@@ -98,55 +98,55 @@ export default function AchievementsPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-1.5">
-                        <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Tổng cộng</p>
-                        <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground/80">{stats.total}</p>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl p-3 sm:p-4 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-1">
+                        <p className="text-[9px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Tổng cộng</p>
+                        <p className="text-xl font-bold tabular-nums text-foreground/80">{stats.total}</p>
                     </div>
-                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
-                        <Trophy className="size-4" />
-                    </div>
-                </Card>
-                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-1.5">
-                        <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Đã đạt</p>
-                        <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground/80">{stats.earned}</p>
-                    </div>
-                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
-                        <Star className="size-4" />
+                    <div className="size-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-3">
+                        <Trophy className="size-3.5" />
                     </div>
                 </Card>
-                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-1.5">
-                        <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Còn lại</p>
-                        <p className="text-3xl font-bold tracking-tight tabular-nums text-foreground/80">{stats.remaining}</p>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl p-3 sm:p-4 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-1">
+                        <p className="text-[9px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Đã đạt</p>
+                        <p className="text-xl font-bold tabular-nums text-foreground/80">{stats.earned}</p>
                     </div>
-                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
-                        <Target className="size-4" />
+                    <div className="size-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-3">
+                        <Star className="size-3.5" />
                     </div>
                 </Card>
-                <Card className="shadow-none border-border/40 bg-card rounded-2xl p-6 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-4">
-                        <div className="space-y-1.5">
-                            <p className="text-[10px] font-semibold text-muted-foreground/40 leading-none">Hoàn thành</p>
-                            <p className="text-3xl font-bold tracking-tight tabular-nums text-primary/60">{stats.percentage}%</p>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl p-3 sm:p-4 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-1">
+                        <p className="text-[9px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Còn lại</p>
+                        <p className="text-xl font-bold tabular-nums text-foreground/80">{stats.remaining}</p>
+                    </div>
+                    <div className="size-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-3">
+                        <Target className="size-3.5" />
+                    </div>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl p-3 sm:p-4 flex flex-col justify-between group hover:bg-muted/5 transition-colors">
+                    <div className="space-y-3">
+                        <div className="space-y-1">
+                            <p className="text-[9px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Hoàn thành</p>
+                            <p className="text-xl font-bold tabular-nums text-primary/60">{stats.percentage}%</p>
                         </div>
                         <Progress value={stats.percentage} className="h-1 bg-muted/20" />
                     </div>
-                    <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-4">
-                        <TrendingUp className="size-4" />
+                    <div className="size-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 mt-3">
+                        <TrendingUp className="size-3.5" />
                     </div>
                 </Card>
             </div>
 
             <Tabs defaultValue="ALL" className="w-full space-y-6" onValueChange={setSelectedCategory}>
                 <TabsList className="bg-muted/50 p-1 h-auto flex-wrap justify-start border-none">
-                    <TabsTrigger value="ALL" className="px-5 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">Tất cả</TabsTrigger>
+                    <TabsTrigger value="ALL" className="px-4 py-1.5 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm">Tất cả</TabsTrigger>
                     {categories.map((category) => (
                         <TabsTrigger 
                             key={category} 
                             value={category}
-                            className="px-5 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                            className="px-4 py-1.5 text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm"
                         >
                             {categoryLabels[category]}
                         </TabsTrigger>
@@ -164,21 +164,21 @@ export default function AchievementsPage() {
                                         !achievement.earned && "opacity-40"
                                     )}
                                 >
-                                    <CardContent className="p-4 flex items-start gap-3">
+                                    <CardContent className="p-3 flex items-start gap-2.5">
                                         <div className={cn(
-                                            "size-9 rounded-lg flex items-center justify-center shrink-0 border border-border/40 group-hover:border-primary/20 transition-colors",
+                                            "size-8 rounded-lg flex items-center justify-center shrink-0 border border-border/40 group-hover:border-primary/20 transition-colors",
                                             achievement.earned 
                                                 ? "bg-primary/5 text-primary/60" 
                                                 : "bg-muted/20 text-muted-foreground/30"
                                         )}>
-                                            <achievement.icon className="size-4" />
+                                            <achievement.icon className="size-3.5" />
                                         </div>
-                                        <div className="flex-1 space-y-1.5">
-                                            <div className="space-y-1">
-                                                <h3 className="text-sm font-semibold text-foreground tracking-tight leading-tight">
+                                        <div className="flex-1 space-y-1">
+                                            <div className="space-y-0.5">
+                                                <h3 className="text-xs font-bold text-foreground leading-tight">
                                                     {achievement.title}
                                                 </h3>
-                                                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                                                <p className="text-[10px] text-muted-foreground leading-relaxed line-clamp-2">
                                                     {achievement.description}
                                                 </p>
                                             </div>

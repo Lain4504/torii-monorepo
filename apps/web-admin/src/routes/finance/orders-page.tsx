@@ -125,14 +125,6 @@ export default function OrdersPage() {
         actions={
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="icon"
-              onClick={() => queryClient.invalidateQueries()}
-              disabled={isLoading}
-            >
-              <RotateCcw className={cn("size-4", isLoading && "animate-spin")} />
-            </Button>
-            <Button
               onClick={isExportDialogOpen.setTrue}
               disabled={isLoading || orders.length === 0}
             >

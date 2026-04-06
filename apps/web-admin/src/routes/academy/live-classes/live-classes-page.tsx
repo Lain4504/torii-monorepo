@@ -2,9 +2,10 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, Search, Eye, Pencil, Rocket, CalendarSync } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Rocket, CalendarSync, Trash2 } from 'lucide-react';
 import {
     useAcademyLiveClasses,
+    useDeleteAcademyLiveClass,
     usePublishClassDirectly,
     type AcademyLiveClass,
 } from '@/lib/api/services/academy-live-classes';
@@ -33,6 +34,16 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { LiveClassSheet } from '@/components/academy/live-class-sheet';
 import {
     dataTableShellClass,
@@ -53,6 +64,7 @@ export default function LiveClassesPage() {
     const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedClass, setSelectedClass] = useState<AcademyLiveClass | null>(null);
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyLiveClass | null>(null);
+    const [deleteDialogClass, setDeleteDialogClass] = useState<AcademyLiveClass | null>(null);
 
     // Filters
     // Mặc định hiển thị tất cả (undefined) thay vì chỉ OPENING để Admin thấy được lớp mới tạo (DRAFT)
@@ -68,6 +80,7 @@ export default function LiveClassesPage() {
     } as any);
 
     const publishMutation = usePublishClassDirectly();
+    const deleteMutation = useDeleteAcademyLiveClass();
 
     const handlePublish = async (id: string) => {
         try {
@@ -86,6 +99,21 @@ export default function LiveClassesPage() {
     const handleEdit = (cls: AcademyLiveClass) => {
         setSelectedClass(cls);
         setSheetOpen(true);
+    };
+
+    const handleDeleteDraft = async (cls: AcademyLiveClass) => {
+        setDeleteDialogClass(cls);
+    };
+
+    const handleConfirmDeleteDraft = async () => {
+        if (!deleteDialogClass) return;
+        try {
+            await deleteMutation.mutateAsync(deleteDialogClass.id);
+            toast.success(`Đã xóa lớp ${deleteDialogClass.code}`);
+            setDeleteDialogClass(null);
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || error?.message || "Không thể xóa lớp");
+        }
     };
 
     const getStatusLabel = (status: string) => {
@@ -316,6 +344,17 @@ export default function LiveClassesPage() {
                                                                     <Rocket className="h-4 w-4" /> Xuất bản
                                                                 </Button>
                                                             )}
+                                                            {cls.status === 'DRAFT' && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="h-8 gap-1.5 border-destructive/40 text-destructive bg-transparent hover:bg-destructive/5 font-medium"
+                                                                    onClick={() => handleDeleteDraft(cls)}
+                                                                    disabled={deleteMutation.isPending}
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" /> Xóa nháp
+                                                                </Button>
+                                                            )}
                                                         </>
                                                     )}
                                                 </div>
@@ -385,6 +424,28 @@ export default function LiveClassesPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={!!deleteDialogClass} onOpenChange={(open) => !open && setDeleteDialogClass(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa lớp nháp</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn chắc chắn muốn xóa lớp LIVE bản nháp{" "}
+                            <span className="font-semibold">{deleteDialogClass?.code}</span>? Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleteMutation.isPending}>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmDeleteDraft}
+                            disabled={deleteMutation.isPending}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {deleteMutation.isPending ? "Đang xóa..." : "Xóa lớp nháp"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

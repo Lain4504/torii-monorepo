@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useAiSubscriptionPlans, useUpdateAiSubscriptionPlan, useAiUserSubscriptions } from '@/lib/api/services/ai-subscriptions';
 import { toast } from 'sonner';
@@ -20,6 +21,7 @@ import {
   listPageSearchWrapClass,
   listPageToolbarRootClass,
 } from '@/lib/ui-shell';
+import { ScrollArea, ScrollBar } from '@workspace/ui/components/scroll-area';
 
 export default function AiSubscriptionsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -37,16 +39,19 @@ export default function AiSubscriptionsPage() {
             />
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="mb-4 overflow-x-auto whitespace-nowrap">
-                    <TabsTrigger value="plans" className="gap-2">
-                        <Activity className="size-4" />
-                        Gói Subscription
-                    </TabsTrigger>
-                    <TabsTrigger value="users" className="gap-2">
-                        <Users className="size-4" />
-                        Người dùng đăng ký
-                    </TabsTrigger>
-                </TabsList>
+                <ScrollArea className="w-full whitespace-nowrap">
+                    <TabsList className="mb-4 inline-flex w-max">
+                        <TabsTrigger value="plans" className="gap-2">
+                            <Activity className="size-4" />
+                            Gói Subscription
+                        </TabsTrigger>
+                        <TabsTrigger value="users" className="gap-2">
+                            <Users className="size-4" />
+                            Người dùng đăng ký
+                        </TabsTrigger>
+                    </TabsList>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
 
                 <TabsContent value="plans">
                     <PlansTabContent />
@@ -248,8 +253,10 @@ function UserSubscriptionsTabContent() {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
+    const planCode = searchParams.get('planCode') || '';
+    const { data: plans } = useAiSubscriptionPlans();
 
-    const { data, isLoading } = useAiUserSubscriptions({ page, limit, search });
+    const { data, isLoading } = useAiUserSubscriptions({ page, limit, search, planCode: planCode || undefined });
 
     const handleSearch = (val: string) => {
         setSearchParams(prev => {
@@ -263,6 +270,15 @@ function UserSubscriptionsTabContent() {
     const handlePageChange = (newPage: number) => {
         setSearchParams(prev => {
             prev.set('page', newPage.toString());
+            return prev;
+        });
+    };
+
+    const handlePlanFilter = (value: string) => {
+        setSearchParams(prev => {
+            if (value === 'all') prev.delete('planCode');
+            else prev.set('planCode', value);
+            prev.set('page', '1');
             return prev;
         });
     };
@@ -291,6 +307,19 @@ function UserSubscriptionsTabContent() {
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                 </div>
+                <Select value={planCode || 'all'} onValueChange={handlePlanFilter}>
+                    <SelectTrigger className="w-full md:w-[220px]">
+                        <SelectValue placeholder="Lọc theo gói" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Tất cả gói</SelectItem>
+                        {(plans || []).map((plan: any) => (
+                            <SelectItem key={plan.id} value={plan.code}>
+                                {plan.name} ({plan.code})
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="rounded-md border bg-background overflow-hidden">

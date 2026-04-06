@@ -114,7 +114,7 @@ function App() {
                     <Route path="permissions" element={<PermissionsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["blog.manage", "blog.write"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["blog.manage", "blog.create", "blog.update", "blog.publish", "blog.delete", "blog.view_restricted"]} />}>
                     <Route path="blogs" element={<BlogPage />} />
                     <Route path="blogs/create" element={<CreateBlogPage />} />
                     <Route path="blogs/:id/edit" element={<EditBlogPage />} />
@@ -166,7 +166,7 @@ function App() {
                     />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
+                  <Route element={<RoutePermissionGuard permission="academy:coupon:admin" />}>
                     <Route path="coupons" element={<CouponsPage />} />
                   </Route>
 
@@ -174,7 +174,7 @@ function App() {
                     <Route path="rewards" element={<RewardsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["payment.view", "payment.manage"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["academy:order:admin", "academy.commerce.read"]} />}>
                     <Route path="orders" element={<OrdersPage />} />
                   </Route>
 

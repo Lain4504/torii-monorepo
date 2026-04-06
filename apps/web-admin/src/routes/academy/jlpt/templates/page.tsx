@@ -215,22 +215,24 @@ export default function JlptTemplatesPage() {
                         <span className="text-sm">{tpl.totalDurationMinutes ?? "?"} phút</span>
                       </TableCell>
                       <TableCell className="text-right pr-4">
-                        <div className="flex justify-end gap-1">
+                        <div className="flex justify-end gap-2">
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-slate-500 hover:text-sky-600 hover:bg-sky-50"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 border-sky-500/40 text-sky-700 hover:bg-sky-50 font-medium"
                             onClick={() => navigate(`/academy/jlpt/templates/${tpl.id}`)}
                           >
                             <Edit2 className="size-4" />
+                            Sửa
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5 font-medium"
                             onClick={() => setDeleteTargetId(tpl.id)}
                           >
                             <Trash2 className="size-4" />
+                            Xóa
                           </Button>
                         </div>
                       </TableCell>

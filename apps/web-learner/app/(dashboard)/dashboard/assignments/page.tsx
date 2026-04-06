@@ -2,12 +2,8 @@
 
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
-import { Badge } from '@workspace/ui/components/badge'
-import { Input } from '@workspace/ui/components/input'
 import { 
-    Calendar, 
     ChevronRight, 
-    Search,
     BookOpen,
     ClipboardCheck,
     Clock
@@ -16,7 +12,6 @@ import { useAcademyMyCourses } from '@/lib/api/services/academy-learning-progres
 import { useAcademyClassAssignments } from '@/lib/api/services/academy-assignment-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 import Link from 'next/link'
-import { useState } from 'react'
 import { cn } from '@workspace/ui/lib/utils'
 import { formatDate } from '@/utils/format-utils'
 
@@ -66,7 +61,6 @@ function ClassAssignmentSection({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {assignments.map((ca: any) => {
                     const deadline = ca.deadline ? new Date(ca.deadline) : null
-                    const isUpcoming = deadline && deadline > new Date()
                     const isOverdue = deadline && deadline < new Date()
 
                     return (
@@ -103,14 +97,8 @@ function ClassAssignmentSection({
 
 export default function AssignmentsPage() {
     const { data: courses, isLoading: loadingCourses } = useAcademyMyCourses()
-    const [searchQuery, setSearchQuery] = useState('')
 
     const liveClasses = courses?.filter((c: any) => c.type?.toLowerCase() === 'live') || []
-    
-    const filteredClasses = liveClasses.filter((c: any) => 
-        (c.courseTitle || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (c.classCode || "").toLowerCase().includes(searchQuery.toLowerCase())
-    )
 
     if (loadingCourses) {
         return (
@@ -123,7 +111,6 @@ export default function AssignmentsPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-8">
-            {/* Standard Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border">
                 <div className="space-y-4">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Bài tập cá nhân</h1>
@@ -131,22 +118,12 @@ export default function AssignmentsPage() {
                         Hoàn thiện các bài tập định kỳ để trau dồi kỹ năng và nắm vững lộ trình kiến thức của khóa học.
                     </p>
                 </div>
-                <div className="relative w-full sm:w-64 group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
-                    <Input
-                        placeholder="Tìm theo khóa học..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-10 bg-muted/5 border-border/40 rounded-xl focus:bg-background transition-all text-xs font-medium placeholder:text-muted-foreground/20"
-                    />
-                </div>
             </div>
 
-            {/* List Section */}
             <div className="space-y-12">
-                {filteredClasses.length > 0 ? (
+                {liveClasses.length > 0 ? (
                     <div className="space-y-16">
-                        {filteredClasses.map((cls: any) => (
+                        {liveClasses.map((cls: any) => (
                             <ClassAssignmentSection 
                                 key={cls.id} 
                                 classId={cls.liveClassId || cls.id} 
@@ -163,9 +140,7 @@ export default function AssignmentsPage() {
                         <div className="space-y-1 max-w-sm">
                             <h3 className="text-lg font-bold text-foreground/80 tracking-tight">Khu vực trống</h3>
                             <p className="text-sm text-muted-foreground/50 leading-relaxed font-medium">
-                                {searchQuery 
-                                    ? `Không tìm thấy nội dung khóa học nào khớp với "${searchQuery}".`
-                                    : "Hiện tại bạn chưa có bài tập nào cần hoàn thành."}
+                                Hiện tại bạn chưa có bài tập nào cần hoàn thành.
                             </p>
                         </div>
                         <Button asChild variant="outline" className="h-9 rounded-lg px-6 font-semibold text-xs border-border/50 hover:bg-muted/5 transition-all">

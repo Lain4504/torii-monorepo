@@ -272,9 +272,9 @@ export default function CheckoutPage() {
     const displayTotal = preview?.grandTotal ?? preview?.total ?? displaySubtotal
 
     return (
-        <div className="min-h-screen bg-background pb-20">
-            <div className="container max-w-6xl mx-auto px-4 pt-10">
-                <Button variant="ghost" size="sm" asChild className="mb-6 -ml-2 text-muted-foreground">
+        <div className="pb-10">
+            <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
+                <Button variant="outline" size="sm" asChild>
                     <Link
                         href={
                             searchParams.get('classId')
@@ -282,20 +282,22 @@ export default function CheckoutPage() {
                                 : '/dashboard/available-courses'
                         }
                     >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        <ArrowLeft className="mr-2 size-4" />
                         Quay lại trang khóa học
                     </Link>
                 </Button>
 
-                <div className="mb-8">
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thanh toán</h1>
-                    <p className="text-muted-foreground mt-1">Hoàn tất đơn hàng để bắt đầu hành trình học tập.</p>
+                <div className="space-y-1">
+                    <h1 className="text-2xl font-semibold">Thanh toán</h1>
+                    <p className="text-sm text-muted-foreground">Hoàn tất đơn hàng để bắt đầu hành trình học tập.</p>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
+                <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
-                            <CardHeader><CardTitle className="text-xl">Thông tin khóa học</CardTitle></CardHeader>
+                            <CardHeader>
+                                <CardTitle>Thông tin khóa học</CardTitle>
+                            </CardHeader>
                             <CardContent>
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
@@ -303,7 +305,7 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="flex-1 space-y-3">
                                         <Badge variant="secondary">{product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
-                                        <h3 className="font-bold text-lg">{selectedClass?.name || product.learnerDisplayTitle || product.name}</h3>
+                                        <h3 className="text-lg font-medium">{selectedClass?.name || product.learnerDisplayTitle || product.name}</h3>
                                         {product.liveContextLine && (
                                             <p className="text-sm text-muted-foreground">{product.liveContextLine}</p>
                                         )}
@@ -332,7 +334,7 @@ export default function CheckoutPage() {
                         </Card>
 
                         {isLIVE && product.classes && product.classes.length === 1 && isLiveClassFull(product.classes[0]) && (
-                            <Card className="border-destructive/50 bg-destructive/5">
+                            <Card className="border-destructive/50">
                                 <CardContent className="pt-6 text-sm text-destructive">
                                     Lớp LIVE hiện tại đã đủ học viên. Bạn không thể thanh toán gói này cho đến khi có chỗ trống.
                                 </CardContent>
@@ -344,7 +346,7 @@ export default function CheckoutPage() {
                         <Card>
                             <CardHeader>
                                 <div className="flex items-center justify-between">
-                                    <CardTitle className="text-xl flex items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2">
                                         <Gift className="h-5 w-5 text-primary" />
                                         Mua làm quà tặng
                                     </CardTitle>
@@ -371,8 +373,10 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="space-y-6">
-                        <Card className="sticky top-6">
-                            <CardHeader><CardTitle>Chi tiết đơn hàng</CardTitle></CardHeader>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Chi tiết đơn hàng</CardTitle>
+                            </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Tạm tính</span>
@@ -400,7 +404,7 @@ export default function CheckoutPage() {
 
                                 <div className="pt-4 space-y-3">
                                     <Button
-                                        className="w-full py-6 text-lg"
+                                        className="w-full"
                                         onClick={() => handlePayment(PaymentMethod.PAYOS)}
                                         disabled={
                                             isProcessing ||
@@ -414,38 +418,41 @@ export default function CheckoutPage() {
 
                                     {/* Coin Payment Option */}
                                     {user?.walletBalance !== undefined && user.walletBalance > 0 && (
-                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between group mt-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-amber-500/20 rounded-lg">
+                                        <Card>
+                                            <CardContent className="pt-6 flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3">
                                                     <Coins className="size-5 text-amber-600" />
-                                                </div>
                                                 <div>
-                                                    <p className="text-sm font-semibold text-amber-900">Ví Xu Torii</p>
-                                                    <p className="text-xs text-amber-800">
+                                                    <p className="text-sm font-medium">Ví Xu Torii</p>
+                                                    <p className="text-xs text-muted-foreground">
                                                         Bạn có {formatNumber(user.walletBalance)} xu
                                                     </p>
                                                 </div>
-                                            </div>
-                                            {user.walletBalance >= displayTotal && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 px-3 text-xs font-semibold text-amber-600 hover:text-white hover:bg-amber-500 border border-amber-500/30 rounded-lg transition-all"
-                                                    onClick={() => handlePayment(PaymentMethod.COIN)}
-                                                    disabled={isProcessing}
-                                                >
-                                                    Thanh toán bằng xu
-                                                </Button>
-                                            )}
-                                        </div>
+                                                </div>
+                                                {user.walletBalance >= displayTotal && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handlePayment(PaymentMethod.COIN)}
+                                                        disabled={isProcessing}
+                                                    >
+                                                        Thanh toán bằng xu
+                                                    </Button>
+                                                )}
+                                            </CardContent>
+                                        </Card>
                                     )}
                                 </div>
                             </CardContent>
                         </Card>
-                        <div className="bg-muted/50 rounded-lg p-4 flex gap-3">
-                            <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
-                            <p className="text-xs text-muted-foreground">Thanh toán an toàn và bảo mật qua hệ thống PayOS.</p>
-                        </div>
+                        <Card>
+                            <CardContent className="pt-6 flex items-center gap-3">
+                                <ShieldCheck className="size-5 text-primary shrink-0" />
+                                <p className="text-xs text-muted-foreground">
+                                    Thanh toán an toàn và bảo mật qua hệ thống PayOS.
+                                </p>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>

@@ -7,17 +7,10 @@ import {
 } from '@workspace/ui/components/sheet';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Button } from '@workspace/ui/components/button';
-import { Separator } from '@workspace/ui/components/separator';
+import { Badge } from '@workspace/ui/components/badge';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
-import { User, Calendar, MessageSquare, Tag, Info, Building, Coins } from 'lucide-react';
-import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from "@workspace/ui/components/item";
+import { User, Calendar, MessageSquare, Tag, Info, Building, Coins, Clock } from 'lucide-react';
 
 interface TicketDetailSheetProps {
     open: boolean;
@@ -32,12 +25,25 @@ export function TicketDetailSheet({
 }: TicketDetailSheetProps) {
     if (!ticket) return null;
 
+    const typeLabelMap: Record<string, string> = {
+        REFUND: 'Hoàn tiền',
+        SUPPORT: 'Hỗ trợ',
+        ERROR_REPORT: 'Báo lỗi',
+    };
+
+    const statusLabelMap: Record<string, string> = {
+        PENDING: 'Đang chờ',
+        PROCESSING: 'Đang xử lý',
+        RESOLVED: 'Đã giải quyết',
+        CANCELLED: 'Đã hủy',
+    };
+
     const renderMetadata = () => {
         if (!ticket.metadata) return null;
         return (
-            <div className="space-y-2 mt-4">
+            <div className="space-y-2">
                 <h4 className="text-xs uppercase text-muted-foreground font-semibold">Thông tin bổ sung</h4>
-                <div className="p-4 rounded-lg bg-muted/50 border border-border/50 text-xs font-mono">
+                <div className="rounded-xl border border-border/50 bg-muted/30 p-4 text-xs font-mono">
                     <pre className="whitespace-pre-wrap break-words">{JSON.stringify(ticket.metadata, null, 2)}</pre>
                 </div>
             </div>
@@ -56,69 +62,84 @@ export function TicketDetailSheet({
 
                 <ScrollArea className="flex-1 min-h-0">
                     <div className="space-y-6 p-6">
-                        <Item variant="outline">
-                            <ItemMedia><User className="size-4" /></ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Người gửi</ItemTitle>
-                                <ItemDescription>{ticket.user?.displayName} ({ticket.user?.email})</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                        <Item variant="outline">
-                            <ItemMedia><Tag className="size-4" /></ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Phân loại</ItemTitle>
-                                <ItemDescription>{ticket.type}</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                        <Item variant="outline">
-                            <ItemMedia><Info className="size-4" /></ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Tiêu đề</ItemTitle>
-                                <ItemDescription>{ticket.subject}</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                        <Item variant="outline">
-                            <ItemMedia><MessageSquare className="size-4" /></ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Nội dung</ItemTitle>
-                                <ItemDescription className="whitespace-pre-wrap">{ticket.description}</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                        {(ticket as any).refundAmount !== undefined && (ticket as any).refundAmount !== null && (ticket as any).refundAmount > 0 && (
-                            <Item variant="outline">
-                                <ItemMedia><Coins className="size-4 text-primary" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Số tiền hoàn trả</ItemTitle>
-                                    <ItemDescription>{(ticket as any).refundAmount} Xu</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                        )}
-                        {ticket.response && (
-                            <Item variant="outline">
-                                <ItemMedia><Building className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Phản hồi từ quản trị viên</ItemTitle>
-                                    <ItemDescription className="whitespace-pre-wrap">{ticket.response}</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                        )}
-                        <Separator />
-                        <div className="grid grid-cols-2 gap-4">
-                            <Item variant="outline">
-                                <ItemMedia><Calendar className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Ngày tạo</ItemTitle>
-                                    <ItemDescription>{formatDateTime(ticket.createdAt)}</ItemDescription>
-                                </ItemContent>
-                            </Item>
-                            <Item variant="outline">
-                                <ItemMedia><Calendar className="size-4" /></ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle>Cập nhật lần cuối</ItemTitle>
-                                    <ItemDescription>{formatDateTime(ticket.updatedAt)}</ItemDescription>
-                                </ItemContent>
-                            </Item>
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/50 bg-muted/20 p-4">
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Mã ticket</p>
+                                <p className="text-base font-bold">#{ticket.id.slice(0, 8).toUpperCase()}</p>
+                            </div>
+                            <Badge variant="outline" className="font-semibold">
+                                {statusLabelMap[ticket.status] ?? ticket.status}
+                            </Badge>
                         </div>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2 rounded-xl border border-border/50 p-4">
+                                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                                    <User className="size-3.5" />
+                                    Người gửi
+                                </p>
+                                <p className="text-sm font-medium">{ticket.user?.displayName || '—'}</p>
+                                <p className="text-xs text-muted-foreground">{ticket.user?.email || '—'}</p>
+                            </div>
+                            <div className="space-y-2 rounded-xl border border-border/50 p-4">
+                                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                                    <Tag className="size-3.5" />
+                                    Phân loại
+                                </p>
+                                <p className="text-sm font-medium">{typeLabelMap[ticket.type] ?? ticket.type}</p>
+                            </div>
+                            <div className="space-y-2 rounded-xl border border-border/50 p-4">
+                                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                                    <Calendar className="size-3.5" />
+                                    Ngày tạo
+                                </p>
+                                <p className="text-sm">{formatDateTime(ticket.createdAt)}</p>
+                            </div>
+                            <div className="space-y-2 rounded-xl border border-border/50 p-4">
+                                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                                    <Clock className="size-3.5" />
+                                    Cập nhật lần cuối
+                                </p>
+                                <p className="text-sm">{formatDateTime(ticket.updatedAt)}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 rounded-xl border border-border/50 p-4">
+                            <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                                <Info className="size-3.5" />
+                                Tiêu đề
+                            </p>
+                            <p className="text-sm font-medium">{ticket.subject}</p>
+                        </div>
+
+                        <div className="space-y-2 rounded-xl border border-border/50 p-4">
+                            <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                                <MessageSquare className="size-3.5" />
+                                Nội dung
+                            </p>
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed">{ticket.description}</p>
+                        </div>
+
+                        {(ticket as any).refundAmount !== undefined && (ticket as any).refundAmount !== null && (ticket as any).refundAmount > 0 && (
+                            <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-primary">
+                                    <Coins className="size-3.5" />
+                                    Số tiền hoàn trả
+                                </p>
+                                <p className="text-lg font-bold text-primary">{(ticket as any).refundAmount} Xu</p>
+                            </div>
+                        )}
+
+                        {ticket.response && (
+                            <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-4">
+                                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-primary">
+                                    <Building className="size-3.5" />
+                                    Phản hồi từ quản trị viên
+                                </p>
+                                <p className="whitespace-pre-wrap text-sm leading-relaxed">{ticket.response}</p>
+                            </div>
+                        )}
+
                         {renderMetadata()}
                     </div>
                 </ScrollArea>

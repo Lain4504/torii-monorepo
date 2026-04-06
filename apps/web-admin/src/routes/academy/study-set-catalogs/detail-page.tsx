@@ -25,7 +25,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { ArrowLeft, Plus, Pencil, Trash2, Loader2, BookOpen } from 'lucide-react'
+import { ArrowLeft, Plus, Loader2, BookOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { dataTableShellClass, dataTableHeaderClass } from '@/lib/ui-shell'
 
@@ -196,7 +196,7 @@ export default function StudySetCatalogDetailPage() {
                 <TableHead>Mặt trước / Phiên âm</TableHead>
                 <TableHead>Mặt sau</TableHead>
                 <TableHead>Từ loại</TableHead>
-                <TableHead className="w-[120px] text-right pr-4">Thao tác</TableHead>
+                <TableHead className="w-[220px] text-right pr-4">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -229,22 +229,25 @@ export default function StudySetCatalogDetailPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right pr-4">
-                    <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(card)}>
-                        <Pencil />
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(card)}>
+                        Chỉnh sửa
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="icon-sm"
+                        variant="destructive"
+                        size="sm"
                         onClick={() => openDelete(card)}
                         disabled={
                           deleteCard.isPending && deleteCard.variables === card.id
                         }
                       >
                         {deleteCard.isPending && deleteCard.variables === card.id ? (
-                          <Loader2 className="animate-spin" />
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Đang xóa
+                          </>
                         ) : (
-                          <Trash2 />
+                          'Xóa'
                         )}
                       </Button>
                     </div>

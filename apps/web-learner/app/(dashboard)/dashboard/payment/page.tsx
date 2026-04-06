@@ -334,10 +334,11 @@ export default function PaymentHistoryPage() {
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground border-border/60"
+                                                                className="h-8 px-3 rounded-lg text-muted-foreground hover:text-foreground border-border/60 flex items-center gap-1.5"
                                                                 onClick={() => handleViewDetail(order.id)}
                                                             >
                                                                 <Eye className="w-4 h-4" />
+                                                                <span className="text-xs font-medium">Xem</span>
                                                             </Button>
                                                          </div>
                                                      </TableCell>

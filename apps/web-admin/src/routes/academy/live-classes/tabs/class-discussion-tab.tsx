@@ -1,22 +1,21 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useQueries } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/use-auth'
-import { useComments, useCreateComment } from '@/lib/api/services/comments'
+import { commentApi, useCreateComment } from '@/lib/api/services/comments'
 import type { CommentResponseDTO } from '@workspace/schemas'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { toast } from '@workspace/ui/components/sonner'
-import { Plus, MessageSquare, User } from 'lucide-react'
+import { Plus, MessageSquare, User, Filter } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@workspace/ui/components/select'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@workspace/ui/components/table"
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
 import { formatDate } from '@/lib/format-utils'
 import {
   Sheet,
@@ -61,35 +60,59 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
   const isAdminOrStaff = user?.role === 'admin' || user?.role === 'staff-academic' || user?.role === 'staff-operations'
   const canPost = isAssignedInstructor && !isAdminOrStaff
 
-  const [selectedLessonId, setSelectedLessonId] = useState<string>('')
+  const [selectedLessonId, setSelectedLessonId] = useState<string>('all')
 
-  useEffect(() => {
-    if (!selectedLessonId && lessonOptions.length) {
-      setSelectedLessonId(lessonOptions[0].id)
-    }
-  }, [lessonOptions, selectedLessonId])
+  const lessonQueries = useQueries({
+    queries: lessonOptions.map((lesson) => ({
+      queryKey: ['comments', 'discussion-timeline', classId || vodPackageId, lesson.id],
+      queryFn: () =>
+        commentApi.findAll({
+          discussionId: lesson.id,
+          classId: classId || vodPackageId,
+          page: 1,
+          limit: 100,
+        } as any),
+      enabled: !!(classId || vodPackageId),
+    })),
+  })
 
-  const params = useMemo(
-    () => ({ 
-      discussionId: selectedLessonId, 
-      classId: classId || vodPackageId,
-      page: 1, 
-      limit: 100 
-    } as any),
-    [selectedLessonId, classId, vodPackageId],
-  )
+  const isLoading = lessonQueries.some((q) => q.isLoading)
+  const isError = lessonQueries.some((q) => q.isError)
 
-  const { data, isLoading, isError, refetch } = useComments(params as any)
+  const topics = useMemo(() => {
+    const byLesson = lessonQueries.flatMap((q, idx) => {
+      const lesson = lessonOptions[idx]
+      const data = (q.data?.data ?? []) as CommentResponseDTO[]
+      return data.map((item) => ({
+        ...item,
+        __lessonId: lesson?.id,
+        __lessonTitle: lesson?.title || 'Bài học',
+      }))
+    })
 
-  const topics = (data?.data ?? []) as CommentResponseDTO[]
+    const filtered =
+      selectedLessonId === 'all'
+        ? byLesson
+        : byLesson.filter((t: any) => t.__lessonId === selectedLessonId)
+
+    return filtered
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+      )
+  }, [lessonQueries, lessonOptions, selectedLessonId])
+
+  const refetchAll = async () => {
+    await Promise.all(lessonQueries.map((q) => q.refetch()))
+  }
 
   const onCreateTopic = async () => {
     if (!isAuthenticated || !user?.id) {
       toast.error('Vui lòng đăng nhập để đặt câu hỏi')
       return
     }
-    if (!selectedLessonId) {
-      toast.error('Chưa chọn bài học')
+    if (!selectedLessonId || selectedLessonId === 'all') {
+      toast.error('Vui lòng chọn bài học để đặt câu hỏi')
       return
     }
     if (!topicContent.trim()) {
@@ -106,7 +129,7 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
       } as any)
       setTopicContent('')
       setSelectedTopic(null)
-      refetch()
+      refetchAll()
     } catch (e: any) {
       toast.error(e?.message || 'Không thể tạo thảo luận')
     }
@@ -122,10 +145,17 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
       toast.error('Nội dung trả lời không được để trống')
       return
     }
+    const discussionId =
+      (selectedTopic as any)?.discussionId ||
+      (selectedLessonId !== 'all' ? selectedLessonId : '')
+    if (!discussionId) {
+      toast.error('Không xác định được bài học cho phản hồi này')
+      return
+    }
 
     try {
       await createComment.mutateAsync({
-        discussionId: selectedLessonId,
+        discussionId,
         userId: user.id,
         parentId: topicId,
         content: text,
@@ -133,7 +163,7 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
       } as any)
       setReplyDraftByTopic((prev) => ({ ...prev, [topicId]: '' }))
       setActiveReplyId(null)
-      refetch()
+      refetchAll()
     } catch (e: any) {
       toast.error(e?.message || 'Không thể gửi trả lời')
     }
@@ -209,45 +239,47 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
 
   return (
     <div className="space-y-4">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h3 className="text-lg font-bold flex items-center gap-2">
             <MessageSquare className="size-5 text-primary" />
-            Thảo luận bài học
+            Thảo luận lớp học
           </h3>
           <p className="text-sm text-muted-foreground">
-            Học viên hỏi đáp; Chỉ giảng viên phụ trách mới có quyền trả lời.
+            Hiển thị toàn bộ bình luận theo thời gian. Có thể lọc theo bài học khi cần.
           </p>
         </div>
+      </div>
 
-        {!!lessonOptions.length && (
-          <div className="min-w-[260px]">
-            <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
-              <SelectTrigger className="w-full sm:w-[300px]">
-                <SelectValue placeholder="Chọn bài học" />
-              </SelectTrigger>
-              <SelectContent position="popper" className="max-h-[400px]">
-                {(((curriculum?.modules ?? []) as Array<any>)
-                  .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-                ).map((m) => (
-                  <SelectGroup key={m.id}>
-                    <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>
-                    {((m.lessons || []) as Array<any>)
-                      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-                      .map((l: any) => (
-                      <SelectItem key={l.id} value={l.id} className="pl-6">
-                        {l.title || l.id}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+      <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full sm:max-w-[320px]">
+          <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
+            <SelectTrigger className="w-full">
+              <Filter className="mr-2 size-4 text-muted-foreground" />
+              <SelectValue placeholder="Lọc theo bài học" />
+            </SelectTrigger>
+            <SelectContent position="popper" className="max-h-[400px]">
+              <SelectItem value="all">Tất cả bài học</SelectItem>
+              {(((curriculum?.modules ?? []) as Array<any>)
+                .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+              ).map((m) => (
+                <SelectGroup key={m.id}>
+                  <SelectLabel className="bg-muted text-muted-foreground">{m.title}</SelectLabel>
+                  {((m.lessons || []) as Array<any>)
+                    .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                    .map((l: any) => (
+                    <SelectItem key={l.id} value={l.id} className="pl-6">
+                      {l.title || l.id}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {isAuthenticated && canPost && (
-          <Button className="gap-2" onClick={() => setSelectedTopic({ content: '', discussionId: selectedLessonId } as any)}>
+          <Button className="gap-2 w-full sm:w-auto" onClick={() => setSelectedTopic({ content: '', discussionId: selectedLessonId === 'all' ? '' : selectedLessonId } as any)}>
             <Plus className="size-4" />
             Đặt câu hỏi
           </Button>
@@ -265,79 +297,50 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
       ) : topics.length === 0 ? (
         <div className="py-16 text-center text-muted-foreground space-y-2 border border-dashed rounded-lg bg-muted/5">
           <MessageSquare className="h-10 w-10 mx-auto opacity-40" />
-          <div className="font-semibold">Chưa có thảo luận nào cho bài học này.</div>
+          <div className="font-semibold">Chưa có thảo luận nào.</div>
           <div className="text-sm">Hãy là người đầu tiên đặt câu hỏi hoặc chia sẻ ý kiến.</div>
         </div>
       ) : (
-        <div className="rounded-xl border shadow-sm overflow-hidden bg-card">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[40px] pl-4">#</TableHead>
-                <TableHead className="w-[200px]">Học viên</TableHead>
-                <TableHead>Nội dung câu hỏi</TableHead>
-                <TableHead className="w-[140px]">Ngày gửi</TableHead>
-                <TableHead className="w-[120px]">Phản hồi</TableHead>
-                <TableHead className="w-[120px]">Trạng thái</TableHead>
-                <TableHead className="w-[144px] text-right pr-4">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {topics.map((topic, index) => {
-                return (
-                  <TableRow 
-                    key={topic.id} 
-                    className="cursor-pointer hover:bg-muted/30 transition-colors group"
-                    onClick={() => setSelectedTopic(topic)}
-                  >
-                    <TableCell className="pl-4 text-muted-foreground font-mono text-xs">{index + 1}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                          {topic.author?.avatarUrl ? (
-                            <img src={topic.author.avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
-                          ) : (
-                            <User className="size-4 text-primary" />
-                          )}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm truncate font-bold">{topic.author?.displayName || 'Unknown'}</span>
-                          <span className="text-[10px] text-muted-foreground truncate">{topic.author?.email || 'N/A'}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-foreground/80 line-clamp-1 group-hover:text-primary transition-colors">
-                        {topic.content}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDate(topic.createdAt)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-[10px] font-bold">
-                        {topic.replyCount ?? 0} phản hồi
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {topic.status === 'ANSWERED' ? (
-                        <Badge variant="success" className="text-[9px] uppercase font-black">Đã trả lời</Badge>
+        <div className="space-y-3">
+          {topics.map((topic: any) => (
+            <Card key={topic.id} className="cursor-pointer border-border/70 transition-colors hover:bg-muted/20" onClick={() => setSelectedTopic(topic)}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      {topic.author?.avatarUrl ? (
+                        <img src={topic.author.avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
                       ) : (
-                        <Badge variant="warning" className="text-[9px] uppercase font-black">Chờ phản hồi</Badge>
+                        <User className="size-4 text-primary" />
                       )}
-                    </TableCell>
-                    <TableCell className="text-right pr-4">
-                        <Button variant="outline" size="sm" className="h-8 font-bold text-xs uppercase tracking-wider">
-                           Xem thảo luận
-                        </Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold truncate">{topic.author?.displayName || 'Unknown'}</p>
+                      <p className="text-[10px] text-muted-foreground">{formatDate(topic.createdAt)}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-end gap-1">
+                    <Badge variant="outline" className="text-[10px]">
+                      {(topic as any).__lessonTitle || 'Bài học'}
+                    </Badge>
+                    {topic.status === 'ANSWERED' ? (
+                      <Badge variant="success" className="text-[9px] uppercase font-black">Đã trả lời</Badge>
+                    ) : (
+                      <Badge variant="warning" className="text-[9px] uppercase font-black">Chờ phản hồi</Badge>
+                    )}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-sm text-foreground/80 line-clamp-2">{topic.content}</p>
+                <div className="mt-3 flex justify-end">
+                  <Button variant="outline" size="sm" className="h-8">
+                    Xem thảo luận
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 

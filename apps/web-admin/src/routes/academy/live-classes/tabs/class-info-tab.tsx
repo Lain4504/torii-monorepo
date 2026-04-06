@@ -51,22 +51,22 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
           <CardDescription>Mã lớp, tên lớp và trạng thái</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex items-center gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border p-3 flex items-center gap-3">
               <Hash className="size-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Mã lớp</p>
                 <p className="font-mono font-medium">{academyClass.code}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="rounded-lg border p-3 flex items-center gap-3">
               <FileText className="size-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Tên lớp</p>
-                <p className="font-medium">{academyClass.name}</p>
+                <p className="font-medium break-words">{academyClass.name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="rounded-lg border p-3 flex items-center gap-3">
               {isLive ? (
                 <Video className="size-4 text-muted-foreground" />
               ) : (
@@ -79,7 +79,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
                 </Badge>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="rounded-lg border p-3 flex items-center gap-3">
               <Calendar className="size-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Trạng thái</p>
@@ -93,7 +93,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
       </Card>
 
       {isLive && (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 xl:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -103,23 +103,23 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
+                <div className="rounded-lg border p-3">
                   <p className="text-xs text-muted-foreground">Ngày bắt đầu</p>
                   <p className="font-medium">{formatDate(academyClass.cohort?.startDate || academyClass.startDate)}</p>
                 </div>
-                <div>
+                <div className="rounded-lg border p-3">
                   <p className="text-xs text-muted-foreground">Ngày kết thúc</p>
                   <p className="font-medium">{formatDate(academyClass.cohort?.endDate || academyClass.endDate)}</p>
                 </div>
-                <div>
+                <div className="rounded-lg border p-3">
                   <p className="text-xs text-muted-foreground">Mở đăng ký</p>
                   <p className="font-medium">{formatDate(academyClass.cohort?.enrollmentOpenAt)}</p>
                 </div>
-                <div>
+                <div className="rounded-lg border p-3">
                   <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
                   <p className="font-medium">{formatDate(academyClass.cohort?.enrollmentCloseAt)}</p>
                 </div>
-                <div className="sm:col-span-2">
+                <div className="rounded-lg border p-3 sm:col-span-2">
                   <p className="text-xs text-muted-foreground">Sĩ số (đang học / tối đa)</p>
                   <p className="font-medium">
                     {academyClass._count?.enrollments ?? 0}

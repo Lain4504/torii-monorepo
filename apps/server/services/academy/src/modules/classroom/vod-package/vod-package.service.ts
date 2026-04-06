@@ -1,8 +1,11 @@
 import {
-  Injectable,
-  NotFoundException,
   BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   AcademyVodPackageCreateDTO,
@@ -13,10 +16,57 @@ import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class VodPackageService {
+  private readonly logger = new Logger(VodPackageService.name);
+
   constructor(
     private prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
+
+  private async resolveRejectRecipient(
+    packageId: string,
+    reviewerId?: string,
+  ): Promise<string | null> {
+    const latestActor = await this.prisma.auditLog.findFirst({
+      where: {
+        entity: 'VodPackage',
+        entityId: packageId,
+        userId: reviewerId ? { not: reviewerId } : undefined,
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { userId: true },
+    });
+    return latestActor?.userId ?? null;
+  }
+
+  private notifyRejected(payload: {
+    recipientId: string;
+    packageId: string;
+    packageCode: string;
+    packageTitle: string;
+    reason?: string | null;
+  }) {
+    this.natsClient.emit(
+      { cmd: 'send_notification' },
+      {
+        recipientId: payload.recipientId,
+        type: 'system',
+        payload: {
+          title: 'Yêu cầu của bạn đã bị từ chối',
+          body: `Yêu cầu duyệt VOD Package ${payload.packageCode} đã bị từ chối.`,
+          metadata: {
+            entityType: 'VOD_PACKAGE',
+            entityId: payload.packageId,
+            code: payload.packageCode,
+            title: payload.packageTitle,
+            status: 'REJECTED',
+            rejectionReason: payload.reason ?? '',
+          },
+        },
+      },
+    );
+  }
 
   async findAll(query: AcademyVodPackageQueryDTO) {
     const where: any = {};
@@ -142,6 +192,29 @@ export class VodPackageService {
             ? { reason: data.rejectionReason }
             : undefined,
       });
+    }
+
+    if (
+      before.status === 'PENDING_APPROVAL' &&
+      item.status === 'DRAFT' &&
+      requesterId
+    ) {
+      try {
+        const recipientId = await this.resolveRejectRecipient(id, requesterId);
+        if (recipientId && recipientId !== requesterId) {
+          this.notifyRejected({
+            recipientId,
+            packageId: item.id,
+            packageCode: item.code,
+            packageTitle: item.title,
+            reason: data.rejectionReason ?? null,
+          });
+        }
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send reject notification for VOD package ${id}: ${error?.message || String(error)}`,
+        );
+      }
     }
 
     return item;

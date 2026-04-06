@@ -696,6 +696,22 @@ export class OrderService {
     const where: any = {};
     if (query.userId) where.userId = query.userId;
     if (query.status) where.status = query.status;
+    if (query.startDate || query.endDate) {
+      where.createdAt = {};
+      if (query.startDate)
+        where.createdAt.gte = new Date(query.startDate + 'T00:00:00.000Z');
+      if (query.endDate)
+        where.createdAt.lte = new Date(query.endDate + 'T23:59:59.999Z');
+    }
+    if (query.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { user: { email: { contains: query.search, mode: 'insensitive' } } },
+        {
+          user: { displayName: { contains: query.search, mode: 'insensitive' } },
+        },
+      ];
+    }
 
     const limit = Math.max(1, Number(query.limit || 20));
     const skip = query.page ? (Math.max(1, Number(query.page)) - 1) * limit : 0;

@@ -40,61 +40,6 @@ interface Tier {
     color: string
 }
 
-const tiers: Tier[] = [
-    {
-        id: "free",
-        code: "free",
-        name: "Free",
-        price: 0,
-        quota: "10 lượt/ngày",
-        description: "Dành cho người mới bắt đầu khám phá AI Sensei.",
-        features: [
-            "10 lượt check ngữ pháp/ngày",
-            "10 lượt dịch thuật/ngày",
-            "Truy cập cơ bản AI Sensei Chat",
-            "Hỗ trợ qua cộng đồng"
-        ],
-        icon: <Zap className="size-6" />,
-        color: "text-slate-500 bg-slate-500/10 border-slate-500/20"
-    },
-    {
-        id: "plus",
-        code: "plus",
-        name: "Plus",
-        price: 50000,
-        quota: "100 lượt/ngày",
-        description: "Gói phổ biến nhất cho người học nghiêm túc.",
-        features: [
-            "100 lượt sử dụng AI mỗi ngày",
-            "Không giới hạn dịch thuật",
-            "Truy cập đầy đủ Roleplay & Voice",
-            "Ưu tiên phản hồi từ AI",
-            "Hỗ trợ ưu tiên"
-        ],
-        popular: true,
-        icon: <Star className="size-6 text-amber-500 fill-amber-500" />,
-        color: "text-amber-600 bg-amber-500/10 border-amber-500/30 ring-2 ring-amber-500/20"
-    },
-    {
-        id: "premium",
-        code: "premium",
-        name: "Premium",
-        price: 125000,
-        quota: "5000 lượt/ngày",
-        description: "Trải nghiệm không giới hạn cùng AI Sensei.",
-        features: [
-            "5000 lượt (Gần như vô hạn) mỗi ngày",
-            "Mọi tính năng AI Sensei mới nhất",
-            "Giao diện không quảng cáo",
-            "Tùy chỉnh giọng nói AI",
-            "Hỗ trợ 1-1 chuyên sâu"
-        ],
-        icon: <Crown className="size-6 text-purple-600 fill-purple-600" />,
-        color: "text-purple-600 bg-purple-500/10 border-purple-500/30"
-    }
-]
-
-
 export default function SubscriptionsPage() {
     const router = useRouter()
     const [loadingTier, setLoadingTier] = React.useState<string | null>(null)
@@ -117,19 +62,19 @@ export default function SubscriptionsPage() {
         switch (code.toLowerCase()) {
             case 'premium':
                 return {
-                    icon: <Crown className="size-6 text-purple-600 fill-purple-600" />,
+                    icon: <Crown />,
                     color: "text-purple-600 bg-purple-500/10 border-purple-500/30",
                     popular: false
                 }
             case 'plus':
                 return {
-                    icon: <Star className="size-6 text-amber-500 fill-amber-500" />,
+                    icon: <Star className="fill-amber-500" />,
                     color: "text-amber-600 bg-amber-500/10 border-amber-500/30 ring-2 ring-amber-500/20",
                     popular: true
                 }
             default:
                 return {
-                    icon: <Zap className="size-6" />,
+                    icon: <Zap />,
                     color: "text-slate-500 bg-slate-500/10 border-slate-500/20",
                     popular: false
                 }
@@ -268,14 +213,14 @@ export default function SubscriptionsPage() {
                             )}
 
                             <CardHeader className="space-y-3 pt-6 pb-4">
-                                <div className="size-10 rounded-xl flex items-center justify-center bg-primary/5 text-primary [&>svg]:size-5">
+                                <div className="size-10 rounded-xl flex items-center justify-center bg-primary/5 text-primary [&>svg]:size-5 [&>svg]:shrink-0">
                                     {tier.icon}
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <CardTitle className="text-lg font-bold tracking-tight">{tier.name}</CardTitle>
                                         {isCurrent && (
-                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold h-5 text-[9px]">
+                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold h-5 text-[9px] px-1.5 flex items-center justify-center">
                                                 Hiện tại
                                             </Badge>
                                         )}
@@ -287,17 +232,18 @@ export default function SubscriptionsPage() {
                             </CardHeader>
 
                             <CardContent className="flex-1 space-y-6 pt-0">
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-2xl font-bold tracking-tight">
                                             {tier.price === 0 ? "Miễn phí" : formatCurrency(tier.price)}
                                         </span>
                                         {tier.price > 0 && <span className="text-[10px] font-semibold text-muted-foreground/40 leading-none ml-0.5">/tháng</span>}
                                     </div>
-                                    <div className="flex items-center gap-2 text-primary font-bold text-[10px] bg-primary/5 w-fit px-2.5 py-1 rounded-lg">
-                                        <Zap className="size-3 fill-primary" />
-                                        {tier.quota}
-                                    </div>
+                                    
+                                    <Badge variant="secondary" className="bg-primary/5 text-primary border-none font-bold text-[10px] h-6 px-2.5 rounded-lg flex items-center gap-1.5 w-fit">
+                                        <Zap className="size-3 fill-primary shrink-0" />
+                                        <span className="translate-y-[0.5px]">{tier.quota}</span>
+                                    </Badge>
                                 </div>
 
                                 <Separator className="bg-border/20" />
@@ -305,7 +251,9 @@ export default function SubscriptionsPage() {
                                 <ul className="space-y-2.5">
                                     {tier.features.map((feature, idx) => (
                                         <li key={idx} className="flex items-start gap-2.5 text-[12px] font-medium leading-tight text-foreground/70">
-                                            <Check className="size-3.5 text-primary shrink-0 mt-0.5" />
+                                            <div className="size-4 flex items-center justify-center shrink-0 mt-0.5">
+                                                <Check className="size-3.5 text-primary" />
+                                            </div>
                                             <span>{feature}</span>
                                         </li>
                                     ))}
@@ -349,26 +297,28 @@ export default function SubscriptionsPage() {
                 })}
             </div>
 
-            <div className="max-w-3xl mx-auto rounded-2xl border border-border/50 bg-muted/20 p-8 sm:p-10 transition-colors hover:bg-muted/30">
-                <div className="flex flex-col sm:flex-row gap-6">
-                    <div className="size-12 shrink-0 rounded-2xl bg-background flex items-center justify-center shadow-sm border border-border/50">
-                        <HelpCircle className="size-6 text-primary" />
+            <Card className="max-w-3xl mx-auto">
+                <CardHeader className="space-y-2">
+                    <CardTitle className="flex items-center gap-2 text-base font-medium">
+                        <HelpCircle className="size-4 text-primary" />
+                        Bạn có câu hỏi?
+                    </CardTitle>
+                    <CardDescription>
+                        Mọi thắc mắc về gói đăng ký hoặc yêu cầu hỗ trợ, vui lòng liên hệ{" "}
+                        <a className="text-primary underline-offset-2 hover:underline" href="mailto:support@torii.com">
+                            support@torii.com
+                        </a>
+                        .
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <Badge variant="secondary">Hủy bất cứ lúc nào</Badge>
+                        <Badge variant="secondary">Mã hóa bảo mật</Badge>
+                        <Badge variant="secondary">Hỗ trợ 24/7</Badge>
                     </div>
-                    <div className="space-y-4 text-center sm:text-left">
-                        <h3 className="text-xl font-bold">Bạn có câu hỏi?</h3>
-                        <p className="text-[14px] text-muted-foreground font-medium leading-relaxed">
-                            Mọi thắc mắc về các gói đăng ký hoặc yêu cầu hỗ trợ đặc biệt, xin vui lòng liên hệ đội ngũ Torii tại <span className="text-primary font-bold hover:underline cursor-pointer">support@torii.com</span>. Chúng tôi luôn sẵn sàng đồng hành cùng bạn trên con đường chinh phục Tiếng Nhật.
-                        </p>
-                        <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-2 text-[12px] font-bold text-muted-foreground/80 tracking-wider">
-                            <span>Hủy bất cứ lúc nào</span>
-                            <span className="hidden sm:inline opacity-30">•</span>
-                            <span>Mã hóa bảo mật</span>
-                            <span className="hidden sm:inline opacity-30">•</span>
-                            <span>Hỗ trợ 24/7</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <AlertDialogContent className="rounded-2xl max-w-[400px]">
