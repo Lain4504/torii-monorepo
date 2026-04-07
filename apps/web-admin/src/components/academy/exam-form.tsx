@@ -61,16 +61,16 @@ export function ExamForm({
   const { user } = useAuth()
   const { canAny, hasWildcard } = usePermissions()
   const isLecturer =
-    canAny(["submission.grade"]) &&
+    canAny(["lms.assessment.grade"]) &&
     !canAny([
-      "academy.content.write",
-      "academy.content.approve",
-      "academy.delivery.approve",
-      "academy.commerce.write",
-      "academy.commerce.approve",
-      "user.manage",
-      "academy:order:admin",
-      "academy:coupon:admin",
+      "lms.catalog.update",
+      "lms.catalog.approve",
+      "lms.delivery.approve",
+      "lms.commerce.update",
+      "lms.commerce.approve",
+      "ops.user.manage",
+      "ops.order.manage",
+      "ops.coupon.manage",
     ]) &&
     !hasWildcard
 

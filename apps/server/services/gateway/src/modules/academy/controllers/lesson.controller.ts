@@ -47,7 +47,7 @@ export class LessonController {
   ) {
     const requester = req.requester;
     const hasContentRead =
-      requester.permissions?.includes('academy.content.read') ||
+      requester.permissions?.includes('lms.catalog.read') ||
       requester.permissions?.includes('*');
 
     if (!hasContentRead) {
@@ -84,7 +84,7 @@ export class LessonController {
   ) {
     const requester = req.requester;
     const hasContentRead =
-      requester.permissions?.includes('academy.content.read') ||
+      requester.permissions?.includes('lms.catalog.read') ||
       requester.permissions?.includes('*');
 
     if (!hasContentRead) {
@@ -125,7 +125,7 @@ export class LessonController {
   }
 
   @Post()
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyLessonCreateDTOSchema))
@@ -142,7 +142,7 @@ export class LessonController {
   }
 
   @Put(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyLessonUpdateDTOSchema))
@@ -159,7 +159,7 @@ export class LessonController {
   }
 
   @Delete(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.delete')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -174,7 +174,7 @@ export class LessonController {
   }
 
   @Post('reorder')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async reorder(
     @Body() dto: { moduleId: string; lessonIds: string[] },
     @Req() req: ReqWithRequester,

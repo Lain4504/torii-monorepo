@@ -40,14 +40,16 @@ export class AssignmentSubmissionController {
 
   private hasExamManagePermission(req: ReqWithRequester): boolean {
     const permissions = req.requester?.permissions || [];
-    return permissions.includes('*') || permissions.includes('exam.manage');
+    return (
+      permissions.includes('*') ||
+      permissions.includes('lms.assessment.update') ||
+      permissions.includes('lms.assessment.grade')
+    );
   }
 
   private hasDeliveryReadPermission(req: ReqWithRequester): boolean {
     const permissions = req.requester?.permissions || [];
-    return (
-      permissions.includes('*') || permissions.includes('academy.delivery.read')
-    );
+    return permissions.includes('*') || permissions.includes('lms.delivery.read');
   }
 
   private async assertLearnerEnrolledInClass(userId: string, classId: string) {
@@ -198,7 +200,9 @@ export class AssignmentSubmissionController {
   ) {
     const isExamManager = this.hasExamManagePermission(req);
     if (!isExamManager) {
-      throw new ForbiddenException('exam.manage permission is required');
+      throw new ForbiddenException(
+        'lms.assessment.update or lms.assessment.grade permission is required',
+      );
     }
     const result = await firstValueFrom(
       this.nats.send(

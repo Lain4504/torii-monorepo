@@ -37,8 +37,7 @@ export class BlogController {
     const permissions = req.requester?.permissions || [];
     const hasPrivilege =
       permissions.includes('*') ||
-      permissions.includes('blog.view_restricted') ||
-      permissions.includes('blog.manage');
+      permissions.includes('ops.blog.manage');
 
     // Only allow showScheduled if user has privilege
     const showScheduled = query.showScheduled === 'true' && hasPrivilege;
@@ -57,7 +56,7 @@ export class BlogController {
   }
 
   @Get('admin')
-  @Permissions('blog.view_restricted', 'blog.manage')
+  @Permissions('ops.blog.manage')
   async findAllAdmin(@Query() query: any) {
     try {
       const result = await firstValueFrom(
@@ -81,8 +80,7 @@ export class BlogController {
     const permissions = req.requester?.permissions || [];
     const hasPrivilege =
       permissions.includes('*') ||
-      permissions.includes('blog.view_restricted') ||
-      permissions.includes('blog.manage');
+      permissions.includes('ops.blog.manage');
 
     try {
       const result = await firstValueFrom(
@@ -103,8 +101,7 @@ export class BlogController {
     const permissions = req.requester?.permissions || [];
     const hasPrivilege =
       permissions.includes('*') ||
-      permissions.includes('blog.view_restricted') ||
-      permissions.includes('blog.manage');
+      permissions.includes('ops.blog.manage');
 
     try {
       const result = await firstValueFrom(
@@ -137,7 +134,7 @@ export class BlogController {
   }
 
   @Post()
-  @Permissions('blog.create', 'blog.manage')
+  @Permissions('ops.blog.manage')
   async createPost(@Body() dto: any, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
@@ -153,7 +150,7 @@ export class BlogController {
   }
 
   @Patch(':id')
-  @Permissions('blog.update', 'blog.manage')
+  @Permissions('ops.blog.manage')
   async updateBlog(
     @Param('id') id: string,
     @Body() dto: any,
@@ -178,7 +175,7 @@ export class BlogController {
   }
 
   @Delete(':id')
-  @Permissions('blog.delete', 'blog.manage')
+  @Permissions('ops.blog.manage')
   async deleteBlog(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       await firstValueFrom(
@@ -194,7 +191,7 @@ export class BlogController {
   }
 
   @Patch(':id/publish')
-  @Permissions('blog.publish', 'blog.manage')
+  @Permissions('ops.blog.manage')
   async publishBlog(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(

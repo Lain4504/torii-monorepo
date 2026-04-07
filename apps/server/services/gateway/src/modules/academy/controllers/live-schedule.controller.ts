@@ -41,7 +41,7 @@ export class LiveScheduleController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(academyLiveScheduleQueryDTOSchema))
     query: AcademyLiveScheduleQueryDTO,
@@ -53,7 +53,7 @@ export class LiveScheduleController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.liveSchedule.findById' }, { id }),
@@ -62,7 +62,7 @@ export class LiveScheduleController {
   }
 
   @Post()
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Req() req: ReqWithRequester,
@@ -82,7 +82,7 @@ export class LiveScheduleController {
   }
 
   @Put(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -99,7 +99,7 @@ export class LiveScheduleController {
   }
 
   @Delete(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.delete')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -117,7 +117,7 @@ export class LiveScheduleController {
   }
 
   @Post('preview-conflict')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.manage')
   async previewConflict(
     @Body(new ZodValidationPipe(academyLiveScheduleConflictPreviewDTOSchema))
     dto: AcademyLiveScheduleConflictPreviewDTO,

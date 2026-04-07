@@ -186,7 +186,6 @@ export class LiveScheduleService {
       isAdmin,
     );
 
-    const user = await this.getUserById(userId);
     await this.assertJoinPermission(schedule, userId, isAdmin);
     const roomId = await this.ensureScheduleRoomId(
       schedule.id,
@@ -243,6 +242,8 @@ export class LiveScheduleService {
     }
 
     // 2) Generate join token with metadata
+    const user = await this.getUserById(userId);
+
     const joinReq = create(GenerateTokenReqSchema, {
       roomId,
       userInfo: create(UserInfoSchema, {
@@ -317,7 +318,6 @@ export class LiveScheduleService {
       isAdmin,
     );
 
-    const user = await this.getUserById(userId);
     // Reuse existing permission logic (class enrollment/role checks) by faking a schedule-like shape.
     await this.assertJoinPermission(
       {
@@ -327,7 +327,6 @@ export class LiveScheduleService {
       } as any,
       userId,
       isAdmin,
-      user?.role,
     );
 
     const roomId = await this.ensureSessionRoomId(sessionId, session.roomId);
@@ -378,6 +377,8 @@ export class LiveScheduleService {
         metadata: { roomId, liveClassId: session.liveClassId },
       });
     }
+
+    const user = await this.getUserById(userId);
 
     const joinReq = create(GenerateTokenReqSchema, {
       roomId,

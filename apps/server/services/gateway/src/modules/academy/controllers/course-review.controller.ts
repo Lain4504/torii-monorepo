@@ -122,7 +122,7 @@ export class CourseReviewController {
   // ── Admin routes ───────────────────────────────────────────────────────────
 
   @Get('admin')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.update')
   async adminList(
     @Query(new ZodValidationPipe(academyCourseReviewAdminQueryDTOSchema))
     query: any,
@@ -134,7 +134,7 @@ export class CourseReviewController {
   }
 
   @Post('admin/:id/moderate')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.update')
   @HttpCode(HttpStatus.OK)
   async moderate(
     @Param('id', new ParseUUIDPipe()) id: string,

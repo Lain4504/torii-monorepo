@@ -90,7 +90,7 @@ export class AcademyResourceController {
     // --- Staff/Lecturer APIs ---
 
     @Post('resources')
-    @Permissions('academy.delivery.write')
+    @Permissions('lms.delivery.update')
     @HttpCode(HttpStatus.CREATED)
     async createResource(
         @Body(new ZodValidationPipe(academyResourceCreateDTOSchema))
@@ -107,7 +107,7 @@ export class AcademyResourceController {
     }
 
     @Put('resources/:resourceId')
-    @Permissions('academy.delivery.write')
+    @Permissions('lms.delivery.update')
     async updateResource(
         @Param('resourceId', new ParseUUIDPipe()) resourceId: string,
         @Body(new ZodValidationPipe(academyResourceUpdateDTOSchema))
@@ -125,7 +125,7 @@ export class AcademyResourceController {
 
 
     @Delete('resources/:resourceId')
-    @Permissions('academy.delivery.write')
+    @Permissions('lms.delivery.update')
     async deleteResource(
         @Param('resourceId', new ParseUUIDPipe()) resourceId: string,
         @Req() req: ReqWithRequester,
@@ -156,7 +156,7 @@ export class AcademyResourceController {
     }
 
     @Get('folders/:ownerType/:ownerId')
-    @Permissions('academy.delivery.read')
+    @Permissions('lms.delivery.read')
     async getFoldersByOwner(
         @Param('ownerType') ownerType: string,
         @Param('ownerId', new ParseUUIDPipe()) ownerId: string,
@@ -171,7 +171,7 @@ export class AcademyResourceController {
     }
 
     @Post('folders')
-    @Permissions('academy.delivery.write')
+    @Permissions('lms.delivery.update')
     async createFolder(
         @Body(new ZodValidationPipe(academyFolderCreateDTOSchema))
         dto: AcademyFolderCreateDTO,
@@ -182,7 +182,7 @@ export class AcademyResourceController {
         return successResponse(item);
     }
     @Delete('folders/:folderId')
-    @Permissions('academy.delivery.write')
+    @Permissions('lms.delivery.delete')
     async deleteFolder(
         @Param('folderId', new ParseUUIDPipe()) folderId: string,
         @Req() req: ReqWithRequester,

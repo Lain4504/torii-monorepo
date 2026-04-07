@@ -8,6 +8,7 @@ interface AuthorizationConfig {
   system: { version: string; description: string };
   permissions: Array<{ code: string; description: string; category: string }>;
   default_role_permissions: Record<string, string[]>;
+  role_matrix?: Record<string, string[]>;
   staff_template_suggestions?: Record<string, string[]>;
 }
 
@@ -26,7 +27,7 @@ export class AuthorizationSeederService implements OnModuleInit {
 
   private loadYAML(): AuthorizationConfig {
     try {
-      const configPath = path.join(process.cwd(), 'config', 'rbac-config.yaml');
+      const configPath = path.join(process.cwd(), 'config', 'rbac-v2.yaml');
       const fileContents = fs.readFileSync(configPath, 'utf8');
       return yaml.load(fileContents) as AuthorizationConfig;
     } catch (error) {
@@ -42,7 +43,7 @@ export class AuthorizationSeederService implements OnModuleInit {
   private resolvePermissions(
     config: AuthorizationConfig,
   ): Record<string, string[]> {
-    return config.default_role_permissions || {};
+    return config.role_matrix || config.default_role_permissions || {};
   }
 
   /**

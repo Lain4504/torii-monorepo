@@ -227,7 +227,7 @@ export const getUsersColumns = ({ onView, onEdit, onChangeStatus, page, limit }:
 
             return (
                 <div className="flex items-center justify-center gap-2">
-                    <Can permission="user.view">
+                    <Can permission="ops.user.view">
                         <Button
                             variant="outline"
                             size="sm"
@@ -238,7 +238,7 @@ export const getUsersColumns = ({ onView, onEdit, onChangeStatus, page, limit }:
                             Xem
                         </Button>
                     </Can>
-                    <Can permission="user.manage">
+                    <Can permission="ops.user.manage">
                         {onEdit && (
                             <Button
                                 variant="outline"

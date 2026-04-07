@@ -29,10 +29,10 @@ export class CommentService {
     // Staff/admin can bypass enrollment checks
     return (
       permissions.includes('*') ||
-      permissions.includes('academy.delivery.write') ||
-      permissions.includes('academy.delivery.read') ||
-      permissions.includes('academy.content.write') ||
-      permissions.includes('academy.content.read')
+      permissions.includes('lms.delivery.update') ||
+      permissions.includes('lms.delivery.read') ||
+      permissions.includes('lms.catalog.update') ||
+      permissions.includes('lms.catalog.read')
     );
   }
 

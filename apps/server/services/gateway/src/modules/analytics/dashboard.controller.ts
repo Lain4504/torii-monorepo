@@ -29,9 +29,9 @@ export class DashboardController {
 
   @Get('staff-academic')
   @Permissions(
-    'academy.content.write',
-    'academy.delivery.write',
-    'academy.commerce.write',
+    'lms.catalog.update',
+    'lms.delivery.update',
+    'lms.commerce.update',
   )
   async getStaffAcademicDashboard(): Promise<
     StandardApiResponse<StaffAcademicDashboardResponseDTO>
@@ -41,7 +41,7 @@ export class DashboardController {
   }
 
   @Get('staff-operations')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async getStaffOperationsDashboard(): Promise<
     StandardApiResponse<StaffOperationsDashboardResponseDTO>
   > {
@@ -65,7 +65,7 @@ export class DashboardController {
   }
 
   @Get('lecturer')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async getLecturerDashboard(
     @Req() req: ReqWithRequester,
   ): Promise<StandardApiResponse<LecturerDashboardResponseDTO>> {

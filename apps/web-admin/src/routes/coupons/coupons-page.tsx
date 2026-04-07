@@ -98,7 +98,7 @@ export default function CouponsPage() {
                 title="Mã Giảm Giá"
                 subtitle="Chỉ các mã do hệ thống / chiến dịch tạo. Mã từ đổi điểm thưởng (point reward) nằm trên tài khoản học viên ở web-learner, không hiển thị tại đây."
                 actions={
-                    <Can permission="academy:coupon:admin">
+                    <Can permission="ops.coupon.manage">
                         <Button
                             onClick={handleCreate}
                             size="lg"

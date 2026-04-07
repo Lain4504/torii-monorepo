@@ -339,7 +339,7 @@ export class SenseiHandler {
 
   @Get('admin/subscriptions/plans')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy:subscription:admin')
+  @Permissions('ops.subscription.manage')
   async admin_getPlans() {
     try {
       const result = await firstValueFrom(
@@ -357,7 +357,7 @@ export class SenseiHandler {
 
   @Patch('admin/subscriptions/plans/:id')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy:subscription:admin')
+  @Permissions('ops.subscription.manage')
   async admin_updatePlan(@Param('id') id: string, @Body() body: any) {
     try {
       const result = await firstValueFrom(
@@ -378,7 +378,7 @@ export class SenseiHandler {
 
   @Get('admin/subscriptions/user-subscriptions')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy:subscription:admin')
+  @Permissions('ops.subscription.manage')
   async admin_getUserSubscriptions(@Query() query: any) {
     try {
       const result = await firstValueFrom(

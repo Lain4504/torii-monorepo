@@ -36,7 +36,7 @@ export class EnrollmentController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(academyEnrollmentQueryDTOSchema)) query: any,
   ) {
@@ -79,7 +79,7 @@ export class EnrollmentController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.enrollment.findById' }, { id }),
@@ -88,7 +88,7 @@ export class EnrollmentController {
   }
 
   @Post()
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.approve')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyEnrollmentCreateDTOSchema)) dto: any,
@@ -104,7 +104,7 @@ export class EnrollmentController {
   }
 
   @Put(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.approve')
   async updateStatus(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyEnrollmentUpdateDTOSchema)) dto: any,
@@ -120,7 +120,7 @@ export class EnrollmentController {
   }
 
   @Delete(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.approve')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,

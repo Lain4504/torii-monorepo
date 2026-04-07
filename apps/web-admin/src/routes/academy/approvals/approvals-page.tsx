@@ -35,8 +35,8 @@ type ApprovalTab = "cohorts" | "vodPackages" | "courseProfiles"
 export default function ApprovalsPage() {
   const { can, hasWildcard } = usePermissions()
   const showCourseProfileApprovals =
-    hasWildcard || can("academy.content.approve")
-  const showOfferingApprovals = hasWildcard || can("academy.commerce.approve")
+    hasWildcard || can("lms.catalog.approve")
+  const showOfferingApprovals = hasWildcard || can("lms.commerce.approve")
 
   const [tab, setTab] = useState<ApprovalTab>("cohorts")
 

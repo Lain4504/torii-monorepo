@@ -36,7 +36,7 @@ export class RoomAdminController {
    * @route GET /api/rooms/active
    */
   @Get('active')
-  @Permissions('schedule.view')
+  @Permissions('lms.delivery.read')
   async getActiveRooms() {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'room.getActiveRoomsInfo' }, {}),
@@ -50,7 +50,7 @@ export class RoomAdminController {
    * @route GET /api/rooms/active/:roomId
    */
   @Get('active/:roomId')
-  @Permissions('schedule.view')
+  @Permissions('lms.delivery.read')
   async getActiveRoomInfo(@Param('roomId') roomId: string) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'room.getActiveInfo' }, { roomId }),
@@ -64,7 +64,7 @@ export class RoomAdminController {
    * @route GET /api/rooms/:roomId/is-active
    */
   @Get(':roomId/is-active')
-  @Permissions('schedule.view')
+  @Permissions('lms.delivery.read')
   async isRoomActive(@Param('roomId') roomId: string) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'room.isActive' }, { roomId }),
@@ -78,7 +78,7 @@ export class RoomAdminController {
    * @route GET /api/rooms/past
    */
   @Get('past')
-  @Permissions('schedule.view')
+  @Permissions('lms.delivery.read')
   async fetchPastRooms(
     @Query('from', new ParseIntPipe({ optional: true })) from: number = 0,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
@@ -116,7 +116,7 @@ export class RoomAdminController {
    * @route POST /api/rooms/:roomId/end
    */
   @Post(':roomId/end')
-  @Permissions('live_class.manage')
+  @Permissions('lms.delivery.manage')
   async endRoom(@Param('roomId') roomId: string) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'room.end' }, { roomId }),

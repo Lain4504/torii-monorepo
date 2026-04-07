@@ -42,7 +42,7 @@ export class WalletController {
   }
 
   @Get(':userId/balance')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async getUserBalance(@Param('userId') userId: string) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'academy.wallet.getBalance' }, { userId }),
@@ -51,7 +51,7 @@ export class WalletController {
   }
 
   @Get(':userId/transactions')
-  @Permissions('user.view')
+  @Permissions('ops.user.view')
   async getUserTransactions(
     @Param('userId') userId: string,
     @Query() query: any,

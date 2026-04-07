@@ -45,7 +45,7 @@ export default function VodPackageDetailPage() {
     const { data: pkg, isLoading: isLoadingPkg } = useAcademyVodPackage(id)
     const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(pkg?.courseProfileId)
     const { canAny, hasWildcard } = usePermissions()
-    const isStaff = hasWildcard || canAny(["academy.commerce.write", "academy.commerce.approve", "academy.delivery.write"])
+    const isStaff = hasWildcard || canAny(["lms.commerce.update", "lms.commerce.approve", "lms.delivery.approve"])
 
     const updateMutation = useUpdateAcademyVodPackage()
     const publishDirectlyMutation = usePublishVodPackageDirectly()

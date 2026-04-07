@@ -41,7 +41,7 @@ export class CourseProfileController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('academy.content.read')
+  @Permissions('lms.catalog.read')
   async findAll(
     @Query(new ZodValidationPipe(academyCourseProfileQueryDTOSchema))
     query: AcademyCourseProfileQueryDTO,
@@ -53,7 +53,7 @@ export class CourseProfileController {
   }
 
   @Get(':id')
-  @Permissions('academy.content.read')
+  @Permissions('lms.catalog.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.courseProfile.findById' }, { id }),
@@ -62,7 +62,7 @@ export class CourseProfileController {
   }
 
   @Post()
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyCourseProfileCreateDTOSchema))
@@ -79,7 +79,7 @@ export class CourseProfileController {
   }
 
   @Put(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyCourseProfileUpdateDTOSchema))
@@ -96,7 +96,7 @@ export class CourseProfileController {
   }
 
   @Post(':id/submit-for-approval')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.delete')
   async submitForApproval(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -111,7 +111,7 @@ export class CourseProfileController {
   }
 
   @Post(':id/approve')
-  @Permissions('academy.content.approve')
+  @Permissions('lms.catalog.approve')
   async approve(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -126,7 +126,7 @@ export class CourseProfileController {
   }
 
   @Post(':id/reject')
-  @Permissions('academy.content.approve')
+  @Permissions('lms.catalog.approve')
   async reject(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: { reason: string },
@@ -142,7 +142,7 @@ export class CourseProfileController {
   }
 
   @Post(':id/duplicate')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async duplicate(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyCourseProfileDuplicateDTOSchema))
@@ -164,7 +164,7 @@ export class CourseProfileController {
   }
 
   @Post(':id/archive')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async archive(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -179,7 +179,7 @@ export class CourseProfileController {
   }
 
   @Delete(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,

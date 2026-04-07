@@ -30,7 +30,7 @@ export default function ClassStudentsPage() {
   useAuth()
   const { canAny, hasWildcard } = usePermissions()
 
-  const canManageStatus = canAny(["academy.delivery.write", "academy.delivery.approve"]) || canAny(["submission.grade"]) || hasWildcard
+  const canManageStatus = canAny(["lms.delivery.update", "lms.delivery.approve"]) || canAny(["lms.assessment.grade"]) || hasWildcard
 
   const defaultTab = TAB_INFO
   const tabParam = searchParams.get("tab") || defaultTab
@@ -56,7 +56,7 @@ export default function ClassStudentsPage() {
     return defaultTab
   }, [tabParam, availableTabs])
 
-  const canManageEnrollment = canAny(["academy.delivery.write", "academy.delivery.approve", "user.manage"]) || hasWildcard
+  const canManageEnrollment = canAny(["lms.delivery.approve", "ops.user.manage"]) || hasWildcard
 
   const setTab = (value: string) => {
     setSearchParams((prev) => {

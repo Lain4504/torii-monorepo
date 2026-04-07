@@ -42,7 +42,7 @@ export class AuthorizationController {
   }
 
   @Post('roles')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async createRole(@Body() data: { code: string; name: string; description?: string | null }) {
     try {
       const result = await firstValueFrom(
@@ -57,7 +57,7 @@ export class AuthorizationController {
   }
 
   @Patch('roles/:roleCode')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async updateRole(
     @Param('roleCode') roleCode: string,
     @Body() data: { name?: string; description?: string | null },
@@ -78,7 +78,7 @@ export class AuthorizationController {
   }
 
   @Delete('roles/:roleCode')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async deleteRole(@Param('roleCode') roleCode: string) {
     try {
       const result = await firstValueFrom(
@@ -129,7 +129,7 @@ export class AuthorizationController {
   }
 
   @Put('roles/:roleCode/permissions')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async setRolePermissions(
     @Param('roleCode') roleCode: string,
     @Body() data: { permissions: string[] },
@@ -152,7 +152,7 @@ export class AuthorizationController {
   }
 
   @Post('reseed')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async reseedPermissions() {
     try {
       await firstValueFrom(

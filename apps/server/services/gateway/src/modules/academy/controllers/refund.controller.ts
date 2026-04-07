@@ -29,7 +29,7 @@ export class RefundController {
   ) {}
 
   @Get()
-  @Permissions('support.handle')
+  @Permissions('ops.support.handle')
   async getRefunds(@Query() query: RefundQueryDTO) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'academy.refund.findAll' }, query),
@@ -38,7 +38,7 @@ export class RefundController {
   }
 
   @Get(':id')
-  @Permissions('support.handle')
+  @Permissions('ops.support.handle')
   async getRefund(@Param('id') id: string) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'academy.refund.findById' }, { id }),
@@ -47,7 +47,7 @@ export class RefundController {
   }
 
   @Patch(':id/status')
-  @Permissions('support.handle')
+  @Permissions('ops.support.handle')
   async updateRefundStatus(
     @Param('id') id: string,
     @Body() dto: UpdateRefundStatusDTO,

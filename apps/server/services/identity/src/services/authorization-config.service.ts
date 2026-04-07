@@ -16,6 +16,7 @@ interface AuthorizationConfig {
   };
   permissions: PermissionDefinition[];
   default_role_permissions: Record<string, string[]>;
+  role_matrix?: Record<string, string[]>;
   staff_template_suggestions?: Record<string, string[]>;
 }
 
@@ -30,7 +31,7 @@ export class AuthorizationConfigService {
 
   private loadConfig() {
     try {
-      const configPath = path.join(process.cwd(), 'config', 'rbac-config.yaml');
+      const configPath = path.join(process.cwd(), 'config', 'rbac-v2.yaml');
       const fileContents = fs.readFileSync(configPath, 'utf8');
       this.config = yaml.load(fileContents) as AuthorizationConfig;
       this.logger.log(
@@ -53,7 +54,11 @@ export class AuthorizationConfigService {
    * Get default permissions for a role
    */
   getRolePermissions(roleCode: string): string[] {
-    return this.config.default_role_permissions[roleCode] || [];
+    return (
+      this.config.role_matrix?.[roleCode] ||
+      this.config.default_role_permissions?.[roleCode] ||
+      []
+    );
   }
 
   /**

@@ -199,7 +199,7 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
 
             return (
                 <div className="flex items-center justify-center gap-2">
-                    <Can permission="blog.manage">
+                    <Can permission="ops.blog.manage">
                         {!isPublished && (
                             <Button
                                 variant="outline"

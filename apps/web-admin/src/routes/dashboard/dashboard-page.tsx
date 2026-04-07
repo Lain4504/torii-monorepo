@@ -24,19 +24,29 @@ export default function DashboardPage() {
     return "Chào buổi tối"
   }
 
-  const isLecturer = canAny(["submission.grade"]) || canAny(["academy.delivery.write"])
+  const isLecturer =
+    canAny(["lms.assessment.grade"]) &&
+    !canAny([
+      "lms.catalog.update",
+      "lms.catalog.approve",
+      "lms.delivery.approve",
+      "lms.commerce.update",
+      "lms.commerce.approve",
+      "ops.user.manage",
+    ]) &&
+    !hasWildcard
   const isStaffAcademic = canAny([
-    "academy.content.write",
-    "academy.content.approve",
-    "academy.delivery.approve",
-    "academy.commerce.write",
+    "lms.catalog.update",
+    "lms.catalog.approve",
+    "lms.delivery.approve",
+    "lms.commerce.update",
   ])
   const isStaffFinance = canAny([
-    "academy:order:admin",
-    "academy:coupon:admin",
-    "support.handle",
-    "audit.view",
-    "blog.manage",
+    "ops.order.manage",
+    "ops.coupon.manage",
+    "ops.support.handle",
+    "ops.audit.view",
+    "ops.blog.manage",
   ])
   const fullDisplayName = user?.displayName?.trim() || "ADMIN"
 

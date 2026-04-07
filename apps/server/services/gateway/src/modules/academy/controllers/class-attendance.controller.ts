@@ -39,7 +39,7 @@ export class ClassAttendanceController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(academyClassAttendanceQueryDTOSchema))
     query: AcademyClassAttendanceQueryDTO,
@@ -51,7 +51,7 @@ export class ClassAttendanceController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.classAttendance.findById' }, { id }),
@@ -60,7 +60,7 @@ export class ClassAttendanceController {
   }
 
   @Post()
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.attendance.manage')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyClassAttendanceCreateDTOSchema))
@@ -81,7 +81,7 @@ export class ClassAttendanceController {
   }
 
   @Patch(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.attendance.manage')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyClassAttendanceUpdateDTOSchema))
@@ -103,7 +103,7 @@ export class ClassAttendanceController {
   }
 
   @Delete(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.attendance.manage')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,

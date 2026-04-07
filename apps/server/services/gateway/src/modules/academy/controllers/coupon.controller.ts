@@ -54,7 +54,7 @@ export class CouponController {
   // ===================== ADMIN ENDPOINTS =====================
 
   @Get('admin')
-  @Permissions('academy:coupon:admin')
+  @Permissions('ops.coupon.manage')
   async findAll() {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.coupon.admin.findAll' }, {}),
@@ -63,7 +63,7 @@ export class CouponController {
   }
 
   @Get('admin/:id')
-  @Permissions('academy:coupon:admin')
+  @Permissions('ops.coupon.manage')
   async findOne(@Param('id') id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.coupon.admin.findOne' }, { id }),
@@ -72,7 +72,7 @@ export class CouponController {
   }
 
   @Post('admin')
-  @Permissions('academy:coupon:admin')
+  @Permissions('ops.coupon.manage')
   async create(@Body() body: any, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
       this.nats.send(
@@ -84,7 +84,7 @@ export class CouponController {
   }
 
   @Patch('admin/:id')
-  @Permissions('academy:coupon:admin')
+  @Permissions('ops.coupon.manage')
   async update(
     @Param('id') id: string,
     @Body() body: any,
@@ -100,7 +100,7 @@ export class CouponController {
   }
 
   @Delete('admin/:id')
-  @Permissions('academy:coupon:admin')
+  @Permissions('ops.coupon.manage')
   async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
       this.nats.send(
