@@ -12,21 +12,31 @@ Tài liệu này hướng dẫn chi tiết các API tích hợp cho luồng Họ
 
 ---
 
-## 📝 2. Hệ thống Quiz & Exam (Chi tiết)
-Hệ thống sử dụng cơ chế **Attempt** (Lượt thi) để quản lý trạng thái làm bài.
+## 📝 2. Hệ thống Quiz & Exam (Kỹ thuật chi tiết)
+Hệ thống sử dụng cơ chế **Attempt** (Lượt thi). Team Mobile cần tuân thủ đúng luồng dữ liệu để Backend có thể chấm điểm chính xác.
 
-### Quy trình thực hiện:
-1. **Bắt đầu**: `POST /api/academy/exam-attempts/start` -> Trả về `attemptId`.
-2. **Lưu nháp**: `POST /api/academy/exam-attempts/save-draft`.
-3. **Nộp bài**: `POST /api/academy/exam-attempts/submit` -> Trả về kết quả ngay lập tức.
+### Luồng lưu bài & Nộp bài:
+1. **Lưu nháp (Bắt buộc)**: `POST /api/academy/exam-attempts/save-draft`
+   - **Tác dụng**: Gửi toàn bộ câu trả lời của học sinh lên Server để lưu vào database.
+   - **Request Body**:
+     ```json
+     {
+       "attemptId": "UUID",
+       "draftAnswers": {
+         "question_id_1": "option_id_hoac_key",
+         "question_id_2": "option_id_hoac_key"
+       }
+     }
+     ```
+   - **Cấu trúc `draftAnswers`**: Phải là một **Object (Map)**, không phải Mảng (Array). 
+     - **Key**: Sử dụng `question.id` (ID gốc của câu hỏi).
+     - **Value**: Sử dụng `option.id` (UUID) hoặc `optionKey` (như "A", "B", "C").
+2. **Nộp bài (Submit)**: `POST /api/academy/exam-attempts/submit`
+   - **Tác dụng**: Kích hoạt Backend tính toán điểm số dựa trên `draftAnswers` đã lưu trước đó.
+   - **Request Body**: `{ "attemptId": "UUID" }` (Chỉ cần ID, không gửi kèm answers ở đây).
 
-### Kết quả & Điều kiện Đạt (Pass Conditions):
-Khi nộp bài thành công (Submit), API trả về object `AcademyExamAttempt` với các trường quan trọng:
-- `score`: Điểm số đạt được (số câu đúng).
-- `maxScore`: Tổng số câu hỏi/điểm tối đa.
-- `percentage`: Tỷ lệ phần trăm hoàn thành (ví dụ: 85.5).
-- `isPassed`: **Flag quan trọng nhất** (true/false). Quyết định xem người dùng có được tính là vượt qua bài thi này không (dựa trên điểm sàn cấu hình trên Admin).
-- `timeTakenSeconds`: Thời gian làm bài thực tế.
+### Tại sao Score = 0?
+Nếu team Mobile gửi câu trả lời trực tiếp trong lệnh `submit` hoặc quên gọi `save-draft`, Backend sẽ không thấy dữ liệu trả lời và trả về 0 điểm.
 
 ---
 
@@ -37,28 +47,17 @@ Dành cho học viên nộp bài luận hoặc file đính kèm.
 1. **Nộp bài**: `POST /api/academy/assignment-submissions`.
    - Trạng thái ban đầu: `SUBMITTED`.
 2. **Theo dõi kết quả**: `GET /api/academy/assignment-submissions?classId={classId}`.
-   - Mobile cần kiểm tra trường `status`:
-     - `SUBMITTED`: Đã nộp, đang chờ giáo viên chấm.
-     - `GRADED`: Đã có điểm.
+   - Kiểm tra `status`: `SUBMITTED` (Đang chờ) hoặc `GRADED` (Đã có điểm).
 3. **Thông tin điểm số & Phản hồi**:
    - `grade`: Điểm chữ hoặc số (ví dụ: "A", "9.0").
-   - `score`: Điểm số định lượng (nếu có).
-   - `feedback`: **Nhận xét của giáo viên**. Đây là phần quan trọng để học sinh cải thiện bài làm.
-   - `gradedAt`: Thời gian giáo viên chấm bài.
-
----
-
-## 🗂 4. Flashcards (SRS)
-- **Học tập**: `GET /api/academy/study-sets/{id}/study`
-- **Đánh giá ghi nhớ**: `POST /api/academy/set-cards/{cardId}/review`
-  - Body: `{ "rating": 1-5 }` (1: Quên, 5: Nhớ rõ).
+   - `feedback`: **Nhận xét của giáo viên**. 
 
 ---
 
 ## 💡 Lưu ý Kỹ thuật
 1. **Token**: Luôn đính kèm `Authorization: Bearer <JWT>`.
-2. **Offline Mode**: Khuyến khích Mobile cache lại nội dung Quiz Draft.
-3. **Real-time Results**: Đối với Quiz, kết quả trả về ngay khi gọi `submit`. Đối với Assignment, kết quả phụ thuộc vào thời gian chấm bài của giáo viên (cần cơ chế Pull-to-refresh hoặc Notification).
+2. **isPassed flag**: Trong kết quả thi, dùng `isPassed` để hiển thị Đạt/Không đạt.
+3. **selectedOptionId = null**: Nếu log response thấy trường này null, đừng quá lo lắng vì Backend lưu vào `answerPayload` để chấm điểm. Quan trọng là `isCorrect` và `scoreAwarded` phải đúng.
 
 ---
 **Torii Backend Team**
