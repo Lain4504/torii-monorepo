@@ -38,7 +38,6 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { InstructorPicker } from "@/components/academy/instructor-picker"
 import { useUsers } from "@/lib/api/services/users"
-import { UserRole } from "@workspace/schemas"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 
 const vodPackageSchema = z.object({
@@ -74,7 +73,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
   const updateMutation = useUpdateAcademyVodPackage()
 
   const { data: profiles } = useAcademyCourseProfiles({ status: isEditing ? undefined : 'PUBLISHED' })
-  const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
+  const { data: instructors } = useUsers({ role: "lecturer", limit: 100 })
 
   const {
     control,

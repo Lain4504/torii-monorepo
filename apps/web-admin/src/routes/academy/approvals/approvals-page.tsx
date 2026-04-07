@@ -33,10 +33,10 @@ import { usePermissions } from "@/hooks/use-permissions"
 type ApprovalTab = "cohorts" | "vodPackages" | "courseProfiles"
 
 export default function ApprovalsPage() {
-  const { can, isAdmin } = usePermissions()
+  const { can, hasWildcard } = usePermissions()
   const showCourseProfileApprovals =
-    isAdmin || can("academy.content.approve")
-  const showOfferingApprovals = isAdmin || can("academy.commerce.approve")
+    hasWildcard || can("academy.content.approve")
+  const showOfferingApprovals = hasWildcard || can("academy.commerce.approve")
 
   const [tab, setTab] = useState<ApprovalTab>("cohorts")
 

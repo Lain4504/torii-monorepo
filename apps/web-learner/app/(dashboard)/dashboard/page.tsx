@@ -15,7 +15,7 @@ import {
     Trophy, Newspaper, HelpCircle, GraduationCap,
     Star, Bot, Hand, Flame, BookMarked, Gift, Medal, Award, BarChart3
 } from 'lucide-react';
-import { LiveSessionStatus, UserRole } from '@workspace/schemas';
+import { LiveSessionStatus } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 import { LearnerRoadmapSection } from '@/components/dashboard/learner-roadmap-section';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';

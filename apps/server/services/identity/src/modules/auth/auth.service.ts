@@ -42,7 +42,7 @@ import {
   TWO_FACTOR_AUTH_SERVICE_TOKEN,
 } from '@server/identity/interfaces/services';
 
-import { NotificationType, UserRole } from '@workspace/schemas';
+import { NotificationType } from '@workspace/schemas';
 import type {
   UserRegistrationDTO,
   UserLoginDTO,
@@ -171,7 +171,7 @@ export class AuthService implements IAuthService {
       email,
       password: hashedPassword,
       displayName,
-      role: UserRole.LEARNER,
+      role: 'learner',
       // emailVerifiedAt: null (default) = pending verification
     });
 
@@ -230,7 +230,7 @@ export class AuthService implements IAuthService {
 
     return {
       ...user,
-      role: user.role as UserRole,
+      role: user.role as string,
       points: (user as any).gamification?.points || 0,
     } as any;
   }
@@ -316,7 +316,7 @@ export class AuthService implements IAuthService {
         user.id,
         user.email,
         'totp',
-        user.role as UserRole,
+        user.role as string,
       );
 
       return {
@@ -357,7 +357,7 @@ export class AuthService implements IAuthService {
         id: user.id,
         email: user.email,
         displayName: user.displayName,
-        role: user.role as UserRole,
+        role: user.role as string,
         verifiedAt: user.verifiedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -378,7 +378,7 @@ export class AuthService implements IAuthService {
     userId: string,
     email: string,
     method: string,
-    userRole: UserRole,
+    userRole: string,
   ): Promise<string> {
     const tempTokenExpiry = this.appConfig.identity.twoFactorTempTokenExpiry; // in seconds
 
@@ -491,7 +491,7 @@ export class AuthService implements IAuthService {
         id: user.id,
         email: user.email,
         displayName: user.displayName,
-        role: role as UserRole,
+        role: role as string,
         verifiedAt: user.verifiedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -968,7 +968,7 @@ export class AuthService implements IAuthService {
       bannedUntil: user.bannedUntil || undefined,
       lastSignInAt: user.lastSignInAt || undefined,
       deletedAt: user.deletedAt || undefined,
-      role: user.role as UserRole,
+      role: user.role as string,
       appMetadata: user.appMetadata
         ? typeof user.appMetadata === 'object' &&
           user.appMetadata !== null &&
@@ -1063,7 +1063,7 @@ export class AuthService implements IAuthService {
       bannedUntil: user.bannedUntil || undefined,
       lastSignInAt: user.lastSignInAt || undefined,
       deletedAt: user.deletedAt || undefined,
-      role: user.role as UserRole,
+      role: user.role as string,
       appMetadata: user.appMetadata
         ? typeof user.appMetadata === 'object' &&
           user.appMetadata !== null &&
@@ -1143,7 +1143,7 @@ export class AuthService implements IAuthService {
           id: user.id,
           email: user.email,
           displayName: user.displayName,
-          role: user.role as UserRole,
+          role: user.role as string,
           verifiedAt: user.verifiedAt,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
@@ -1240,7 +1240,7 @@ export class AuthService implements IAuthService {
           id: existingUser.id,
           email: existingUser.email,
           displayName: existingUser.displayName,
-          role: existingUser.role as UserRole,
+          role: existingUser.role as string,
           verifiedAt: existingUser.verifiedAt,
           createdAt: existingUser.createdAt,
           updatedAt: existingUser.updatedAt,
@@ -1258,7 +1258,7 @@ export class AuthService implements IAuthService {
       email: googleUser.email,
       displayName: googleUser.name,
       avatarUrl: googleUser.picture,
-      role: UserRole.LEARNER,
+      role: 'learner',
       verifiedAt: googleUser.email_verified ? new Date() : null,
       lastSignInAt: new Date(),
       appMetadata: {
@@ -1329,7 +1329,7 @@ export class AuthService implements IAuthService {
         id: newUser.id,
         email: newUser.email,
         displayName: newUser.displayName,
-        role: newUser.role as UserRole,
+        role: newUser.role as string,
         verifiedAt: newUser.verifiedAt,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
@@ -1398,7 +1398,7 @@ export class AuthService implements IAuthService {
           id: user.id,
           email: user.email,
           displayName: user.displayName,
-          role: user.role as UserRole,
+          role: user.role as string,
           verifiedAt: user.verifiedAt,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
@@ -1493,7 +1493,7 @@ export class AuthService implements IAuthService {
           id: existingUser.id,
           email: existingUser.email,
           displayName: existingUser.displayName,
-          role: existingUser.role as UserRole,
+          role: existingUser.role as string,
           verifiedAt: existingUser.verifiedAt,
           createdAt: existingUser.createdAt,
           updatedAt: existingUser.updatedAt,
@@ -1511,7 +1511,7 @@ export class AuthService implements IAuthService {
       email: facebookUser.email,
       displayName: facebookUser.name,
       avatarUrl: facebookUser.picture?.data.url,
-      role: UserRole.LEARNER,
+      role: 'learner',
       verifiedAt: new Date(),
       lastSignInAt: new Date(),
       appMetadata: {
@@ -1581,7 +1581,7 @@ export class AuthService implements IAuthService {
         id: newUser.id,
         email: newUser.email,
         displayName: newUser.displayName,
-        role: newUser.role as UserRole,
+        role: newUser.role as string,
         verifiedAt: newUser.verifiedAt,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
@@ -1899,7 +1899,7 @@ export class AuthService implements IAuthService {
 
     return this.jwtTokenProvider.generateToken({
       sub: userId,
-      role: role as UserRole,
+      role: role as string,
       sid,
       amr,
       ...metadata,

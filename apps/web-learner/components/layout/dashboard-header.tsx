@@ -1,5 +1,4 @@
 import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem, Coins } from 'lucide-react'
-import { UserRole } from '@workspace/schemas'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
 import { ModeToggle } from './mode-toggle'
@@ -123,7 +122,7 @@ export function DashboardHeader({ onOpenStreakModal, isGuest = false }: Dashboar
                                             LV.{level}
                                         </Badge>
                                         <Badge variant="secondary" className="text-[10px] py-0 px-2 h-4 font-bold uppercase tracking-wider bg-muted text-muted-foreground border-none">
-                                            {user?.role === UserRole.LEARNER ? 'Học viên' : user?.role}
+                                            {user?.role === 'learner' ? 'Học viên' : user?.role}
                                         </Badge>
                                     </div>
                                 </div>

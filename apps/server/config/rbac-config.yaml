@@ -14,30 +14,6 @@ system:
   description: "RBAC — tách biệt Học vụ (academic) và Vận hành (operations)"
 
 # ============================================
-# Roles Definition
-# ============================================
-roles:
-  - code: admin
-    name: System Administrator
-    description: Full access to all system resources
-    
-  - code: staff-academic
-    name: Academic Staff
-    description: Nội dung, lớp/lịch live, duyệt yêu cầu lịch; soạn & duyệt xuất bản cohort/VOD (commerce.write + commerce.approve); không quản đơn/coupon/subscription/blog/gamification
-    
-  - code: staff-operations
-    name: Operations Staff
-    description: Đơn hàng, coupon, Sensei subscription, blog, gamification, support, audit; đọc academy; duyệt xuất bản cohort/VOD (commerce.approve)
-    
-  - code: lecturer
-    name: Instructor
-    description: Teaching staff managing assigned classes and students
-    
-  - code: learner
-    name: Student
-    description: Standard student access (no admin permissions)
-
-# ============================================
 # Permissions Definition
 # ============================================
 permissions:
@@ -85,19 +61,8 @@ permissions:
   - code: academy:order:admin
     description: Full access to order management and billing
     category: Academy Commerce
-  # Legacy alias (compatibility)
-  - code: payment.view
-    description: Legacy alias for viewing order and payment data
-    category: Academy Commerce
-  - code: payment.manage
-    description: Legacy alias for managing orders and payment status
-    category: Academy Commerce
   - code: academy:coupon:admin
     description: Full access to coupon creation and validation
-    category: Academy Commerce
-  # Legacy alias (compatibility)
-  - code: coupon.manage
-    description: Legacy alias for coupon management
     category: Academy Commerce
 
   # Assessment & Exams
@@ -136,10 +101,6 @@ permissions:
     category: Blog
   - code: blog.publish
     description: Publish blog posts
-    category: Blog
-  # Legacy alias (compatibility)
-  - code: blog.write
-    description: Legacy alias for create/update blog posts
     category: Blog
 
   # Customer Support
@@ -205,10 +166,7 @@ default_role_permissions:
     - academy.commerce.approve
     - schedule.view
     - academy:order:admin
-    - payment.view
-    - payment.manage
     - academy:coupon:admin
-    - coupon.manage
     - academy:subscription:admin
     - gamification.manage
     - blog.manage
@@ -217,7 +175,6 @@ default_role_permissions:
     - blog.publish
     - blog.delete
     - blog.view_restricted
-    - blog.write
     - support.view
     - support.handle
     

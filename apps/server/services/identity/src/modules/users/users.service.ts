@@ -27,7 +27,6 @@ import {
   userUpdateDTOSchema,
   userAdminUpdateDTOSchema,
   UserResponseDTO,
-  UserRole,
   ErrEmailExisted,
   ErrUserNotFound,
 } from '@workspace/schemas';
@@ -230,7 +229,7 @@ export class UsersService implements IUsersService {
       id: newId,
       email,
       displayName: dto.displayName,
-      role: dto.role || UserRole.LEARNER,
+      role: dto.role || 'learner',
       password: dto.password || null,
       // verifiedAt: null (default) = pending
     });
@@ -346,7 +345,7 @@ export class UsersService implements IUsersService {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
-      role: user.role as UserRole,
+      role: user.role as string,
       verifiedAt: user.verifiedAt,
       bannedUntil: null,
       lastSignInAt: null,

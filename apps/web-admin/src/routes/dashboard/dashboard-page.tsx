@@ -5,7 +5,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Zap, ShieldAlert } from "lucide-react"
 import { ButtonGroup } from "@workspace/ui/components/button-group"
 import { PageHeader } from "@/components/common/page-header"
-import { isAdminPortalRole, UserRole } from "@workspace/schemas"
+import { usePermissions } from "@/hooks/use-permissions"
 
 // Dashboards
 import AdminDashboardV2 from "@/components/dashboard/admin-dashboard-v2"
@@ -15,7 +15,7 @@ import LecturerDashboard from "@/components/dashboard/lecturer-dashboard"
 
 export default function DashboardPage() {
   const user = useAppSelector(selectUser)
-  const role = user?.role
+  const { canAny, hasWildcard, permissions } = usePermissions()
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -24,9 +24,20 @@ export default function DashboardPage() {
     return "Chào buổi tối"
   }
 
-  const isLecturer = role === UserRole.LECTURER
-  const isStaffAcademic = role === UserRole.STAFF_ACADEMIC
-  const isStaffFinance = role === UserRole.STAFF_OPERATIONS
+  const isLecturer = canAny(["submission.grade"]) || canAny(["academy.delivery.write"])
+  const isStaffAcademic = canAny([
+    "academy.content.write",
+    "academy.content.approve",
+    "academy.delivery.approve",
+    "academy.commerce.write",
+  ])
+  const isStaffFinance = canAny([
+    "academy:order:admin",
+    "academy:coupon:admin",
+    "support.handle",
+    "audit.view",
+    "blog.manage",
+  ])
   const fullDisplayName = user?.displayName?.trim() || "ADMIN"
 
   return (
@@ -73,17 +84,17 @@ export default function DashboardPage() {
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-8" />
 
-        {role === UserRole.ADMIN && <AdminDashboardV2 />}
+        {hasWildcard && <AdminDashboardV2 />}
         {isStaffAcademic && <StaffAcademicDashboard />}
         {isStaffFinance && <StaffFinanceDashboard />}
-        {role === UserRole.LECTURER && <LecturerDashboard />}
+        {isLecturer && <LecturerDashboard />}
 
-        {(!role || !isAdminPortalRole(role)) && (
+        {(!permissions || permissions.length === 0) && (
           <div className="p-20 text-center space-y-4 bg-muted/10 rounded-xl border border-dashed border-border/40">
             <ShieldAlert className="size-12 text-muted-foreground/30 mx-auto" />
             <div className="space-y-1">
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Truy cập bị hạn chế</p>
-              <p className="text-base font-semibold">Giao diện quản trị không khả dụng cho vai trò của bạn ({role}).</p>
+              <p className="text-base font-semibold">Bạn chưa được gán permission để truy cập trang quản trị.</p>
             </div>
           </div>
         )}

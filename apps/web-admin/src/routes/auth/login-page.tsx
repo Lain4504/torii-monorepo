@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { userLoginDTOSchema, type UserLoginDTO, UserRole } from '@workspace/schemas';
+import { userLoginDTOSchema, type UserLoginDTO } from '@workspace/schemas';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks.ts';
 import { login, checkAuth, selectAuthError, selectAuthLoading, setError } from '@/store/slices/auth-slice.ts';
 import { Button } from '@workspace/ui/components/button';
@@ -15,6 +15,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Spinner } from "@workspace/ui/components/spinner";
 import { useLogo } from '@/hooks/useLogo';
+
+const ADMIN_PANEL_ENTRY_PERMISSIONS = [
+  "user.view",
+  "user.manage",
+  "academy.content.write",
+  "academy.delivery.write",
+  "academy.delivery.approve",
+  "academy.content.approve",
+  "academy.commerce.write",
+  "academy.commerce.approve",
+  "academy:order:admin",
+  "academy:coupon:admin",
+  "academy:subscription:admin",
+  "support.view",
+  "support.handle",
+  "audit.view",
+  "report.view",
+  "blog.manage",
+  "blog.create",
+  "blog.update",
+  "blog.publish",
+  "blog.delete",
+  "blog.view_restricted",
+  "gamification.manage",
+  "exam.manage",
+  "submission.grade",
+  "schedule.view",
+  "live_class.manage",
+];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -53,9 +82,12 @@ export default function LoginPage() {
       // Refresh auth state to get full permissions/profile
       const fullUser = await dispatch(checkAuth()).unwrap();
 
-      // Block learner role
-      if (fullUser.role === UserRole.LEARNER) {
-        dispatch(setError('Học viên không thể truy cập bảng quản trị.'));
+      const permissions = (fullUser.permissions || []) as string[];
+      const canEnter =
+        permissions.includes('*') ||
+        permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
+      if (!canEnter) {
+        dispatch(setError('Bạn không có quyền truy cập bảng quản trị.'));
         toast.error('Từ chối truy cập: Cổng quản trị bị hạn chế.');
         return;
       }

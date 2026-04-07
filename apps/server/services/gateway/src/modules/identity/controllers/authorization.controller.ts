@@ -3,6 +3,8 @@ import {
   Get,
   Put,
   Post,
+  Patch,
+  Delete,
   Param,
   Body,
   UseGuards,
@@ -35,6 +37,60 @@ export class AuthorizationController {
     } catch (error: unknown) {
       return errorResponse(
         error instanceof Error ? error.message : 'Failed to fetch roles',
+      );
+    }
+  }
+
+  @Post('roles')
+  @Permissions('user.manage')
+  async createRole(@Body() data: { code: string; name: string; description?: string | null }) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send({ cmd: 'identity.authz.createRole' }, data),
+      );
+      return successResponse(result, 'Role created successfully');
+    } catch (error: unknown) {
+      return errorResponse(
+        error instanceof Error ? error.message : 'Failed to create role',
+      );
+    }
+  }
+
+  @Patch('roles/:roleCode')
+  @Permissions('user.manage')
+  async updateRole(
+    @Param('roleCode') roleCode: string,
+    @Body() data: { name?: string; description?: string | null },
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.authz.updateRole' },
+          { code: roleCode, ...data },
+        ),
+      );
+      return successResponse(result, 'Role updated successfully');
+    } catch (error: unknown) {
+      return errorResponse(
+        error instanceof Error ? error.message : 'Failed to update role',
+      );
+    }
+  }
+
+  @Delete('roles/:roleCode')
+  @Permissions('user.manage')
+  async deleteRole(@Param('roleCode') roleCode: string) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.authz.deleteRole' },
+          { code: roleCode },
+        ),
+      );
+      return successResponse(result, 'Role deleted successfully');
+    } catch (error: unknown) {
+      return errorResponse(
+        error instanceof Error ? error.message : 'Failed to delete role',
       );
     }
   }

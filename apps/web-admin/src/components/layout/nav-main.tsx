@@ -3,9 +3,6 @@
 import { useMemo } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { ChevronRight, Sparkles, type LucideIcon } from "lucide-react"
-import { useAppSelector } from "@/hooks/hooks"
-import { selectUser } from "@/store/slices/auth-slice"
-import { UserRole } from "@workspace/schemas"
 
 import {
     Collapsible,
@@ -41,14 +38,11 @@ export interface NavMainItem {
     isActive?: boolean
     permission?: string
     anyPermission?: string[]
-    excludeRoles?: UserRole[]
     items?: {
         title: string
         url: string
         permission?: string
         anyPermission?: string[]
-        excludeRoles?: UserRole[]
-        lecturerTitleKey?: string
     }[]
 }
 
@@ -62,23 +56,17 @@ export function NavMain({
     const { pathname } = useLocation()
     const { state, isMobile } = useSidebar()
     const isCollapsed = state === "collapsed"
-    const user = useAppSelector(selectUser)
-    const role = user?.role as UserRole | undefined
 
     const visibleItems = useMemo(() => {
         return items
-            .filter((item) => !role || !item.excludeRoles?.includes(role))
             .map((item) => {
                 if (!item.items?.length) return item
-                const subs = item.items.filter((sub) => !role || !sub.excludeRoles?.includes(role))
+                const subs = item.items.filter(Boolean)
                 if (subs.length === 0) return null
                 return { ...item, items: subs }
             })
             .filter((x): x is NavMainItem => x != null)
-    }, [items, role])
-
-    const subTitle = (sub: { title: string; lecturerTitleKey?: string }) =>
-        role === UserRole.LECTURER && sub.lecturerTitleKey ? sub.lecturerTitleKey : sub.title
+    }, [items])
 
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:px-0">
@@ -139,7 +127,7 @@ export function NavMain({
                                                             pathname === subItem.url ? "bg-primary/5 text-primary" : "text-muted-foreground/70"
                                                         )}
                                                     >
-                                                        {subTitle(subItem)}
+                                                        {subItem.title}
                                                     </Link>
                                                 </DropdownMenuItem>
                                             </PermissionWrapper>
@@ -168,7 +156,7 @@ export function NavMain({
                                                                 "h-8 rounded-lg text-[13px] font-medium transition-colors",
                                                                 pathname === subItem.url ? "text-primary bg-primary/5" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/30"
                                                             )}>
-                                                                <span className="truncate">{subTitle(subItem)}</span>
+                                                                <span className="truncate">{subItem.title}</span>
                                                             </Link>
                                                         </SidebarMenuSubButton>
                                                     </PermissionWrapper>

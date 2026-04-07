@@ -1,14 +1,5 @@
 import { z } from 'zod';
 
-// Enums
-export enum UserRole {
-    ADMIN = 'admin',
-    LECTURER = 'lecturer',
-    LEARNER = 'learner',
-    STAFF_ACADEMIC = 'staff-academic',
-    STAFF_OPERATIONS = 'staff-operations',
-}
-
 // User status is now determined by timestamps:
 // - verifiedAt: null = pending verification
 // - bannedUntil: not null = banned until this time
@@ -32,7 +23,7 @@ export const userSchema = z.object({
     email: z.string().email(ErrEmailInvalid.message),
     displayName: z.string().min(2, ErrFirstNameAtLeast2Chars.message),
     password: z.string().min(8, ErrPasswordAtLeast8Chars.message).optional().nullable(),
-    role: z.nativeEnum(UserRole),
+    role: z.string().min(1),
     avatarUrl: z.string().url().optional().nullable(),
     appMetadata: z.record(z.unknown()).optional().nullable(),
     userMetadata: z.record(z.unknown()).optional().nullable(),

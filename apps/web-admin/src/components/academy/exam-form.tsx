@@ -38,9 +38,9 @@ import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-prof
 import { SectionListEditor } from "@/components/academy/section-list-editor"
 import { KeyValueEditor } from "@/components/academy/key-value-editor"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole } from "@workspace/schemas"
 import { useAcademyLiveClasses, type AcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useMemo } from "react"
+import { usePermissions } from "@/hooks/use-permissions"
 
 export function ExamForm({
   mode,
@@ -59,7 +59,20 @@ export function ExamForm({
 }) {
   const isEdit = mode === "edit"
   const { user } = useAuth()
-  const isLecturer = user?.role === UserRole.LECTURER
+  const { canAny, hasWildcard } = usePermissions()
+  const isLecturer =
+    canAny(["submission.grade"]) &&
+    !canAny([
+      "academy.content.write",
+      "academy.content.approve",
+      "academy.delivery.approve",
+      "academy.commerce.write",
+      "academy.commerce.approve",
+      "user.manage",
+      "academy:order:admin",
+      "academy:coupon:admin",
+    ]) &&
+    !hasWildcard
 
   const { data: profiles = [] } = useAcademyCourseProfiles({})
   const { data: classes = [] } = useAcademyLiveClasses({})

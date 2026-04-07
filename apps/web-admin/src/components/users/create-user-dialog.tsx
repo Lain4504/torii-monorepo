@@ -36,36 +36,17 @@ import {
     BadgeCheck,
     Lock,
 } from 'lucide-react';
-import { UserRole, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useCreateInternalUser } from "@/lib/api/services/users.ts";
 import { useState, useEffect } from 'react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useRoles } from "@/lib/api/services/permissions";
 
-const internalRoles = [
-    {
-        id: UserRole.LECTURER,
-        label: 'Giảng viên',
-        icon: GraduationCap,
-        description: 'Quản lý nội dung học tập và tương tác với học viên.',
-    },
-    {
-        id: UserRole.STAFF_ACADEMIC,
-        label: 'Nhân viên Học vụ (Academic)',
-        icon: BookOpen,
-        description: 'Quản lý chương trình học, lớp học và nội dung đào tạo.',
-    },
-    {
-        id: UserRole.STAFF_OPERATIONS,
-        label: 'Nhân viên Vận hành & Kinh doanh',
-        icon: Users,
-        description: 'Vận hành hệ thống, tài chính và chăm sóc khách hàng.',
-    },
-];
-
-const formSchema = adminCreateInternalUserDTOSchema.extend({
+const formSchema = z.object({
     displayName: z.string().min(1, 'Họ và tên là bắt buộc'),
+    email: z.string().email('Email không hợp lệ'),
+    role: z.string().min(1, 'Vai trò là bắt buộc'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -73,7 +54,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface CreateUserDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    fixedRole?: UserRole.LECTURER | UserRole.STAFF_ACADEMIC | UserRole.STAFF_OPERATIONS;
+    fixedRole?: string;
 }
 
 export function CreateUserDialog({
@@ -97,11 +78,31 @@ export function CreateUserDialog({
         defaultValues: {
             displayName: '',
             email: '',
-            role: UserRole.LECTURER,
+            role: fixedRole || '',
         },
     });
 
     const createInternalUser = useCreateInternalUser();
+    const rolesQuery = useRoles();
+
+    const roleOptions = (rolesQuery.data || [])
+        .filter((r) => r.code !== 'learner')
+        .map((r) => {
+            const icon =
+                r.code === 'lecturer'
+                    ? GraduationCap
+                    : r.code === 'staff-academic'
+                        ? BookOpen
+                        : r.code === 'staff-operations'
+                            ? Users
+                            : ShieldCheck;
+            return {
+                id: r.code,
+                label: r.name,
+                icon,
+                description: r.description || r.code,
+            };
+        });
 
     useEffect(() => {
         if (open) {
@@ -116,11 +117,11 @@ export function CreateUserDialog({
                     : {
                         displayName: '',
                         email: '',
-                        role: UserRole.LECTURER,
+                        role: roleOptions[0]?.id || '',
                     },
             );
         }
-    }, [open, form, reset, fixedRole]);
+    }, [open, form, reset, fixedRole, roleOptions]);
 
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -172,9 +173,7 @@ export function CreateUserDialog({
     };
 
     const handleRoleSelect = (roleId: string) => {
-        if (roleId === UserRole.LECTURER || roleId === UserRole.STAFF_ACADEMIC || roleId === UserRole.STAFF_OPERATIONS) {
-            form.setValue('role', roleId as FormValues['role'], { shouldValidate: true });
-        }
+        form.setValue('role', roleId as FormValues['role'], { shouldValidate: true });
     };
 
     const currentRole = form.watch('role');
@@ -271,7 +270,7 @@ export function CreateUserDialog({
                             ) : (
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        {internalRoles.map((role) => {
+                                        {roleOptions.map((role) => {
                                             const Icon = role.icon;
                                             const isSelected = currentRole === role.id;
 

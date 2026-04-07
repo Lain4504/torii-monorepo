@@ -1,8 +1,5 @@
 import { useParams, Link, useSearchParams } from "react-router-dom"
 import { useAcademyVodPackage, useUpdateAcademyVodPackage, usePublishVodPackageDirectly } from "@/lib/api/services/academy-vod-packages"
-import { useAppSelector } from "@/hooks/hooks"
-import { selectUser } from "@/store/slices/auth-slice"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { Rocket, Send, CheckCircle2, Info, BookOpen, Users, MessageSquare, Folder } from "lucide-react"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { PageHeader } from "@/components/common/page-header"
@@ -32,6 +29,7 @@ import { ClassResourcesTab } from "../live-classes/tabs/class-resources-tab"
 import { ClassDiscussionTab } from "../live-classes/tabs/class-discussion-tab"
 import { ClassSyllabusTab } from "../live-classes/tabs/class-syllabus-tab"
 import { VodInfoTab } from "./tabs/vod-info-tab"
+import { usePermissions } from "@/hooks/use-permissions"
 
 const TAB_INFO = "info"
 const TAB_SYLLABUS = "syllabus"
@@ -46,8 +44,8 @@ export default function VodPackageDetailPage() {
     const [searchParams, setSearchParams] = useSearchParams()
     const { data: pkg, isLoading: isLoadingPkg } = useAcademyVodPackage(id)
     const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(pkg?.courseProfileId)
-    const user = useAppSelector(selectUser)
-    const isStaff = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role);
+    const { canAny, hasWildcard } = usePermissions()
+    const isStaff = hasWildcard || canAny(["academy.commerce.write", "academy.commerce.approve", "academy.delivery.write"])
 
     const updateMutation = useUpdateAcademyVodPackage()
     const publishDirectlyMutation = usePublishVodPackageDirectly()

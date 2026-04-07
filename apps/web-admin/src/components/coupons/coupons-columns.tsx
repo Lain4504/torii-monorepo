@@ -196,7 +196,7 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
 
             return (
                 <div className="flex items-center justify-center gap-2">
-                    <Can permission="coupon.manage">
+                    <Can permission="academy:coupon:admin">
                         <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => onEdit(coupon)}>
                             <Pencil className="h-4 w-4" />
                             Sửa

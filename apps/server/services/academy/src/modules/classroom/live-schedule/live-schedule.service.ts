@@ -30,7 +30,6 @@ import {
 } from '@workspace/protocol';
 import { AppConfigService } from '@server/shared';
 import { AuditLoggerService } from '../../audit-logger.service';
-import { isStaffBranchRole, UserRole } from '@workspace/schemas';
 
 @Injectable()
 export class LiveScheduleService {
@@ -188,7 +187,7 @@ export class LiveScheduleService {
     );
 
     const user = await this.getUserById(userId);
-    await this.assertJoinPermission(schedule, userId, isAdmin, user?.role);
+    await this.assertJoinPermission(schedule, userId, isAdmin);
     const roomId = await this.ensureScheduleRoomId(
       schedule.id,
       schedule.roomId,
@@ -1665,14 +1664,20 @@ export class LiveScheduleService {
     requesterId: string,
     instructorId?: string | null,
   ) {
-    const user = await this.getUserById(requesterId);
-    const role = String(user?.role || '').toLowerCase();
-    const isStaffOrAdmin =
-      role === UserRole.ADMIN || isStaffBranchRole(user?.role);
+    const perms = await this.getPermissionsByUserId(requesterId);
+    const isStaffOrAdmin = perms.some((p) =>
+      [
+        '*',
+        'academy.delivery.approve',
+        'academy.delivery.write',
+        'live_class.manage',
+        'schedule.view',
+      ].includes(p),
+    );
     const isPrimaryTeacher = instructorId === requesterId;
     if (!isStaffOrAdmin && !isPrimaryTeacher) {
       throw new BadRequestException(
-        'Only primary teacher or internal staff (academic/operations) / admin can create schedule requests',
+        'Only primary teacher or authorized staff can create schedule requests',
       );
     }
   }
@@ -1686,16 +1691,18 @@ export class LiveScheduleService {
     },
     userId: string,
     isAdmin: boolean,
-    userRole?: string,
   ) {
     if (isAdmin) {
       const isPrimaryTeacher = schedule.liveClass.instructorId === userId;
-      const ur = String(userRole || '');
-      const isAdminOverride =
-        ur.toLowerCase() === UserRole.ADMIN || isStaffBranchRole(ur);
+      const perms = await this.getPermissionsByUserId(userId);
+      const isAdminOverride = perms.some((p) =>
+        ['*', 'academy.delivery.approve', 'live_class.manage', 'schedule.view'].includes(
+          p,
+        ),
+      );
       if (!isPrimaryTeacher && !isAdminOverride) {
         throw new BadRequestException(
-          'Only assigned lecturer or admin / internal staff (academic/operations) can start this live room.',
+          'Only assigned lecturer or authorized staff can start this live room.',
         );
       }
       return;
@@ -1721,6 +1728,16 @@ export class LiveScheduleService {
       this.nats.send({ cmd: 'identity.users.findById' }, { id: userId }),
     ).catch(() => null);
     return userRes?.user;
+  }
+
+  private async getPermissionsByUserId(userId: string): Promise<string[]> {
+    const res = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'identity.authz.getUserPermissionsByUserId' },
+        { userId },
+      ),
+    ).catch(() => null);
+    return (res?.permissions as string[]) || [];
   }
 
   private async ensureScheduleRoomId(

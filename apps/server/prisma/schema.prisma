@@ -597,6 +597,16 @@ model TwoFactorAuth {
 
 // --- Permissions & Audit ---
 
+model Role {
+  code        String   @id @db.VarChar(50)
+  name        String   @db.VarChar(100)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  @@map("roles")
+}
+
 model RolePermission {
   roleCode       String   @map("role_code") @db.VarChar(50)
   permissionCode String   @map("permission_code") @db.VarChar(100)

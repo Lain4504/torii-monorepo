@@ -8,6 +8,35 @@ interface AuthGuardProps {
     children: ReactNode;
 }
 
+const ADMIN_PANEL_ENTRY_PERMISSIONS = [
+    "user.view",
+    "user.manage",
+    "academy.content.write",
+    "academy.delivery.write",
+    "academy.delivery.approve",
+    "academy.content.approve",
+    "academy.commerce.write",
+    "academy.commerce.approve",
+    "academy:order:admin",
+    "academy:coupon:admin",
+    "academy:subscription:admin",
+    "support.view",
+    "support.handle",
+    "audit.view",
+    "report.view",
+    "blog.manage",
+    "blog.create",
+    "blog.update",
+    "blog.publish",
+    "blog.delete",
+    "blog.view_restricted",
+    "gamification.manage",
+    "exam.manage",
+    "submission.grade",
+    "schedule.view",
+    "live_class.manage",
+];
+
 /**
  * AuthGuard wraps protected routes and ensures user is authenticated
  */
@@ -31,10 +60,13 @@ export function AuthGuard({ children }: AuthGuardProps) {
                 const user = await dispatch(checkAuth()).unwrap();
 
                 if (user) {
-                    // Block learner role
-                    if (user.role === 'learner') {
-                        dispatch(setError('Learners cannot access admin panel.'));
-                        dispatch(logout()); // Clear state/cookie logic on backend? Logout thunk calls backend.
+                    const permissions = (user.permissions || []) as string[];
+                    const canEnter =
+                        permissions.includes('*') ||
+                        permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
+                    if (!canEnter) {
+                        dispatch(setError('Bạn không có quyền truy cập trang quản trị.'));
+                        dispatch(logout());
                         navigate('/login', { replace: true });
                         return;
                     }

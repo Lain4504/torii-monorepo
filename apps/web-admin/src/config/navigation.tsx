@@ -13,7 +13,6 @@ import {
     Languages,
     BookOpen,
 } from "lucide-react";
-import { UserRole } from "@workspace/schemas";
 
 export interface NavItem {
     titleKey: string;
@@ -22,21 +21,12 @@ export interface NavItem {
     badge?: string;
     permission?: string;
     anyPermission?: string[];
-    role?: string;
-    roles?: string[];
-    /** Ẩn mục này với các role (vd: lecturer không thấy JLPT / AI). */
-    excludeRoles?: UserRole[];
     descriptionKey?: string;
     items?: {
         titleKey: string;
         url: string;
-        /** Nhãn thay thế khi user là lecturer (vd: "Lớp của tôi"). */
-        lecturerTitleKey?: string;
         permission?: string;
         anyPermission?: string[];
-        role?: string;
-        roles?: string[];
-        excludeRoles?: UserRole[];
     }[];
 }
 
@@ -53,19 +43,18 @@ export const academicNavItems: NavItem[] = [
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write", "academy.content.approve", "academy.commerce.approve"],
         items: [
-            { titleKey: "Hồ sơ khóa học", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Đợt khai giảng", url: "/academy/cohorts", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Lớp học Live", url: "/academy/live-classes", lecturerTitleKey: "Lớp của tôi" },
-            { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["academy.delivery.read", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Duyệt dời lịch học", url: "/academy/live-classes/reschedule-requests", anyPermission: ["academy.delivery.approve", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Hồ sơ khóa học", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"] },
+            { titleKey: "Đợt khai giảng", url: "/academy/cohorts", anyPermission: ["academy.commerce.read", "academy.commerce.write"] },
+            { titleKey: "Lớp học Live", url: "/academy/live-classes" },
+            { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["academy.delivery.read", "academy.delivery.write"] },
+            { titleKey: "Duyệt dời lịch học", url: "/academy/live-classes/reschedule-requests", anyPermission: ["academy.delivery.approve", "academy.delivery.write"] },
+            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"] },
         ]
     },
     {
         titleKey: "Ngân hàng & Đánh giá",
         url: "/academy/assessment/questions",
         icon: BookOpen,
-        excludeRoles: [UserRole.LECTURER],
         anyPermission: ["academy.content.read", "academy.content.write"],
         items: [
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/assessment/questions" },
@@ -78,7 +67,6 @@ export const academicNavItems: NavItem[] = [
         url: "/academy/jlpt/templates",
         icon: Languages,
         anyPermission: ["academy.content.read", "academy.content.write"],
-        excludeRoles: [UserRole.LECTURER],
         items: [
             { titleKey: "Quản lý Đề thi (Mẫu đề)", url: "/academy/jlpt/templates" },
             { titleKey: "Ngân hàng Câu hỏi", url: "/academy/jlpt/questions" },
@@ -90,7 +78,6 @@ export const academicNavItems: NavItem[] = [
         titleKey: "Gói AI",
         url: "/academy/ai-subscriptions",
         icon: Bot,
-        excludeRoles: [UserRole.LECTURER],
         anyPermission: ["academy:subscription:admin"],
     },
 ];

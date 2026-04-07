@@ -20,7 +20,7 @@ import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
 import { ClassRescheduleRequestSheet } from "@/components/academy/class-reschedule-request-sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
+import { usePermissions } from "@/hooks/use-permissions"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { toast } from "sonner"
 import {
@@ -62,9 +62,27 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const fromDate = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().split("T")[0]
     const toDate = new Date(now.getFullYear(), now.getMonth() + 12, 1).toISOString().split("T")[0]
 
-    const { user } = useAuth()
-    const isLecturer = user?.role === UserRole.LECTURER
-    const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
+    useAuth()
+    const { canAny, hasWildcard } = usePermissions()
+    const isLecturer =
+        canAny(["submission.grade"]) &&
+        !canAny([
+            "academy.content.write",
+            "academy.content.approve",
+            "academy.delivery.approve",
+            "academy.commerce.write",
+            "academy.commerce.approve",
+            "user.manage",
+            "academy:order:admin",
+            "academy:coupon:admin",
+        ]) &&
+        !hasWildcard
+    const isStaffOrAdmin = hasWildcard || canAny([
+        "academy.delivery.approve",
+        "academy.content.write",
+        "academy.commerce.write",
+        "user.manage",
+    ])
 
     const { data: fetchedClass } = useAcademyLiveClass(propAcademyClass ? undefined : classId)
     const academyClass = propAcademyClass || fetchedClass
