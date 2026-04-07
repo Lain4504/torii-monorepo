@@ -15,49 +15,49 @@ interface StudyModeSelectionProps {
 export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, canAccessLearning = true }: StudyModeSelectionProps) {
     const isDisabled = !canAccessLearning || !selectedSetId || selectedCount === 0;
     return (
-        <section className="w-full space-y-4 pb-2" data-purpose="study-mode-selection">
+        <section className="w-full space-y-3" data-purpose="study-mode-selection">
             {!canAccessLearning && (
-                <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <AlertCircle className="h-4 w-4" />
+                <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <AlertCircle className="h-3.5 w-3.5" />
                     </div>
-                    <p className="text-xs font-medium text-foreground/90">
-                        Bạn đang ở chế độ tham quan. Đăng nhập để bắt đầu học flashcard, trắc nghiệm và match.
+                    <p className="text-xs leading-snug text-foreground/90">
+                        Chế độ tham quan — đăng nhập để học flashcard, trắc nghiệm và match.
                     </p>
                 </div>
             )}
             <div>
-                <h2 className="mb-4 text-lg font-bold text-foreground">Chọn chế độ học</h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <h2 className="mb-2 text-sm font-semibold text-foreground sm:text-base">Chế độ học</h2>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
                     {/* Flashcard / SRS */}
                     <Card
-                        className={`flex h-full flex-col items-center justify-between text-center shadow-sm transition-shadow hover:shadow-md ${
-                            activeMode === 'review'
-                                ? 'border-blue-500/50 bg-blue-500/5'
-                                : 'border-border bg-card'
+                        className={`shadow-none ${
+                            activeMode === 'review' ? 'border-blue-500/40 bg-blue-500/[0.04]' : ''
                         }`}
                         data-purpose="mode-card-flashcard"
                     >
-                        <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
-                            <div className="flex flex-col items-center space-y-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
-                                    <Layers className="h-6 w-6" />
+                        <CardContent className="flex flex-col gap-3 p-3 sm:p-4">
+                            <div className="flex items-start gap-3 text-left sm:flex-col sm:items-center sm:text-center">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 sm:h-10 sm:w-10">
+                                    <Layers className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-base font-bold text-foreground">Flashcard</p>
-                                    <p className="text-xs leading-relaxed text-muted-foreground">
-                                        Lật thẻ để xem đáp án. Phù hợp để làm quen với từ vựng mới.
+                                <div className="min-w-0 flex-1 space-y-0.5">
+                                    <p className="text-sm font-semibold text-foreground">Flashcard</p>
+                                    <p className="line-clamp-2 text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                                        Lật thẻ, làm quen từ mới.
                                     </p>
                                 </div>
                             </div>
                             <Button
                                 asChild
+                                variant="outline"
+                                size="sm"
                                 disabled={isDisabled}
                                 data-requires-auth={!canAccessLearning ? 'true' : undefined}
-                                className="mt-4 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+                                className="h-9 w-full border-blue-600/40 text-blue-700 hover:bg-blue-500/10 dark:text-blue-400"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/review` : '#'}>
-                                    Bắt đầu Flashcard
+                                    Vào Flashcard
                                 </Link>
                             </Button>
                         </CardContent>
@@ -65,33 +65,33 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
 
                     {/* Multiple choice test */}
                     <Card
-                        className={`flex h-full flex-col items-center justify-between text-center shadow-sm transition-shadow hover:shadow-md ${
-                            activeMode === 'test'
-                                ? 'border-orange-500/50 bg-orange-500/5'
-                                : 'border-border bg-card'
+                        className={`shadow-none ${
+                            activeMode === 'test' ? 'border-orange-500/40 bg-orange-500/[0.04]' : ''
                         }`}
                         data-purpose="mode-card-quiz"
                     >
-                        <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
-                            <div className="flex flex-col items-center space-y-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600">
-                                    <Target className="h-6 w-6" />
+                        <CardContent className="flex flex-col gap-3 p-3 sm:p-4">
+                            <div className="flex items-start gap-3 text-left sm:flex-col sm:items-center sm:text-center">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600 sm:h-10 sm:w-10">
+                                    <Target className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-base font-bold text-foreground">Trắc nghiệm</p>
-                                    <p className="text-xs leading-relaxed text-muted-foreground">
-                                        Trả lời câu hỏi trắc nghiệm để kiểm tra mức độ nhớ từ.
+                                <div className="min-w-0 flex-1 space-y-0.5">
+                                    <p className="text-sm font-semibold text-foreground">Trắc nghiệm</p>
+                                    <p className="line-clamp-2 text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                                        Kiểm tra mức độ nhớ.
                                     </p>
                                 </div>
                             </div>
                             <Button
                                 asChild
+                                variant="outline"
+                                size="sm"
                                 disabled={isDisabled}
                                 data-requires-auth={!canAccessLearning ? 'true' : undefined}
-                                className="mt-4 w-full rounded-xl bg-orange-500 text-white hover:bg-orange-600"
+                                className="h-9 w-full border-orange-600/40 text-orange-700 hover:bg-orange-500/10 dark:text-orange-400"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/test` : '#'}>
-                                    Bắt đầu Trắc nghiệm
+                                    Vào trắc nghiệm
                                 </Link>
                             </Button>
                         </CardContent>
@@ -99,33 +99,33 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
 
                     {/* Match / active recall */}
                     <Card
-                        className={`flex h-full flex-col items-center justify-between text-center shadow-sm transition-shadow hover:shadow-md ${
-                            activeMode === 'match'
-                                ? 'border-emerald-500/50 bg-emerald-500/5'
-                                : 'border-border bg-card'
+                        className={`shadow-none ${
+                            activeMode === 'match' ? 'border-emerald-500/40 bg-emerald-500/[0.04]' : ''
                         }`}
                         data-purpose="mode-card-intensive"
                     >
-                        <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
-                            <div className="flex flex-col items-center space-y-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                                    <Zap className="h-6 w-6" />
+                        <CardContent className="flex flex-col gap-3 p-3 sm:p-4">
+                            <div className="flex items-start gap-3 text-left sm:flex-col sm:items-center sm:text-center">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 sm:h-10 sm:w-10">
+                                    <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-base font-bold text-foreground">Match</p>
-                                    <p className="text-xs leading-relaxed text-muted-foreground">
-                                        Ghép cặp thuật ngữ và định nghĩa để tăng phản xạ ghi nhớ.
+                                <div className="min-w-0 flex-1 space-y-0.5">
+                                    <p className="text-sm font-semibold text-foreground">Match</p>
+                                    <p className="line-clamp-2 text-[11px] leading-snug text-muted-foreground sm:text-xs">
+                                        Ghép cặp thuật ngữ — định nghĩa.
                                     </p>
                                 </div>
                             </div>
                             <Button
                                 asChild
+                                variant="outline"
+                                size="sm"
                                 disabled={isDisabled}
                                 data-requires-auth={!canAccessLearning ? 'true' : undefined}
-                                className="mt-4 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                                className="h-9 w-full border-emerald-600/40 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/match` : '#'}>
-                                    Bắt đầu Match
+                                    Vào Match
                                 </Link>
                             </Button>
                         </CardContent>

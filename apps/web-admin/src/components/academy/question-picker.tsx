@@ -104,7 +104,7 @@ export function QuestionPicker({
                                         <div className="flex flex-col gap-1 overflow-hidden">
                                             <span className="truncate font-medium">{stripHtml(q.stem || q.content || "")}</span>
                                             <span className="text-xs text-muted-foreground">
-                                                ID: {q.id.substring(0, 8)} | Loai: {q.questionType} | Level: {q.level || q.difficulty || "N/A"}
+                                                ID: {q.id.substring(0, 8)} | Loai: {q.questionType} | Level: {q.level || "N/A"}
                                             </span>
                                         </div>
                                     </CommandItem>

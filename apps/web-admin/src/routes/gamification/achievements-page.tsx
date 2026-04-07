@@ -39,7 +39,7 @@ export default function AchievementsPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Quản lý Thành tích (Achievements)"
+                title="Quản lý Thành tích"
                 subtitle="Thiết lập các mốc thành tích, danh hiệu để gắn bó học viên với nền tảng."
                 actions={
                     <Can permission="gamification.manage">

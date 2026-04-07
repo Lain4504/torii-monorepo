@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, FileText, AlertCircle, ChevronRight, Clock, Activity } from "lucide-react"
+import { ArrowLeft, FileText, AlertCircle, ChevronRight, Clock, Activity, History } from "lucide-react"
 import { jlptMockApi, useJlptMockTemplates } from "@/lib/api/services/jlpt-mock-api"
 import {
   AlertDialog,
@@ -19,7 +19,25 @@ import { toast } from "@workspace/ui/components/sonner"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { PageLoading } from "@workspace/ui/components/page-loading"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { cn } from "@workspace/ui/lib/utils"
+
+const LEVEL_ACCENT: Record<string, { chip: string }> = {
+  N1: {
+    chip: "border-rose-500/25 bg-rose-500/10 text-rose-800 dark:text-rose-200",
+  },
+  N2: {
+    chip: "border-orange-500/25 bg-orange-500/10 text-orange-800 dark:text-orange-200",
+  },
+  N3: {
+    chip: "border-amber-500/25 bg-amber-500/10 text-amber-900 dark:text-amber-200",
+  },
+  N4: {
+    chip: "border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
+  },
+  N5: {
+    chip: "border-sky-500/25 bg-sky-500/10 text-sky-800 dark:text-sky-200",
+  },
+}
 
 export default function JlptLevelExamPage() {
   const params = useParams<{ level: string }>()
@@ -33,6 +51,9 @@ export default function JlptLevelExamPage() {
   const [starting, setStarting] = useState(false)
 
   const pendingExam = pendingTemplateId ? templates.find((x) => x.id === pendingTemplateId) : null
+  const accent = LEVEL_ACCENT[levelCode] ?? {
+    chip: "border-primary/25 bg-primary/10 text-foreground",
+  }
 
   const confirmStart = async () => {
     if (!pendingTemplateId) return
@@ -55,32 +76,48 @@ export default function JlptLevelExamPage() {
   if (isLoading) return <PageLoading className="h-screen" />
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-border">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg border" asChild>
+    <div className="mx-auto max-w-4xl space-y-6 sm:max-w-none sm:space-y-8">
+      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+        <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-lg border" asChild>
             <Link href="/dashboard/jlpt-list-exam">
               <ArrowLeft className="size-4" />
             </Link>
           </Button>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs font-bold px-2 rounded-lg">
-                    JLPT {levelCode}
-                </Badge>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-lg border">
-                    <FileText className="size-3 text-primary" />
-                    <span>{templates.length} đề thi</span>
-                </div>
+          <div className="min-w-0 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge
+                className={cn("rounded-lg px-2 text-xs font-bold", accent.chip)}
+                variant="outline"
+              >
+                JLPT {levelCode}
+              </Badge>
+              <div className="flex items-center gap-1.5 rounded-lg border bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                <FileText className="size-3 text-primary" />
+                <span>{templates.length} đề</span>
+              </div>
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Hệ thống đề luyện thi mô phỏng
+            <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
+              Đề thi thử JLPT {levelCode}
             </h1>
+            <p className="text-xs text-muted-foreground sm:text-sm">
+              Chọn một đề để bắt đầu. Thời gian được tính khi bạn xác nhận vào phòng thi.
+            </p>
           </div>
         </div>
+        <Button
+          asChild
+          variant="outline"
+          className="h-10 w-full shrink-0 gap-2 border-violet-500/35 bg-violet-500/10 font-semibold text-violet-800 hover:bg-violet-500/15 dark:text-violet-200 sm:h-9 sm:w-auto"
+        >
+          <Link href="/jlpt/attempt/history">
+            <History className="size-4" />
+            Lịch sử làm bài
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
         {templates.length === 0 ? (
           <div className="col-span-full py-24 bg-muted border border-dashed rounded-xl flex flex-col items-center gap-3">
             <Activity className="size-8 text-muted-foreground" />
@@ -96,41 +133,46 @@ export default function JlptLevelExamPage() {
                 setPendingTemplateId(exam.id)
                 setShowConfirmStart(true)
               }}
-              className="text-left group outline-none"
+              className={cn(
+                "group flex w-full flex-col items-stretch rounded-lg border bg-card px-3 py-3 text-left text-sm transition hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-4 sm:py-3.5",
+              )}
             >
-              <Card className="bg-card hover:bg-muted/50 transition-colors rounded-xl overflow-hidden h-full">
-                <CardContent className="p-5 flex flex-col h-full gap-4">
-                    <div className="flex items-center justify-between">
-                        <div className="size-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground border">
-                            <FileText className="size-4" />
-                        </div>
-                        <Badge variant="outline" className="text-[10px] font-medium h-5 px-2 rounded-lg text-muted-foreground tabular-nums">
-                            {exam.code}
-                        </Badge>
-                    </div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
+                    <FileText className="size-3 text-primary" />
+                    <span className="truncate">{exam.code}</span>
+                  </div>
+                  <h2 className="truncate text-sm font-semibold leading-snug text-foreground sm:text-[15px]">
+                    {exam.title}
+                  </h2>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold tabular-nums",
+                    accent.chip,
+                  )}
+                >
+                  JLPT {levelCode}
+                </Badge>
+              </div>
 
-                    <div className="space-y-2 flex-1">
-                        <h2 className="text-base font-bold text-foreground leading-tight">
-                            {exam.title}
-                        </h2>
-                        <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
-                            <div className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg border">
-                                <Clock className="size-3.5 text-primary" />
-                                {exam.totalDurationMinutes ? `${exam.totalDurationMinutes} phút` : "Bất định"}
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <Activity className="size-3.5 text-primary" />
-                                đầy đủ các phần thi
-                            </div>
-                        </div>
-                    </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted-foreground sm:text-xs">
+                <span className="inline-flex items-center gap-1 rounded-md bg-muted/80 px-2 py-0.5">
+                  <Clock className="size-3 text-primary" />
+                  {exam.totalDurationMinutes ? `${exam.totalDurationMinutes} phút` : "Thời lượng —"}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-md px-2 py-0.5">
+                  <Activity className="size-3 text-primary" />
+                  Full mock
+                </span>
+              </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t">
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Bắt đầu ngay</span>
-                        <ChevronRight className="size-4 text-muted-foreground" />
-                    </div>
-                </CardContent>
-              </Card>
+              <div className="mt-3 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                <span>Bắt đầu làm bài</span>
+                <ChevronRight className="size-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </div>
             </button>
           ))
         )}

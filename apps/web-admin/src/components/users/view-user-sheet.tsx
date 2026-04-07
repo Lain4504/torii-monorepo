@@ -189,10 +189,10 @@ function UserLearningTab({ userId }: { userId: string }) {
                         <TableRow key={item.id}>
                             <TableCell>
                                 <div className="font-semibold">
-                                    {item.courseTitle || item.liveClass?.name || item.vodPackage?.name || 'N/A'}
+                                    {item.courseTitle || item.liveClass?.name || item.vodPackage?.name || '—'}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    {item.courseCode || item.liveClass?.code || item.vodPackage?.code || 'No code'}
+                                    {item.courseCode || item.liveClass?.code || item.vodPackage?.code || 'Không có mã'}
                                 </div>
                             </TableCell>
                             <TableCell className="text-sm">

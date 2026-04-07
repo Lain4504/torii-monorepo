@@ -75,16 +75,16 @@ export default function CourseProfileApprovalPreviewPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={
+            title={
           <div className="flex items-center gap-2">
             <Link
               to="/academy/approvals"
               className="hover:underline text-muted-foreground transition-colors"
             >
-              Approval Center
+                  Trung tâm phê duyệt
             </Link>
             <ChevronRight className="size-4" />
-            <span>CourseProfile Preview</span>
+                <span>Xem trước CourseProfile</span>
           </div>
         }
         subtitle={`Xem trước và duyệt hồ sơ ${profile.code}`}
@@ -123,7 +123,7 @@ export default function CourseProfileApprovalPreviewPage() {
         <Card>
           <CardHeader>
             <CardTitle>Thông tin CourseProfile</CardTitle>
-            <CardDescription>Trang này chỉ phục vụ flow duyệt. Approve thực hiện ở đây.</CardDescription>
+          <CardDescription>Trang này chỉ phục vụ flow duyệt. Việc duyệt thực hiện ở đây.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">

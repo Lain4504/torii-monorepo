@@ -1,8 +1,7 @@
-import { useEffect } from "react"
+import { useEffect, useState, type ChangeEvent } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
-  useAcademyQuestionCategories,
   useCreateAcademyQuestion,
   useUpdateAcademyQuestion,
   type AcademyQuestion,
@@ -10,6 +9,7 @@ import {
 import {
   academyQuestionCreateDTOSchema,
   type AcademyQuestionCreateDTO,
+  AcademyQuestionCategoryType,
   AcademyQuestionType,
 } from "@workspace/schemas"
 import {
@@ -26,9 +26,10 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Label } from "@workspace/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 
-import { CheckCircle2, Loader2 } from "lucide-react"
+import { CheckCircle2, Loader2, Upload, Image as ImageIcon, FileAudio, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@workspace/ui/lib/utils"
+import { storageApi } from "@/lib/api/services/storage-api"
 
 interface QuestionEditorProps {
   open: boolean
@@ -47,24 +48,26 @@ const defaultOptions = OPTION_KEYS.map((key, i) => ({
 }))
 
 export function QuestionEditor({ open, onOpenChange, questionId, initialData }: QuestionEditorProps) {
-  const { data: categories = [] } = useAcademyQuestionCategories()
   const createMutation = useCreateAcademyQuestion()
   const updateMutation = useUpdateAcademyQuestion()
+  const [uploadingMedia, setUploadingMedia] = useState(false)
 
   const form = useForm<AcademyQuestionCreateDTO>({
     resolver: zodResolver(academyQuestionCreateDTOSchema) as any,
     defaultValues: {
       stem: "",
       questionType: AcademyQuestionType.SINGLE_CHOICE,
-      difficulty: "MEDIUM",
       level: "N3",
+      categoryType: AcademyQuestionCategoryType.GRAMMAR,
       explanation: "",
       options: defaultOptions,
-      categoryIds: [],
     },
   })
 
   const { fields } = useFieldArray({ control: form.control, name: "options" })
+  const selectedCategory = form.watch("categoryType")
+  const mediaUrl = form.watch("mediaUrl")
+  const isListening = selectedCategory === AcademyQuestionCategoryType.LISTENING
 
   useEffect(() => {
     if (open) {
@@ -81,31 +84,25 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
         form.reset({
           stem: initialData.stem,
           questionType: AcademyQuestionType.SINGLE_CHOICE,
-          difficulty: initialData.difficulty || "MEDIUM",
           level: initialData.level || "N3",
+          categoryType: (initialData.categoryType as AcademyQuestionCategoryType) || AcademyQuestionCategoryType.GRAMMAR,
           explanation: initialData.explanation || "",
           options: opts.slice(0, 4),
-          categoryIds: initialData.categoryLinks?.map(cl => cl.categoryId) || [],
         })
       } else {
         form.reset({
           stem: "",
           questionType: AcademyQuestionType.SINGLE_CHOICE,
-          difficulty: "MEDIUM",
           level: "N3",
+          categoryType: AcademyQuestionCategoryType.GRAMMAR,
           explanation: "",
           options: defaultOptions,
-          categoryIds: [],
         })
       }
     }
   }, [initialData, open, form])
 
   const onSubmit = async (data: any) => {
-    if (!data.categoryIds || data.categoryIds.length === 0) {
-      toast.error("Vui lòng chọn danh mục cho câu hỏi")
-      return
-    }
     if (!data.options?.some((o: any) => o.isCorrect)) {
       toast.error("Vui lòng chọn ít nhất một đáp án đúng")
       return
@@ -130,7 +127,28 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
   }
 
   const isPending = createMutation.isPending || updateMutation.isPending
-  const watchedCategoryIds = form.watch("categoryIds") || []
+
+  const mediaLabel = isListening ? "Audio câu hỏi" : "Hình ảnh minh họa"
+  const mediaAccept = isListening ? "audio/*" : "image/*"
+  const mediaHint = isListening
+    ? "Tải file nghe cho câu hỏi dạng Listening (mp3, wav, m4a...)."
+    : "Tải ảnh minh họa cho câu hỏi (png, jpg, webp...)."
+
+  const handleMediaUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    try {
+      setUploadingMedia(true)
+      const uploaded = await storageApi.uploadFile(file, "academy-question-bank")
+      form.setValue("mediaUrl", uploaded.fileUrl || "", { shouldDirty: true })
+      toast.success(`Đã tải lên ${isListening ? "audio" : "hình ảnh"} thành công`)
+    } catch {
+      toast.error("Tải file thất bại")
+    } finally {
+      setUploadingMedia(false)
+      event.target.value = ""
+    }
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -164,24 +182,8 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
               )}
             </div>
 
-            {/* Độ khó + Danh mục */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold">Độ khó</Label>
-                <Select
-                  value={form.watch("difficulty")}
-                  onValueChange={(v) => form.setValue("difficulty", v)}
-                >
-                  <SelectTrigger className="h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EASY">🟢 Dễ</SelectItem>
-                    <SelectItem value="MEDIUM">🟡 Trung bình</SelectItem>
-                    <SelectItem value="HARD">🔴 Khó</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Cấp độ (JLPT) + Nhóm câu hỏi */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold">Cấp độ (JLPT)</Label>
                 <Select
@@ -200,32 +202,81 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Danh mục <span className="text-destructive">*</span></Label>
+                <Label className="text-sm font-semibold">Nhóm câu hỏi</Label>
                 <Select
-                  value={watchedCategoryIds[0] || ""}
-                  onValueChange={(v) => {
-                    form.setValue("categoryIds", [v], { shouldDirty: true })
-                  }}
+                  value={(form.watch("categoryType") as string) || AcademyQuestionCategoryType.GRAMMAR}
+                  onValueChange={(v) => form.setValue("categoryType", v as AcademyQuestionCategoryType)}
                 >
                   <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Chọn danh mục..." />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {(categories as any[]).length === 0 ? (
-                      <div className="px-3 py-2 text-xs text-muted-foreground italic">
-                        Chưa có danh mục. Tạo danh mục trước.
-                      </div>
-                    ) : (
-                      (categories as any[]).map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                      ))
-                    )}
+                    <SelectItem value={AcademyQuestionCategoryType.VOCABULARY}>Từ vựng</SelectItem>
+                    <SelectItem value={AcademyQuestionCategoryType.GRAMMAR}>Ngữ pháp</SelectItem>
+                    <SelectItem value={AcademyQuestionCategoryType.KANJI}>Kanji</SelectItem>
+                    <SelectItem value={AcademyQuestionCategoryType.READING}>Đọc hiểu</SelectItem>
+                    <SelectItem value={AcademyQuestionCategoryType.LISTENING}>Nghe hiểu</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            {/* Media theo nhóm câu hỏi */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">{mediaLabel}</Label>
+              <div className="rounded-lg border bg-muted/20 p-3 space-y-3">
+                <p className="text-xs text-muted-foreground">{mediaHint}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Input
+                    type="file"
+                    accept={mediaAccept}
+                    onChange={handleMediaUpload}
+                    disabled={uploadingMedia || isPending}
+                    className="max-w-sm"
+                  />
+                  {uploadingMedia && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                </div>
+                {mediaUrl ? (
+                  <div className="rounded-md border bg-background p-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex items-center gap-2">
+                        {isListening ? (
+                          <FileAudio className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <a
+                          href={mediaUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="truncate text-xs text-primary hover:underline"
+                        >
+                          {mediaUrl}
+                        </a>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => form.setValue("mediaUrl", "", { shouldDirty: true })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {isListening ? (
+                      <audio controls className="mt-2 w-full" src={mediaUrl} />
+                    ) : (
+                      <img src={mediaUrl} alt="Xem trước media" className="mt-2 max-h-44 rounded-md border object-contain" />
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
+                    <Upload className="h-4 w-4" />
+                    Chưa có media.
+                  </div>
+                )}
               </div>
             </div>
 
@@ -307,7 +358,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
             <Button
               type="submit"
               form="question-editor-form"
-              disabled={isPending}
+              disabled={isPending || uploadingMedia}
               className="min-w-[120px]"
             >
               {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

@@ -15,7 +15,7 @@ interface FileUploadProps {
     disabled?: boolean;
 }
 
-export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Upload File', currentValue, disabled }: FileUploadProps) {
+export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Tải lên tệp', currentValue, disabled }: FileUploadProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,7 +66,7 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
             // 4. Success
             setPreviewUrl(fileUrl);
             onUploadComplete(fileUrl);
-            toast.success('Upload successfully!');
+            toast.success('Tải lên thành công!');
 
         } catch (error: any) {
             console.error('Upload failed:', error);
@@ -157,10 +157,10 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
                     )}
                     <div className="text-center">
                         <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                            {isUploading ? 'Uploading...' : label}
+                            {isUploading ? 'Đang tải lên...' : label}
                         </span>
                         <p className="text-xs text-muted-foreground/70 mt-1">
-                            Drag & drop or click to browse
+                            Kéo thả hoặc bấm để chọn tệp
                         </p>
                     </div>
                 </div>
@@ -171,7 +171,7 @@ export function FileUpload({ onUploadComplete, accept = 'audio/*', label = 'Uplo
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{previewUrl.split('/').pop()}</p>
-                        <p className="text-xs text-muted-foreground">Upload complete</p>
+                        <p className="text-xs text-muted-foreground">Tải lên hoàn tất</p>
                     </div>
                     <Button
                         type="button"

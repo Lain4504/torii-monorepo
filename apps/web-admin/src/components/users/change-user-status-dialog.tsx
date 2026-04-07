@@ -121,9 +121,9 @@ export function ChangeUserStatusDialog({
                                     <SelectValue placeholder="Chọn trạng thái" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="active">Hoạt động (Active)</SelectItem>
-                                    <SelectItem value="banned">Khóa tài khoản (Banned)</SelectItem>
-                                    <SelectItem value="deleted">Xóa tài khoản (Deleted)</SelectItem>
+                                    <SelectItem value="active">Hoạt động</SelectItem>
+                                    <SelectItem value="banned">Khóa tài khoản</SelectItem>
+                                    <SelectItem value="deleted">Xóa tài khoản</SelectItem>
                                 </SelectContent>
                             </Select>
                         </Field>

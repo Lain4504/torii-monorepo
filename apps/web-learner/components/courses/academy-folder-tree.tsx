@@ -1,129 +1,127 @@
 "use client"
 
 import * as React from "react"
-import { 
-    Folder, 
-    FileText, 
-    ChevronRight, 
-    ChevronDown, 
-    Download, 
-    ExternalLink, 
-    Globe, 
-    FileArchive, 
-    FileImage, 
-    MoreVertical, 
-    ArrowLeft,
-    Search,
-    Loader2
+import {
+    Folder,
+    FileText,
+    ChevronRight,
+    ChevronDown,
+    Download,
+    ExternalLink,
+    Globe,
+    FileArchive,
+    FileImage,
+    Loader2,
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
 import { useAcademyFolders, useAcademyResources } from "@/lib/api/services/academy-resource-api"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import { Input } from "@workspace/ui/components/input"
-import { Spinner } from "@workspace/ui/components/spinner"
-import { useRouter } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 
 interface AcademyFolderTreeProps {
     classId: string
 }
 
 export function AcademyFolderTree({ classId }: AcademyFolderTreeProps) {
-    const router = useRouter()
     const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(classId)
     const [expandedFolders, setExpandedFolders] = React.useState<Record<string, boolean>>({})
+
     const toggleFolder = (folderId: string) => {
-        setExpandedFolders(prev => ({
+        setExpandedFolders((prev) => ({
             ...prev,
-            [folderId]: !prev[folderId]
+            [folderId]: !prev[folderId],
         }))
     }
 
-    const filteredFolders = folders;
-
     return (
-        <div className="flex flex-col h-[calc(100vh-200px)] border rounded-3xl bg-card overflow-hidden shadow-none animate-in fade-in duration-500">
-            <div className="p-4 border-b border-border/40 flex items-center justify-between gap-4 bg-muted/5">
-                <div className="flex items-center gap-2">
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => router.push('/dashboard/my-folders')}
-                        className="h-8 w-8 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
-                    >
-                        <ArrowLeft className="size-4" />
-                    </Button>
-                    <h3 className="text-sm font-bold truncate tracking-tight">Tài liệu lớp học</h3>
-                </div>
-            </div>
-
-            <ScrollArea className="flex-1">
-                <div className="p-2 space-y-1">
-                    {isLoadingFolders ? (
-                        <div className="flex flex-col gap-2 p-4">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <div key={i} className="h-8 w-full animate-pulse bg-muted/30 rounded-lg" />
-                            ))}
-                        </div>
-                    ) : filteredFolders && filteredFolders.length > 0 ? (
-                        filteredFolders.map((folder) => (
-                            <FolderNode 
-                                key={folder.folderId} 
-                                folder={folder} 
-                                isExpanded={!!expandedFolders[folder.folderId]}
-                                onToggle={() => toggleFolder(folder.folderId)}
-                            />
-                        ))
-                    ) : (
-                        <div className="p-8 text-center text-muted-foreground text-xs italic opacity-50">
-                            Không tìm thấy thư mục nào.
-                        </div>
-                    )}
-                </div>
-            </ScrollArea>
-        </div>
+        <Card className="overflow-hidden shadow-none">
+            <CardHeader className="border-b py-4">
+                <CardTitle className="text-base font-semibold">Danh mục tài liệu</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                    Chạm vào thư mục để mở và xem tệp hoặc liên kết.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+                <ScrollArea className="h-[min(70vh,720px)]">
+                    <div className="space-y-0.5 p-3 sm:p-4">
+                        {isLoadingFolders ? (
+                            <div className="flex flex-col gap-2 py-2">
+                                {Array.from({ length: 6 }).map((_, i) => (
+                                    <div key={i} className="h-9 w-full animate-pulse rounded-md bg-muted/60" />
+                                ))}
+                            </div>
+                        ) : folders && folders.length > 0 ? (
+                            folders.map((folder) => (
+                                <FolderNode
+                                    key={folder.folderId}
+                                    folder={folder}
+                                    isExpanded={!!expandedFolders[folder.folderId]}
+                                    onToggle={() => toggleFolder(folder.folderId)}
+                                />
+                            ))
+                        ) : (
+                            <p className="py-8 text-center text-sm text-muted-foreground">Không có thư mục nào trong lớp này.</p>
+                        )}
+                    </div>
+                </ScrollArea>
+            </CardContent>
+        </Card>
     )
 }
 
-function FolderNode({ folder, isExpanded, onToggle }: { 
-    folder: any, 
-    isExpanded: boolean, 
-    onToggle: () => void 
+function FolderNode({
+    folder,
+    isExpanded,
+    onToggle,
+}: {
+    folder: {
+        folderId: string
+        folderName: string
+        resourceCount?: number
+    }
+    isExpanded: boolean
+    onToggle: () => void
 }) {
     const { data: resources, isLoading } = useAcademyResources(isExpanded ? folder.folderId : undefined)
 
     return (
-        <div className="space-y-0.5">
-            <button 
+        <div className="space-y-1">
+            <button
+                type="button"
                 onClick={onToggle}
                 className={cn(
-                    "w-full flex items-center gap-2 py-1.5 px-3 rounded-xl text-left transition-all group",
-                    isExpanded ? "bg-primary/5 text-primary" : "hover:bg-muted text-foreground/70"
+                    "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors",
+                    isExpanded
+                        ? "bg-muted/80 text-foreground"
+                        : "text-foreground hover:bg-muted/50"
                 )}
             >
-                {isExpanded ? <ChevronDown className="size-3.5 shrink-0 opacity-40" /> : <ChevronRight className="size-3.5 shrink-0 opacity-40 group-hover:translate-x-0.5 transition-transform" />}
-                <Folder className={cn("size-4 shrink-0", isExpanded ? "text-primary" : "text-muted-foreground/60")} />
-                <span className="text-sm font-bold truncate flex-1">{folder.folderName}</span>
-                <span className="text-[10px] font-bold opacity-30 px-1.5 py-0.5 rounded-lg bg-muted group-hover:bg-primary/10 transition-colors">
-                    {folder.resourceCount || 0}
+                {isExpanded ? (
+                    <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+                ) : (
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                )}
+                <Folder className={cn("size-4 shrink-0", isExpanded ? "text-primary" : "text-muted-foreground")} />
+                <span className="min-w-0 flex-1 truncate font-medium">{folder.folderName}</span>
+                <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
+                    {folder.resourceCount ?? 0}
                 </span>
             </button>
 
             {isExpanded && (
-                <div className="ml-4 pl-3 border-l border-border/20 py-1 space-y-0.5 animate-in slide-in-from-top-1 duration-200">
+                <div className="ml-6 space-y-1 border-l border-border pl-3 sm:ml-8 sm:pl-4">
                     {isLoading ? (
-                        <div className="flex items-center gap-2 py-2 px-3 text-[10px] text-muted-foreground italic font-medium">
-                            <Loader2 className="size-3 animate-spin" />
-                            Đang tải tài liệu...
+                        <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground">
+                            <Loader2 className="size-3.5 animate-spin" />
+                            Đang tải…
                         </div>
                     ) : resources && resources.length > 0 ? (
-                        resources.map((resource: any) => (
+                        resources.map((resource: { id: string; title: string; resourceType: string; description?: string; downloadUrl?: string; externalUrl?: string }) => (
                             <ResourceNode key={resource.id} resource={resource} />
                         ))
                     ) : (
-                        <div className="py-2 px-3 text-[10px] text-muted-foreground italic opacity-40">
-                            Thư mục trống.
-                        </div>
+                        <p className="py-2 text-xs text-muted-foreground">Thư mục trống.</p>
                     )}
                 </div>
             )}
@@ -131,46 +129,66 @@ function FolderNode({ folder, isExpanded, onToggle }: {
     )
 }
 
-function ResourceNode({ resource }: { resource: any }) {
-    const handleAction = (resource: any) => {
+function ResourceNode({
+    resource,
+}: {
+    resource: {
+        title: string
+        resourceType: string
+        description?: string
+        downloadUrl?: string
+        externalUrl?: string
+    }
+}) {
+    const handleOpen = () => {
         const url = resource.downloadUrl || resource.externalUrl
         if (url) {
-            window.open(url, '_blank', 'noopener,noreferrer')
+            window.open(url, "_blank", "noopener,noreferrer")
         }
     }
 
-    const getFileIcon = (resource: any) => {
+    const getFileIcon = () => {
         const type = resource.resourceType
         const title = resource.title.toLowerCase()
-        if (type === 'LINK') return <Globe className="size-3.5 text-blue-500" />
-        if (title.endsWith('.pdf')) return <FileText className="size-3.5 text-red-500" />
-        if (title.endsWith('.zip') || title.endsWith('.rar')) return <FileArchive className="size-3.5 text-orange-500" />
-        if (title.endsWith('.jpg') || title.endsWith('.png') || title.endsWith('.jpeg')) return <FileImage className="size-3.5 text-emerald-500" />
-        return <FileText className="size-3.5 text-zinc-500/50" />
+        if (type === "LINK") return <Globe className="size-4 text-blue-600 dark:text-blue-400" />
+        if (title.endsWith(".pdf")) return <FileText className="size-4 text-red-600 dark:text-red-400" />
+        if (title.endsWith(".zip") || title.endsWith(".rar")) {
+            return <FileArchive className="size-4 text-orange-600 dark:text-orange-400" />
+        }
+        if (title.endsWith(".jpg") || title.endsWith(".png") || title.endsWith(".jpeg")) {
+            return <FileImage className="size-4 text-emerald-600 dark:text-emerald-400" />
+        }
+        return <FileText className="size-4 text-muted-foreground" />
     }
 
+    const isLink = resource.resourceType === "LINK"
+
     return (
-        <div 
-            onClick={() => handleAction(resource)}
-            className="group flex items-center gap-3 py-1.5 px-3 rounded-xl hover:bg-muted cursor-pointer transition-all border border-transparent hover:border-border/10"
-        >
-            <div className="size-7 rounded-lg bg-muted/40 flex items-center justify-center shrink-0 group-hover:bg-primary/5 transition-colors">
-                {getFileIcon(resource)}
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold text-foreground/80 truncate group-hover:text-primary transition-colors">{resource.title}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[9px] font-bold text-muted-foreground/40 tracking-tight">
-                        {resource.resourceType === 'LINK' ? 'Link' : 'File'}
-                    </span>
+        <div className="flex items-center gap-2 rounded-md border border-transparent py-1.5 pl-1 pr-1 transition-colors hover:bg-muted/40 hover:border-border/50 sm:gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted/60">{getFileIcon()}</div>
+            <button
+                type="button"
+                onClick={handleOpen}
+                className="min-w-0 flex-1 text-left text-sm font-medium text-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+                <span className="line-clamp-2">{resource.title}</span>
+                <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs font-normal text-muted-foreground">
+                    <span>{isLink ? "Liên kết" : "Tệp tin"}</span>
                     {resource.description && (
-                        <span className="text-[9px] text-muted-foreground/30 truncate max-w-[150px]">• {resource.description}</span>
+                        <span className="line-clamp-1 max-w-[200px] sm:max-w-xs">· {resource.description}</span>
                     )}
-                </div>
-            </div>
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                {resource.resourceType === 'LINK' ? <ExternalLink className="size-3 text-muted-foreground" /> : <Download className="size-3 text-muted-foreground" />}
-            </div>
+                </span>
+            </button>
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="size-8 shrink-0"
+                aria-label={isLink ? "Mở liên kết" : "Tải hoặc mở tệp"}
+                onClick={handleOpen}
+            >
+                {isLink ? <ExternalLink className="size-4" /> : <Download className="size-4" />}
+            </Button>
         </div>
     )
 }

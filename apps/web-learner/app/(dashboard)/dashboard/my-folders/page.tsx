@@ -1,89 +1,120 @@
 'use client'
 
 import { useAcademyFolders } from '@/lib/api/services/academy-resource-api'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Folder, ChevronRight, FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
+import { Card, CardContent } from '@workspace/ui/components/card'
 
 export default function MyFoldersPage() {
     const router = useRouter()
     const { data: allFolders, isLoading } = useAcademyFolders()
 
-    // Group folders by class
     const classesWithFolders = allFolders?.reduce((acc, folder) => {
-        const classId = (folder.liveClass?.id || folder.vodPackage?.id) || 'other'
+        const classId = folder.liveClass?.id || folder.vodPackage?.id || 'other'
         if (!acc[classId]) {
             acc[classId] = {
                 id: classId,
-                className: (folder.liveClass?.name || folder.vodPackage?.title) || 'Tài liệu khác',
-                classCode: (folder.liveClass?.code || folder.vodPackage?.code) || '',
-                foldersCount: 0
+                className: folder.liveClass?.name || folder.vodPackage?.title || 'Tài liệu khác',
+                classCode: folder.liveClass?.code || folder.vodPackage?.code || '',
+                foldersCount: 0,
             }
         }
         acc[classId].foldersCount += 1
         return acc
-    }, {} as Record<string, any>)
+    }, {} as Record<string, { id: string; className: string; classCode: string; foldersCount: number }>)
 
     const classList = Object.values(classesWithFolders || {})
 
     return (
-        <div className="space-y-8">
-            <div className="space-y-2">
-                <h1 className="flex items-center gap-2 text-2xl font-semibold">
-                    <Folder className="size-6 text-primary" />
+        <div className="space-y-6 animate-in fade-in duration-500 md:space-y-8">
+            <div className="space-y-4 border-b border-border pb-6 md:pb-8">
+                <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    <Folder className="size-6 shrink-0 text-primary sm:size-7" />
                     Thư mục của tôi
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="max-w-xl text-sm font-medium text-muted-foreground">
                     Quản lý và truy cập tài liệu học tập theo từng lớp.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {isLoading ? (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <Skeleton key={i} className="h-36 w-full rounded-xl" />
-                    ))
-                ) : classList.length > 0 ? (
-                    classList.map((cls) => (
-                        <Card key={cls.id}>
-                            <CardHeader className="space-y-2">
-                                <div className="flex items-center justify-between gap-2">
-                                    <CardTitle className="truncate text-base font-medium">
-                                        {cls.className}
-                                    </CardTitle>
-                                    <Badge variant="secondary">{cls.foldersCount} thư mục</Badge>
-                                </div>
-                                <CardDescription>
-                                    Mã lớp: {cls.classCode || 'N/A'}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <Button
-                                    variant="outline"
-                                    className="w-full justify-between"
-                                    onClick={() => router.push(`/dashboard/my-folders/view?id=${cls.id}`)}
-                                >
-                                    Xem tài liệu
-                                    <ChevronRight className="size-4" />
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ))
-                ) : (
-                    <Card className="col-span-full">
-                        <CardContent className="py-12 text-center space-y-2">
-                            <FileText className="mx-auto size-6 text-muted-foreground" />
-                            <p className="text-sm">Chưa có tài liệu nào</p>
-                            <p className="text-sm text-muted-foreground">
-                                Tài liệu lớp học sẽ xuất hiện tại đây.
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
+            {isLoading ? (
+                <div className="space-y-2 rounded-md border">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-4 border-b px-4 py-3 last:border-b-0">
+                            <Skeleton className="h-4 flex-1 max-w-md" />
+                            <Skeleton className="h-4 w-24 hidden sm:block" />
+                            <Skeleton className="h-6 w-20" />
+                            <Skeleton className="h-8 w-24" />
+                        </div>
+                    ))}
+                </div>
+            ) : classList.length > 0 ? (
+                <div className="overflow-x-auto rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="min-w-[200px] pl-4">Lớp học</TableHead>
+                                <TableHead className="hidden w-[140px] sm:table-cell">Mã lớp</TableHead>
+                                <TableHead className="w-[120px] text-right">Thư mục</TableHead>
+                                <TableHead className="w-[100px] pr-4 text-right">
+                                    <span className="sr-only">Thao tác</span>
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {classList.map((cls) => (
+                                <TableRow key={cls.id}>
+                                    <TableCell className="pl-4 font-medium">{cls.className}</TableCell>
+                                    <TableCell className="hidden text-muted-foreground sm:table-cell">
+                                        {cls.classCode || '—'}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Badge variant="secondary" className="font-normal tabular-nums">
+                                            {cls.foldersCount}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="pr-4 text-right">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8"
+                                            onClick={() =>
+                                                router.push(
+                                                    `/dashboard/my-folders/${encodeURIComponent(cls.id)}`
+                                                )
+                                            }
+                                        >
+                                            Mở
+                                            <ChevronRight className="ml-1 size-4" />
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            ) : (
+                <Card>
+                    <CardContent className="flex flex-col items-center gap-2 py-12 text-center">
+                        <FileText className="size-8 text-muted-foreground" />
+                        <p className="text-sm font-medium">Chưa có tài liệu nào</p>
+                        <p className="max-w-sm text-xs text-muted-foreground">
+                            Tài liệu lớp học sẽ xuất hiện tại đây khi được gán cho bạn.
+                        </p>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     )
 }

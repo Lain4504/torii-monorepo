@@ -114,7 +114,7 @@ export default function ApprovalsPage() {
               Academy
             </Link>
             <ChevronRight className="size-4" />
-            <span>Approval Center</span>
+            <span>Trung tâm phê duyệt</span>
           </div>
         }
         subtitle="Xem trước và duyệt các nội dung/chính sách bán trước khi xuất bản."
@@ -126,21 +126,21 @@ export default function ApprovalsPage() {
           {showOfferingApprovals ? (
             <TabsTrigger value="cohorts" className="gap-2">
               <Package className="size-4" />
-              Cohorts
+              Đợt khai giảng
               <Badge variant="secondary">{pendingCohorts.length}</Badge>
             </TabsTrigger>
           ) : null}
           {showOfferingApprovals ? (
             <TabsTrigger value="vodPackages" className="gap-2">
               <Package className="size-4" />
-              VOD Packages
+              Gói học liệu VOD
               <Badge variant="secondary">{pendingVodPackages.length}</Badge>
             </TabsTrigger>
           ) : null}
           {showCourseProfileApprovals ? (
             <TabsTrigger value="courseProfiles" className="gap-2">
               <BookOpen className="size-4" />
-              Course Profiles
+              Hồ sơ course
               <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
             </TabsTrigger>
           ) : null}
@@ -151,7 +151,7 @@ export default function ApprovalsPage() {
             <div className={listPageSearchWrapClass}>
               <Search className={listPageSearchIconClass} />
               <Input
-                placeholder="Tìm Cohort theo mã hoặc tên..."
+                placeholder="Tìm đợt khai giảng theo mã hoặc tên..."
                 className={listPageSearchInputClass}
                 value={cohortSearch}
                 onChange={(e) => setCohortSearch(e.target.value)}
@@ -188,7 +188,7 @@ export default function ApprovalsPage() {
                         colSpan={5}
                         className="h-32 text-center text-muted-foreground"
                       >
-                        Không có Cohort nào đang chờ duyệt.
+                        Không có đợt khai giảng nào đang chờ duyệt.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -209,7 +209,7 @@ export default function ApprovalsPage() {
                             <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50">
                               <Link to={`/academy/approvals/cohorts/${o.id}`}>
                                 <Eye className="h-4 w-4" />
-                                Preview
+                                Xem
                               </Link>
                             </Button>
                           </TableCell>
@@ -226,7 +226,7 @@ export default function ApprovalsPage() {
             <div className={listPageSearchWrapClass}>
               <Search className={listPageSearchIconClass} />
               <Input
-                placeholder="Tìm Package theo mã hoặc tên..."
+                placeholder="Tìm gói theo mã hoặc tên..."
                 className={listPageSearchInputClass}
                 value={vodPackageSearch}
                 onChange={(e) => setVodPackageSearch(e.target.value)}
@@ -238,7 +238,7 @@ export default function ApprovalsPage() {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-12">STT</TableHead>
                     <TableHead className="w-[120px]">Mã</TableHead>
-                    <TableHead>Tên Package</TableHead>
+                    <TableHead>Tên gói</TableHead>
                     <TableHead>Ngày gửi duyệt</TableHead>
                     <TableHead className="text-right w-[140px]">Xem</TableHead>
                   </TableRow>
@@ -263,7 +263,7 @@ export default function ApprovalsPage() {
                         colSpan={6}
                         className="h-32 text-center text-muted-foreground"
                       >
-                        Không có Package nào đang chờ duyệt.
+                        Không có gói nào đang chờ duyệt.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -283,7 +283,7 @@ export default function ApprovalsPage() {
                           <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50">
                             <Link to={`/academy/approvals/vod-packages/${p.id}`}>
                               <Eye className="h-4 w-4" />
-                              Preview
+                              Xem
                             </Link>
                           </Button>
                         </TableCell>
@@ -299,7 +299,7 @@ export default function ApprovalsPage() {
             <div className={listPageSearchWrapClass}>
               <Search className={listPageSearchIconClass} />
               <Input
-                placeholder="Tìm Course Profile theo mã hoặc tên..."
+                placeholder="Tìm hồ sơ course theo mã hoặc tên..."
                 className={listPageSearchInputClass}
                 value={profileSearch}
                 onChange={(e) => setProfileSearch(e.target.value)}
@@ -333,7 +333,7 @@ export default function ApprovalsPage() {
                   ) : pendingCourseProfiles.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        Không có CourseProfile nào đang chờ duyệt.
+                        Không có hồ sơ course nào đang chờ duyệt.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -353,7 +353,7 @@ export default function ApprovalsPage() {
                           <Button variant="outline" size="sm" asChild className="h-8 gap-1.5 border-sky-500/40 text-sky-700 bg-transparent hover:bg-sky-50">
                             <Link to={`/academy/approvals/course-profiles/${p.id}`}>
                               <Eye className="h-4 w-4" />
-                              Preview
+                              Xem
                             </Link>
                           </Button>
                         </TableCell>

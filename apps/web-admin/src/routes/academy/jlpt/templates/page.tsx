@@ -105,7 +105,7 @@ export default function JlptTemplatesPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Quản lý Đề thi JLPT (Templates)"
+        title="Quản lý Đề thi JLPT (Mẫu đề)"
         subtitle="Danh sách các bản mẫu đề thi JLPT."
         actions={
           <Button onClick={() => navigate("/academy/jlpt/templates/new")}>

@@ -13,7 +13,7 @@ import {
     useShareAcademyStudySet,
 } from '@/lib/api/services/academy-study-set-api';
 import { Button } from '@workspace/ui/components/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -28,7 +28,6 @@ import { StudyModeSelection } from '@/components/study/study-mode-selection';
 import { Pencil, Trash2, Plus, ArrowLeft, Share2, Globe, Lock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog';
-import { cn } from '@workspace/ui/lib/utils';
 import { Input } from '@workspace/ui/components/input';
 import { Badge } from '@workspace/ui/components/badge';
 import { Separator } from '@workspace/ui/components/separator';
@@ -87,18 +86,20 @@ export default function StudySetDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="container max-w-5xl py-6 space-y-8 animate-in fade-in">
-                <div className="h-20 w-full animate-pulse rounded-lg bg-muted" />
-                <div className="h-40 w-full animate-pulse rounded-lg bg-muted" />
+            <div className="container max-w-5xl space-y-3 px-3 py-4 animate-in fade-in sm:px-4 sm:py-6">
+                <div className="h-14 w-full animate-pulse rounded-lg bg-muted" />
+                <div className="h-28 w-full animate-pulse rounded-lg bg-muted" />
             </div>
         );
     }
 
     if (!set) {
         return (
-            <div className="container py-20 text-center space-y-4">
-                <p className="text-muted-foreground uppercase tracking-widest text-sm">Không tìm thấy bộ thẻ</p>
-                <Button variant="outline" onClick={() => router.back()}>Quay lại</Button>
+            <div className="container px-3 py-16 text-center sm:px-4">
+                <p className="text-sm text-muted-foreground">Không tìm thấy bộ thẻ</p>
+                <Button variant="outline" className="mt-4" onClick={() => router.back()}>
+                    Quay lại
+                </Button>
             </div>
         );
     }
@@ -186,40 +187,40 @@ export default function StudySetDetailPage() {
     };
 
     return (
-        <div className="container mx-auto max-w-5xl py-12 space-y-8 animate-in fade-in">
-            {/* Header - Standard Shadcn */}
-            <div className="space-y-6">
-                <Button 
-                    variant="ghost" 
-                    size="sm" 
+        <div className="container mx-auto max-w-5xl space-y-4 px-3 py-4 animate-in fade-in sm:space-y-5 sm:px-4 sm:py-6">
+            <header className="space-y-3">
+                <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => router.push('/dashboard/study-sets')}
-                    className="h-8 -ml-3 text-muted-foreground"
+                    className="-ml-2 h-8 px-2 text-muted-foreground"
                 >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Danh sách bộ thẻ
+                    <ArrowLeft className="mr-1.5 h-4 w-4" />
+                    Bộ thẻ
                 </Button>
-                
-                <div className="flex flex-col gap-6 md:flex-row md:items-start justify-between">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-bold tracking-tight">{set.title}</h1>
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">{set.title}</h1>
                             {isAuthenticated && isOwner && !isCatalogView && (
-                                <Badge variant={set.isPublic ? "default" : "secondary"}>
-                                    {set.isPublic ? "Công khai" : "Riêng tư"}
+                                <Badge variant={set.isPublic ? 'default' : 'secondary'} className="shrink-0 text-xs">
+                                    {set.isPublic ? 'Công khai' : 'Riêng tư'}
                                 </Badge>
                             )}
                         </div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            {cards.length} thẻ ghi nhớ trong bộ này
+                        <p className="flex items-center gap-1.5 text-xs text-muted-foreground sm:text-sm">
+                            <FileText className="h-3.5 w-3.5 shrink-0" />
+                            {cards.length} thẻ
                         </p>
                     </div>
 
                     {isAuthenticated && isOwner && !isCatalogView && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
                             <Button
                                 size="sm"
                                 variant="outline"
+                                className="h-9 w-full sm:w-auto"
                                 disabled={shareSet.isPending}
                                 onClick={() => handleShareToggle(!set.isPublic)}
                             >
@@ -230,6 +231,7 @@ export default function StudySetDetailPage() {
                                 <Button
                                     size="sm"
                                     variant="outline"
+                                    className="h-9 w-full sm:w-auto"
                                     onClick={async () => {
                                         const url = `${window.location.origin}/share/study-sets/${set.shareToken}`;
                                         await navigator.clipboard.writeText(url);
@@ -237,13 +239,13 @@ export default function StudySetDetailPage() {
                                     }}
                                 >
                                     <Share2 className="mr-2 h-4 w-4" />
-                                    Chia sẻ
+                                    Sao chép link
                                 </Button>
                             )}
                         </div>
                     )}
                 </div>
-            </div>
+            </header>
 
             <Separator />
 
@@ -255,35 +257,40 @@ export default function StudySetDetailPage() {
             />
 
             {!isAuthenticated && (
-                <div className="rounded-lg border bg-muted/50 p-4 text-center">
-                    <p className="text-sm font-medium">Bạn đang ở chế độ công khai. Đăng nhập để lưu tiến độ học tập.</p>
+                <div className="rounded-md border bg-muted/40 px-3 py-2.5">
+                    <p className="text-center text-xs leading-snug text-foreground/90 sm:text-sm">
+                        Chế độ xem công khai — đăng nhập để lưu tiến độ học.
+                    </p>
                 </div>
             )}
 
-            {/* Content Module */}
-            <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-semibold tracking-tight">Chi tiết thẻ ghi nhớ</h2>
-                        <Badge variant="secondary">{filteredCards.length}</Badge>
-                    </div>
-                    
+            <div className="space-y-3 sm:space-y-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
-                         <div className="relative">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <h2 className="text-sm font-semibold tracking-tight sm:text-base">Thẻ trong bộ</h2>
+                        <Badge variant="secondary" className="text-xs font-normal">
+                            {filteredCards.length}
+                        </Badge>
+                    </div>
+
+                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                        <div className="relative min-w-0 flex-1 sm:flex-initial">
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                             <Input
-                                placeholder="Tìm kiếm nhanh..."
+                                placeholder="Tìm thuật ngữ hoặc nghĩa…"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 h-9 w-full sm:w-64"
+                                className="h-9 pl-8 text-sm sm:w-56"
                             />
                         </div>
                         {canCreateCard && (
                             <Button
                                 size="sm"
+                                variant="outline"
+                                className="h-9 w-full shrink-0 sm:w-auto"
                                 onClick={() => setOpenCreateDialog(true)}
                             >
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Plus className="mr-1.5 h-4 w-4" />
                                 Tạo thẻ
                             </Button>
                         )}
@@ -293,58 +300,64 @@ export default function StudySetDetailPage() {
                 <div className="space-y-2">
                     {paginatedCards.length > 0 ? (
                         paginatedCards.map((card) => (
-                            <Card key={card.id} className="hover:bg-muted/5 transition-all shadow-none group">
-                                <CardContent className="p-4 flex items-center justify-between gap-4">
-                                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-4 flex-1 min-w-0">
-                                        <div className="flex items-baseline gap-2 shrink-0">
-                                            <p className="font-bold text-foreground">{card.term}</p>
+                            <Card key={card.id} className="shadow-none">
+                                <CardContent className="flex flex-col gap-2.5 p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                                    <div className="min-w-0 flex-1 space-y-1">
+                                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
+                                            <p className="text-sm font-semibold text-foreground sm:text-base">{card.term}</p>
                                             {card.languageDetails?.phonetic && (
-                                                <p className="text-xs text-muted-foreground">[{card.languageDetails.phonetic}]</p>
+                                                <span className="text-[11px] text-muted-foreground sm:text-xs">
+                                                    [{card.languageDetails.phonetic}]
+                                                </span>
                                             )}
                                         </div>
-                                        <Separator orientation="vertical" className="hidden sm:block h-3" />
-                                        <p className="text-sm text-muted-foreground truncate">{card.definition}</p>
+                                        <p className="text-xs leading-snug text-muted-foreground sm:text-sm">
+                                            {card.definition}
+                                        </p>
                                         {card.hint && (
-                                            <p className="text-[10px] text-muted-foreground italic shrink-0">Note: {card.hint}</p>
+                                            <p className="text-[11px] italic text-muted-foreground">Ghi chú: {card.hint}</p>
                                         )}
                                     </div>
 
                                     {canCreateCard && (
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex w-full shrink-0 justify-end gap-1.5 border-t border-border/60 pt-2 sm:w-auto sm:border-t-0 sm:pt-0">
                                             <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-8 w-8"
+                                                size="sm"
+                                                variant="outline"
+                                                aria-label="Sửa thẻ"
+                                                className="h-8 flex-1 sm:h-8 sm:w-8 sm:flex-initial sm:shrink-0 sm:px-0"
                                                 onClick={() => handleOpenEdit(card)}
                                             >
-                                                <Pencil className="h-4 w-4" />
+                                                <Pencil className="h-3.5 w-3.5 sm:mx-auto" />
+                                                <span className="ml-1.5 sm:sr-only">Sửa</span>
                                             </Button>
                                             <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/5"
+                                                size="sm"
+                                                variant="outline"
+                                                aria-label="Xóa thẻ"
+                                                className="h-8 flex-1 border-destructive/30 text-destructive hover:bg-destructive/5 sm:h-8 sm:w-8 sm:flex-initial sm:shrink-0 sm:px-0"
                                                 onClick={() => {
                                                     setDeletingCard(card);
                                                     setOpenDeleteDialog(true);
                                                 }}
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                <Trash2 className="h-3.5 w-3.5 sm:mx-auto" />
+                                                <span className="ml-1.5 sm:sr-only">Xóa</span>
                                             </Button>
                                         </div>
                                     )}
                                 </CardContent>
                             </Card>
-                        ) )
+                        ))
                     ) : (
-                        <div className="py-20 text-center rounded-lg border border-dashed">
-                            <p className="text-sm text-muted-foreground">Không có thẻ ghi nhớ nào</p>
+                        <div className="rounded-md border border-dashed py-12 text-center">
+                            <p className="text-xs text-muted-foreground sm:text-sm">Không có thẻ phù hợp</p>
                         </div>
                     )}
                 </div>
 
-                {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-6">
+                    <div className="flex items-center justify-center gap-1 pt-2 sm:gap-2 sm:pt-4">
                         <Button 
                             variant="outline" 
                             size="icon" 

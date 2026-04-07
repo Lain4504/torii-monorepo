@@ -139,12 +139,12 @@ export function VodClassForm({
                     <FieldGroup>
                         <FieldSet>
                             <FieldLegend>Liên kết khóa học</FieldLegend>
-                            <FieldDescription>Xác định nguồn học liệu từ Course Profile.</FieldDescription>
+                            <FieldDescription>Xác định nguồn học liệu từ hồ sơ khóa học.</FieldDescription>
                             <FieldGroup>
                                 {!isEdit ? (
                                     courseProfileFromRoute ? (
                                         <Field>
-                                            <FieldLabel>Course Profile</FieldLabel>
+                                            <FieldLabel>Hồ sơ khóa học</FieldLabel>
                                             <Input
                                                 disabled
                                                 value={singleProfile ? `${singleProfile.code} - ${singleProfile.title}` : defaultCourseProfileId}
@@ -160,9 +160,9 @@ export function VodClassForm({
                                                 control={control}
                                                 render={({ field, fieldState }) => (
                                                     <Field>
-                                                        <FieldLabel>Course Profile</FieldLabel>
+                                                        <FieldLabel>Hồ sơ khóa học</FieldLabel>
                                                         <Select value={field.value} onValueChange={field.onChange}>
-                                                            <SelectTrigger><SelectValue placeholder="Chọn Profile..." /></SelectTrigger>
+                                                            <SelectTrigger><SelectValue placeholder="Chọn hồ sơ khóa học..." /></SelectTrigger>
                                                             <SelectContent>
                                                                 {profiles.map((p: any) => (
                                                                     <SelectItem key={p.id} value={p.id}>{p.code} - {p.title}</SelectItem>
@@ -178,8 +178,8 @@ export function VodClassForm({
                                 ) : (
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <Field>
-                                            <FieldLabel>Course Profile</FieldLabel>
-                                            <Input disabled value={(initial as any)?.courseProfile?.title || "N/A"} />
+                                            <FieldLabel>Hồ sơ khóa học</FieldLabel>
+                                            <Input disabled value={(initial as any)?.courseProfile?.title || "—"} />
                                         </Field>
                                     </div>
                                 )}

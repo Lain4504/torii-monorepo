@@ -193,8 +193,8 @@ export default function JlptConfigPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="JLPT Config"
-        subtitle="Xem cấu hình JLPT + scoring profile (seed) - read-only"
+        title="Cấu hình JLPT"
+        subtitle="Xem cấu hình JLPT + hồ sơ chấm điểm (seed) - chỉ đọc"
       />
 
       <div className="flex flex-col gap-6">
@@ -222,7 +222,7 @@ export default function JlptConfigPage() {
                           <TableHead className="w-[80px]">Code</TableHead>
                           <TableHead>Tên</TableHead>
                           <TableHead className="w-[160px]">Tổng thời gian</TableHead>
-                          <TableHead className="w-[120px]">Active</TableHead>
+                          <TableHead className="w-[120px]">Đang hoạt động</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -237,7 +237,7 @@ export default function JlptConfigPage() {
                             <TableCell>{l.nameVi ?? "—"}</TableCell>
                             <TableCell>{l.totalDurationMinutes} phút</TableCell>
                             <TableCell>
-                              {l.code === selectedLevel && activeProfile ? "Yes" : "No"}
+                              {l.code === selectedLevel && activeProfile ? "Có" : "Không"}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -277,7 +277,7 @@ export default function JlptConfigPage() {
                             <TableCell className="font-mono">{s.code}</TableCell>
                             <TableCell>{s.orderIndex}</TableCell>
                             <TableCell>{s.durationMinutes} phút</TableCell>
-                            <TableCell>{s.isListening ? "Yes" : "No"}</TableCell>
+                            <TableCell>{s.isListening ? "Có" : "Không"}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -307,12 +307,12 @@ export default function JlptConfigPage() {
 
         <div className="grid grid-cols-1 gap-6">
             <Card className="border">
-              <CardHeader>
-                <CardTitle>Active scoring profile</CardTitle>
-                <CardDescription>
-                  Scoring profile đang `isActive=true` cho level này (seed/config đã có).
-                </CardDescription>
-              </CardHeader>
+                <CardHeader>
+                  <CardTitle>Hồ sơ chấm điểm đang hoạt động</CardTitle>
+                  <CardDescription>
+                    Hồ sơ chấm điểm đang `isActive=true` cho level này (dữ liệu seed/cấu hình đã có).
+                  </CardDescription>
+                </CardHeader>
               <CardContent>
                 {loading ? (
                   <div className="h-24 flex items-center justify-center text-muted-foreground">
@@ -321,28 +321,28 @@ export default function JlptConfigPage() {
                 ) : activeProfile ? (
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="font-medium">Name:</span> {activeProfile.name}
+                      <span className="font-medium">Tên:</span> {activeProfile.name}
                     </div>
                     <div>
-                      <span className="font-medium">minLanguageScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng minLanguageScaled:</span>{" "}
                       {activeProfile.minLanguageScaled ?? 0}
                     </div>
                     <div>
-                      <span className="font-medium">minReadingScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng minReadingScaled:</span>{" "}
                       {activeProfile.minReadingScaled ?? 0}
                     </div>
                     <div>
-                      <span className="font-medium">minListeningScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng minListeningScaled:</span>{" "}
                       {activeProfile.minListeningScaled ?? 0}
                     </div>
                     <div>
-                      <span className="font-medium">minTotalScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng minTotalScaled:</span>{" "}
                       {activeProfile.minTotalScaled ?? 0}
                     </div>
                   </div>
                 ) : (
                   <div className="h-24 flex items-center justify-center text-muted-foreground text-sm">
-                    Chưa có active scoring profile cho level này. Vui lòng kiểm tra seed/scoring profile ở backend.
+                    Chưa có hồ sơ chấm điểm đang hoạt động cho level này. Vui lòng kiểm tra dữ liệu seed/hồ sơ chấm điểm ở backend.
                   </div>
                 )}
               </CardContent>
@@ -350,7 +350,7 @@ export default function JlptConfigPage() {
         {SHOW_JLPT_SCORING_MAPPINGS ? (
           <Card className="border">
             <CardHeader>
-              <CardTitle>Scoring mappings (JLPT)</CardTitle>
+              <CardTitle>Bảng quy đổi điểm (JLPT)</CardTitle>
               <CardDescription>
                 Tự định nghĩa bảng quy đổi rawScore sang scaledScore cho từng domain.
                 Nếu một rawScore chưa được khai báo, hệ thống sẽ fallback theo tỉ lệ raw/maxRaw.
@@ -359,7 +359,7 @@ export default function JlptConfigPage() {
             <CardContent className="space-y-4">
               {!activeProfile ? (
                 <div className="h-24 text-center text-muted-foreground text-sm flex items-center justify-center rounded-md border bg-muted/10">
-                  Chưa có active scoring profile. Hãy tạo scoring profile trước khi cấu hình mappings.
+                  Chưa có hồ sơ chấm điểm đang hoạt động. Hãy tạo hồ sơ chấm điểm trước khi cấu hình bảng quy đổi.
                 </div>
               ) : (
                 <>

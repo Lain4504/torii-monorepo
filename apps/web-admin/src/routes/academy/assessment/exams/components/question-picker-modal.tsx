@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { useAcademyQuestions, useAcademyQuestionCategories } from "@/lib/api/services/academy-questions"
+import { useAcademyQuestions } from "@/lib/api/services/academy-questions"
+import { AcademyQuestionCategoryType } from "@workspace/schemas"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import {
   Dialog,
@@ -42,20 +43,16 @@ export function QuestionPickerModal({
   existingQuestionIds = []
 }: QuestionPickerModalProps) {
   const [search, setSearch] = useState("")
-  const [categoryId, setCategoryId] = useState<string>("ALL")
-  const [difficulty, setDifficulty] = useState<string>("ALL")
   const [level, setLevel] = useState<string>("ALL")
+  const [categoryType, setCategoryType] = useState<string>("ALL")
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const { data: categories = [] } = useAcademyQuestionCategories()
 
   // Fetch questions from question bank
   const { data: questions, isLoading } = useAcademyQuestions({
     q: search || undefined,
-    categoryId: categoryId === "ALL" ? undefined : categoryId,
-    difficulty: difficulty === "ALL" ? undefined : difficulty as any,
     level: level === "ALL" ? undefined : level,
+    categoryType: categoryType === "ALL" ? undefined : (categoryType as AcademyQuestionCategoryType),
   })
 
   const existingIdsSet = new Set(existingQuestionIds)
@@ -121,32 +118,6 @@ export function QuestionPickerModal({
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="w-[180px]">
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Tất cả danh mục" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">Tất cả danh mục</SelectItem>
-                  {(categories as any[]).map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-[150px]">
-              <Select value={difficulty} onValueChange={setDifficulty}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Mọi độ khó" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">Mọi độ khó</SelectItem>
-                  <SelectItem value="EASY">Dễ</SelectItem>
-                  <SelectItem value="MEDIUM">Trung bình</SelectItem>
-                  <SelectItem value="HARD">Khó</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
             <div className="w-[150px]">
               <Select value={level} onValueChange={setLevel}>
                 <SelectTrigger>
@@ -159,6 +130,21 @@ export function QuestionPickerModal({
                   <SelectItem value="N3">N3</SelectItem>
                   <SelectItem value="N4">N4</SelectItem>
                   <SelectItem value="N5">N5</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-[180px]">
+              <Select value={categoryType} onValueChange={setCategoryType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Mọi nhóm câu hỏi" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Mọi nhóm câu hỏi</SelectItem>
+                  <SelectItem value={AcademyQuestionCategoryType.VOCABULARY}>Từ vựng</SelectItem>
+                  <SelectItem value={AcademyQuestionCategoryType.GRAMMAR}>Ngữ pháp</SelectItem>
+                  <SelectItem value={AcademyQuestionCategoryType.KANJI}>Kanji</SelectItem>
+                  <SelectItem value={AcademyQuestionCategoryType.READING}>Đọc hiểu</SelectItem>
+                  <SelectItem value={AcademyQuestionCategoryType.LISTENING}>Nghe hiểu</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -182,8 +168,8 @@ export function QuestionPickerModal({
                   </TableHead>
                   <TableHead>Nội dung câu hỏi</TableHead>
                   <TableHead className="w-[150px]">Loại</TableHead>
-                  <TableHead className="w-[100px]">Độ khó</TableHead>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
+                  <TableHead className="w-[140px]">Nhóm</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -224,13 +210,13 @@ export function QuestionPickerModal({
                           <Badge variant="outline">{q.questionType}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={q.difficulty === 'HARD' ? 'destructive' : q.difficulty === 'MEDIUM' ? 'secondary' : 'default'}>
-                            {q.difficulty}
+                          <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
+                            {q.level || "—"}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-[10px] font-bold border-blue-200 text-blue-700 bg-blue-50/50">
-                            {q.level || "—"}
+                          <Badge variant="secondary" className="text-[10px] font-bold">
+                            {q.categoryType || "—"}
                           </Badge>
                         </TableCell>
                       </TableRow>

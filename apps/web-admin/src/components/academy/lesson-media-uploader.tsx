@@ -50,7 +50,7 @@ export function LessonMediaUploader({
       setProgress(100)
     } catch (error: any) {
       console.error(error)
-      setLocalError(error?.message || "Upload thất bại")
+      setLocalError(error?.message || "Tải lên thất bại")
       onChange(null)
       setProgress(0)
     } finally {
@@ -98,7 +98,7 @@ export function LessonMediaUploader({
             <div className="space-y-2">
               {value.match(/\.(mp4|webm|ogg)$/i) ? (
                 <>
-                  <p className="text-sm font-medium">Preview</p>
+                  <p className="text-sm font-medium">Xem trước</p>
                   <video
                     src={value}
                     controls
@@ -109,7 +109,7 @@ export function LessonMediaUploader({
                 <ImagePreview url={value} />
               ) : (
                 <>
-                  <p className="text-sm font-medium">Preview</p>
+                  <p className="text-sm font-medium">Xem trước</p>
                   <a
                     href={value}
                     target="_blank"

@@ -138,10 +138,10 @@ export function ExamForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Course Profile</FieldLabel>
+                    <FieldLabel>Hồ sơ khóa học</FieldLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Chọn Course Profile..." />
+                        <SelectValue placeholder="Chọn hồ sơ khóa học..." />
                       </SelectTrigger>
                       <SelectContent>
                         {scopedProfiles.map((p) => (
@@ -197,10 +197,10 @@ export function ExamForm({
                         <SelectValue placeholder="Chọn loại..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="COURSE">Course (Trong khóa học)</SelectItem>
-                        <SelectItem value="PLACEMENT">Placement (Kiểm tra đầu vào)</SelectItem>
-                        <SelectItem value="MOCK">Mock (Thi thử)</SelectItem>
-                        <SelectItem value="CERTIFICATION">Certification (Chứng chỉ)</SelectItem>
+                        <SelectItem value="COURSE">Khóa học (Trong khóa học)</SelectItem>
+                        <SelectItem value="PLACEMENT">Kiểm tra đầu vào</SelectItem>
+                        <SelectItem value="MOCK">Thi thử</SelectItem>
+                        <SelectItem value="CERTIFICATION">Chứng chỉ</SelectItem>
                       </SelectContent>
                     </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>
@@ -213,7 +213,7 @@ export function ExamForm({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Cấp độ (Level)</FieldLabel>
-                    <Input placeholder="Ví dụ: N5, N4, Beginner..." {...field} />
+                    <Input placeholder="Ví dụ: N5, N4, Sơ cấp..." {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -263,9 +263,9 @@ export function ExamForm({
                         <SelectValue placeholder="Chọn trạng thái..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="DRAFT">Draft (Nháp)</SelectItem>
-                        <SelectItem value="PUBLISHED">Published (Công khai)</SelectItem>
-                        <SelectItem value="ARCHIVED">Archived (Lưu trữ)</SelectItem>
+                        <SelectItem value="DRAFT">Nháp</SelectItem>
+                        <SelectItem value="PUBLISHED">Công khai</SelectItem>
+                        <SelectItem value="ARCHIVED">Lưu trữ</SelectItem>
                       </SelectContent>
                     </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>

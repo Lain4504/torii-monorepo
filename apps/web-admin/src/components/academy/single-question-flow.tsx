@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "@workspace/ui/components/sonner"
 import { Button } from "@workspace/ui/components/button"
 import {
+    AcademyQuestionCategoryType,
     academyQuestionCreateDTOSchema,
     academyQuestionUpdateDTOSchema,
     type AcademyQuestionCreateDTO,
@@ -65,9 +66,8 @@ export function SingleQuestionFlow({
                 options: initial?.options ?? undefined,
                 correctAnswer: initial?.correctAnswer ?? undefined,
                 explanation: initial?.explanation ?? undefined,
-                difficulty: fixedLevel ?? initial?.level ?? initial?.difficulty ?? undefined,
-                categoryIds: initial?.categoryIds || (initial?.category ? [initial?.category] : []),
-                metadata: initial?.metadata ?? undefined,
+                level: fixedLevel ?? initial?.level ?? undefined,
+                categoryType: (initial as any)?.categoryType ?? AcademyQuestionCategoryType.GRAMMAR,
             }
             : {
                 parentId: parentId ?? undefined,
@@ -77,9 +77,8 @@ export function SingleQuestionFlow({
                 options: undefined,
                 correctAnswer: undefined,
                 explanation: undefined,
-                difficulty: fixedLevel ?? "N5",
-                categoryIds: [],
-                metadata: undefined,
+                level: fixedLevel ?? "N5",
+                categoryType: AcademyQuestionCategoryType.GRAMMAR,
             },
     })
 

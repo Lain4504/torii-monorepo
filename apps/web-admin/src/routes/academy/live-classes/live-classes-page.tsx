@@ -255,7 +255,7 @@ export default function LiveClassesPage() {
                                                     {effectiveThumbnail ? (
                                                         <img src={effectiveThumbnail} alt={cls.name} className="h-full w-full object-cover" />
                                                     ) : (
-                                                        <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground italic">No img</div>
+                                                        <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground italic">Không có ảnh</div>
                                                     )}
                                                 </div>
                                             </TableCell>

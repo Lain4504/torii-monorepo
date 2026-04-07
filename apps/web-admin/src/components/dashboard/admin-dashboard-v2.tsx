@@ -170,7 +170,7 @@ export default function AdminDashboardV2() {
           <StatsCard
             title="Duyệt nội dung"
             value={formatNumber(pendingApprovals)}
-            sub="Course / Cohort / VOD"
+            sub="Khóa học / Đợt khai giảng / VOD"
             icon={ClipboardCheck}
             tone="warning"
             highlight={pendingApprovals > 0}
@@ -178,7 +178,7 @@ export default function AdminDashboardV2() {
           <StatsCard
             title="Đăng nhập hôm nay"
             value={formatNumber(presence.activeToday)}
-            sub="Theo lastSignInAt"
+            sub="Theo lần đăng nhập gần nhất"
             icon={Activity}
             tone="info"
             highlight={(presence.activeToday ?? 0) > 0}

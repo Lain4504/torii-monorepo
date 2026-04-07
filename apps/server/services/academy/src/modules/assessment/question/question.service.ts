@@ -4,8 +4,6 @@ import {
   AcademyQuestionCreateDTO,
   AcademyQuestionUpdateDTO,
   AcademyQuestionQueryDTO,
-  AcademyQuestionCategoryDTO,
-  AcademyQuestionCategoryUpdateDTO,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -14,7 +12,7 @@ export class QuestionService {
 
   async createQuestion(dto: AcademyQuestionCreateDTO) {
     return this.prisma.$transaction(async (tx) => {
-      const { options, categoryIds, ...data } = dto;
+      const { options, parentId, ...data } = dto;
       
       const question = await tx.academyQuestion.create({
         data: {
@@ -23,7 +21,7 @@ export class QuestionService {
           correctAnswer: Array.isArray(data.correctAnswer) 
             ? JSON.stringify(data.correctAnswer) 
             : data.correctAnswer,
-          metadata: data.metadata as any,
+          parent: parentId ? { connect: { id: parentId } } : undefined,
           options: options ? {
             create: options.map((opt) => ({
               optionKey: opt.optionKey,
@@ -32,19 +30,9 @@ export class QuestionService {
               orderIndex: opt.orderIndex,
             })),
           } : undefined,
-          categoryLinks: categoryIds ? {
-            create: categoryIds.map((id) => ({
-              categoryId: id,
-            })),
-          } : undefined,
         },
         include: {
           options: true,
-          categoryLinks: {
-            include: {
-              category: true,
-            },
-          },
         },
       });
 
@@ -54,7 +42,7 @@ export class QuestionService {
 
   async updateQuestion(id: string, dto: AcademyQuestionUpdateDTO) {
     return this.prisma.$transaction(async (tx) => {
-      const { options, categoryIds, ...data } = dto;
+      const { options, parentId, ...data } = dto;
 
       // Update basic fields
       await tx.academyQuestion.update({
@@ -65,7 +53,7 @@ export class QuestionService {
           correctAnswer: Array.isArray(data.correctAnswer) 
             ? JSON.stringify(data.correctAnswer) 
             : data.correctAnswer,
-          metadata: (data.metadata as any) ?? undefined,
+          parent: parentId ? { connect: { id: parentId } } : undefined,
         },
       });
 
@@ -85,56 +73,30 @@ export class QuestionService {
         });
       }
 
-      // Update categories if provided
-      if (categoryIds) {
-        await tx.academyQuestionCategoryLink.deleteMany({
-          where: { questionId: id },
-        });
-        await tx.academyQuestionCategoryLink.createMany({
-          data: categoryIds.map((catId) => ({
-            questionId: id,
-            categoryId: catId,
-          })),
-        });
-      }
-
       return tx.academyQuestion.findUnique({
         where: { id },
         include: {
           options: true,
-          categoryLinks: {
-            include: {
-              category: true,
-            },
-          },
         },
       });
     });
   }
 
   async findQuestions(query: AcademyQuestionQueryDTO) {
-    const { questionType, difficulty, level, categoryId, reviewStatus, q } = query;
+    const { questionType, level, categoryType, reviewStatus, q } = query;
     return this.prisma.academyQuestion.findMany({
       where: {
         questionType: questionType as any,
-        difficulty,
         level,
+        categoryType: categoryType as any,
         reviewStatus,
         OR: q ? [
           { stem: { contains: q, mode: 'insensitive' } } as any,
           { explanation: { contains: q, mode: 'insensitive' } } as any,
         ] : undefined,
-        categoryLinks: categoryId ? {
-          some: { categoryId },
-        } : undefined,
       },
       include: {
         options: true,
-        categoryLinks: {
-          include: {
-            category: true,
-          },
-        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -145,11 +107,6 @@ export class QuestionService {
       where: { id },
       include: {
         options: true,
-        categoryLinks: {
-          include: {
-            category: true,
-          },
-        },
       },
     });
     if (!question) throw new NotFoundException('Question not found');
@@ -178,56 +135,6 @@ export class QuestionService {
     }
 
     return this.prisma.academyQuestion.delete({
-      where: { id },
-    });
-  }
-
-  // Categories
-  async createCategory(dto: AcademyQuestionCategoryDTO) {
-    return this.prisma.academyQuestionCategory.create({
-      data: dto as any,
-    });
-  }
-
-  async getCategories() {
-    return this.prisma.academyQuestionCategory.findMany({
-      orderBy: { code: 'asc' },
-    });
-  }
-
-  async updateCategory(id: string, dto: AcademyQuestionCategoryUpdateDTO) {
-    const category = await this.prisma.academyQuestionCategory.findUnique({
-      where: { id },
-    });
-    if (!category) throw new NotFoundException('Danh mục không tồn tại');
-
-    return this.prisma.academyQuestionCategory.update({
-      where: { id },
-      data: dto as any,
-    });
-  }
-
-  async deleteCategory(id: string) {
-    const category = await this.prisma.academyQuestionCategory.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { links: true, children: true },
-        },
-      },
-    });
-
-    if (!category) throw new NotFoundException('Danh mục không tồn tại');
-
-    if (category._count.links > 0) {
-      throw new BadRequestException('Không thể xóa danh mục đang có câu hỏi');
-    }
-
-    if (category._count.children > 0) {
-      throw new BadRequestException('Không thể xóa danh mục đang có danh mục con');
-    }
-
-    return this.prisma.academyQuestionCategory.delete({
       where: { id },
     });
   }

@@ -4,8 +4,6 @@ import type {
   AcademyQuestionCreateDTO,
   AcademyQuestionQueryDTO,
   AcademyQuestionUpdateDTO,
-  AcademyQuestionCategoryDTO,
-  AcademyQuestionCategoryUpdateDTO,
   StandardApiResponse,
   AcademyQuestionType,
   AcademyQuestionReviewStatus,
@@ -17,17 +15,13 @@ export type AcademyQuestion = {
   stem: string
   explanation?: string | null
   questionType: AcademyQuestionType
-  difficulty: string
   reviewStatus: AcademyQuestionReviewStatus
   options?: any[]
   correctAnswer?: any
-  categoryLinks?: any[]
-  metadata?: any
   content?: string
   mediaUrl?: string
   level?: string
-  category?: string
-  categoryIds?: string[]
+  categoryType?: string
   createdAt: string
   updatedAt: string
 }
@@ -67,36 +61,6 @@ export const academyQuestionsApi = {
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/questions/${id}`,
-    )
-    return res.data
-  },
-
-  async getCategories() {
-    const res = await apiClient.get<StandardApiResponse<any[]>>(
-      "/api/academy/questions/categories",
-    )
-    return res.data.data!
-  },
-
-  async createCategory(input: AcademyQuestionCategoryDTO) {
-    const res = await apiClient.post<StandardApiResponse<any>>(
-      "/api/academy/questions/categories",
-      input,
-    )
-    return res.data.data!
-  },
-
-  async updateCategory({ id, dto }: { id: string; dto: AcademyQuestionCategoryUpdateDTO }) {
-    const res = await apiClient.put<StandardApiResponse<any>>(
-      `/api/academy/questions/categories/${id}`,
-      dto,
-    )
-    return res.data.data!
-  },
-
-  async deleteCategory(id: string) {
-    const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
-      `/api/academy/questions/categories/${id}`,
     )
     return res.data
   },
@@ -141,36 +105,5 @@ export function useDeleteAcademyQuestion() {
   return useMutation({
     mutationFn: (id: string) => academyQuestionsApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-questions"] }),
-  })
-}
-
-export function useAcademyQuestionCategories() {
-  return useQuery({
-    queryKey: ["academy-question-categories"],
-    queryFn: () => academyQuestionsApi.getCategories(),
-  })
-}
-
-export function useCreateAcademyQuestionCategory() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: academyQuestionsApi.createCategory,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
-  })
-}
-
-export function useUpdateAcademyQuestionCategory() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: academyQuestionsApi.updateCategory,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
-  })
-}
-
-export function useDeleteAcademyQuestionCategory() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id: string) => academyQuestionsApi.deleteCategory(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-question-categories"] }),
   })
 }

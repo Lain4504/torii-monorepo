@@ -7,6 +7,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import {
+    AcademyQuestionCategoryType,
     academyQuestionCreateDTOSchema,
     academyQuestionUpdateDTOSchema,
     type AcademyQuestionCreateDTO,
@@ -74,17 +75,15 @@ export function GroupQuestionFlow({
                 stem: parent.stem || parent.content || "",
                 mediaUrl: parent.mediaUrl ?? undefined,
                 questionType: AcademyQuestionType.GROUP_PARENT,
-                difficulty: parent.level || parent.difficulty || undefined,
-                categoryIds: parent.categoryIds || (parent.category ? [parent.category] : []),
-                metadata: parent.metadata ?? undefined,
+                level: parent.level ?? undefined,
+                categoryType: (parent as any).categoryType ?? AcademyQuestionCategoryType.GRAMMAR,
             }
             : {
                 stem: "",
                 mediaUrl: undefined,
                 questionType: AcademyQuestionType.GROUP_PARENT,
-                difficulty: "N5",
-                categoryIds: ["READING"],
-                metadata: undefined,
+                level: "N5",
+                categoryType: AcademyQuestionCategoryType.GRAMMAR,
             },
     })
 
@@ -261,7 +260,7 @@ export function GroupQuestionFlow({
                             {editingChild === "new" ? "Thêm câu hỏi con" : "Chỉnh sửa câu hỏi con"}
                         </SheetTitle>
                         <SheetDescription>
-                            Thiết lập nội dung và đáp án cho câu con. Kế thừa Level: <b>{parent?.level || parent?.difficulty}</b>.
+                            Thiết lập nội dung và đáp án cho câu con. Kế thừa Level: <b>{parent?.level}</b>.
                         </SheetDescription>
                     </SheetHeader>
                     <ScrollArea className="flex-1 min-h-0">
@@ -271,7 +270,7 @@ export function GroupQuestionFlow({
                                     mode={editingChild === "new" ? "create" : "edit"}
                                     initial={editingChild === "new" ? undefined : editingChild}
                                     parentId={parent?.id}
-                                    fixedLevel={parent?.level || parent?.difficulty || undefined}
+                                    fixedLevel={parent?.level || undefined}
                                     hideQuestionTypeField={true}
                                     onSuccess={() => {
                                         refetchChildren()

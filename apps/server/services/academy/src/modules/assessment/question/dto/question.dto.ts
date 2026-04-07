@@ -34,10 +34,7 @@ export class QuestionCreateDto {
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  category?: string;
-
-  @IsOptional()
-  metadata?: unknown;
+  categoryType?: string;
 }
 
 export class QuestionUpdateDto {
@@ -72,10 +69,7 @@ export class QuestionUpdateDto {
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  category?: string;
-
-  @IsOptional()
-  metadata?: unknown;
+  categoryType?: string;
 }
 
 export class QuestionQueryDto {
@@ -97,7 +91,7 @@ export class QuestionQueryDto {
 
   @IsOptional()
   @IsString()
-  category?: string;
+  categoryType?: string;
 
   @IsOptional()
   topLevelOnly?: string; // 'true' or 'false'

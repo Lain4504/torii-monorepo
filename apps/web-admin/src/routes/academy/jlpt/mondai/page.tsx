@@ -72,8 +72,8 @@ export default function JlptMondaiMasterPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Master Mondai (JLPT)"
-        subtitle="Định nghĩa dạng bài theo cấp độ và phần thi; trang đang ở chế độ chỉ xem (read-only)."
+        title="Quản lý Mondai (JLPT)"
+        subtitle="Định nghĩa dạng bài theo cấp độ và phần thi; trang đang ở chế độ chỉ xem (chỉ đọc)."
       />
 
       <div className={listPageFiltersRowClass}>

@@ -252,7 +252,7 @@ export default function ExamRunnerPage() {
              <Card className="border-none shadow-sm">
                 <CardHeader>
                    <CardDescription className="text-xs text-primary font-bold uppercase tracking-wider">
-                      {currentExamQuestion.section?.title || "Câu hỏi"} | {question.difficulty}
+                      {currentExamQuestion.section?.title || "Câu hỏi"} | {question.level || "—"}
                    </CardDescription>
                    <div className="text-lg font-medium text-foreground pt-2 whitespace-pre-wrap">
                       {question.stem}
