@@ -26,7 +26,7 @@ export const useTicket = (id: string) => {
 export const useCreateTicket = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (dto: CreateTicketDTO & { vodPackageId?: string }) => {
+        mutationFn: async (dto: CreateTicketDTO) => {
             const { data } = await apiClient.post('/api/tickets', dto);
             return data.data;
         },

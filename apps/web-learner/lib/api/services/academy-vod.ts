@@ -26,30 +26,26 @@ export const academyVodApi = {
 
         return {
             courseId: profile.id,
-            modules: (profile.modules ?? [])
-                .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-                .map((m: any): CurriculumModule => ({
-                    id: m.id,
-                    title: m.title,
-                    order: m.orderIndex,
-                    durationMinutes: m.durationMinutes,
-                    lessons: (m.lessons ?? [])
-                        .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-                        .map((it: any): CurriculumLesson => ({
-                            id: it.id,
-                            title: it.title,
-                            kind: it.type,
-                            isUnlocked: true,
-                            isPreview: false,
-                            order: it.orderIndex,
-                            videoDuration: it.videoDurationSeconds,
-                            referenceId: it.id,
-                            status: null,
-                            availableFrom: null,
-                            deadline: null,
-                            isPrerequisite: false,
-                        })),
+            modules: (profile.modules ?? []).map((m: any): CurriculumModule => ({
+                id: m.id,
+                title: m.title,
+                order: m.orderIndex,
+                durationMinutes: m.durationMinutes,
+                lessons: (m.lessons ?? []).map((it: any): CurriculumLesson => ({
+                    id: it.id,
+                    title: it.title,
+                    kind: it.type,
+                    isUnlocked: true,
+                    isPreview: false,
+                    order: it.orderIndex,
+                    videoDuration: it.videoDurationSeconds,
+                    referenceId: it.id,
+                    status: null,
+                    availableFrom: null,
+                    deadline: null,
+                    isPrerequisite: false,
                 })),
+            })),
         };
     },
 };

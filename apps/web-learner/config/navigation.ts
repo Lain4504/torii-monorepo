@@ -50,7 +50,7 @@ export const learningNav: NavItem[] = [
 ]
 
 export const progressNav: NavItem[] = [
-    { name: 'Phân tích', href: '/dashboard/analytics', icon: TrendingUp },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
     { name: 'Bảng xếp hạng', href: '/dashboard/leaderboard', icon: Crown },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
@@ -69,7 +69,7 @@ export const accountNav: NavItem[] = [
 export const aiSenseiNav: NavItem[] = [
     { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
     { name: 'Hội thoại tự do', href: '/ai-sensei/roleplay/interactive', icon: MessagesSquare },
-    { name: 'Hội thoại giọng nói', href: '/ai-sensei/roleplay/voice', icon: MonitorPlay },
+    { name: 'Live Voice Roleplay', href: '/ai-sensei/roleplay/voice', icon: MonitorPlay },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
     { name: 'Gói dịch vụ AI', href: '/dashboard/payment/subscriptions', icon: CreditCard },
 ]

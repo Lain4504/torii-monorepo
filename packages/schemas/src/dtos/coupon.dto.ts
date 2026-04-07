@@ -1,7 +1,10 @@
 import { z } from 'zod';
 import { couponSchema, CouponStatus, CouponDiscountType } from '../models/coupon.model';
 
-const couponCreateDTOBaseSchema = z.object({
+/**
+ * Coupon Create DTO Schema
+ */
+export const couponCreateDTOSchema = z.object({
   code: z.string().min(1).max(50).regex(/^[A-Z0-9_-]+$/, 'Code must contain only uppercase letters, numbers, hyphens, and underscores'),
   name: z.string().min(1).max(200),
   description: z.string().optional().nullable(),
@@ -30,33 +33,14 @@ const couponCreateDTOBaseSchema = z.object({
   status: z.nativeEnum(CouponStatus).default(CouponStatus.ACTIVE),
 });
 
-const couponDiscountValidation = (data: { discountType?: CouponDiscountType; discountValue?: number }, ctx: z.RefinementCtx) => {
-  if (
-    data.discountType === CouponDiscountType.PERCENTAGE &&
-    typeof data.discountValue === 'number' &&
-    data.discountValue > 100
-  ) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['discountValue'],
-      message: 'Phần trăm giảm không được vượt quá 100%',
-    });
-  }
-};
-
-/**
- * Coupon Create DTO Schema
- */
-export const couponCreateDTOSchema = couponCreateDTOBaseSchema.superRefine(couponDiscountValidation);
-
 export type CouponCreateDTO = z.infer<typeof couponCreateDTOSchema>;
 
 /**
  * Coupon Update DTO Schema
  */
-export const couponUpdateDTOSchema = couponCreateDTOBaseSchema.partial().extend({
+export const couponUpdateDTOSchema = couponCreateDTOSchema.partial().extend({
   code: z.string().min(1).max(50).regex(/^[A-Z0-9_-]+$/, 'Code must contain only uppercase letters, numbers, hyphens, and underscores').optional(),
-}).superRefine(couponDiscountValidation);
+});
 
 export type CouponUpdateDTO = z.infer<typeof couponUpdateDTOSchema>;
 

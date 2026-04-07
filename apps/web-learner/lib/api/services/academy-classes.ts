@@ -87,30 +87,26 @@ export const academyClassesApi = {
 
     return {
       courseId: data.id,
-      modules: (data.modules ?? [])
-        .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-        .map((m: any): CurriculumModule => ({
-          id: m.id,
-          title: m.title,
-          order: m.orderIndex,
-          durationMinutes: m.durationMinutes,
-          lessons: (m.lessons ?? [])
-            .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
-            .map((it: any): CurriculumLesson => ({
-              id: it.id,
-              title: it.title,
-              kind: it.type, // Map 'type' to 'kind'
-              isUnlocked: true, // Lessons from course profile are unlocked by default
-              isPreview: false,
-              order: it.orderIndex,
-              videoDuration: it.videoDurationSeconds,
-              referenceId: it.id, // In V2, the lesson itself is the reference
-              status: null,
-              availableFrom: null,
-              deadline: null,
-              isPrerequisite: false,
-            })),
+      modules: (data.modules ?? []).map((m: any): CurriculumModule => ({
+        id: m.id,
+        title: m.title,
+        order: m.orderIndex,
+        durationMinutes: m.durationMinutes,
+        lessons: (m.lessons ?? []).map((it: any): CurriculumLesson => ({
+          id: it.id,
+          title: it.title,
+          kind: it.type, // Map 'type' to 'kind'
+          isUnlocked: true, // Lessons from course profile are unlocked by default
+          isPreview: false,
+          order: it.orderIndex,
+          videoDuration: it.videoDurationSeconds,
+          referenceId: it.id, // In V2, the lesson itself is the reference
+          status: null,
+          availableFrom: null,
+          deadline: null,
+          isPrerequisite: false,
         })),
+      })),
     };
   },
 };

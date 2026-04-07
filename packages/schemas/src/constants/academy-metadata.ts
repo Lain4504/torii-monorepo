@@ -37,3 +37,32 @@ export const LIVE_CLASS_METADATA: MetadataDefinition[] = [
 ];
 
 export const CLASS_METADATA = LIVE_CLASS_METADATA; // For backward compatibility
+
+// 3. Question Pool Metadata
+export const QUESTION_POOL_METADATA: MetadataDefinition[] = [
+    { key: "tags", label: "Từ khóa (Tags)", description: "Dùng để phân loại nâng cao", defaultValue: "jlpt,exam" },
+    { key: "difficulty", label: "Mức độ ước tính", description: "Easy, Medium, Hard", defaultValue: "Medium" },
+    { key: "estimated_time", label: "Thời gian làm bài", description: "Ví dụ: 15 mins", defaultValue: "15 mins" },
+    { key: "source", label: "Nguồn gốc bộ đề", description: "Tài liệu tham khảo", defaultValue: "JLPT Official" },
+];
+
+// 4. Course Profile Metadata
+export const COURSE_PROFILE_METADATA: MetadataDefinition[] = [
+    { key: "duration_label", label: "Label Thời lượng", description: "Hiển thị trên card (vd: 6 tháng)", defaultValue: "20 giờ" },
+    { key: "total_lessons", label: "Tổng số bài học", defaultValue: "50" },
+    { key: "target_audience", label: "Đối tượng mục tiêu", defaultValue: "Người mới bắt đầu" },
+    { key: "prerequisites", label: "Điều kiện tiên quyết", defaultValue: "Không có" },
+];
+
+/**
+ * Utility to get label from key across all definitions
+ */
+export const getMetadataLabel = (key: string): string => {
+    const all = [
+        ...COURSE_OFFERING_METADATA,
+        ...CLASS_METADATA,
+        ...QUESTION_POOL_METADATA,
+        ...COURSE_PROFILE_METADATA
+    ];
+    return all.find(m => m.key === key)?.label || key;
+};

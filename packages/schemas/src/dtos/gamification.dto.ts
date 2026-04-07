@@ -232,15 +232,7 @@ export const PointRewardDTOSchema = z.object({
         maxDiscountAmount: z.number().positive('Giảm tối đa phải lớn hơn 0').nullable().optional(),
         minOrderValue: z.number().nonnegative().nullable().optional(),
         validDays: z.number().int().positive().default(30),
-    }).default({}).superRefine((config, ctx) => {
-        if (config.discountType === 'PERCENTAGE' && config.discountValue > 100) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                path: ['discountValue'],
-                message: 'Phần trăm giảm không được vượt quá 100%',
-            });
-        }
-    }),
+    }).default({}),
     isActive: z.boolean(),
     createdAt: z.string().datetime().optional(),
     updatedAt: z.string().datetime().optional(),

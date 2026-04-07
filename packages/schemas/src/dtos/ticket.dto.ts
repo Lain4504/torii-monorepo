@@ -12,7 +12,6 @@ export const createTicketDTOSchema = ticketSchema.pick({
     metadata: true,
 }).extend({
     liveClassId: z.string().uuid().optional(),
-    vodPackageId: z.string().uuid().optional(),
     orderId: z.string().uuid().optional(),
     metadata: z.record(z.any()).optional(),
 });
