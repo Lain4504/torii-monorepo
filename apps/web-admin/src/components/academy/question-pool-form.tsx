@@ -33,11 +33,9 @@ import {
     academyQuestionPoolUpdateDTOSchema,
     type AcademyQuestionPoolCreateDTO,
     type AcademyQuestionPoolUpdateDTO,
-    QUESTION_POOL_METADATA,
 } from "@workspace/schemas"
 import type { AcademyQuestionPool } from "@/lib/api/services/academy-question-pools"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function QuestionPoolForm({
     mode,
@@ -72,7 +70,6 @@ export function QuestionPoolForm({
                 level: initial?.level ?? "",
                 category: initial?.category ?? "",
                 status: initial?.status ?? "DRAFT",
-                metadata: initial?.metadata ?? undefined,
             }
             : {
                 code: "",
@@ -82,7 +79,6 @@ export function QuestionPoolForm({
                 level: "",
                 category: "",
                 status: "DRAFT",
-                metadata: undefined,
             },
     })
 
@@ -217,9 +213,9 @@ export function QuestionPoolForm({
                                                         <SelectValue placeholder="Trạng thái..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="DRAFT">Nháp (Draft)</SelectItem>
-                                                        <SelectItem value="ACTIVE">Công khai (Active)</SelectItem>
-                                                        <SelectItem value="ARCHIVED">Lưu trữ (Archived)</SelectItem>
+                                                        <SelectItem value="DRAFT">Nháp</SelectItem>
+                                                        <SelectItem value="ACTIVE">Công khai</SelectItem>
+                                                        <SelectItem value="ARCHIVED">Lưu trữ</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <FieldError>{fieldState.error?.message}</FieldError>
@@ -233,10 +229,10 @@ export function QuestionPoolForm({
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel>Gắn với Course Profile (Tùy chọn)</FieldLabel>
+                                            <FieldLabel>Gắn với hồ sơ khóa học (tùy chọn)</FieldLabel>
                                             <Select value={field.value || "NONE"} onValueChange={(val) => field.onChange(val === "NONE" ? undefined : val)}>
                                                 <SelectTrigger className="h-10">
-                                                    <SelectValue placeholder="Chọn Profile (optional)..." />
+                                                    <SelectValue placeholder="Chọn hồ sơ khóa học (tùy chọn)..." />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="NONE">Không liên kết</SelectItem>
@@ -255,27 +251,6 @@ export function QuestionPoolForm({
                             </FieldGroup>
                         </FieldSet>
 
-                        <FieldSeparator />
-
-                        <FieldSet className="border-t pt-6">
-                            <FieldLegend>Thông tin bổ sung (Metadata)</FieldLegend>
-                            <FieldDescription>Các thẻ và thuộc tính tìm kiếm cho pool.</FieldDescription>
-                            <FieldGroup>
-                                <Controller
-                                    name={"metadata" as any}
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Field>
-                                            <KeyValueEditor
-                                                value={field.value || {}}
-                                                onChange={field.onChange}
-                                                presets={QUESTION_POOL_METADATA}
-                                            />
-                                        </Field>
-                                    )}
-                                />
-                            </FieldGroup>
-                        </FieldSet>
                     </FieldGroup>
                 </CardContent>
             </Card>

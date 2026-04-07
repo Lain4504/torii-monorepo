@@ -39,7 +39,7 @@ export function ImagePreview({ url, fileName }: ImagePreviewProps) {
                 <div className="space-y-3">
                     <div className="aspect-video overflow-hidden rounded-md bg-muted border">
                         <img
-                            alt="Preview"
+                            alt="Xem trước"
                             className="h-full w-full object-cover"
                             src={url}
                         />

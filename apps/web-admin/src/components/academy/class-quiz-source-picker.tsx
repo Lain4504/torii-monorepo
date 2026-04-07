@@ -104,7 +104,7 @@ export function ClassQuizSourcePicker({
             {selectedExamDetail && (
                 <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
                     <div className="flex items-center justify-between border-b pb-2">
-                        <h4 className="text-sm font-semibold">Preview cấu trúc đề: {selectedExamDetail.title}</h4>
+                        <h4 className="text-sm font-semibold">Xem trước cấu trúc đề: {selectedExamDetail.title}</h4>
                         <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase font-bold">
                             {selectedExamDetail.status}
                         </span>

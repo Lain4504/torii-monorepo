@@ -32,7 +32,7 @@ export function ProfileTab() {
         },
         {
             label: 'Tham Gia Từ',
-            value: user.createdAt ? formatRelativeTime(user.createdAt) : 'N/A',
+            value: user.createdAt ? formatRelativeTime(user.createdAt) : '—',
             icon: <Calendar className="size-4" />,
         },
     ];

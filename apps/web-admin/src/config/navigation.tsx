@@ -48,17 +48,17 @@ export const academicNavItems: NavItem[] = [
         icon: Home,
     },
     {
-        titleKey: "Academy (LMS)",
+        titleKey: "Academy (Hệ thống LMS)",
         url: "/academy/live-classes",
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write", "academy.content.approve", "academy.commerce.approve"],
         items: [
-            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Đợt khai giảng (Cohorts)", url: "/academy/cohorts", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Hồ sơ khóa học", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Đợt khai giảng", url: "/academy/cohorts", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
             { titleKey: "Lớp học Live", url: "/academy/live-classes", lecturerTitleKey: "Lớp của tôi" },
             { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["academy.delivery.read", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
             { titleKey: "Duyệt dời lịch học", url: "/academy/live-classes/reschedule-requests", anyPermission: ["academy.delivery.approve", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
-            { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
         ]
     },
     {
@@ -70,24 +70,24 @@ export const academicNavItems: NavItem[] = [
         items: [
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/assessment/questions" },
             { titleKey: "Danh sách bài thi", url: "/academy/assessment/exams" },
-            { titleKey: "Study Set Catalogs", url: "/academy/study-set-catalogs" },
+            { titleKey: "Danh mục bộ thẻ", url: "/academy/study-set-catalogs" },
         ]
     },
     {
-        titleKey: "JLPT Mock Exams",
+        titleKey: "Đề thi JLPT mô phỏng",
         url: "/academy/jlpt/templates",
         icon: Languages,
         anyPermission: ["academy.content.read", "academy.content.write"],
         excludeRoles: [UserRole.LECTURER],
         items: [
-            { titleKey: "Quản lý Đề thi (Templates)", url: "/academy/jlpt/templates" },
+            { titleKey: "Quản lý Đề thi (Mẫu đề)", url: "/academy/jlpt/templates" },
             { titleKey: "Ngân hàng Câu hỏi", url: "/academy/jlpt/questions" },
-            { titleKey: "Master Mondai", url: "/academy/jlpt/mondai" },
-            { titleKey: "JLPT Config", url: "/academy/jlpt/config" },
+            { titleKey: "Quản lý Mondai", url: "/academy/jlpt/mondai" },
+            { titleKey: "Cấu hình JLPT", url: "/academy/jlpt/config" },
         ]
     },
     {
-        titleKey: "AI Subscription",
+        titleKey: "Gói AI",
         url: "/academy/ai-subscriptions",
         icon: Bot,
         excludeRoles: [UserRole.LECTURER],
@@ -123,19 +123,19 @@ export const financeNavItems: NavItem[] = [
         ]
     },
     {
-        titleKey: "Mã giảm giá (Coupons)",
+        titleKey: "Mã giảm giá",
         url: "/coupons",
         icon: Ticket,
         permission: "academy:coupon:admin",
     },
     {
-        titleKey: "Phần thưởng (Rewards)",
+        titleKey: "Phần thưởng",
         url: "/rewards",
         icon: Gift,
         permission: "gamification.manage",
     },
     {
-        titleKey: "Thành tích (Achievements)",
+        titleKey: "Thành tích",
         url: "/achievements",
         icon: Trophy,
         permission: "gamification.manage",
@@ -151,7 +151,7 @@ export const personnelNavItems: NavItem[] = [
         anyPermission: ["user.manage", "user.view"],
     },
     {
-        titleKey: "Phân quyền (Roles)",
+        titleKey: "Phân quyền",
         url: "/permissions",
         icon: Key,
         permission: "user.manage",

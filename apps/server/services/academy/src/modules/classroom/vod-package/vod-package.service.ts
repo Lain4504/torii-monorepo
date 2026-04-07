@@ -152,6 +152,9 @@ export class VodPackageService {
       }
     }
 
+    const clearRejectionReason =
+      data.status === 'PUBLISHED' || data.status === 'PENDING_APPROVAL';
+
     const item = await this.prisma.vodPackage.update({
       where: { id },
       data: {
@@ -160,7 +163,11 @@ export class VodPackageService {
         price: data.price,
         discountPrice: data.discountPrice,
         status: data.status as any,
-        rejectionReason: data.rejectionReason,
+        ...(clearRejectionReason
+          ? { rejectionReason: null }
+          : data.rejectionReason !== undefined
+            ? { rejectionReason: data.rejectionReason }
+            : {}),
         instructorId: data.instructorId,
         thumbnailUrl: data.thumbnailUrl,
         submittedForApprovalAt:

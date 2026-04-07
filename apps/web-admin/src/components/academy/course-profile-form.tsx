@@ -88,7 +88,7 @@ export function CourseProfileForm({
         <FieldSet>
           <FieldLegend>Thông tin cơ bản</FieldLegend>
           <FieldDescription>
-            Các thông tin định danh chính của Course Profile.
+            Các thông tin định danh chính của hồ sơ khóa học.
           </FieldDescription>
           <FieldGroup>
             {!isEdit && (

@@ -266,17 +266,20 @@ export default function SchedulePage() {
             </AlertDialog>
 
             <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-white p-4 shadow-sm dark:border-border/40 dark:bg-zinc-950 sm:p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="space-y-0.5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-3">
+                    <div className="min-w-0 space-y-0.5">
                         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Thời khóa biểu</h1>
-                        <p className="text-xs text-muted-foreground sm:text-sm flex items-center gap-2">
-                            <Calendar className="size-3.5 text-muted-foreground" />
-                            Tuần {format(weekStart, 'dd/MM/yyyy')} – {format(weekEnd, 'dd/MM/yyyy')}
+                        <p className="flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
+                            <Calendar className="size-3.5 shrink-0 text-muted-foreground" />
+                            <span className="min-w-0 break-words">
+                                Tuần {format(weekStart, 'dd/MM/yyyy')} – {format(weekEnd, 'dd/MM/yyyy')}
+                            </span>
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap items-end gap-6">
-                        <div className="space-y-1">
+                    {/* Mobile: mỗi select một hàng, full width; desktop: cạnh nhau */}
+                    <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:items-end sm:gap-6">
+                        <div className="flex w-full flex-col gap-1 sm:w-auto sm:min-w-[120px]">
                             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                                 YEAR
                             </div>
@@ -290,7 +293,7 @@ export default function SchedulePage() {
                                     if (closest) setWeekOffset(closest.offset)
                                 }}
                             >
-                                <SelectTrigger className="h-9 min-w-[120px]">
+                                <SelectTrigger className="h-9 w-full sm:min-w-[120px]">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -303,7 +306,7 @@ export default function SchedulePage() {
                             </Select>
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="flex w-full flex-col gap-1 sm:w-auto sm:min-w-[220px]">
                             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                                 WEEK
                             </div>
@@ -311,7 +314,7 @@ export default function SchedulePage() {
                                 value={String(weekOffset)}
                                 onValueChange={(v) => setWeekOffset(parseInt(v, 10))}
                             >
-                                <SelectTrigger className="h-9 min-w-[220px]">
+                                <SelectTrigger className="h-9 w-full sm:min-w-[220px]">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

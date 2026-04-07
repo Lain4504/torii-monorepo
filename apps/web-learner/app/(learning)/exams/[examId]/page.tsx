@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAcademyExam, useStartAcademyExamAttempt, useSaveAcademyExamDraft, useSubmitAcademyExamAttempt, useAcademyExamAttempt } from '@/lib/api/services/academy-exam-api';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
@@ -35,8 +35,10 @@ import {
 
 export default function ExamRunnerPage() {
   const { examId } = useParams() as { examId: string };
-  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const attemptIdFromQuery = params?.get('attemptId');
+  const searchParams = useSearchParams();
+  const attemptIdFromQuery = searchParams.get('attemptId');
+  const enrollmentIdFromQuery = searchParams.get('enrollmentId') || undefined;
+  const classIdFromQuery = searchParams.get('classId') || undefined;
   const router = useRouter();
 
   const { data: exam, isLoading: isLoadingExam } = useAcademyExam(examId);
@@ -61,14 +63,21 @@ export default function ExamRunnerPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-start or load attempt
+  // Auto-start or load attempt (pass enrollment/class so progress is scoped per course enrollment)
   useEffect(() => {
     if (exam && !attemptId && !startAttemptMutation.isPending) {
-       startAttemptMutation.mutate({ examId }, {
-         onSuccess: (data) => setAttemptId(data.id)
-       });
+       startAttemptMutation.mutate(
+         {
+           examId,
+           ...(enrollmentIdFromQuery ? { enrollmentId: enrollmentIdFromQuery } : {}),
+           ...(classIdFromQuery ? { classId: classIdFromQuery } : {}),
+         },
+         {
+           onSuccess: (data) => setAttemptId(data.id),
+         },
+       );
     }
-  }, [exam, attemptId, examId, startAttemptMutation]);
+  }, [exam, attemptId, examId, startAttemptMutation, enrollmentIdFromQuery, classIdFromQuery]);
 
   // Sync answers from draft
   useEffect(() => {
@@ -252,7 +261,7 @@ export default function ExamRunnerPage() {
              <Card className="border-none shadow-sm">
                 <CardHeader>
                    <CardDescription className="text-xs text-primary font-bold uppercase tracking-wider">
-                      {currentExamQuestion.section?.title || "Câu hỏi"} | {question.difficulty}
+                      {currentExamQuestion.section?.title || "Câu hỏi"} | {question.level || "—"}
                    </CardDescription>
                    <div className="text-lg font-medium text-foreground pt-2 whitespace-pre-wrap">
                       {question.stem}

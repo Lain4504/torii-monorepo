@@ -26,6 +26,14 @@ export enum AcademyQuestionReviewStatus {
     REJECTED = 'REJECTED',
 }
 
+export enum AcademyQuestionCategoryType {
+    VOCABULARY = 'VOCABULARY',
+    GRAMMAR = 'GRAMMAR',
+    KANJI = 'KANJI',
+    READING = 'READING',
+    LISTENING = 'LISTENING',
+}
+
 export enum AcademyAssessmentKind {
     LESSON_CHECKPOINT = 'LESSON_CHECKPOINT',
     MODULE_CHECKPOINT = 'MODULE_CHECKPOINT',

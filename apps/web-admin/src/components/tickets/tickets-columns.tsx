@@ -65,7 +65,7 @@ export const getTicketsColumns = ({ onView, onChangeStatus, page = 1, limit = 10
         header: 'Người gửi',
         cell: ({ row }) => (
             <div className="flex flex-col">
-                <span className="font-bold text-xs">{row.original.user?.displayName || 'N/A'}</span>
+                <span className="font-bold text-xs">{row.original.user?.displayName || '—'}</span>
                 <span className="text-[10px] text-muted-foreground">{row.original.user?.email}</span>
             </div>
         ),

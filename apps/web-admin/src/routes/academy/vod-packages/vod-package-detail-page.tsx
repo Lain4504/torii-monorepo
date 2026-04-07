@@ -16,7 +16,17 @@ import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { formatCurrency } from "@/lib/format-utils"
 import { toast } from "sonner"
-import { useMemo, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import { ClassStudentsTab } from "../live-classes/tabs/class-students-tab"
 import { ClassResourcesTab } from "../live-classes/tabs/class-resources-tab"
 import { ClassDiscussionTab } from "../live-classes/tabs/class-discussion-tab"
@@ -41,6 +51,12 @@ export default function VodPackageDetailPage() {
 
     const updateMutation = useUpdateAcademyVodPackage()
     const publishDirectlyMutation = usePublishVodPackageDirectly()
+
+    const [publishDirectlyDialogOpen, setPublishDirectlyDialogOpen] = useState(false)
+    const [statusConfirmDialog, setStatusConfirmDialog] = useState<{
+        open: boolean
+        newStatus: string | null
+    }>({ open: false, newStatus: null })
 
     const defaultTab = TAB_INFO
     const tabParam = searchParams.get("tab") || defaultTab
@@ -87,7 +103,6 @@ export default function VodPackageDetailPage() {
     }
 
     const handlePublishDirectly = async () => {
-        if (!confirm("Xác nhận xuất bản gói VOD này trực tiếp lên sàn (không qua duyệt)?")) return
         try {
             await publishDirectlyMutation.mutateAsync(id)
             toast.success("Đã xuất bản gói VOD thành công! 🚀")
@@ -120,6 +135,17 @@ export default function VodPackageDetailPage() {
     if (!pkg) {
         return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin Gói VOD.</div>
     }
+
+    const statusDialogTitle =
+        statusConfirmDialog.newStatus === "PENDING_APPROVAL"
+            ? "Gửi duyệt gói VOD?"
+            : statusConfirmDialog.newStatus === "PUBLISHED"
+                ? "Phê duyệt & mở bán gói VOD?"
+                : statusConfirmDialog.newStatus === "DRAFT"
+                    ? "Ngừng bán (hạ nháp) gói VOD?"
+                    : statusConfirmDialog.newStatus === "ARCHIVED"
+                        ? "Lưu trữ gói VOD?"
+                        : "Xác nhận thay đổi trạng thái"
 
     return (
         <div className="flex flex-col gap-6 ">
@@ -154,7 +180,7 @@ export default function VodPackageDetailPage() {
                                 {isStaff ? (
                                     <Button
                                         className="bg-emerald-600 hover:bg-emerald-700 shadow-none gap-2"
-                                        onClick={handlePublishDirectly}
+                                        onClick={() => setPublishDirectlyDialogOpen(true)}
                                         disabled={publishDirectlyMutation.isPending}
                                     >
                                         <Rocket className="size-4" /> Xuất bản ngay
@@ -162,7 +188,9 @@ export default function VodPackageDetailPage() {
                                 ) : (
                                     <Button
                                         className="bg-primary hover:bg-primary/90 shadow-none gap-2"
-                                        onClick={() => handleStatusChange('PENDING_APPROVAL')}
+                                        onClick={() =>
+                                            setStatusConfirmDialog({ open: true, newStatus: 'PENDING_APPROVAL' })
+                                        }
                                         disabled={updateMutation.isPending}
                                     >
                                         <Send className="size-4" /> Gửi duyệt
@@ -174,7 +202,7 @@ export default function VodPackageDetailPage() {
                         {pkg.status === 'PENDING_APPROVAL' && isStaff && (
                             <Button
                                 className="bg-emerald-600 hover:bg-emerald-700 shadow-none gap-2"
-                                onClick={() => handleStatusChange('PUBLISHED')}
+                                onClick={() => setStatusConfirmDialog({ open: true, newStatus: 'PUBLISHED' })}
                                 disabled={updateMutation.isPending}
                             >
                                 <CheckCircle2 className="size-4" /> Phê duyệt & Mở bán
@@ -185,7 +213,7 @@ export default function VodPackageDetailPage() {
                             <Button
                                 variant="outline"
                                 className="text-orange-600 border-orange-200 hover:bg-orange-50 shadow-none"
-                                onClick={() => handleStatusChange('DRAFT')}
+                                onClick={() => setStatusConfirmDialog({ open: true, newStatus: 'DRAFT' })}
                                 disabled={updateMutation.isPending}
                             >
                                 <ShieldAlert className="mr-2 h-4 w-4" /> Ngừng bán (Hạ nháp)
@@ -195,7 +223,7 @@ export default function VodPackageDetailPage() {
                         <Button
                             variant="outline"
                             className="text-muted-foreground border-slate-200 hover:bg-slate-50 shadow-none"
-                            onClick={() => handleStatusChange('ARCHIVED')}
+                            onClick={() => setStatusConfirmDialog({ open: true, newStatus: 'ARCHIVED' })}
                             disabled={updateMutation.isPending || pkg.status === 'ARCHIVED'}
                         >
                             <Archive className="mr-2 h-4 w-4" /> Lưu trữ
@@ -241,6 +269,65 @@ export default function VodPackageDetailPage() {
                     </TabsContent>
                 </div>
             </Tabs>
+
+            <AlertDialog
+                open={publishDirectlyDialogOpen}
+                onOpenChange={(open) => setPublishDirectlyDialogOpen(open)}
+            >
+                <AlertDialogContent className="sm:max-w-[520px]">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xuất bản gói VOD ngay?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn xác nhận xuất bản gói VOD <span className="font-semibold">{pkg.code}</span> trực tiếp lên sàn
+                            (không qua duyệt). Hành động này sẽ thay đổi trạng thái của gói.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => {
+                                setPublishDirectlyDialogOpen(false)
+                                void handlePublishDirectly()
+                            }}
+                            disabled={publishDirectlyMutation.isPending}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            {publishDirectlyMutation.isPending ? "Đang xuất bản..." : "Xác nhận xuất bản"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog
+                open={statusConfirmDialog.open}
+                onOpenChange={(open) =>
+                    setStatusConfirmDialog({ open, newStatus: open ? statusConfirmDialog.newStatus : null })
+                }
+            >
+                <AlertDialogContent className="sm:max-w-[520px]">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{statusDialogTitle}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn đang chuyển trạng thái gói VOD <span className="font-semibold">{pkg.code}</span> sang{" "}
+                            <span className="font-semibold">{statusConfirmDialog.newStatus}</span>.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={updateMutation.isPending}>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => {
+                                const next = statusConfirmDialog.newStatus
+                                setStatusConfirmDialog({ open: false, newStatus: null })
+                                if (next) void handleStatusChange(next)
+                            }}
+                            disabled={updateMutation.isPending || !statusConfirmDialog.newStatus}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            {updateMutation.isPending ? "Đang cập nhật..." : "Xác nhận"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

@@ -29,10 +29,6 @@ import {
   academyQuestionUpdateDTOSchema,
   AcademyQuestionQueryDTO,
   academyQuestionQueryDTOSchema,
-  AcademyQuestionCategoryDTO,
-  academyQuestionCategorySchema,
-  AcademyQuestionCategoryUpdateDTO,
-  academyQuestionCategoryUpdateSchema,
 } from '@workspace/schemas';
 
 @Controller('api/academy/questions')
@@ -50,50 +46,6 @@ export class AcademyQuestionController {
       this.nats.send({ cmd: 'academy.question.findAll' }, query),
     );
     return successResponse({ items: result });
-  }
-
-  // NOTE: 'categories' route MUST be before ':id' to avoid NestJS routing conflict
-  @Get('categories')
-  @Permissions('academy.content.read')
-  async getCategories() {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.question.getCategories' }, {}),
-    );
-    return successResponse(result);
-  }
-
-  @Post('categories')
-  @Permissions('academy.content.write')
-  async createCategory(
-    @Body(new ZodValidationPipe(academyQuestionCategorySchema))
-    dto: AcademyQuestionCategoryDTO,
-  ) {
-    const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.question.createCategory' }, dto),
-    );
-    return successResponse({ item });
-  }
-
-  @Put('categories/:id')
-  @Permissions('academy.content.write')
-  async updateCategory(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body(new ZodValidationPipe(academyQuestionCategoryUpdateSchema))
-    dto: AcademyQuestionCategoryUpdateDTO,
-  ) {
-    const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.question.updateCategory' }, { id, dto }),
-    );
-    return successResponse({ item });
-  }
-
-  @Delete('categories/:id')
-  @Permissions('academy.content.write')
-  async deleteCategory(@Param('id', new ParseUUIDPipe()) id: string) {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.question.deleteCategory' }, { id }),
-    );
-    return successResponse(result);
   }
 
   @Get(':id')

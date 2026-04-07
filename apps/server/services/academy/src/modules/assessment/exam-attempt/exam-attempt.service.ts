@@ -27,13 +27,24 @@ export class ExamAttemptService {
       throw new NotFoundException('Exam not found or not published');
     }
 
-    // Check for existing active attempt (prevent duplicate starts)
+    // Check for existing active attempt (scoped by enrollment so two courses don't share one in-progress row)
+    const existingWhere: {
+      userId: string;
+      examId: string;
+      status: any;
+      enrollmentId?: string | null;
+    } = {
+      userId,
+      examId,
+      status: AcademyAttemptStatus.IN_PROGRESS as any,
+    };
+    if (enrollmentId) {
+      existingWhere.enrollmentId = enrollmentId;
+    } else {
+      existingWhere.enrollmentId = null;
+    }
     const existing = await this.prisma.academyExamAttempt.findFirst({
-      where: {
-        userId,
-        examId,
-        status: AcademyAttemptStatus.IN_PROGRESS as any,
-      },
+      where: existingWhere,
       include: { exam: true },
     });
     if (existing) return this.attachComputedFields(existing);

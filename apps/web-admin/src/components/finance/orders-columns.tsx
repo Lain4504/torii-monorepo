@@ -84,7 +84,7 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
         cell: ({ row }) => {
             const order = row.original as any;
             const item = order.items?.[0];
-            const serviceName = item?.cohortSnapshot?.name || item?.cohort?.name || item?.vodPackageSnapshot?.name || item?.vodPackage?.name || order.orderType || 'N/A';
+            const serviceName = item?.cohortSnapshot?.name || item?.cohort?.name || item?.vodPackageSnapshot?.name || item?.vodPackage?.name || order.orderType || '—';
             return (
                 <div className="flex flex-col gap-1">
                     <Badge variant="outline" className="w-fit text-xs">

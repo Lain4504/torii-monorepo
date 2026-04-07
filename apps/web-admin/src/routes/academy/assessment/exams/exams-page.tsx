@@ -171,7 +171,7 @@ export default function ExamsPage() {
                       <div className="line-clamp-1 text-slate-500 text-sm">{exam.description || '-'}</div>
                     </TableCell>
                     <TableCell>
-                      {exam.totalTimeLimitMinutes ? `${exam.totalTimeLimitMinutes} ph` : 'N/A'}
+                      {exam.totalTimeLimitMinutes ? `${exam.totalTimeLimitMinutes} ph` : '—'}
                     </TableCell>
                     <TableCell>
                       <Badge variant={exam.status === 'PUBLISHED' ? 'success' : 'secondary'}>

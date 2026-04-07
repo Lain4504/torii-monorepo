@@ -34,6 +34,16 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@workspace/ui/components/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { PageHeader } from "@/components/common/page-header";
 import {
   JlptQuestionsToolbar,
@@ -69,6 +79,8 @@ export default function JlptQuestionsPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<JlptBankQuestion | null>(null);
   const [isFetchingQuestion, setIsFetchingQuestion] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTargetQuestionId, setDeleteTargetQuestionId] = useState<string | null>(null);
 
 
   const prevFilters = useRef({
@@ -162,14 +174,22 @@ export default function JlptQuestionsPage() {
     setMondaiCode("all");
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa câu hỏi này?")) return;
+  const handleDelete = (id: string) => {
+    setDeleteTargetQuestionId(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetQuestionId) return;
     try {
-      await academyJlptMockApi.deleteBankQuestion(id);
+      await academyJlptMockApi.deleteBankQuestion(deleteTargetQuestionId);
       toast.success("Đã xóa câu hỏi");
       void fetchQuestions();
     } catch {
       toast.error("Không thể xóa câu hỏi");
+    } finally {
+      setDeleteConfirmOpen(false);
+      setDeleteTargetQuestionId(null);
     }
   };
 
@@ -417,6 +437,31 @@ export default function JlptQuestionsPage() {
           itemName="câu hỏi"
         />
       </div>
+
+      <AlertDialog
+        open={deleteConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteConfirmOpen(false);
+            setDeleteTargetQuestionId(null);
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa câu hỏi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Hành động này không thể hoàn tác. Câu hỏi sẽ bị xóa khỏi ngân hàng câu hỏi JLPT.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>
+              Xác nhận xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetContent className="w-full sm:!w-[70vw] sm:!max-w-none overflow-y-auto p-0 border-l shadow-2xl">

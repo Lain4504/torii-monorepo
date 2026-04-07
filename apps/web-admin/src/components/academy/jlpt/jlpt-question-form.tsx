@@ -66,6 +66,8 @@ export function JlptQuestionForm({
 }) {
   const [uploading, setUploading] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
   const [availableLevels, setAvailableLevels] = useState<JlptLevel[]>([]);
   const [sectionsForLevel, setSectionsForLevel] = useState<JlptSection[]>([]);
   const [sectionsLoading, setSectionsLoading] = useState(false);
@@ -123,10 +125,51 @@ export function JlptQuestionForm({
   const sectionCode = watch("sectionCode");
   const levelCode = watch("levelCode");
   const mondaiCodeWatch = watch("mondaiCode");
+  const audioAssetId = watch("audioAssetId");
+  const imageAssetId = watch("imageAssetId");
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    // Load preview URLs from existing asset ids (edit case).
+    let cancelled = false;
+    (async () => {
+      try {
+        if (imageAssetId) {
+          const signed = await storageApi.getSignedUrl({ fileId: imageAssetId });
+          if (!cancelled) setImagePreviewUrl(signed.signedUrl);
+        } else if (!cancelled) {
+          setImagePreviewUrl(null);
+        }
+      } catch {
+        if (!cancelled) setImagePreviewUrl(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [imageAssetId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (audioAssetId) {
+          const signed = await storageApi.getSignedUrl({ fileId: audioAssetId });
+          if (!cancelled) setAudioPreviewUrl(signed.signedUrl);
+        } else if (!cancelled) {
+          setAudioPreviewUrl(null);
+        }
+      } catch {
+        if (!cancelled) setAudioPreviewUrl(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [audioAssetId]);
 
   useEffect(() => {
     // Load available JLPT levels from DB so dropdown reflects real state.
@@ -236,11 +279,14 @@ export function JlptQuestionForm({
       setUploading(type);
       const res = await storageApi.uploadFile(file, "jlpt-mock");
       setValue(type === "audio" ? "audioAssetId" : "imageAssetId", res.fileId);
+      if (type === "audio") setAudioPreviewUrl(res.fileUrl || null);
+      if (type === "image") setImagePreviewUrl(res.fileUrl || null);
       toast.success(`Đã tải lên ${type === "audio" ? "âm thanh" : "hình ảnh"}`);
     } catch {
       toast.error("Tải lên thất bại");
     } finally {
       setUploading(null);
+      e.target.value = "";
     }
   };
 
@@ -492,7 +538,23 @@ export function JlptQuestionForm({
                 {uploading === "image" && <Loader2 className="size-4 shrink-0 animate-spin" />}
               </div>
               {watch("imageAssetId") && (
-                <p className="text-xs font-medium text-emerald-600">Đã chọn: {watch("imageAssetId")}</p>
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-emerald-600">Đã chọn: {watch("imageAssetId")}</p>
+                  {imagePreviewUrl ? (
+                    <a
+                      href={imagePreviewUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      Mở ảnh đã tải lên
+                    </a>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground">
+                      Không thể tải preview. Vui lòng lưu câu hỏi và thử tải lại trang.
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 
@@ -512,7 +574,16 @@ export function JlptQuestionForm({
                   {uploading === "audio" && <Loader2 className="size-4 shrink-0 animate-spin" />}
                 </div>
                 {watch("audioAssetId") && (
-                  <p className="text-xs font-medium text-blue-600">Đã chọn: {watch("audioAssetId")}</p>
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-blue-600">Đã chọn: {watch("audioAssetId")}</p>
+                    {audioPreviewUrl ? (
+                      <audio controls className="w-full" src={audioPreviewUrl} />
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground">
+                        Không thể tải preview. Vui lòng lưu câu hỏi và thử tải lại trang.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             )}

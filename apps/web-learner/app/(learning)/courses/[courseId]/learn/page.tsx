@@ -387,7 +387,10 @@ export default function CourseLearnPage() {
     const completedContentItemIds = isVodCandidate ? vodCompletedIds : liveCompletedIds;
 
     // ── Milestones ────────────────────────────────────────────────────────
-    const { data: milestones = [] } = useAcademyLearnerAssessmentStatus({ classId });
+    const { data: milestones = [] } = useAcademyLearnerAssessmentStatus({
+        classId,
+        enrollmentId: enrollmentData?.enrollment?.id,
+    });
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -598,7 +601,15 @@ export default function CourseLearnPage() {
 
     const handleConfirmMilestone = () => {
         if (!pendingMilestone?.examId) return;
-        const target = `/exams/${pendingMilestone.examId}${pendingMilestone.latestAttemptId ? `?attemptId=${pendingMilestone.latestAttemptId}` : ''}`;
+        const qs = new URLSearchParams();
+        if (pendingMilestone.latestAttemptId) {
+            qs.set('attemptId', pendingMilestone.latestAttemptId);
+        }
+        const eid = enrollmentData?.enrollment?.id;
+        if (eid) qs.set('enrollmentId', eid);
+        if (classId) qs.set('classId', classId);
+        const q = qs.toString();
+        const target = `/exams/${pendingMilestone.examId}${q ? `?${q}` : ''}`;
         setPendingMilestone(null);
         router.push(target);
     };

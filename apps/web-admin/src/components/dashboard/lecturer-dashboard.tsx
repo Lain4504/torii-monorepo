@@ -362,7 +362,7 @@ export default function LecturerDashboard() {
                 <StatsCard
                     title="Bài chờ chấm"
                     value={lecDashLoading ? "—" : (lecDash?.stats.pendingSubmissionsToGrade ?? 0)}
-                    sub="SUBMITTED, chưa có điểm"
+                    sub="Đã nộp, chưa có điểm"
                     icon={PenLine}
                     tone="warning"
                     highlight={(lecDash?.stats.pendingSubmissionsToGrade ?? 0) > 0}
@@ -370,21 +370,21 @@ export default function LecturerDashboard() {
                 <StatsCard
                     title="Buổi dạy hôm nay"
                     value={lecDashLoading ? "—" : (lecDash?.stats.todaySessions ?? 0)}
-                    sub="SCHEDULED/RESCHEDULED, có phòng"
+                    sub="Đã lên lịch/điều chỉnh, có phòng"
                     icon={Calendar}
                     tone="info"
                 />
                 <StatsCard
                     title="Học viên (lớp tôi)"
                     value={lecDashLoading ? "—" : (lecDash?.stats.studentsInMyClasses ?? 0)}
-                    sub="Enrollment ACTIVE"
+                    sub="Học viên đang học"
                     icon={Users}
                     tone="primary"
                 />
                 <StatsCard
                     title="Lớp đang mở"
                     value={lecDashLoading ? "—" : (lecDash?.stats.activeLiveClasses ?? 0)}
-                    sub="OPENING + IN_PROGRESS"
+                    sub="Mở tuyển + Đang vận hành"
                     icon={GraduationCap}
                     tone="success"
                 />

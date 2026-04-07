@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import {
   AcademyUpdateAssessmentPlanDTO,
@@ -57,8 +57,10 @@ export class AssessmentPlanService {
   }): Promise<AcademyAssessmentStatusDTO[]> {
     const { userId, classId, enrollmentId } = params;
 
-    // 1. Identify CourseProfile
+    // 1. Identify CourseProfile + enrollment scope (attempts must be per enrollment, not global per user+exam)
     let courseProfileId: string | undefined;
+    let resolvedEnrollmentId: string | undefined;
+
     if (classId) {
       const cls = await this.prisma.liveClass.findUnique({
         where: { id: classId },
@@ -73,17 +75,43 @@ export class AssessmentPlanService {
         if (!pkg) throw new NotFoundException('Class or VOD package not found');
         courseProfileId = pkg.courseProfileId;
       }
-    } else if (enrollmentId) {
-      const enr = await this.prisma.enrollment.findUnique({
-        where: { id: enrollmentId },
+    }
+
+    if (enrollmentId) {
+      const enr = await this.prisma.enrollment.findFirst({
+        where: {
+          id: enrollmentId,
+          userId,
+          ...(classId
+            ? { OR: [{ vodPackageId: classId }, { liveClassId: classId }] }
+            : {}),
+        },
         include: {
           vodPackage: true,
           liveClass: { include: { cohort: true } },
         },
       });
-      if (!enr) throw new NotFoundException('Enrollment not found');
-      courseProfileId = enr.vodPackage?.courseProfileId || enr.liveClass?.cohort.courseProfileId;
-    } else {
+      if (!enr) {
+        throw classId
+          ? new BadRequestException('Enrollment does not match this class')
+          : new NotFoundException('Enrollment not found');
+      }
+      resolvedEnrollmentId = enr.id;
+      if (!courseProfileId) {
+        courseProfileId =
+          enr.vodPackage?.courseProfileId || enr.liveClass?.cohort.courseProfileId;
+      }
+    } else if (classId) {
+      const enr = await this.prisma.enrollment.findFirst({
+        where: {
+          userId,
+          OR: [{ vodPackageId: classId }, { liveClassId: classId }],
+        },
+      });
+      resolvedEnrollmentId = enr?.id;
+    }
+
+    if (!classId && !enrollmentId) {
       throw new Error('Either classId or enrollmentId must be provided');
     }
 
@@ -92,14 +120,18 @@ export class AssessmentPlanService {
     // 2. Get Assessment Plan
     const plan = await this.getPlanByCourseProfileId(courseProfileId);
 
-    // 3. Get latest attempts for this user/plan
-    const attempts = await this.prisma.academyExamAttempt.findMany({
-      where: {
-        userId,
-        examId: { in: plan.map((p) => p.examId) },
-      },
-      orderBy: { startedAt: 'desc' },
-    });
+    // 3. Latest attempts for this enrollment only (avoids marking quiz done across different courses)
+    const attempts =
+      resolvedEnrollmentId && plan.length > 0
+        ? await this.prisma.academyExamAttempt.findMany({
+            where: {
+              userId,
+              enrollmentId: resolvedEnrollmentId,
+              examId: { in: plan.map((p) => p.examId) },
+            },
+            orderBy: { startedAt: 'desc' },
+          })
+        : [];
 
     // 4. Resolve status for each milestone
     return plan.map((p) => {
@@ -178,6 +210,7 @@ export class AssessmentPlanService {
     const attempts = await this.prisma.academyExamAttempt.findMany({
       where: {
         userId,
+        enrollmentId,
         examId: { in: pendingMilestones.map((m) => m.examId) },
         status: 'SUBMITTED',
         isPassed: true,

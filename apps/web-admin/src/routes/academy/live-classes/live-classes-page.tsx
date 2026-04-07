@@ -65,6 +65,7 @@ export default function LiveClassesPage() {
     const [selectedClass, setSelectedClass] = useState<AcademyLiveClass | null>(null);
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyLiveClass | null>(null);
     const [deleteDialogClass, setDeleteDialogClass] = useState<AcademyLiveClass | null>(null);
+    const [publishDialogClass, setPublishDialogClass] = useState<AcademyLiveClass | null>(null);
 
     // Filters
     // Mặc định hiển thị tất cả (undefined) thay vì chỉ OPENING để Admin thấy được lớp mới tạo (DRAFT)
@@ -89,6 +90,12 @@ export default function LiveClassesPage() {
         } catch (error: any) {
             toast.error(error?.userMessage || "Lỗi khi công khai lớp học");
         }
+    };
+
+    const handleConfirmPublish = async () => {
+        if (!publishDialogClass) return;
+        await handlePublish(publishDialogClass.id);
+        setPublishDialogClass(null);
     };
 
     const handleCreate = () => {
@@ -255,7 +262,7 @@ export default function LiveClassesPage() {
                                                     {effectiveThumbnail ? (
                                                         <img src={effectiveThumbnail} alt={cls.name} className="h-full w-full object-cover" />
                                                     ) : (
-                                                        <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground italic">No img</div>
+                                                        <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground italic">Không có ảnh</div>
                                                     )}
                                                 </div>
                                             </TableCell>
@@ -338,7 +345,7 @@ export default function LiveClassesPage() {
                                                                     variant="outline"
                                                                     size="sm"
                                                                     className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 bg-transparent hover:bg-indigo-50 font-medium shadow-sm"
-                                                                    onClick={() => handlePublish(cls.id)}
+                                                                    onClick={() => setPublishDialogClass(cls)}
                                                                     disabled={publishMutation.isPending}
                                                                 >
                                                                     <Rocket className="h-4 w-4" /> Xuất bản
@@ -442,6 +449,34 @@ export default function LiveClassesPage() {
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                             {deleteMutation.isPending ? "Đang xóa..." : "Xóa lớp nháp"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog
+                open={!!publishDialogClass}
+                onOpenChange={(open) =>
+                    !open && setPublishDialogClass(null)
+                }
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xuất bản lớp LIVE?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Lớp <span className="font-semibold">{publishDialogClass?.code}</span> sẽ được chuyển sang trạng thái công khai để học viên có thể tham gia.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={publishMutation.isPending}>
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmPublish}
+                            disabled={publishMutation.isPending || !publishDialogClass}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            {publishMutation.isPending ? "Đang xuất bản..." : "Xác nhận xuất bản"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

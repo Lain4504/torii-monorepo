@@ -285,7 +285,7 @@ export default function CourseProfilesPage() {
                                                         <span>Lưu trữ</span>
                                                     </Button>
                                                 )}
-                                                {(((profile as any).status === 'REJECTED') || !!(profile as any).rejectionReason) && (
+                                                {(profile as any).status === 'DRAFT' && !!(profile as any).rejectionReason && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"

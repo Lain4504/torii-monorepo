@@ -32,6 +32,16 @@ import {
   DialogTitle,
 } from "@workspace/ui/components/dialog"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import {
   listPageSearchIconClass,
   listPageSearchInputClass,
   listPageSearchWrapClass,
@@ -41,6 +51,11 @@ import {
 export default function LiveRescheduleRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("PENDING")
   const [search, setSearch] = useState("")
+  const [actionConfirmDialog, setActionConfirmDialog] = useState<{
+    open: boolean
+    action: "approve" | "reject" | null
+    requestId?: string
+  }>({ open: false, action: null })
   const [rejectReasonDialog, setRejectReasonDialog] = useState<{
     open: boolean
     reason: string
@@ -77,6 +92,18 @@ export default function LiveRescheduleRequestsPage() {
       onSuccess: () => toast.success("Đã từ chối yêu cầu"),
       onError: (error: any) => toast.error(error.userMessage || "Lỗi khi từ chối yêu cầu")
     })
+  }
+
+  const handleConfirmAction = () => {
+    const requestId = actionConfirmDialog.requestId
+    const action = actionConfirmDialog.action
+    if (!requestId || !action) return
+
+    // Close first to avoid multiple clicks while mutation pending.
+    setActionConfirmDialog({ open: false, action: null })
+
+    if (action === "approve") handleApproveRequest(requestId)
+    if (action === "reject") handleRejectRequest(requestId)
   }
 
   const getRequestStatusBadge = (status: string) => {
@@ -194,16 +221,16 @@ export default function LiveRescheduleRequestsPage() {
                       <TableCell className="pl-6 py-4">
                         <div className="flex flex-col">
                           <span className="font-bold text-sm text-primary group-hover:underline cursor-pointer" onClick={() => window.open(`/academy/live-classes/${classId}/detail?tab=schedule`, '_blank')}>
-                            {classInfo?.code || "N/A"}
+                            {classInfo?.code || "—"}
                           </span>
                           <span className="text-[10px] text-muted-foreground truncate max-w-[180px]" title={classInfo?.name}>
-                            {classInfo?.name || "N/A"}
+                            {classInfo?.name || "—"}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-bold text-sm tracking-tight">{req.session ? formatDateLabel(req.session.sessionDate) : "N/A"}</span>
+                          <span className="font-bold text-sm tracking-tight">{req.session ? formatDateLabel(req.session.sessionDate) : "—"}</span>
                           <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-black bg-muted/50 w-fit px-1.5 py-0.5 rounded mt-1">
                             <Clock className="size-3" /> {req.session?.startTime} - {req.session?.endTime}
                           </div>
@@ -217,7 +244,7 @@ export default function LiveRescheduleRequestsPage() {
                       <TableCell>
                         {req.type === 'RESCHEDULE' ? (
                           <div className="flex flex-col border-l-2 border-emerald-500/40 pl-2 py-0.5">
-                            <span className="font-bold text-sm text-emerald-600 dark:text-emerald-500">{req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "N/A"}</span>
+                            <span className="font-bold text-sm text-emerald-600 dark:text-emerald-500">{req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
                             <span className="text-[10px] text-emerald-600/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
                           </div>
                         ) : (
@@ -242,7 +269,13 @@ export default function LiveRescheduleRequestsPage() {
                               variant="outline"
                               size="sm"
                               className="h-8 gap-1.5 border-emerald-500/40 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-medium"
-                              onClick={() => handleApproveRequest(req.id)}
+                              onClick={() =>
+                                setActionConfirmDialog({
+                                  open: true,
+                                  action: "approve",
+                                  requestId: req.id,
+                                })
+                              }
                               disabled={approveRequestMutation.isPending}
                             >
                               <CheckCircle2 className="h-4 w-4" />
@@ -252,7 +285,13 @@ export default function LiveRescheduleRequestsPage() {
                               variant="outline"
                               size="sm"
                               className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/5 font-medium"
-                              onClick={() => handleRejectRequest(req.id)}
+                              onClick={() =>
+                                setActionConfirmDialog({
+                                  open: true,
+                                  action: "reject",
+                                  requestId: req.id,
+                                })
+                              }
                               disabled={rejectRequestMutation.isPending}
                             >
                               <XCircle className="h-4 w-4" />
@@ -320,6 +359,39 @@ export default function LiveRescheduleRequestsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={actionConfirmDialog.open}
+        onOpenChange={(open) =>
+          setActionConfirmDialog({ open, action: open ? actionConfirmDialog.action : null })
+        }
+      >
+        <AlertDialogContent className="sm:max-w-[480px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {actionConfirmDialog.action === "approve"
+                ? "Phê duyệt yêu cầu dời lịch?"
+                : "Từ chối yêu cầu dời lịch?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn xác nhận thao tác cho yêu cầu có ID{" "}
+              <span className="font-semibold">{actionConfirmDialog.requestId}</span>. Hành động này sẽ cập nhật trạng thái xử lý yêu cầu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmAction}
+              disabled={
+                approveRequestMutation.isPending || rejectRequestMutation.isPending
+              }
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {actionConfirmDialog.action === "approve" ? "Xác nhận phê duyệt" : "Xác nhận từ chối"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

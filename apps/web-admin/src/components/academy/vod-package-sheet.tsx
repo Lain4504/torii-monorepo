@@ -42,7 +42,7 @@ import { UserRole } from "@workspace/schemas"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 
 const vodPackageSchema = z.object({
-  courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
+  courseProfileId: z.string().uuid("Vui lòng chọn hồ sơ khóa học"),
   code: z.string().min(2, "Mã gói VOD phải có ít nhất 2 ký tự"),
   title: z.string().min(3, "Tên gói VOD phải có ít nhất 3 ký tự"),
   price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0"),
@@ -160,7 +160,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin quản lý cho gói VOD này."
-              : "Khởi tạo một gói VOD mới dựa trên Syllabus."}
+              : "Khởi tạo một gói VOD mới dựa trên chương trình."}
           </SheetDescription>
         </SheetHeader>
 
@@ -172,7 +172,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                   <FieldLegend>Syllabus & Định danh</FieldLegend>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>Course Profile (Gốc)</FieldLabel>
+                      <FieldLabel>Hồ sơ khóa học (Gốc)</FieldLabel>
                       <Controller
                         name="courseProfileId"
                         control={control}
@@ -183,7 +183,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                             disabled={isEditing}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Chọn Course Profile" />
+                              <SelectValue placeholder="Chọn hồ sơ khóa học" />
                             </SelectTrigger>
                             <SelectContent>
                               {(isEditing ? profiles : (profiles?.filter(p => p.status === 'PUBLISHED') || []))?.map((p) => (

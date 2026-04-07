@@ -13,6 +13,16 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog"
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import {
     Table,
     TableBody,
     TableCell,
@@ -68,6 +78,11 @@ export default function CohortsPage() {
         open: boolean
         reason: string
     }>({ open: false, reason: "" })
+    const [submitApprovalDialog, setSubmitApprovalDialog] = useState<{
+        open: boolean
+        cohortId?: string
+        code?: string
+    }>({ open: false })
     const navigate = useNavigate()
     const submitForApprovalMutation = useSubmitCohortForApproval()
 
@@ -218,21 +233,20 @@ export default function CohortsPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 bg-transparent hover:bg-indigo-50"
-                                                        onClick={async () => {
-                                                            try {
-                                                                await submitForApprovalMutation.mutateAsync(cohort.id)
-                                                                toast.success(`Đã gửi duyệt đợt học ${cohort.code}`)
-                                                            } catch (err: any) {
-                                                                toast.error(err?.userMessage || err?.message || "Không thể gửi duyệt")
-                                                            }
-                                                        }}
+                                                        onClick={() =>
+                                                            setSubmitApprovalDialog({
+                                                                open: true,
+                                                                cohortId: cohort.id,
+                                                                code: cohort.code,
+                                                            })
+                                                        }
                                                         disabled={submitForApprovalMutation.isPending || !cohort._count?.liveClasses}
                                                         title={!cohort._count?.liveClasses ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
                                                     >
                                                         <Send className="h-4 w-4" /> Gửi duyệt
                                                     </Button>
                                                 )}
-                                                {(cohort.status === 'REJECTED' || !!cohort.rejectionReason) && (
+                                                {cohort.status === 'DRAFT' && !!cohort.rejectionReason && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -286,6 +300,59 @@ export default function CohortsPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog
+                open={submitApprovalDialog.open}
+                onOpenChange={(open) =>
+                    setSubmitApprovalDialog((prev) => ({ ...prev, open }))
+                }
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận gửi duyệt</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc muốn gửi duyệt đợt khai giảng{" "}
+                            <span className="font-semibold">{submitApprovalDialog.code}</span>? Sau khi gửi, thông tin sẽ bị khóa để tránh thay đổi.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            disabled={submitForApprovalMutation.isPending}
+                        >
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={
+                                submitForApprovalMutation.isPending ||
+                                !submitApprovalDialog.cohortId
+                            }
+                            onClick={async () => {
+                                if (!submitApprovalDialog.cohortId) return
+                                try {
+                                    await submitForApprovalMutation.mutateAsync(
+                                        submitApprovalDialog.cohortId,
+                                    )
+                                    toast.success(
+                                        `Đã gửi duyệt đợt học ${submitApprovalDialog.code}`,
+                                    )
+                                } catch (err: any) {
+                                    toast.error(
+                                        err?.userMessage ||
+                                            err?.message ||
+                                            "Không thể gửi duyệt",
+                                    )
+                                } finally {
+                                    setSubmitApprovalDialog({ open: false })
+                                }
+                            }}
+                        >
+                            {submitForApprovalMutation.isPending
+                                ? "Đang gửi..."
+                                : "Xác nhận gửi duyệt"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

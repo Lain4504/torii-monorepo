@@ -37,7 +37,7 @@ import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
 const cohortSchema = z.object({
-  courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
+  courseProfileId: z.string().uuid("Vui lòng chọn hồ sơ khóa học"),
   code: z.string().min(2, "Mã khóa học phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên khóa học phải có ít nhất 3 ký tự"),
   status: z.string().optional(),
@@ -194,7 +194,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin quản lý cho đợt học này."
-              : "Khởi tạo một đợt học mới gắn liền với Syllabus."}
+              : "Khởi tạo một đợt học mới gắn liền với chương trình."}
           </SheetDescription>
         </SheetHeader>
 
@@ -203,10 +203,10 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
             <form id="cohort-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <FieldGroup>
                 <FieldSet>
-                  <FieldLegend>Syllabus & Định danh</FieldLegend>
+                  <FieldLegend>Chương trình & Định danh</FieldLegend>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>Course Profile (Gốc)</FieldLabel>
+                      <FieldLabel>Hồ sơ khóa học (Gốc)</FieldLabel>
                       <Controller
                         name="courseProfileId"
                         control={control}
@@ -217,7 +217,7 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
                             disabled={isEditing}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Chọn Course Profile" />
+                              <SelectValue placeholder="Chọn hồ sơ khóa học" />
                             </SelectTrigger>
                             <SelectContent>
                               {(isEditing ? profiles : (profiles?.filter(p => p.status === 'PUBLISHED') || []))?.map((p) => (

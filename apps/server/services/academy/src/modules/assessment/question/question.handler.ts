@@ -5,8 +5,6 @@ import {
   AcademyQuestionCreateDTO,
   AcademyQuestionUpdateDTO,
   AcademyQuestionQueryDTO,
-  AcademyQuestionCategoryDTO,
-  AcademyQuestionCategoryUpdateDTO,
 } from '@workspace/schemas';
 
 @Controller()
@@ -36,25 +34,5 @@ export class QuestionHandler {
   @MessagePattern({ cmd: 'academy.question.delete' })
   delete(@Payload() data: { id: string }) {
     return this.questionService.deleteQuestion(data.id);
-  }
-
-  @MessagePattern({ cmd: 'academy.question.createCategory' })
-  createCategory(@Payload() dto: AcademyQuestionCategoryDTO) {
-    return this.questionService.createCategory(dto);
-  }
-
-  @MessagePattern({ cmd: 'academy.question.getCategories' })
-  getCategories() {
-    return this.questionService.getCategories();
-  }
-
-  @MessagePattern({ cmd: 'academy.question.updateCategory' })
-  updateCategory(@Payload() data: { id: string; dto: AcademyQuestionCategoryUpdateDTO }) {
-    return this.questionService.updateCategory(data.id, data.dto);
-  }
-
-  @MessagePattern({ cmd: 'academy.question.deleteCategory' })
-  deleteCategory(@Payload() data: { id: string }) {
-    return this.questionService.deleteCategory(data.id);
   }
 }

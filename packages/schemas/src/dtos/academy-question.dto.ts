@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AcademyQuestionType, AcademyQuestionReviewStatus } from '../enums/academy.enum';
+import { AcademyQuestionType, AcademyQuestionReviewStatus, AcademyQuestionCategoryType } from '../enums/academy.enum';
 
 export const academyQuestionOptionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -15,11 +15,9 @@ export const academyQuestionCreateDTOSchema = z.object({
   questionType: z.nativeEnum(AcademyQuestionType),
   stem: z.string().min(1),
   explanation: z.string().optional(),
-  difficulty: z.string().max(50).optional(),
   level: z.string().max(20).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  categoryType: z.nativeEnum(AcademyQuestionCategoryType).optional(),
   options: z.array(academyQuestionOptionSchema).optional(),
-  categoryIds: z.array(z.string()).optional(),
   parentId: z.string().uuid().optional(),
   mediaUrl: z.string().url().optional().or(z.string().length(0)).or(z.string().nullish()),
   correctAnswer: z.union([z.string(), z.array(z.string())]).optional(),
@@ -32,11 +30,9 @@ export const academyQuestionUpdateDTOSchema = z.object({
   questionType: z.nativeEnum(AcademyQuestionType).optional(),
   stem: z.string().min(1).optional(),
   explanation: z.string().optional(),
-  difficulty: z.string().max(50).optional(),
   level: z.string().max(20).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  categoryType: z.nativeEnum(AcademyQuestionCategoryType).optional(),
   options: z.array(academyQuestionOptionSchema).optional(),
-  categoryIds: z.array(z.string()).optional(),
   reviewStatus: z.nativeEnum(AcademyQuestionReviewStatus).optional(),
   reviewNote: z.string().optional(),
   parentId: z.string().uuid().optional(),
@@ -49,9 +45,8 @@ export type AcademyQuestionUpdateDTO = z.infer<
 
 export const academyQuestionQueryDTOSchema = z.object({
   questionType: z.nativeEnum(AcademyQuestionType).optional(),
-  difficulty: z.string().optional(),
   level: z.string().optional(),
-  categoryId: z.string().optional(),
+  categoryType: z.nativeEnum(AcademyQuestionCategoryType).optional(),
   reviewStatus: z.nativeEnum(AcademyQuestionReviewStatus).optional(),
   q: z.string().optional(),
   parentId: z.string().uuid().optional(),
@@ -59,22 +54,4 @@ export const academyQuestionQueryDTOSchema = z.object({
 export type AcademyQuestionQueryDTO = z.infer<
   typeof academyQuestionQueryDTOSchema
 >;
-
-export const academyQuestionCategorySchema = z.object({
-  code: z.string().min(1).max(100),
-  name: z.string().min(1).max(255),
-  description: z.string().optional(),
-  parentId: z.string().uuid().nullable().optional(),
-  isActive: z.boolean().default(true),
-});
-export type AcademyQuestionCategoryDTO = z.infer<typeof academyQuestionCategorySchema>;
-
-export const academyQuestionCategoryUpdateSchema = z.object({
-  code: z.string().min(1).max(100).optional(),
-  name: z.string().min(1).max(255).optional(),
-  description: z.string().optional(),
-  parentId: z.string().uuid().nullable().optional(),
-  isActive: z.boolean().optional(),
-});
-export type AcademyQuestionCategoryUpdateDTO = z.infer<typeof academyQuestionCategoryUpdateSchema>;
 

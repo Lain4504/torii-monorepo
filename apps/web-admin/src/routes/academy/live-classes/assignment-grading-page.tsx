@@ -159,7 +159,7 @@ export default function AssignmentGradingPage() {
                                                     <User className="size-4" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium">{row.user?.displayName || 'N/A'}</span>
+                                                    <span className="font-medium">{row.user?.displayName || '—'}</span>
                                                     <span className="text-xs text-muted-foreground">{row.user?.email}</span>
                                                 </div>
                                             </div>

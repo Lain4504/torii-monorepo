@@ -102,7 +102,7 @@ export function VodInfoTab({ pkg, profile }: VodInfoTabProps) {
                             <BookOpen className="size-4 text-muted-foreground mt-0.5 shrink-0" />
                             <div>
                                 <p className="text-xs text-muted-foreground">Tên khóa học gốc</p>
-                                <p className="font-medium">{profile?.title || "N/A"}</p>
+                                <p className="font-medium">{profile?.title || "—"}</p>
                                 {profile?.level && (
                                     <Badge variant="outline" className="mt-1 text-[10px] h-4">
                                         {profile.level}
@@ -114,7 +114,7 @@ export function VodInfoTab({ pkg, profile }: VodInfoTabProps) {
                             <Hash className="size-4 text-muted-foreground mt-0.5 shrink-0" />
                             <div>
                                 <p className="text-xs text-muted-foreground">Mã hồ sơ</p>
-                                <p className="font-mono font-medium">{profile?.code || "N/A"}</p>
+                                <p className="font-mono font-medium">{profile?.code || "—"}</p>
                             </div>
                         </div>
                     </CardContent>

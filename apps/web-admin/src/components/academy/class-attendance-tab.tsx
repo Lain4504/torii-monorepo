@@ -476,7 +476,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                             <TableRow key={req.id} className="hover:bg-muted/5 transition-colors">
                                                 <TableCell className="pl-6 py-4">
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold text-sm">{req.session ? formatDateLabel(req.session.sessionDate) : "N/A"}</span>
+                                                        <span className="font-bold text-sm">{req.session ? formatDateLabel(req.session.sessionDate) : "—"}</span>
                                                         <span className="text-[10px] text-muted-foreground uppercase font-black">{req.session?.startTime} - {req.session?.endTime}</span>
                                                     </div>
                                                 </TableCell>
@@ -488,7 +488,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                 <TableCell>
                                                     {req.type === 'RESCHEDULE' ? (
                                                         <div className="flex flex-col">
-                                                            <span className="font-bold text-sm text-primary">{req.proposedDate ? format(new Date(req.proposedDate), "dd/MM/yyyy") : "N/A"}</span>
+                                                            <span className="font-bold text-sm text-primary">{req.proposedDate ? format(new Date(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
                                                             <span className="text-[10px] text-primary/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
                                                         </div>
                                                     ) : (

@@ -57,7 +57,7 @@ export function LearnerList({ enrollments, isLoading }: LearnerListProps) {
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-sm truncate">
-                      {en.user?.displayName || "N/A"}
+                      {en.user?.displayName || "—"}
                     </span>
                     <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
                       <Mail className="h-3 w-3" />

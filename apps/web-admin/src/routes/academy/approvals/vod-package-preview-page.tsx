@@ -60,7 +60,7 @@ export default function VodPackageApprovalPreviewPage() {
   if (!pkg) {
     return (
       <div className="p-8 text-center text-muted-foreground">
-        Không tìm thấy gói VOD (Package).
+        Không tìm thấy gói VOD.
       </div>
     )
   }
@@ -77,10 +77,10 @@ export default function VodPackageApprovalPreviewPage() {
               to="/academy/approvals"
               className="hover:underline text-muted-foreground transition-colors"
             >
-              Approval Center
+              Trung tâm phê duyệt
             </Link>
             <ChevronRight className="size-4" />
-            <span>Xem trước VOD Package</span>
+            <span>Xem trước gói VOD</span>
           </div>
         }
         subtitle={`Phê duyệt gói học liệu #${pkg.code}`}
@@ -159,7 +159,7 @@ export default function VodPackageApprovalPreviewPage() {
                   <BookOpen className="size-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{pkg.courseProfile?.title || "N/A"}</p>
+                  <p className="text-sm font-medium">{pkg.courseProfile?.title || "—"}</p>
                   <p className="text-xs text-muted-foreground">ID: {pkg.courseProfileId}</p>
                 </div>
               </div>

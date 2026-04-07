@@ -12,6 +12,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@work
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@workspace/ui/components/alert-dialog"
 import { formatCurrency, formatDateTime } from "@/lib/format-utils"
 import { OrdersTable } from "@/components/finance/orders-table"
 import { dataTableShellClass } from "@/lib/ui-shell"
@@ -107,22 +118,59 @@ export default function CohortDetailPage() {
         actions={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             {cohort.status === 'DRAFT' && (
-              <Button
-                onClick={() => handleUpdateStatus('PENDING_APPROVAL')}
-                className="w-full gap-2 bg-primary shadow-none hover:bg-primary/90 sm:w-auto"
-                disabled={!liveClasses?.length || submitForApprovalMutation.isPending}
-                title={!liveClasses?.length ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
-              >
-                <Send className="size-4" /> Gửi duyệt
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="w-full gap-2 bg-primary shadow-none hover:bg-primary/90 sm:w-auto"
+                    disabled={!liveClasses?.length || submitForApprovalMutation.isPending}
+                    title={!liveClasses?.length ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
+                  >
+                    <Send className="size-4" /> Gửi duyệt
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Gửi duyệt đợt khai giảng?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Bạn có chắc muốn gửi duyệt đợt khai giảng <span className="font-semibold">#{cohort.code}</span>? Sau khi gửi, thông tin sẽ bị khóa cho tới khi được phê duyệt hoặc bị từ chối.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => handleUpdateStatus('PENDING_APPROVAL')}
+                      disabled={!liveClasses?.length || submitForApprovalMutation.isPending}
+                    >
+                      Xác nhận gửi duyệt
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             {cohort.status === 'PENDING_APPROVAL' && (
-              <Button
-                onClick={handleApprove}
-                className="w-full gap-2 bg-emerald-600 shadow-none hover:bg-emerald-700 sm:w-auto"
-              >
-                <CheckCircle2 className="size-4" /> Phê duyệt & Xuất bản
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="w-full gap-2 bg-emerald-600 shadow-none hover:bg-emerald-700 sm:w-auto"
+                  >
+                    <CheckCircle2 className="size-4" /> Phê duyệt & Xuất bản
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Phê duyệt & xuất bản đợt học?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Bạn sắp phê duyệt đợt học <span className="font-semibold">#{cohort.code}</span>. Sau khi phê duyệt, thông tin sẽ được xuất bản cho học viên tham gia.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleApprove}>
+                      Xác nhận phê duyệt
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             <Button variant="outline" className="w-full border-primary/20 shadow-none group hover:bg-primary/5 sm:w-auto">
               <Edit className="size-4 mr-2 group-hover:text-primary transition-colors" /> Chỉnh sửa

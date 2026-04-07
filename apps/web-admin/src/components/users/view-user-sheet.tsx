@@ -189,10 +189,10 @@ function UserLearningTab({ userId }: { userId: string }) {
                         <TableRow key={item.id}>
                             <TableCell>
                                 <div className="font-semibold">
-                                    {item.courseTitle || item.liveClass?.name || item.vodPackage?.name || 'N/A'}
+                                    {item.courseTitle || item.liveClass?.name || item.vodPackage?.name || '—'}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    {item.courseCode || item.liveClass?.code || item.vodPackage?.code || 'No code'}
+                                    {item.courseCode || item.liveClass?.code || item.vodPackage?.code || 'Không có mã'}
                                 </div>
                             </TableCell>
                             <TableCell className="text-sm">
@@ -276,7 +276,7 @@ function UserWalletTab({ userId, balance }: { userId: string; balance: number })
                                             {(tx.type === 'DEPOSIT' || tx.type === 'REFUND') ? '+' : '-'}{formatCurrency(tx.amount)}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate" title={tx.description}>
-                                            {tx.description || 'N/A'}
+                                            {tx.description || '—'}
                                         </TableCell>
                                         <TableCell className="text-right text-sm font-medium">
                                             {formatDateTime(tx.createdAt, 'dd/MM/yyyy HH:mm')}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ChevronDown, PlayCircle, FileText, Lock, CheckCircle, HelpCircle, ClipboardList } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
@@ -15,6 +15,19 @@ interface CourseCurriculumProps {
 export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumProps) {
     const router = useRouter()
     const [openChapters, setOpenChapters] = useState<number[]>([0])
+
+    /** Cùng thứ tự module/bài như trang học để bài “đầu tiên” trên UI khớp unlock tuần tự */
+    const sortedCurriculum = useMemo(() => {
+        const modules = curriculum?.modules ?? []
+        return [...modules]
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+            .map((m) => ({
+                ...m,
+                lessons: [...(m.lessons ?? [])].sort(
+                    (a, b) => (a.order ?? 0) - (b.order ?? 0),
+                ),
+            }))
+    }, [curriculum])
 
     const toggleChapter = (index: number) => {
         setOpenChapters(prev =>
@@ -45,7 +58,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
             </h3>
 
             <div className="space-y-3">
-                {curriculum.modules.map((module, index) => (
+                {sortedCurriculum.map((module, index) => (
                     <div
                         key={module.id}
                         className="border border-border rounded-xl overflow-hidden bg-card"

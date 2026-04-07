@@ -1,7 +1,6 @@
 import { useState } from "react"
 import {
   useAcademyQuestions,
-  useAcademyQuestionCategories,
 } from "@/lib/api/services/academy-questions"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
@@ -13,10 +12,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@workspace/ui/components/select"
 import { Badge } from "@workspace/ui/components/badge"
-import { Plus, Search, Pencil, Trash2, Tag } from "lucide-react"
+import { Plus, Search, Pencil, Trash2, FileAudio, Image as ImageIcon } from "lucide-react"
+import { AcademyQuestionCategoryType } from "@workspace/schemas"
 import { QuestionEditor } from "./components/question-editor"
 import { DeleteQuestionDialog } from "./components/delete-question-dialog"
-import { CategoryManagerDialog } from "./components/category-manager-dialog"
 import { format } from "date-fns"
 import {
   dataTableShellClass,
@@ -30,19 +29,17 @@ import {
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("")
-  const [categoryId, setCategoryId] = useState<string>("ALL")
   const [level, setLevel] = useState<string>("ALL")
+  const [categoryType, setCategoryType] = useState<string>("ALL")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editorOpen, setEditorOpen] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<any>(null)
-  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
   const [questionToDelete, setQuestionToDelete] = useState<{ id: string; stem: string } | null>(null)
 
-  const { data: categories = [] } = useAcademyQuestionCategories()
   const { data: questions, isLoading } = useAcademyQuestions({
     q: search || undefined,
-    categoryId: categoryId === "ALL" ? undefined : categoryId,
     level: level === "ALL" ? undefined : level,
+    categoryType: categoryType === "ALL" ? undefined : (categoryType as AcademyQuestionCategoryType),
   })
 
   const handleDelete = (question: any) => {
@@ -59,26 +56,6 @@ export default function QuestionsPage() {
     setSelectedQuestion(null)
     setEditingId(null)
     setEditorOpen(true)
-  }
-
-  const difficultyBadge = (d: string) => {
-    if (d === "EASY")
-      return (
-        <Badge variant="success" className="text-[10px] font-bold">
-          Dễ
-        </Badge>
-      )
-    if (d === "HARD")
-      return (
-        <Badge variant="destructive" className="text-[10px] font-bold">
-          Khó
-        </Badge>
-      )
-    return (
-      <Badge variant="warning" className="text-[10px] font-bold">
-        TB
-      </Badge>
-    )
   }
 
   const levelBadge = (lvl?: string | null) => {
@@ -136,6 +113,14 @@ export default function QuestionsPage() {
     )
   }
 
+  const categoryTypeLabel: Record<string, string> = {
+    [AcademyQuestionCategoryType.VOCABULARY]: "Từ vựng",
+    [AcademyQuestionCategoryType.GRAMMAR]: "Ngữ pháp",
+    [AcademyQuestionCategoryType.KANJI]: "Kanji",
+    [AcademyQuestionCategoryType.READING]: "Đọc hiểu",
+    [AcademyQuestionCategoryType.LISTENING]: "Nghe hiểu",
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -143,14 +128,9 @@ export default function QuestionsPage() {
         subtitle="Quản lý thư viện câu hỏi dùng chung cho các bài thi và kiểm tra."
         stats={[
           { label: "Tổng câu hỏi", value: questions?.length ?? 0 },
-          { label: "Danh mục", value: categories.length },
         ]}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => setCategoryDialogOpen(true)}>
-              <Tag className="h-4 w-4" />
-              Quản lý danh mục
-            </Button>
             <Button size="sm" className="gap-2 shadow-sm" onClick={handleCreate}>
               <Plus className="h-4 w-4" />
               Thêm câu hỏi
@@ -171,19 +151,6 @@ export default function QuestionsPage() {
           />
         </div>
         <div className={listPageFiltersRowClass}>
-        <div className="w-full md:w-[220px]">
-          <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tất cả danh mục" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Tất cả danh mục</SelectItem>
-              {(categories as any[]).map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         <div className="w-full md:w-[150px]">
           <Select value={level} onValueChange={setLevel}>
             <SelectTrigger className="w-full">
@@ -199,6 +166,21 @@ export default function QuestionsPage() {
             </SelectContent>
           </Select>
         </div>
+        <div className="w-full md:w-[180px]">
+          <Select value={categoryType} onValueChange={setCategoryType}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Mọi nhóm câu hỏi" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">Mọi nhóm câu hỏi</SelectItem>
+              <SelectItem value={AcademyQuestionCategoryType.VOCABULARY}>Từ vựng</SelectItem>
+              <SelectItem value={AcademyQuestionCategoryType.GRAMMAR}>Ngữ pháp</SelectItem>
+              <SelectItem value={AcademyQuestionCategoryType.KANJI}>Kanji</SelectItem>
+              <SelectItem value={AcademyQuestionCategoryType.READING}>Đọc hiểu</SelectItem>
+              <SelectItem value={AcademyQuestionCategoryType.LISTENING}>Nghe hiểu</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         </div>
       </div>
 
@@ -209,9 +191,9 @@ export default function QuestionsPage() {
             <TableRow>
               <TableHead className="w-[60px] text-center">#</TableHead>
               <TableHead className="w-[420px] pl-4">Câu hỏi</TableHead>
-              <TableHead>Độ khó</TableHead>
               <TableHead>Cấp độ</TableHead>
-              <TableHead>Danh mục</TableHead>
+              <TableHead>Nhóm</TableHead>
+              <TableHead className="w-[90px] text-center">Media</TableHead>
               <TableHead>Ngày tạo</TableHead>
               <TableHead className="text-right pr-4 w-[100px]">Thao tác</TableHead>
             </TableRow>
@@ -219,7 +201,7 @@ export default function QuestionsPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
                   Đang tải dữ liệu...
                 </TableCell>
               </TableRow>
@@ -238,20 +220,25 @@ export default function QuestionsPage() {
                   <TableCell className="pl-4 font-medium">
                     <div className="line-clamp-2 text-sm">{q.stem}</div>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {difficultyBadge(q.difficulty)}
-                  </TableCell>
                   <TableCell>{levelBadge(q.level)}</TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {(q.categoryLinks as any[])?.length
-                        ? (q.categoryLinks as any[]).map((cl) => (
-                          <Badge key={cl.categoryId} variant="secondary" className="text-[10px]">
-                            {cl.category?.name}
-                          </Badge>
-                        ))
-                        : <span className="text-xs text-muted-foreground">—</span>}
-                    </div>
+                    <Badge variant="secondary" className="text-[10px] font-bold">
+                      {q.categoryType ? (categoryTypeLabel[q.categoryType] || q.categoryType) : "—"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {q.mediaUrl ? (
+                      <span className="inline-flex items-center justify-center rounded-full border bg-muted/40 px-2 py-1 text-[10px] font-medium text-muted-foreground gap-1">
+                        {/\.(mp3|wav|m4a|aac|ogg)$/i.test(q.mediaUrl) ? (
+                          <FileAudio className="h-3 w-3" />
+                        ) : (
+                          <ImageIcon className="h-3 w-3" />
+                        )}
+                        <span>Đã có</span>
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground/60">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {format(new Date(q.createdAt), "dd/MM/yyyy")}
@@ -271,7 +258,7 @@ export default function QuestionsPage() {
                         variant="outline"
                         size="sm"
                         className="gap-1.5"
-                        onClick={() => handleDelete(q.id)}
+                        onClick={() => handleDelete(q)}
                       >
                         <Trash2 className="h-4 w-4" />
                         Xóa
@@ -298,12 +285,6 @@ export default function QuestionsPage() {
         open={!!questionToDelete}
         onOpenChange={(open) => !open && setQuestionToDelete(null)}
         question={questionToDelete}
-      />
-
-      {/* Category Manager Dialog */}
-      <CategoryManagerDialog
-        open={categoryDialogOpen}
-        onOpenChange={setCategoryDialogOpen}
       />
     </div>
   )

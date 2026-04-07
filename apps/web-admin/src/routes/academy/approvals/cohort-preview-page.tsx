@@ -77,7 +77,7 @@ export default function CohortApprovalPreviewPage() {
               to="/academy/approvals"
               className="hover:underline text-muted-foreground transition-colors"
             >
-              Approval Center
+              Trung tâm phê duyệt
             </Link>
             <ChevronRight className="size-4" />
             <span>Xem trước Đợt khai giảng</span>

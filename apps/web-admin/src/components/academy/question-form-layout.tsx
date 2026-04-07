@@ -18,10 +18,14 @@ import {
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { QuestionPicker } from "./question-picker"
 import { StringListEditor } from "./string-list-editor"
-import { KeyValueEditor } from "./key-value-editor"
 import { QuestionOptionsEditor } from "./question-options-editor"
 import { LessonMediaUploader } from "./lesson-media-uploader"
-import { AcademyQuestionType, type AcademyQuestionCreateDTO, type AcademyQuestionUpdateDTO } from "@workspace/schemas"
+import {
+    AcademyQuestionCategoryType,
+    AcademyQuestionType,
+    type AcademyQuestionCreateDTO,
+    type AcademyQuestionUpdateDTO,
+} from "@workspace/schemas"
 
 interface QuestionFormLayoutProps {
     form: UseFormReturn<AcademyQuestionCreateDTO | AcademyQuestionUpdateDTO | any>
@@ -31,7 +35,6 @@ interface QuestionFormLayoutProps {
     lockQuestionType?: boolean
     hideMediaField?: boolean
     hideLevelField?: boolean
-    hideCategoryField?: boolean
     lockLevel?: boolean
 }
 
@@ -43,7 +46,6 @@ export function QuestionFormLayout({
     lockQuestionType,
     hideMediaField,
     hideLevelField,
-    hideCategoryField,
     lockLevel,
 }: QuestionFormLayoutProps) {
     const { control, watch, setValue } = form
@@ -150,34 +152,31 @@ export function QuestionFormLayout({
                                 )}
                             />
                         )}
-
-                        {!hideCategoryField && (
-                            <Controller
-                                name="categoryIds"
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Danh mục</FieldLabel>
-                                        <Select 
-                                            value={Array.isArray(field.value) ? field.value[0] : field.value} 
-                                            onValueChange={(val) => field.onChange([val])}
-                                        >
-                                            <SelectTrigger className="h-11 shadow-sm">
-                                                <SelectValue placeholder="Chọn danh mục..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="VOCABULARY">Từ vựng</SelectItem>
-                                                <SelectItem value="GRAMMAR">Ngữ pháp</SelectItem>
-                                                <SelectItem value="KANJI">Hán tự</SelectItem>
-                                                <SelectItem value="READING">Đọc hiểu</SelectItem>
-                                                <SelectItem value="LISTENING">Nghe hiểu</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        )}
+                        <Controller
+                            name="categoryType"
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Nhóm câu hỏi</FieldLabel>
+                                    <Select
+                                        value={field.value || AcademyQuestionCategoryType.GRAMMAR}
+                                        onValueChange={field.onChange}
+                                    >
+                                        <SelectTrigger className="h-11 shadow-sm">
+                                            <SelectValue placeholder="Chọn nhóm..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={AcademyQuestionCategoryType.VOCABULARY}>Từ vựng</SelectItem>
+                                            <SelectItem value={AcademyQuestionCategoryType.GRAMMAR}>Ngữ pháp</SelectItem>
+                                            <SelectItem value={AcademyQuestionCategoryType.KANJI}>Kanji</SelectItem>
+                                            <SelectItem value={AcademyQuestionCategoryType.READING}>Đọc hiểu</SelectItem>
+                                            <SelectItem value={AcademyQuestionCategoryType.LISTENING}>Nghe hiểu</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
                     </div>
                 </FieldGroup>
             </FieldSet>
@@ -258,30 +257,6 @@ export function QuestionFormLayout({
                 </FieldSet>
             )}
 
-            {/* 4. Thông tin bổ sung */}
-            <FieldSet>
-                <FieldLegend>Nâng cao</FieldLegend>
-                <FieldGroup>
-                    <Controller
-                        name="metadata"
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel>Metadata</FieldLabel>
-                                <KeyValueEditor
-                                    value={field.value || {}}
-                                    onChange={field.onChange}
-                                    presets={[
-                                        { key: "tags", label: "Tags" },
-                                        { key: "difficulty", label: "Độ khó (1-10)" },
-                                    ]}
-                                />
-                                <FieldError>{fieldState.error?.message}</FieldError>
-                            </Field>
-                        )}
-                    />
-                </FieldGroup>
-            </FieldSet>
         </div>
     )
 }

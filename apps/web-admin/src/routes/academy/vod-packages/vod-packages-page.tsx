@@ -85,6 +85,11 @@ export default function VodPackagesPage() {
         reason: string
     }>({ open: false, reason: "" })
     const [deleteDialogPackage, setDeleteDialogPackage] = useState<AcademyVodPackage | null>(null)
+    const [submitApprovalDialog, setSubmitApprovalDialog] = useState<{
+        open: boolean
+        packageId?: string
+        code?: string
+    }>({ open: false })
     const navigate = useNavigate()
     const submitForApprovalMutation = useSubmitVodPackageForApproval()
     const deleteMutation = useDeleteAcademyVodPackage()
@@ -264,14 +269,13 @@ export default function VodPackagesPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         className="h-8 gap-1.5 border-indigo-500/40 text-indigo-700 hover:bg-indigo-50 font-medium"
-                                                        onClick={async () => {
-                                                            try {
-                                                                await submitForApprovalMutation.mutateAsync(pkg.id)
-                                                                toast.success(`Đã gửi duyệt gói ${pkg.code}`)
-                                                            } catch (err: any) {
-                                                                toast.error(err.message || "Không thể gửi duyệt")
-                                                            }
-                                                        }}
+                                                        onClick={() =>
+                                                            setSubmitApprovalDialog({
+                                                                open: true,
+                                                                packageId: pkg.id,
+                                                                code: pkg.code,
+                                                            })
+                                                        }
                                                         disabled={submitForApprovalMutation.isPending}
                                                     >
                                                         <Send className="h-4 w-4" /> Gửi duyệt
@@ -288,7 +292,7 @@ export default function VodPackagesPage() {
                                                         <Trash2 className="h-4 w-4" /> Xóa nháp
                                                     </Button>
                                                 )}
-                                                {(pkg.status === 'REJECTED' || !!pkg.rejectionReason) && (
+                                                {pkg.status === 'DRAFT' && !!pkg.rejectionReason && (
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
@@ -360,6 +364,57 @@ export default function VodPackagesPage() {
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                             {deleteMutation.isPending ? "Đang xóa..." : "Xóa gói nháp"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog
+                open={submitApprovalDialog.open}
+                onOpenChange={(open) =>
+                    setSubmitApprovalDialog((prev) => ({ ...prev, open }))
+                }
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận gửi duyệt</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc muốn gửi duyệt gói{" "}
+                            <span className="font-semibold">{submitApprovalDialog.code}</span>? Sau khi gửi, thông tin sẽ bị khóa để tránh thay đổi.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={submitForApprovalMutation.isPending}>
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={
+                                submitForApprovalMutation.isPending ||
+                                !submitApprovalDialog.packageId
+                            }
+                            onClick={async () => {
+                                if (!submitApprovalDialog.packageId) return
+                                try {
+                                    await submitForApprovalMutation.mutateAsync(
+                                        submitApprovalDialog.packageId,
+                                    )
+                                    toast.success(
+                                        `Đã gửi duyệt gói ${submitApprovalDialog.code}`,
+                                    )
+                                } catch (err: any) {
+                                    toast.error(
+                                        err?.message ||
+                                            err?.userMessage ||
+                                            "Không thể gửi duyệt",
+                                    )
+                                } finally {
+                                    setSubmitApprovalDialog({ open: false })
+                                }
+                            }}
+                        >
+                            {submitForApprovalMutation.isPending
+                                ? "Đang gửi..."
+                                : "Xác nhận gửi duyệt"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

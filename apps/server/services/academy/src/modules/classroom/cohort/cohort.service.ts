@@ -173,13 +173,20 @@ export class CohortService {
     const before = await this.prisma.cohort.findUnique({ where: { id } });
     if (!before) throw new NotFoundException('Cohort not found');
 
+    const clearRejectionReason =
+      data.status === 'PENDING_APPROVAL' || data.status === 'OPENING';
+
     const item = await this.prisma.cohort.update({
       where: { id },
       data: {
         code: data.code,
         name: data.name,
         status: data.status as any,
-        rejectionReason: (data as any).rejectionReason,
+        ...(clearRejectionReason
+          ? { rejectionReason: null }
+          : (data as any).rejectionReason !== undefined
+            ? { rejectionReason: (data as any).rejectionReason }
+            : {}),
         submittedForApprovalAt:
           data.status === 'PENDING_APPROVAL' ? new Date() : undefined,
         enrollmentOpenAt: data.enrollmentOpenAt

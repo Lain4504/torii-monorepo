@@ -175,7 +175,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
                   <BookOpen className="size-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
                     <p className="text-xs text-muted-foreground">Hồ sơ khóa học</p>
-                    <p className="font-medium">{academyClass.cohort?.courseProfile?.title || "N/A"}</p>
+                    <p className="font-medium">{academyClass.cohort?.courseProfile?.title || "—"}</p>
                     {academyClass.cohort?.courseProfile?.level && (
                       <Badge variant="outline" className="mt-1 text-[10px] h-4">
                         {academyClass.cohort.courseProfile.level}
