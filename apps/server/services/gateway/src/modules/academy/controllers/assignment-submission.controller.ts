@@ -41,7 +41,6 @@ export class AssignmentSubmissionController {
   private hasExamManagePermission(req: ReqWithRequester): boolean {
     const permissions = req.requester?.permissions || [];
     return (
-      permissions.includes('*') ||
       permissions.includes('lms.assessment.update') ||
       permissions.includes('lms.assessment.grade')
     );
@@ -49,7 +48,7 @@ export class AssignmentSubmissionController {
 
   private hasDeliveryReadPermission(req: ReqWithRequester): boolean {
     const permissions = req.requester?.permissions || [];
-    return permissions.includes('*') || permissions.includes('lms.delivery.read');
+    return permissions.includes('lms.delivery.read');
   }
 
   private async assertLearnerEnrolledInClass(userId: string, classId: string) {

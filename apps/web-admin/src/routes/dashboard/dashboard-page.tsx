@@ -16,6 +16,7 @@ import LecturerDashboard from "@/components/dashboard/lecturer-dashboard"
 export default function DashboardPage() {
   const user = useAppSelector(selectUser)
   const { canAny, hasWildcard, permissions } = usePermissions()
+  const isAdmin = hasWildcard || canAny(["lms.approval.manage"])
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -28,20 +29,16 @@ export default function DashboardPage() {
     canAny(["lms.assessment.grade"]) &&
     !canAny([
       "lms.catalog.update",
-      "lms.catalog.approve",
-      "lms.delivery.approve",
       "lms.commerce.update",
-      "lms.commerce.approve",
       "ops.user.manage",
     ]) &&
     !hasWildcard
-  const isStaffAcademic = canAny([
+  const isStaffAcademic = !isAdmin && canAny([
     "lms.catalog.update",
-    "lms.catalog.approve",
-    "lms.delivery.approve",
+    "lms.delivery.update",
     "lms.commerce.update",
   ])
-  const isStaffFinance = canAny([
+  const isStaffFinance = !isAdmin && canAny([
     "ops.order.manage",
     "ops.coupon.manage",
     "ops.support.handle",
@@ -94,7 +91,7 @@ export default function DashboardPage() {
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-8" />
 
-        {hasWildcard && <AdminDashboardV2 />}
+        {isAdmin && <AdminDashboardV2 />}
         {isStaffAcademic && <StaffAcademicDashboard />}
         {isStaffFinance && <StaffFinanceDashboard />}
         {isLecturer && <LecturerDashboard />}

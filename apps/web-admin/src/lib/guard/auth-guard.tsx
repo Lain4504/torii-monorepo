@@ -63,7 +63,6 @@ export function AuthGuard({ children }: AuthGuardProps) {
                 if (user) {
                     const permissions = (user.permissions || []) as string[];
                     const canEnter =
-                        permissions.includes('*') ||
                         permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
                     if (!canEnter) {
                         dispatch(setError('Bạn không có quyền truy cập trang quản trị.'));

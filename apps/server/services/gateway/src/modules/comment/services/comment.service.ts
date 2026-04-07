@@ -28,7 +28,6 @@ export class CommentService {
     if (!permissions?.length) return false;
     // Staff/admin can bypass enrollment checks
     return (
-      permissions.includes('*') ||
       permissions.includes('lms.delivery.update') ||
       permissions.includes('lms.delivery.read') ||
       permissions.includes('lms.catalog.update') ||

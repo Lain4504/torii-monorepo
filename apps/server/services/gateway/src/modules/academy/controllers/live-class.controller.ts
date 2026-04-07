@@ -53,7 +53,6 @@ export class LiveClassController {
     const requester = req.requester;
     const perms = requester?.permissions || [];
     const isGlobalAcademicManager =
-      perms.includes('*') ||
       perms.includes('lms.delivery.approve') ||
       perms.includes('lms.catalog.approve') ||
       perms.includes('lms.commerce.approve') ||
@@ -140,9 +139,7 @@ export class LiveClassController {
     @Req() req: ReqWithRequester,
   ) {
     const requester = req.requester;
-    const hasReadPerm =
-      requester.permissions?.includes('lms.delivery.read') ||
-      requester.permissions?.includes('*');
+    const hasReadPerm = requester.permissions?.includes('lms.delivery.read');
 
     if (!hasReadPerm) {
       // Nếu user không có quyền đọc trực tiếp thì cần check enrollment theo đúng loại:

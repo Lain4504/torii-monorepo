@@ -1666,19 +1666,21 @@ export class LiveScheduleService {
     instructorId?: string | null,
   ) {
     const perms = await this.getPermissionsByUserId(requesterId);
-    const isStaffOrAdmin = perms.some((p) =>
-      [
-        '*',
-        'academy.delivery.approve',
-        'academy.delivery.write',
-        'live_class.manage',
-        'schedule.view',
-      ].includes(p),
-    );
+    const isTeachingOnly =
+      perms.includes('lms.assessment.grade') &&
+      !perms.some((p) =>
+        [
+          'lms.approval.manage',
+          'lms.catalog.approve',
+          'lms.delivery.approve',
+          'lms.commerce.approve',
+          'ops.user.manage',
+        ].includes(p),
+      );
     const isPrimaryTeacher = instructorId === requesterId;
-    if (!isStaffOrAdmin && !isPrimaryTeacher) {
+    if (!isTeachingOnly || !isPrimaryTeacher) {
       throw new BadRequestException(
-        'Only primary teacher or authorized staff can create schedule requests',
+        'Only assigned teaching lecturer can create reschedule requests for their own class',
       );
     }
   }
@@ -1697,7 +1699,7 @@ export class LiveScheduleService {
       const isPrimaryTeacher = schedule.liveClass.instructorId === userId;
       const perms = await this.getPermissionsByUserId(userId);
       const isAdminOverride = perms.some((p) =>
-        ['*', 'academy.delivery.approve', 'live_class.manage', 'schedule.view'].includes(
+        ['lms.delivery.approve', 'lms.delivery.manage'].includes(
           p,
         ),
       );

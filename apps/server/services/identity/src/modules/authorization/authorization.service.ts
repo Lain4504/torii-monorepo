@@ -78,11 +78,6 @@ export class AuthorizationService implements IAuthorizationService {
   ): Promise<boolean> {
     const { permissions } = await this.getUserPermissions(userId, userRole);
 
-    // Check for wildcard permission
-    if (permissions.includes('*')) {
-      return true;
-    }
-
     return permissions.includes(permissionCode);
   }
 
@@ -116,7 +111,6 @@ export class AuthorizationService implements IAuthorizationService {
 
     // Validate all permissions exist in config
     for (const permCode of permissionCodes) {
-      if (permCode === '*') continue; // Allow wildcard
       if (!this.authorizationConfig.isValidPermission(permCode)) {
         throw new Error(
           `Permission ${permCode} not found in authorization config`,
@@ -133,7 +127,7 @@ export class AuthorizationService implements IAuthorizationService {
     });
 
     // Insert new permissions
-    if (permissionCodes.length > 0 && permissionCodes[0] !== '*') {
+    if (permissionCodes.length > 0) {
       await this.prisma.rolePermission.createMany({
         data: permissionCodes.map((permCode) => ({
           roleCode,

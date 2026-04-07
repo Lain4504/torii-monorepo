@@ -149,9 +149,6 @@ permissions:
 
 role_matrix:
   admin:
-    - "*"
-
-  staff-academic:
     - lms.catalog.read
     - lms.catalog.create
     - lms.catalog.update
@@ -179,6 +176,42 @@ role_matrix:
     - lms.commerce.delete
     - lms.commerce.publish
     - lms.commerce.approve
+    - ops.order.manage
+    - ops.coupon.manage
+    - ops.subscription.manage
+    - ops.support.view
+    - ops.support.handle
+    - ops.blog.manage
+    - ops.gamification.manage
+    - ops.audit.view
+    - ops.report.view
+    - ops.user.view
+    - ops.user.manage
+
+  staff-academic:
+    - lms.catalog.read
+    - lms.catalog.create
+    - lms.catalog.update
+    - lms.catalog.delete
+    - lms.catalog.publish
+    - lms.delivery.read
+    - lms.delivery.create
+    - lms.delivery.update
+    - lms.delivery.delete
+    - lms.delivery.manage
+    - lms.delivery.attendance.manage
+    - lms.assessment.read
+    - lms.assessment.create
+    - lms.assessment.update
+    - lms.assessment.delete
+    - lms.assessment.publish
+    - lms.assessment.grade
+    - lms.approval.read
+    - lms.commerce.read
+    - lms.commerce.create
+    - lms.commerce.update
+    - lms.commerce.delete
+    - lms.commerce.publish
     - ops.report.view
     - ops.user.view
 
@@ -186,7 +219,6 @@ role_matrix:
     - lms.catalog.read
     - lms.delivery.read
     - lms.commerce.read
-    - lms.commerce.approve
     - lms.approval.read
     - ops.order.manage
     - ops.coupon.manage

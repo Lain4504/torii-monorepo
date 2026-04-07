@@ -119,12 +119,6 @@ export class AuthorizationSeederService implements OnModuleInit {
         const uniquePerms = Array.from(new Set(permissions));
 
         for (const permCode of uniquePerms) {
-          // Skip wildcard - handled separately in permission checking
-          // Wildcard permission is now allowed to be seeded
-          if (permCode === '*') {
-            this.logger.log(`  ⚡ Seeding wildcard for ${roleCode}`);
-          }
-
           await this.prisma.rolePermission.create({
             data: {
               roleCode,
@@ -134,7 +128,7 @@ export class AuthorizationSeederService implements OnModuleInit {
           seededCount++;
         }
         this.logger.log(
-          `  ✅ Seeded ${uniquePerms.filter((p) => p !== '*').length} permissions for ${roleCode}`,
+          `  ✅ Seeded ${uniquePerms.length} permissions for ${roleCode}`,
         );
       }
 
@@ -165,8 +159,6 @@ export class AuthorizationSeederService implements OnModuleInit {
         // Add new permissions
         const uniquePerms = Array.from(new Set(permissions));
         for (const permCode of uniquePerms) {
-          // if (permCode === '*') continue; // Allow wildcard
-
           // Upsert to ensure it exists
           // We use createMany with skipDuplicates usually, but here we
           // want specific role checks. Using upsert for safety.
@@ -191,10 +183,7 @@ export class AuthorizationSeederService implements OnModuleInit {
       // Remove permissions that are no longer in registry (no backward compatibility)
       const deleted = await this.prisma.rolePermission.deleteMany({
         where: {
-          AND: [
-            { permissionCode: { not: '*' } },
-            { permissionCode: { notIn: Array.from(validPermissionSet) } },
-          ],
+          permissionCode: { notIn: Array.from(validPermissionSet) },
         },
       });
 

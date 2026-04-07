@@ -163,7 +163,7 @@ function App() {
                     <Route path="academy/assessment/questions" element={<AcademyQuestionsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["lms.approval.read", "lms.approval.manage", "lms.catalog.approve", "lms.commerce.approve", "lms.delivery.approve"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.catalog.approve", "lms.commerce.approve", "lms.delivery.approve"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />
                     <Route path="academy/approvals/cohorts/:id" element={<CohortApprovalPreviewPage />} />
                     <Route path="academy/approvals/vod-packages/:id" element={<VodPackageApprovalPreviewPage />} />
@@ -175,10 +175,6 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="ops.coupon.manage" />}>
                     <Route path="coupons" element={<CouponsPage />} />
-                  </Route>
-
-                  <Route element={<RoutePermissionGuard permission="ops.gamification.manage" />}>
-                    <Route path="rewards" element={<RewardsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard anyPermission={["ops.order.manage", "lms.commerce.read"]} />}>

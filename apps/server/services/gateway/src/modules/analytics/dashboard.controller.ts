@@ -50,7 +50,7 @@ export class DashboardController {
   }
 
   @Get('admin')
-  @Permissions('*')
+  @Permissions('lms.approval.manage')
   async getAdminDashboard(): Promise<StandardApiResponse<AdminDashboardResponseDTO>> {
     const data = await this.dashboardService.getAdminDashboard();
     return successResponse(data);
@@ -58,7 +58,7 @@ export class DashboardController {
 
   /** Chỉ block thống kê phiên / hoạt động — payload nhẹ, có thể poll */
   @Get('presence')
-  @Permissions('*')
+  @Permissions('lms.approval.manage')
   async getPresenceStats(): Promise<StandardApiResponse<AdminPresenceStatsDTO>> {
     const data = await this.dashboardService.getPresenceStats();
     return successResponse(data);

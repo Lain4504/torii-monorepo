@@ -79,7 +79,6 @@ export class AuthorizationConfigService {
    * Check if a permission code exists
    */
   isValidPermission(permissionCode: string): boolean {
-    if (permissionCode === '*') return true;
     return this.config.permissions.some((p) => p.code === permissionCode);
   }
 

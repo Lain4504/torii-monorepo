@@ -18,7 +18,7 @@ interface CanProps {
  * Permission-based conditional rendering component
  * 
  * Usage:
- * <Can permission="user.manage">
+ * <Can permission="ops.user.manage">
  *   <CreateUserButton />
  * </Can>
  * 

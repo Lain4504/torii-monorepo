@@ -85,7 +85,6 @@ export default function LoginPage() {
 
       const permissions = (fullUser.permissions || []) as string[];
       const canEnter =
-        permissions.includes('*') ||
         permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
       if (!canEnter) {
         dispatch(setError('Bạn không có quyền truy cập bảng quản trị.'));

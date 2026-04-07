@@ -48,7 +48,7 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Lớp học Live", url: "/academy/live-classes" },
             { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["lms.commerce.read", "lms.commerce.update"] },
             { titleKey: "Duyệt dời lịch học", url: "/academy/live-classes/reschedule-requests", anyPermission: ["lms.delivery.approve"] },
-            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["lms.approval.read", "lms.approval.manage", "lms.catalog.approve", "lms.commerce.approve", "lms.delivery.approve"] },
+            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["lms.catalog.approve", "lms.commerce.approve", "lms.delivery.approve"] },
         ]
     },
     {

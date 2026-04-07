@@ -9,7 +9,7 @@ export function usePermissions() {
     return {
         permissions,
         role,
-        hasWildcard: permissions.includes('*'),
+        hasWildcard: false,
 
         /**
          * Check if user has a specific permission

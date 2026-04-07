@@ -35,9 +35,7 @@ export class BlogController {
   @Get()
   async findAllBlogs(@Query() query: any, @Req() req: ReqWithRequester) {
     const permissions = req.requester?.permissions || [];
-    const hasPrivilege =
-      permissions.includes('*') ||
-      permissions.includes('ops.blog.manage');
+    const hasPrivilege = permissions.includes('ops.blog.manage');
 
     // Only allow showScheduled if user has privilege
     const showScheduled = query.showScheduled === 'true' && hasPrivilege;
@@ -78,9 +76,7 @@ export class BlogController {
     @Req() req: ReqWithRequester,
   ) {
     const permissions = req.requester?.permissions || [];
-    const hasPrivilege =
-      permissions.includes('*') ||
-      permissions.includes('ops.blog.manage');
+    const hasPrivilege = permissions.includes('ops.blog.manage');
 
     try {
       const result = await firstValueFrom(
@@ -99,9 +95,7 @@ export class BlogController {
   @Get(':id')
   async findBlogById(@Param('id') id: string, @Req() req: ReqWithRequester) {
     const permissions = req.requester?.permissions || [];
-    const hasPrivilege =
-      permissions.includes('*') ||
-      permissions.includes('ops.blog.manage');
+    const hasPrivilege = permissions.includes('ops.blog.manage');
 
     try {
       const result = await firstValueFrom(

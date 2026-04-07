@@ -46,9 +46,7 @@ export class LessonController {
     @Req() req: ReqWithRequester,
   ) {
     const requester = req.requester;
-    const hasContentRead =
-      requester.permissions?.includes('lms.catalog.read') ||
-      requester.permissions?.includes('*');
+    const hasContentRead = requester.permissions?.includes('lms.catalog.read');
 
     if (!hasContentRead) {
       if (!query.courseProfileId) {
@@ -83,9 +81,7 @@ export class LessonController {
     @Req() req: ReqWithRequester,
   ) {
     const requester = req.requester;
-    const hasContentRead =
-      requester.permissions?.includes('lms.catalog.read') ||
-      requester.permissions?.includes('*');
+    const hasContentRead = requester.permissions?.includes('lms.catalog.read');
 
     if (!hasContentRead) {
       // Find lesson first to get courseProfileId
