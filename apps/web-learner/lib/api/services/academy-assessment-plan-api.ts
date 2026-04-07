@@ -6,6 +6,7 @@ export type AcademyAssessmentStatus = {
   assessmentId: string
   examId: string
   kind: string
+  isRequired?: boolean
   status: 'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'PASSED' | 'FAILED'
   moduleId?: string
   triggerLessonId?: string

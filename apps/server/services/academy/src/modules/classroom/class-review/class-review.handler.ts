@@ -15,11 +15,14 @@ export class CourseReviewHandler {
 
   // ── Learner ─────────────────────────────────────────────────────────────
 
-  @MessagePattern({ cmd: 'academy.courseReview.listByCohort' })
-  listByCohort(
-    @Payload() data: { cohortId: string; query: ClassReviewQueryDto },
+  @MessagePattern({ cmd: 'academy.courseReview.listByLiveClass' })
+  listByLiveClass(
+    @Payload() data: { liveClassId: string; query: ClassReviewQueryDto },
   ) {
-    return this.reviews.listCourseReviewsByCohort(data.cohortId, data.query);
+    return this.reviews.listCourseReviewsByLiveClass(
+      data.liveClassId,
+      data.query,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.courseReview.listByVodPackage' })

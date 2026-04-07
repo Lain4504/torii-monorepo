@@ -93,7 +93,7 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     const loadReviews = async () => {
         try {
             setLoading(true)
-            const response = await reviewApi.listByClass(course.id, { limit: 10, offset: (page - 1) * 10, status: 'PUBLISHED' })
+            const response = await reviewApi.listByLiveClass(course.id, { limit: 10, offset: (page - 1) * 10, status: 'PUBLISHED' })
             const data = response?.data?.data?.items || []
             const total = response?.data?.data?.total || 0
 

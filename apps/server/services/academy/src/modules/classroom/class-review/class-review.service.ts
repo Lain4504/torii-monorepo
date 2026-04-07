@@ -36,10 +36,11 @@ export class ClassReviewService {
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
-   * List published reviews for a cohort.
+   * List published reviews for a specific LIVE class.
+   * Scope by enrollment.liveClassId to avoid sharing reviews across classes in the same cohort.
    */
-  async listCourseReviewsByCohort(
-    cohortId: string,
+  async listCourseReviewsByLiveClass(
+    liveClassId: string,
     query: ClassReviewQueryDto,
   ) {
     const status = query.status ?? 'PUBLISHED';
@@ -47,8 +48,8 @@ export class ClassReviewService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.courseReview.findMany({
         where: {
-          cohortId,
           status,
+          enrollment: { liveClassId },
         },
         include: {
           user: {
@@ -61,8 +62,8 @@ export class ClassReviewService {
       }),
       this.prisma.courseReview.count({
         where: {
-          cohortId,
           status,
+          enrollment: { liveClassId },
         },
       }),
     ]);
@@ -115,43 +116,6 @@ export class ClassReviewService {
     };
   }
 
-  /**
-   * List published reviews for a class (Legacy helper, keep for now if needed by internal calls).
-   */
-  async listClassReviews(targetId: string, query: ClassReviewQueryDto) {
-    const status = query.status ?? 'PUBLISHED';
-
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.courseReview.findMany({
-        where: {
-          OR: [{ cohortId: targetId }, { vodPackageId: targetId }],
-          status,
-        },
-        include: {
-          user: {
-            select: { id: true, displayName: true, avatarUrl: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: Number(query.limit || 10),
-        skip: Number(query.offset || 0),
-      }),
-      this.prisma.courseReview.count({
-        where: {
-          OR: [{ cohortId: targetId }, { vodPackageId: targetId }],
-          status,
-        },
-      }),
-    ]);
-
-    return {
-      items: items.map((r) => this._maskAnonymous(r)),
-      total,
-      limit: query.limit,
-      offset: query.offset,
-    };
-  }
-
   /** Return all reviews belonging to the current user */
   async listMyReviews(userId: string) {
     const items = await this.prisma.courseReview.findMany({
@@ -160,12 +124,16 @@ export class ClassReviewService {
         user: {
           select: { id: true, displayName: true, avatarUrl: true },
         },
-        cohort: {
+        liveClass: {
           select: {
             id: true,
             name: true,
-            courseProfile: {
-              select: { id: true, title: true, thumbnailUrl: true },
+            cohort: {
+              select: {
+                courseProfile: {
+                  select: { id: true, title: true, thumbnailUrl: true },
+                },
+              },
             },
           },
         },
@@ -184,11 +152,11 @@ export class ClassReviewService {
 
     // Map to unified structure for frontend to simplify UI logic
     return items.map((r) => {
-      const unifiedClass = r.cohort
+      const unifiedClass = r.liveClass
         ? {
-            id: r.cohort.id,
-            name: r.cohort.name,
-            courseProfile: r.cohort.courseProfile,
+            id: r.liveClass.id,
+            name: r.liveClass.name,
+            courseProfile: r.liveClass.cohort?.courseProfile,
           }
         : r.vodPackage
           ? {
@@ -198,7 +166,7 @@ export class ClassReviewService {
             }
           : null;
 
-      const { cohort, vodPackage, ...rest } = r;
+      const { liveClass, vodPackage, ...rest } = r;
       return {
         ...rest,
         class: unifiedClass,
@@ -226,14 +194,14 @@ export class ClassReviewService {
       throw new ForbiddenException('Enrollment does not belong to you');
     }
 
-    // 2. Derive cohortId or vodPackageId from enrollment
-    const cohortId = enrollment.liveClass?.cohortId || null;
+    // 2. Derive liveClassId or vodPackageId from enrollment
+    const liveClassId = enrollment.liveClassId || null;
     const vodPackageId = enrollment.vodPackageId || null;
-    const targetId = (cohortId || vodPackageId) as string;
+    const targetId = (liveClassId || vodPackageId) as string;
 
     if (!targetId) {
       throw new BadRequestException(
-        'Enrollment is not attached to a cohort or vodPackage',
+        'Enrollment is not attached to a liveClass or vodPackage',
       );
     }
 
@@ -242,7 +210,7 @@ export class ClassReviewService {
       status: enrollment.status,
       targetId,
       userId: enrollment.userId,
-      type: vodPackageId ? 'VOD' : 'COHORT',
+      type: vodPackageId ? 'VOD' : 'LIVE_CLASS',
     });
 
     // 3. Ensure no existing review for this enrollment
@@ -262,7 +230,7 @@ export class ClassReviewService {
     // 5. Create review
     const review = await this.prisma.courseReview.create({
       data: {
-        cohortId,
+        liveClassId,
         vodPackageId,
         enrollmentId: dto.enrollmentId,
         userId,
@@ -280,7 +248,7 @@ export class ClassReviewService {
       await this.gamification
         .trackActivity(userId, ActivityType.REVIEW, {
           reviewId: review.id,
-          targetId: cohortId || vodPackageId,
+          targetId: liveClassId || vodPackageId,
           enrollmentId: dto.enrollmentId,
           rating: dto.rating,
         })
@@ -360,7 +328,8 @@ export class ClassReviewService {
 
   async adminListReviews(query: ClassReviewAdminQueryDto) {
     const where: any = {};
-    if (query.classId) where.classId = query.classId;
+    if (query.liveClassId) where.liveClassId = query.liveClassId;
+    if (query.vodPackageId) where.vodPackageId = query.vodPackageId;
     if (query.userId) where.userId = query.userId;
     if (query.status) where.status = query.status;
     if (query.rating) where.rating = query.rating;
@@ -375,11 +344,11 @@ export class ClassReviewService {
         where,
         include: {
           user: { select: { id: true, displayName: true, email: true } },
-          cohort: {
+          liveClass: {
             select: {
               id: true,
               name: true,
-              courseProfileId: true,
+              cohortId: true,
             },
           },
           vodPackage: {
@@ -438,7 +407,7 @@ export class ClassReviewService {
       await this.gamification
         .trackActivity(review.userId, ActivityType.REVIEW, {
           reviewId: review.id,
-          targetId: review.cohortId || review.vodPackageId,
+          targetId: review.liveClassId || review.vodPackageId,
           enrollmentId: review.enrollmentId,
           rating: review.rating,
         })
@@ -476,7 +445,7 @@ export class ClassReviewService {
     status: string;
     targetId: string;
     userId: string;
-    type: 'VOD' | 'COHORT';
+    type: 'VOD' | 'LIVE_CLASS';
   }) {
     const VALID_STATUSES = ['ACTIVE', 'COMPLETED'];
 
@@ -509,7 +478,7 @@ export class ClassReviewService {
         module: {
           courseProfile: {
             OR: [
-              { cohorts: { some: { id: targetId } } },
+              { cohorts: { some: { liveClasses: { some: { id: targetId } } } } },
               { vodPackages: { some: { id: targetId } } },
             ],
           },
@@ -523,7 +492,7 @@ export class ClassReviewService {
         userId,
         enrollment: {
           OR: [
-            { liveClass: { cohortId: targetId } },
+            { liveClassId: targetId },
             { vodPackageId: targetId },
           ],
         },

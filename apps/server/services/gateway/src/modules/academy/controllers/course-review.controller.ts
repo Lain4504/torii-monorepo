@@ -39,15 +39,15 @@ export class CourseReviewController {
 
   // ── Public routes ──────────────────────────────────────────────────────────
 
-  @Get('cohorts/:cohortId')
-  async listByCohort(
-    @Param('cohortId', new ParseUUIDPipe()) cohortId: string,
+  @Get('live-classes/:liveClassId')
+  async listByLiveClass(
+    @Param('liveClassId', new ParseUUIDPipe()) liveClassId: string,
     @Query(new ZodValidationPipe(academyCourseReviewQueryDTOSchema)) query: any,
   ) {
     const result = await firstValueFrom(
       this.nats.send(
-        { cmd: 'academy.courseReview.listByCohort' },
-        { cohortId, query },
+        { cmd: 'academy.courseReview.listByLiveClass' },
+        { liveClassId, query },
       ),
     );
     return successResponse(result);

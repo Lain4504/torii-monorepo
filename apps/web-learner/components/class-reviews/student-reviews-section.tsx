@@ -11,7 +11,7 @@ import { Button } from "@workspace/ui/components/button"
 
 export function StudentReviewsSection({ classId }: { classId: string }) {
     const [limit, setLimit] = useState(5)
-    const { data, isLoading } = academyClassReviewHooks.useListByClass(classId, { limit, offset: 0, status: "PUBLISHED" })
+    const { data, isLoading } = academyClassReviewHooks.useListByLiveClass(classId, { limit, offset: 0, status: "PUBLISHED" })
 
     const reviews = data?.data?.data?.items || []
     const total = data?.data?.data?.total || 0

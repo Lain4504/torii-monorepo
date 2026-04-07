@@ -54,7 +54,7 @@ export const getReviewsColumns = ({
             {title}
           </span>
           <div className="flex flex-wrap items-center gap-1.5">
-            {r.cohortId ? (
+            {r.liveClassId ? (
               <Badge variant="outline" className="text-[10px] font-semibold px-1.5 py-0">
                 Live
               </Badge>

@@ -29,7 +29,6 @@ export function ClassReviewDialog({
     isOpen,
     setIsOpen,
     targetId,
-    targetType,
     enrollmentId,
     courseTitle,
     existingReview,
@@ -37,7 +36,6 @@ export function ClassReviewDialog({
     isOpen: boolean
     setIsOpen: (o: boolean) => void
     targetId: string
-    targetType: 'COHORT' | 'VOD'
     enrollmentId: string
     courseTitle: string
     existingReview?: any
@@ -85,7 +83,7 @@ export function ClassReviewDialog({
                 await updateMutation.mutateAsync({ id: existingReview.id, dto: data })
                 toast.success("Đã cập nhật đánh giá thành công!")
             } else {
-                await createMutation.mutateAsync({ targetId, targetType, dto: data })
+                await createMutation.mutateAsync({ targetId, dto: data })
                 toast.success("Cảm ơn bạn đã gửi đánh giá! Bạn nhận được 50 điểm.")
             }
             setIsOpen(false)

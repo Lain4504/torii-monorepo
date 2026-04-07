@@ -39,7 +39,7 @@ export type AcademyCourseReviewQueryDTO = z.infer<
 // ── Admin query ──────────────────────────────────────────────────────────────
 
 export const academyCourseReviewAdminQueryDTOSchema = z.object({
-    cohortId: z.string().uuid().optional(),
+    liveClassId: z.string().uuid().optional(),
     vodPackageId: z.string().uuid().optional(),
     userId: z.string().uuid().optional(),
     status: z.string().optional(),

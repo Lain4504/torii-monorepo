@@ -15,8 +15,9 @@ export interface ClassReview {
     createdAt: string;
     updatedAt: string;
     publishedAt?: string;
-    cohortId?: string | null;
+    liveClassId?: string | null;
     vodPackageId?: string | null;
+    enrollmentId?: string | null;
     user: {
         id: string | null;
         displayName: string;
@@ -47,13 +48,13 @@ interface ClassReviewMyListResponse {
 }
 
 export const academyClassReviewsClient = {
-    /** Public: List reviews for a class */
-    listByClass: async (
-        cohortId: string,
+    /** Public: List reviews for a specific LIVE class */
+    listByLiveClass: async (
+        liveClassId: string,
         query?: AcademyCourseReviewQueryDTO,
     ) => {
         return apiClient.get<ClassReviewListResponse>(
-            `/api/academy/reviews/cohorts/${cohortId}`,
+            `/api/academy/reviews/live-classes/${liveClassId}`,
             { params: query },
         );
     },
@@ -101,11 +102,11 @@ export const academyClassReviewsClient = {
 };
 
 export const academyClassReviewHooks = {
-    useListByClass: (classId: string, query?: AcademyCourseReviewQueryDTO) => {
+    useListByLiveClass: (liveClassId: string, query?: AcademyCourseReviewQueryDTO) => {
         return useQuery({
-            queryKey: ['class-reviews', classId, query],
-            queryFn: () => academyClassReviewsClient.listByClass(classId, query),
-            enabled: !!classId,
+            queryKey: ['class-reviews', liveClassId, query],
+            queryFn: () => academyClassReviewsClient.listByLiveClass(liveClassId, query),
+            enabled: !!liveClassId,
         });
     },
 
@@ -127,13 +128,8 @@ export const academyClassReviewHooks = {
     useCreateReview: () => {
         const qc = useQueryClient();
         return useMutation({
-            mutationFn: ({ targetId, targetType, dto }: { targetId: string; targetType: 'COHORT' | 'VOD'; dto: AcademyCourseReviewCreateDTO }) => {
-                const payload = {
-                    ...dto,
-                    cohortId: targetType === 'COHORT' ? targetId : undefined,
-                    vodPackageId: targetType === 'VOD' ? targetId : undefined
-                };
-                return apiClient.post<{ data: ClassReview }>('/api/academy/reviews', payload);
+            mutationFn: ({ targetId, dto }: { targetId: string; dto: AcademyCourseReviewCreateDTO }) => {
+                return apiClient.post<{ data: ClassReview }>('/api/academy/reviews', dto);
             },
             onSuccess: (_, variables) => {
                 qc.invalidateQueries({ queryKey: ['class-reviews', variables.targetId] });

@@ -60,8 +60,8 @@ export default function ClassCatalogDetailPage() {
   const isLIVE = mode === 'LIVE' || klass?.mode === 'LIVE'
   const isVOD = mode === 'VOD' || klass?.mode === 'VOD'
 
-  const cohortId = klass?.cohortId || klass?.cohort?.id || '';
-  const { data: liveReviewsResponse } = academyClassReviewHooks.useListByClass(cohortId, { limit: 10, offset: 0 })
+  const liveClassId = classId || '';
+  const { data: liveReviewsResponse } = academyClassReviewHooks.useListByLiveClass(liveClassId, { limit: 10, offset: 0 })
   const { data: vodReviewsResponse } = academyClassReviewHooks.useListByVodPackage(classId || '', { limit: 10, offset: 0 })
 
   const reviews = isLIVE 

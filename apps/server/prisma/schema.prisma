@@ -1307,9 +1307,6 @@ model Cohort {
   liveClasses   LiveClass[]
   orderItems    OrderItem[]
 
-  // Reviews can be attached at the cohort level generically, though usually handled via enrollment
-  reviews CourseReview[]
-
   @@index([status])
   @@index([courseProfileId])
   @@map("academy_cohorts")
@@ -1342,6 +1339,7 @@ model LiveClass {
   certificates         Certificate[]
   academySharedFolders AcademyFolder[]
   academyExamAttempts  AcademyExamAttempt[]
+  reviews              CourseReview[]
 
   @@index([cohortId])
   @@map("academy_live_classes")
@@ -1634,7 +1632,7 @@ model CourseReview {
   userId       String @map("user_id") @db.Uuid
 
   vodPackageId String? @map("vod_package_id") @db.Uuid
-  cohortId     String? @map("cohort_id") @db.Uuid
+  liveClassId  String? @map("live_class_id") @db.Uuid
 
   rating      Int // 1-5
   title       String?   @db.VarChar(255)
@@ -1648,11 +1646,11 @@ model CourseReview {
   enrollment Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   vodPackage VodPackage? @relation(fields: [vodPackageId], references: [id], onDelete: Cascade)
-  cohort     Cohort?     @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  liveClass  LiveClass?  @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
 
   @@unique([enrollmentId])
   @@index([vodPackageId])
-  @@index([cohortId])
+  @@index([liveClassId])
   @@index([userId])
   @@index([status])
   @@map("academy_course_reviews")

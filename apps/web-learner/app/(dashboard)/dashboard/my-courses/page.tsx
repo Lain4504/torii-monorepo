@@ -48,11 +48,10 @@ export default function MyCoursesPage() {
     const [reviewDialogProps, setReviewDialogProps] = useState<{
         isOpen: boolean;
         targetId: string;
-        targetType: 'COHORT' | 'VOD';
         enrollmentId: string;
         courseTitle: string;
         existingReview?: any;
-    }>({ isOpen: false, targetId: '', targetType: 'COHORT', enrollmentId: '', courseTitle: '' })
+    }>({ isOpen: false, targetId: '', enrollmentId: '', courseTitle: '' })
 
     const { data: respCourses, isLoading: loadingCourses } = useAcademyMyCourses();
     const { data: respStats, isLoading: loadingStats } = useAcademyLearningStats();
@@ -287,20 +286,22 @@ export default function MyCoursesPage() {
                                     })()}
                                     
                                     {course.progress >= 100 && (() => {
-                                        const existingReview = myReviews.find((r: any) =>
-                                            (r.cohortId && r.cohortId === course.cohortId) ||
-                                            (r.vodPackageId && r.vodPackageId === course.vodPackageId)
+                                        const existingReview = myReviews.find(
+                                            (r: any) => r.enrollmentId && r.enrollmentId === course.id,
                                         );
+                                        const reviewTargetId = course.type?.toLowerCase() === 'live'
+                                            ? course.liveClassId
+                                            : course.vodPackageId;
                                         return (
                                             <Button
                                                 variant="outline"
                                                 className="size-11 rounded-2xl p-0 border-border/40 hover:bg-amber-50 hover:border-amber-200 transition-all"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    if (!reviewTargetId) return;
                                                     setReviewDialogProps({
                                                         isOpen: true,
-                                                        targetId: course.cohortId || course.vodPackageId,
-                                                        targetType: course.type?.toLowerCase() === 'live' ? 'COHORT' : 'VOD',
+                                                        targetId: reviewTargetId,
                                                         enrollmentId: course.id,
                                                         courseTitle: course.courseTitle || "",
                                                         existingReview
@@ -343,7 +344,6 @@ export default function MyCoursesPage() {
                 isOpen={reviewDialogProps.isOpen}
                 setIsOpen={(isOpen) => setReviewDialogProps(prev => ({ ...prev, isOpen }))}
                 targetId={reviewDialogProps.targetId}
-                targetType={reviewDialogProps.targetType}
                 enrollmentId={reviewDialogProps.enrollmentId}
                 courseTitle={reviewDialogProps.courseTitle}
                 existingReview={reviewDialogProps.existingReview}

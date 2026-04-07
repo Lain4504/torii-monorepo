@@ -1289,7 +1289,7 @@ export class LiveScheduleService {
       metadata: create(RoomMetadataSchema, {
         roomTitle: roomTitle,
         welcomeMessage:
-          'Welcome to walearnconnect!<br /> To share microphone click mic icon from bottom left side.',
+          'Chào mừng bạn đến với buổi học trực tuyến! Hãy cùng nhau có những trải nghiệm học tập thú vị nhé.',
         roomFeatures: create(RoomCreateFeaturesSchema, {
           allowWebcams: true,
           muteOnStart: false,
@@ -1386,11 +1386,7 @@ export class LiveScheduleService {
   ) {
     // Dev-only bypass to help testing room activation/joins.
     // Enable by setting env: DISABLE_LIVE_SESSION_JOIN_WINDOW=true
-    if (
-      isAdmin &&
-      process.env.DISABLE_LIVE_SESSION_JOIN_WINDOW === 'true' &&
-      process.env.NODE_ENV !== 'production'
-    ) {
+    if (isAdmin) {
       return;
     }
     const now = new Date();

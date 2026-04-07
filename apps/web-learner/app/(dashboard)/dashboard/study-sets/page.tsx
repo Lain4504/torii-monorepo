@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function StudySetsPage() {
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
+        <div className="container mx-auto max-w-6xl space-y-8 px-3 py-4 animate-in fade-in duration-700 sm:px-4 sm:py-6">
             <div className="space-y-4 pb-8 border-b border-border">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                     Thẻ ghi nhớ của tôi

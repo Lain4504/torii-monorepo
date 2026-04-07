@@ -72,7 +72,7 @@ export function ReviewDetailDialog({ open, onOpenChange, review, onRequestRemove
                 />
               ))}
             </div>
-            {review.cohortId ? (
+            {review.liveClassId ? (
               <Badge variant="outline" className="text-[10px] font-semibold">
                 Học Live
               </Badge>

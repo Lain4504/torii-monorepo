@@ -451,6 +451,29 @@ export default function CourseLearnPage() {
         [allLessons],
     );
 
+    const moduleOrderMap = useMemo(() => {
+        const map = new Map<string, number>();
+        sortedModules.forEach((mod: any, idx: number) => {
+            map.set(mod.id, mod.order ?? idx);
+        });
+        return map;
+    }, [sortedModules]);
+
+    const lessonOrderMeta = useMemo(() => {
+        const map = new Map<string, { moduleOrder: number; lessonOrder: number; moduleId: string }>();
+        sortedModules.forEach((mod: any, modIdx: number) => {
+            const moduleOrder = mod.order ?? modIdx;
+            (mod.lessons || []).forEach((lesson: any, lessonIdx: number) => {
+                map.set(lesson.id, {
+                    moduleOrder,
+                    lessonOrder: lesson.order ?? lessonIdx,
+                    moduleId: mod.id,
+                });
+            });
+        });
+        return map;
+    }, [sortedModules]);
+
     const isSequentialUnlocked = useCallback(
         (lesson: CurriculumLesson) => {
             if (!isTrackableLessonKind(lesson.kind)) return true;
@@ -462,9 +485,43 @@ export default function CourseLearnPage() {
         [trackableOrdered, completedIds],
     );
 
+    const hasBlockingRequiredMilestoneBeforeLesson = useCallback(
+        (lesson: CurriculumLesson) => {
+            const lessonMeta = lessonOrderMeta.get(lesson.id);
+            if (!lessonMeta) return false;
+
+            return milestones.some((m: AcademyAssessmentStatus) => {
+                if (!m?.isRequired) return false;
+                if (m.status === 'PASSED') return false;
+
+                if (m.kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
+                    const triggerMeta = lessonOrderMeta.get(m.triggerLessonId);
+                    if (!triggerMeta) return false;
+                    if (triggerMeta.moduleOrder < lessonMeta.moduleOrder) return true;
+                    return (
+                        triggerMeta.moduleId === lessonMeta.moduleId &&
+                        triggerMeta.lessonOrder < lessonMeta.lessonOrder
+                    );
+                }
+
+                if (m.kind === 'MODULE_CHECKPOINT' && m.moduleId) {
+                    const milestoneModuleOrder = moduleOrderMap.get(m.moduleId);
+                    if (milestoneModuleOrder === undefined) return false;
+                    return milestoneModuleOrder < lessonMeta.moduleOrder;
+                }
+
+                return false;
+            });
+        },
+        [lessonOrderMeta, milestones, moduleOrderMap],
+    );
+
     const effectiveLessonUnlocked = useCallback(
-        (lesson: CurriculumLesson) => lesson.isUnlocked && isSequentialUnlocked(lesson),
-        [isSequentialUnlocked],
+        (lesson: CurriculumLesson) =>
+            lesson.isUnlocked &&
+            isSequentialUnlocked(lesson) &&
+            !hasBlockingRequiredMilestoneBeforeLesson(lesson),
+        [hasBlockingRequiredMilestoneBeforeLesson, isSequentialUnlocked],
     );
 
     const currentLessonKind = normalizeItemKind(currentLesson?.kind);

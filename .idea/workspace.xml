@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: refactor course review">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/[setId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/study-sets/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/study/study-sets-list.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -403,30 +406,7 @@
       <workItem from="1775457979530" duration="12811000" />
       <workItem from="1775525032389" duration="8927000" />
       <workItem from="1775540769831" duration="4356000" />
-    </task>
-    <task id="LOCAL-01174" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
-      <option name="closed" value="true" />
-      <created>1775460737879</created>
-      <option name="number" value="01174" />
-      <option name="presentableId" value="LOCAL-01174" />
-      <option name="project" value="LOCAL" />
-      <updated>1775460737879</updated>
-    </task>
-    <task id="LOCAL-01175" summary="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;">
-      <option name="closed" value="true" />
-      <created>1775461221805</created>
-      <option name="number" value="01175" />
-      <option name="presentableId" value="LOCAL-01175" />
-      <option name="project" value="LOCAL" />
-      <updated>1775461221805</updated>
-    </task>
-    <task id="LOCAL-01176" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775461737550</created>
-      <option name="number" value="01176" />
-      <option name="presentableId" value="LOCAL-01176" />
-      <option name="project" value="LOCAL" />
-      <updated>1775461737550</updated>
+      <workItem from="1775547519434" duration="5443000" />
     </task>
     <task id="LOCAL-01177" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -796,7 +776,31 @@
       <option name="project" value="LOCAL" />
       <updated>1775543651340</updated>
     </task>
-    <option name="localTasksCounter" value="1223" />
+    <task id="LOCAL-01223" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
+      <option name="closed" value="true" />
+      <created>1775547842093</created>
+      <option name="number" value="01223" />
+      <option name="presentableId" value="LOCAL-01223" />
+      <option name="project" value="LOCAL" />
+      <updated>1775547842093</updated>
+    </task>
+    <task id="LOCAL-01224" summary="refactor: refactor course review">
+      <option name="closed" value="true" />
+      <created>1775552766033</created>
+      <option name="number" value="01224" />
+      <option name="presentableId" value="LOCAL-01224" />
+      <option name="project" value="LOCAL" />
+      <updated>1775552766033</updated>
+    </task>
+    <task id="LOCAL-01225" summary="refactor: refactor course review">
+      <option name="closed" value="true" />
+      <created>1775555418813</created>
+      <option name="number" value="01225" />
+      <option name="presentableId" value="LOCAL-01225" />
+      <option name="project" value="LOCAL" />
+      <updated>1775555418813</updated>
+    </task>
+    <option name="localTasksCounter" value="1226" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -831,7 +835,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix(breakout): enhance room status handling and improve webhook body processing" />
     <MESSAGE value="feat: add index column to various tables and restrict access to AI subscriptions" />
     <MESSAGE value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
     <MESSAGE value="feat(class-attendance): add join session functionality and alert dialog for lecturers" />
@@ -856,7 +859,8 @@
     <MESSAGE value="feat: enhance class discussion UI with lesson filtering and improved layout" />
     <MESSAGE value="fix: update UI web-leanre responsive for mobile device" />
     <MESSAGE value="feat: introduce AcademyQuestionCategoryType enum and refactor question handling" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: introduce AcademyQuestionCategoryType enum and refactor question handling" />
+    <MESSAGE value="refactor: refactor course review" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: refactor course review" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

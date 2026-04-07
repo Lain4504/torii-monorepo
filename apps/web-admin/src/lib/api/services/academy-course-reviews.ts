@@ -21,7 +21,7 @@ export type AcademyCourseReviewAdminItem = {
         displayName: string;
         avatarUrl?: string | null;
     };
-    cohortId?: string | null;
+    liveClassId?: string | null;
     vodPackageId?: string | null;
 }
 

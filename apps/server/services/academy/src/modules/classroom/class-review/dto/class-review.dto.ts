@@ -25,7 +25,8 @@ export const classReviewQuerySchema = z.object({
 export type ClassReviewQueryDto = z.infer<typeof classReviewQuerySchema>;
 
 export const classReviewAdminQuerySchema = z.object({
-  classId: z.string().uuid().optional(),
+  liveClassId: z.string().uuid().optional(),
+  vodPackageId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.string().optional(),
   rating: z.number().int().min(1).max(5).optional(),

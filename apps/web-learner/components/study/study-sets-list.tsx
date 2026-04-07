@@ -55,17 +55,17 @@ function StudySetCardLink({
         <Link href={href} className="group block">
             <Card
                 className={cn(
-                    'h-full overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md hover:ring-2',
+                    'h-full overflow-hidden rounded-xl border bg-card shadow-none transition-colors hover:bg-muted/40',
                     variant === 'system'
-                        ? 'border-primary/25 hover:ring-primary/20'
+                        ? 'border-primary/25'
                         : variant === 'community'
-                          ? 'border-emerald-500/20 hover:ring-emerald-500/15'
-                          : 'border-border hover:ring-primary/15',
+                          ? 'border-emerald-500/20'
+                          : 'border-border',
                 )}
             >
                 <CardContent className="flex gap-0 p-0">
-                    <div className={cn('w-1 shrink-0', stripe)} aria-hidden />
-                    <div className="flex min-w-0 flex-1 flex-col gap-2 p-3 sm:p-4">
+                    <div className={cn('w-1 shrink-0 self-stretch -my-px', stripe)} aria-hidden />
+                    <div className="flex min-w-0 flex-1 flex-col gap-2 p-3 sm:p-3.5">
                         <div className="flex items-start justify-between gap-2">
                             <p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground group-hover:text-primary">
                                 {set.title}
@@ -197,7 +197,7 @@ export function StudySetsList() {
                     </Dialog>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3 xl:grid-cols-4">
                     {mySetsLoading ? (
                         Array.from({ length: 4 }).map((_, i) => (
                             <div key={i} className="h-28 animate-pulse rounded-xl border border-border bg-muted/20" />
@@ -242,7 +242,7 @@ export function StudySetsList() {
                 </div>
 
                 {publicLoading ? (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3 xl:grid-cols-4">
                         {Array.from({ length: 4 }).map((_, i) => (
                             <div key={i} className="h-28 animate-pulse rounded-xl border border-border bg-muted/20" />
                         ))}
@@ -263,7 +263,7 @@ export function StudySetsList() {
                                     Chưa có bộ thẻ hệ thống phù hợp từ khóa tìm kiếm.
                                 </p>
                             ) : (
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3 xl:grid-cols-4">
                                     {systemSets.map((set) => (
                                         <StudySetCardLink key={set.id} set={set} variant="system" />
                                     ))}
@@ -285,7 +285,7 @@ export function StudySetsList() {
                                     Chưa có bộ thẻ cộng đồng phù hợp từ khóa tìm kiếm.
                                 </p>
                             ) : (
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3 xl:grid-cols-4">
                                     {communitySets.map((set) => (
                                         <StudySetCardLink key={set.id} set={set} variant="community" />
                                     ))}

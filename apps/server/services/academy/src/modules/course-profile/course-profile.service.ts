@@ -229,7 +229,6 @@ export class CourseProfileService {
         status: 'PENDING_APPROVAL',
         submittedForApprovalAt: new Date(),
         submittedBy: requesterId ?? undefined,
-        rejectionReason: null,
       },
     });
 
@@ -266,7 +265,6 @@ export class CourseProfileService {
         status: 'PUBLISHED',
         approvedAt: new Date(),
         approvedBy: requesterId ?? undefined,
-        rejectionReason: null,
       },
     });
 

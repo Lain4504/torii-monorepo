@@ -187,7 +187,7 @@ export default function StudySetDetailPage() {
     };
 
     return (
-        <div className="container mx-auto max-w-5xl space-y-4 px-3 py-4 animate-in fade-in sm:space-y-5 sm:px-4 sm:py-6">
+            <div className="container mx-auto max-w-5xl space-y-4 px-3 py-4 animate-in fade-in sm:space-y-5 sm:px-4 sm:py-6">
             <header className="space-y-3">
                 <Button
                     variant="ghost"
@@ -301,17 +301,17 @@ export default function StudySetDetailPage() {
                     {paginatedCards.length > 0 ? (
                         paginatedCards.map((card) => (
                             <Card key={card.id} className="shadow-none">
-                                <CardContent className="flex flex-col gap-2.5 p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                                <CardContent className="flex flex-col gap-2 p-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3 sm:p-3">
                                     <div className="min-w-0 flex-1 space-y-1">
                                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
-                                            <p className="text-sm font-semibold text-foreground sm:text-base">{card.term}</p>
+                                            <p className="text-sm font-semibold text-foreground">{card.term}</p>
                                             {card.languageDetails?.phonetic && (
-                                                <span className="text-[11px] text-muted-foreground sm:text-xs">
+                                                <span className="text-[11px] text-muted-foreground">
                                                     [{card.languageDetails.phonetic}]
                                                 </span>
                                             )}
                                         </div>
-                                        <p className="text-xs leading-snug text-muted-foreground sm:text-sm">
+                                        <p className="text-xs leading-snug text-muted-foreground">
                                             {card.definition}
                                         </p>
                                         {card.hint && (
@@ -320,29 +320,29 @@ export default function StudySetDetailPage() {
                                     </div>
 
                                     {canCreateCard && (
-                                        <div className="flex w-full shrink-0 justify-end gap-1.5 border-t border-border/60 pt-2 sm:w-auto sm:border-t-0 sm:pt-0">
+                                        <div className="flex w-full shrink-0 justify-end gap-2 border-t border-border/60 pt-2 sm:w-auto sm:border-t-0 sm:pt-0">
                                             <Button
                                                 size="sm"
                                                 variant="outline"
                                                 aria-label="Sửa thẻ"
-                                                className="h-8 flex-1 sm:h-8 sm:w-8 sm:flex-initial sm:shrink-0 sm:px-0"
+                                                className="h-8 flex-1 gap-1.5 px-2.5 sm:flex-initial"
                                                 onClick={() => handleOpenEdit(card)}
                                             >
-                                                <Pencil className="h-3.5 w-3.5 sm:mx-auto" />
-                                                <span className="ml-1.5 sm:sr-only">Sửa</span>
+                                                <Pencil className="h-3.5 w-3.5" />
+                                                Sửa
                                             </Button>
                                             <Button
                                                 size="sm"
                                                 variant="outline"
                                                 aria-label="Xóa thẻ"
-                                                className="h-8 flex-1 border-destructive/30 text-destructive hover:bg-destructive/5 sm:h-8 sm:w-8 sm:flex-initial sm:shrink-0 sm:px-0"
+                                                className="h-8 flex-1 gap-1.5 border-destructive/30 px-2.5 text-destructive hover:bg-destructive/5 sm:flex-initial"
                                                 onClick={() => {
                                                     setDeletingCard(card);
                                                     setOpenDeleteDialog(true);
                                                 }}
                                             >
-                                                <Trash2 className="h-3.5 w-3.5 sm:mx-auto" />
-                                                <span className="ml-1.5 sm:sr-only">Xóa</span>
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                                Xóa
                                             </Button>
                                         </div>
                                     )}
@@ -360,21 +360,21 @@ export default function StudySetDetailPage() {
                     <div className="flex items-center justify-center gap-1 pt-2 sm:gap-2 sm:pt-4">
                         <Button 
                             variant="outline" 
-                            size="icon" 
                             disabled={currentPage === 1} 
                             onClick={() => setPage(1)} 
-                            className="h-8 w-8"
+                            className="h-8 gap-1.5 px-2.5"
                         >
                             <ChevronsLeft className="h-4 w-4" />
+                            Đầu
                         </Button>
                         <Button 
                             variant="outline" 
-                            size="icon" 
                             disabled={currentPage === 1} 
                             onClick={() => setPage(p => Math.max(1, p - 1))} 
-                            className="h-8 w-8"
+                            className="h-8 gap-1.5 px-2.5"
                         >
                             <ChevronLeft className="h-4 w-4" />
+                            Trước
                         </Button>
                         
                         <div className="flex items-center gap-1 text-sm font-medium px-4">
@@ -385,21 +385,21 @@ export default function StudySetDetailPage() {
 
                         <Button 
                             variant="outline" 
-                            size="icon" 
                             disabled={currentPage === totalPages} 
                             onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
-                            className="h-8 w-8"
+                            className="h-8 gap-1.5 px-2.5"
                         >
                             <ChevronRight className="h-4 w-4" />
+                            Sau
                         </Button>
                         <Button 
                             variant="outline" 
-                            size="icon" 
                             disabled={currentPage === totalPages} 
                             onClick={() => setPage(totalPages)} 
-                            className="h-8 w-8"
+                            className="h-8 gap-1.5 px-2.5"
                         >
                             <ChevronsRight className="h-4 w-4" />
+                            Cuối
                         </Button>
                     </div>
                 )}

@@ -18,6 +18,9 @@ export class ExamAttemptService {
 
   async startAttempt(dto: AcademyExamAttemptStartDTO) {
     const { examId, userId, enrollmentId, classId } = dto;
+    if (!userId) {
+      throw new BadRequestException('userId is required');
+    }
 
     // Check exam exists and published
     const exam = await this.prisma.academyExam.findUnique({
@@ -52,7 +55,7 @@ export class ExamAttemptService {
     const created = await this.prisma.academyExamAttempt.create({
       data: {
         examId,
-        userId: userId!,
+        userId,
         enrollmentId,
         classId,
         status: AcademyAttemptStatus.IN_PROGRESS as any,
