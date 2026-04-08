@@ -10,12 +10,16 @@ Tài liệu này hướng dẫn chi tiết cách triển khai Voice Agent tích 
 
 ```
 [Web Learner (Vercel)]
-  → POST /start (HTTPS)
-  → [Nginx Reverse Proxy] /voice-agent/
-  → [Voice Agent Container :8082] (HTTP nội bộ)
+  → [Gateway API] POST /api/agents/livekit-token
   → [LiveKit Cloud] (WebSocket + HTTPS)
+  → [LiveKit Dispatch theo agentName]
+  → [Voice Agent Worker]
   → [Gemini API] (AI)
 ```
+
+> Voice Agent va LiveClass la hai luong LiveKit tach biet:
+> - LiveClass dung `livekit` trong `config.yaml`
+> - Voice Agent dung `livekitRoleplay` trong `config.yaml`
 
 ---
 
@@ -76,6 +80,25 @@ networks:
       com.docker.network.driver.mtu: 1400
 ```
 
+### `apps/server/config/config.yaml` (phần bắt buộc cho Voice Agent)
+
+Gateway cap token voice tu cau hinh `livekitRoleplay`, khong dung `livekit` cua liveclass.
+
+```yaml
+livekitRoleplay:
+  apiUrl: "wss://your-roleplay-project.livekit.cloud"
+  wsUrl: "wss://your-roleplay-project.livekit.cloud"
+  apiKey: "<roleplay_api_key>"
+  apiSecret: "<roleplay_api_secret>"
+```
+
+### Bien `VOICE_AGENT_NAME`
+
+`VOICE_AGENT_NAME` phai giong nhau giua Gateway va Voice Agent worker.
+
+- Gateway doc: `process.env.VOICE_AGENT_NAME || 'torii-voice-agent'`
+- Voice Agent worker dang ky: `agentName: VOICE_AGENT_NAME`
+
 ---
 
 ## 3. Quy trình triển khai từng bước
@@ -104,7 +127,16 @@ LIVEKIT_API_SECRET=your_api_secret
 
 # Port nội bộ của Voice Agent
 PORT=8082
+
+# Ten worker Voice Agent (phai giong Gateway)
+VOICE_AGENT_NAME=torii-voice-agent
 ```
+
+### Bước 1.1: Cấu hình Gateway cho Voice Agent
+
+Cap nhat `apps/server/config/config.yaml` phan `livekitRoleplay` bang project LiveKit danh cho voice agent.
+
+Neu ban dang phan tach ha tang, khong duoc dung credential cua liveclass o day.
 
 ### Bước 2: Build và khởi động Voice Agent
 
@@ -119,6 +151,15 @@ docker compose up -d voice-agent
 
 > **Lưu ý**: Lệnh `--no-cache` đảm bảo Docker cài `ca-certificates` vào image mới, không dùng cache cũ.
 
+### Bước 2.1: Khởi động các service backend cần thiết
+
+Voice flow token-based can Gateway + Agents service + Voice Agent worker + LiveKit.
+
+```bash
+docker compose up -d livekit nats redis postgres
+docker compose up -d gateway agents voice-agent
+```
+
 ### Bước 3: Cấu hình Nginx (Bắt buộc cho HTTPS)
 
 Mở file cấu hình Nginx của domain:
@@ -127,7 +168,11 @@ Mở file cấu hình Nginx của domain:
 sudo nano /etc/nginx/sites-available/api.torii.sbs
 ```
 
-Thêm đoạn sau vào bên trong block `server { listen 443 ssl; ... }`:
+Dam bao route `/api/` proxy ve Gateway (thuong la `127.0.0.1:8080`).
+
+Vi flow moi khong can frontend goi truc tiep `/voice-agent/start`, block `/voice-agent/` chi con phuc vu health/debug va la tuy chon.
+
+Ví dụ block tuỳ chọn cho health/debug:
 
 ```nginx
 location /voice-agent/ {
@@ -153,22 +198,29 @@ sudo nginx -t && sudo systemctl restart nginx
 ### Bước 4: Cấu hình Frontend (Vercel)
 
 1. Vào **Vercel** → Project Settings → **Environment Variables**.
-2. Thêm biến: `NEXT_PUBLIC_VOICE_AGENT_URL` = `https://api.torii.sbs/voice-agent`
-3. Thực hiện **Redeploy** thủ công (không cache) trên Vercel.
+2. Thêm biến: `NEXT_PUBLIC_API_URL` = `https://api.torii.sbs`
+3. (Tuy chon) Thêm `NEXT_PUBLIC_GEMINI_API_KEY` neu muon truyen key theo session.
+4. Thực hiện **Redeploy** thủ công (không cache) trên Vercel.
 
 ---
 
 ## 4. Kiểm tra hệ thống
 
-**Health check:**
+**Health check Voice Agent worker:**
 ```bash
 curl https://api.torii.sbs/voice-agent/health
 # Kết quả đúng: {"status":"ok","agentServer":true}
 ```
 
+**Health check Gateway:**
+```bash
+curl https://api.torii.sbs/health
+```
+
 **Xem log real-time:**
 ```bash
 docker compose logs -f voice-agent
+docker compose logs -f gateway
 ```
 
 **Log khởi động thành công trông như thế này:**
@@ -192,10 +244,11 @@ docker compose ps
 | Lỗi | Nguyên nhân | Giải pháp |
 |-----|------------|-----------|
 | `ConnectError: failed to retrieve region info` | Thiếu `ca-certificates` trong Docker image | Rebuild: `docker compose build voice-agent --no-cache` |
-| `GOOGLE_API_KEY is not set` | `.env` thiếu API key | Thêm `GEMINI_API_KEY` vào `.env` trên VPS |
+| `GOOGLE_API_KEY is not set` | Khong co key global | Co the bo qua neu frontend truyen `gemini_api_key` theo session; neu khong thi them `GEMINI_API_KEY` vao `.env` |
 | `502 Bad Gateway` từ Nginx | Container chưa chạy hoặc sai port | Kiểm tra `docker compose ps` và `PORT=8082` trong `.env` |
 | `runner initialization timed out` | CPU VPS quá tải (load > 0.7) | Đợi vài giây hoặc nâng cấp VPS lên ít nhất 2GB RAM |
-| Agent không vào phòng | Image cũ chưa được rebuild | Chạy lại `docker compose build voice-agent --no-cache` |
+| Agent không vào phòng | Sai `VOICE_AGENT_NAME` giữa Gateway và Voice Agent | Dat cung mot gia tri `VOICE_AGENT_NAME` cho ca hai ben |
+| Frontend khong lay duoc token voice | Sai `livekitRoleplay` trong `config.yaml` hoac sai `NEXT_PUBLIC_API_URL` | Kiem tra lai `apps/server/config/config.yaml` va env Vercel |
 
 ---
 
@@ -210,4 +263,4 @@ docker compose ps
 
 ---
 
-*Tài liệu hướng dẫn triển khai hệ thống Torii Nihongo. Cập nhật lần cuối: 2026-03-19.*
+*Tài liệu hướng dẫn triển khai hệ thống Torii Nihongo. Cập nhật lần cuối: 2026-04-08.*
