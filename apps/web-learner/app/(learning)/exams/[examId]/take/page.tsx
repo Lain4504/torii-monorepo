@@ -74,7 +74,8 @@ export default function TakeExamPage() {
     const { examId } = useParams<{ examId: string }>()
     const searchParams = useSearchParams()
     const userId = useAppSelector((state: RootState) => state.auth.user?.id)
-    const classId = searchParams.get('classId') ?? undefined
+    const liveClassId =
+        searchParams.get('liveClassId') ?? searchParams.get('classId') ?? undefined
     const classAssessmentId = searchParams.get('classAssessmentId') ?? undefined
 
     const [loading, setLoading] = useState(true)
@@ -107,7 +108,7 @@ export default function TakeExamPage() {
                 const attempt = await academyExamsApi.startAttempt({
                     examId,
                     userId,
-                    classId,
+                    liveClassId,
                     assessmentId: classAssessmentId,
                 })
                 setSessionId(attempt.id)
@@ -156,7 +157,7 @@ export default function TakeExamPage() {
         if (examId && userId) {
             loadExam()
         }
-    }, [examId, userId])
+    }, [examId, userId, liveClassId, classAssessmentId])
 
     // Auto-save function
     const autoSave = useCallback(async () => {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { userLoginDTOSchema, type UserLoginDTO, UserRole } from '@workspace/schemas';
+import { userLoginDTOSchema, type UserLoginDTO } from '@workspace/schemas';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks.ts';
 import { login, checkAuth, selectAuthError, selectAuthLoading, setError } from '@/store/slices/auth-slice.ts';
 import { Button } from '@workspace/ui/components/button';
@@ -15,6 +15,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Spinner } from "@workspace/ui/components/spinner";
 import { useLogo } from '@/hooks/useLogo';
+
+const ADMIN_PANEL_ENTRY_PERMISSIONS = [
+  "ops.user.view",
+  "ops.user.manage",
+  "lms.catalog.read",
+  "lms.catalog.create",
+  "lms.catalog.update",
+  "lms.catalog.approve",
+  "lms.delivery.read",
+  "lms.delivery.create",
+  "lms.delivery.update",
+  "lms.delivery.approve",
+  "lms.assessment.read",
+  "lms.assessment.create",
+  "lms.assessment.update",
+  "lms.assessment.grade",
+  "lms.commerce.read",
+  "lms.commerce.create",
+  "lms.commerce.update",
+  "lms.commerce.approve",
+  "ops.order.manage",
+  "ops.coupon.manage",
+  "ops.subscription.manage",
+  "ops.support.view",
+  "ops.support.handle",
+  "ops.audit.view",
+  "ops.report.view",
+  "ops.blog.manage",
+  "ops.gamification.manage",
+];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -53,9 +83,11 @@ export default function LoginPage() {
       // Refresh auth state to get full permissions/profile
       const fullUser = await dispatch(checkAuth()).unwrap();
 
-      // Block learner role
-      if (fullUser.role === UserRole.LEARNER) {
-        dispatch(setError('Học viên không thể truy cập bảng quản trị.'));
+      const permissions = (fullUser.permissions || []) as string[];
+      const canEnter =
+        permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
+      if (!canEnter) {
+        dispatch(setError('Bạn không có quyền truy cập bảng quản trị.'));
         toast.error('Từ chối truy cập: Cổng quản trị bị hạn chế.');
         return;
       }

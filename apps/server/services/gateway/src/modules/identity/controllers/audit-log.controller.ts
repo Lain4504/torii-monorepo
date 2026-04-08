@@ -26,7 +26,7 @@ import {
 
 @Controller('api/admin/audit-logs')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
-@Permissions('audit.view')
+@Permissions('ops.audit.view')
 export class AuditLogController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,

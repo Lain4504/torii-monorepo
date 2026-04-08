@@ -3,29 +3,18 @@
 import Link from 'next/link';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
-import { AlertCircle, Layers, Target, Zap } from 'lucide-react';
+import { Layers, Target, Zap } from 'lucide-react';
 
 interface StudyModeSelectionProps {
     selectedSetId: string | null;
     selectedCount: number;
     activeMode?: 'review' | 'test' | 'match';
-    canAccessLearning?: boolean;
 }
 
-export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, canAccessLearning = true }: StudyModeSelectionProps) {
-    const isDisabled = !canAccessLearning || !selectedSetId || selectedCount === 0;
+export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }: StudyModeSelectionProps) {
+    const isDisabled = !selectedSetId || selectedCount === 0;
     return (
         <section className="w-full space-y-3" data-purpose="study-mode-selection">
-            {!canAccessLearning && (
-                <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
-                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <AlertCircle className="h-3.5 w-3.5" />
-                    </div>
-                    <p className="text-xs leading-snug text-foreground/90">
-                        Chế độ tham quan — đăng nhập để học flashcard, trắc nghiệm và match.
-                    </p>
-                </div>
-            )}
             <div>
                 <h2 className="mb-2 text-sm font-semibold text-foreground sm:text-base">Chế độ học</h2>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
@@ -53,7 +42,6 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
                                 variant="outline"
                                 size="sm"
                                 disabled={isDisabled}
-                                data-requires-auth={!canAccessLearning ? 'true' : undefined}
                                 className="h-9 w-full border-blue-600/40 text-blue-700 hover:bg-blue-500/10 dark:text-blue-400"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/review` : '#'}>
@@ -87,7 +75,6 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
                                 variant="outline"
                                 size="sm"
                                 disabled={isDisabled}
-                                data-requires-auth={!canAccessLearning ? 'true' : undefined}
                                 className="h-9 w-full border-orange-600/40 text-orange-700 hover:bg-orange-500/10 dark:text-orange-400"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/test` : '#'}>
@@ -121,7 +108,6 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode, c
                                 variant="outline"
                                 size="sm"
                                 disabled={isDisabled}
-                                data-requires-auth={!canAccessLearning ? 'true' : undefined}
                                 className="h-9 w-full border-emerald-600/40 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/match` : '#'}>

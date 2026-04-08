@@ -53,7 +53,6 @@ export default function StudySetDetailPage() {
     const { user: currentUser } = useAppSelector((state) => state.auth);
     const isOwner = set?.userId === currentUser?.id;
 
-    const canLearn = isAuthenticated;
     const canCreateCard = isAuthenticated && !isCatalogView && isOwner;
     const createCard = useCreateAcademySetCard();
     const updateCard = useUpdateAcademySetCard();
@@ -253,16 +252,7 @@ export default function StudySetDetailPage() {
             <StudyModeSelection
                 selectedSetId={setId || null}
                 selectedCount={cards.length}
-                canAccessLearning={canLearn}
             />
-
-            {!isAuthenticated && (
-                <div className="rounded-md border bg-muted/40 px-3 py-2.5">
-                    <p className="text-center text-xs leading-snug text-foreground/90 sm:text-sm">
-                        Chế độ xem công khai — đăng nhập để lưu tiến độ học.
-                    </p>
-                </div>
-            )}
 
             <div className="space-y-3 sm:space-y-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

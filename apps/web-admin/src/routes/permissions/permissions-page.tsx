@@ -35,60 +35,62 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog";
+import { RoleAdminSection } from "@/routes/permissions/role-admin-section";
+import { ROLE_NAME_LABELS_VI } from "@/routes/permissions/permission-labels";
 
 const CATEGORY_LABELS_VI: Record<string, string> = {
-    "Academy Content": "Nội dung học tập",
-    "Academy Delivery": "Triển khai lớp học",
-    "Academy Commerce": "Thương mại học tập",
-    "Academy Assessment": "Đánh giá học tập",
-    "Gamification": "Gamification",
-    "Blog": "Bài viết",
-    "Support": "Hỗ trợ",
-    "User Management": "Quản lý người dùng",
-    "Analytics": "Phân tích",
-    "System": "Hệ thống",
-    "Meet": "Lớp học trực tuyến",
-};
-
-const ROLE_NAME_LABELS_VI: Record<string, string> = {
-    admin: "Quản trị hệ thống",
-    "staff-academic": "Nhân sự học vụ",
-    "staff-operations": "Nhân sự vận hành",
-    lecturer: "Giảng viên",
-    learner: "Học viên",
+    "LMS Catalog": "Nội dung học tập",
+    "LMS Delivery": "Triển khai lớp học",
+    "LMS Commerce": "Thương mại học tập",
+    "LMS Assessment": "Đánh giá học tập",
+    "LMS Approval": "Trung tâm phê duyệt",
+    "Operations Commerce": "Vận hành thương mại",
+    "Operations Support": "Hỗ trợ vận hành",
+    "Operations Content": "Nội dung vận hành",
+    "Operations Gamification": "Gamification",
+    "Operations System": "Hệ thống",
+    "Operations Identity": "Quản lý người dùng",
 };
 
 const PERMISSION_DESCRIPTION_VI: Record<string, string> = {
-    "academy.content.read": "Xem thông tin nội dung học tập",
-    "academy.content.write": "Tạo và quản lý nội dung học tập",
-    "academy.content.approve": "Duyệt hoặc từ chối xuất bản nội dung",
-    "academy.delivery.read": "Xem thông tin lớp học và lịch học",
-    "academy.delivery.write": "Quản lý lớp học, lịch học và điểm danh",
-    "academy.delivery.approve": "Duyệt hoặc từ chối yêu cầu vận hành lớp",
-    "academy.commerce.read": "Xem offering và dữ liệu tài chính",
-    "academy.commerce.write": "Quản lý offering và giá bán",
-    "academy.commerce.approve": "Duyệt hoặc từ chối xuất bản offering",
-    "schedule.view": "Xem trạng thái phòng live và lịch sử phòng",
-    "live_class.manage": "Điều khiển phòng live",
-    "academy:order:admin": "Quản trị toàn bộ đơn hàng",
-    "academy:coupon:admin": "Quản trị toàn bộ mã giảm giá",
-    "exam.manage": "Quản lý bài thi và câu hỏi",
-    "submission.grade": "Chấm bài nộp và bài thi",
-    "academy:subscription:admin": "Quản lý gói AI Sensei",
-    "gamification.manage": "Quản lý rewards và cấu hình điểm",
-    "blog.view_restricted": "Xem bài viết nội bộ hoặc bản nháp",
-    "blog.manage": "Quản trị toàn bộ bài viết",
-    "blog.create": "Tạo bài viết mới",
-    "blog.update": "Cập nhật bài viết",
-    "blog.delete": "Xóa bài viết",
-    "blog.publish": "Xuất bản bài viết",
-    "support.view": "Xem yêu cầu hỗ trợ",
-    "support.handle": "Xử lý yêu cầu hỗ trợ",
-    "user.view": "Xem thông tin người dùng",
-    "user.manage": "Quản lý người dùng",
-    "report.view": "Xem báo cáo hệ thống",
-    "audit.view": "Xem nhật ký hệ thống",
-    "system.config": "Cấu hình hệ thống",
+    "lms.catalog.read": "Xem thông tin nội dung học tập",
+    "lms.catalog.create": "Tạo mới nội dung học tập",
+    "lms.catalog.update": "Cập nhật nội dung học tập",
+    "lms.catalog.delete": "Xóa nội dung học tập",
+    "lms.catalog.publish": "Xuất bản nội dung học tập",
+    "lms.catalog.approve": "Duyệt hoặc từ chối xuất bản nội dung",
+    "lms.delivery.read": "Xem lớp học, lịch học và phiên học",
+    "lms.delivery.create": "Tạo lớp học/lịch học/phiên học",
+    "lms.delivery.update": "Cập nhật lớp học/lịch học/phiên học",
+    "lms.delivery.delete": "Xóa lớp học/lịch học/phiên học",
+    "lms.delivery.manage": "Vận hành lớp live",
+    "lms.delivery.attendance.manage": "Quản lý điểm danh",
+    "lms.delivery.approve": "Duyệt yêu cầu vận hành lớp",
+    "lms.assessment.read": "Xem đề thi, câu hỏi, bài nộp",
+    "lms.assessment.create": "Tạo đề thi/câu hỏi",
+    "lms.assessment.update": "Cập nhật đề thi/câu hỏi",
+    "lms.assessment.delete": "Xóa đề thi/câu hỏi",
+    "lms.assessment.publish": "Xuất bản đề thi",
+    "lms.assessment.grade": "Chấm bài nộp",
+    "lms.approval.read": "Xem trung tâm phê duyệt",
+    "lms.approval.manage": "Xử lý duyệt/từ chối",
+    "lms.commerce.read": "Xem offering và giá bán",
+    "lms.commerce.create": "Tạo offering",
+    "lms.commerce.update": "Cập nhật offering",
+    "lms.commerce.delete": "Xóa offering",
+    "lms.commerce.publish": "Xuất bản offering",
+    "lms.commerce.approve": "Duyệt offering",
+    "ops.order.manage": "Quản lý đơn hàng và doanh thu",
+    "ops.coupon.manage": "Quản lý mã giảm giá",
+    "ops.subscription.manage": "Quản lý gói AI",
+    "ops.support.view": "Xem yêu cầu hỗ trợ",
+    "ops.support.handle": "Xử lý yêu cầu hỗ trợ",
+    "ops.blog.manage": "Quản trị blog",
+    "ops.gamification.manage": "Quản lý rewards và thành tích",
+    "ops.audit.view": "Xem nhật ký hệ thống",
+    "ops.report.view": "Xem báo cáo",
+    "ops.user.view": "Xem thông tin người dùng",
+    "ops.user.manage": "Quản lý người dùng và vai trò",
 };
 
 export function PermissionsPage() {
@@ -288,14 +290,20 @@ export function PermissionsPage() {
         <div className="flex flex-col gap-8">
             <PageHeader
                 title="Quản lý Quyền truy cập"
-                subtitle="Kiểm soát quyền truy cập chi tiết hệ thống"
+                subtitle="Chỉ tài khoản có quyền quản trị người dùng (ops.user.manage) — thường là admin — mới vào được trang này."
                 stats={[
                     { label: "Tổng số vai trò", value: roles?.length || 0 }
                 ]}
             />
 
+            <RoleAdminSection roles={roles} />
 
-            {/* Matrix Table */}
+            <div className="space-y-2">
+                <h2 className="text-lg font-semibold tracking-tight">Ma trận quyền theo vai trò</h2>
+                <p className="text-sm text-muted-foreground">
+                    Tick ô để gán hoặc gỡ từng permission cho từng vai trò; bấm nút Lưu thay đổi (thanh nổi dưới cùng) khi chỉnh sửa xong.
+                </p>
+            </div>
 
             <div className="rounded-md bg-background border overflow-hidden">
                 <Table>

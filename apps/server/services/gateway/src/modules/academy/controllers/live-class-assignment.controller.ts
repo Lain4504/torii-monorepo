@@ -31,7 +31,7 @@ export class LiveClassAssignmentController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.assessment.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.liveClass.getAssignmentById' }, { id }),
@@ -40,7 +40,7 @@ export class LiveClassAssignmentController {
   }
 
   @Put(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.assessment.create')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyLiveClassAssignmentUpdateDTOSchema))
@@ -59,7 +59,7 @@ export class LiveClassAssignmentController {
   }
 
   @Delete(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.assessment.delete')
   async remove(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,

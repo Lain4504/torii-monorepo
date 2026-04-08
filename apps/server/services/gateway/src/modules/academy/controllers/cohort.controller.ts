@@ -65,7 +65,7 @@ export class CohortController {
   }
 
   @Get()
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async findAll(
     @Query(new ZodValidationPipe(academyCohortQueryDTOSchema))
     query: AcademyCohortQueryDTO,
@@ -77,7 +77,7 @@ export class CohortController {
   }
 
   @Get(':id')
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.cohort.findById' }, { id }),
@@ -86,7 +86,7 @@ export class CohortController {
   }
 
   @Post()
-  @Permissions('academy.commerce.write')
+  @Permissions('lms.commerce.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyCohortCreateDTOSchema))
@@ -103,7 +103,7 @@ export class CohortController {
   }
 
   @Put(':id')
-  @Permissions('academy.commerce.write')
+  @Permissions('lms.commerce.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyCohortUpdateDTOSchema))
@@ -120,7 +120,7 @@ export class CohortController {
   }
 
   @Delete(':id')
-  @Permissions('academy.commerce.write')
+  @Permissions('lms.commerce.delete')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -135,7 +135,7 @@ export class CohortController {
   }
 
   @Get(':id/orders')
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async findOrders(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: any,
@@ -150,7 +150,7 @@ export class CohortController {
   }
 
   @Get(':id/stats')
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async getStats(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send(
@@ -162,7 +162,7 @@ export class CohortController {
   }
 
   @Post(':id/approve')
-  @Permissions('academy.commerce.approve')
+  @Permissions('lms.commerce.approve')
   async approve(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -181,7 +181,7 @@ export class CohortController {
   }
 
   @Post(':id/reject')
-  @Permissions('academy.commerce.approve')
+  @Permissions('lms.commerce.approve')
   async reject(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: { reason: string },

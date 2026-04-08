@@ -162,7 +162,6 @@ export function StudySetsList() {
                             <Button
                                 size="sm"
                                 className="h-10 w-full shrink-0 rounded-xl px-6 font-bold sm:h-9 sm:w-auto"
-                                data-requires-auth="true"
                             >
                                 <Plus className="mr-2 size-4" />
                                 Tạo bộ thẻ

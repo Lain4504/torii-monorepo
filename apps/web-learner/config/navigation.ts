@@ -23,7 +23,6 @@ import {
     Newspaper,
     Folder,
     MonitorPlay,
-    FileText,
 } from 'lucide-react'
 
 export interface NavItem {
@@ -40,7 +39,6 @@ export interface NavItem {
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
     { name: 'Khám phá khóa học', href: '/dashboard/available-courses', icon: BookOpen },
-    { name: 'Bài tập', href: '/dashboard/assignments', icon: FileText },
     { name: 'Blog kiến thức', href: '/dashboard/blogs', icon: Newspaper },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },

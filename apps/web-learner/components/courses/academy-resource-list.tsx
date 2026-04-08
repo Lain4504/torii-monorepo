@@ -9,25 +9,44 @@ import {
     FileArchive,
     FileCode,
     FileImage,
-    Globe
-} from 'lucide-react'
-import { Button } from '@workspace/ui/components/button'
-import { Card, CardContent } from '@workspace/ui/components/card'
-import { Spinner } from '@workspace/ui/components/spinner'
-import { useAcademyFolders, useAcademyResources } from '@/lib/api/services/academy-resource-api'
-import { cn } from '@workspace/ui/lib/utils'
-import {
+    Globe,
     Folder,
     ArrowLeft,
-    ChevronRight,
-    Search
+    Search,
 } from 'lucide-react'
+import { Button } from '@workspace/ui/components/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
+import { Spinner } from '@workspace/ui/components/spinner'
 import { Input } from '@workspace/ui/components/input'
-import { Badge } from '@workspace/ui/components/badge'
+import { Skeleton } from '@workspace/ui/components/skeleton'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table'
+import { useAcademyFolders, useAcademyResources } from '@/lib/api/services/academy-resource-api'
 
 interface AcademyResourceListProps {
     classId: string
     className?: string
+}
+
+function fileIcon(resource: { resourceType: string; title: string }) {
+    const type = resource.resourceType
+    const title = resource.title.toLowerCase()
+    const cls = 'size-4 text-muted-foreground shrink-0'
+
+    if (type === 'LINK') return <Globe className={cls} />
+    if (title.endsWith('.pdf')) return <FileText className={cls} />
+    if (title.endsWith('.zip') || title.endsWith('.rar')) return <FileArchive className={cls} />
+    if (title.endsWith('.jpg') || title.endsWith('.png') || title.endsWith('.jpeg')) return <FileImage className={cls} />
+    if (title.endsWith('.doc') || title.endsWith('.docx')) return <FileIcon className={cls} />
+    if (title.endsWith('.xls') || title.endsWith('.xlsx')) return <FileIcon className={cls} />
+
+    return <FileIcon className={cls} />
 }
 
 export function AcademyResourceList({ classId, className }: AcademyResourceListProps) {
@@ -35,184 +54,173 @@ export function AcademyResourceList({ classId, className }: AcademyResourceListP
     const [searchQuery, setSearchQuery] = useState('')
 
     const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(classId)
-    const { data: resources, isLoading: isLoadingResources, error } = useAcademyResources(activeFolderId || undefined)
+    const { data: resources, isLoading: isLoadingResources } = useAcademyResources(activeFolderId || undefined)
 
-    const activeFolder = folders?.find(f => f.folderId === activeFolderId)
+    const activeFolder = folders?.find((f) => f.folderId === activeFolderId)
 
-    const filteredFolders = folders?.filter(f =>
-        f.folderName.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredFolders = folders?.filter((f) =>
+        f.folderName.toLowerCase().includes(searchQuery.toLowerCase()),
     )
 
-    const isLoading = isLoadingFolders || (activeFolderId && isLoadingResources)
+    const initialLoading = isLoadingFolders && !folders
 
-    if (isLoading && !folders && !resources) {
+    if (initialLoading) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="flex flex-col items-center justify-center gap-3 py-12">
                 <Spinner className="size-8 text-primary" />
-                <p className="text-sm font-medium text-muted-foreground">Đang tải tài liệu học tập...</p>
+                <p className="text-sm text-muted-foreground">Đang tải tài liệu…</p>
             </div>
         )
     }
 
-    const getFileIcon = (resource: any) => {
-        const type = resource.resourceType
-        const title = resource.title.toLowerCase()
-
-        if (type === 'LINK') return <Globe className="size-5 text-blue-500" />
-        if (title.endsWith('.pdf')) return <FileText className="size-5 text-red-500" />
-        if (title.endsWith('.zip') || title.endsWith('.rar')) return <FileArchive className="size-5 text-orange-500" />
-        if (title.endsWith('.jpg') || title.endsWith('.png') || title.endsWith('.jpeg')) return <FileImage className="size-5 text-emerald-500" />
-        if (title.endsWith('.doc') || title.endsWith('.docx')) return <FileIcon className="size-5 text-blue-600" />
-        if (title.endsWith('.xls') || title.endsWith('.xlsx')) return <FileIcon className="size-5 text-emerald-600" />
-
-        return <FileIcon className="size-5 text-zinc-500" />
-    }
-
-    const handleAction = (resource: any) => {
+    const handleOpenResource = (resource: { downloadUrl?: string; externalUrl?: string }) => {
         const url = resource.downloadUrl || resource.externalUrl
-        if (url) {
-            window.open(url, '_blank', 'noopener,noreferrer')
-        }
+        if (url) window.open(url, '_blank', 'noopener,noreferrer')
     }
 
     return (
-        <div className={cn("space-y-6 animate-in fade-in duration-500", className)}>
-            {/* Header / Breadcrumbs */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                    {activeFolderId && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setActiveFolderId(null)}
-                            className="h-8 w-8 rounded-full"
-                        >
+        <div className={className ? className : 'space-y-6'}>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                    {activeFolderId ? (
+                        <Button variant="outline" size="icon" onClick={() => setActiveFolderId(null)} aria-label="Quay lại danh sách thư mục">
                             <ArrowLeft className="size-4" />
                         </Button>
-                    )}
-                    <div className="space-y-0.5">
-                        <h3 className="text-sm font-bold flex items-center gap-2">
-                            <Folder className={cn("size-4", activeFolderId ? "text-primary" : "text-muted-foreground")} />
-                            {activeFolder ? activeFolder.folderName : 'Tất cả thư mục'}
-                        </h3>
-                        {activeFolderId && (
-                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                                {resources?.length || 0} tài liệu
+                    ) : null}
+                    <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">
+                            {activeFolder ? activeFolder.folderName : 'Thư mục tài liệu'}
+                        </p>
+                        {activeFolderId ? (
+                            <p className="text-sm text-muted-foreground">
+                                {resources?.length ?? 0} tệp
                             </p>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Chọn thư mục để xem tài liệu.</p>
                         )}
                     </div>
                 </div>
 
-                {!activeFolderId && folders && folders.length > 0 && (
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                {!activeFolderId && folders && folders.length > 0 ? (
+                    <div className="relative w-full sm:max-w-xs">
+                        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            placeholder="Tìm kiếm thư mục..."
+                            placeholder="Tìm thư mục…"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 h-9 rounded-xl text-xs bg-zinc-50 border-zinc-100"
+                            className="pl-9"
                         />
                     </div>
-                )}
+                ) : null}
             </div>
 
-            {/* Content View */}
             {!activeFolderId ? (
-                /* Folders Grid */
                 filteredFolders && filteredFolders.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredFolders.map((f) => (
                             <Card
                                 key={f.folderId}
-                                className="group cursor-pointer border-zinc-100 hover:border-primary/30 hover:shadow-md transition-all rounded-2xl overflow-hidden"
+                                className="cursor-pointer transition-colors hover:bg-muted/50"
                                 onClick={() => setActiveFolderId(f.folderId)}
                             >
-                                <CardContent className="p-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-3 min-w-0">
-                                        <div className="size-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
-                                            <Folder className="size-5" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h4 className="text-sm font-bold truncate group-hover:text-primary transition-colors">
-                                                {f.folderName}
-                                            </h4>
-                                            <p className="text-[10px] text-muted-foreground font-medium">
-                                                {f.resourceCount || 0} tài liệu
-                                            </p>
+                                <CardHeader className="p-4">
+                                    <div className="flex items-start gap-3">
+                                        <Folder className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                                        <div className="min-w-0 space-y-1">
+                                            <CardTitle className="text-base leading-snug">{f.folderName}</CardTitle>
+                                            <CardDescription>
+                                                {f.resourceCount ?? 0} tài liệu
+                                            </CardDescription>
                                         </div>
                                     </div>
-                                    <ChevronRight className="size-4 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
-                                </CardContent>
+                                </CardHeader>
                             </Card>
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-16 border border-dashed rounded-3xl bg-muted/20 space-y-3">
-                        <div className="size-16 rounded-3xl bg-muted/50 flex items-center justify-center mx-auto">
-                            <Folder className="size-8 text-muted-foreground/20" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-sm font-bold">Không tìm thấy thư mục</p>
-                            <p className="text-xs text-muted-foreground">Lớp học hiện chưa có thư mục tài liệu công khai.</p>
-                        </div>
-                    </div>
+                    <Card>
+                        <CardContent className="flex flex-col items-center gap-2 py-12 text-center">
+                            <Folder className="size-10 text-muted-foreground/50" />
+                            <p className="text-sm font-medium">Chưa có thư mục</p>
+                            <p className="text-sm text-muted-foreground">Lớp chưa chia sẻ thư mục tài liệu.</p>
+                        </CardContent>
+                    </Card>
                 )
-            ) : (
-                /* Resources in Folder */
+            ) : isLoadingResources ? (
                 <div className="space-y-3">
-                    {isLoadingResources ? (
-                        Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="h-16 w-full animate-pulse bg-zinc-50 rounded-2xl" />
-                        ))
-                    ) : resources && resources.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+            ) : resources && resources.length > 0 ? (
+                <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50%]">Tên</TableHead>
+                                <TableHead>Loại</TableHead>
+                                <TableHead className="text-right w-[100px]">Thao tác</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {resources.map((resource) => (
-                                <Card
+                                <TableRow
                                     key={resource.id}
-                                    className="overflow-hidden border-zinc-100 shadow-sm hover:shadow-md transition-all group cursor-pointer rounded-2xl"
-                                    onClick={() => handleAction(resource)}
+                                    className="cursor-pointer"
+                                    onClick={() => handleOpenResource(resource)}
                                 >
-                                    <CardContent className="p-4 flex items-center justify-between gap-4">
-                                        <div className="flex items-center gap-4 min-w-0">
-                                            <div className="size-12 rounded-xl bg-zinc-50 flex items-center justify-center shrink-0 group-hover:bg-zinc-100 transition-colors">
-                                                {getFileIcon(resource)}
-                                            </div>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            {fileIcon(resource)}
                                             <div className="min-w-0">
-                                                <h4 className="font-bold text-sm truncate group-hover:text-primary transition-colors">
-                                                    {resource.title}
-                                                </h4>
-                                                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                                                    {resource.description || (resource.resourceType === 'LINK' ? 'Liên kết ngoài' : 'Tài liệu file')}
-                                                </p>
+                                                <p className="text-sm font-medium truncate">{resource.title}</p>
+                                                {resource.description ? (
+                                                    <p className="text-sm text-muted-foreground line-clamp-1">{resource.description}</p>
+                                                ) : null}
                                             </div>
                                         </div>
+                                    </TableCell>
+                                    <TableCell className="text-sm text-muted-foreground">
+                                        {resource.resourceType === 'LINK' ? 'Liên kết' : 'Tệp'}
+                                    </TableCell>
+                                    <TableCell className="text-right">
                                         <Button
+                                            type="button"
                                             variant="ghost"
-                                            size="icon"
-                                            className="shrink-0 text-zinc-400 group-hover:text-primary transition-colors h-8 w-8 rounded-lg"
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleOpenResource(resource)
+                                            }}
                                         >
                                             {resource.resourceType === 'LINK' ? (
-                                                <ExternalLink className="size-4" />
+                                                <>
+                                                    <ExternalLink className="size-4" />
+                                                    <span className="sr-only">Mở liên kết</span>
+                                                </>
                                             ) : (
-                                                <Download className="size-4" />
+                                                <>
+                                                    <Download className="size-4" />
+                                                    <span className="sr-only">Tải xuống</span>
+                                                </>
                                             )}
                                         </Button>
-                                    </CardContent>
-                                </Card>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-16 border border-dashed rounded-3xl bg-muted/20 space-y-3">
-                            <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
-                                <FileText className="size-6 text-muted-foreground/40" />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="text-sm font-bold">Thư mục trống</p>
-                                <p className="text-xs text-muted-foreground">Hiện chưa có tài liệu nào trong thư mục này.</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                        </TableBody>
+                    </Table>
+                    </CardContent>
+                </Card>
+            ) : (
+                <Card>
+                    <CardContent className="flex flex-col items-center gap-2 py-12 text-center">
+                        <FileText className="size-10 text-muted-foreground/50" />
+                        <p className="text-sm font-medium">Thư mục trống</p>
+                        <p className="text-sm text-muted-foreground">Chưa có tài liệu trong thư mục này.</p>
+                    </CardContent>
+                </Card>
             )}
         </div>
     )

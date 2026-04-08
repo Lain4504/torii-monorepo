@@ -3,11 +3,11 @@
 import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
-import { Award, BookOpen, Clock, Sparkles, ShieldCheck, Signal } from 'lucide-react'
+import { Award, BookOpen, Clock, Sparkles, Signal } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
-import { formatCurrency, formatDate } from '@/utils/format-utils'
+import { formatCurrency } from '@/utils/format-utils'
 
 interface CourseSidebarProps {
     course: AcademyCourseProfileCreateDTO & {
@@ -97,14 +97,9 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                             <div className="flex flex-col gap-3">
                                 {isExpired
                                     ? (
-                                        <Button
-                                            className="w-full h-12 font-bold"
-                                            variant="destructive"
-                                            onClick={handlePurchase}
-                                            disabled={isEnrolling || isLoadingEnrollment}
-                                        >
-                                            Gia hạn khóa học
-                                        </Button>
+                                        <p className="text-center text-sm text-muted-foreground leading-relaxed px-1">
+                                            Khóa học đã hết hạn. Bạn không thể tiếp tục truy cập nội dung học tập.
+                                        </p>
                                     )
                                     : (
                                         <Button

@@ -30,7 +30,6 @@ import {
 } from '@workspace/protocol';
 import { AppConfigService } from '@server/shared';
 import { AuditLoggerService } from '../../audit-logger.service';
-import { isStaffBranchRole, UserRole } from '@workspace/schemas';
 
 @Injectable()
 export class LiveScheduleService {
@@ -187,8 +186,7 @@ export class LiveScheduleService {
       isAdmin,
     );
 
-    const user = await this.getUserById(userId);
-    await this.assertJoinPermission(schedule, userId, isAdmin, user?.role);
+    await this.assertJoinPermission(schedule, userId, isAdmin);
     const roomId = await this.ensureScheduleRoomId(
       schedule.id,
       schedule.roomId,
@@ -244,6 +242,8 @@ export class LiveScheduleService {
     }
 
     // 2) Generate join token with metadata
+    const user = await this.getUserById(userId);
+
     const joinReq = create(GenerateTokenReqSchema, {
       roomId,
       userInfo: create(UserInfoSchema, {
@@ -318,7 +318,6 @@ export class LiveScheduleService {
       isAdmin,
     );
 
-    const user = await this.getUserById(userId);
     // Reuse existing permission logic (class enrollment/role checks) by faking a schedule-like shape.
     await this.assertJoinPermission(
       {
@@ -328,7 +327,6 @@ export class LiveScheduleService {
       } as any,
       userId,
       isAdmin,
-      user?.role,
     );
 
     const roomId = await this.ensureSessionRoomId(sessionId, session.roomId);
@@ -379,6 +377,8 @@ export class LiveScheduleService {
         metadata: { roomId, liveClassId: session.liveClassId },
       });
     }
+
+    const user = await this.getUserById(userId);
 
     const joinReq = create(GenerateTokenReqSchema, {
       roomId,
@@ -966,29 +966,27 @@ export class LiveScheduleService {
 
     const requestedDate = new Date(session.sessionDate);
 
-    if (input.type === 'RESCHEDULE') {
-      if (
-        !input.proposedDate ||
-        !input.proposedStartTime ||
-        !input.proposedEndTime
-      ) {
-        throw new BadRequestException(
-          'RESCHEDULE request must provide proposedDate, proposedStartTime, proposedEndTime',
-        );
-      }
+    if (
+      !input.proposedDate ||
+      !input.proposedStartTime ||
+      !input.proposedEndTime
+    ) {
+      throw new BadRequestException(
+        'Reschedule request must provide proposedDate, proposedStartTime, proposedEndTime',
+      );
+    }
 
-      const preview = await this.previewConflict({
-        classId: session.liveClassId,
-        sessionDate: input.proposedDate,
-        startTime: input.proposedStartTime,
-        endTime: input.proposedEndTime,
-        excludeSessionId: input.sessionId,
-      });
-      if (preview.hasConflict) {
-        throw new BadRequestException(
-          'Proposed reschedule conflicts with existing class/teacher schedules',
-        );
-      }
+    const preview = await this.previewConflict({
+      classId: session.liveClassId,
+      sessionDate: input.proposedDate,
+      startTime: input.proposedStartTime,
+      endTime: input.proposedEndTime,
+      excludeSessionId: input.sessionId,
+    });
+    if (preview.hasConflict) {
+      throw new BadRequestException(
+        'Proposed reschedule conflicts with existing class/teacher schedules',
+      );
     }
 
     const request = await this.prisma.liveScheduleRequest.create({
@@ -996,7 +994,7 @@ export class LiveScheduleService {
         sessionId: input.sessionId,
         liveClassId: session.liveClassId,
         requestedBy: requesterId,
-        type: input.type as any,
+        type: 'RESCHEDULE' as any,
         status: 'PENDING' as any,
         reason: input.reason,
         requestedDate: requestedDate,
@@ -1017,10 +1015,10 @@ export class LiveScheduleService {
       action: 'live_schedule_request.create',
       entity: 'LiveScheduleRequest',
       entityId: request.id,
-      description: `Created ${input.type} request for live session ${input.sessionId}`,
+      description: `Created RESCHEDULE request for live session ${input.sessionId}`,
       metadata: {
         sessionId: input.sessionId,
-        type: input.type,
+        type: 'RESCHEDULE',
         requestedDate: session.sessionDate,
       },
     });
@@ -1076,28 +1074,31 @@ export class LiveScheduleService {
       throw new BadRequestException('Only PENDING request can be approved');
     }
 
-    if (request.type === 'RESCHEDULE') {
-      if (
-        !request.proposedDate ||
-        !request.proposedStartTime ||
-        !request.proposedEndTime
-      ) {
-        throw new BadRequestException(
-          'RESCHEDULE request is missing proposed slot',
-        );
-      }
-      const preview = await this.previewConflict({
-        classId: request.session.liveClassId,
-        sessionDate: request.proposedDate.toISOString().slice(0, 10),
-        startTime: request.proposedStartTime,
-        endTime: request.proposedEndTime,
-        excludeSessionId: request.sessionId,
-      });
-      if (preview.hasConflict) {
-        throw new BadRequestException(
-          'Reschedule request now conflicts with existing schedules',
-        );
-      }
+    if (request.type !== 'RESCHEDULE') {
+      throw new BadRequestException(
+        'Only RESCHEDULE request type is supported',
+      );
+    }
+    if (
+      !request.proposedDate ||
+      !request.proposedStartTime ||
+      !request.proposedEndTime
+    ) {
+      throw new BadRequestException(
+        'RESCHEDULE request is missing proposed slot',
+      );
+    }
+    const preview = await this.previewConflict({
+      classId: request.session.liveClassId,
+      sessionDate: request.proposedDate.toISOString().slice(0, 10),
+      startTime: request.proposedStartTime,
+      endTime: request.proposedEndTime,
+      excludeSessionId: request.sessionId,
+    });
+    if (preview.hasConflict) {
+      throw new BadRequestException(
+        'Reschedule request now conflicts with existing schedules',
+      );
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -1115,73 +1116,60 @@ export class LiveScheduleService {
         );
       }
 
-      if (request.type === 'LEAVE') {
-        await tx.liveScheduleSession.update({
-          where: { id: request.sessionId },
-          data: {
-            status: 'CANCELLED',
-            cancellationReason: request.reason ?? undefined,
-            updatedBy: reviewerId,
-          },
-        });
-      }
+      const oldSessionId = request.sessionId;
+      const newDate = request.proposedDate!;
+      const newStartTime = request.proposedStartTime!;
+      const newEndTime = request.proposedEndTime!;
 
-      if (request.type === 'RESCHEDULE') {
-        const oldSessionId = request.sessionId;
-        const newDate = request.proposedDate!;
-        const newStartTime = request.proposedStartTime!;
-        const newEndTime = request.proposedEndTime!;
-
-        // 1. Create or Update the new session at the proposed slot
-        // Use upsert to handle case where a template session already existed at that slot
-        const newSession = await tx.liveScheduleSession.upsert({
-          where: {
-            liveClassId_sessionDate_startTime_endTime: {
-              liveClassId: request.session.liveClassId,
-              sessionDate: newDate,
-              startTime: newStartTime,
-              endTime: newEndTime,
-            },
-          },
-          create: {
+      // 1. Create or Update the new session at the proposed slot
+      // Use upsert to handle case where a template session already existed at that slot
+      const newSession = await tx.liveScheduleSession.upsert({
+        where: {
+          liveClassId_sessionDate_startTime_endTime: {
             liveClassId: request.session.liveClassId,
             sessionDate: newDate,
             startTime: newStartTime,
             endTime: newEndTime,
-            status: 'SCHEDULED',
-            scheduleId: null, // Dissociate from template so cleanup/generator doesn't touch it
-            roomId: request.session.roomId, // Carry over roomId if possible or create new one
-            instructorId:
-              request.proposedTeacherId ??
-              request.session.instructorId ??
-              undefined,
-            createdBy: reviewerId,
-            updatedBy: reviewerId,
-            note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
           },
-          update: {
-            status: 'SCHEDULED', // Ensure it's active
-            scheduleId: null, // Dissociate
-            instructorId:
-              request.proposedTeacherId ??
-              request.session.instructorId ??
-              undefined,
-            updatedBy: reviewerId,
-            note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
-          },
-        });
+        },
+        create: {
+          liveClassId: request.session.liveClassId,
+          sessionDate: newDate,
+          startTime: newStartTime,
+          endTime: newEndTime,
+          status: 'SCHEDULED',
+          scheduleId: null, // Dissociate from template so cleanup/generator doesn't touch it
+          roomId: request.session.roomId, // Carry over roomId if possible or create new one
+          instructorId:
+            request.proposedTeacherId ??
+            request.session.instructorId ??
+            undefined,
+          createdBy: reviewerId,
+          updatedBy: reviewerId,
+          note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
+        },
+        update: {
+          status: 'SCHEDULED', // Ensure it's active
+          scheduleId: null, // Dissociate
+          instructorId:
+            request.proposedTeacherId ??
+            request.session.instructorId ??
+            undefined,
+          updatedBy: reviewerId,
+          note: `Bù của buổi dời từ ngày ${request.session.sessionDate.toISOString().slice(0, 10)} (${request.session.startTime})`,
+        },
+      });
 
-        // 2. Mark the OLD session as RESCHEDULED to "occupy" the slot and hide it from views
-        await tx.liveScheduleSession.update({
-          where: { id: oldSessionId },
-          data: {
-            status: 'RESCHEDULED',
-            supersededBySessionId: newSession.id,
-            updatedBy: reviewerId,
-            note: `Đã dời sang ngày ${newDate.toISOString().slice(0, 10)} (${newStartTime})`,
-          },
-        });
-      }
+      // 2. Mark the OLD session as RESCHEDULED to "occupy" the slot and hide it from views
+      await tx.liveScheduleSession.update({
+        where: { id: oldSessionId },
+        data: {
+          status: 'RESCHEDULED',
+          supersededBySessionId: newSession.id,
+          updatedBy: reviewerId,
+          note: `Đã dời sang ngày ${newDate.toISOString().slice(0, 10)} (${newStartTime})`,
+        },
+      });
 
       await tx.liveScheduleRequest.update({
         where: { id },
@@ -1665,14 +1653,22 @@ export class LiveScheduleService {
     requesterId: string,
     instructorId?: string | null,
   ) {
-    const user = await this.getUserById(requesterId);
-    const role = String(user?.role || '').toLowerCase();
-    const isStaffOrAdmin =
-      role === UserRole.ADMIN || isStaffBranchRole(user?.role);
+    const perms = await this.getPermissionsByUserId(requesterId);
+    const isTeachingOnly =
+      perms.includes('lms.assessment.grade') &&
+      !perms.some((p) =>
+        [
+          'lms.approval.manage',
+          'lms.catalog.approve',
+          'lms.delivery.approve',
+          'lms.commerce.approve',
+          'ops.user.manage',
+        ].includes(p),
+      );
     const isPrimaryTeacher = instructorId === requesterId;
-    if (!isStaffOrAdmin && !isPrimaryTeacher) {
+    if (!isTeachingOnly || !isPrimaryTeacher) {
       throw new BadRequestException(
-        'Only primary teacher or internal staff (academic/operations) / admin can create schedule requests',
+        'Only assigned teaching lecturer can create reschedule requests for their own class',
       );
     }
   }
@@ -1686,16 +1682,18 @@ export class LiveScheduleService {
     },
     userId: string,
     isAdmin: boolean,
-    userRole?: string,
   ) {
     if (isAdmin) {
       const isPrimaryTeacher = schedule.liveClass.instructorId === userId;
-      const ur = String(userRole || '');
-      const isAdminOverride =
-        ur.toLowerCase() === UserRole.ADMIN || isStaffBranchRole(ur);
+      const perms = await this.getPermissionsByUserId(userId);
+      const isAdminOverride = perms.some((p) =>
+        ['lms.delivery.approve', 'lms.delivery.manage'].includes(
+          p,
+        ),
+      );
       if (!isPrimaryTeacher && !isAdminOverride) {
         throw new BadRequestException(
-          'Only assigned lecturer or admin / internal staff (academic/operations) can start this live room.',
+          'Only assigned lecturer or authorized staff can start this live room.',
         );
       }
       return;
@@ -1721,6 +1719,16 @@ export class LiveScheduleService {
       this.nats.send({ cmd: 'identity.users.findById' }, { id: userId }),
     ).catch(() => null);
     return userRes?.user;
+  }
+
+  private async getPermissionsByUserId(userId: string): Promise<string[]> {
+    const res = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'identity.authz.getUserPermissionsByUserId' },
+        { userId },
+      ),
+    ).catch(() => null);
+    return (res?.permissions as string[]) || [];
   }
 
   private async ensureScheduleRoomId(

@@ -17,7 +17,10 @@ export class ExamAttemptService {
   ) {}
 
   async startAttempt(dto: AcademyExamAttemptStartDTO) {
-    const { examId, userId, enrollmentId, classId } = dto;
+    const startDto = dto as AcademyExamAttemptStartDTO & {
+      liveClassId?: string;
+    };
+    const { examId, userId, enrollmentId, liveClassId } = startDto;
     if (!userId) {
       throw new BadRequestException('userId is required');
     }
@@ -52,12 +55,55 @@ export class ExamAttemptService {
     });
     if (existing) return this.attachComputedFields(existing);
 
+    let resolvedClassId: string | null = liveClassId ?? null;
+
+    // Resolve class scope from enrollment to avoid sending VOD package id into class FK.
+    if (enrollmentId) {
+      const enrollment = await this.prisma.enrollment.findUnique({
+        where: { id: enrollmentId },
+        select: {
+          id: true,
+          userId: true,
+          liveClassId: true,
+          vodPackageId: true,
+        },
+      });
+      if (!enrollment) {
+        throw new NotFoundException('Enrollment not found');
+      }
+      if (enrollment.userId !== userId) {
+        throw new BadRequestException(
+          'Enrollment does not belong to current user',
+        );
+      }
+
+      // LIVE enrollment -> classId must follow enrollment.liveClassId
+      if (enrollment.liveClassId) {
+        resolvedClassId = enrollment.liveClassId;
+      } else {
+        // VOD enrollment -> exam attempt should not bind to class FK
+        resolvedClassId = null;
+      }
+    }
+
+    if (resolvedClassId) {
+      const liveClassExists = await this.prisma.liveClass.findUnique({
+        where: { id: resolvedClassId },
+        select: { id: true },
+      });
+      if (!liveClassExists) {
+        throw new BadRequestException(
+          'classId is invalid. Only LIVE class id is accepted.',
+        );
+      }
+    }
+
     const created = await this.prisma.academyExamAttempt.create({
       data: {
         examId,
         userId,
         enrollmentId,
-        classId,
+        classId: resolvedClassId,
         status: AcademyAttemptStatus.IN_PROGRESS as any,
       },
       include: { exam: true },

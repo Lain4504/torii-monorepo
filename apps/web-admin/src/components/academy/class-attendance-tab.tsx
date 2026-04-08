@@ -20,7 +20,7 @@ import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
 import { ClassRescheduleRequestSheet } from "@/components/academy/class-reschedule-request-sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
+import { usePermissions } from "@/hooks/use-permissions"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { toast } from "sonner"
 import {
@@ -62,9 +62,27 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
     const fromDate = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString().split("T")[0]
     const toDate = new Date(now.getFullYear(), now.getMonth() + 12, 1).toISOString().split("T")[0]
 
-    const { user } = useAuth()
-    const isLecturer = user?.role === UserRole.LECTURER
-    const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
+    useAuth()
+    const { canAny, hasWildcard } = usePermissions()
+    const isLecturer =
+        canAny(["lms.assessment.grade"]) &&
+        !canAny([
+            "lms.catalog.update",
+            "lms.catalog.approve",
+            "lms.delivery.approve",
+            "lms.commerce.update",
+            "lms.commerce.approve",
+            "ops.user.manage",
+            "ops.order.manage",
+            "ops.coupon.manage",
+        ]) &&
+        !hasWildcard
+    const isStaffOrAdmin = hasWildcard || canAny([
+        "lms.delivery.approve",
+        "lms.catalog.update",
+        "lms.commerce.update",
+        "ops.user.manage",
+    ])
 
     const { data: fetchedClass } = useAcademyLiveClass(propAcademyClass ? undefined : classId)
     const academyClass = propAcademyClass || fetchedClass
@@ -234,7 +252,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                         </TabsTrigger>
                         <TabsTrigger value="requests" className="gap-2">
                             <CalendarSync className="size-4" />
-                            Yêu cầu dời lịch / Nghỉ
+                            Yêu cầu dời lịch nghỉ
                         </TabsTrigger>
                         {isStaffOrAdmin && (
                             <TabsTrigger value="schedule" className="gap-2">
@@ -248,7 +266,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                         <Badge variant="outline" className="font-mono text-[10px] px-2.5 py-0.5 bg-background border-primary/30 text-primary uppercase tracking-tighter shadow-sm">
                             {academyClass?.code}
                         </Badge>
-                        <Badge variant="secondary" className="flex items-center gap-1.5 px-2.5 py-0.5 font-bold bg-primary/10 text-primary border-primary/20 border">
+                        <Badge variant="secondary" className="flex items-center gap-1.5 px-2.5 py-0.5 font-medium bg-primary/10 text-primary border-primary/20 border">
                             <Video className="size-3" />
                             {academyClass?.mode}
                         </Badge>
@@ -264,11 +282,11 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                         <div className="p-2 bg-primary/10 rounded-xl shadow-inner border border-primary/20">
                                             <Calendar className="size-4 text-primary" />
                                         </div>
-                                        <CardTitle className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                        <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                             Danh sách buổi học
                                         </CardTitle>
                                     </div>
-                                    <Badge variant="outline" className="text-[10px] bg-primary/5 border-primary/20 text-primary font-bold">{sessions.length} buổi</Badge>
+                                    <Badge variant="outline" className="text-[10px] bg-primary/5 border-primary/20 text-primary font-medium">{sessions.length} buổi</Badge>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 overflow-hidden">
@@ -286,12 +304,12 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex flex-col gap-2">
                                                         <span className={cn(
-                                                            "font-bold text-sm tracking-tight leading-none",
+                                                            "font-medium text-sm tracking-tight leading-none",
                                                             selectedSessionId === s.id ? "text-primary" : "text-foreground"
                                                         )}>
                                                             {formatDateLabel(s.sessionDate)}
                                                         </span>
-                                                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-black bg-muted/40 w-fit px-2.5 py-1 rounded-full border border-muted/30">
+                                                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium bg-muted/40 w-fit px-2.5 py-1 rounded-full border border-muted/30">
                                                             <Clock className="h-3 w-3 text-primary opacity-60" /> {s.startTime} - {s.endTime}
                                                         </div>
                                                     </div>
@@ -316,7 +334,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all text-primary hover:bg-primary/20 hover:scale-110 active:scale-95 rounded-full"
+                                                            className="h-8 w-8 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all text-primary hover:bg-primary/20 hover:scale-110 active:scale-95 rounded-full"
                                                             onClick={(e) => {
                                                                 e.stopPropagation()
                                                                 setSelectedSessionForReschedule(s)
@@ -343,13 +361,13 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                             <CardHeader className="pb-3 border-b bg-muted/30 shrink-0 px-6">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="space-y-1">
-                                        <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <CardTitle className="text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
                                             <div className="p-1.5 bg-emerald-100 rounded-md">
                                                 <CheckCircle2 className="size-4 text-emerald-600" />
                                             </div>
                                             Ghi nhận điểm danh
                                         </CardTitle>
-                                        <CardDescription className="text-xs font-medium">
+                                        <CardDescription className="text-xs">
                                             {!selectedSessionId
                                                 ? "Vui lòng chọn một buổi học từ danh sách bên trái để thực hiện ghi nhận."
                                                 : `Phiên học đang ghi nhận cho ${activeEnrollments.length} học viên chính thức.`}
@@ -364,7 +382,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                             <Calendar className="h-10 w-10 opacity-20" />
                                         </div>
                                         <div className="space-y-1 max-w-[280px]">
-                                            <p className="font-bold text-foreground">Chưa chọn buổi học</p>
+                                            <p className="font-medium text-foreground">Chưa chọn buổi học</p>
                                             <p className="text-xs italic leading-relaxed">Hãy chọn một ngày học từ danh sách để xem danh sách học viên và thực hiện điểm danh.</p>
                                         </div>
                                     </div>
@@ -374,9 +392,9 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                             <Table>
                                                 <TableHeader className="bg-muted/50 sticky top-0 z-10">
                                                     <TableRow>
-                                                        <TableHead className="pl-6 py-4 text-xs font-bold uppercase tracking-wider">Học viên</TableHead>
-                                                        <TableHead className="w-[200px] py-4 text-xs font-bold uppercase tracking-wider">Ghi nhận trạng thái</TableHead>
-                                                        <TableHead className="w-[80px] pr-6 py-4 text-center text-xs font-bold uppercase tracking-wider">Kết quả</TableHead>
+                                                        <TableHead className="pl-6 py-4 text-xs font-semibold uppercase tracking-wide">Học viên</TableHead>
+                                                        <TableHead className="w-[200px] py-4 text-xs font-semibold uppercase tracking-wide">Ghi nhận trạng thái</TableHead>
+                                                        <TableHead className="w-[80px] pr-6 py-4 text-center text-xs font-semibold uppercase tracking-wide">Kết quả</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
@@ -391,11 +409,11 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                                 <TableRow key={en.id} className="group hover:bg-muted/10 transition-colors border-b last:border-0">
                                                                     <TableCell className="pl-6 py-4">
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 overflow-hidden text-primary font-bold shadow-sm text-sm">
+                                                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 overflow-hidden text-primary font-semibold shadow-sm text-sm">
                                                                                 {en.user?.displayName?.charAt(0) || en.user?.username?.charAt(0) || "H"}
                                                                             </div>
                                                                             <div className="flex flex-col min-w-0">
-                                                                                <span className="font-bold text-sm text-foreground truncate">{en.user?.displayName || en.user?.username || "Học viên"}</span>
+                                                                                <span className="font-medium text-sm text-foreground truncate">{en.user?.displayName || en.user?.username || "Học viên"}</span>
                                                                                 <span className="text-[10px] text-muted-foreground font-mono bg-muted/50 px-1 rounded w-fit">ID: {en.userId.substring(0, 8)}</span>
                                                                             </div>
                                                                         </div>
@@ -414,10 +432,10 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                                                 <SelectValue placeholder="Chưa điểm danh" />
                                                                             </SelectTrigger>
                                                                             <SelectContent>
-                                                                                <SelectItem value="PRESENT" className="text-emerald-600 focus:text-emerald-700 font-bold">Có mặt</SelectItem>
-                                                                                <SelectItem value="ABSENT" className="text-destructive focus:text-destructive font-bold">Vắng mặt</SelectItem>
-                                                                                <SelectItem value="LATE" className="text-amber-600 focus:text-amber-700 font-bold">Đi muộn</SelectItem>
-                                                                                <SelectItem value="EXCUSED" className="text-blue-600 focus:text-blue-700 font-bold">Có phép</SelectItem>
+                                                                                <SelectItem value="PRESENT" className="text-emerald-600 focus:text-emerald-700 font-medium">Có mặt</SelectItem>
+                                                                                <SelectItem value="ABSENT" className="text-destructive focus:text-destructive font-medium">Vắng mặt</SelectItem>
+                                                                                <SelectItem value="LATE" className="text-amber-600 focus:text-amber-700 font-medium">Đi muộn</SelectItem>
+                                                                                <SelectItem value="EXCUSED" className="text-blue-600 focus:text-blue-700 font-medium">Có phép</SelectItem>
                                                                             </SelectContent>
                                                                         </Select>
                                                                     </TableCell>
@@ -454,8 +472,8 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                     <CalendarSync className="size-5 text-primary" />
                                 </div>
                                 <div className="space-y-1">
-                                    <CardTitle className="text-lg font-bold">Danh sách yêu cầu dời lịch & nghỉ phép</CardTitle>
-                                    <CardDescription>Theo dõi và xử lý các yêu cầu thay đổi lịch học từ giảng viên.</CardDescription>
+                                    <CardTitle className="text-lg font-semibold">Danh sách yêu cầu dời lịch</CardTitle>
+                                    <CardDescription>Theo dõi và xử lý các yêu cầu dời lịch học từ giảng viên.</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
@@ -476,24 +494,20 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                             <TableRow key={req.id} className="hover:bg-muted/5 transition-colors">
                                                 <TableCell className="pl-6 py-4">
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold text-sm">{req.session ? formatDateLabel(req.session.sessionDate) : "—"}</span>
-                                                        <span className="text-[10px] text-muted-foreground uppercase font-black">{req.session?.startTime} - {req.session?.endTime}</span>
+                                                        <span className="font-medium text-sm">{req.session ? formatDateLabel(req.session.sessionDate) : "—"}</span>
+                                                        <span className="text-[10px] text-muted-foreground uppercase font-semibold">{req.session?.startTime} - {req.session?.endTime}</span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant={req.type === 'RESCHEDULE' ? 'default' : 'destructive'} className="text-[10px] font-bold">
-                                                        {req.type === 'RESCHEDULE' ? 'Dời lịch' : 'Nghỉ phép'}
+                                                    <Badge variant="default" className="text-[10px] font-medium">
+                                                        Dời lịch
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {req.type === 'RESCHEDULE' ? (
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-sm text-primary">{req.proposedDate ? format(new Date(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
-                                                            <span className="text-[10px] text-primary/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-muted-foreground text-sm italic">Hủy buổi học</span>
-                                                    )}
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium text-sm text-primary">{req.proposedDate ? format(new Date(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
+                                                        <span className="text-[10px] text-primary/70 font-semibold">{req.proposedStartTime} - {req.proposedEndTime}</span>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell>
                                                     {getRequestStatusBadge(req.status)}
@@ -501,8 +515,8 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                 <TableCell className="pr-6 text-right">
                                                     {isStaffOrAdmin && req.status === 'PENDING' ? (
                                                         <div className="flex justify-end gap-2">
-                                                            <Button size="sm" variant="outline" className="h-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-bold" onClick={() => handleApproveRequest(req.id)}>Duyệt</Button>
-                                                            <Button size="sm" variant="outline" className="h-8 text-destructive hover:bg-destructive/5 font-bold" onClick={() => handleRejectRequest(req.id)}>Từ chối</Button>
+                                                            <Button size="sm" variant="outline" className="h-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-medium" onClick={() => handleApproveRequest(req.id)}>Duyệt</Button>
+                                                            <Button size="sm" variant="outline" className="h-8 text-destructive hover:bg-destructive/5 font-medium" onClick={() => handleRejectRequest(req.id)}>Từ chối</Button>
                                                         </div>
                                                     ) : (
                                                         <span className="text-[10px] text-muted-foreground italic">
@@ -533,7 +547,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                     <Calendar className="size-5 text-primary" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-base font-bold">Thời khóa biểu định kỳ</CardTitle>
+                                    <CardTitle className="text-base font-semibold">Thời khóa biểu định kỳ</CardTitle>
                                     <CardDescription className="text-xs">
                                         Lịch học lặp lại theo tuần (nguồn dữ liệu tạo buổi học).
                                     </CardDescription>
@@ -556,7 +570,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                                                 className="flex items-center justify-between gap-4 border rounded-lg px-4 py-3 bg-muted/5"
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <Badge variant="secondary" className="font-bold">
+                                                    <Badge variant="secondary" className="font-medium">
                                                         {WEEKDAY_MAP[s.weekday]}
                                                     </Badge>
                                                 </div>

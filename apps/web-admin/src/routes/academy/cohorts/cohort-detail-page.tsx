@@ -97,6 +97,8 @@ export default function CohortDetailPage() {
     return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin Đợt khai giảng.</div>
   }
 
+  const canAddLiveClass = !['COMPLETED', 'ARCHIVED'].includes(String(cohort.status))
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -335,7 +337,14 @@ export default function CohortDetailPage() {
                     <CardTitle>Lớp học vận hành (Live Classes)</CardTitle>
                     <CardDescription>Các lớp học được kích hoạt và gán cho đợt này.</CardDescription>
                   </div>
-                  <Button size="sm" variant="outline" className="w-full border-primary/40 text-primary shadow-none hover:bg-primary/5 sm:w-auto" onClick={() => setSheetOpen(true)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full border-primary/40 text-primary shadow-none hover:bg-primary/5 sm:w-auto"
+                    onClick={() => setSheetOpen(true)}
+                    disabled={!canAddLiveClass}
+                    title={!canAddLiveClass ? 'Cohort đã kết thúc/lưu trữ nên không thể thêm lớp LIVE.' : undefined}
+                  >
                     <Plus className="size-4 mr-2" /> Tạo lớp mới
                   </Button>
                 </CardHeader>
@@ -395,7 +404,13 @@ export default function CohortDetailPage() {
                       </div>
                       <p className="text-sm text-muted-foreground font-medium mb-1">Chưa có lớp học nào</p>
                       <p className="text-xs text-muted-foreground/60 max-w-[200px] mb-4">Hãy tạo lớp LIVE đầu tiên cho đợt khai giảng này.</p>
-                      <Button size="sm" onClick={() => setSheetOpen(true)} className="rounded-full px-6">
+                      <Button
+                        size="sm"
+                        onClick={() => setSheetOpen(true)}
+                        className="rounded-full px-6"
+                        disabled={!canAddLiveClass}
+                        title={!canAddLiveClass ? 'Cohort đã kết thúc/lưu trữ nên không thể thêm lớp LIVE.' : undefined}
+                      >
                         <Plus className="size-4 mr-2" /> Tạo lớp ngay
                       </Button>
                     </div>

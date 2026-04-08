@@ -49,10 +49,17 @@ export class LiveClassService {
     }
 
     if (q.onlyAvailable) {
+      const now = new Date();
       cohortConditions.push({
-        OR: [
-          { enrollmentCloseAt: null },
-          { enrollmentCloseAt: { gte: new Date() } },
+        status: 'OPENING',
+        AND: [
+          { OR: [{ enrollmentOpenAt: null }, { enrollmentOpenAt: { lte: now } }] },
+          {
+            OR: [
+              { enrollmentCloseAt: null },
+              { enrollmentCloseAt: { gte: now } },
+            ],
+          },
         ],
       });
     }
@@ -168,6 +175,20 @@ export class LiveClassService {
   }
 
   async create(data: AcademyLiveClassCreateDTO) {
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { id: data.cohortId },
+      select: { id: true, status: true },
+    });
+    if (!cohort) {
+      throw new BadRequestException('Invalid cohortId');
+    }
+    const cohortStatus = String(cohort.status);
+    if (['COMPLETED', 'ARCHIVED'].includes(cohortStatus)) {
+      throw new BadRequestException(
+        `Không thể tạo lớp LIVE trong Cohort đã kết thúc/lưu trữ (status=${cohortStatus}).`,
+      );
+    }
+
     const dataWithSchedules = data as AcademyLiveClassCreateDTO & { schedules?: any[] };
     if (dataWithSchedules.schedules?.length) {
       for (const s of dataWithSchedules.schedules) {
@@ -210,6 +231,41 @@ export class LiveClassService {
   }
 
   async update(id: string, data: AcademyLiveClassUpdateDTO) {
+    const before = await this.prisma.liveClass.findUnique({ where: { id } });
+    if (!before) throw new NotFoundException('Live Class not found');
+
+    // State-machine tối thiểu cho LiveClass:
+    // - ARCHIVED là trạng thái cuối (immutable)
+    // - Chỉ cho phép:
+    //   DRAFT -> OPENING
+    //   OPENING -> IN_PROGRESS | ARCHIVED
+    //   IN_PROGRESS -> COMPLETED | ARCHIVED
+    //   COMPLETED -> ARCHIVED
+    // - Các cập nhật không đổi status vẫn cho phép
+    if (data.status && data.status !== before.status) {
+      if (before.status === 'ARCHIVED') {
+        throw new BadRequestException(
+          'Lớp LIVE đã được lưu trữ, không thể thay đổi trạng thái.',
+        );
+      }
+
+      const from = before.status;
+      const to = data.status;
+      const allowed: Record<string, string[]> = {
+        DRAFT: ['OPENING', 'ARCHIVED'],
+        OPENING: ['IN_PROGRESS', 'ARCHIVED'],
+        IN_PROGRESS: ['COMPLETED', 'ARCHIVED'],
+        COMPLETED: ['ARCHIVED'],
+      };
+
+      const ok = (allowed[from] ?? []).includes(to);
+      if (!ok) {
+        throw new BadRequestException(
+          `Không hỗ trợ chuyển trạng thái LiveClass từ ${from} sang ${to}.`,
+        );
+      }
+    }
+
     if (data.status === 'OPENING') {
       await this.validateForPublishing(id);
     }

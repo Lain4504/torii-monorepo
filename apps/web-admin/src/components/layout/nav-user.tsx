@@ -32,14 +32,13 @@ import { useAppDispatch } from "@/hooks/hooks"
 import { logout } from "@/store/slices/auth-slice"
 import { toast } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
-import { UserRole } from "@workspace/schemas"
 
 const ROLE_LABELS: Record<string, string> = {
-    [UserRole.ADMIN]: 'Quản trị viên',
-    [UserRole.LECTURER]: 'Giảng viên',
-    [UserRole.LEARNER]: 'Học viên',
-    [UserRole.STAFF_ACADEMIC]: 'Phụ trách Học thuật',
-    [UserRole.STAFF_OPERATIONS]: 'Phụ trách Vận hành',
+    "admin": 'Quản trị viên',
+    "lecturer": 'Giảng viên',
+    "learner": 'Học viên',
+    "staff-academic": 'Phụ trách Học thuật',
+    "staff-operations": 'Phụ trách Vận hành',
 }
 
 export function NavUser({

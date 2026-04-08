@@ -18,14 +18,19 @@ import {
     MoreVertical,
     Eye,
     EyeOff,
-    ChevronRight,
     ArrowLeft,
     Upload
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Badge } from "@workspace/ui/components/badge"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
+} from "@workspace/ui/components/table"
 import {
     Dialog,
     DialogContent,
@@ -403,7 +408,7 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-4">
                 {isLoadingFolders || isLoadingResources ? (
                     Array.from({ length: 3 }).map((_, i) => (
                         <Skeleton key={i} className="h-24 w-full rounded-2xl" />
@@ -411,43 +416,58 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                 ) : !activeFolderId ? (
                     /* Folder List View */
                     folders && folders.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {folders.map((f) => (
-                                <Card key={f.folderId} className="rounded-2xl hover:border-primary/50 cursor-pointer group transition-all" onClick={() => setActiveFolderId(f.folderId)}>
-                                    <CardContent className="p-5 flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                                                <Folder className="size-6" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold group-hover:text-primary transition-colors">{f.folderName}</h4>
-                                                <p className="text-xs text-muted-foreground">{f.resourceCount || 0} tài liệu</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                    <Button size="icon" variant="ghost" className="rounded-lg h-8 w-8">
-                                                        <MoreVertical className="size-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl">
-                                                    <DropdownMenuItem
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            setFolderToDelete(f.folderId)
-                                                        }}
-                                                        className="text-destructive gap-2"
+                        <div className="rounded-2xl border bg-background">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Tên thư mục</TableHead>
+                                        <TableHead>Số tài liệu</TableHead>
+                                        <TableHead>Loại</TableHead>
+                                        <TableHead className="text-right">Thao tác</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {folders.map((f) => (
+                                        <TableRow key={f.folderId}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Folder className="size-4 text-primary" />
+                                                    <span className="font-medium">{f.folderName}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{f.resourceCount || 0}</TableCell>
+                                            <TableCell>Tài liệu chia sẻ</TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setActiveFolderId(f.folderId)}
                                                     >
-                                                        <Trash2 className="size-4" /> Xóa thư mục
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                            <ChevronRight className="size-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                                        Mở
+                                                    </Button>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="sm" className="gap-1">
+                                                                <MoreVertical className="size-4" />
+                                                                Tùy chọn
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="rounded-xl">
+                                                            <DropdownMenuItem
+                                                                onClick={() => setFolderToDelete(f.folderId)}
+                                                                className="text-destructive gap-2"
+                                                            >
+                                                                <Trash2 className="size-4" /> Xóa thư mục
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
                         </div>
                     ) : (
                         <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed">
@@ -462,57 +482,73 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
                 ) : (
                     /* Resource List View in Folder */
                     resources && resources.length > 0 ? (
-                        resources.map((res) => (
-                            <Card key={res.id} className={`rounded-2xl transition-all ${res.visibility === AcademyResourceVisibility.PRIVATE ? 'opacity-60 bg-muted/30' : ''}`}>
-                                <CardContent className="p-5 flex items-center justify-between">
-                                    <div className="flex items-start gap-4">
-                                        <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
-                                            <FileText className="size-5" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2">
-                                                <h4 className="font-bold leading-none">{res.title}</h4>
-                                                {res.visibility === AcademyResourceVisibility.PRIVATE && (
-                                                    <Badge variant="secondary" className="text-[9px] uppercase h-4 px-1">Đang ẩn</Badge>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-muted-foreground line-clamp-1">{res.description || 'Không có mô tả.'}</p>
-                                            <div className="flex items-center gap-2 pt-1">
-                                                <span className="text-[10px] font-bold text-muted-foreground/60 uppercase">Tệp tin</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-1">
-                                        <Button size="icon" variant="ghost" asChild className="rounded-lg">
-                                            <a href={res.downloadUrl} download target="_blank" rel="noopener noreferrer">
-                                                <Download className="size-4" />
-                                            </a>
-                                        </Button>
-
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button size="icon" variant="ghost" className="rounded-lg">
-                                                    <MoreVertical className="size-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="rounded-xl">
-                                                <DropdownMenuItem onClick={() => toggleVisibility(res)} className="gap-2">
-                                                    {res.visibility === AcademyResourceVisibility.PUBLIC ? (
-                                                        <><EyeOff className="size-4" /> Ẩn tài liệu</>
-                                                    ) : (
-                                                        <><Eye className="size-4" /> Hiện tài liệu</>
-                                                    )}
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => setResourceToDelete(res.id)} className="text-destructive gap-2">
-                                                    <Trash2 className="size-4" /> Xóa tài liệu
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))
+                        <div className="rounded-2xl border bg-background">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Tên tài liệu</TableHead>
+                                        <TableHead>Mô tả</TableHead>
+                                        <TableHead>Trạng thái</TableHead>
+                                        <TableHead className="text-right">Thao tác</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {resources.map((res) => (
+                                        <TableRow key={res.id}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className="size-4 text-primary" />
+                                                    <span className="font-medium">{res.title}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="max-w-[360px] truncate text-muted-foreground">
+                                                {res.description || "Không có mô tả."}
+                                            </TableCell>
+                                            <TableCell>
+                                                {res.visibility === AcademyResourceVisibility.PUBLIC ? "Công khai" : "Đang ẩn"}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button variant="outline" size="sm" asChild>
+                                                        <a href={res.downloadUrl} download target="_blank" rel="noopener noreferrer">
+                                                            <Download className="size-4" />
+                                                            Tải xuống
+                                                        </a>
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => toggleVisibility(res)}
+                                                        className="gap-1"
+                                                    >
+                                                        {res.visibility === AcademyResourceVisibility.PUBLIC ? (
+                                                            <>
+                                                                <EyeOff className="size-4" />
+                                                                Ẩn
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Eye className="size-4" />
+                                                                Hiện
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setResourceToDelete(res.id)}
+                                                        className="text-destructive hover:text-destructive"
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                        Xóa
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     ) : (
                         <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed">
                             <FileText className="size-16 text-muted-foreground/10 mx-auto mb-4" />

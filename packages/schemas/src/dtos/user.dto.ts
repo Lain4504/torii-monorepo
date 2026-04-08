@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ErrFirstNameAtLeast2Chars, userSchema, UserRole } from '../models/user.model';
+import { ErrFirstNameAtLeast2Chars, userSchema } from '../models/user.model';
 
 // Registration DTO
 export const userRegistrationDTOSchema = z.object({
@@ -41,11 +41,7 @@ export type UserCreateDTO = z.infer<typeof userCreateDTOSchema>;
 export const adminCreateInternalUserDTOSchema = z.object({
     email: userSchema.shape.email,
     displayName: userSchema.shape.displayName,
-    role: z.enum([
-        UserRole.LECTURER,
-        UserRole.STAFF_ACADEMIC,
-        UserRole.STAFF_OPERATIONS,
-    ]),
+    role: userSchema.shape.role,
 });
 
 export type AdminCreateInternalUserDTO = z.infer<typeof adminCreateInternalUserDTOSchema>;
