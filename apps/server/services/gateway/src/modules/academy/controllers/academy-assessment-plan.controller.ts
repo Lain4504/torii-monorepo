@@ -31,7 +31,7 @@ export class AcademyAssessmentPlanController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get(':courseProfileId')
-  @Permissions('academy.content.read')
+  @Permissions('lms.assessment.read')
   async findByCourseProfileId(
     @Param('courseProfileId', new ParseUUIDPipe()) id: string,
   ) {
@@ -42,7 +42,7 @@ export class AcademyAssessmentPlanController {
   }
 
   @Post('update')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.update')
   async update(
     @Body(new ZodValidationPipe(academyUpdateAssessmentPlanDTOSchema))
     dto: AcademyUpdateAssessmentPlanDTO,

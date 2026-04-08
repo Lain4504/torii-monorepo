@@ -1,6 +1,7 @@
 'use client'
 
 import { useAcademyFolders } from '@/lib/api/services/academy-resource-api'
+import { dataTableHeaderClass } from '@/lib/ui-shell'
 import {
     Table,
     TableBody,
@@ -10,7 +11,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table'
 import { Skeleton } from '@workspace/ui/components/skeleton'
-import { Folder, ChevronRight, FileText } from 'lucide-react'
+import { Folder, FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
@@ -62,8 +63,9 @@ export default function MyFoldersPage() {
             ) : classList.length > 0 ? (
                 <div className="overflow-x-auto rounded-md border">
                     <Table>
-                        <TableHeader>
+                        <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
+                                <TableHead className="w-[60px] text-center">STT</TableHead>
                                 <TableHead className="min-w-[200px] pl-4">Lớp học</TableHead>
                                 <TableHead className="hidden w-[140px] sm:table-cell">Mã lớp</TableHead>
                                 <TableHead className="w-[120px] text-right">Thư mục</TableHead>
@@ -73,8 +75,11 @@ export default function MyFoldersPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {classList.map((cls) => (
+                            {classList.map((cls, index) => (
                                 <TableRow key={cls.id}>
+                                    <TableCell className="text-center tabular-nums font-medium text-muted-foreground/60 text-xs">
+                                        {String(index + 1).padStart(2, '0')}
+                                    </TableCell>
                                     <TableCell className="pl-4 font-medium">{cls.className}</TableCell>
                                     <TableCell className="hidden text-muted-foreground sm:table-cell">
                                         {cls.classCode || '—'}
@@ -88,15 +93,14 @@ export default function MyFoldersPage() {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="h-8"
+                                            className="h-8 border-primary/40 text-primary hover:bg-primary/5 font-medium"
                                             onClick={() =>
                                                 router.push(
                                                     `/dashboard/my-folders/${encodeURIComponent(cls.id)}`
                                                 )
                                             }
                                         >
-                                            Mở
-                                            <ChevronRight className="ml-1 size-4" />
+                                            View
                                         </Button>
                                     </TableCell>
                                 </TableRow>

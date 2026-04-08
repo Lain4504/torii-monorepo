@@ -110,7 +110,7 @@ export class OrderController {
   // --- Admin CRUD ---
 
   @Get('admin')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async admin_findAll(@Query() query: any) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.findAll' }, query),
@@ -118,7 +118,7 @@ export class OrderController {
     return successPaginatedResponse(result);
   }
   @Get('stats')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async admin_getStats(@Query() query: any) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.getStats' }, query),
@@ -128,7 +128,7 @@ export class OrderController {
 
   /** Đặt trước `admin/:id` để tránh khớp nhầm `.../admin/export` → id = "export" */
   @Get('export')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async admin_export(@Query() query: any, @Res() res: any) {
     const buffer = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.export' }, query),
@@ -142,7 +142,7 @@ export class OrderController {
   }
 
   @Get('admin/:id')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async admin_findOne(@Param('id') id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.findOne' }, { id }),
@@ -151,7 +151,7 @@ export class OrderController {
   }
 
   @Patch('admin/:id/status')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async admin_updateStatus(
     @Param('id') id: string,
     @Body() body: { status: string },
@@ -167,7 +167,7 @@ export class OrderController {
   }
 
   @Post(':id/cancel')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async admin_cancel(@Param('id') id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
       this.nats.send(

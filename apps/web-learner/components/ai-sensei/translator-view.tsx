@@ -118,9 +118,9 @@ export function TranslatorView() {
     return (
         <div className="w-full space-y-4 px-4 pb-8 max-w-full overflow-x-hidden">
             {/* Language Selection Bar - Responsive */}
-            <div className="flex items-center gap-1.5 sm:gap-3 bg-card p-1 rounded-lg border border-border w-fit max-w-full mx-auto shadow-sm overflow-hidden">
+            <div className="flex w-full items-center gap-1.5 sm:gap-3 bg-card p-1 rounded-lg border border-border mx-auto shadow-sm overflow-hidden">
                 <Select value={sourceLang} onValueChange={handleSourceLangChange}>
-                    <SelectTrigger className="w-[110px] sm:w-36 border-none bg-transparent h-8 text-[10px] sm:text-xs font-bold ring-0 focus:ring-0">
+                    <SelectTrigger className="flex-1 min-w-0 w-full border-none bg-transparent h-8 text-[10px] sm:text-xs font-bold ring-0 focus:ring-0 sm:w-36">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -137,7 +137,7 @@ export function TranslatorView() {
                 </Button>
 
                 <Select value={targetLang} onValueChange={handleTargetLangChange}>
-                    <SelectTrigger className="w-[110px] sm:w-36 border-none bg-transparent h-8 text-[10px] sm:text-xs font-bold ring-0 focus:ring-0">
+                    <SelectTrigger className="flex-1 min-w-0 w-full border-none bg-transparent h-8 text-[10px] sm:text-xs font-bold ring-0 focus:ring-0 sm:w-36">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">

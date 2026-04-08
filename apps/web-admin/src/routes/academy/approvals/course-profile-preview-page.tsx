@@ -70,7 +70,7 @@ export default function CourseProfileApprovalPreviewPage() {
   }
 
   const canApprove =
-    can("academy.content.approve") && profile.status === "PENDING_APPROVAL"
+    can("lms.catalog.approve") && profile.status === "PENDING_APPROVAL"
 
   return (
     <div className="flex flex-col gap-6">
@@ -158,7 +158,7 @@ export default function CourseProfileApprovalPreviewPage() {
         <Card>
           <CardHeader>
             <CardTitle>Chỉ dẫn duyệt</CardTitle>
-            <CardDescription>Chỉ bộ phận được cấp quyền `academy.content.approve` mới thấy nút Duyệt.</CardDescription>
+            <CardDescription>Chỉ bộ phận được cấp quyền `lms.catalog.approve` mới thấy nút Duyệt.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>

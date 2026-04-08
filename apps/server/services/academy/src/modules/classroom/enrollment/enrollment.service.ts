@@ -32,6 +32,12 @@ export class EnrollmentService {
       status: query.status ?? undefined,
     };
 
+    if (query.instructorId) {
+      where.liveClass = {
+        instructorId: query.instructorId,
+      };
+    }
+
     // Smart Bridge logic: if a generic ID is provided, check both liveClassId and vodPackageId
     if (query.liveClassId) {
       where.liveClassId = query.liveClassId;

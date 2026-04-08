@@ -78,7 +78,7 @@ export default function DashboardFAQPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            <Button className="w-full" data-requires-auth="true">
+                            <Button className="w-full">
                                 Gửi yêu cầu hỗ trợ
                             </Button>
                             <Button variant="outline" className="w-full justify-start">

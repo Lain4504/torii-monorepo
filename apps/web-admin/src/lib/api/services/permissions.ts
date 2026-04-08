@@ -7,7 +7,7 @@ import type { StandardApiResponse } from '@workspace/schemas';
 export interface RoleDefinition {
     code: string;
     name: string;
-    description: string;
+    description?: string | null;
     extends?: string;
 }
 
@@ -34,11 +34,6 @@ const permissionsApi = {
         return res.data.data!;
     },
 
-    async getRolePermissions(roleCode: string) {
-        const res = await apiClient.get<StandardApiResponse<{ permissions: string[] }>>(`/api/authorization/roles/${roleCode}/permissions`);
-        return res.data.data!.permissions;
-    },
-
     async updateRolePermissions(roleCode: string, permissions: string[]) {
         const res = await apiClient.put<StandardApiResponse<any>>(`/api/authorization/roles/${roleCode}/permissions`, {
             permissions,
@@ -46,9 +41,27 @@ const permissionsApi = {
         return res.data.data;
     },
 
-    async reseed() {
-        const res = await apiClient.post<StandardApiResponse<any>>('/api/authorization/reseed');
-        return res.data.data;
+    async createRole(data: { code: string; name: string; description?: string | null }) {
+        const res = await apiClient.post<StandardApiResponse<RoleDefinition>>('/api/authorization/roles', data);
+        return res.data.data!;
+    },
+
+    async updateRole(
+        roleCode: string,
+        data: { name?: string; description?: string | null },
+    ) {
+        const res = await apiClient.patch<StandardApiResponse<RoleDefinition>>(
+            `/api/authorization/roles/${encodeURIComponent(roleCode)}`,
+            data,
+        );
+        return res.data.data!;
+    },
+
+    async deleteRole(roleCode: string) {
+        const res = await apiClient.delete<StandardApiResponse<{ code: string; deleted: boolean }>>(
+            `/api/authorization/roles/${encodeURIComponent(roleCode)}`,
+        );
+        return res.data.data!;
     },
 };
 
@@ -64,14 +77,6 @@ export function useFetchPermissions() {
     return useQuery({
         queryKey: ['authorization', 'permissions'],
         queryFn: () => permissionsApi.getPermissions(),
-    });
-}
-
-export function useRolePermissions(roleCode: string | null) {
-    return useQuery({
-        queryKey: ['authorization', 'role-permissions', roleCode],
-        queryFn: () => permissionsApi.getRolePermissions(roleCode!),
-        enabled: !!roleCode,
     });
 }
 
@@ -98,17 +103,52 @@ export function useUpdateRolePermissions() {
     });
 }
 
-export function useReseedPermissions() {
+export function useCreateRole() {
     const queryClient = useQueryClient();
-
     return useMutation({
-        mutationFn: () => permissionsApi.reseed(),
+        mutationFn: (data: { code: string; name: string; description?: string | null }) =>
+            permissionsApi.createRole(data),
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['authorization', 'roles'] });
             queryClient.invalidateQueries({ queryKey: ['authorization'] });
-            toast.success('Permissions re-seeded successfully');
+            toast.success('Đã tạo vai trò mới');
         },
         onError: (error: any) => {
-            toast.error(error.response?.data?.message || 'Failed to re-seed permissions');
+            toast.error(error.response?.data?.message || 'Không thể tạo vai trò');
+        },
+    });
+}
+
+export function useUpdateRole() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({
+            roleCode,
+            data,
+        }: {
+            roleCode: string;
+            data: { name?: string; description?: string | null };
+        }) => permissionsApi.updateRole(roleCode, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['authorization', 'roles'] });
+            toast.success('Đã cập nhật vai trò');
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Không thể cập nhật vai trò');
+        },
+    });
+}
+
+export function useDeleteRole() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (roleCode: string) => permissionsApi.deleteRole(roleCode),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['authorization'] });
+            toast.success('Đã xóa vai trò');
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Không thể xóa vai trò');
         },
     });
 }

@@ -1,5 +1,4 @@
 import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem, Coins } from 'lucide-react'
-import { UserRole } from '@workspace/schemas'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
 import { ModeToggle } from './mode-toggle'
@@ -40,10 +39,9 @@ import { QuotaIndicator } from '../ai-sensei/quota-indicator'
 
 type DashboardHeaderProps = {
     onOpenStreakModal?: () => void
-    isGuest?: boolean
 }
 
-export function DashboardHeader({ onOpenStreakModal, isGuest = false }: DashboardHeaderProps) {
+export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
     const { user } = useAppSelector((state) => state.auth)
     const { data: profile } = useGamificationProfile()
     const { data: streak } = useStreak()
@@ -79,18 +77,6 @@ export function DashboardHeader({ onOpenStreakModal, isGuest = false }: Dashboar
                     <SidebarTrigger />
                 </div>
 
-                {isGuest ? (
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                        <ModeToggle />
-                        <Button
-                            size="sm"
-                            data-guest-allow="true"
-                            onClick={() => router.push('/login')}
-                        >
-                            Tham gia ngay
-                        </Button>
-                    </div>
-                ) : (
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                     <div className="flex items-center gap-1">
                         <QuotaIndicator />
@@ -123,7 +109,7 @@ export function DashboardHeader({ onOpenStreakModal, isGuest = false }: Dashboar
                                             LV.{level}
                                         </Badge>
                                         <Badge variant="secondary" className="text-[10px] py-0 px-2 h-4 font-bold uppercase tracking-wider bg-muted text-muted-foreground border-none">
-                                            {user?.role === UserRole.LEARNER ? 'Học viên' : user?.role}
+                                            {user?.role === 'learner' ? 'Học viên' : user?.role}
                                         </Badge>
                                     </div>
                                 </div>
@@ -199,7 +185,6 @@ export function DashboardHeader({ onOpenStreakModal, isGuest = false }: Dashboar
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                )}
             </div>
         </header >
     )

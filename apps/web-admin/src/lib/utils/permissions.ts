@@ -2,11 +2,6 @@
  * Check if user has a specific permission
  */
 export function hasPermission(userPermissions: string[], requiredPermission: string): boolean {
-    // Admin wildcard permission
-    if (userPermissions.includes('*')) {
-        return true;
-    }
-
     return userPermissions.includes(requiredPermission);
 }
 
@@ -14,11 +9,6 @@ export function hasPermission(userPermissions: string[], requiredPermission: str
  * Check if user has ANY of the specified permissions
  */
 export function hasAnyPermission(userPermissions: string[], requiredPermissions: string[]): boolean {
-    // Admin wildcard permission
-    if (userPermissions.includes('*')) {
-        return true;
-    }
-
     return requiredPermissions.some(permission => userPermissions.includes(permission));
 }
 
@@ -26,11 +16,6 @@ export function hasAnyPermission(userPermissions: string[], requiredPermissions:
  * Check if user has ALL of the specified permissions
  */
 export function hasAllPermissions(userPermissions: string[], requiredPermissions: string[]): boolean {
-    // Admin wildcard permission
-    if (userPermissions.includes('*')) {
-        return true;
-    }
-
     return requiredPermissions.every(permission => userPermissions.includes(permission));
 }
 

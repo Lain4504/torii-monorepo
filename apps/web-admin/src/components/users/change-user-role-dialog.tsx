@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -24,10 +24,10 @@ import {
     FieldLabel,
 } from '@workspace/ui/components/field';
 import type { UserResponseDTO } from '@workspace/schemas';
-import { UserRole } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useUpdateUser } from "@/lib/api/services/users.ts";
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useRoles } from "@/lib/api/services/permissions";
 
 interface ChangeUserRoleDialogProps {
     open: boolean;
@@ -41,12 +41,31 @@ export function ChangeUserRoleDialog({
     user,
 }: ChangeUserRoleDialogProps) {
     const updateUser = useUpdateUser();
-    const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.LEARNER);
+    const rolesQuery = useRoles();
+    const [selectedRole, setSelectedRole] = useState<string>("");
     const [showConfirm, setShowConfirm] = useState(false);
+
+    /** Đồng bộ API roles động; nếu user đang có mã role chưa có trong bảng (race / role cũ), vẫn hiển thị được trong Select. */
+    const roleSelectOptions = useMemo(() => {
+        const list = rolesQuery.data || [];
+        if (!user?.role) return list;
+        const codes = new Set(list.map((r) => r.code));
+        if (!codes.has(user.role as string)) {
+            return [
+                {
+                    code: user.role as string,
+                    name: `${String(user.role)} (đang gán)`,
+                    description: null as string | null,
+                },
+                ...list,
+            ];
+        }
+        return list;
+    }, [rolesQuery.data, user?.role]);
 
     useEffect(() => {
         if (user) {
-            setSelectedRole(user.role as UserRole);
+            setSelectedRole(user.role as string);
         }
     }, [user, open]);
 
@@ -97,17 +116,17 @@ export function ChangeUserRoleDialog({
                             <FieldLabel>Vai trò mới</FieldLabel>
                             <Select
                                 value={selectedRole}
-                                onValueChange={(value) => setSelectedRole(value as UserRole)}
+                                onValueChange={(value) => setSelectedRole(value)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Chọn vai trò" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value={UserRole.LEARNER}>Học viên</SelectItem>
-                                    <SelectItem value={UserRole.LECTURER}>Giảng viên</SelectItem>
-                                    <SelectItem value={UserRole.STAFF_ACADEMIC}>Nhân viên Học vụ (Academic)</SelectItem>
-                                    <SelectItem value={UserRole.STAFF_OPERATIONS}>Nhân viên Vận hành & Kinh doanh</SelectItem>
-                                    <SelectItem value={UserRole.ADMIN}>Quản trị viên (Admin)</SelectItem>
+                                    {roleSelectOptions.map((r) => (
+                                        <SelectItem key={r.code} value={r.code}>
+                                            {r.name}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </Field>

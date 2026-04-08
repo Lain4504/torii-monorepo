@@ -36,7 +36,6 @@ import {
 import { InstructorPicker } from "@/components/academy/instructor-picker"
 import { useAcademyCohorts } from "@/lib/api/services/academy-cohorts"
 import { useUsers } from "@/lib/api/services/users"
-import { UserRole } from "@workspace/schemas"
 import { toast } from "sonner"
 import { Loader2, Plus, Trash2, Calendar, Zap } from "lucide-react"
 import { useCreateAcademyLiveSchedule } from "@/lib/api/services/academy-live-schedules"
@@ -94,7 +93,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
   const createScheduleMutation = useCreateAcademyLiveSchedule()
 
   const { data: cohorts } = useAcademyCohorts({} as any)
-  const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
+  const { data: instructors } = useUsers({ role: "lecturer", limit: 100 })
 
   const {
     control,

@@ -11,6 +11,7 @@ export interface Question {
     content: string
     type: 'single' | 'listening' | 'reading'
     audioUrl?: string
+    imageUrl?: string
     readingPassage?: string
     options: { id: string; label: string }[]
 }
@@ -85,6 +86,18 @@ export function QuestionArea({
                     <p className="whitespace-pre-wrap leading-relaxed text-card-foreground">
                         {question.readingPassage}
                     </p>
+                </div>
+            )}
+
+            {/* Image (if question has media) */}
+            {question.imageUrl && (
+                <div className="bg-card border p-4 rounded-lg overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src={question.imageUrl}
+                        alt="Hình ảnh câu hỏi"
+                        className="w-full max-h-[420px] object-contain"
+                    />
                 </div>
             )}
 

@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/componen
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useAuth } from "@/hooks/use-auth"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { ClassInfoTab } from "./tabs/class-info-tab"
 import { ClassStudentsTab } from "./tabs/class-students-tab"
 import { ClassDiscussionTab } from "./tabs/class-discussion-tab"
@@ -14,6 +13,7 @@ import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
 import { ClassAssignmentsTab } from "./tabs/class-assignments-tab"
 import { ClassResourcesTab } from "./tabs/class-resources-tab"
 import { ClassSyllabusTab } from "./tabs/class-syllabus-tab"
+import { usePermissions } from "@/hooks/use-permissions"
 
 const TAB_INFO = "info"
 const TAB_STUDENTS = "students"
@@ -27,11 +27,10 @@ export default function ClassStudentsPage() {
   const { classId } = useParams<{ classId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: academyClass, isLoading: isLoadingClass } = useAcademyLiveClass(classId)
-  const { user } = useAuth()
+  useAuth()
+  const { canAny, hasWildcard } = usePermissions()
 
-  const isStaffOrAdmin = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role)
-  const isLecturer = user?.role === UserRole.LECTURER
-  const canManageStatus = isStaffOrAdmin || isLecturer
+  const canManageStatus = canAny(["lms.delivery.update", "lms.delivery.approve"]) || canAny(["lms.assessment.grade"]) || hasWildcard
 
   const defaultTab = TAB_INFO
   const tabParam = searchParams.get("tab") || defaultTab
@@ -57,7 +56,7 @@ export default function ClassStudentsPage() {
     return defaultTab
   }, [tabParam, availableTabs])
 
-  const canManageEnrollment = isStaffOrAdmin
+  const canManageEnrollment = canAny(["lms.delivery.approve", "ops.user.manage"]) || hasWildcard
 
   const setTab = (value: string) => {
     setSearchParams((prev) => {

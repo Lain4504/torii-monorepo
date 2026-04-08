@@ -19,7 +19,7 @@ import {
 import { cn } from "@workspace/ui/lib/utils"
 
 /**
- * Một workspace trong sidebar (bám roles trong `apps/server/config/rbac-config.yaml`).
+ * Một workspace trong sidebar (bám roles trong `apps/server/config/rbac-v2.yaml`).
  * `plan` — dòng phụ mô tả phạm vi menu, hiển thị dưới tên workspace.
  */
 export interface Team {

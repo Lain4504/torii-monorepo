@@ -8,7 +8,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@workspace/ui/components/collapsible'
-import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock, BookOpen, Video, User, Users } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock, BookOpen, User, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -16,7 +16,6 @@ import { useAcademyClassCatalog } from '@/lib/api/services/academy-course-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatNumber } from '@/utils/format-utils'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { Separator } from '@workspace/ui/components/separator'
 import { cn } from '@workspace/ui/lib/utils'
 
 /** Desktop-only horizontal scroll carousel with prev/next buttons. */
@@ -301,18 +300,23 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                         </Badge>
                     </div>
                 </div>
-                <div className="p-6 flex flex-1 min-w-0 flex-col space-y-4">
-                    <div className="space-y-1.5 flex-1 min-w-0">
+                <div className="p-5 flex flex-col min-w-0 space-y-3">
+                    <div className="space-y-1 min-w-0">
                         <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2">{title}</h3>
                         <p className="truncate text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
 
-                    <div className="space-y-4 pt-4 border-t border-border/20">
+                    <div className="space-y-2 pt-3 border-t border-border/20">
                         <div className="flex min-w-0 items-center justify-between gap-3 pt-1">
                             <div className="flex flex-col">
-                                <span className="text-lg font-bold text-primary tabular-nums tracking-tighter">{formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span></span>
+                                <span className={cn(
+                                    "text-lg font-bold tabular-nums tracking-tighter",
+                                    hasDiscount ? "text-destructive" : "text-primary",
+                                )}>
+                                    {formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span>
+                                </span>
                                 {hasDiscount && (
-                                    <span className="text-[11px] text-muted-foreground/30 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
+                                    <span className="text-[11px] text-muted-foreground/50 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
                                 )}
                             </div>
                             <Button size="sm" className="h-9 shrink-0 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
@@ -360,13 +364,13 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                         </Badge>
                     </div>
                 </div>
-                <div className="p-6 flex flex-1 min-w-0 flex-col space-y-5">
-                    <div className="space-y-1.5 flex-1 min-w-0">
+                <div className="p-5 flex flex-col min-w-0 space-y-4">
+                    <div className="space-y-1 min-w-0">
                         <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2">{title}</h3>
                         <p className="truncate text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
 
-                    <div className="space-y-3.5 pt-4 border-t border-border/20">
+                    <div className="space-y-3 pt-3 border-t border-border/20">
                         {klass.instructor?.displayName && (
                             <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
                                 <User className="size-4 text-primary/60" />
@@ -394,7 +398,7 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                             <CollapsibleContent className="space-y-3 pt-3">
                                 {schedules.length > 0 ? (
                                     <div className="rounded-xl border border-border/20 bg-muted/20 p-3 space-y-1.5">
-                                        {schedules.map((s: any) => (
+                                        {schedules.map((s) => (
                                             <div key={s.id} className="flex min-w-0 items-center justify-between gap-2 text-sm text-muted-foreground">
                                                 <span className="shrink-0">{WEEKDAY_VI[s.weekday ?? 0] ?? '?'}</span>
                                                 <span className="min-w-0 truncate text-foreground">{s.startTime} – {s.endTime}</span>
@@ -422,11 +426,16 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                             </CollapsibleContent>
                         </Collapsible>
 
-                        <div className="flex min-w-0 items-center justify-between gap-3 pt-2">
+                        <div className="flex min-w-0 items-center justify-between gap-3 pt-0">
                             <div className="flex flex-col">
-                                <span className="text-lg font-bold text-primary tabular-nums tracking-tighter">{formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span></span>
+                                <span className={cn(
+                                    "text-lg font-bold tabular-nums tracking-tighter",
+                                    hasDiscount ? "text-destructive" : "text-primary",
+                                )}>
+                                    {formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span>
+                                </span>
                                 {hasDiscount && (
-                                    <span className="text-[11px] text-muted-foreground/30 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
+                                    <span className="text-[11px] text-muted-foreground/50 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
                                 )}
                             </div>
                             <Button size="sm" className="h-9 shrink-0 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>

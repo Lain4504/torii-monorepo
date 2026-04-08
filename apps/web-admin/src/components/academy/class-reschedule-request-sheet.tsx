@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { AlertCircle, CalendarIcon, Clock } from "lucide-react"
+import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 
 import {
   Sheet,
@@ -23,15 +25,11 @@ import {
   FieldLegend,
   FieldSet,
 } from "@workspace/ui/components/field"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
+import { Calendar } from "@workspace/ui/components/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
+import { cn } from "@workspace/ui/lib/utils"
 import {
   academyLiveScheduleRequestCreateDTOSchema,
   type AcademyLiveScheduleRequestCreateDTO,
@@ -61,7 +59,7 @@ export function ClassRescheduleRequestSheet({
   const form = useForm<AcademyLiveScheduleRequestCreateDTO>({
     resolver: zodResolver(
       academyLiveScheduleRequestCreateDTOSchema.refine((data) => {
-        if (data.type === 'RESCHEDULE' && data.proposedStartTime && data.proposedEndTime) {
+        if (data.proposedStartTime && data.proposedEndTime) {
           return data.proposedStartTime < data.proposedEndTime;
         }
         return true;
@@ -72,7 +70,6 @@ export function ClassRescheduleRequestSheet({
     ),
     defaultValues: {
       sessionId: session.id,
-      type: "RESCHEDULE",
       proposedDate: new Date(session.sessionDate).toISOString().split("T")[0],
       proposedStartTime: session.startTime,
       proposedEndTime: session.endTime,
@@ -85,7 +82,6 @@ export function ClassRescheduleRequestSheet({
     if (session) {
       form.reset({
         sessionId: session.id,
-        type: "RESCHEDULE",
         proposedDate: new Date(session.sessionDate).toISOString().split("T")[0],
         proposedStartTime: session.startTime,
         proposedEndTime: session.endTime,
@@ -94,7 +90,6 @@ export function ClassRescheduleRequestSheet({
     }
   }, [session, form])
 
-  const watchType = form.watch("type")
   const watchProposedDate = form.watch("proposedDate")
   const watchProposedStartTime = form.watch("proposedStartTime")
   const watchProposedEndTime = form.watch("proposedEndTime")
@@ -104,7 +99,6 @@ export function ClassRescheduleRequestSheet({
   // Preview conflict when inputs change
   useEffect(() => {
     if (
-      watchType === "RESCHEDULE" &&
       watchProposedDate &&
       watchProposedStartTime &&
       watchProposedEndTime
@@ -117,7 +111,7 @@ export function ClassRescheduleRequestSheet({
         endTime: watchProposedEndTime,
       })
     }
-  }, [watchType, watchProposedDate, watchProposedStartTime, watchProposedEndTime, session.id, targetLiveClassId])
+  }, [watchProposedDate, watchProposedStartTime, watchProposedEndTime, session.id, targetLiveClassId])
 
   const onSubmit = (data: AcademyLiveScheduleRequestCreateDTO) => {
     createRequest.mutate(data, {
@@ -133,14 +127,15 @@ export function ClassRescheduleRequestSheet({
   }
 
   const hasConflict = previewConflict.data?.hasConflict
+  const proposedDateError = form.formState.errors.proposedDate?.message
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col h-full p-0 text-foreground">
         <SheetHeader className="p-6 border-b shrink-0">
-          <SheetTitle>Yêu cầu dời lịch / Nghỉ phép</SheetTitle>
+          <SheetTitle>Yêu cầu dời lịch</SheetTitle>
           <SheetDescription>
-            Gửi yêu cầu dời lịch học hoặc xin nghỉ cho buổi học ngày{" "}
+            Gửi yêu cầu dời lịch học cho buổi học ngày{" "}
             {formatDate(session.sessionDate)}.
           </SheetDescription>
         </SheetHeader>
@@ -153,78 +148,98 @@ export function ClassRescheduleRequestSheet({
           <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-6 p-6">
               <FieldGroup>
-                <FieldSet>
-                  <FieldLabel>Loại yêu cầu</FieldLabel>
-                  <Select
-                    value={watchType}
-                    onValueChange={(value) =>
-                      form.setValue("type", value as "LEAVE" | "RESCHEDULE")
-                    }
-                  >
-                    <SelectTrigger className="bg-background">
-                      <SelectValue placeholder="Chọn loại yêu cầu" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="RESCHEDULE" className="font-bold">Dời lịch học</SelectItem>
-                      <SelectItem value="LEAVE" className="font-bold">Xin nghỉ phép (Hủy buổi)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <FieldSet className="p-4 border rounded-xl bg-background shadow-sm border-primary/10">
+                  <FieldLegend className="flex items-center gap-2 text-primary">
+                    <CalendarIcon className="size-4" /> Cấu hình lịch học mới
+                  </FieldLegend>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                      <div className="space-y-4">
+                      <Field>
+                          <FieldLabel>Ngày học mới</FieldLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className={cn(
+                                  "w-full justify-start gap-2 bg-background font-normal",
+                                  !watchProposedDate && "text-muted-foreground",
+                                )}
+                              >
+                                <CalendarIcon className="size-4" />
+                                {watchProposedDate
+                                  ? format(new Date(watchProposedDate), "dd/MM/yyyy", { locale: vi })
+                                  : "Chọn ngày (dd/MM/yyyy)"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={watchProposedDate ? new Date(watchProposedDate) : undefined}
+                                onSelect={(date) => {
+                                  if (!date) return
+                                  // Lưu chuẩn yyyy-MM-dd theo schema để validate chính xác
+                                  form.setValue("proposedDate", format(date, "yyyy-MM-dd"), {
+                                    shouldDirty: true,
+                                    shouldTouch: true,
+                                    shouldValidate: true,
+                                  })
+                                }}
+                                disabled={(date) => {
+                                  const today = new Date()
+                                  today.setHours(0, 0, 0, 0)
+                                  const d = new Date(date)
+                                  d.setHours(0, 0, 0, 0)
+                                  return d < today
+                                }}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FieldDescription>
+                            Định dạng hiển thị: <span className="font-mono">dd/MM/yyyy</span>
+                            {proposedDateError ? (
+                              <span className="block text-destructive">{proposedDateError}</span>
+                            ) : null}
+                          </FieldDescription>
+                      </Field>
+                      <div className="grid grid-cols-2 gap-4">
+                          <Field>
+                          <FieldLabel>Giờ bắt đầu</FieldLabel>
+                          <div className="relative">
+                              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                              <Input type="time" className="pl-9 bg-background" {...form.register("proposedStartTime")} />
+                          </div>
+                          </Field>
+                          <Field>
+                          <FieldLabel>Giờ kết thúc</FieldLabel>
+                          <div className="relative">
+                              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                              <Input type="time" className="pl-9 bg-background" {...form.register("proposedEndTime")} />
+                          </div>
+                          </Field>
+                      </div>
+                      </div>
+
+                      <div className="space-y-4 border-l pl-6 hidden md:block border-muted/30">
+                      <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+                          <Clock className="size-3" /> Lịch hiện tại
+                      </h4>
+                      <div className="text-sm space-y-4 text-foreground font-medium">
+                          <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg">
+                              <CalendarIcon className="size-4 text-primary" />
+                              <span>{formatDateTime(session.sessionDate, "EEEE, dd MMMM yyyy")}</span>
+                          </div>
+                          <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg">
+                              <Clock className="size-4 text-primary" />
+                              <span>{session.startTime} - {session.endTime}</span>
+                          </div>
+                          </div>
+                      </div>
+                  </div>
                 </FieldSet>
 
-                {watchType === "RESCHEDULE" && (
-                  <FieldSet className="p-4 border rounded-xl bg-background shadow-sm border-primary/10">
-                    <FieldLegend className="flex items-center gap-2 text-primary">
-                      <CalendarIcon className="size-4" /> Cấu hình lịch học mới
-                    </FieldLegend>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div className="space-y-4">
-                        <Field>
-                            <FieldLabel>Ngày học mới</FieldLabel>
-                            <Input
-                            type="date"
-                            className="bg-background"
-                            {...form.register("proposedDate")}
-                            min={new Date().toISOString().split("T")[0]}
-                            />
-                        </Field>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Field>
-                            <FieldLabel>Giờ bắt đầu</FieldLabel>
-                            <div className="relative">
-                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                                <Input type="time" className="pl-9 bg-background" {...form.register("proposedStartTime")} />
-                            </div>
-                            </Field>
-                            <Field>
-                            <FieldLabel>Giờ kết thúc</FieldLabel>
-                            <div className="relative">
-                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                                <Input type="time" className="pl-9 bg-background" {...form.register("proposedEndTime")} />
-                            </div>
-                            </Field>
-                        </div>
-                        </div>
-
-                        <div className="space-y-4 border-l pl-6 hidden md:block border-muted/30">
-                        <h4 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
-                            <Clock className="size-3" /> Lịch hiện tại
-                        </h4>
-                        <div className="text-sm space-y-4 text-foreground font-medium">
-                            <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg">
-                                <CalendarIcon className="size-4 text-primary" />
-                                <span>{formatDateTime(session.sessionDate, "EEEE, dd MMMM yyyy")}</span>
-                            </div>
-                            <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg">
-                                <Clock className="size-4 text-primary" />
-                                <span>{session.startTime} - {session.endTime}</span>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                  </FieldSet>
-                )}
-
-                {watchType === "RESCHEDULE" && hasConflict && (
+                {hasConflict && (
                   <Alert variant="destructive" className="bg-destructive/5 border-destructive/20 rounded-xl shadow-sm">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle className="font-bold uppercase tracking-tight text-xs">Phát hiện trùng lịch học</AlertTitle>
@@ -246,7 +261,7 @@ export function ClassRescheduleRequestSheet({
                 <Field>
                   <FieldLabel>Lý do yêu cầu</FieldLabel>
                   <Textarea
-                    placeholder="Nhập lý do dời lịch hoặc xin nghỉ (ví dụ: việc cá nhân, ốm, trùng lịch họp quan trọng...)"
+                    placeholder="Nhập lý do dời lịch (ví dụ: trùng lịch họp quan trọng, điều chỉnh lịch dạy...)"
                     className="bg-background min-h-[120px] shadow-inner focus:ring-primary/20"
                     {...form.register("reason")}
                   />
@@ -262,7 +277,7 @@ export function ClassRescheduleRequestSheet({
             </Button>
             <Button
               type="submit"
-              disabled={createRequest.isPending || (watchType === "RESCHEDULE" && hasConflict)}
+              disabled={createRequest.isPending || hasConflict}
             >
               {createRequest.isPending ? "Đang gửi..." : "Gửi yêu cầu"}
             </Button>

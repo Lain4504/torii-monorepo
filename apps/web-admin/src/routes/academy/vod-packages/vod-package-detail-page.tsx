@@ -1,15 +1,11 @@
 import { useParams, Link, useSearchParams } from "react-router-dom"
 import { useAcademyVodPackage, useUpdateAcademyVodPackage, usePublishVodPackageDirectly } from "@/lib/api/services/academy-vod-packages"
-import { useAppSelector } from "@/hooks/hooks"
-import { selectUser } from "@/store/slices/auth-slice"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 import { Rocket, Send, CheckCircle2, Info, BookOpen, Users, MessageSquare, Folder } from "lucide-react"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { PageHeader } from "@/components/common/page-header"
 import {
     ChevronRight,
     Archive,
-    ShieldAlert,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Button } from "@workspace/ui/components/button"
@@ -32,6 +28,7 @@ import { ClassResourcesTab } from "../live-classes/tabs/class-resources-tab"
 import { ClassDiscussionTab } from "../live-classes/tabs/class-discussion-tab"
 import { ClassSyllabusTab } from "../live-classes/tabs/class-syllabus-tab"
 import { VodInfoTab } from "./tabs/vod-info-tab"
+import { usePermissions } from "@/hooks/use-permissions"
 
 const TAB_INFO = "info"
 const TAB_SYLLABUS = "syllabus"
@@ -46,8 +43,8 @@ export default function VodPackageDetailPage() {
     const [searchParams, setSearchParams] = useSearchParams()
     const { data: pkg, isLoading: isLoadingPkg } = useAcademyVodPackage(id)
     const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(pkg?.courseProfileId)
-    const user = useAppSelector(selectUser)
-    const isStaff = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role);
+    const { canAny, hasWildcard } = usePermissions()
+    const isStaff = hasWildcard || canAny(["lms.commerce.update", "lms.commerce.approve", "lms.delivery.approve"])
 
     const updateMutation = useUpdateAcademyVodPackage()
     const publishDirectlyMutation = usePublishVodPackageDirectly()
@@ -141,8 +138,6 @@ export default function VodPackageDetailPage() {
             ? "Gửi duyệt gói VOD?"
             : statusConfirmDialog.newStatus === "PUBLISHED"
                 ? "Phê duyệt & mở bán gói VOD?"
-                : statusConfirmDialog.newStatus === "DRAFT"
-                    ? "Ngừng bán (hạ nháp) gói VOD?"
                     : statusConfirmDialog.newStatus === "ARCHIVED"
                         ? "Lưu trữ gói VOD?"
                         : "Xác nhận thay đổi trạng thái"
@@ -206,17 +201,6 @@ export default function VodPackageDetailPage() {
                                 disabled={updateMutation.isPending}
                             >
                                 <CheckCircle2 className="size-4" /> Phê duyệt & Mở bán
-                            </Button>
-                        )}
-
-                        {pkg.status === 'PUBLISHED' && (
-                            <Button
-                                variant="outline"
-                                className="text-orange-600 border-orange-200 hover:bg-orange-50 shadow-none"
-                                onClick={() => setStatusConfirmDialog({ open: true, newStatus: 'DRAFT' })}
-                                disabled={updateMutation.isPending}
-                            >
-                                <ShieldAlert className="mr-2 h-4 w-4" /> Ngừng bán (Hạ nháp)
                             </Button>
                         )}
 

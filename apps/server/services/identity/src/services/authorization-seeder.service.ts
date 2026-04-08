@@ -6,9 +6,9 @@ import * as yaml from 'js-yaml';
 
 interface AuthorizationConfig {
   system: { version: string; description: string };
-  roles: Array<{ code: string; name: string; description: string }>;
   permissions: Array<{ code: string; description: string; category: string }>;
   default_role_permissions: Record<string, string[]>;
+  role_matrix?: Record<string, string[]>;
   staff_template_suggestions?: Record<string, string[]>;
 }
 
@@ -19,6 +19,7 @@ export class AuthorizationSeederService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
+    await this.seedRolesIfNeeded();
     await this.seedIfNeeded();
     // Force update permissions from YAML when app starts to sync changes
     await this.syncPermissionsFromConfig();
@@ -26,7 +27,7 @@ export class AuthorizationSeederService implements OnModuleInit {
 
   private loadYAML(): AuthorizationConfig {
     try {
-      const configPath = path.join(process.cwd(), 'config', 'rbac-config.yaml');
+      const configPath = path.join(process.cwd(), 'config', 'rbac-v2.yaml');
       const fileContents = fs.readFileSync(configPath, 'utf8');
       return yaml.load(fileContents) as AuthorizationConfig;
     } catch (error) {
@@ -42,7 +43,52 @@ export class AuthorizationSeederService implements OnModuleInit {
   private resolvePermissions(
     config: AuthorizationConfig,
   ): Record<string, string[]> {
-    return config.default_role_permissions || {};
+    return config.role_matrix || config.default_role_permissions || {};
+  }
+
+  /**
+   * Seed base roles into DB (once, idempotent)
+   */
+  private async seedRolesIfNeeded() {
+    const baseRoles: Array<{ code: string; name: string; description: string }> =
+      [
+        {
+          code: 'admin',
+          name: 'System Administrator',
+          description: 'Full access to all system resources',
+        },
+        {
+          code: 'staff-academic',
+          name: 'Academic Staff',
+          description:
+            'Nội dung, lớp/lịch live, duyệt yêu cầu lịch; soạn & duyệt xuất bản offering',
+        },
+        {
+          code: 'staff-operations',
+          name: 'Operations Staff',
+          description:
+            'Đơn hàng/coupon/subscription/blog/gamification/support; đọc academy; duyệt xuất bản offering',
+        },
+        {
+          code: 'lecturer',
+          name: 'Instructor',
+          description: 'Teaching staff managing assigned classes and students',
+        },
+        {
+          code: 'learner',
+          name: 'Student',
+          description: 'Standard student access (no admin permissions)',
+        },
+      ];
+
+    const existing = await this.prisma.role.count();
+    if (existing > 0) return;
+
+    this.logger.log(`🌱 Seeding roles (${baseRoles.length})...`);
+    await this.prisma.role.createMany({
+      data: baseRoles,
+      skipDuplicates: true,
+    });
   }
 
   /**
@@ -73,12 +119,6 @@ export class AuthorizationSeederService implements OnModuleInit {
         const uniquePerms = Array.from(new Set(permissions));
 
         for (const permCode of uniquePerms) {
-          // Skip wildcard - handled separately in permission checking
-          // Wildcard permission is now allowed to be seeded
-          if (permCode === '*') {
-            this.logger.log(`  ⚡ Seeding wildcard for ${roleCode}`);
-          }
-
           await this.prisma.rolePermission.create({
             data: {
               roleCode,
@@ -88,7 +128,7 @@ export class AuthorizationSeederService implements OnModuleInit {
           seededCount++;
         }
         this.logger.log(
-          `  ✅ Seeded ${uniquePerms.filter((p) => p !== '*').length} permissions for ${roleCode}`,
+          `  ✅ Seeded ${uniquePerms.length} permissions for ${roleCode}`,
         );
       }
 
@@ -110,14 +150,15 @@ export class AuthorizationSeederService implements OnModuleInit {
       this.logger.log('🔄 Syncing permissions from YAML to Database...');
       const config = this.loadYAML();
       const resolvedPerms = this.resolvePermissions(config);
+      const validPermissionSet = new Set(
+        (config.permissions || []).map((p) => p.code),
+      );
 
       let addedCount = 0;
       for (const [roleCode, permissions] of Object.entries(resolvedPerms)) {
         // Add new permissions
         const uniquePerms = Array.from(new Set(permissions));
         for (const permCode of uniquePerms) {
-          // if (permCode === '*') continue; // Allow wildcard
-
           // Upsert to ensure it exists
           // We use createMany with skipDuplicates usually, but here we
           // want specific role checks. Using upsert for safety.
@@ -139,12 +180,25 @@ export class AuthorizationSeederService implements OnModuleInit {
         }
       }
 
+      // Remove permissions that are no longer in registry (no backward compatibility)
+      const deleted = await this.prisma.rolePermission.deleteMany({
+        where: {
+          permissionCode: { notIn: Array.from(validPermissionSet) },
+        },
+      });
+
       if (addedCount > 0) {
         this.logger.log(
           `✅ Sync complete! Added ${addedCount} missing permissions.`,
         );
       } else {
         this.logger.log('✅ Permissions are up to date.');
+      }
+
+      if (deleted.count > 0) {
+        this.logger.log(
+          `🧹 Removed ${deleted.count} role-permission mappings for deprecated permissions.`,
+        );
       }
     } catch (error) {
       this.logger.error('❌ Permission sync failed:', error);

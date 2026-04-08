@@ -56,16 +56,19 @@ export default function JlptAttemptHistoryDetailPage() {
 
   const [data, setData] = useState<JlptAttemptDetail | null>(null)
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     if (!attemptId) return
     ;(async () => {
       try {
+        setErrorMessage(null)
         setLoading(true)
         const res = await jlptMockApi.getAttemptById(attemptId)
         setData(res as unknown as JlptAttemptDetail)
       } catch (e: any) {
         console.error(e)
+        setErrorMessage(e?.message ?? 'Không tải được kết quả bài thi')
         toast.error(e?.message ?? 'Không tải được kết quả bài thi')
       } finally {
         setLoading(false)
@@ -74,7 +77,27 @@ export default function JlptAttemptHistoryDetailPage() {
   }, [attemptId])
 
   if (!attemptId) return null
-  if (loading || !data) return <PageLoading className="h-screen" />
+  if (loading) return <PageLoading className="h-screen" />
+  if (!data) {
+    return (
+      <div className="space-y-6 animate-in fade-in duration-700 max-w-2xl mx-auto py-10 px-4">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/40 hover:bg-muted" asChild>
+            <Link href="/jlpt/attempt/history">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
+            Không tải được kết quả
+          </h1>
+        </div>
+        <p className="text-sm text-muted-foreground">{errorMessage ?? 'Không có dữ liệu.'}</p>
+        <Button asChild variant="outline" className="w-full h-10 rounded-xl text-sm">
+          <Link href="/jlpt/attempt/history">Quay lại lịch sử</Link>
+        </Button>
+      </div>
+    )
+  }
 
   const { attempt, scores } = data
   const scoreOrNna = (v: number | undefined | null) =>

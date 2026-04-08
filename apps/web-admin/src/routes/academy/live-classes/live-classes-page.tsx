@@ -24,8 +24,8 @@ import { Badge } from '@workspace/ui/components/badge';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
-import { UserRole, isStaffBranchRole } from "@workspace/schemas";
 import { toast } from 'sonner';
+import { usePermissions } from "@/hooks/use-permissions";
 
 import {
     Dialog,
@@ -59,6 +59,7 @@ import {
 export default function LiveClassesPage() {
     const navigate = useNavigate();
     const user = useAppSelector(selectUser);
+    const { canAny, hasWildcard } = usePermissions();
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
     const [sheetOpen, setSheetOpen] = useState(false);
@@ -71,12 +72,25 @@ export default function LiveClassesPage() {
     // Mặc định hiển thị tất cả (undefined) thay vì chỉ OPENING để Admin thấy được lớp mới tạo (DRAFT)
     const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
-    const isLecturer = user?.role === UserRole.LECTURER;
-    const isStaff = user?.role === UserRole.ADMIN || isStaffBranchRole(user?.role);
+    const isTeachingOnly =
+        canAny(["lms.assessment.grade"]) &&
+        !canAny([
+            "lms.catalog.update",
+            "lms.catalog.approve",
+            "lms.delivery.approve",
+            "lms.commerce.update",
+            "lms.commerce.approve",
+            "ops.user.manage",
+            "ops.order.manage",
+            "ops.coupon.manage",
+        ]) &&
+        !hasWildcard;
+    const isLecturer = isTeachingOnly;
+    const isStaff = !isTeachingOnly;
 
     const { data: classes, isLoading } = useAcademyLiveClasses({
         q: debouncedSearch,
-        instructorId: isLecturer ? user?.id : undefined,
+        instructorId: isTeachingOnly ? user?.id : undefined,
         status: statusFilter,
     } as any);
 

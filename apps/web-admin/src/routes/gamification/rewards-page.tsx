@@ -44,7 +44,7 @@ export default function RewardsPage() {
                 title="Quản lý Phần thưởng (Gamification)"
                 subtitle="Thiết lập các phần thưởng mà học viên có thể dùng điểm XP/Points để đổi lấy mã giảm giá."
                 actions={
-                    <Can permission="gamification.manage">
+                    <Can permission="ops.gamification.manage">
                         <Button
                             onClick={handleCreate}
                             size="lg"

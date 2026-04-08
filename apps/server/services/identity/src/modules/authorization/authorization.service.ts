@@ -58,11 +58,6 @@ export class AuthorizationService implements IAuthorizationService {
     userId: string,
     userRole: string,
   ): Promise<UserPermissions> {
-    // Admin wildcard check
-    if (userRole === 'admin') {
-      return { permissions: ['*'] };
-    }
-
     // Get permissions for current role from DATABASE
     const rolePerms = await this.prisma.rolePermission.findMany({
       where: { roleCode: userRole },
@@ -83,11 +78,6 @@ export class AuthorizationService implements IAuthorizationService {
   ): Promise<boolean> {
     const { permissions } = await this.getUserPermissions(userId, userRole);
 
-    // Check for wildcard permission
-    if (permissions.includes('*')) {
-      return true;
-    }
-
     return permissions.includes(permissionCode);
   }
 
@@ -95,10 +85,6 @@ export class AuthorizationService implements IAuthorizationService {
    * Get permissions for a role (from DB)
    */
   async getRolePermissions(roleCode: string): Promise<string[]> {
-    if (roleCode === 'admin') {
-      return ['*'];
-    }
-
     const rolePerms = await this.prisma.rolePermission.findMany({
       where: { roleCode },
     });
@@ -114,15 +100,17 @@ export class AuthorizationService implements IAuthorizationService {
     permissionCodes: string[],
     context?: AuditContextDTO,
   ): Promise<void> {
-    // Validate role exists in config
-    const role = this.authorizationConfig.getRoleByCode(roleCode);
+    // Validate role exists in DB
+    const role = await this.prisma.role.findUnique({
+      where: { code: roleCode },
+      select: { code: true, name: true, description: true },
+    });
     if (!role) {
-      throw new Error(`Role ${roleCode} not found in authorization config`);
+      throw new Error(`Role ${roleCode} not found`);
     }
 
     // Validate all permissions exist in config
     for (const permCode of permissionCodes) {
-      if (permCode === '*') continue; // Allow wildcard
       if (!this.authorizationConfig.isValidPermission(permCode)) {
         throw new Error(
           `Permission ${permCode} not found in authorization config`,
@@ -139,7 +127,7 @@ export class AuthorizationService implements IAuthorizationService {
     });
 
     // Insert new permissions
-    if (permissionCodes.length > 0 && permissionCodes[0] !== '*') {
+    if (permissionCodes.length > 0) {
       await this.prisma.rolePermission.createMany({
         data: permissionCodes.map((permCode) => ({
           roleCode,
@@ -176,9 +164,11 @@ export class AuthorizationService implements IAuthorizationService {
     context?: AuditContextDTO,
   ): Promise<void> {
     // Validate
-    if (!this.authorizationConfig.getRoleByCode(roleCode)) {
-      throw new Error(`Role ${roleCode} not found`);
-    }
+    const role = await this.prisma.role.findUnique({
+      where: { code: roleCode },
+      select: { code: true, name: true },
+    });
+    if (!role) throw new Error(`Role ${roleCode} not found`);
     if (!this.authorizationConfig.isValidPermission(permissionCode)) {
       throw new Error(`Permission ${permissionCode} not found`);
     }
@@ -231,11 +221,7 @@ export class AuthorizationService implements IAuthorizationService {
    * Get all available roles from config (for admin UI)
    */
   getAvailableRoles(): RoleMetadata[] {
-    return this.authorizationConfig.getRoles().map((role) => ({
-      code: role.code,
-      name: role.name,
-      description: role.description,
-    }));
+    return [];
   }
 
   /**

@@ -31,11 +31,6 @@ export class PermissionsGuard implements CanActivate {
 
     const userPermissions = requester.permissions as string[];
 
-    // Wildcard check
-    if (userPermissions.includes('*')) {
-      return true;
-    }
-
     // Check if user has ANY required permissions for this endpoint
     const hasAnyPermission = requiredPermissions.some((perm) =>
       userPermissions.includes(perm),

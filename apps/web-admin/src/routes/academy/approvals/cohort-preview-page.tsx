@@ -66,7 +66,7 @@ export default function CohortApprovalPreviewPage() {
   }
 
   const canApprove =
-    can("academy.commerce.approve") && cohort.status === "PENDING_APPROVAL"
+    can("lms.commerce.approve") && cohort.status === "PENDING_APPROVAL"
 
   return (
     <div className="flex flex-col gap-6">

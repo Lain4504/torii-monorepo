@@ -66,7 +66,7 @@ export default function VodPackageApprovalPreviewPage() {
   }
 
   const canApprove =
-    can("academy.commerce.approve") && pkg.status === "PENDING_APPROVAL"
+    can("lms.commerce.approve") && pkg.status === "PENDING_APPROVAL"
 
   return (
     <div className="flex flex-col gap-6">

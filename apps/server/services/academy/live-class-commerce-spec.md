@@ -166,14 +166,13 @@ Enrollment entry points are defined via `CourseOffering`.
 
 - Yêu cầu thay đổi buổi học:
   - `sessionId`, `classId?`, `requestedBy`
-  - `type: 'LEAVE' | 'RESCHEDULE'`
+  - `type: 'RESCHEDULE'`
   - `status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'`
   - `requestedDate?`, `proposedDate?`
   - `proposedStartTime?`, `proposedEndTime?`, `proposedTeacherId?`
   - `reason?`, `reviewNote?`, `reviewedBy?`, `reviewedAt?`
 
 - Approve logic (tóm tắt):
-  - `LEAVE`: update session → `status = CANCELLED`, `cancellationReason`.
   - `RESCHEDULE`:
     - Validate không conflict bằng `previewConflict`.
     - Tạo `LiveScheduleSession` mới với slot được đề xuất.

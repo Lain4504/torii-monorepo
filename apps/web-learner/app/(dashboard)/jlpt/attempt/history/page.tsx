@@ -46,21 +46,21 @@ export default function JlptAttemptHistoryPage() {
                                 <ArrowLeft className="size-3.5" />
                             </Link>
                         </Button>
-                        <Badge variant="outline" className="px-2 py-0 rounded-md font-bold text-[10px] uppercase tracking-wider border-border/50 text-muted-foreground/50 leading-none">
+                        <Badge variant="outline" className="px-2 py-0 rounded-md text-[10px] font-medium border-border/50 text-muted-foreground/60 leading-none">
                             Mock History
                         </Badge>
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase">Lịch sử làm bài</h1>
-                    <p className="text-[13px] font-bold text-muted-foreground/40 leading-relaxed uppercase tracking-widest italic lowercase">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Lịch sử làm bài</h1>
+                    <p className="text-[13px] font-medium text-muted-foreground/40 leading-relaxed">
                         Xem lại kết quả luyện thi JLPT của bạn
                     </p>
                 </div>
                 <div className="shrink-0 flex items-center gap-6">
                     <div className="text-right">
-                        <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em] leading-none mb-1.5">Tổng số lượt thi</p>
+                        <p className="text-[10px] font-medium text-muted-foreground/30 leading-none mb-1.5">Tổng số lượt thi</p>
                         <p className="text-2xl font-bold text-foreground tabular-nums leading-none tracking-tight">{items.length}</p>
                     </div>
-                    <Button asChild variant="outline" className="font-bold h-10 px-6 rounded-full text-xs uppercase tracking-tight">
+                    <Button asChild variant="outline" className="font-semibold h-10 px-6 rounded-full text-xs tracking-tight">
                         <Link href="/dashboard/jlpt-list-exam">Thi thử mới</Link>
                     </Button>
                 </div>

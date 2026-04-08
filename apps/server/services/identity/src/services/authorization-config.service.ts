@@ -3,12 +3,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 
-export interface RoleDefinition {
-  code: string;
-  name: string;
-  description: string;
-}
-
 export interface PermissionDefinition {
   code: string;
   description: string;
@@ -20,9 +14,9 @@ interface AuthorizationConfig {
     version: string;
     description: string;
   };
-  roles: RoleDefinition[];
   permissions: PermissionDefinition[];
   default_role_permissions: Record<string, string[]>;
+  role_matrix?: Record<string, string[]>;
   staff_template_suggestions?: Record<string, string[]>;
 }
 
@@ -37,7 +31,7 @@ export class AuthorizationConfigService {
 
   private loadConfig() {
     try {
-      const configPath = path.join(process.cwd(), 'config', 'rbac-config.yaml');
+      const configPath = path.join(process.cwd(), 'config', 'rbac-v2.yaml');
       const fileContents = fs.readFileSync(configPath, 'utf8');
       this.config = yaml.load(fileContents) as AuthorizationConfig;
       this.logger.log(
@@ -47,20 +41,6 @@ export class AuthorizationConfigService {
       this.logger.error('Failed to load authorization config:', error);
       throw new Error('Failed to load authorization configuration');
     }
-  }
-
-  /**
-   * Get all defined roles
-   */
-  getRoles(): RoleDefinition[] {
-    return this.config.roles;
-  }
-
-  /**
-   * Get role by code
-   */
-  getRoleByCode(code: string): RoleDefinition | undefined {
-    return this.config.roles.find((r) => r.code === code);
   }
 
   /**
@@ -74,7 +54,11 @@ export class AuthorizationConfigService {
    * Get default permissions for a role
    */
   getRolePermissions(roleCode: string): string[] {
-    return this.config.default_role_permissions[roleCode] || [];
+    return (
+      this.config.role_matrix?.[roleCode] ||
+      this.config.default_role_permissions?.[roleCode] ||
+      []
+    );
   }
 
   /**
@@ -95,15 +79,7 @@ export class AuthorizationConfigService {
    * Check if a permission code exists
    */
   isValidPermission(permissionCode: string): boolean {
-    if (permissionCode === '*') return true;
     return this.config.permissions.some((p) => p.code === permissionCode);
-  }
-
-  /**
-   * Check if a role code exists
-   */
-  isValidRole(roleCode: string): boolean {
-    return this.config.roles.some((r) => r.code === roleCode);
   }
 
   /**

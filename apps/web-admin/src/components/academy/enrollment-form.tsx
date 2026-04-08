@@ -37,7 +37,6 @@ import {
     academyEnrollmentUpdateDTOSchema,
     type AcademyEnrollmentCreateDTO,
     type AcademyEnrollmentUpdateDTO,
-    UserRole,
 } from "@workspace/schemas"
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
@@ -84,7 +83,7 @@ export function EnrollmentForm({
     const [openUserPopover, setOpenUserPopover] = useState(false)
 
     const { data: learnersData, isLoading: loadingLearners } = useUsers({
-        role: UserRole.LEARNER,
+        role: "learner",
         search: debouncedSearch,
         limit: 100,
     })

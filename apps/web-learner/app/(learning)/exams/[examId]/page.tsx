@@ -38,7 +38,7 @@ export default function ExamRunnerPage() {
   const searchParams = useSearchParams();
   const attemptIdFromQuery = searchParams.get('attemptId');
   const enrollmentIdFromQuery = searchParams.get('enrollmentId') || undefined;
-  const classIdFromQuery = searchParams.get('classId') || undefined;
+  const liveClassIdFromQuery = searchParams.get('liveClassId') || undefined;
   const router = useRouter();
 
   const { data: exam, isLoading: isLoadingExam } = useAcademyExam(examId);
@@ -70,14 +70,14 @@ export default function ExamRunnerPage() {
          {
            examId,
            ...(enrollmentIdFromQuery ? { enrollmentId: enrollmentIdFromQuery } : {}),
-           ...(classIdFromQuery ? { classId: classIdFromQuery } : {}),
+          ...(liveClassIdFromQuery ? { liveClassId: liveClassIdFromQuery } : {}),
          },
          {
            onSuccess: (data) => setAttemptId(data.id),
          },
        );
     }
-  }, [exam, attemptId, examId, startAttemptMutation, enrollmentIdFromQuery, classIdFromQuery]);
+  }, [exam, attemptId, examId, startAttemptMutation, enrollmentIdFromQuery, liveClassIdFromQuery]);
 
   // Sync answers from draft
   useEffect(() => {

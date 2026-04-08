@@ -46,7 +46,7 @@ export class UsersController {
   ) {}
 
   @Post('search')
-  @Permissions('user.view')
+  @Permissions('ops.user.view')
   async findAll(
     @Body(new ZodValidationPipe(userSearchRequestDTOSchema))
     dto: UserSearchRequestDTO,
@@ -64,7 +64,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Permissions('user.view')
+  @Permissions('ops.user.view')
   async findById(@Param('id') id: string) {
     try {
       const user = await firstValueFrom(
@@ -79,7 +79,7 @@ export class UsersController {
   }
 
   @Post()
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async create(
     @Body(new ZodValidationPipe(userCreateDTOSchema)) dto: UserCreateDTO,
   ) {
@@ -96,7 +96,7 @@ export class UsersController {
   }
 
   @Post('internal')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async createInternal(
     @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(adminCreateInternalUserDTOSchema))
@@ -124,7 +124,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async update(
     @Req() req: ReqWithRequester,
     @Param('id') id: string,
@@ -158,7 +158,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async delete(
     @Req() req: ReqWithRequester,
     @Param('id') id: string,
@@ -188,7 +188,7 @@ export class UsersController {
   }
 
   @Patch(':id/status')
-  @Permissions('user.manage')
+  @Permissions('ops.user.manage')
   async changeStatus(
     @Req() req: ReqWithRequester,
     @Param('id') id: string,

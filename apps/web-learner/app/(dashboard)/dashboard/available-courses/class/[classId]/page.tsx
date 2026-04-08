@@ -199,7 +199,6 @@ export default function ClassCatalogDetailPage() {
         className="w-full h-12 font-bold rounded-xl text-md shadow-lg shadow-primary/20"
         size="lg"
         asChild
-        data-requires-auth={!isAuthenticated ? 'true' : undefined}
       >
         <Link href={checkoutHref}>
           {isLIVE ? "Đăng ký học ngay" : "Mua khóa học"} 
