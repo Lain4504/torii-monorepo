@@ -36,6 +36,22 @@ export const certificateApi = {
         );
         return response.data.data!;
     },
+
+    async downloadCertificatePdfById(id: string): Promise<Blob> {
+        const response = await apiClient.get<ArrayBuffer>(
+            `/api/certificates/${id}/pdf`,
+            { responseType: 'arraybuffer' },
+        );
+        return new Blob([response.data], { type: 'application/pdf' });
+    },
+
+    async downloadCertificatePdfByCode(code: string): Promise<Blob> {
+        const response = await apiClient.get<ArrayBuffer>(
+            `/api/certificates/verify/${code}/pdf`,
+            { responseType: 'arraybuffer' },
+        );
+        return new Blob([response.data], { type: 'application/pdf' });
+    },
 };
 
 /**

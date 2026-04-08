@@ -64,12 +64,18 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
 
   const updateItem = (index: number, field: string, value: any) => {
     const newItems = [...items]
-    let updatedItem = { ...newItems[index], [field]: value }
+    const updatedItem = { ...newItems[index], [field]: value }
 
-    // If changing to FINAL_EXAM, clear module/lesson associations
-    if (field === "assessmentKind" && value === AcademyAssessmentKind.FINAL_EXAM) {
-      updatedItem.moduleId = undefined
-      updatedItem.triggerLessonId = undefined
+    // Clean up fields based on assessment kind
+    if (field === "assessmentKind") {
+      if (value === AcademyAssessmentKind.FINAL_EXAM) {
+        updatedItem.moduleId = undefined
+        updatedItem.triggerLessonId = undefined
+      } else if (value === AcademyAssessmentKind.MODULE_CHECKPOINT) {
+        updatedItem.triggerLessonId = undefined
+      } else if (value === AcademyAssessmentKind.LESSON_CHECKPOINT) {
+        // Keeps moduleId as a fallback, but primary is triggerLessonId
+      }
     }
 
     newItems[index] = updatedItem
@@ -78,12 +84,20 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
 
   const handleSave = async () => {
     try {
+      const cleanedItems = items.map((item, idx) => {
+        const cleaned = { ...item, orderIndex: idx };
+        if (cleaned.assessmentKind === AcademyAssessmentKind.FINAL_EXAM) {
+          cleaned.moduleId = null;
+          cleaned.triggerLessonId = null;
+        } else if (cleaned.assessmentKind === AcademyAssessmentKind.MODULE_CHECKPOINT) {
+          cleaned.triggerLessonId = null;
+        }
+        return cleaned;
+      });
+
       await updateMutation.mutateAsync({
         courseProfileId,
-        items: items.map((item, idx) => ({
-          ...item,
-          orderIndex: idx,
-        }))
+        items: cleanedItems,
       })
       toast.success("Cập nhật kế hoạch đánh giá thành công")
     } catch (error: any) {

@@ -147,10 +147,10 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
     const moduleMilestones =
         milestones?.filter(
             (m) =>
-                m.kind === 'MODULE_CHECKPOINT' &&
-                m.moduleId === mod.id &&
-                !m.triggerLessonId
+                normalizeItemKind(m.kind) === 'MODULE_CHECKPOINT' &&
+                m.moduleId === mod.id
         ) || [];
+
 
     return (
         <AccordionItem value={mod.id} className="border-none px-2">
@@ -172,7 +172,10 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                     const isActive = lesson.id === currentLessonId;
                     const isDone = completedIds.has(lessonProgressId(lesson));
                     const unlocked = isLessonUnlocked(lesson);
-                    const lessonMilestones = milestones?.filter(m => m.triggerLessonId === lesson.id) || [];
+                    const lessonMilestones = milestones?.filter(m => 
+                        (m.triggerLessonId && (m.triggerLessonId === lesson.id || m.triggerLessonId === lesson.referenceId))
+                    ) || [];
+
 
                     return (
                         <div key={lesson.id} className="px-1">
@@ -379,15 +382,23 @@ export default function CourseLearnPage() {
     const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
     const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
 
-    // 3. Consolidated Data
-    const classData = liveClassData || vodPackageData;
-    const curriculum = liveCurriculum || vodCurriculum;
-    const isLoading = (liveClassLoading && liveCurriculumLoading) || (isVodCandidate && (vodLoading || vodCurriculumLoading));
+    // 3. Consolidated Data (Explicit Selection)
+    const classData = isVodCandidate ? (vodPackageData || liveClassData) : (liveClassData || vodPackageData);
+    const curriculum = isVodCandidate ? (vodCurriculum || liveCurriculum) : (liveCurriculum || vodCurriculum);
 
-    // 4. Completed Lessons check
-    // Original hook doesn't support options object, so we call it simply
+    // 4. Loading States & Fallbacks
+    const isModeDetermined = !!enrollmentData;
+    
     const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '');
     const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
+
+    const isDataLoading = isVodCandidate
+        ? (vodLoading || vodCurriculumLoading)
+        : (liveClassLoading || liveCurriculumLoading);
+
+    const isLoading = !isModeDetermined || isDataLoading;
+
+    // 5. Completed Lessons check
     const completedContentItemIds = isVodCandidate
         ? (vodCompletedIds ?? EMPTY_IDS)
         : (liveCompletedIds ?? EMPTY_IDS);
@@ -435,7 +446,7 @@ export default function CourseLearnPage() {
     }, [enrollmentData, enrollmentError, liveClassError, isLoading, classData, isVodCandidate, vodLoading, vodPackageData, router]);
 
     // ── Computed data & State ─────────────────────────────────────────────
-    const completedIds = useMemo(() => new Set(completedContentItemIds), [completedContentItemIds]);
+    const completedIds = useMemo(() => new Set<string>(completedContentItemIds), [completedContentItemIds]);
 
     // ── Sorting Logic ──────────────────────────────────────────────────────
     const sortedModules = useMemo(() => {
@@ -471,12 +482,17 @@ export default function CourseLearnPage() {
         sortedModules.forEach((mod: any, modIdx: number) => {
             const moduleOrder = mod.order ?? modIdx;
             (mod.lessons || []).forEach((lesson: any, lessonIdx: number) => {
-                map.set(lesson.id, {
+                const meta = {
                     moduleOrder,
                     lessonOrder: lesson.order ?? lessonIdx,
                     moduleId: mod.id,
-                });
+                };
+                map.set(lesson.id, meta);
+                if (lesson.referenceId) {
+                    map.set(lesson.referenceId, meta);
+                }
             });
+
         });
         return map;
     }, [sortedModules]);
@@ -498,10 +514,11 @@ export default function CourseLearnPage() {
             if (!lessonMeta) return false;
 
             return milestones.some((m: AcademyAssessmentStatus) => {
+                const kind = normalizeItemKind(m.kind);
                 if (!m?.isRequired) return false;
                 if (m.status === 'PASSED') return false;
 
-                if (m.kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
+                if (kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
                     const triggerMeta = lessonOrderMeta.get(m.triggerLessonId);
                     if (!triggerMeta) return false;
                     if (triggerMeta.moduleOrder < lessonMeta.moduleOrder) return true;
@@ -511,7 +528,7 @@ export default function CourseLearnPage() {
                     );
                 }
 
-                if (m.kind === 'MODULE_CHECKPOINT' && m.moduleId) {
+                if (kind === 'MODULE_CHECKPOINT' && m.moduleId) {
                     const milestoneModuleOrder = moduleOrderMap.get(m.moduleId);
                     if (milestoneModuleOrder === undefined) return false;
                     return milestoneModuleOrder < lessonMeta.moduleOrder;
@@ -519,6 +536,7 @@ export default function CourseLearnPage() {
 
                 return false;
             });
+
         },
         [lessonOrderMeta, milestones, moduleOrderMap],
     );
@@ -942,12 +960,23 @@ export default function CourseLearnPage() {
                                     currentLessonId={currentLesson?.id ?? null}
                                     completedIds={completedIds}
                                     isLessonUnlocked={effectiveLessonUnlocked}
-                                    milestones={milestones.filter(m =>
-                                        m.kind !== 'FINAL_EXAM' && (
-                                            m.moduleId === mod.id ||
-                                            (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
-                                        )
-                                    )}
+                                    milestones={milestones.filter(m => {
+                                        const kind = normalizeItemKind(m.kind);
+                                        if (kind === 'FINAL_EXAM') return false;
+                                        
+                                        // Check if Module Checkpoint matches current module
+                                        if (kind === 'MODULE_CHECKPOINT' && m.moduleId === mod.id) return true;
+                                        
+                                        // Check if Lesson Checkpoint matches any lesson in current module
+                                        if (kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
+                                            return mod.lessons?.some((l: any) => 
+                                                l.id === m.triggerLessonId || l.referenceId === m.triggerLessonId
+                                            );
+                                        }
+                                        
+                                        return false;
+                                    })}
+
                                     onSelectMilestone={handleOpenMilestoneConfirm}
                                     onSelectLesson={lesson => {
                                         setCurrentLesson(lesson);

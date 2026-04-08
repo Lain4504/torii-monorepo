@@ -1,14 +1,20 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
+import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
-import { 
-    Award, Share2, Calendar
-} from 'lucide-react'
+import {
+    Item,
+    ItemActions,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from '@workspace/ui/components/item'
+import { Award, Download, Share2 } from 'lucide-react'
 import { formatDate } from '@/utils/format-utils'
 import Link from 'next/link'
-import { useCertificates } from '@/lib/api/services/certificate-api'
+import { certificateApi, useCertificates } from '@/lib/api/services/certificate-api'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import type { CertificateResponseDTO } from '@workspace/schemas'
 import { toast } from 'sonner'
@@ -17,11 +23,6 @@ import { toast } from 'sonner'
 export default function CertificatesPage() {
     const { data: response, isLoading } = useCertificates({ limit: '50' })
     const certificates = response?.data || []
-
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text)
-        toast.success('Đã sao chép mã chứng chỉ!')
-    }
 
     const handleShare = (cert: CertificateResponseDTO) => {
         const verifyUrl = `${window.location.origin}/verify/${cert.certificateCode}`
@@ -38,17 +39,33 @@ export default function CertificatesPage() {
         }
     }
 
+    const handleDownloadPdf = async (cert: CertificateResponseDTO) => {
+        try {
+            const blob = await certificateApi.downloadCertificatePdfById(cert.id)
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `certificate-${cert.certificateCode}.pdf`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+            toast.success('Đang tải PDF chứng chỉ...')
+        } catch (err) {
+            console.error('Failed to download certificate PDF:', err)
+            toast.error('Không thể tải PDF chứng chỉ. Vui lòng thử lại.')
+        }
+    }
+
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 pb-8">
-            {/* Standard Header */}
-            <div className="space-y-4 pb-8 border-b border-border">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Chứng chỉ của tôi</h1>
-                <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
-                    Minh chứng cho sự nỗ lực và quá trình học tập bền bỉ của bạn tại Torii Academy.
+        <div className="space-y-6 pb-8">
+            <div className="space-y-2">
+                <h1 className="text-2xl font-semibold tracking-tight">Chứng chỉ của tôi</h1>
+                <p className="text-sm text-muted-foreground">
+                    Minh chứng cho sự nỗ lực và quá trình học tập của bạn.
                 </p>
             </div>
 
-            {/* List Section */}
             {isLoading ? (
                 <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
@@ -69,45 +86,49 @@ export default function CertificatesPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="space-y-3">
+                <div className="grid gap-3">
                     {certificates.map((cert: CertificateResponseDTO) => {
                         const certClass = (cert as any)?.class as { code?: string; name?: string } | undefined
                         const certName = certClass?.name || 'Chứng chỉ hoàn thành'
                         const certCode = cert.certificateCode
-                        const actionUrl = cert.fileUrl || `/verify/${cert.certificateCode}`
 
                         return (
-                            <Card key={cert.id}>
-                                <CardContent className="py-4">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="min-w-0 flex items-center gap-3">
-                                            <Award className="size-5 text-primary shrink-0" />
-                                            <div className="min-w-0 space-y-1">
-                                                <p className="truncate text-sm">{certName}</p>
-                                                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                                                    <span>ID: {certCode.slice(0, 12)}</span>
-                                                    <span>•</span>
-                                                    <span>{formatDate(cert.issueDate)}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            <Badge variant="secondary">Chính thức</Badge>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handleShare(cert)}
-                                            >
-                                                <Share2 className="size-4" />
-                                                Chia sẻ
-                                            </Button>
-                                            <Button asChild size="sm">
-                                                <Link href={actionUrl} target="_blank">Xác thực</Link>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <Item key={cert.id} variant="outline">
+                                <ItemMedia>
+                                    <Award className="size-5 text-primary" />
+                                </ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>{certName}</ItemTitle>
+                                    <ItemDescription>
+                                        <span className="mr-2">Mã: {certCode.slice(0, 12)}</span>
+                                        <span>• {formatDate(cert.issueDate)}</span>
+                                    </ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                    <Badge variant="secondary">Chính thức</Badge>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleDownloadPdf(cert)}
+                                    >
+                                        <Download className="size-4" />
+                                        PDF
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleShare(cert)}
+                                    >
+                                        <Share2 className="size-4" />
+                                        Chia sẻ
+                                    </Button>
+                                    <Button asChild size="sm">
+                                        <Link href={`/verify/${cert.certificateCode}`} target="_blank">
+                                            Xác thực
+                                        </Link>
+                                    </Button>
+                                </ItemActions>
+                            </Item>
                         )
                     })}
                 </div>

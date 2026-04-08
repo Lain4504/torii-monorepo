@@ -36,16 +36,19 @@ export class AssessmentPlanService {
       });
 
       return tx.academyCourseProfileAssessment.createMany({
-        data: items.map((item) => ({
-          courseProfileId,
-          examId: item.examId,
-          assessmentKind: item.assessmentKind as any,
-          moduleId: item.moduleId,
-          triggerLessonId: item.triggerLessonId,
-          orderIndex: item.orderIndex,
-          isRequired: item.isRequired,
-          isActive: item.isActive,
-        })),
+        data: items.map((item) => {
+          const kind = item.assessmentKind as AcademyAssessmentKind;
+          return {
+            courseProfileId,
+            examId: item.examId,
+            assessmentKind: kind as any,
+            moduleId: kind === AcademyAssessmentKind.FINAL_EXAM ? null : item.moduleId,
+            triggerLessonId: kind !== AcademyAssessmentKind.LESSON_CHECKPOINT ? null : item.triggerLessonId,
+            orderIndex: item.orderIndex,
+            isRequired: item.isRequired,
+            isActive: item.isActive,
+          };
+        }),
       });
     });
   }
@@ -158,6 +161,7 @@ export class AssessmentPlanService {
         score: latestAttempt?.score ? Number(latestAttempt.score) : undefined,
         percentage: latestAttempt?.percentage ? Number(latestAttempt.percentage) : undefined,
         isPassed: latestAttempt?.isPassed ?? undefined,
+        isRequired: p.isRequired,
       };
     });
   }

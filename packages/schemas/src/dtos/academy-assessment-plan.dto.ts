@@ -33,6 +33,7 @@ export const academyAssessmentStatusSchema = z.object({
   score: z.number().optional(),
   percentage: z.number().optional(),
   isPassed: z.boolean().optional(),
+  isRequired: z.boolean().optional(),
 });
 
 export type AcademyAssessmentStatusDTO = z.infer<typeof academyAssessmentStatusSchema>;

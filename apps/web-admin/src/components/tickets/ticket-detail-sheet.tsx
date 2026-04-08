@@ -8,6 +8,15 @@ import {
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
+import { Label } from '@workspace/ui/components/label';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@workspace/ui/components/table';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
 import { User, Calendar, MessageSquare, Tag, Info, Building, Coins, Clock } from 'lucide-react';
@@ -38,17 +47,56 @@ export function TicketDetailSheet({
         CANCELLED: 'Đã hủy',
     };
 
+    const renderValue = (value: unknown) => {
+        if (value === null) return '—';
+        if (value === undefined) return '—';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+        try {
+            return JSON.stringify(value, null, 2);
+        } catch {
+            return String(value);
+        }
+    };
+
     const renderMetadata = () => {
-        if (!ticket.metadata) return null;
+        const metadata = (ticket as any).metadata as Record<string, unknown> | undefined;
+        if (!metadata || Object.keys(metadata).length === 0) return null;
+
+        const entries = Object.entries(metadata);
+
         return (
-            <div className="space-y-2">
-                <h4 className="text-xs uppercase text-muted-foreground font-semibold">Thông tin bổ sung</h4>
-                <div className="rounded-xl border border-border/50 bg-muted/30 p-4 text-xs font-mono">
-                    <pre className="whitespace-pre-wrap break-words">{JSON.stringify(ticket.metadata, null, 2)}</pre>
+            <div className="space-y-3">
+                <Label className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                    Thông tin bổ sung
+                </Label>
+                <div className="rounded-xl border overflow-hidden">
+                    <Table>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow>
+                                <TableHead className="w-[220px]">Trường</TableHead>
+                                <TableHead>Giá trị</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {entries.map(([key, value]) => (
+                                <TableRow key={key}>
+                                    <TableCell className="align-top py-3">
+                                        <div className="text-sm font-medium">{key}</div>
+                                    </TableCell>
+                                    <TableCell className="align-top py-3">
+                                        <pre className="text-xs whitespace-pre-wrap break-words font-mono text-muted-foreground">
+                                            {renderValue(value)}
+                                        </pre>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
-        )
-    }
+        );
+    };
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
