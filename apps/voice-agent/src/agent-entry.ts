@@ -1,6 +1,153 @@
-import { JobContext, voice, defineAgent } from '@livekit/agents';
+import { AutoSubscribe, JobContext, voice, defineAgent } from '@livekit/agents';
 import * as google from '@livekit/agents-plugin-google';
+import { EndSensitivity, StartSensitivity } from '@google/genai';
 import { getGraph } from './graphs';
+
+type SessionMetadata = {
+    graphName?: string;
+    instructions?: string;
+    model?: string;
+    voice?: string;
+    temperature?: number;
+    maxOutputTokens?: number | 'inf';
+    modalities?: string[];
+    geminiApiKey?: string;
+};
+
+type SessionConfig = {
+    graphName: string;
+    instructions: string;
+    model: string;
+    voice: string;
+    temperature: number;
+    maxOutputTokens?: number | 'inf';
+    modalities?: string[];
+    geminiApiKey?: string;
+};
+
+function parseModalities(input: unknown): string[] | undefined {
+    if (Array.isArray(input)) {
+        const values = input
+            .filter((v): v is string => typeof v === 'string')
+            .map(v => v.toUpperCase())
+            .filter(v => v === 'TEXT' || v === 'AUDIO');
+        return values.length > 0 ? values : undefined;
+    }
+
+    if (typeof input !== 'string') {
+        return undefined;
+    }
+
+    const value = input.toLowerCase();
+    if (value === 'text_and_audio') return ['TEXT', 'AUDIO'];
+    if (value === 'text_only') return ['TEXT'];
+    if (value === 'audio_only') return ['AUDIO'];
+    return undefined;
+}
+
+function parseSessionConfigObject(data: Record<string, unknown>): SessionMetadata {
+    const temperature = Number(data.temperature);
+    const maxOutputRaw = data.max_output_tokens ?? data.maxOutputTokens;
+    const maxOutputTokens =
+        maxOutputRaw === 'inf'
+            ? 'inf'
+            : typeof maxOutputRaw === 'string' && maxOutputRaw.trim().length === 0
+                ? undefined
+                : Number.isFinite(Number(maxOutputRaw))
+                    ? Number(maxOutputRaw)
+                    : undefined;
+
+    const graphName =
+        typeof data.graphName === 'string'
+            ? data.graphName
+            : typeof data.graph_name === 'string'
+                ? data.graph_name
+                : undefined;
+
+    const geminiKeyRaw = data.gemini_api_key ?? data.geminiApiKey;
+    const geminiApiKey =
+        typeof geminiKeyRaw === 'string' && geminiKeyRaw.trim().length > 0
+            ? geminiKeyRaw.trim()
+            : undefined;
+
+    return {
+        graphName,
+        instructions: typeof data.instructions === 'string' ? data.instructions : undefined,
+        model: typeof data.model === 'string' ? data.model : undefined,
+        voice: typeof data.voice === 'string' ? data.voice : undefined,
+        temperature: Number.isFinite(temperature) ? temperature : undefined,
+        maxOutputTokens,
+        modalities: parseModalities(data.modalities),
+        geminiApiKey,
+    };
+}
+
+function parseSessionMetadata(raw: string | undefined): SessionMetadata {
+    if (!raw) {
+        return {};
+    }
+
+    try {
+        const data = JSON.parse(raw) as Record<string, unknown>;
+        return parseSessionConfigObject(data);
+    } catch (error) {
+        console.warn('[Agent] Failed to parse participant metadata config, using defaults.', error);
+        return {};
+    }
+}
+
+function buildSessionConfig(graphName: string, overrides: SessionMetadata): SessionConfig {
+    const graph = getGraph(graphName);
+    return {
+        graphName: graph.name,
+        instructions: overrides.instructions || graph.systemPrompt,
+        model: overrides.model || graph.model,
+        voice: overrides.voice || graph.voice,
+        temperature: overrides.temperature ?? graph.temperature ?? 0.8,
+        maxOutputTokens: overrides.maxOutputTokens,
+        modalities: overrides.modalities,
+        geminiApiKey: overrides.geminiApiKey,
+    };
+}
+
+function mergeSessionConfig(current: SessionConfig, patch: SessionMetadata): SessionConfig {
+    const base =
+        patch.graphName && patch.graphName !== current.graphName
+            ? buildSessionConfig(patch.graphName, { geminiApiKey: current.geminiApiKey })
+            : { ...current };
+
+    return {
+        ...base,
+        graphName: patch.graphName ? getGraph(patch.graphName).name : base.graphName,
+        instructions: patch.instructions ?? base.instructions,
+        model: patch.model ?? base.model,
+        voice: patch.voice ?? base.voice,
+        temperature: patch.temperature ?? base.temperature,
+        maxOutputTokens: patch.maxOutputTokens ?? base.maxOutputTokens,
+        modalities: patch.modalities ?? base.modalities,
+        geminiApiKey: patch.geminiApiKey ?? base.geminiApiKey,
+    };
+}
+
+function sameStringArray(a?: string[], b?: string[]): boolean {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    return a.every((value, idx) => value === b[idx]);
+}
+
+function areConfigsEqual(a: SessionConfig, b: SessionConfig): boolean {
+    return (
+        a.graphName === b.graphName &&
+        a.instructions === b.instructions &&
+        a.model === b.model &&
+        a.voice === b.voice &&
+        a.temperature === b.temperature &&
+        a.maxOutputTokens === b.maxOutputTokens &&
+        a.geminiApiKey === b.geminiApiKey &&
+        sameStringArray(a.modalities, b.modalities)
+    );
+}
 
 export default defineAgent({
     entry: async (ctx: JobContext) => {
@@ -8,7 +155,7 @@ export default defineAgent({
         console.log(`[Agent] Joining room: ${roomName}`);
 
         // Wait for room connection
-        await ctx.connect();
+        await ctx.connect(undefined, AutoSubscribe.AUDIO_ONLY);
         // Make our presence known to other agents immediately
         const myJoiningTimeStr = Date.now().toString();
         // We use metadata as it's more standard and triggers specific events
@@ -114,18 +261,16 @@ export default defineAgent({
         console.log(`[Agent] Connected to room: ${roomName} (Job: ${ctx.job.id})`);
 
         // ─── Participant Discovery ──────────────────────────────────────────────
-        const humanParticipants = Array.from(ctx.room.remoteParticipants.values()).filter(p =>
-            !p.identity.startsWith('agent-')
-        );
-        const participant = humanParticipants[0];
+        const participant = await ctx.waitForParticipant();
+        const participantCfg = parseSessionMetadata(participant.metadata);
 
         // ─── Graph Detection ────────────────────────────────────────────────────
-        let graphName = 'japanese_tutor';
+        let graphName = participantCfg.graphName || 'japanese_tutor';
         try {
-            if (ctx.job.metadata) {
+            if (!participantCfg.graphName && ctx.job.metadata) {
                 const meta = typeof ctx.job.metadata === 'string' ? JSON.parse(ctx.job.metadata) : ctx.job.metadata;
                 graphName = meta.graphName || graphName;
-            } else {
+            } else if (!participantCfg.graphName) {
                 // Fallback: Parse from room name
                 // Format: roleplay-<graphName>-<userId>-<sessionId>
                 const parts = roomName.split('-');
@@ -142,38 +287,169 @@ export default defineAgent({
         }
 
         const graph = getGraph(graphName);
+        const initialConfig = buildSessionConfig(graph.name, participantCfg);
 
         console.log(`[Agent] Target participant: ${participant?.identity || 'None'}`);
-        console.log(`[Agent] Using graph: ${graph.name} (${graph.displayName})`);
+        console.log(`[Agent] Using graph: ${initialConfig.graphName} (${graph.displayName})`);
+        if (participantCfg.model || participantCfg.voice || participantCfg.instructions) {
+            console.log('[Agent] Applying session config from participant metadata.');
+        }
 
-        const llm = new google.beta.realtime.RealtimeModel({
-            model: graph.model,
-            voice: graph.voice as any,
-            temperature: graph.temperature || 0.8,
-            instructions: graph.systemPrompt,
-            // ─── Latency Optimization ──────────────────────────────────────────
-            // Use END_SENSITIVITY_HIGH so agent detects end-of-speech faster.
-            // Reduce silenceDurationMs from default ~800ms to 400ms.
-            realtimeInputConfig: {
-                automaticActivityDetection: {
-                    endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH' as any,
-                    silenceDurationMs: 400,
-                    prefixPaddingMs: 200,
+        const createModel = (config: SessionConfig) =>
+            new google.beta.realtime.RealtimeModel({
+                model: config.model,
+                voice: config.voice as any,
+                temperature: config.temperature,
+                instructions: config.instructions,
+                apiKey: config.geminiApiKey,
+                maxOutputTokens: config.maxOutputTokens === 'inf' ? undefined : config.maxOutputTokens,
+                modalities: config.modalities as any,
+                // ─── Latency Optimization ──────────────────────────────────────────
+                // Use high speech sensitivity and shorter silence window for faster turn-end detection.
+                realtimeInputConfig: {
+                    automaticActivityDetection: {
+                        startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_HIGH,
+                        endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_HIGH,
+                        silenceDurationMs: 220,
+                        prefixPaddingMs: 120,
+                    },
                 },
-            },
-        });
+                // Disable reasoning/thinking budget to reduce voice reply latency.
+                thinkingConfig: {
+                    thinkingBudget: 0,
+                },
+            });
 
-        const session = new voice.AgentSession({
-            llm,
-        });
+        const createSession = (config: SessionConfig) =>
+            new voice.AgentSession({
+                llm: createModel(config),
+                // Keep endpointing tight to reduce handoff delay from user speech to model response.
+                voiceOptions: {
+                    preemptiveGeneration: true,
+                    minEndpointingDelay: 120,
+                    maxEndpointingDelay: 1200,
+                },
+            });
 
-        const agent = new voice.Agent({
-            instructions: "You are a helpful Japanese language tutor.",
-        });
+        const createAgent = (config: SessionConfig, chatCtx?: any) =>
+            new voice.Agent({
+                instructions: config.instructions,
+                ...(chatCtx ? { chatCtx } : {}),
+            });
 
-        // Start the session
-        await (session as any).start({ agent, room: ctx.room });
-        console.log(`[Agent] Session started for room: ${roomName} using model: ${llm.model}`);
+        let userSpeechStartedAt = 0;
+        let userSpeechEndedAt = 0;
+        const attachLatencyTracking = (session: voice.AgentSession) => {
+            session.on(voice.AgentSessionEventTypes.UserStateChanged, (ev: any) => {
+                if (ev?.newState === 'speaking') {
+                    userSpeechStartedAt = Date.now();
+                    // Reset end marker at start of a new user turn to avoid stale carry-over.
+                    userSpeechEndedAt = 0;
+                }
+                if (ev?.oldState === 'speaking' && ev?.newState === 'listening') {
+                    userSpeechEndedAt = Date.now();
+                    console.log(`[Agent] User speech ended at ${userSpeechEndedAt}`);
+                }
+            });
+
+            session.on(voice.AgentSessionEventTypes.AgentStateChanged, (ev: any) => {
+                if (ev?.newState === 'speaking') {
+                    const now = Date.now();
+                    const hasValidEndMarker = userSpeechEndedAt > 0 && userSpeechEndedAt >= userSpeechStartedAt;
+                    const fromUserEnd = hasValidEndMarker ? now - userSpeechEndedAt : -1;
+                    const fromUserStart = userSpeechStartedAt > 0 ? now - userSpeechStartedAt : -1;
+                    if (fromUserEnd >= 0) {
+                        console.log(`[Agent] Latency stop-speaking->agent-speaking: ${fromUserEnd}ms (start->speak: ${fromUserStart}ms)`);
+                    } else {
+                        console.log(`[Agent] Agent speaking (no user end marker yet, start->speak: ${fromUserStart}ms)`);
+                    }
+                }
+            });
+        };
+
+        let activeConfig = initialConfig;
+        let activeSession: voice.AgentSession | null = null;
+        let activeAgent: voice.Agent | null = null;
+
+        const startSession = async (config: SessionConfig, chatCtx?: any, announceUpdate = false) => {
+            const session = createSession(config);
+            const agent = createAgent(config, chatCtx);
+
+            attachLatencyTracking(session);
+            await (session as any).start({ agent, room: ctx.room });
+
+            activeConfig = config;
+            activeSession = session;
+            activeAgent = agent;
+
+            console.log(`[Agent] Session started for room: ${roomName} using model: ${config.model}`);
+
+            if (announceUpdate) {
+                try {
+                    await session.generateReply({
+                        instructions:
+                            'Briefly acknowledge that your configuration has been updated and you are ready to continue speaking Japanese.',
+                    });
+                } catch (error) {
+                    console.warn('[Agent] Failed to send post-update acknowledgement.', error);
+                }
+            }
+        };
+
+        const replaceSession = async (nextConfig: SessionConfig) => {
+            if (!activeSession || !activeAgent) {
+                return;
+            }
+
+            const previousSession = activeSession;
+            const preservedChatCtx = previousSession.history;
+
+            console.log(`[Agent] Replacing session with updated config for participant ${participant.identity}`);
+            try {
+                await previousSession.close();
+            } catch (error) {
+                console.warn('[Agent] Failed to close previous session cleanly, continuing replacement.', error);
+            }
+
+            await startSession(nextConfig, preservedChatCtx, true);
+        };
+
+        let replaceQueue: Promise<void> = Promise.resolve();
+        const queueSessionReplacement = async (nextConfig: SessionConfig) => {
+            replaceQueue = replaceQueue
+                .then(async () => {
+                    await replaceSession(nextConfig);
+                })
+                .catch((error) => {
+                    console.error('[Agent] Session replacement queue failed.', error);
+                });
+            await replaceQueue;
+        };
+
+        await startSession(initialConfig);
+
+        ctx.room.localParticipant.registerRpcMethod('pg.updateConfig', async (data: any) => {
+            try {
+                if (!activeSession || data?.callerIdentity !== participant.identity) {
+                    return JSON.stringify({ changed: false });
+                }
+
+                const incomingPatch = parseSessionMetadata(
+                    typeof data?.payload === 'string' ? data.payload : undefined,
+                );
+                const nextConfig = mergeSessionConfig(activeConfig, incomingPatch);
+
+                if (areConfigsEqual(activeConfig, nextConfig)) {
+                    return JSON.stringify({ changed: false });
+                }
+
+                await queueSessionReplacement(nextConfig);
+                return JSON.stringify({ changed: true });
+            } catch (error) {
+                console.error('[Agent] pg.updateConfig failed.', error);
+                return JSON.stringify({ changed: false, error: 'update_failed' });
+            }
+        });
 
         // ─── Token Tracking & Billing (DISABLED) ───────────────────────────────────
         /*

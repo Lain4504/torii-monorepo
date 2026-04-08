@@ -23,12 +23,12 @@ import {
   GatewayAuthGuard,
   ReqWithRequester,
   AppConfigService,
-  generateLivekitAccessToken,
   PermissionsGuard,
   Permissions,
 } from '@server/shared';
 import { WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
+import { generateVoiceAgentLivekitToken } from '../utils/voice-agent-token';
 
 /**
  * Sensei Gateway Handler
@@ -233,7 +233,7 @@ export class SenseiHandler {
   @UseGuards(GatewayAuthGuard)
   async getLivekitToken(
     @Req() req: ReqWithRequester,
-    @Body() body: { graphName?: string },
+    @Body() body: { graphName?: string; geminiApiKey?: string },
   ) {
     const requester = req.requester;
     const userId = requester?.sub;
@@ -267,6 +267,22 @@ export class SenseiHandler {
       const graphName = body.graphName || 'japanese_tutor';
       const sessionId = Date.now().toString(36);
       const roomId = `roleplay-${graphName}-${userId}-${sessionId}`;
+      const graphConfig = this.resolveVoiceGraphConfig(graphName);
+      const agentName = process.env.VOICE_AGENT_NAME || 'torii-voice-agent';
+      const metadata = JSON.stringify({
+        graphName,
+        model: graphConfig.model,
+        voice: graphConfig.voice,
+        temperature: graphConfig.temperature,
+        instructions: graphConfig.instructions,
+        modalities: graphConfig.modalities,
+        max_output_tokens: graphConfig.maxOutputTokens,
+        gemini_api_key:
+          body.geminiApiKey ||
+          process.env.GOOGLE_API_KEY ||
+          process.env.GEMINI_API_KEY ||
+          '',
+      });
 
       const claims = create(WajlcTokenClaimsSchema, {
         roomId: roomId,
@@ -275,12 +291,14 @@ export class SenseiHandler {
         isAdmin: false,
       });
 
-      const token = await generateLivekitAccessToken(
+      const token = await generateVoiceAgentLivekitToken({
         apiKey,
         apiSecret,
         tokenValidity,
         claims,
-      );
+        metadata,
+        agentName,
+      });
 
       return successResponse({
         token,
@@ -402,6 +420,51 @@ export class SenseiHandler {
   }
 
   private joinCooldowns = new Map<string, number>();
+
+  private resolveVoiceGraphConfig(graphName: string): {
+    model: string;
+    voice: string;
+    temperature: number;
+    instructions: string;
+    modalities: string;
+    maxOutputTokens: string;
+  } {
+    const graph = graphName || 'japanese_tutor';
+
+    if (graph === 'roleplay') {
+      return {
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        voice: 'Puck',
+        temperature: 0.8,
+        instructions:
+          'You are Yuki, a native Japanese conversation partner. Always speak only Japanese and keep responses concise and natural for voice conversation.',
+        modalities: 'audio_only',
+        maxOutputTokens: 'inf',
+      };
+    }
+
+    if (graph === 'free_conversation') {
+      return {
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        voice: 'Charon',
+        temperature: 0.7,
+        instructions:
+          'You are a friendly Japanese speaking partner. Always answer in Japanese, concise and supportive, and ask follow-up questions.',
+        modalities: 'audio_only',
+        maxOutputTokens: 'inf',
+      };
+    }
+
+    return {
+      model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+      voice: 'Aoede',
+      temperature: 0.7,
+      instructions:
+        'You are Sakura, a helpful Japanese tutor. Always answer only in Japanese and guide learners with gentle corrections and encouragement.',
+      modalities: 'audio_only',
+      maxOutputTokens: 'inf',
+    };
+  }
 
   /**
    * Called by the frontend when the live voice session ends.
