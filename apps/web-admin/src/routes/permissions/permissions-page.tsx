@@ -35,6 +35,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog";
+import { RoleAdminSection } from "@/routes/permissions/role-admin-section";
+import { ROLE_NAME_LABELS_VI } from "@/routes/permissions/permission-labels";
 
 const CATEGORY_LABELS_VI: Record<string, string> = {
     "LMS Catalog": "Nội dung học tập",
@@ -48,14 +50,6 @@ const CATEGORY_LABELS_VI: Record<string, string> = {
     "Operations Gamification": "Gamification",
     "Operations System": "Hệ thống",
     "Operations Identity": "Quản lý người dùng",
-};
-
-const ROLE_NAME_LABELS_VI: Record<string, string> = {
-    admin: "Quản trị hệ thống",
-    "staff-academic": "Nhân sự học vụ",
-    "staff-operations": "Nhân sự vận hành",
-    lecturer: "Giảng viên",
-    learner: "Học viên",
 };
 
 const PERMISSION_DESCRIPTION_VI: Record<string, string> = {
@@ -296,14 +290,20 @@ export function PermissionsPage() {
         <div className="flex flex-col gap-8">
             <PageHeader
                 title="Quản lý Quyền truy cập"
-                subtitle="Kiểm soát quyền truy cập chi tiết hệ thống"
+                subtitle="Chỉ tài khoản có quyền quản trị người dùng (ops.user.manage) — thường là admin — mới vào được trang này."
                 stats={[
                     { label: "Tổng số vai trò", value: roles?.length || 0 }
                 ]}
             />
 
+            <RoleAdminSection roles={roles} />
 
-            {/* Matrix Table */}
+            <div className="space-y-2">
+                <h2 className="text-lg font-semibold tracking-tight">Ma trận quyền theo vai trò</h2>
+                <p className="text-sm text-muted-foreground">
+                    Tick ô để gán hoặc gỡ từng permission cho từng vai trò; bấm nút Lưu thay đổi (thanh nổi dưới cùng) khi chỉnh sửa xong.
+                </p>
+            </div>
 
             <div className="rounded-md bg-background border overflow-hidden">
                 <Table>

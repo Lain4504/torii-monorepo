@@ -28,6 +28,7 @@ export class AuthorizationController {
   ) {}
 
   @Get('roles')
+  @Permissions('ops.user.manage', 'ops.user.view')
   async getRoles() {
     try {
       const result = await firstValueFrom(
@@ -96,6 +97,7 @@ export class AuthorizationController {
   }
 
   @Get('permissions')
+  @Permissions('ops.user.manage')
   async getPermissions() {
     try {
       const result = await firstValueFrom(
@@ -110,6 +112,7 @@ export class AuthorizationController {
   }
 
   @Get('roles/:roleCode/permissions')
+  @Permissions('ops.user.manage')
   async getRolePermissions(@Param('roleCode') roleCode: string) {
     try {
       const result = await firstValueFrom(

@@ -5,19 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: add my assigned VOD packages and discussion context features">
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-discussion-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-discussion-tab.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/assignments/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/[courseId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/[courseId]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/exams/[examId]/take/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/exams/[examId]/take/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/academy-assignment-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/academy-assignment-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-expiration-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-expiration-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/live-class-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/live-class-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/controllers/authorization.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/identity/controllers/authorization.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/permissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/permissions/permissions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/permissions/permissions-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -419,15 +410,7 @@
       <workItem from="1775571738661" duration="333000" />
       <workItem from="1775576186347" duration="7668000" />
       <workItem from="1775611860992" duration="1237000" />
-      <workItem from="1775614365987" duration="6950000" />
-    </task>
-    <task id="LOCAL-01190" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775470275090</created>
-      <option name="number" value="01190" />
-      <option name="presentableId" value="LOCAL-01190" />
-      <option name="project" value="LOCAL" />
-      <updated>1775470275091</updated>
+      <workItem from="1775614365987" duration="7688000" />
     </task>
     <task id="LOCAL-01191" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -813,7 +796,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775621219763</updated>
     </task>
-    <option name="localTasksCounter" value="1239" />
+    <task id="LOCAL-01239" summary="refactor: add my assigned VOD packages and discussion context features">
+      <option name="closed" value="true" />
+      <created>1775621862255</created>
+      <option name="number" value="01239" />
+      <option name="presentableId" value="LOCAL-01239" />
+      <option name="project" value="LOCAL" />
+      <updated>1775621862255</updated>
+    </task>
+    <option name="localTasksCounter" value="1240" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
