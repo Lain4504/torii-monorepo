@@ -37,7 +37,9 @@ import {
 } from "@workspace/ui/components/tooltip";
 
 import { useCreateAchievement } from "@/lib/api/services/gamification";
-import { Trophy, Star, Target, Zap, Flame, Award, HelpCircle } from "lucide-react";
+import { Trophy, Star, HelpCircle, Upload, Loader2 } from "lucide-react";
+import { storageApi } from "@/lib/api/services/storage-api";
+import { useState } from "react";
 
 const achievementTypes = [
     { value: 'STREAK_DAYS', label: 'Chuỗi ngày học tập' },
@@ -50,15 +52,6 @@ const achievementTypes = [
     { value: 'LEVEL_REACHED', label: 'Cấp độ đạt được' },
     { value: 'REVIEWS_PUBLISHED', label: 'Số lượt đánh giá khóa học' },
     { value: 'CUSTOM', label: 'Tùy chỉnh / Khác' },
-];
-
-const icons = [
-    { value: 'Trophy', icon: Trophy },
-    { value: 'Star', icon: Star },
-    { value: 'Target', icon: Target },
-    { value: 'Zap', icon: Zap },
-    { value: 'Flame', icon: Flame },
-    { value: 'Award', icon: Award },
 ];
 
 const categories = ['STREAK', 'CONSISTENCY', 'LEARNING_PROGRESS', 'MASTERY', 'SOCIAL', 'RECOVERY'];
@@ -84,6 +77,7 @@ type AchievementFormValues = z.infer<typeof formSchema>;
 
 export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const { mutate: createAchievement, isPending } = useCreateAchievement();
+    const [isUploading, setIsUploading] = useState(false);
 
     const {
         register,
@@ -99,7 +93,7 @@ export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, 
             title: "",
             description: "",
             category: "STREAK",
-            icon: "Award",
+            icon: "",
             requirements: {
                 type: "STREAK_DAYS",
                 value: 1,
@@ -221,23 +215,85 @@ export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, 
                                                 </SelectContent>
                                             </Select>
                                         </Field>
-                                        <Field>
-                                            <FieldLabel>Icon hiển thị</FieldLabel>
-                                            <Select value={icon} onValueChange={(val) => setValue("icon", val, { shouldDirty: true })}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Chọn icon" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {icons.map(({ value, icon: Icon }) => (
-                                                        <SelectItem key={value} value={value}>
-                                                            <div className="flex items-center gap-2">
-                                                                <Icon className="h-4 w-4" />
-                                                                {value}
+                                        <Field className="col-span-full">
+                                            <FieldLabel>Icon thành tích</FieldLabel>
+                                            <div className="space-y-4">
+                                                {/* Upload Area */}
+                                                <div 
+                                                    onClick={() => {
+                                                        if (isUploading) return;
+                                                        const input = document.createElement("input");
+                                                        input.type = "file";
+                                                        input.accept = "image/*";
+                                                        input.onchange = async (e) => {
+                                                            const file = (e.target as HTMLInputElement).files?.[0];
+                                                            if (file) {
+                                                                setIsUploading(true);
+                                                                try {
+                                                                    const res = await storageApi.uploadFile(file, "gamification");
+                                                                    setValue("icon", res.fileUrl, { shouldDirty: true });
+                                                                    toast.success("Đã tải lên icon mới!");
+                                                                } catch (err: any) {
+                                                                    toast.error("Tải lên thất bại: " + err.message);
+                                                                } finally {
+                                                                    setIsUploading(false);
+                                                                }
+                                                            }
+                                                        };
+                                                        input.click();
+                                                    }}
+                                                    className={`
+                                                        relative cursor-pointer group flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border-2 border-dashed transition-all
+                                                        ${icon ? 'border-primary/50 bg-primary/5' : 'border-muted-foreground/20 bg-muted/20 hover:border-primary/50 hover:bg-primary/5'}
+                                                        ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
+                                                    `}
+                                                >
+                                                    {isUploading ? (
+                                                        <div className="flex flex-col items-center gap-2">
+                                                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                                                            <p className="text-sm font-medium animate-pulse">Đang tải lên...</p>
+                                                        </div>
+                                                    ) : icon ? (
+                                                        <div className="relative w-32 h-32 flex items-center justify-center p-2 bg-background rounded-xl shadow-lg border">
+                                                            <img src={icon} alt="Achievement Icon" className="w-full h-full object-contain" />
+                                                            <div className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <Upload className="h-6 w-6 text-white" />
                                                             </div>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col items-center gap-3 text-center">
+                                                            <div className="p-4 rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                                                                <Upload className="h-8 w-8" />
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-semibold text-lg">Tải lên icon thành tích</p>
+                                                                <p className="text-sm text-muted-foreground">Click để chọn file ảnh (PNG, JPG)...</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Selected URL Input (Hidden or Read-only) */}
+                                                {icon && (
+                                                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border border-border animate-in fade-in slide-in-from-top-1">
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[10px] font-mono text-muted-foreground truncate">{icon}</p>
+                                                        </div>
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="xs" 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setValue("icon", "", { shouldDirty: true });
+                                                            }}
+                                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                        >
+                                                            Gỡ bỏ
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {errors.icon && <FieldDescription className="text-destructive mt-1">Vui lòng tải lên icon cho thành tích</FieldDescription>}
                                         </Field>
                                     </div>
                                 </FieldSet>

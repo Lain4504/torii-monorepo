@@ -20,14 +20,14 @@ const PORT = parseInt(process.env.PORT || '8082', 10);
 const LIVEKIT_URL = process.env.LIVEKIT_URL || 'ws://localhost:7880';
 const LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY || 'devkey';
 const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || 'secret';
+const VOICE_AGENT_NAME = process.env.VOICE_AGENT_NAME || 'torii-voice-agent';
 
 console.log(`[Server] Environment loaded from: ${envPath}`);
 console.log(`[Server] LiveKit Config: URL=${LIVEKIT_URL}, Key=${LIVEKIT_API_KEY.substring(0, 5)}...`);
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || '';
 
 if (!GOOGLE_API_KEY) {
-    console.error('[Server] GOOGLE_API_KEY is not set.');
-    process.exit(1);
+    console.warn('[Server] GOOGLE_API_KEY is not set. Expecting per-session gemini_api_key from participant metadata.');
 }
 
 // ─── Setup ───────────────────────────────────────────────────────────────────
@@ -53,10 +53,12 @@ async function startAgentWorker() {
 
     console.log(`[Server] Environment loaded from: ${envPath}`);
     console.log(`[Server] Agent file path: ${agentFile}`);
+    console.log(`[Server] Agent name: ${VOICE_AGENT_NAME}`);
     console.log(`[Server] LiveKit Config: URL=${LIVEKIT_URL}, Key=${LIVEKIT_API_KEY.substring(0, 5)}...`);
 
     const serverOptions = new ServerOptions({
         agent: agentFile,
+        agentName: VOICE_AGENT_NAME,
         wsURL: LIVEKIT_URL,
         apiKey: LIVEKIT_API_KEY,
         apiSecret: LIVEKIT_API_SECRET,
@@ -110,6 +112,9 @@ app.post('/start', async (req, res) => {
             return res.json({ success: true, message: 'Agent already joining this room', roomId: channel_name });
         }
 
+        // Acquire lock immediately to prevent concurrent /start race conditions.
+        activeRoomJobs.set(channel_name, { jobId: 'pending', timestamp: now });
+
         // Proactively kick any existing agents from the room via LiveKit Server SDK
         // This ensures old "zombie" agents are removed before we start a new one.
         try {
@@ -139,9 +144,6 @@ app.post('/start', async (req, res) => {
         // Provide graphName to the worker via job metadata
         const jobMetadata = JSON.stringify({ graphName: graph_name });
 
-        // Set an immediate, unyielding 15-second lock to absolutely block any React Strict Mode double-fetches
-        activeRoomJobs.set(channel_name, { jobId: 'pending', timestamp: now });
-
         (agentServer as any).event.emit(
             'worker_msg',
             new WorkerMessage({
@@ -163,6 +165,8 @@ app.post('/start', async (req, res) => {
             message: `Agent dispatched to room ${channel_name}`,
         });
     } catch (err: any) {
+        // Release lock on failure to allow retry.
+        activeRoomJobs.delete(channel_name);
         console.error('[Server] Failed to dispatch job:', err.message);
         return res.status(500).json({ success: false, message: err.message });
     }

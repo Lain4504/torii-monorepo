@@ -89,6 +89,13 @@ export const academyCohortsApi = {
     )
     return res.data.data!
   },
+
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<AcademyCohort>>(
+      `/api/academy/cohorts/${id}/submit-for-approval`,
+    )
+    return res.data.data!
+  },
 }
 
 export function useAcademyCohorts(params: AcademyCohortQueryDTO) {
@@ -157,8 +164,7 @@ export function useRejectCohort() {
 export function useSubmitCohortForApproval() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) =>
-      academyCohortsApi.update(id, { status: "PENDING_APPROVAL" } as any),
+    mutationFn: (id: string) => academyCohortsApi.submitForApproval(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["academy-cohorts"] })
       qc.invalidateQueries({ queryKey: ["academy-cohort"] })
