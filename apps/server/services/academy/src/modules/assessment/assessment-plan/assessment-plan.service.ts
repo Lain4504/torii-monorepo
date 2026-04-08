@@ -161,6 +161,7 @@ export class AssessmentPlanService {
         score: latestAttempt?.score ? Number(latestAttempt.score) : undefined,
         percentage: latestAttempt?.percentage ? Number(latestAttempt.percentage) : undefined,
         isPassed: latestAttempt?.isPassed ?? undefined,
+        isRequired: p.isRequired,
       };
     });
   }
