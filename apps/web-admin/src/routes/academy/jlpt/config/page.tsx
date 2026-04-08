@@ -21,7 +21,7 @@ import {
 } from "@workspace/ui/components/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card";
 import { PageHeader } from "@/components/common/page-header";
-import { listPageFiltersRowClass } from "@/lib/ui-shell";
+import { dataTableHeaderClass, listPageFiltersRowClass } from "@/lib/ui-shell";
 import {
   Table,
   TableBody,
@@ -217,7 +217,7 @@ export default function JlptConfigPage() {
                     </div>
                   ) : (
                     <Table>
-                      <TableHeader>
+                      <TableHeader className={dataTableHeaderClass}>
                         <TableRow>
                           <TableHead className="w-[80px]">Code</TableHead>
                           <TableHead>Tên</TableHead>
@@ -263,7 +263,7 @@ export default function JlptConfigPage() {
                     </div>
                   ) : (
                     <Table>
-                      <TableHeader>
+                      <TableHeader className={dataTableHeaderClass}>
                         <TableRow>
                           <TableHead className="w-[200px]">Phần thi</TableHead>
                           <TableHead className="w-[90px]">Thứ tự</TableHead>
@@ -403,7 +403,7 @@ export default function JlptConfigPage() {
 
                         <div className="rounded-md border overflow-hidden">
                           <Table>
-                            <TableHeader className="bg-muted/50">
+                            <TableHeader className={dataTableHeaderClass}>
                               <TableRow>
                                 <TableHead className="w-[110px]">Giá trị thô</TableHead>
                                 <TableHead className="w-[120px]">Giá trị quy đổi</TableHead>

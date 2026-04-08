@@ -32,8 +32,34 @@ function transformQuestion(apiQuestion: any): Question {
         const raw = apiQuestion.options
         if (!raw) return []
 
-        // New format from admin: [{ value: "A", label: "..." }]
+        // Backend format: [{ optionKey: "A" | "B" | ..., content: string, ... }]
         if (Array.isArray(raw)) {
+            if (
+                raw.length > 0 &&
+                raw[0] &&
+                typeof raw[0] === "object" &&
+                ("optionKey" in raw[0] || ("content" in raw[0] && "optionKey" in raw[0]))
+            ) {
+                return raw.map((item: any, index: number) => {
+                    const id =
+                        item?.optionKey != null
+                            ? String(item.optionKey)
+                            : item?.id != null
+                              ? String(item.id)
+                              : String.fromCharCode(65 + index)
+                    const label =
+                        item?.content != null
+                            ? String(item.content)
+                            : item?.label != null
+                              ? String(item.label)
+                              : item?.value != null
+                                ? String(item.value)
+                                : `Lựa chọn ${id}`
+                    return { id, label }
+                })
+            }
+
+            // New format from admin: [{ value: "A", label: "..." }]
             return raw.map((item: any, index: number) => {
                 if (typeof item === "string") {
                     const fallback = String.fromCharCode(65 + index)
@@ -60,13 +86,23 @@ function transformQuestion(apiQuestion: any): Question {
         return []
     })()
 
+    const categoryType = String(apiQuestion.categoryType ?? apiQuestion.category ?? "").toUpperCase()
+    const type: Question["type"] =
+        categoryType === "LISTENING"
+            ? "listening"
+            : categoryType === "READING"
+              ? "reading"
+              : "single"
+
     return {
         id: apiQuestion.id,
-        content: apiQuestion.content,
-        type: apiQuestion.category === 'listening' ? 'listening' : apiQuestion.category === 'reading' ? 'reading' : 'single',
-        audioUrl: apiQuestion.mediaUrl,
+        content: apiQuestion.stem ?? apiQuestion.content ?? "",
+        type,
+        audioUrl: type === "listening" ? apiQuestion.mediaUrl : undefined,
+        imageUrl: type !== "listening" ? apiQuestion.mediaUrl : undefined,
+        readingPassage: apiQuestion.readingPassage,
         options,
-    };
+    }
 }
 
 export default function TakeExamPage() {

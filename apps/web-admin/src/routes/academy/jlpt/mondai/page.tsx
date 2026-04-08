@@ -22,7 +22,7 @@ import {
 import { academyJlptMockApi } from "@/lib/api/services/academy-jlpt-mock";
 import { jlptSectionLabel } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import { toast } from "sonner";
-import { listPageFiltersRowClass } from "@/lib/ui-shell";
+import { dataTableHeaderClass, dataTableShellClass, listPageFiltersRowClass } from "@/lib/ui-shell";
 
 const LEVELS = ["N5", "N4", "N3", "N2", "N1"] as const;
 const SECTIONS = [
@@ -113,9 +113,10 @@ export default function JlptMondaiMasterPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border bg-background overflow-x-auto">
-        <Table>
-          <TableHeader>
+      <div className={dataTableShellClass}>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className={dataTableHeaderClass}>
             <TableRow>
               <TableHead className="w-[60px] text-center">#</TableHead>
               <TableHead className="w-[120px]">Mã (code)</TableHead>
@@ -147,7 +148,7 @@ export default function JlptMondaiMasterPage() {
               </TableRow>
             ) : (
               items.map((row, idx) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="hover:bg-muted/10">
                   <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                     {idx + 1}
                   </TableCell>
@@ -164,5 +165,6 @@ export default function JlptMondaiMasterPage() {
         </Table>
       </div>
     </div>
+  </div>
   );
 }

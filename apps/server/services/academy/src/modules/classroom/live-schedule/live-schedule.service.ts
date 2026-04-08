@@ -1382,16 +1382,18 @@ export class LiveScheduleService {
     const [startHour, startMinute] = this.parseHourMinute(schedule.startTime);
     const [endHour, endMinute] = this.parseHourMinute(schedule.endTime);
     const expectedWeekday = schedule.weekday;
-    if (now.getDay() !== expectedWeekday) {
+    // `weekday` is generated from UTC in `generateInstancesForClassRange` (getUTCDay),
+    // so join-window validation must also use UTC to avoid timezone drift.
+    if (now.getUTCDay() !== expectedWeekday) {
       throw new BadRequestException(
         'Session is not available on this weekday.',
       );
     }
 
     const sessionStart = new Date(now);
-    sessionStart.setHours(startHour, startMinute, 0, 0);
+    sessionStart.setUTCHours(startHour, startMinute, 0, 0);
     const sessionEnd = new Date(now);
-    sessionEnd.setHours(endHour, endMinute, 0, 0);
+    sessionEnd.setUTCHours(endHour, endMinute, 0, 0);
 
     const joinOpenAt = new Date(sessionStart.getTime() - 30 * 60 * 1000);
     const joinCloseAt = new Date(sessionEnd.getTime() + 4 * 60 * 60 * 1000);
@@ -1420,15 +1422,17 @@ export class LiveScheduleService {
 
     const now = new Date();
     const sessionDate = new Date(input.sessionDate);
-    sessionDate.setHours(0, 0, 0, 0);
+    // `sessionDate` is stored as UTC (see `startOfDay` uses setUTCHours).
+    // Use UTC consistently to compute join window.
+    sessionDate.setUTCHours(0, 0, 0, 0);
 
     const [startHour, startMinute] = this.parseHourMinute(input.startTime);
     const [endHour, endMinute] = this.parseHourMinute(input.endTime);
 
     const sessionStart = new Date(sessionDate);
-    sessionStart.setHours(startHour, startMinute, 0, 0);
+    sessionStart.setUTCHours(startHour, startMinute, 0, 0);
     const sessionEnd = new Date(sessionDate);
-    sessionEnd.setHours(endHour, endMinute, 0, 0);
+    sessionEnd.setUTCHours(endHour, endMinute, 0, 0);
 
     const joinOpenAt = new Date(sessionStart.getTime() - 30 * 60 * 1000);
     const joinCloseAt = new Date(sessionEnd.getTime() + 4 * 60 * 60 * 1000);

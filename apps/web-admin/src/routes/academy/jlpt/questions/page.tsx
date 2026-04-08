@@ -58,6 +58,7 @@ import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/ac
 import { JlptQuestionForm } from "@/components/academy/jlpt/jlpt-question-form";
 import { SmartPagination } from "@/components/common/smart-pagination";
 import { toast } from "sonner";
+import { dataTableHeaderClass, dataTableShellClass } from "@/lib/ui-shell";
 
 const PAGE_SIZE = 20;
 
@@ -277,10 +278,10 @@ export default function JlptQuestionsPage() {
           loading={loading}
         />
 
-        <div className="-mx-1 overflow-hidden rounded-md border bg-background sm:mx-0">
+        <div className={dataTableShellClass}>
           <div className="overflow-x-auto">
             <Table className="min-w-[1040px] w-full">
-              <TableHeader className="bg-muted/50">
+              <TableHeader className={dataTableHeaderClass}>
                 <TableRow>
                   <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[72px]">Cấp độ</TableHead>
@@ -332,7 +333,7 @@ export default function JlptQuestionsPage() {
                         </TableCell>
                       </TableRow>
                       {items.map((q) => (
-                        <TableRow key={q.id} className="group transition-colors">
+                        <TableRow key={q.id} className="group transition-colors hover:bg-muted/10">
                           <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                             {sttBase + (sttCounter += 1)}
                           </TableCell>

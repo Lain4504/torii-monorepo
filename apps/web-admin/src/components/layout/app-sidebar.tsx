@@ -63,18 +63,9 @@ function navItemShows(
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const user = useAppSelector(selectUser);
     const { can, canAny } = usePermissions();
-    const isTeachingOnly =
-        canAny(["lms.assessment.grade"]) &&
-        !canAny([
-            "lms.catalog.update",
-            "lms.catalog.approve",
-            "lms.delivery.approve",
-            "lms.commerce.update",
-            "lms.commerce.approve",
-            "ops.user.manage",
-            "ops.order.manage",
-            "ops.coupon.manage",
-        ]);
+    // Trang "Khóa học VOD tôi phụ trách" chỉ dành cho giảng viên (role=lecturer).
+    // Admin/staff lms không phải người giảng dạy nên không được thấy option này.
+    const isTeachingOnly = user?.role === "lecturer";
 
     const visibleNavGroups = NAV_GROUPS.map((g) => ({
         ...g,

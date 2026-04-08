@@ -20,7 +20,8 @@ function parseHHmmToMinutes(time: string): number {
 
 function withMinutes(base: Date, minutesOfDay: number): Date {
     const d = new Date(base);
-    d.setHours(Math.floor(minutesOfDay / 60), minutesOfDay % 60, 0, 0);
+    // `sessionDate` is stored as UTC in DB, so we must build scheduledAt using UTC too.
+    d.setUTCHours(Math.floor(minutesOfDay / 60), minutesOfDay % 60, 0, 0);
     return d;
 }
 
@@ -72,7 +73,7 @@ function toSessionResponse(
     now: Date,
 ): LiveSessionResponseDTO {
     const sessionDate = new Date(session.sessionDate as any);
-    sessionDate.setHours(0, 0, 0, 0);
+    sessionDate.setUTCHours(0, 0, 0, 0);
     const startMinutes = parseHHmmToMinutes(session.startTime);
     const endMinutes = parseHHmmToMinutes(session.endTime);
     const scheduledAt = withMinutes(sessionDate, startMinutes);
