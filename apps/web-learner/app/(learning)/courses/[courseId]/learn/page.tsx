@@ -148,8 +148,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
         milestones?.filter(
             (m) =>
                 m.kind === 'MODULE_CHECKPOINT' &&
-                m.moduleId === mod.id &&
-                !m.triggerLessonId
+                m.moduleId === mod.id
         ) || [];
 
     return (
@@ -944,8 +943,8 @@ export default function CourseLearnPage() {
                                     isLessonUnlocked={effectiveLessonUnlocked}
                                     milestones={milestones.filter(m =>
                                         m.kind !== 'FINAL_EXAM' && (
-                                            m.moduleId === mod.id ||
-                                            (m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
+                                            (m.kind === 'MODULE_CHECKPOINT' && m.moduleId === mod.id) ||
+                                            (m.kind === 'LESSON_CHECKPOINT' && m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
                                         )
                                     )}
                                     onSelectMilestone={handleOpenMilestoneConfirm}
