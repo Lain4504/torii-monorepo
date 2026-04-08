@@ -60,7 +60,7 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Khóa học VOD tôi phụ trách", url: "/academy/vod-packages/my", anyPermission: ["lms.assessment.grade"] },
             { titleKey: "Khóa học VOD", url: "/academy/vod-packages", anyPermission: ["lms.commerce.read", "lms.commerce.update"] },
             { titleKey: "Duyệt dời lịch học", url: "/academy/live-classes/reschedule-requests", anyPermission: ["lms.delivery.approve"] },
-            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["lms.catalog.approve", "lms.commerce.approve", "lms.delivery.approve"] },
+            { titleKey: "Trung tâm phê duyệt", url: "/academy/approvals", anyPermission: ["lms.catalog.approve", "lms.commerce.approve"] },
         ]
     },
     {

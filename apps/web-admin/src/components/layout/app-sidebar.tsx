@@ -66,10 +66,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // Trang "Khóa học VOD tôi phụ trách" chỉ dành cho giảng viên (role=lecturer).
     // Admin/staff lms không phải người giảng dạy nên không được thấy option này.
     const isTeachingOnly = user?.role === "lecturer";
+    const isOpsStaff = user?.role === "staff-operations";
 
     const visibleNavGroups = NAV_GROUPS.map((g) => ({
         ...g,
-        items: g.items.filter((item) => navItemShows(item, can, canAny, isTeachingOnly)),
+        items: g.items
+            .filter((item) => {
+                // Nhân viên vận hành không được thấy các mục học thuật / đào tạo tinh gọn
+                if (isOpsStaff && item.url.startsWith("/academy") && item.url !== "/") return false;
+                return navItemShows(item, can, canAny, isTeachingOnly);
+            })
+            .map((item) => {
+                if (!item.items) return item;
+                const pv = navParentVisible(item, can, canAny);
+                return {
+                    ...item,
+                    items: item.items.filter((sub) => navSubVisible(sub, pv, can, canAny, isTeachingOnly)),
+                };
+            }),
     })).filter((g) => g.items.length > 0);
 
     const mappedUser = {

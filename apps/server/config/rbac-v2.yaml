@@ -27,6 +27,9 @@ permissions:
   - code: lms.catalog.publish
     category: LMS Catalog
     description: "Xuất bản nội dung học liệu"
+  - code: lms.catalog.submit
+    category: LMS Catalog
+    description: "Gửi duyệt (submit for approval) nội dung học liệu"
   - code: lms.catalog.approve
     category: LMS Catalog
     description: "Duyệt/từ chối yêu cầu xuất bản học liệu"
@@ -49,6 +52,15 @@ permissions:
   - code: lms.delivery.manage
     category: LMS Delivery
     description: "Quản lý vận hành lớp (start/end room, xử lý dời lịch)"
+  - code: lms.delivery.request.create
+    category: LMS Delivery
+    description: "Tạo yêu cầu dời lịch (schedule change request) cho buổi học"
+  - code: lms.delivery.request.read
+    category: LMS Delivery
+    description: "Xem danh sách/chi tiết yêu cầu dời lịch"
+  - code: lms.delivery.request.cancel
+    category: LMS Delivery
+    description: "Hủy yêu cầu dời lịch (chỉ khi PENDING và đúng người tạo)"
   - code: lms.delivery.attendance.manage
     category: LMS Delivery
     description: "Điểm danh học viên"
@@ -106,6 +118,9 @@ permissions:
   - code: lms.commerce.publish
     category: LMS Commerce
     description: "Xuất bản offering"
+  - code: lms.commerce.submit
+    category: LMS Commerce
+    description: "Gửi duyệt (submit for approval) cohort/VOD offering"
   - code: lms.commerce.approve
     category: LMS Commerce
     description: "Duyệt/từ chối publish offering"
@@ -154,12 +169,16 @@ role_matrix:
     - lms.catalog.update
     - lms.catalog.delete
     - lms.catalog.publish
+    - lms.catalog.submit
     - lms.catalog.approve
     - lms.delivery.read
     - lms.delivery.create
     - lms.delivery.update
     - lms.delivery.delete
     - lms.delivery.manage
+    - lms.delivery.request.create
+    - lms.delivery.request.read
+    - lms.delivery.request.cancel
     - lms.delivery.attendance.manage
     - lms.delivery.approve
     - lms.assessment.read
@@ -175,6 +194,7 @@ role_matrix:
     - lms.commerce.update
     - lms.commerce.delete
     - lms.commerce.publish
+    - lms.commerce.submit
     - lms.commerce.approve
     - ops.order.manage
     - ops.coupon.manage
@@ -194,12 +214,17 @@ role_matrix:
     - lms.catalog.update
     - lms.catalog.delete
     - lms.catalog.publish
+    - lms.catalog.submit
     - lms.delivery.read
     - lms.delivery.create
     - lms.delivery.update
     - lms.delivery.delete
     - lms.delivery.manage
+    - lms.delivery.request.create
+    - lms.delivery.request.read
+    - lms.delivery.request.cancel
     - lms.delivery.attendance.manage
+    - lms.delivery.approve
     - lms.assessment.read
     - lms.assessment.create
     - lms.assessment.update
@@ -212,6 +237,7 @@ role_matrix:
     - lms.commerce.update
     - lms.commerce.delete
     - lms.commerce.publish
+    - lms.commerce.submit
     - ops.report.view
 
   staff-operations:
@@ -235,6 +261,9 @@ role_matrix:
     - lms.delivery.read
     - lms.delivery.update
     - lms.delivery.manage
+    - lms.delivery.request.create
+    - lms.delivery.request.read
+    - lms.delivery.request.cancel
     - lms.delivery.attendance.manage
     - lms.assessment.read
     - lms.assessment.grade

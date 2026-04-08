@@ -52,6 +52,24 @@ export default function VerifyCertificatePage() {
         setTimeout(() => setCopied(false), 2000)
     }
 
+    const downloadPdf = async () => {
+        try {
+            const blob = await certificateApi.downloadCertificatePdfByCode(code)
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `certificate-${code}.pdf`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+            toast.success('Đang tải PDF chứng chỉ...')
+        } catch (err) {
+            console.error('Failed to download certificate PDF:', err)
+            toast.error('Không thể tải PDF chứng chỉ. Vui lòng thử lại.')
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 space-y-4">
@@ -134,14 +152,12 @@ export default function VerifyCertificatePage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center gap-3 pt-6">
-                        <Button 
-                            asChild
+                        <Button
+                            onClick={downloadPdf}
                             className="w-full h-12 gap-2 text-base font-bold bg-[#2563EB] hover:bg-blue-700"
                         >
-                            <Link href={cert.fileUrl || '#'} target="_blank">
-                                <Download className="size-5" />
-                                Tải xuống bản in PDF
-                            </Link>
+                            <Download className="size-5" />
+                            Tải xuống bản in PDF
                         </Button>
                         <Button 
                             variant="outline"

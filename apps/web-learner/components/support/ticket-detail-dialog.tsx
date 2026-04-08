@@ -43,6 +43,14 @@ import { toast } from "sonner";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { Separator } from "@workspace/ui/components/separator";
 import { cn } from "@workspace/ui/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
 
 interface TicketDetailDialogProps {
   open: boolean;
@@ -107,15 +115,50 @@ export function TicketDetailDialog({
   const renderMetadata = () => {
     if (!ticket?.metadata || Object.keys(ticket.metadata).length === 0)
       return null;
+
+    const renderValue = (value: unknown) => {
+      if (value === null) return "—";
+      if (value === undefined) return "—";
+      if (typeof value === "string") return value;
+      if (typeof value === "number" || typeof value === "boolean")
+        return String(value);
+      try {
+        return JSON.stringify(value, null, 2);
+      } catch {
+        return String(value);
+      }
+    };
+
+    const entries = Object.entries(ticket.metadata as Record<string, unknown>);
+
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         <h4 className="text-xs uppercase text-muted-foreground font-semibold">
           Thông tin bổ sung
         </h4>
-        <div className="p-4 rounded-lg bg-muted/50 border border-border/50 text-xs font-mono">
-          <pre className="whitespace-pre-wrap break-words">
-            {JSON.stringify(ticket.metadata, null, 2)}
-          </pre>
+        <div className="rounded-xl border overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="w-[180px]">Trường</TableHead>
+                <TableHead>Giá trị</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {entries.map(([key, value]) => (
+                <TableRow key={key}>
+                  <TableCell className="align-top py-3">
+                    <div className="text-sm font-medium">{key}</div>
+                  </TableCell>
+                  <TableCell className="align-top py-3">
+                    <pre className="text-xs whitespace-pre-wrap break-words font-mono text-muted-foreground">
+                      {renderValue(value)}
+                    </pre>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     );

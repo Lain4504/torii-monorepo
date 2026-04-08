@@ -67,14 +67,19 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
                 <div className="flex items-start gap-4">
                     <div
                         className={cn(
-                            "flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300 border",
+                            "flex size-12 shrink-0 items-center justify-center rounded-xl transition-all duration-300 border overflow-hidden",
                             isUnlocked
                                 ? "bg-primary/10 text-primary border-primary/20 group-hover:scale-110 group-hover:rotate-3 shadow-sm"
                                 : "bg-muted text-muted-foreground/50 border-transparent"
                         )}
                     >
                         {isUnlocked ? (
-                            <IconComponent className="size-6" />
+                            def.icon && def.icon.startsWith('http') ? (
+                                <img src={def.icon} alt={def.title} className="size-full object-contain p-2" />
+                            ) : (() => {
+                                const Icon = def.icon && ICON_MAP[def.icon] ? ICON_MAP[def.icon] : Trophy;
+                                return <Icon className="size-6" />;
+                            })()
                         ) : (
                             <Lock className="size-5" />
                         )}

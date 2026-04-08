@@ -19,7 +19,9 @@ import {
   Award,
   HelpCircle,
   History,
-  AlertTriangle
+  AlertTriangle,
+  Volume2,
+  Image as ImageIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -263,7 +265,40 @@ export default function ExamRunnerPage() {
                    <CardDescription className="text-xs text-primary font-bold uppercase tracking-wider">
                       {currentExamQuestion.section?.title || "Câu hỏi"} | {question.level || "—"}
                    </CardDescription>
-                   <div className="text-lg font-medium text-foreground pt-2 whitespace-pre-wrap">
+
+                   {/* Question Media (Audio/Image) */}
+                   {question.mediaUrl && (
+                      <div className="mt-4">
+                         {question.categoryType === 'LISTENING' ? (
+                            <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 flex flex-col gap-3">
+                               <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider">
+                                  <Volume2 className="w-3.5 h-3.5" />
+                                  File nghe câu hỏi
+                               </div>
+                               <audio 
+                                 src={question.mediaUrl} 
+                                 controls 
+                                 className="w-full h-10"
+                                 autoPlay={false}
+                               />
+                            </div>
+                         ) : (
+                            <div className="rounded-xl overflow-hidden border bg-white p-1 shadow-sm max-w-2xl mx-auto">
+                               <div className="flex items-center gap-2 text-muted-foreground font-bold text-[10px] uppercase tracking-wider p-2 border-b bg-muted/30">
+                                  <ImageIcon className="w-3 h-3" />
+                                  Hình ảnh minh họa
+                               </div>
+                               <img 
+                                 src={question.mediaUrl} 
+                                 alt="Question media" 
+                                 className="w-full h-auto object-contain max-h-[400px]"
+                               />
+                            </div>
+                         )}
+                      </div>
+                   )}
+
+                   <div className="text-lg font-medium text-foreground pt-4 whitespace-pre-wrap">
                       {question.stem}
                    </div>
                 </CardHeader>

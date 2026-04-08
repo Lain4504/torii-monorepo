@@ -215,9 +215,9 @@ const WebcamIcon = () => {
     selectedVideoDevice !== '' || isActiveWebcam || isWebcamLocked;
 
   const wrapperClasses = clsx(
-    'meet-footer-ctrl-pill relative footer-icon cursor-pointer h-10 md:h-11 3xl:h-[52px] rounded-full border-[3px] 3xl:border-4 transition-[min-width,width] duration-300',
+    'meet-footer-ctrl-pill relative footer-icon cursor-pointer h-10 md:h-11 3xl:h-[52px] rounded-full border-[3px] 3xl:border-4 transition-[width,min-width] duration-300',
     isCamConfigured
-      ? 'w-auto min-w-12 md:min-w-14 3xl:min-w-[3.75rem]'
+      ? 'w-[52px] md:w-[62px] 3xl:w-[72px] min-w-[52px] md:min-w-[62px] 3xl:min-w-[72px]'
       : 'w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px]',
     {
       'border-destructive! pointer-events-none': isWebcamLocked,
