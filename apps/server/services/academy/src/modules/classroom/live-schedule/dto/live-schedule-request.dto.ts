@@ -1,22 +1,15 @@
 import {
   IsDateString,
-  IsInt,
   IsIn,
-  Max,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
-  Min,
 } from 'class-validator';
 
 export class LiveScheduleRequestCreateDto {
   @IsUUID()
   sessionId!: string;
-
-  @IsString()
-  @IsIn(['LEAVE', 'RESCHEDULE'])
-  type!: 'LEAVE' | 'RESCHEDULE';
 
   @IsOptional()
   @IsDateString()

@@ -165,13 +165,46 @@ export class CohortService {
     data: AcademyCohortUpdateDTO,
     requesterId?: string,
   ) {
+    const before = await this.prisma.cohort.findUnique({ where: { id } });
+    if (!before) throw new NotFoundException('Cohort not found');
+
+    // State-machine tối thiểu cho Cohort:
+    // - ARCHIVED là trạng thái cuối (immutable)
+    // - Chỉ cho phép:
+    //   DRAFT -> PENDING_APPROVAL
+    //   PENDING_APPROVAL -> OPENING (approve)
+    //   PENDING_APPROVAL -> DRAFT (reject)
+    //   OPENING -> COMPLETED | ARCHIVED
+    //   COMPLETED -> ARCHIVED
+    // - Các cập nhật không đổi status vẫn cho phép (ví dụ chỉnh metadata khi còn mutable)
+    if (data.status && data.status !== before.status) {
+      if (before.status === 'ARCHIVED') {
+        throw new BadRequestException(
+          'Đợt khai giảng đã được lưu trữ, không thể thay đổi trạng thái.',
+        );
+      }
+
+      const from = before.status;
+      const to = data.status;
+      const allowed: Record<string, string[]> = {
+        DRAFT: ['PENDING_APPROVAL', 'ARCHIVED'],
+        PENDING_APPROVAL: ['OPENING', 'DRAFT', 'ARCHIVED'],
+        OPENING: ['COMPLETED', 'ARCHIVED'],
+        COMPLETED: ['ARCHIVED'],
+      };
+
+      const ok = (allowed[from] ?? []).includes(to);
+      if (!ok) {
+        throw new BadRequestException(
+          `Không hỗ trợ chuyển trạng thái Cohort từ ${from} sang ${to}.`,
+        );
+      }
+    }
+
     if (data.status === 'PENDING_APPROVAL' || data.status === 'OPENING') {
       await this.validateHasLiveClasses(id);
       await this.validateCourseProfilePublished(id);
     }
-
-    const before = await this.prisma.cohort.findUnique({ where: { id } });
-    if (!before) throw new NotFoundException('Cohort not found');
 
     const clearRejectionReason =
       data.status === 'PENDING_APPROVAL' || data.status === 'OPENING';

@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: refactor course review">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/config/rbac-v2.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/config/rbac-v2.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +21,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1804" />
+    <option name="cachedIndexableFilesCount" value="1855" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -97,7 +100,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;refactor-migration-role&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -166,8 +169,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -406,62 +408,9 @@
       <workItem from="1775540769831" duration="4356000" />
       <workItem from="1775547519434" duration="5998000" />
       <workItem from="1775571738661" duration="333000" />
-    </task>
-    <task id="LOCAL-01179" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775462647019</created>
-      <option name="number" value="01179" />
-      <option name="presentableId" value="LOCAL-01179" />
-      <option name="project" value="LOCAL" />
-      <updated>1775462647019</updated>
-    </task>
-    <task id="LOCAL-01180" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775462825150</created>
-      <option name="number" value="01180" />
-      <option name="presentableId" value="LOCAL-01180" />
-      <option name="project" value="LOCAL" />
-      <updated>1775462825150</updated>
-    </task>
-    <task id="LOCAL-01181" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775464660095</created>
-      <option name="number" value="01181" />
-      <option name="presentableId" value="LOCAL-01181" />
-      <option name="project" value="LOCAL" />
-      <updated>1775464660097</updated>
-    </task>
-    <task id="LOCAL-01182" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775465181129</created>
-      <option name="number" value="01182" />
-      <option name="presentableId" value="LOCAL-01182" />
-      <option name="project" value="LOCAL" />
-      <updated>1775465181129</updated>
-    </task>
-    <task id="LOCAL-01183" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775465286042</created>
-      <option name="number" value="01183" />
-      <option name="presentableId" value="LOCAL-01183" />
-      <option name="project" value="LOCAL" />
-      <updated>1775465286042</updated>
-    </task>
-    <task id="LOCAL-01184" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775466638065</created>
-      <option name="number" value="01184" />
-      <option name="presentableId" value="LOCAL-01184" />
-      <option name="project" value="LOCAL" />
-      <updated>1775466638065</updated>
-    </task>
-    <task id="LOCAL-01185" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775467232056</created>
-      <option name="number" value="01185" />
-      <option name="presentableId" value="LOCAL-01185" />
-      <option name="project" value="LOCAL" />
-      <updated>1775467232056</updated>
+      <workItem from="1775576186347" duration="7668000" />
+      <workItem from="1775611860992" duration="1237000" />
+      <workItem from="1775614365987" duration="4037000" />
     </task>
     <task id="LOCAL-01186" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -799,7 +748,63 @@
       <option name="project" value="LOCAL" />
       <updated>1775564181611</updated>
     </task>
-    <option name="localTasksCounter" value="1228" />
+    <task id="LOCAL-01228" summary="refactor: update role handling and permissions throughout the application">
+      <option name="closed" value="true" />
+      <created>1775578062115</created>
+      <option name="number" value="01228" />
+      <option name="presentableId" value="LOCAL-01228" />
+      <option name="project" value="LOCAL" />
+      <updated>1775578062115</updated>
+    </task>
+    <task id="LOCAL-01229" summary="refactor: update role handling and permissions throughout the application">
+      <option name="closed" value="true" />
+      <created>1775578074081</created>
+      <option name="number" value="01229" />
+      <option name="presentableId" value="LOCAL-01229" />
+      <option name="project" value="LOCAL" />
+      <updated>1775578074082</updated>
+    </task>
+    <task id="LOCAL-01230" summary="refactor: update permissions for various controllers and components to align with new role-based access control">
+      <option name="closed" value="true" />
+      <created>1775582434476</created>
+      <option name="number" value="01230" />
+      <option name="presentableId" value="LOCAL-01230" />
+      <option name="project" value="LOCAL" />
+      <updated>1775582434476</updated>
+    </task>
+    <task id="LOCAL-01231" summary="refactor: update role permissions and access controls across various components">
+      <option name="closed" value="true" />
+      <created>1775583759774</created>
+      <option name="number" value="01231" />
+      <option name="presentableId" value="LOCAL-01231" />
+      <option name="project" value="LOCAL" />
+      <updated>1775583759774</updated>
+    </task>
+    <task id="LOCAL-01232" summary="refactor: update role permissions and access controls across various components">
+      <option name="closed" value="true" />
+      <created>1775584318950</created>
+      <option name="number" value="01232" />
+      <option name="presentableId" value="LOCAL-01232" />
+      <option name="project" value="LOCAL" />
+      <updated>1775584318950</updated>
+    </task>
+    <task id="LOCAL-01233" summary="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE">
+      <option name="closed" value="true" />
+      <created>1775616218020</created>
+      <option name="number" value="01233" />
+      <option name="presentableId" value="LOCAL-01233" />
+      <option name="project" value="LOCAL" />
+      <updated>1775616218027</updated>
+    </task>
+    <task id="LOCAL-01234" summary="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE">
+      <option name="closed" value="true" />
+      <created>1775618323729</created>
+      <option name="number" value="01234" />
+      <option name="presentableId" value="LOCAL-01234" />
+      <option name="project" value="LOCAL" />
+      <updated>1775618323729</updated>
+    </task>
+    <option name="localTasksCounter" value="1235" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -816,7 +821,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="refactor-migration-role" />
                       </list>
                     </value>
                   </entry>
@@ -834,11 +839,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add index column to various tables and restrict access to AI subscriptions" />
-    <MESSAGE value="feat(dashboard): implement admin dashboard with staff academic and operations insights" />
-    <MESSAGE value="feat(class-attendance): add join session functionality and alert dialog for lecturers" />
-    <MESSAGE value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
-    <MESSAGE value="chore: remove leagacy docs" />
     <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
     <MESSAGE value="feat: enhance dashboard and study set components with sharing functionality and UI improvements" />
     <MESSAGE value="feat: update table header styles and badge variants for improved UI consistency" />
@@ -859,7 +859,12 @@
     <MESSAGE value="fix: update UI web-leanre responsive for mobile device" />
     <MESSAGE value="feat: introduce AcademyQuestionCategoryType enum and refactor question handling" />
     <MESSAGE value="refactor: refactor course review" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: refactor course review" />
+    <MESSAGE value="refactor: update role handling and permissions throughout the application" />
+    <MESSAGE value="refactor: update permissions for various controllers and components to align with new role-based access control" />
+    <MESSAGE value="refactor: update permission strings to align with new role-based access control" />
+    <MESSAGE value="refactor: update role permissions and access controls across various components" />
+    <MESSAGE value="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

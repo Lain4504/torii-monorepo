@@ -179,6 +179,7 @@ export default function VodPackagesPage() {
                         <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
+                                <TableHead className="w-[100px]">Thumbnail</TableHead>
                                 <TableHead className="w-[150px]">Mã Gói</TableHead>
                                 <TableHead>Tên gói VOD</TableHead>
                                 <TableHead>Giảng viên</TableHead>
@@ -192,6 +193,7 @@ export default function VodPackagesPage() {
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <TableRow key={i}>
                                         <TableCell><Skeleton className="h-4 w-6" /></TableCell>
+                                        <TableCell><Skeleton className="h-10 w-16 rounded-md" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-full" /></TableCell>
@@ -203,7 +205,7 @@ export default function VodPackagesPage() {
                                 ))
                             ) : packages?.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                                    <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
                                         Không tìm thấy Gói VOD nào.
                                     </TableCell>
                                 </TableRow>
@@ -211,6 +213,21 @@ export default function VodPackagesPage() {
                                 packages?.map((pkg, index) => (
                                     <TableRow key={pkg.id} className="group hover:bg-muted/5 transition-colors">
                                         <TableCell className="text-center text-muted-foreground tabular-nums">{index + 1}</TableCell>
+                                        <TableCell>
+                                            <div className="h-10 w-16 rounded-md border bg-muted/50 overflow-hidden shadow-xs flex-shrink-0">
+                                                {pkg.thumbnailUrl ? (
+                                                    <img
+                                                        src={pkg.thumbnailUrl}
+                                                        alt={pkg.title}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground italic">
+                                                        Không có ảnh
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="font-mono text-xs font-bold text-primary">{pkg.code}</TableCell>
                                         <TableCell className="font-semibold text-sm">{pkg.title}</TableCell>
                                         <TableCell className="text-muted-foreground text-xs">{pkg.instructor?.displayName || 'Chưa chọn'}</TableCell>

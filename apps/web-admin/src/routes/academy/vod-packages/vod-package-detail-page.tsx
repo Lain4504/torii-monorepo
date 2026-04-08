@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/common/page-header"
 import {
     ChevronRight,
     Archive,
-    ShieldAlert,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Button } from "@workspace/ui/components/button"
@@ -139,8 +138,6 @@ export default function VodPackageDetailPage() {
             ? "Gửi duyệt gói VOD?"
             : statusConfirmDialog.newStatus === "PUBLISHED"
                 ? "Phê duyệt & mở bán gói VOD?"
-                : statusConfirmDialog.newStatus === "DRAFT"
-                    ? "Ngừng bán (hạ nháp) gói VOD?"
                     : statusConfirmDialog.newStatus === "ARCHIVED"
                         ? "Lưu trữ gói VOD?"
                         : "Xác nhận thay đổi trạng thái"
@@ -204,17 +201,6 @@ export default function VodPackageDetailPage() {
                                 disabled={updateMutation.isPending}
                             >
                                 <CheckCircle2 className="size-4" /> Phê duyệt & Mở bán
-                            </Button>
-                        )}
-
-                        {pkg.status === 'PUBLISHED' && (
-                            <Button
-                                variant="outline"
-                                className="text-orange-600 border-orange-200 hover:bg-orange-50 shadow-none"
-                                onClick={() => setStatusConfirmDialog({ open: true, newStatus: 'DRAFT' })}
-                                disabled={updateMutation.isPending}
-                            >
-                                <ShieldAlert className="mr-2 h-4 w-4" /> Ngừng bán (Hạ nháp)
                             </Button>
                         )}
 

@@ -25,6 +25,14 @@ import {
   SheetTitle,
 } from "@workspace/ui/components/sheet"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table"
 import { useAcademyLiveClass } from '@/lib/api/services/academy-live-classes'
 import { useAcademyVodPackage } from '@/lib/api/services/academy-vod-packages'
 
@@ -58,7 +66,8 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
   }, [user?.id, academyClass, vodPackage])
 
   const isAdminOrStaff = user?.role === 'admin' || user?.role === 'staff-academic' || user?.role === 'staff-operations'
-  const canPost = isAssignedInstructor && !isAdminOrStaff
+  // Ở màn quản lý (lecture/admin), không cho tạo chủ đề hỏi mới, chỉ dùng để trả lời câu hỏi học viên.
+  const canPost = isAssignedInstructor || isAdminOrStaff
 
   const [selectedLessonId, setSelectedLessonId] = useState<string>('all')
 
@@ -174,50 +183,49 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
     const isReplying = activeReplyId === reply.id
     
     return (
-      <div key={reply.id} className={depth === 0 ? '' : 'mt-4'}>
-        <div className="rounded-md border bg-muted/20 p-3">
+      <div key={reply.id} className={depth === 0 ? "" : "mt-3"}>
+        <div className="space-y-2 rounded-md border bg-card p-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="font-bold text-sm text-primary flex items-center gap-2">
-               <div className="size-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <User className="size-3" />
-               </div>
-               {reply.author?.displayName || 'Unknown'}
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <div className="flex size-6 items-center justify-center rounded-full bg-primary/10">
+                <User className="size-3" />
+              </div>
+              <span>{reply.author?.displayName || "Học viên"}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-muted-foreground">{formatDate(reply.createdAt)}</span>
-              {reply.status === 'ANSWERED' && <Badge variant="secondary" className="text-[9px]">Đã trả lời</Badge>}
-            </div>
+            <span className="text-[11px] text-muted-foreground">
+              {formatDate(reply.createdAt)}
+            </span>
           </div>
 
-          <div className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground leading-relaxed">
+          <div className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
             {reply.content}
           </div>
 
           {canPost && (
-            <div className="mt-3 flex items-center justify-end">
+            <div className="mt-1 flex items-center justify-end">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+                className="h-7 text-xs"
                 onClick={() => setActiveReplyId(isReplying ? null : reply.id)}
               >
-                {isReplying ? 'Hủy' : 'Trả lời'}
+                {isReplying ? "Hủy" : "Trả lời"}
               </Button>
             </div>
           )}
         </div>
 
         {isReplying && (
-          <div className="mt-3 pl-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="mt-2 pl-4 animate-in fade-in slide-in-from-top-2 duration-200">
             <Textarea
-              value={replyDraftByTopic[reply.id] ?? ''}
+              value={replyDraftByTopic[reply.id] ?? ""}
               onChange={(e) =>
                 setReplyDraftByTopic((prev) => ({
                   ...prev,
                   [reply.id]: e.target.value,
                 }))
               }
-              placeholder={`Trả lời ${reply.author?.displayName || '...'}`}
+              placeholder={`Trả lời ${reply.author?.displayName || "..."}`}
               className="min-h-[80px]"
             />
             <div className="mt-2 flex justify-end">
@@ -229,7 +237,7 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
         )}
 
         {canRecurse && (
-          <div className="ml-4 border-l border-primary/10 pl-4 mt-3">
+          <div className="mt-3 ml-4 border-l border-muted-foreground/10 pl-4">
             {reply.replies?.map((r: any) => renderReplyTree(r as any, depth + 1))}
           </div>
         )}
@@ -277,13 +285,6 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
             </SelectContent>
           </Select>
         </div>
-
-        {isAuthenticated && canPost && (
-          <Button className="gap-2 w-full sm:w-auto" onClick={() => setSelectedTopic({ content: '', discussionId: selectedLessonId === 'all' ? '' : selectedLessonId } as any)}>
-            <Plus className="size-4" />
-            Đặt câu hỏi
-          </Button>
-        )}
       </div>
 
       {isLoading ? (
@@ -295,52 +296,59 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
           Không thể tải thảo luận.
         </div>
       ) : topics.length === 0 ? (
-        <div className="py-16 text-center text-muted-foreground space-y-2 border border-dashed rounded-lg bg-muted/5">
+        <div className="py-12 text-center text-muted-foreground space-y-2 rounded-lg border border-dashed bg-muted/5">
           <MessageSquare className="h-10 w-10 mx-auto opacity-40" />
           <div className="font-semibold">Chưa có thảo luận nào.</div>
-          <div className="text-sm">Hãy là người đầu tiên đặt câu hỏi hoặc chia sẻ ý kiến.</div>
+          <div className="text-sm">Khi học viên đặt câu hỏi, bạn có thể xem và trả lời tại đây.</div>
         </div>
       ) : (
-        <div className="space-y-3">
-          {topics.map((topic: any) => (
-            <Card key={topic.id} className="cursor-pointer border-border/70 transition-colors hover:bg-muted/20" onClick={() => setSelectedTopic(topic)}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="size-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      {topic.author?.avatarUrl ? (
-                        <img src={topic.author.avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
-                      ) : (
-                        <User className="size-4 text-primary" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold truncate">{topic.author?.displayName || 'Unknown'}</p>
-                      <p className="text-[10px] text-muted-foreground">{formatDate(topic.createdAt)}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-end gap-1">
+        <div className="rounded-lg border bg-background">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Học viên</TableHead>
+                <TableHead>Bài học</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Nội dung</TableHead>
+                <TableHead>Thời gian</TableHead>
+                <TableHead className="text-right">Phản hồi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {topics.map((topic: any) => (
+                <TableRow
+                  key={topic.id}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedTopic(topic)}
+                >
+                  <TableCell className="font-medium">
+                    {topic.author?.displayName || "Học viên"}
+                  </TableCell>
+                  <TableCell>
                     <Badge variant="outline" className="text-[10px]">
-                      {(topic as any).__lessonTitle || 'Bài học'}
+                      {(topic as any).__lessonTitle || "Bài học"}
                     </Badge>
-                    {topic.status === 'ANSWERED' ? (
-                      <Badge variant="success" className="text-[9px] uppercase font-black">Đã trả lời</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {topic.status === "ANSWERED" ? (
+                      <Badge variant="success" className="text-[10px]">Đã trả lời</Badge>
                     ) : (
-                      <Badge variant="warning" className="text-[9px] uppercase font-black">Chờ phản hồi</Badge>
+                      <Badge variant="warning" className="text-[10px]">Chờ phản hồi</Badge>
                     )}
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-sm text-foreground/80 line-clamp-2">{topic.content}</p>
-                <div className="mt-3 flex justify-end">
-                  <Button variant="outline" size="sm" className="h-8">
-                    Xem thảo luận
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </TableCell>
+                  <TableCell className="max-w-[420px] truncate text-muted-foreground">
+                    {topic.content}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDate(topic.createdAt)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {topic.replyCount ?? 0}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 
@@ -397,45 +405,31 @@ function DiscussionDetailsSheet({
     setTopicContent,
     currentUserDisplayName
 }: DiscussionDetailsSheetProps) {
-    const isNew = topic && !topic.id
+    const isNew = false
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col h-full p-0 overflow-hidden">
-                <SheetHeader className="p-6 border-b shrink-0 bg-muted/5">
-                    <SheetTitle>{isNew ? 'Đặt câu hỏi mới' : 'Chi tiết thảo luận'}</SheetTitle>
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col h-full p-0 overflow-hidden">
+                <SheetHeader className="p-5 border-b shrink-0 bg-muted/5">
+                    <SheetTitle>Chi tiết thảo luận</SheetTitle>
                     <SheetDescription>
-                        {isNew ? 'Mô tả chi tiết thắc mắc của bạn bên dưới.' : `Thảo luận bắt đầu từ ${topic?.author?.displayName} vào ${topic ? formatDate(topic.createdAt) : ''}`}
+                        {topic
+                            ? `Thảo luận từ ${topic.author?.displayName || "Học viên"} · ${formatDate(
+                                topic.createdAt,
+                              )}`
+                            : "Xem và phản hồi câu hỏi của học viên."}
                     </SheetDescription>
                 </SheetHeader>
 
                 <ScrollArea className="flex-1 min-h-0 bg-background">
-                    <div className="p-6 space-y-8">
-                        {isNew ? (
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nội dung câu hỏi</label>
-                                    <Textarea 
-                                        value={topicContent} 
-                                        onChange={(e) => setTopicContent(e.target.value)} 
-                                        placeholder="Nhập nội dung thắc mắc của bạn..." 
-                                        className="min-h-[200px]"
-                                    />
-                                </div>
-                                <div className="flex justify-end gap-3 pt-4">
-                                    <Button variant="outline" onClick={() => onOpenChange(false)}>Hủy</Button>
-                                    <Button onClick={onCreateTopic} disabled={createCommentPending}>
-                                        {createCommentPending ? 'Đang gửi...' : 'Gửi câu hỏi'}
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : topic && (
+                    <div className="space-y-8 p-5">
+                        {topic && (
                             <div className="space-y-8">
-                                {/* Original Topic */}
-                                <div className="bg-primary/5 rounded-xl border border-primary/10 p-5 space-y-4">
+                                {/* Câu hỏi gốc */}
+                                <div className="space-y-4 rounded-xl border bg-card p-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <div className="flex size-9 items-center justify-center rounded-full bg-primary/10">
                                                 {topic.author?.avatarUrl ? (
                                                     <img src={topic.author.avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
                                                 ) : (
@@ -443,31 +437,40 @@ function DiscussionDetailsSheet({
                                                 )}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="font-bold text-sm text-foreground">{topic.author?.displayName}</span>
-                                                <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{topic.author?.role || 'STUDENT'}</span>
+                                                <span className="text-sm font-medium text-foreground">
+                                                    {topic.author?.displayName || "Học viên"}
+                                                </span>
+                                                <span className="text-[11px] text-muted-foreground">
+                                                    {formatDate(topic.createdAt)}
+                                                </span>
                                             </div>
                                         </div>
-                                        <Badge variant={topic.status === 'ANSWERED' ? 'success' : 'warning'} className="text-[9px] font-black">
-                                            {topic.status === 'ANSWERED' ? 'ĐÃ TRẢ LỜI' : 'CHỜ PHẢN HỒI'}
+                                        <Badge
+                                            variant={topic.status === "ANSWERED" ? "success" : "warning"}
+                                            className="text-[10px]"
+                                        >
+                                            {topic.status === "ANSWERED" ? "ĐÃ TRẢ LỜI" : "CHỜ PHẢN HỒI"}
                                         </Badge>
                                     </div>
-                                    <div className="text-sm font-medium leading-relaxed bg-background/50 p-4 rounded-lg border border-primary/5 whitespace-pre-wrap">
+                                    <div className="whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm leading-relaxed">
                                         {topic.content}
                                     </div>
                                 </div>
 
-                                {/* Replies Tree */}
+                                {/* Danh sách phản hồi */}
                                 <div className="space-y-6">
-                                    <div className="flex items-center gap-2 text-sm font-bold border-b pb-2">
+                                    <div className="flex items-center gap-2 border-b pb-2 text-sm font-medium">
                                         <MessageSquare className="size-4 text-primary" />
                                         <span>Phản hồi ({topic.replyCount ?? 0})</span>
                                     </div>
-                                    <div className="pl-4 border-l-2 border-primary/5 ml-2 space-y-6">
+                                    <div className="ml-1 space-y-4 border-l border-muted-foreground/10 pl-4">
                                         {(topic.replies?.length ?? 0) > 0 ? (
                                             topic.replies.map((r: any) => renderReplyTree(r as any, 0))
                                         ) : (
-                                            <div className="py-8 text-center bg-muted/10 rounded-lg border border-dashed">
-                                                <p className="text-xs text-muted-foreground italic">Chưa có phản hồi nào cho thảo luận này.</p>
+                                            <div className="rounded-lg border border-dashed bg-muted/10 py-6 text-center">
+                                                <p className="text-xs italic text-muted-foreground">
+                                                    Chưa có phản hồi nào cho thảo luận này.
+                                                </p>
                                             </div>
                                         )}
                                     </div>
@@ -477,12 +480,18 @@ function DiscussionDetailsSheet({
                     </div>
                 </ScrollArea>
 
-                {!isNew && topic && canPost && (
-                    <div className="p-4 border-t bg-muted/5 shrink-0">
-                         <div className="bg-background rounded-xl border p-4 shadow-sm space-y-3">
+                {topic && canPost && (
+                    <div className="shrink-0 border-t bg-muted/5 p-4">
+                        <div className="space-y-3 rounded-xl border bg-background p-4">
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Trả lời thảo luận</span>
-                                <span className="text-[10px] text-muted-foreground italic">Trả lời với danh nghĩa {currentUserDisplayName}</span>
+                                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                    Trả lời thảo luận
+                                </span>
+                                {currentUserDisplayName && (
+                                    <span className="text-[11px] italic text-muted-foreground">
+                                        Trả lời với danh nghĩa {currentUserDisplayName}
+                                    </span>
+                                )}
                             </div>
                             <Textarea
                                 value={replyDraftByTopic[topic.id] ?? ''}
@@ -493,14 +502,14 @@ function DiscussionDetailsSheet({
                                     }))
                                 }
                                 placeholder="Viết phản hồi hoặc giải đáp thắc mắc của học viên..."
-                                className="min-h-[100px] bg-muted/10 border-muted/20 focus:bg-background transition-all"
+                                className="min-h-[90px]"
                             />
                             <div className="flex justify-end">
                                 <Button
                                     disabled={!isAuthenticated || createCommentPending}
                                     onClick={() => onReply(topic.id)}
                                     size="sm"
-                                    className="gap-2 font-bold uppercase tracking-wider text-[10px] h-9 px-4"
+                                    className="gap-1 text-xs"
                                 >
                                     <MessageSquare className="size-3.5" />
                                     Gửi phản hồi

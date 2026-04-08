@@ -61,6 +61,7 @@ import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
 import AiSubscriptionsPage from '@/routes/academy/ai-subscriptions/ai-subscriptions-page.tsx'
 
+import { LMS_ASSESSMENT_CONTENT_MANAGE_ANY } from '@/config/navigation'
 import JlptTemplatesPage from '@/routes/academy/jlpt/templates/page.tsx'
 import JlptQuestionsPage from '@/routes/academy/jlpt/questions/page.tsx'
 import JlptQuestionDetailPage from '@/routes/academy/jlpt/questions/[id]/page.tsx'
@@ -148,7 +149,7 @@ function App() {
                     <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["lms.assessment.read", "lms.assessment.update", "lms.assessment.create"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={[...LMS_ASSESSMENT_CONTENT_MANAGE_ANY]} />}>
                     <Route path="academy/jlpt/config" element={<JlptConfigPage />} />
                     <Route path="academy/jlpt/templates" element={<JlptTemplatesPage />} />
                     <Route path="academy/jlpt/templates/:id" element={<JlptTemplateDetailPage />} />
@@ -177,7 +178,7 @@ function App() {
                     <Route path="coupons" element={<CouponsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["ops.order.manage", "lms.commerce.read"]} />}>
+                  <Route element={<RoutePermissionGuard permission="ops.order.manage" />}>
                     <Route path="orders" element={<OrdersPage />} />
                   </Route>
 

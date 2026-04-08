@@ -4,13 +4,10 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty"
 import {
     Video,
     BookOpen,
-    Target,
-    GraduationCap,
     Calendar,
     ChevronRight,
     ChevronLeft,
@@ -243,7 +240,6 @@ export default function LecturerDashboard() {
 
     const sessionsLoading = sessionQueries.some((q) => q.isLoading)
     const joinMutation = useJoinAcademyLiveSessionAsLecturer()
-    const ongoingCount = classes.filter((c) => c.status === "IN_PROGRESS").length
     const nextSession = upcomingSessions[0]
 
     const handleJoinSession = async (sessionId: string) => {
@@ -385,22 +381,8 @@ export default function LecturerDashboard() {
                     title="Lớp đang mở"
                     value={lecDashLoading ? "—" : (lecDash?.stats.activeLiveClasses ?? 0)}
                     sub="Mở tuyển + Đang vận hành"
-                    icon={GraduationCap}
-                    tone="success"
-                />
-                <StatsCard
-                    title="Tổng lớp phụ trách"
-                    value={classesLoading ? "—" : classes.length}
-                    sub={ongoingCount > 0 ? `${ongoingCount} đang diễn ra` : "Tất cả trạng thái"}
                     icon={BookOpen}
-                    tone="neutral"
-                />
-                <StatsCard
-                    title="Buổi sắp tới (lịch)"
-                    value={sessionsLoading ? "—" : upcomingSessions.length}
-                    sub="Theo cửa sổ tải lịch"
-                    icon={Clock}
-                    tone="neutral"
+                    tone="success"
                 />
             </div>
 
@@ -447,205 +429,160 @@ export default function LecturerDashboard() {
                 </Card>
             ) : null}
 
-            <Tabs defaultValue="timetable" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:max-w-md">
-                    <TabsTrigger value="timetable">Thời khóa biểu</TabsTrigger>
-                    <TabsTrigger value="quick">Thao tác nhanh</TabsTrigger>
-                </TabsList>
-                <TabsContent value="timetable" className="space-y-4">
-                    <Card className="border-border/60 shadow-sm">
-                        <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                                <CardTitle>Thời khóa biểu</CardTitle>
-                                <CardDescription>
-                                    Lịch dạy theo tuần · Tuần {format(weekStart, "dd/MM/yyyy")} – {format(weekEnd, "dd/MM/yyyy")}
-                                </CardDescription>
-                            </div>
-                            <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-border/50 bg-muted/40 p-0.5">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-lg"
-                                    onClick={() => setWeekOffset((o) => o - 1)}
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button type="button" variant="ghost" size="sm" className="h-8 gap-1.5 rounded-lg px-2 text-xs font-bold">
-                                            <Calendar className="h-3.5 w-3.5 text-primary" />
-                                            <span className="tabular-nums">
-                                                {format(weekStart, "dd/MM")} – {format(weekEnd, "dd/MM")}
-                                            </span>
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto rounded-2xl border-border/40 p-0 shadow-2xl" align="end">
-                                        <CalendarUI
-                                            mode="single"
-                                            selected={weekStart}
-                                            onSelect={(date) => {
-                                                if (date) {
-                                                    const offset = differenceInWeeks(
-                                                        startOfWeek(date, { weekStartsOn: 1 }),
-                                                        startOfWeek(new Date(), { weekStartsOn: 1 })
-                                                    )
-                                                    setWeekOffset(offset)
-                                                }
-                                            }}
-                                            initialFocus
-                                            locale={vi}
-                                            className="p-3"
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+            <Card className="border-border/60 shadow-sm">
+                <CardHeader className="flex flex-col gap-4 space-y-0 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <CardTitle>Thời khóa biểu</CardTitle>
+                        <CardDescription>
+                            Lịch dạy theo tuần · Tuần {format(weekStart, "dd/MM/yyyy")} – {format(weekEnd, "dd/MM/yyyy")}
+                        </CardDescription>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-0.5 rounded-xl border border-border/50 bg-muted/40 p-0.5">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg"
+                            onClick={() => setWeekOffset((o) => o - 1)}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Popover>
+                            <PopoverTrigger asChild>
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     size="sm"
-                                    className="h-8 rounded-lg px-2 text-[10px] font-bold uppercase tracking-wide"
-                                    onClick={() => setWeekOffset(0)}
+                                    className="h-8 gap-1.5 rounded-lg px-2 text-xs font-bold"
                                 >
-                                    Hiện tại
+                                    <Calendar className="h-3.5 w-3.5 text-primary" />
+                                    <span className="tabular-nums">
+                                        {format(weekStart, "dd/MM")} – {format(weekEnd, "dd/MM")}
+                                    </span>
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-lg"
-                                    onClick={() => setWeekOffset((o) => o + 1)}
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {sessionsLoading ? (
-                                <div className="space-y-2">
-                                    {[1, 2, 3, 4, 5].map((i) => (
-                                        <Skeleton key={i} className="h-12 w-full rounded-xl" />
-                                    ))}
-                                </div>
-                            ) : timetableSessions.length === 0 ? (
-                                <Empty>
-                                    <EmptyHeader>
-                                        <EmptyMedia variant="icon">
-                                            <Calendar className="size-4" />
-                                        </EmptyMedia>
-                                        <EmptyTitle>Chưa có lịch dạy</EmptyTitle>
-                                        <EmptyDescription>Chưa có buổi học nào trong khoảng thời gian này.</EmptyDescription>
-                                    </EmptyHeader>
-                                    <EmptyContent>
-                                        <Button variant="outline" asChild>
-                                            <Link to="/academy/live-classes">Xem Lớp của tôi</Link>
-                                        </Button>
-                                    </EmptyContent>
-                                </Empty>
-                            ) : (
-                                <div className="space-y-3">
-                                    <p className="text-[11px] font-semibold text-muted-foreground">
-                                        <Clock className="mr-1 inline size-3 align-text-bottom" />
-                                        Lịch dạy trong tuần hiện tại
-                                    </p>
-                                    <div className="space-y-3">
-                                        {days.map((day) => {
-                                            const daySessions = sessionsForDayLecturer(weekSessions, day)
-                                            if (daySessions.length === 0) return null
-                                            const todayDay = isToday(day)
-                                            return (
-                                                <div
-                                                    key={format(day, "yyyy-MM-dd")}
-                                                    className={cn(
-                                                        "rounded-xl border border-border/60 bg-card p-3 shadow-sm sm:p-4",
-                                                        todayDay && "border-primary/40 bg-primary/[0.03]"
-                                                    )}
-                                                >
-                                                    <div className="mb-3 flex items-center justify-between">
-                                                        <div>
-                                                            <p className="text-sm font-black tabular-nums text-foreground">
-                                                                {format(day, "EEEE, dd/MM", { locale: vi })}
-                                                            </p>
-                                                            <p className="text-[11px] text-muted-foreground">
-                                                                {daySessions.length} buổi dạy
-                                                            </p>
-                                                        </div>
-                                                        {todayDay && (
-                                                            <Badge variant="secondary" className="text-[10px] font-bold">
-                                                                Hôm nay
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        {daySessions.map((s) => (
-                                                            <LecturerTimetableSessionCard
-                                                                key={s.id}
-                                                                session={s}
-                                                                onRequestJoin={setJoinTarget}
-                                                                joining={joinMutation.isPending}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </div>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto rounded-2xl border-border/40 p-0 shadow-2xl" align="end">
+                                <CalendarUI
+                                    mode="single"
+                                    selected={weekStart}
+                                    onSelect={(date) => {
+                                        if (date) {
+                                            const offset = differenceInWeeks(
+                                                startOfWeek(date, { weekStartsOn: 1 }),
+                                                startOfWeek(new Date(), { weekStartsOn: 1 })
                                             )
-                                        })}
-                                        {weekSessions.length === 0 && (
-                                            <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center text-sm text-muted-foreground">
-                                                Tuần này chưa có buổi dạy nào.
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <Button variant="outline" size="sm" className="w-full" asChild>
-                                        <Link to="/academy/live-classes">Quản lý tất cả lớp</Link>
-                                    </Button>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                <TabsContent value="quick" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Thao tác nhanh</CardTitle>
-                            <CardDescription>Các tác vụ thường dùng</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3" asChild>
-                                <Link to="/academy/live-classes">
-                                    <BookOpen className="size-4 shrink-0" />
-                                    <span className="text-left">
-                                        <span className="block font-medium">Lớp của tôi</span>
-                                        <span className="block text-xs text-muted-foreground">Quản lý lớp, lịch, điểm danh, bài tập</span>
-                                    </span>
-                                    <ChevronRight className="size-4 ml-auto" />
-                                </Link>
-                            </Button>
-                            {liveClassIds[0] && (
-                                <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3" asChild>
-                                    <Link to={`/academy/live-classes/${liveClassIds[0]}/schedule`}>
-                                        <Calendar className="size-4 shrink-0" />
-                                        <span className="text-left">
-                                            <span className="block font-medium">Lịch & Điểm danh</span>
-                                            <span className="block text-xs text-muted-foreground">Ghi nhận điểm danh buổi LIVE</span>
-                                        </span>
-                                        <ChevronRight className="size-4 ml-auto" />
-                                    </Link>
+                                            setWeekOffset(offset)
+                                        }
+                                    }}
+                                    initialFocus
+                                    locale={vi}
+                                    className="p-3"
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 rounded-lg px-2 text-[10px] font-bold uppercase tracking-wide"
+                            onClick={() => setWeekOffset(0)}
+                        >
+                            Hiện tại
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg"
+                            onClick={() => setWeekOffset((o) => o + 1)}
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    {sessionsLoading ? (
+                        <div className="space-y-2">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                            ))}
+                        </div>
+                    ) : timetableSessions.length === 0 ? (
+                        <Empty>
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <Calendar className="size-4" />
+                                </EmptyMedia>
+                                <EmptyTitle>Chưa có lịch dạy</EmptyTitle>
+                                <EmptyDescription>Chưa có buổi học nào trong khoảng thời gian này.</EmptyDescription>
+                            </EmptyHeader>
+                            <EmptyContent>
+                                <Button variant="outline" asChild>
+                                    <Link to="/academy/live-classes">Xem Lớp của tôi</Link>
                                 </Button>
-                            )}
-                            <Button variant="outline" className="w-full justify-start gap-3 h-auto py-3" asChild>
-                                <Link to="/academy/live-classes">
-                                    <Target className="size-4 shrink-0" />
-                                    <span className="text-left">
-                                        <span className="block font-medium">Bài tập cần chấm</span>
-                                        <span className="block text-xs text-muted-foreground">Vào từng lớp để chấm bài</span>
-                                    </span>
-                                    <ChevronRight className="size-4 ml-auto" />
-                                </Link>
+                            </EmptyContent>
+                        </Empty>
+                    ) : (
+                        <div className="space-y-3">
+                            <p className="text-[11px] font-semibold text-muted-foreground">
+                                <Clock className="mr-1 inline size-3 align-text-bottom" />
+                                Lịch dạy trong tuần hiện tại
+                            </p>
+                            <div className="space-y-3">
+                                {days.map((day) => {
+                                    const daySessions = sessionsForDayLecturer(weekSessions, day)
+                                    if (daySessions.length === 0) return null
+                                    const todayDay = isToday(day)
+                                    return (
+                                        <div
+                                            key={format(day, "yyyy-MM-dd")}
+                                            className={cn(
+                                                "rounded-xl border border-border/60 bg-card p-3 shadow-sm sm:p-4",
+                                                todayDay && "border-primary/40 bg-primary/[0.03]"
+                                            )}
+                                        >
+                                            <div className="mb-3 flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-black tabular-nums text-foreground">
+                                                        {format(day, "EEEE, dd/MM", { locale: vi })}
+                                                    </p>
+                                                    <p className="text-[11px] text-muted-foreground">
+                                                        {daySessions.length} buổi dạy
+                                                    </p>
+                                                </div>
+                                                {todayDay && (
+                                                    <Badge variant="secondary" className="text-[10px] font-bold">
+                                                        Hôm nay
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2">
+                                                {daySessions.map((s) => (
+                                                    <LecturerTimetableSessionCard
+                                                        key={s.id}
+                                                        session={s}
+                                                        onRequestJoin={setJoinTarget}
+                                                        joining={joinMutation.isPending}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                                {weekSessions.length === 0 && (
+                                    <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center text-sm text-muted-foreground">
+                                        Tuần này chưa có buổi dạy nào.
+                                    </div>
+                                )}
+                            </div>
+
+                            <Button variant="outline" size="sm" className="w-full" asChild>
+                                <Link to="/academy/live-classes">Quản lý tất cả lớp</Link>
                             </Button>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     )
 }

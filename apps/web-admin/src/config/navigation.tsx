@@ -14,6 +14,17 @@ import {
     BookOpen,
 } from "lucide-react";
 
+/**
+ * Quản lý nội dung ngân hàng câu hỏi / đề thi / JLPT (không áp dụng cho giảng viên chỉ có read + grade).
+ * Dùng chung cho menu và RoutePermissionGuard trong App.tsx.
+ */
+export const LMS_ASSESSMENT_CONTENT_MANAGE_ANY = [
+    "lms.assessment.create",
+    "lms.assessment.update",
+    "lms.assessment.delete",
+    "lms.assessment.publish",
+] as const;
+
 export interface NavItem {
     titleKey: string;
     url: string;
@@ -55,7 +66,7 @@ export const academicNavItems: NavItem[] = [
         titleKey: "Ngân hàng & Đánh giá",
         url: "/academy/assessment/questions",
         icon: BookOpen,
-        anyPermission: ["lms.assessment.read", "lms.assessment.update"],
+        anyPermission: [...LMS_ASSESSMENT_CONTENT_MANAGE_ANY],
         items: [
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/assessment/questions" },
             { titleKey: "Danh sách bài thi", url: "/academy/assessment/exams" },
@@ -66,7 +77,7 @@ export const academicNavItems: NavItem[] = [
         titleKey: "Đề thi JLPT mô phỏng",
         url: "/academy/jlpt/templates",
         icon: Languages,
-        anyPermission: ["lms.assessment.read", "lms.assessment.update"],
+        anyPermission: [...LMS_ASSESSMENT_CONTENT_MANAGE_ANY],
         items: [
             { titleKey: "Quản lý Đề thi (Mẫu đề)", url: "/academy/jlpt/templates" },
             { titleKey: "Ngân hàng Câu hỏi", url: "/academy/jlpt/questions" },
@@ -104,7 +115,7 @@ export const financeNavItems: NavItem[] = [
         titleKey: "Đơn hàng & Doanh thu",
         url: "/orders",
         icon: CreditCard,
-        anyPermission: ["ops.order.manage", "lms.commerce.read"],
+        permission: "ops.order.manage",
         items: [
             { titleKey: "Danh sách đơn hàng", url: "/orders" },
         ]

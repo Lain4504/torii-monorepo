@@ -126,7 +126,13 @@ export function useUpdateAcademyVodPackage() {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: AcademyVodPackageUpdateDTO }) =>
       academyVodPackagesApi.update(id, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-vod-packages"] }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["academy-vod-packages"] })
+      // Detail page dùng key ["academy-vod-package", id], cần invalidate để UI đổi trạng thái/nút ngay
+      qc.invalidateQueries({ queryKey: ["academy-vod-package", variables.id] })
+      // Fallback: invalidate theo prefix nếu có nơi dùng key không kèm id
+      qc.invalidateQueries({ queryKey: ["academy-vod-package"] })
+    },
   })
 }
 

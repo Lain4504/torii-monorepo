@@ -15,6 +15,7 @@ import {
     SidebarRail,
 } from "@workspace/ui/components/sidebar"
 import { useAppSelector } from "@/hooks/hooks"
+import { usePermissions } from "@/hooks/use-permissions"
 import { selectUser } from "@/store/slices/auth-slice"
 import { academicNavItems, operationsNavItems, financeNavItems, personnelNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 
@@ -26,8 +27,40 @@ const NAV_GROUPS: { labelKey: string; items: NavItem[] }[] = [
     { labelKey: "Hệ thống", items: systemNavItems },
 ];
 
+function navParentVisible(item: NavItem, can: (p: string) => boolean, canAny: (p: string[]) => boolean): boolean {
+    if (item.permission) return can(item.permission);
+    if (item.anyPermission?.length) return canAny(item.anyPermission);
+    return true;
+}
+
+function navSubVisible(
+    sub: NonNullable<NavItem["items"]>[number],
+    parentOk: boolean,
+    can: (p: string) => boolean,
+    canAny: (p: string[]) => boolean,
+): boolean {
+    if (!parentOk) return false;
+    if (sub.permission) return can(sub.permission);
+    if (sub.anyPermission?.length) return canAny(sub.anyPermission);
+    return true;
+}
+
+/** Ẩn mục cha nếu không đủ quyền hoặc (có con nhưng) không còn mục con nào hiển thị được. */
+function navItemShows(item: NavItem, can: (p: string) => boolean, canAny: (p: string[]) => boolean): boolean {
+    if (!item.items?.length) return navParentVisible(item, can, canAny);
+    const pv = navParentVisible(item, can, canAny);
+    if (!pv) return false;
+    return item.items.some((sub) => navSubVisible(sub, pv, can, canAny));
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const user = useAppSelector(selectUser);
+    const { can, canAny } = usePermissions();
+
+    const visibleNavGroups = NAV_GROUPS.map((g) => ({
+        ...g,
+        items: g.items.filter((item) => navItemShows(item, can, canAny)),
+    })).filter((g) => g.items.length > 0);
 
     const mappedUser = {
         displayName: user?.displayName || "",
@@ -49,16 +82,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <LayoutGrid className="size-5 text-primary" />
                     </div>
                     <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-                        <div className="text-sm font-semibold truncate">Torii Admin</div>
+                        <div className="text-sm font-semibold truncate">Torii</div>
                         <div className="text-[11px] text-muted-foreground/60 truncate">
-                            Điều hướng theo permission
+                            Điều hướng theo quyền
                         </div>
                     </div>
                 </div>
             </SidebarHeader>
 
             <SidebarContent className="scrollbar-none">
-                {NAV_GROUPS.map((group) => (
+                {visibleNavGroups.map((group) => (
                     <NavMain
                         key={group.labelKey}
                         label={group.labelKey}

@@ -14,7 +14,7 @@ export type AcademyLiveScheduleRequest = {
   sessionId: string
   liveClassId?: string | null
   requestedBy: string
-  type: "LEAVE" | "RESCHEDULE"
+  type: "RESCHEDULE"
   status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"
   reason?: string | null
   requestedDate?: string | null

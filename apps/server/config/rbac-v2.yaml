@@ -213,7 +213,6 @@ role_matrix:
     - lms.commerce.delete
     - lms.commerce.publish
     - ops.report.view
-    - ops.user.view
 
   staff-operations:
     - lms.catalog.read
