@@ -147,9 +147,10 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
     const moduleMilestones =
         milestones?.filter(
             (m) =>
-                m.kind === 'MODULE_CHECKPOINT' &&
+                normalizeItemKind(m.kind) === 'MODULE_CHECKPOINT' &&
                 m.moduleId === mod.id
         ) || [];
+
 
     return (
         <AccordionItem value={mod.id} className="border-none px-2">
@@ -171,7 +172,10 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                     const isActive = lesson.id === currentLessonId;
                     const isDone = completedIds.has(lessonProgressId(lesson));
                     const unlocked = isLessonUnlocked(lesson);
-                    const lessonMilestones = milestones?.filter(m => m.triggerLessonId === lesson.id) || [];
+                    const lessonMilestones = milestones?.filter(m => 
+                        (m.triggerLessonId && (m.triggerLessonId === lesson.id || m.triggerLessonId === lesson.referenceId))
+                    ) || [];
+
 
                     return (
                         <div key={lesson.id} className="px-1">
@@ -470,12 +474,17 @@ export default function CourseLearnPage() {
         sortedModules.forEach((mod: any, modIdx: number) => {
             const moduleOrder = mod.order ?? modIdx;
             (mod.lessons || []).forEach((lesson: any, lessonIdx: number) => {
-                map.set(lesson.id, {
+                const meta = {
                     moduleOrder,
                     lessonOrder: lesson.order ?? lessonIdx,
                     moduleId: mod.id,
-                });
+                };
+                map.set(lesson.id, meta);
+                if (lesson.referenceId) {
+                    map.set(lesson.referenceId, meta);
+                }
             });
+
         });
         return map;
     }, [sortedModules]);
@@ -497,10 +506,11 @@ export default function CourseLearnPage() {
             if (!lessonMeta) return false;
 
             return milestones.some((m: AcademyAssessmentStatus) => {
+                const kind = normalizeItemKind(m.kind);
                 if (!m?.isRequired) return false;
                 if (m.status === 'PASSED') return false;
 
-                if (m.kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
+                if (kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
                     const triggerMeta = lessonOrderMeta.get(m.triggerLessonId);
                     if (!triggerMeta) return false;
                     if (triggerMeta.moduleOrder < lessonMeta.moduleOrder) return true;
@@ -510,7 +520,7 @@ export default function CourseLearnPage() {
                     );
                 }
 
-                if (m.kind === 'MODULE_CHECKPOINT' && m.moduleId) {
+                if (kind === 'MODULE_CHECKPOINT' && m.moduleId) {
                     const milestoneModuleOrder = moduleOrderMap.get(m.moduleId);
                     if (milestoneModuleOrder === undefined) return false;
                     return milestoneModuleOrder < lessonMeta.moduleOrder;
@@ -518,6 +528,7 @@ export default function CourseLearnPage() {
 
                 return false;
             });
+
         },
         [lessonOrderMeta, milestones, moduleOrderMap],
     );
@@ -941,12 +952,23 @@ export default function CourseLearnPage() {
                                     currentLessonId={currentLesson?.id ?? null}
                                     completedIds={completedIds}
                                     isLessonUnlocked={effectiveLessonUnlocked}
-                                    milestones={milestones.filter(m =>
-                                        m.kind !== 'FINAL_EXAM' && (
-                                            (m.kind === 'MODULE_CHECKPOINT' && m.moduleId === mod.id) ||
-                                            (m.kind === 'LESSON_CHECKPOINT' && m.triggerLessonId && mod.lessons?.some((l: any) => l.id === m.triggerLessonId))
-                                        )
-                                    )}
+                                    milestones={milestones.filter(m => {
+                                        const kind = normalizeItemKind(m.kind);
+                                        if (kind === 'FINAL_EXAM') return false;
+                                        
+                                        // Check if Module Checkpoint matches current module
+                                        if (kind === 'MODULE_CHECKPOINT' && m.moduleId === mod.id) return true;
+                                        
+                                        // Check if Lesson Checkpoint matches any lesson in current module
+                                        if (kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
+                                            return mod.lessons?.some((l: any) => 
+                                                l.id === m.triggerLessonId || l.referenceId === m.triggerLessonId
+                                            );
+                                        }
+                                        
+                                        return false;
+                                    })}
+
                                     onSelectMilestone={handleOpenMilestoneConfirm}
                                     onSelectLesson={lesson => {
                                         setCurrentLesson(lesson);
