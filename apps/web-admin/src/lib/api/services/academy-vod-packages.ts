@@ -51,6 +51,24 @@ export const academyVodPackagesApi = {
     return res.data.data!
   },
 
+  async findMyAssigned(params: AcademyVodPackageQueryDTO) {
+    const res = await apiClient.get<StandardApiResponse<AcademyVodPackageListPayload>>(
+      "/api/academy/vod-packages/my-assigned",
+      { params },
+    )
+    const payload = res.data.data
+    if (Array.isArray(payload)) return payload
+    if (Array.isArray(payload?.items)) return payload.items
+    return []
+  },
+
+  async findMyAssignedDiscussionContext(id: string) {
+    const res = await apiClient.get<StandardApiResponse<AcademyVodPackage>>(
+      `/api/academy/vod-packages/my-assigned/${id}/discussion`,
+    )
+    return res.data.data!
+  },
+
   async create(input: AcademyVodPackageCreateDTO) {
     const res = await apiClient.post<StandardApiResponse<AcademyVodPackage>>(
       "/api/academy/vod-packages",
@@ -113,6 +131,21 @@ export function useAcademyVodPackage(id?: string) {
   })
 }
 
+export function useMyAssignedAcademyVodPackages(params: AcademyVodPackageQueryDTO) {
+  return useQuery({
+    queryKey: ["academy-vod-packages", "my-assigned", params],
+    queryFn: () => academyVodPackagesApi.findMyAssigned(params),
+  })
+}
+
+export function useMyAssignedAcademyVodPackageDiscussionContext(id?: string) {
+  return useQuery({
+    enabled: !!id,
+    queryKey: ["academy-vod-package", "my-assigned-discussion", id],
+    queryFn: () => academyVodPackagesApi.findMyAssignedDiscussionContext(id!),
+  })
+}
+
 export function useCreateAcademyVodPackage() {
   const qc = useQueryClient()
   return useMutation({
@@ -126,7 +159,13 @@ export function useUpdateAcademyVodPackage() {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: AcademyVodPackageUpdateDTO }) =>
       academyVodPackagesApi.update(id, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-vod-packages"] }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["academy-vod-packages"] })
+      // Detail page dùng key ["academy-vod-package", id], cần invalidate để UI đổi trạng thái/nút ngay
+      qc.invalidateQueries({ queryKey: ["academy-vod-package", variables.id] })
+      // Fallback: invalidate theo prefix nếu có nơi dùng key không kèm id
+      qc.invalidateQueries({ queryKey: ["academy-vod-package"] })
+    },
   })
 }
 

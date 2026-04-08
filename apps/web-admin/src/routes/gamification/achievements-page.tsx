@@ -42,7 +42,7 @@ export default function AchievementsPage() {
                 title="Quản lý Thành tích"
                 subtitle="Thiết lập các mốc thành tích, danh hiệu để gắn bó học viên với nền tảng."
                 actions={
-                    <Can permission="gamification.manage">
+                    <Can permission="ops.gamification.manage">
                         <Button
                             onClick={handleCreate}
                             size="lg"

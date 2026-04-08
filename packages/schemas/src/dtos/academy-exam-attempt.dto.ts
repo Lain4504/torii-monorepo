@@ -3,7 +3,7 @@ import { AcademyAttemptStatus } from '../enums/academy.enum';
 
 export const academyExamAttemptStartDTOSchema = z.object({
   examId: z.string().uuid(),
-  classId: z.string().uuid().optional(),
+  liveClassId: z.string().uuid().optional(),
   enrollmentId: z.string().uuid().optional(),
   assessmentId: z.string().uuid().optional(),
   // For learner flows, userId is derived from requester token at gateway.

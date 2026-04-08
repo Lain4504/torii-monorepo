@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 import { createMap, forMember, mapFrom } from '@automapper/core';
 import type { User } from '@prisma/generated';
 import type { UserResponseDTO } from '@workspace/schemas';
-import { UserRole } from '@workspace/schemas';
 
 /**
  * User AutoMapper Profile
@@ -38,7 +37,7 @@ export class UserProfile extends AutomapperProfile {
         ),
         forMember(
           (dest: UserResponseDTO) => dest.role,
-          mapFrom((src: User) => src.role as UserRole),
+          mapFrom((src: User) => src.role),
         ),
         forMember(
           (dest: UserResponseDTO) => dest.avatarUrl,

@@ -28,7 +28,7 @@ export class CertificateController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(certificateQueryDTOSchema)) query: any,
   ) {
@@ -59,7 +59,7 @@ export class CertificateController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.certificate.findById' }, { id }),

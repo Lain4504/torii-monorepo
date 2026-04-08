@@ -34,14 +34,12 @@ import {
     CommandShortcut,
 } from "@workspace/ui/components/command"
 import { useAppSelector } from "@/hooks/hooks"
-import { UserRole, isStaffBranchRole } from "@workspace/schemas"
 
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
     const router = useRouter()
     const { user } = useAppSelector((state) => state.auth)
-    const role = user?.role
-    const isStaffOrAdmin = role === UserRole.ADMIN || isStaffBranchRole(role)
+    const isStaffOrAdmin = false
 
     React.useEffect(() => {
         const down = (e: KeyboardEvent) => {

@@ -39,6 +39,8 @@ import {
   listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass,
+  dataTableShellClass,
+  dataTableHeaderClass,
 } from "@/lib/ui-shell"
 
 export default function ExamsPage() {
@@ -132,9 +134,9 @@ export default function ExamsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        <div className={dataTableShellClass}>
           <Table>
-            <TableHeader>
+            <TableHeader className={dataTableHeaderClass}>
               <TableRow>
                 <TableHead className="w-[60px] text-center">#</TableHead>
                 <TableHead className="w-[300px]">Tên đề thi</TableHead>
@@ -149,15 +151,15 @@ export default function ExamsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-10 text-slate-400">Đang tải dữ liệu...</TableCell>
+                  <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">Đang tải dữ liệu...</TableCell>
                 </TableRow>
               ) : exams?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-10 text-slate-400">Không tìm thấy bản ghi nào</TableCell>
+                  <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">Không tìm thấy bản ghi nào</TableCell>
                 </TableRow>
               ) : (
                 exams?.map((exam, idx) => (
-                  <TableRow key={exam.id}>
+                  <TableRow key={exam.id} className="hover:bg-muted/10">
                     <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                       {idx + 1}
                     </TableCell>
@@ -168,7 +170,7 @@ export default function ExamsPage() {
                       <Badge variant="outline">{exam.examType}</Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="line-clamp-1 text-slate-500 text-sm">{exam.description || '-'}</div>
+                      <div className="line-clamp-1 text-muted-foreground text-sm">{exam.description || '-'}</div>
                     </TableCell>
                     <TableCell>
                       {exam.totalTimeLimitMinutes ? `${exam.totalTimeLimitMinutes} ph` : '—'}
@@ -178,7 +180,7 @@ export default function ExamsPage() {
                         {exam.status === 'PUBLISHED' ? 'Hoạt động' : 'Bản nháp'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-slate-500">
+                    <TableCell className="text-muted-foreground">
                       {format(new Date(exam.createdAt), "dd/MM/yyyy")}
                     </TableCell>
                     <TableCell className="text-right pr-4">
@@ -186,7 +188,7 @@ export default function ExamsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8 gap-1.5 border-emerald-500/40 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          className="h-8 gap-1.5"
                           onClick={() => handleEdit(exam.id)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -195,7 +197,7 @@ export default function ExamsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8 gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+                          className="h-8 gap-1.5 text-destructive hover:bg-destructive/5"
                           onClick={() => setDeleteTargetId(exam.id)}
                         >
                           <Trash2 className="h-4 w-4" />

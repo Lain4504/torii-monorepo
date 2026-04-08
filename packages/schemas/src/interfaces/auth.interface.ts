@@ -1,9 +1,7 @@
-import { UserRole } from '../models/user.model';
-
 export interface TokenPayload {
     sub: string; // user ID
     sid?: string; // session ID
-    role?: UserRole;
+    role?: string;
     permissions?: string[];
 
     // Metadata claims

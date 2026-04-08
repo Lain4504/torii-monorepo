@@ -67,7 +67,7 @@ export class TicketController {
   }
 
   @Get()
-  @Permissions('support.view')
+  @Permissions('ops.support.view')
   async getTickets(
     @Query() query: TicketQueryDTO,
     @Req() req: ReqWithRequester,
@@ -86,7 +86,7 @@ export class TicketController {
   }
 
   @Get('stats')
-  @Permissions('support.view')
+  @Permissions('ops.support.view')
   async getTicketStats() {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'academy.analytics.tickets' }, {}),
@@ -104,7 +104,7 @@ export class TicketController {
     // Không có quyền xem mọi ticket: chỉ chủ ticket hoặc admin / role có support.view
     const canViewAll =
       requester.role === 'admin' ||
-      requester.permissions?.includes('support.view');
+      requester.permissions?.includes('ops.support.view');
     if (!canViewAll && result.userId !== requester.sub) {
       return successResponse(null, 'Not found or permission denied');
     }
@@ -113,7 +113,7 @@ export class TicketController {
   }
 
   @Patch(':id/status')
-  @Permissions('support.handle')
+  @Permissions('ops.support.handle')
   async updateTicketStatus(
     @Param('id') id: string,
     @Body() dto: UpdateTicketStatusDTO,
@@ -145,7 +145,7 @@ export class TicketController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post(':id/delete')
-  @Permissions('support.handle') // Admins can delete
+  @Permissions('ops.support.handle') // Admins can delete
   async deleteTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
     const requester = req.requester;
     // For admin deletion, we might need a different service method or pass a flag

@@ -135,9 +135,20 @@ export const jlptMockApi = {
 
   async getAttemptById(id: string) {
     const res = await apiClient.get<
-      StandardApiResponse<{ item: JlptMockAttempt }>
+      StandardApiResponse<{ item: unknown }>
     >(`/api/academy/jlpt-mock/attempts/${id}`)
-    return res.data.data!.item
+
+    // Controller có thể trả về success: false (không phải throw HTTP), khi đó res.data.data sẽ undefined.
+    if (!res.data?.success) {
+      throw new Error(res.data?.message ?? 'Không tải được kết quả bài thi')
+    }
+
+    const item = res.data.data?.item
+    if (!item) {
+      throw new Error('Không tìm thấy kết quả bài thi cho attemptId này')
+    }
+
+    return item
   },
 
   async findAttemptHistory() {

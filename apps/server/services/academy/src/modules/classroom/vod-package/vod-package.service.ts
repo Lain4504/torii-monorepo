@@ -69,8 +69,10 @@ export class VodPackageService {
   }
 
   async findAll(query: AcademyVodPackageQueryDTO) {
+    const queryAny = query as AcademyVodPackageQueryDTO & { instructorId?: string };
     const where: any = {};
     if (query.courseProfileId) where.courseProfileId = query.courseProfileId;
+    if (queryAny.instructorId) where.instructorId = queryAny.instructorId;
     if (query.status) where.status = query.status;
     if ((query as any).level) {
       where.courseProfile = {
@@ -143,6 +145,22 @@ export class VodPackageService {
       include: { courseProfile: { select: { status: true } } },
     });
     if (!before) throw new NotFoundException('VOD Package not found');
+
+    // State-machine tối thiểu cho VOD Package:
+    // - Không cho "hạ nháp" sau khi đã PUBLISHED (đã công khai/mở bán).
+    // - Khi đã ARCHIVED thì không cho đổi status nữa (chỉ đọc).
+    if (data.status && data.status !== before.status) {
+      if (before.status === 'ARCHIVED') {
+        throw new BadRequestException(
+          'Gói VOD đã được lưu trữ, không thể thay đổi trạng thái.',
+        );
+      }
+      if (before.status === 'PUBLISHED' && data.status === 'DRAFT') {
+        throw new BadRequestException(
+          'Gói VOD đã được xuất bản, không thể hạ về bản nháp. Vui lòng dùng Lưu trữ nếu muốn ngừng bán.',
+        );
+      }
+    }
 
     if (data.status === 'PUBLISHED' || data.status === 'PENDING_APPROVAL') {
       if (before.courseProfile.status !== 'PUBLISHED') {

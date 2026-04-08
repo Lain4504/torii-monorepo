@@ -51,6 +51,8 @@ import {
   listPageSearchInputClass,
   listPageSearchWrapClass,
   listPageToolbarRootClass,
+  dataTableHeaderClass,
+  dataTableShellClass,
 } from "@/lib/ui-shell";
 import { academyJlptMockApi, type JlptMockTemplate } from "@/lib/api/services/academy-jlpt-mock";
 import { toast } from "sonner";
@@ -149,10 +151,10 @@ export default function JlptTemplatesPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-md border bg-background">
+        <div className={dataTableShellClass}>
           <div className="overflow-x-auto">
             <Table className="min-w-[800px] w-full">
-              <TableHeader className="bg-muted/50">
+              <TableHeader className={dataTableHeaderClass}>
                 <TableRow>
                   <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
@@ -191,7 +193,7 @@ export default function JlptTemplatesPage() {
                   </TableRow>
                 ) : (
                   templates.map((tpl, idx) => (
-                    <TableRow key={tpl.id} className="group transition-colors">
+                    <TableRow key={tpl.id} className="group transition-colors hover:bg-muted/10">
                       <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                         {idx + 1}
                       </TableCell>

@@ -2,13 +2,14 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import { CardContent } from '@workspace/ui/components/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table'
 import { Trophy, Star, Flame, CalendarDays } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
 import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { TrendIndicator } from './trend-indicator'
 import { formatNumber } from '@/utils/format-utils'
+import { dataTableHeaderClass } from '@/lib/ui-shell'
 
 interface LeaderboardTableProps {
     users: LeaderboardUserDTO[]
@@ -34,7 +35,7 @@ function formatStat(item: LeaderboardUserDTO, type: 'global' | 'streak' | 'activ
 
 export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTableProps) {
     return (
-        <Card className="overflow-hidden shadow-none">
+        <div className="overflow-hidden rounded-xl border border-border/50 bg-card">
             <CardContent className="p-0">
                 {users.length === 0 ? (
                     <div className="px-4 py-12 text-center sm:py-14">
@@ -111,8 +112,8 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                         {/* Desktop Table View */}
                         <div className="hidden overflow-x-auto md:block">
                             <Table>
-                                <TableHeader>
-                                    <TableRow className="hover:bg-transparent border-b border-border/50">
+                                <TableHeader className={dataTableHeaderClass}>
+                                    <TableRow className="hover:bg-transparent">
                                         <TableHead className="w-[80px] pl-6 lg:pl-8 text-[11px] text-muted-foreground text-center">Hạng</TableHead>
                                         <TableHead className="text-[11px] text-muted-foreground">Học viên</TableHead>
                                         <TableHead className="text-right text-[11px] text-muted-foreground">Thành tích</TableHead>
@@ -130,8 +131,8 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                             <TableRow
                                                 key={item.id}
                                                 className={cn(
-                                                    'group border-none transition-colors h-12',
-                                                    isMe ? 'bg-primary/[0.02] hover:bg-primary/[0.03]' : 'hover:bg-muted/5',
+                                                    'group h-12',
+                                                    isMe && 'bg-primary/[0.02]',
                                                 )}
                                             >
                                                 <TableCell className="pl-6 lg:pl-8">
@@ -151,8 +152,8 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                                                     <div className="flex items-center gap-3">
                                                         <div className="relative">
                                                             <Avatar className={cn(
-                                                                "size-8 border transition-all",
-                                                                isRank1 ? "border-amber-400/50 shadow-[0_0_8px_rgba(251,191,36,0.2)]" : 
+                                                                "size-8 border",
+                                                                isRank1 ? "border-amber-400/50" : 
                                                                 isRank2 ? "border-slate-400/50" : 
                                                                 isRank3 ? "border-orange-500/50" : 
                                                                 "border-border group-hover:border-primary/20"
@@ -212,6 +213,6 @@ export function LeaderboardTable({ users, currentUserId, type }: LeaderboardTabl
                     </>
                 )}
             </CardContent>
-        </Card>
+        </div>
     )
 }

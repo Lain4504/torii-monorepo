@@ -30,6 +30,8 @@ const iconMap: Record<string, any> = {
 };
 
 export function AchievementsTable({ data, isLoading, onEdit, onDelete }: AchievementsTableProps) {
+    const columnsCount = 9;
+
     if (isLoading) {
         return (
             <div className="space-y-3">
@@ -45,6 +47,7 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
         <Table>
                 <TableHeader className={dataTableHeaderClass}>
                     <TableRow>
+                        <TableHead className="w-[80px] text-center">STT</TableHead>
                         <TableHead className="w-[80px]">Icon</TableHead>
                         <TableHead>Tên & Code</TableHead>
                         <TableHead>Mô tả</TableHead>
@@ -58,15 +61,18 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                 <TableBody>
                     {data.length === 0 ? (
                         <TableRow>
-                            <TableCell colSpan={8} className="h-24 text-center">
+                            <TableCell colSpan={columnsCount} className="h-24 text-center">
                                 Chưa có thành tích nào.
                             </TableCell>
                         </TableRow>
                     ) : (
-                        data.map((achievement) => {
+                        data.map((achievement, index) => {
                             const Icon = iconMap[achievement.icon || 'Award'] || Award;
                             return (
                                 <TableRow key={achievement.id}>
+                                    <TableCell className="w-[80px] text-center text-muted-foreground tabular-nums">
+                                        {index + 1}
+                                    </TableCell>
                                     <TableCell>
                                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                             <Icon className="h-5 w-5" />

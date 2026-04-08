@@ -143,7 +143,7 @@ export default function LiveRescheduleRequestsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Phê duyệt dời lịch học"
-        subtitle="Quản lý và phê duyệt các yêu cầu dời lịch học hoặc nghỉ phép từ giảng viên trên toàn hệ thống."
+        subtitle="Quản lý và phê duyệt các yêu cầu dời lịch học từ giảng viên trên toàn hệ thống."
       />
 
       <div className="space-y-4">
@@ -237,19 +237,15 @@ export default function LiveRescheduleRequestsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={req.type === 'RESCHEDULE' ? 'default' : 'destructive'} className="text-[9px] font-black uppercase tracking-tighter">
-                          {req.type === 'RESCHEDULE' ? 'Dời lịch' : 'Nghỉ phép'}
+                        <Badge variant="default" className="text-[9px] font-black uppercase tracking-tighter">
+                          Dời lịch
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {req.type === 'RESCHEDULE' ? (
-                          <div className="flex flex-col border-l-2 border-emerald-500/40 pl-2 py-0.5">
-                            <span className="font-bold text-sm text-emerald-600 dark:text-emerald-500">{req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
-                            <span className="text-[10px] text-emerald-600/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-xs italic opacity-60">Hủy buổi học</span>
-                        )}
+                        <div className="flex flex-col border-l-2 border-emerald-500/40 pl-2 py-0.5">
+                          <span className="font-bold text-sm text-emerald-600 dark:text-emerald-500">{req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
+                          <span className="text-[10px] text-emerald-600/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col max-w-[220px]">

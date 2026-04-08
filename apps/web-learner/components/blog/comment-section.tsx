@@ -142,6 +142,8 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
         } catch (error: any) {
             console.error('Failed to post comment:', error)
             toast.error('Không thể gửi bình luận')
+            // Rethrow để CommentInput biết submit thất bại và không xoá nội dung người dùng
+            throw error
         }
     }
 

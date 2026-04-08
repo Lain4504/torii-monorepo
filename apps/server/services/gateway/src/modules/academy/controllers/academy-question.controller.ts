@@ -37,7 +37,7 @@ export class AcademyQuestionController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
-  @Permissions('academy.content.read')
+  @Permissions('lms.assessment.read')
   async findAll(
     @Query(new ZodValidationPipe(academyQuestionQueryDTOSchema))
     query: AcademyQuestionQueryDTO,
@@ -49,7 +49,7 @@ export class AcademyQuestionController {
   }
 
   @Get(':id')
-  @Permissions('academy.content.read')
+  @Permissions('lms.assessment.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.question.findById' }, { id }),
@@ -58,7 +58,7 @@ export class AcademyQuestionController {
   }
 
   @Post()
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyQuestionCreateDTOSchema))
@@ -71,7 +71,7 @@ export class AcademyQuestionController {
   }
 
   @Put(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyQuestionUpdateDTOSchema))
@@ -84,7 +84,7 @@ export class AcademyQuestionController {
   }
 
   @Delete(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.delete')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.question.delete' }, { id }),

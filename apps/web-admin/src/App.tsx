@@ -52,6 +52,8 @@ import CohortsPage from '@/routes/academy/cohorts/cohorts-page'
 import CohortDetailPage from '@/routes/academy/cohorts/cohort-detail-page'
 import VodPackagesPage from '@/routes/academy/vod-packages/vod-packages-page'
 import VodPackageDetailPage from '@/routes/academy/vod-packages/vod-package-detail-page'
+import MyVodPackagesPage from '@/routes/academy/vod-packages/my-vod-packages-page'
+import MyVodDiscussionPage from '@/routes/academy/vod-packages/my-vod-discussion-page'
 import AssignmentGradingPage from '@/routes/academy/live-classes/assignment-grading-page'
 import ApprovalsPage from '@/routes/academy/approvals/approvals-page'
 import CohortApprovalPreviewPage from '@/routes/academy/approvals/cohort-preview-page'
@@ -61,6 +63,7 @@ import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
 import AiSubscriptionsPage from '@/routes/academy/ai-subscriptions/ai-subscriptions-page.tsx'
 
+import { LMS_ASSESSMENT_CONTENT_MANAGE_ANY } from '@/config/navigation'
 import JlptTemplatesPage from '@/routes/academy/jlpt/templates/page.tsx'
 import JlptQuestionsPage from '@/routes/academy/jlpt/questions/page.tsx'
 import JlptQuestionDetailPage from '@/routes/academy/jlpt/questions/[id]/page.tsx'
@@ -107,40 +110,50 @@ function App() {
                   <Route index element={<DashboardPage />} />
 
 
-                  <Route element={<RoutePermissionGuard anyPermission={["user.manage", "user.view"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["ops.user.manage", "ops.user.view"]} />}>
                     <Route path="users" element={<UsersManagementPage />} />
                   </Route>
-                  <Route element={<RoutePermissionGuard permission="user.manage" />}>
+                  <Route element={<RoutePermissionGuard permission="ops.user.manage" />}>
                     <Route path="permissions" element={<PermissionsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["blog.manage", "blog.create", "blog.update", "blog.publish", "blog.delete", "blog.view_restricted"]} />}>
+                  <Route element={<RoutePermissionGuard permission="ops.blog.manage" />}>
                     <Route path="blogs" element={<BlogPage />} />
                     <Route path="blogs/create" element={<CreateBlogPage />} />
                     <Route path="blogs/:id/edit" element={<EditBlogPage />} />
                   </Route>
 
-                  {/* Academy - Core Grouping */}
-                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.catalog.read", "lms.catalog.update"]} />}>
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
                     <Route path="academy/course-profiles/:profileId/detail" element={<CourseProfileDetailPage />} />
+                  </Route>
+
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.delivery.read", "lms.delivery.update", "lms.assessment.grade"]} />}>
                     <Route path="academy/live-classes" element={<LiveClassesPage />} />
-                    <Route path="academy/live-classes/reschedule-requests" element={<LiveRescheduleRequestsPage />} />
                     <Route path="academy/live-classes/:classId/detail" element={<LiveClassStudentsPage />} />
                     <Route path="academy/live-classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
                     <Route path="academy/live-classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
+                    <Route path="academy/live-classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
+                    <Route path="academy/vod-packages/my" element={<MyVodPackagesPage />} />
+                    <Route path="academy/vod-packages/my/:id/discussion" element={<MyVodDiscussionPage />} />
+                  </Route>
+
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.delivery.approve"]} />}>
+                    <Route path="academy/live-classes/reschedule-requests" element={<LiveRescheduleRequestsPage />} />
+                  </Route>
+
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.commerce.read", "lms.commerce.update"]} />}>
                     <Route path="academy/cohorts" element={<CohortsPage />} />
                     <Route path="academy/cohorts/:cohortId/detail" element={<CohortDetailPage />} />
                     <Route path="academy/vod-packages" element={<VodPackagesPage />} />
                     <Route path="academy/vod-packages/:id/detail" element={<VodPackageDetailPage />} />
-                    <Route path="academy/live-classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
+                  </Route>
 
-                    {/* AI Subscriptions */}
-                    <Route element={<RoutePermissionGuard permission="academy:subscription:admin" />}>
-                      <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
-                    </Route>
+                  <Route element={<RoutePermissionGuard permission="ops.subscription.manage" />}>
+                    <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
+                  </Route>
 
-                    {/* JLPT Mock Exams */}
+                  <Route element={<RoutePermissionGuard anyPermission={[...LMS_ASSESSMENT_CONTENT_MANAGE_ANY]} />}>
                     <Route path="academy/jlpt/config" element={<JlptConfigPage />} />
                     <Route path="academy/jlpt/templates" element={<JlptTemplatesPage />} />
                     <Route path="academy/jlpt/templates/:id" element={<JlptTemplateDetailPage />} />
@@ -149,14 +162,13 @@ function App() {
                     <Route path="academy/jlpt/mondai" element={<JlptMondaiMasterPage />} />
                     <Route path="academy/study-set-catalogs" element={<StudySetCatalogsPage />} />
                     <Route path="academy/study-set-catalogs/:id" element={<StudySetCatalogDetailPage />} />
-
-                    {/* Academy Assessment (Fixed Quiz) */}
                     <Route path="academy/assessment/exams" element={<AcademyExamsPage />} />
                     <Route path="academy/assessment/exams/new" element={<AcademyExamEditorPage />} />
                     <Route path="academy/assessment/exams/:id" element={<AcademyExamEditorPage />} />
                     <Route path="academy/assessment/questions" element={<AcademyQuestionsPage />} />
                   </Route>
-                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
+
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.catalog.approve", "lms.commerce.approve", "lms.delivery.approve"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />
                     <Route path="academy/approvals/cohorts/:id" element={<CohortApprovalPreviewPage />} />
                     <Route path="academy/approvals/vod-packages/:id" element={<VodPackageApprovalPreviewPage />} />
@@ -166,28 +178,24 @@ function App() {
                     />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="academy:coupon:admin" />}>
+                  <Route element={<RoutePermissionGuard permission="ops.coupon.manage" />}>
                     <Route path="coupons" element={<CouponsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="gamification.manage" />}>
-                    <Route path="rewards" element={<RewardsPage />} />
-                  </Route>
-
-                  <Route element={<RoutePermissionGuard anyPermission={["academy:order:admin", "academy.commerce.read"]} />}>
+                  <Route element={<RoutePermissionGuard permission="ops.order.manage" />}>
                     <Route path="orders" element={<OrdersPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="gamification.manage" />}>
+                  <Route element={<RoutePermissionGuard permission="ops.gamification.manage" />}>
                     <Route path="rewards" element={<RewardsPage />} />
                     <Route path="achievements" element={<AchievementsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="audit.view" />}>
+                  <Route element={<RoutePermissionGuard permission="ops.audit.view" />}>
                     <Route path="audit-logs" element={<AuditLogsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="system.config" />}>
+                  <Route element={<RoutePermissionGuard permission="ops.user.manage" />}>
                     <Route path="notifications" element={<NotificationsPage />} />
                   </Route>
 
@@ -195,7 +203,7 @@ function App() {
 
                   <Route path="profile" element={<ProfilePage />} />
 
-                  <Route element={<RoutePermissionGuard permission="support.handle" />}>
+                  <Route element={<RoutePermissionGuard permission="ops.support.handle" />}>
                     <Route path="tickets" element={<TicketsPage />} />
                   </Route>
 

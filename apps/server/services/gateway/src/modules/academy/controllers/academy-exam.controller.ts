@@ -39,7 +39,7 @@ export class AcademyExamController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('academy.content.read')
+  @Permissions('lms.assessment.read')
   async findAll(
     @Query(new ZodValidationPipe(academyExamQueryDTOSchema))
     query: AcademyExamQueryDTO,
@@ -51,7 +51,7 @@ export class AcademyExamController {
   }
 
   @Get(':id')
-  @Permissions('academy.content.read')
+  @Permissions('lms.assessment.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.exam.findById' }, { id }),
@@ -60,7 +60,7 @@ export class AcademyExamController {
   }
 
   @Post()
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyExamCreateDTOSchema))
@@ -73,7 +73,7 @@ export class AcademyExamController {
   }
 
   @Put(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyExamUpdateDTOSchema))
@@ -86,7 +86,7 @@ export class AcademyExamController {
   }
 
   @Delete(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.delete')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.exam.delete' }, { id }),
@@ -95,7 +95,7 @@ export class AcademyExamController {
   }
 
   @Post('add-questions')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.publish')
   async addQuestions(
     @Body(new ZodValidationPipe(academyExamAddQuestionsDTOSchema))
     dto: AcademyExamAddQuestionsDTO,
@@ -107,7 +107,7 @@ export class AcademyExamController {
   }
 
   @Delete('questions/:id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.assessment.update')
   async removeQuestion(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.exam.removeQuestion' }, { id }),

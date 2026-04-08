@@ -70,8 +70,5 @@ export * from './enums/academy.enum';
 // Constants
 export * from './constants/academy-metadata';
 
-// Role helpers (RBAC)
-export * from './utils/role-helpers';
-
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

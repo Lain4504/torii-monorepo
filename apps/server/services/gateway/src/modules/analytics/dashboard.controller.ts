@@ -29,9 +29,9 @@ export class DashboardController {
 
   @Get('staff-academic')
   @Permissions(
-    'academy.content.write',
-    'academy.delivery.write',
-    'academy.commerce.write',
+    'lms.catalog.update',
+    'lms.delivery.update',
+    'lms.commerce.update',
   )
   async getStaffAcademicDashboard(): Promise<
     StandardApiResponse<StaffAcademicDashboardResponseDTO>
@@ -41,7 +41,7 @@ export class DashboardController {
   }
 
   @Get('staff-operations')
-  @Permissions('academy:order:admin')
+  @Permissions('ops.order.manage')
   async getStaffOperationsDashboard(): Promise<
     StandardApiResponse<StaffOperationsDashboardResponseDTO>
   > {
@@ -50,7 +50,7 @@ export class DashboardController {
   }
 
   @Get('admin')
-  @Permissions('*')
+  @Permissions('lms.approval.manage')
   async getAdminDashboard(): Promise<StandardApiResponse<AdminDashboardResponseDTO>> {
     const data = await this.dashboardService.getAdminDashboard();
     return successResponse(data);
@@ -58,14 +58,14 @@ export class DashboardController {
 
   /** Chỉ block thống kê phiên / hoạt động — payload nhẹ, có thể poll */
   @Get('presence')
-  @Permissions('*')
+  @Permissions('lms.approval.manage')
   async getPresenceStats(): Promise<StandardApiResponse<AdminPresenceStatsDTO>> {
     const data = await this.dashboardService.getPresenceStats();
     return successResponse(data);
   }
 
   @Get('lecturer')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async getLecturerDashboard(
     @Req() req: ReqWithRequester,
   ): Promise<StandardApiResponse<LecturerDashboardResponseDTO>> {

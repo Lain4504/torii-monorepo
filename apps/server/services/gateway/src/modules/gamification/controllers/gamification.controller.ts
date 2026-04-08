@@ -210,7 +210,7 @@ export class GamificationController {
   // --- Admin CRUD ---
 
   @Get('admin/rewards')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_getAllRewards() {
     try {
       const result = await firstValueFrom(
@@ -224,7 +224,7 @@ export class GamificationController {
   }
 
   @Post('admin/rewards')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_createReward(@Body() body: any, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
@@ -241,7 +241,7 @@ export class GamificationController {
   }
 
   @Patch('admin/rewards/:id')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_updateReward(
     @Param('id') id: string,
     @Body() body: any,
@@ -263,7 +263,7 @@ export class GamificationController {
   }
 
   @Delete('admin/rewards/:id')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_deleteReward(
     @Param('id') id: string,
     @Req() req: ReqWithRequester,
@@ -285,7 +285,7 @@ export class GamificationController {
   // --- Admin Achievement CRUD ---
 
   @Get('admin/achievements')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_getAllAchievements() {
     try {
       const result = await firstValueFrom(
@@ -302,7 +302,7 @@ export class GamificationController {
   }
 
   @Post('admin/achievements')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_createAchievement(
     @Body() body: any,
     @Req() req: ReqWithRequester,
@@ -322,7 +322,7 @@ export class GamificationController {
   }
 
   @Patch('admin/achievements/:id')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_updateAchievement(
     @Param('id') id: string,
     @Body() body: any,
@@ -344,7 +344,7 @@ export class GamificationController {
   }
 
   @Delete('admin/achievements/:id')
-  @Permissions('gamification.manage')
+  @Permissions('ops.gamification.manage')
   async admin_deleteAchievement(
     @Param('id') id: string,
     @Req() req: ReqWithRequester,

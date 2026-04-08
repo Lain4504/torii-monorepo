@@ -33,7 +33,7 @@ export default function LeaderboardPage() {
             />
 
             {/* Podium: Always 2 | 1 | 3 podium layout now on all screens */}
-            <div className="mb-8 grid grid-cols-3 items-end gap-1 sm:gap-4 md:mb-12 md:gap-6">
+            <div className="mb-6 grid grid-cols-3 items-end gap-1.5 sm:gap-3 md:mb-8 md:gap-4">
                 {topThree.length >= 2 && (
                     <PodiumCard
                         user={topThree[1]!}

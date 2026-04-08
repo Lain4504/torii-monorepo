@@ -26,7 +26,7 @@ export class ModuleController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Post()
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.create')
   async create(
     @Param('courseProfileId', new ParseUUIDPipe()) courseProfileId: string,
     @Body() dto: { title: string; orderIndex?: number },
@@ -42,7 +42,7 @@ export class ModuleController {
   }
 
   @Put(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: { title?: string; orderIndex?: number },
@@ -58,7 +58,7 @@ export class ModuleController {
   }
 
   @Delete(':id')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.delete')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -73,7 +73,7 @@ export class ModuleController {
   }
 
   @Post('reorder')
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async reorder(
     @Param('courseProfileId', new ParseUUIDPipe()) courseProfileId: string,
     @Body() dto: { moduleIds: string[] },

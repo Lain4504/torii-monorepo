@@ -46,8 +46,33 @@ import {
 export class LiveClassController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
+  private async assertLecturerOwnsClassIfScoped(
+    req: ReqWithRequester,
+    classId: string,
+  ) {
+    const requester = req.requester;
+    const perms = requester?.permissions || [];
+    const isGlobalAcademicManager =
+      perms.includes('lms.delivery.approve') ||
+      perms.includes('lms.catalog.approve') ||
+      perms.includes('lms.commerce.approve') ||
+      perms.includes('ops.user.manage');
+
+    if (isGlobalAcademicManager) return;
+
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveClass.findById' }, { id: classId }),
+    );
+    if (!item?.id) throw new NotFoundException('Live class not found');
+    if (item.instructorId !== requester.sub) {
+      throw new ForbiddenException(
+        'Lecturer can only manage live classes assigned to them',
+      );
+    }
+  }
+
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(@Query() query: any) {
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.liveClass.findAll' }, query),
@@ -114,9 +139,7 @@ export class LiveClassController {
     @Req() req: ReqWithRequester,
   ) {
     const requester = req.requester;
-    const hasReadPerm =
-      requester.permissions?.includes('academy.delivery.read') ||
-      requester.permissions?.includes('*');
+    const hasReadPerm = requester.permissions?.includes('lms.delivery.read');
 
     if (!hasReadPerm) {
       // Nếu user không có quyền đọc trực tiếp thì cần check enrollment theo đúng loại:
@@ -196,7 +219,7 @@ export class LiveClassController {
   }
 
   @Post()
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyLiveClassCreateDTOSchema))
@@ -213,13 +236,14 @@ export class LiveClassController {
   }
 
   @Put(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyLiveClassUpdateDTOSchema))
     dto: AcademyLiveClassUpdateDTO,
     @Req() req: ReqWithRequester,
   ) {
+    await this.assertLecturerOwnsClassIfScoped(req, id);
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.update' },
@@ -230,11 +254,12 @@ export class LiveClassController {
   }
 
   @Delete(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.delete')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
   ) {
+    await this.assertLecturerOwnsClassIfScoped(req, id);
     const result = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.delete' },
@@ -247,7 +272,7 @@ export class LiveClassController {
   // --- Assignments ---
 
   @Get(':id/assignments')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAssignments(@Param('id', new ParseUUIDPipe()) id: string) {
     const items = await firstValueFrom(
       this.nats.send(
@@ -259,12 +284,14 @@ export class LiveClassController {
   }
 
   @Post(':id/assignments')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.manage')
   async addAssignment(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyLiveClassAssignmentCreateDTOSchema))
     dto: AcademyLiveClassAssignmentCreateDTO,
+    @Req() req: ReqWithRequester,
   ) {
+    await this.assertLecturerOwnsClassIfScoped(req, id);
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.addAssignment' },

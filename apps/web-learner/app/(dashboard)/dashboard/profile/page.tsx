@@ -40,7 +40,7 @@ export default function ProfilePage() {
         <div className="container mx-auto max-w-5xl py-8 space-y-6 animate-in fade-in duration-500">
             {/* Standard Profile Header */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 pb-6 border-b">
-                <Avatar className="size-20 rounded-md border border-border">
+                <Avatar className="size-20 border border-border">
                     <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName} />
                     <AvatarFallback className="bg-primary/10 text-primary text-2xl font-medium">
                         {user?.displayName?.charAt(0) || 'U'}
@@ -83,13 +83,13 @@ export default function ProfilePage() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full space-y-4">
-                <ScrollArea className="w-full whitespace-nowrap">
-                    <TabsList>
+                <div className="w-full overflow-x-auto">
+                    <TabsList className="w-max">
                         <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                         <TabsTrigger value="achievements">Bộ sưu tập huy hiệu</TabsTrigger>
                         <TabsTrigger value="onboarding">Lộ trình học tập</TabsTrigger>
                     </TabsList>
-                </ScrollArea>
+                </div>
 
                 {/* --- OVERVIEW TAB --- */}
                 <TabsContent value="overview" className="focus-visible:outline-none">

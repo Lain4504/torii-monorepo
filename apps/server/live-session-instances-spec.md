@@ -3,7 +3,6 @@
 ## Bối cảnh
 Hiện tại hệ thống đang dùng `LiveSchedule` như lịch học theo tuần (recurring template) với các trường `weekday`, `startTime`, `endTime` gắn vào `classId`. Cách này phù hợp để cấu hình lịch cố định, nhưng thiếu khả năng xử lý thực tế:
 
-- Nghỉ 1 buổi (cancel 1 ngày cụ thể)
 - Dời 1 buổi (reschedule 1 ngày cụ thể)
 - Học bù 1 buổi (make-up)
 - Theo dõi trạng thái từng buổi (scheduled/cancelled/completed)
@@ -17,7 +16,7 @@ Tài liệu này mô tả hướng triển khai “**session instances theo ngà
 
 ## Mục tiêu
 - Học viên xem lịch theo ngày/tuần/tháng dựa trên “instances”.
-- Giảng viên có thể xin nghỉ/dời lịch cho **một buổi cụ thể**.
+- Giảng viên có thể tạo yêu cầu dời lịch cho **một buổi cụ thể**.
 - Admin/approver duyệt request; hệ thống materialize thay đổi lên instances.
 - Join room theo instance; roomId per-instance.
 - Triển khai theo **một flow chuẩn duy nhất** (không giữ legacy/backward compatibility).
@@ -36,7 +35,7 @@ Tài liệu này mô tả hướng triển khai “**session instances theo ngà
 ## Breaking changes (danh sách thay đổi phá vỡ)
 - Join session đổi sang join theo **`sessionId` (instance)**, không join theo schedule-template.
 - Lịch hiển thị/đọc đổi sang **`live_schedule_sessions`** (instance) là nguồn sự thật.
-- Request nghỉ/dời đổi sang thao tác bằng **`sessionId`**, không dùng `liveScheduleId + requestedDate`.
+- Request dời lịch đổi sang thao tác bằng **`sessionId`**, không dùng `liveScheduleId + requestedDate`.
 - Attendance (nếu triển khai) phải gắn theo **`sessionId`**.
 
 ---
@@ -44,7 +43,7 @@ Tài liệu này mô tả hướng triển khai “**session instances theo ngà
 ## Thuật ngữ
 - **Schedule Template**: bản ghi lịch theo tuần (`live_schedules`).
 - **Session Instance**: buổi học theo ngày (`live_schedule_sessions`).
-- **Request**: yêu cầu nghỉ/dời lịch (workflow).
+- **Request**: yêu cầu dời lịch (workflow).
 
 ---
 
@@ -171,10 +170,10 @@ Room:
 
 ---
 
-## Workflow: Nghỉ / Dời lịch
+## Workflow: Dời lịch
 
 ### Hiện trạng
-Request DTO backend đang dựa vào `liveScheduleId` + `requestedDate` cho `LEAVE`/`RESCHEDULE`.
+Request DTO backend đang dựa vào `liveScheduleId` + `requestedDate`.
 
 ### Đề xuất (chuẩn theo instances)
 Request tạo theo **sessionId**:
@@ -184,7 +183,7 @@ Request tạo theo **sessionId**:
 
 Body:
 - `sessionId: uuid` (required)
-- `type: LEAVE | RESCHEDULE`
+- `type: RESCHEDULE`
 - `reason?: string`
 - Nếu RESCHEDULE:
   - `proposedDate: yyyy-mm-dd`
@@ -194,7 +193,6 @@ Body:
 
 #### Approve request
 Kết quả:
-- LEAVE: update session -> `CANCELLED`, set reason
 - RESCHEDULE:
   - session cũ -> `RESCHEDULED` (hoặc `CANCELLED`) và set `superseded_by_session_id`
   - tạo session mới với ngày/giờ đề xuất (có thể `schedule_id` null hoặc giữ theo template)
@@ -218,7 +216,7 @@ API preview conflict nên theo `classId` + `date/time` + optional `excludeSessio
 
 Cách này sẽ **không đủ** khi chuyển sang session instances vì:
 - Một template tạo ra nhiều buổi theo ngày.
-- “Nghỉ/dời/học bù” tạo ra ngoại lệ theo ngày.
+- “Dời/học bù” tạo ra ngoại lệ theo ngày.
 - Attendance cần phân biệt từng buổi cụ thể.
 
 ### Đề xuất chuẩn (khuyến nghị)
@@ -253,7 +251,6 @@ Nếu Phase 1 chưa làm attendance theo session, cần chốt rõ:
 ### Admin / Lecturer
 - Tab “Lịch học” hiển thị **instances** theo tuần (week view).
 - Actions:
-  - “Nghỉ buổi này” (LEAVE)
   - “Dời buổi này” (RESCHEDULE)
   - “Học bù” (create ad-hoc session)
 
@@ -276,7 +273,7 @@ Nếu Phase 1 chưa làm attendance theo session, cần chốt rõ:
 - Không dùng `GET /live-schedules` để hiển thị lịch cho user (schedule template chỉ dùng cho cấu hình).
 
 ### Phase 2: Cutover workflow request (session-based)
-- Request nghỉ/dời chỉ thao tác theo `sessionId`.
+- Request dời lịch chỉ thao tác theo `sessionId`.
 - Approve tạo/cập nhật session instance theo outcome.
 
 ### Phase 3: Cutover join (session-based)
@@ -298,7 +295,7 @@ Nếu Phase 1 chưa làm attendance theo session, cần chốt rõ:
 - Có thể list lịch theo ngày/tuần/tháng cho 1 class LIVE.
 - Tạo schedule template vẫn hoạt động.
 - Tạo session instance trong range (lazy) không tạo trùng (idempotent).
-- Lecturer tạo request LEAVE/RESCHEDULE cho 1 session.
+- Lecturer tạo request RESCHEDULE cho 1 session.
 - Approve RESCHEDULE tạo session mới và buổi cũ không còn joinable.
 - Join session chỉ dựa vào instance, trả lỗi rõ nếu ngoài join window/status.
 
@@ -326,7 +323,7 @@ Nếu Phase 1 chưa làm attendance theo session, cần chốt rõ:
 | **Lazy generation** | Khi client hỏi range, generate thiếu rồi trả instances | ✅ Handler `academy.liveSession.findAllByClassAndRange` gọi `generateInstancesForClassRange` trước khi `listSessionsForClassRange`. |
 | **Hybrid: generate khi tạo/sửa template** | Tạo/sửa LiveSchedule → generate 2–4 tuần tới | ✅ `create`/`update` schedule gọi `generateInstancesForClassRange(classId, from, to)` với `DEFAULT_GENERATE_HORIZON_DAYS = 28`. |
 | **Join theo instance** | Join theo `sessionId`; roomId per-instance | ✅ Gateway `POST /api/live-sessions/:sessionId/join/student` và `.../join/lecturer`; service `joinBySessionId`; roomId từ session hoặc `ensureSessionRoomId`. |
-| **Request nghỉ/dời theo sessionId** | Create request với `sessionId`; approve LEAVE/RESCHEDULE | ✅ Request create DTO có `sessionId`; approve LEAVE → session CANCELLED; RESCHEDULE → session mới + cũ RESCHEDULED + `supersededBySessionId`. |
+| **Request dời lịch theo sessionId** | Create request với `sessionId`; approve RESCHEDULE | ✅ Request create DTO có `sessionId`; approve RESCHEDULE → session mới + cũ RESCHEDULED + `supersededBySessionId`. |
 | **Conflict preview** | classId + sessionDate + start/end + excludeSessionId | ✅ `previewConflict` theo session instances, có `excludeSessionId`. |
 | **Attendance theo session** | Attendance gắn `sessionId` (FK live_schedule_sessions) | ✅ Prisma `ClassAttendance` có `sessionId` FK; service create/find theo `sessionId`. |
 

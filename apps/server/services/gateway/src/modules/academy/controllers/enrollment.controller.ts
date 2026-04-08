@@ -35,13 +35,27 @@ import {
 export class EnrollmentController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
+  private isAcademicManager(req: ReqWithRequester): boolean {
+    const permissions = req.requester?.permissions || [];
+    return (
+      permissions.includes('lms.delivery.approve') ||
+      permissions.includes('lms.approval.manage') ||
+      permissions.includes('ops.user.manage')
+    );
+  }
+
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(academyEnrollmentQueryDTOSchema)) query: any,
+    @Req() req: ReqWithRequester,
   ) {
+    const requester = req.requester;
+    const scopedQuery = this.isAcademicManager(req)
+      ? query
+      : { ...query, instructorId: requester.sub };
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.enrollment.findAll' }, query),
+      this.nats.send({ cmd: 'academy.enrollment.findAll' }, scopedQuery),
     );
     return successResponse(result);
   }
@@ -79,16 +93,26 @@ export class EnrollmentController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
-  async findById(@Param('id', new ParseUUIDPipe()) id: string) {
+  @Permissions('lms.delivery.read')
+  async findById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.enrollment.findById' }, { id }),
     );
+
+    if (!this.isAcademicManager(req)) {
+      const ownerId = result?.liveClass?.instructor?.id;
+      if (ownerId !== req.requester.sub) {
+        return successResponse(null, 'Not found or permission denied');
+      }
+    }
     return successResponse(result);
   }
 
   @Post()
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.approve')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyEnrollmentCreateDTOSchema)) dto: any,
@@ -104,7 +128,7 @@ export class EnrollmentController {
   }
 
   @Put(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.approve')
   async updateStatus(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyEnrollmentUpdateDTOSchema)) dto: any,
@@ -120,7 +144,7 @@ export class EnrollmentController {
   }
 
   @Delete(':id')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.approve')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,

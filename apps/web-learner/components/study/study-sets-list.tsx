@@ -55,7 +55,8 @@ function StudySetCardLink({
         <Link href={href} className="group block">
             <Card
                 className={cn(
-                    'h-full overflow-hidden rounded-xl border bg-card shadow-none transition-colors hover:bg-muted/40',
+                    // Override Card default padding/gap so borders run "full-bleed" like JLPT items.
+                    'h-full overflow-hidden rounded-xl border bg-card shadow-none transition-colors hover:bg-muted/40 py-0 gap-0 ring-0',
                     variant === 'system'
                         ? 'border-primary/25'
                         : variant === 'community'
@@ -162,7 +163,6 @@ export function StudySetsList() {
                             <Button
                                 size="sm"
                                 className="h-10 w-full shrink-0 rounded-xl px-6 font-bold sm:h-9 sm:w-auto"
-                                data-requires-auth="true"
                             >
                                 <Plus className="mr-2 size-4" />
                                 Tạo bộ thẻ

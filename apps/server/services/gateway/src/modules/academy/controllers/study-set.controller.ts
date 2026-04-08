@@ -61,7 +61,7 @@ export class StudySetController {
 
   @Get('study-set-catalogs/admin')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.read')
+  @Permissions('lms.catalog.read')
   async adminFindSystemSets() {
     try {
       const items = await firstValueFrom(
@@ -75,7 +75,7 @@ export class StudySetController {
 
   @Post('study-set-catalogs/admin')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.create')
   async adminCreateSystemSet(
     @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(createStudySetSchema))
@@ -96,7 +96,7 @@ export class StudySetController {
 
   @Patch('study-set-catalogs/admin/:id')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async adminUpdateSystemSet(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateStudySetSchema))
@@ -117,7 +117,7 @@ export class StudySetController {
 
   @Delete('study-set-catalogs/admin/:id')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.delete')
   async adminDeleteSystemSet(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(
@@ -131,7 +131,7 @@ export class StudySetController {
 
   @Get('study-set-catalogs/admin/:id')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.read')
+  @Permissions('lms.catalog.read')
   async adminFindSystemSetById(@Param('id') id: string) {
     try {
       const item = await firstValueFrom(
@@ -145,7 +145,7 @@ export class StudySetController {
 
   @Post('study-set-catalogs/admin/:id/cards')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async adminCreateCard(
     @Param('id') setId: string,
     @Body(new ZodValidationPipe(createSetCardSchema))
@@ -163,7 +163,7 @@ export class StudySetController {
 
   @Patch('study-set-catalogs/admin/cards/:cardId')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async adminUpdateCard(
     @Param('cardId') cardId: string,
     @Body(new ZodValidationPipe(updateSetCardSchema))
@@ -181,7 +181,7 @@ export class StudySetController {
 
   @Delete('study-set-catalogs/admin/cards/:cardId')
   @UseGuards(GatewayAuthGuard, PermissionsGuard)
-  @Permissions('academy.content.write')
+  @Permissions('lms.catalog.update')
   async adminDeleteCard(@Param('cardId') cardId: string) {
     try {
       const result = await firstValueFrom(

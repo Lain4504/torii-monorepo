@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -65,7 +66,7 @@ export class VodPackageController {
   }
 
   @Get()
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async findAll(
     @Query(new ZodValidationPipe(academyVodPackageQueryDTOSchema))
     query: AcademyVodPackageQueryDTO,
@@ -76,8 +77,43 @@ export class VodPackageController {
     return successResponse(items);
   }
 
+  @Get('my-assigned')
+  @Permissions('lms.assessment.grade')
+  async findMyAssigned(
+    @Query(new ZodValidationPipe(academyVodPackageQueryDTOSchema))
+    query: AcademyVodPackageQueryDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.vod.findAll' },
+        { ...query, instructorId: req.requester?.sub },
+      ),
+    );
+    return successResponse(items);
+  }
+
+  @Get('my-assigned/:id/discussion')
+  @Permissions('lms.assessment.grade')
+  async findMyAssignedDiscussionContext(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
+    );
+
+    if (item?.instructorId !== req.requester?.sub) {
+      throw new ForbiddenException(
+        'Bạn chỉ có thể truy cập gói VOD do chính bạn phụ trách.',
+      );
+    }
+
+    return successResponse(item);
+  }
+
   @Get(':id')
-  @Permissions('academy.commerce.read', 'academy.content.read')
+  @Permissions('lms.commerce.read', 'lms.catalog.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
@@ -86,7 +122,7 @@ export class VodPackageController {
   }
 
   @Post()
-  @Permissions('academy.commerce.write')
+  @Permissions('lms.commerce.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyVodPackageCreateDTOSchema))
@@ -103,7 +139,7 @@ export class VodPackageController {
   }
 
   @Put(':id')
-  @Permissions('academy.commerce.write')
+  @Permissions('lms.commerce.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyVodPackageUpdateDTOSchema))
@@ -120,7 +156,7 @@ export class VodPackageController {
   }
 
   @Delete(':id')
-  @Permissions('academy.commerce.write')
+  @Permissions('lms.commerce.delete')
   async delete(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -164,7 +200,7 @@ export class VodPackageController {
   }
 
   @Get(':id/orders')
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async findOrders(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: any,
@@ -179,7 +215,7 @@ export class VodPackageController {
   }
 
   @Get(':id/stats')
-  @Permissions('academy.commerce.read')
+  @Permissions('lms.commerce.read')
   async getStats(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send(
@@ -191,7 +227,7 @@ export class VodPackageController {
   }
 
   @Post(':id/approve')
-  @Permissions('academy.commerce.approve')
+  @Permissions('lms.commerce.approve')
   async approve(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -210,7 +246,7 @@ export class VodPackageController {
   }
 
   @Post(':id/reject')
-  @Permissions('academy.commerce.approve')
+  @Permissions('lms.commerce.approve')
   async reject(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: { reason: string },

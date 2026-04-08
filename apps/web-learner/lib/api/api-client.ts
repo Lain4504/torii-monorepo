@@ -104,7 +104,7 @@ const isPublicEndpoint = (url?: string): boolean => {
  * to allow 404s and search engines to reach non-existent pages or other public routes.
  */
 const isProtectedRoute = (pathname: string): boolean => {
-    const protectedPrefixes = ['/learn', '/profile', '/settings', '/dashboard', '/checkout', '/ai-sensei'];
+    const protectedPrefixes = ['/learn', '/courses', '/profile', '/settings', '/dashboard', '/checkout', '/ai-sensei'];
     return protectedPrefixes.some(prefix => pathname === prefix || pathname.startsWith(prefix + '/'));
 };
 

@@ -33,7 +33,7 @@ export class AcademyLiveSessionController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get('me')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async getMyScheduleWithAttendance(
     @Query(new ZodValidationPipe(academyLiveSessionMyScheduleQueryDTOSchema))
     query: AcademyLiveSessionMyScheduleQueryDTO,
@@ -61,7 +61,7 @@ export class AcademyLiveSessionController {
   }
 
   @Get()
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(academyLiveSessionQueryDTOSchema))
     query: AcademyLiveSessionQueryDTO,
@@ -82,7 +82,7 @@ export class LiveSessionJoinController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Post(':sessionId/join/lecturer')
-  @Permissions('academy.delivery.write')
+  @Permissions('lms.delivery.manage')
   async joinAsLecturer(
     @Param('sessionId', new ParseUUIDPipe()) sessionId: string,
     @Req() req: ReqWithRequester,
@@ -101,7 +101,7 @@ export class LiveSessionJoinController {
   }
 
   @Post(':sessionId/join/student')
-  @Permissions('academy.delivery.read')
+  @Permissions('lms.delivery.read')
   async joinAsStudent(
     @Param('sessionId', new ParseUUIDPipe()) sessionId: string,
     @Req() req: ReqWithRequester,

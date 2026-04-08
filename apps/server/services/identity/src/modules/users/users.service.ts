@@ -27,7 +27,6 @@ import {
   userUpdateDTOSchema,
   userAdminUpdateDTOSchema,
   UserResponseDTO,
-  UserRole,
   ErrEmailExisted,
   ErrUserNotFound,
 } from '@workspace/schemas';
@@ -93,10 +92,7 @@ export class UsersService implements IUsersService {
    */
   private hasPermission(requester: Requester, permission: string): boolean {
     if (!requester.permissions) return false;
-    return (
-      requester.permissions.includes('*') ||
-      requester.permissions.includes(permission)
-    );
+    return requester.permissions.includes(permission);
   }
 
   /**
@@ -230,7 +226,7 @@ export class UsersService implements IUsersService {
       id: newId,
       email,
       displayName: dto.displayName,
-      role: dto.role || UserRole.LEARNER,
+      role: dto.role || 'learner',
       password: dto.password || null,
       // verifiedAt: null (default) = pending
     });
@@ -346,7 +342,7 @@ export class UsersService implements IUsersService {
       id: user.id,
       email: user.email,
       displayName: user.displayName,
-      role: user.role as UserRole,
+      role: user.role as string,
       verifiedAt: user.verifiedAt,
       bannedUntil: null,
       lastSignInAt: null,
@@ -365,9 +361,9 @@ export class UsersService implements IUsersService {
     userId: string,
     dto: UserAdminUpdateDTO | UserUpdateDTO,
   ): Promise<UserResponseDTO> {
-    const isAdminUpdate = this.hasPermission(requester, 'user.manage');
+    const isAdminUpdate = this.hasPermission(requester, 'ops.user.manage');
 
-    // Security check: Can edit self, or has user.manage permission
+    // Security check: Can edit self, or has ops.user.manage permission
     if (requester.sub !== userId && !isAdminUpdate) {
       throw new ForbiddenException('Forbidden');
     }
@@ -433,10 +429,10 @@ export class UsersService implements IUsersService {
     userId: string,
     hardDelete: boolean = false,
   ): Promise<{ message: string }> {
-    // Can delete self, or has user.manage permission
+    // Can delete self, or has ops.user.manage permission
     if (
       requester.sub !== userId &&
-      !this.hasPermission(requester, 'user.manage')
+      !this.hasPermission(requester, 'ops.user.manage')
     ) {
       throw new ForbiddenException('Forbidden');
     }
@@ -478,7 +474,7 @@ export class UsersService implements IUsersService {
     dto: any,
   ): Promise<UserResponseDTO> {
     // Only admin can change status
-    if (!this.hasPermission(requester, 'user.manage')) {
+    if (!this.hasPermission(requester, 'ops.user.manage')) {
       throw new ForbiddenException('Forbidden');
     }
 

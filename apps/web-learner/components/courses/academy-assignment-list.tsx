@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
     FileText,
     Clock,
@@ -34,9 +34,17 @@ import { toast } from 'sonner'
 interface AcademyAssignmentListProps {
     classId: string
     className?: string
+    /** `AcademyClassAssignment.id` — đồng bộ với query `assignmentId` trên URL */
+    openClassAssignmentId?: string | null
+    onOpenAssignmentChange?: (classAssignmentId: string | null) => void
 }
 
-export function AcademyAssignmentList({ classId, className }: AcademyAssignmentListProps) {
+export function AcademyAssignmentList({
+    classId,
+    className,
+    openClassAssignmentId,
+    onOpenAssignmentChange,
+}: AcademyAssignmentListProps) {
     const { data: assignments, isLoading: isLoadingAssignments } = useAcademyClassAssignments(classId)
     const { data: mySubmissions, isLoading: isLoadingSubmissions } = useMyAssignmentSubmissions(classId)
     const submitMutation = useSubmitAssignment(classId)
@@ -45,6 +53,21 @@ export function AcademyAssignmentList({ classId, className }: AcademyAssignmentL
     const [submissionContent, setSubmissionContent] = useState('')
 
     const isLoading = isLoadingAssignments || isLoadingSubmissions
+
+    useEffect(() => {
+        if (openClassAssignmentId === undefined) return
+        if (!openClassAssignmentId) {
+            setSelectedAssignment(null)
+            return
+        }
+        if (!assignments?.length) return
+        const found = assignments.find((a) => a.id === openClassAssignmentId)
+        if (found) {
+            setSelectedAssignment(found)
+            const existing = mySubmissions?.find((s) => s.assignmentTemplateId === found.assignmentId)
+            setSubmissionContent(existing?.content?.url || existing?.content?.text || '')
+        }
+    }, [openClassAssignmentId, assignments, mySubmissions])
 
     if (isLoading) {
         return (
@@ -73,6 +96,12 @@ export function AcademyAssignmentList({ classId, className }: AcademyAssignmentL
         setSelectedAssignment(assignment)
         const existing = mySubmissions?.find(s => s.assignmentTemplateId === assignment.assignmentId)
         setSubmissionContent(existing?.content?.url || existing?.content?.text || '')
+        onOpenAssignmentChange?.(assignment.id)
+    }
+
+    const handleCloseDetail = () => {
+        setSelectedAssignment(null)
+        onOpenAssignmentChange?.(null)
     }
 
     const handleSubmit = async () => {
@@ -84,7 +113,7 @@ export function AcademyAssignmentList({ classId, className }: AcademyAssignmentL
                 content: { text: submissionContent, url: submissionContent.startsWith('http') ? submissionContent : undefined }
             })
             toast.success("Nộp bài tập thành công!")
-            setSelectedAssignment(null)
+            handleCloseDetail()
         } catch (error) {
             console.error("Submit error:", error)
             toast.error("Có lỗi xảy ra khi nộp bài")
@@ -150,7 +179,7 @@ export function AcademyAssignmentList({ classId, className }: AcademyAssignmentL
                     <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => setSelectedAssignment(null)}
+                        onClick={handleCloseDetail}
                         className="rounded-full px-4 text-muted-foreground hover:text-foreground"
                     >
                         <ChevronRight className="mr-2 size-4 rotate-180" /> Quay lại danh sách
@@ -202,7 +231,7 @@ export function AcademyAssignmentList({ classId, className }: AcademyAssignmentL
                                         <Button 
                                             variant="outline" 
                                             className="rounded-xl px-12 h-12 font-bold"
-                                            onClick={() => setSelectedAssignment(null)}
+                                            onClick={handleCloseDetail}
                                         >
                                             Hủy
                                         </Button>
