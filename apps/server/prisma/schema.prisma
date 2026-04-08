@@ -832,7 +832,7 @@ model Achievement {
   category     String   @db.VarChar(32) // STREAK | CONSISTENCY | LEARNING_PROGRESS | ...
   title        String   @db.VarChar(255)
   description  String?  @db.Text
-  icon         String?  @db.VarChar(64)
+  icon         String?  @db.Text
   requirements Json     @default("{}") @db.JsonB
   rewards      Json     @default("{}") @db.JsonB
   isActive     Boolean  @default(true) @map("is_active")

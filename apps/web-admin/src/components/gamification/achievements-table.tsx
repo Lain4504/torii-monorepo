@@ -8,10 +8,11 @@ import {
 } from "@workspace/ui/components/table";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
-import { Edit, Trash, Trophy, Star, Target, Zap, Flame, Award } from "lucide-react";
+import { Edit, Trash, Star } from "lucide-react";
 import type { AchievementDTO } from "@workspace/schemas";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { dataTableHeaderClass } from "@/lib/ui-shell";
+import { AchievementIcon } from "./achievement-icon";
 
 interface AchievementsTableProps {
     data: AchievementDTO[];
@@ -19,15 +20,6 @@ interface AchievementsTableProps {
     onEdit: (achievement: AchievementDTO) => void;
     onDelete: (achievement: AchievementDTO) => void;
 }
-
-const iconMap: Record<string, any> = {
-    Trophy,
-    Star,
-    Target,
-    Zap,
-    Flame,
-    Award
-};
 
 export function AchievementsTable({ data, isLoading, onEdit, onDelete }: AchievementsTableProps) {
     const columnsCount = 9;
@@ -67,15 +59,14 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                         </TableRow>
                     ) : (
                         data.map((achievement, index) => {
-                            const Icon = iconMap[achievement.icon || 'Award'] || Award;
                             return (
                                 <TableRow key={achievement.id}>
                                     <TableCell className="w-[80px] text-center text-muted-foreground tabular-nums">
                                         {index + 1}
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                            <Icon className="h-5 w-5" />
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary overflow-hidden">
+                                            <AchievementIcon icon={achievement.icon} className="h-6 w-6" />
                                         </div>
                                     </TableCell>
                                     <TableCell>
