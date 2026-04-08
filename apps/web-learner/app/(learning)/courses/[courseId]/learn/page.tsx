@@ -382,15 +382,23 @@ export default function CourseLearnPage() {
     const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
     const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
 
-    // 3. Consolidated Data
-    const classData = liveClassData || vodPackageData;
-    const curriculum = liveCurriculum || vodCurriculum;
-    const isLoading = (liveClassLoading && liveCurriculumLoading) || (isVodCandidate && (vodLoading || vodCurriculumLoading));
+    // 3. Consolidated Data (Explicit Selection)
+    const classData = isVodCandidate ? (vodPackageData || liveClassData) : (liveClassData || vodPackageData);
+    const curriculum = isVodCandidate ? (vodCurriculum || liveCurriculum) : (liveCurriculum || vodCurriculum);
 
-    // 4. Completed Lessons check
-    // Original hook doesn't support options object, so we call it simply
+    // 4. Loading States & Fallbacks
+    const isModeDetermined = !!enrollmentData;
+    
     const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '');
     const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
+
+    const isDataLoading = isVodCandidate
+        ? (vodLoading || vodCurriculumLoading)
+        : (liveClassLoading || liveCurriculumLoading);
+
+    const isLoading = !isModeDetermined || isDataLoading;
+
+    // 5. Completed Lessons check
     const completedContentItemIds = isVodCandidate
         ? (vodCompletedIds ?? EMPTY_IDS)
         : (liveCompletedIds ?? EMPTY_IDS);
@@ -438,7 +446,7 @@ export default function CourseLearnPage() {
     }, [enrollmentData, enrollmentError, liveClassError, isLoading, classData, isVodCandidate, vodLoading, vodPackageData, router]);
 
     // ── Computed data & State ─────────────────────────────────────────────
-    const completedIds = useMemo(() => new Set(completedContentItemIds), [completedContentItemIds]);
+    const completedIds = useMemo(() => new Set<string>(completedContentItemIds), [completedContentItemIds]);
 
     // ── Sorting Logic ──────────────────────────────────────────────────────
     const sortedModules = useMemo(() => {
