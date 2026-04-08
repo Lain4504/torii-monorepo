@@ -5,17 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities">
-      <changelist_data name="Lamp" email="134944634+lain4504@users.noreply.github.com" automatic="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/achievements-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/achievements-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/app-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/exams/exams-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/assessment/exams/exams-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/config/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/config/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/mondai/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/mondai/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/questions/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/questions/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/templates/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/jlpt/templates/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/my-vod-discussion-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/my-vod-discussion-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/my-vod-packages-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/vod-packages/my-vod-packages-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -415,22 +406,6 @@
       <workItem from="1775540769831" duration="4356000" />
       <workItem from="1775547519434" duration="5443000" />
     </task>
-    <task id="LOCAL-01182" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775465181129</created>
-      <option name="number" value="01182" />
-      <option name="presentableId" value="LOCAL-01182" />
-      <option name="project" value="LOCAL" />
-      <updated>1775465181129</updated>
-    </task>
-    <task id="LOCAL-01183" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775465286042</created>
-      <option name="number" value="01183" />
-      <option name="presentableId" value="LOCAL-01183" />
-      <option name="project" value="LOCAL" />
-      <updated>1775465286042</updated>
-    </task>
     <task id="LOCAL-01184" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
       <created>1775466638065</created>
@@ -807,7 +782,23 @@
       <option name="project" value="LOCAL" />
       <updated>1775632994945</updated>
     </task>
-    <option name="localTasksCounter" value="1231" />
+    <task id="LOCAL-01231" summary="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities">
+      <option name="closed" value="true" />
+      <created>1775633690329</created>
+      <option name="number" value="01231" />
+      <option name="presentableId" value="LOCAL-01231" />
+      <option name="project" value="LOCAL" />
+      <updated>1775633690329</updated>
+    </task>
+    <task id="LOCAL-01232" summary="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities">
+      <option name="closed" value="true" />
+      <created>1775633915119</created>
+      <option name="number" value="01232" />
+      <option name="presentableId" value="LOCAL-01232" />
+      <option name="project" value="LOCAL" />
+      <updated>1775633915119</updated>
+    </task>
+    <option name="localTasksCounter" value="1233" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -906,4 +897,4 @@
       <option value=".github/prompts" />
     </promptFileLocations>
   </component>
-</project>
+</project>  

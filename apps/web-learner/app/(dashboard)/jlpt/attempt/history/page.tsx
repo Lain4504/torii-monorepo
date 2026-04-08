@@ -35,36 +35,42 @@ export default function JlptAttemptHistoryPage() {
 
   if (isLoading) return <PageLoading className="h-screen" />
 
-    return (
-        <div className="space-y-12 max-w-6xl mx-auto py-10 px-4 animate-in fade-in duration-700">
-            {/* Minimal Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-1 border-b border-border/30 pb-8">
-                <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full border border-border/40" asChild>
-                            <Link href="/dashboard/jlpt-list-exam">
-                                <ArrowLeft className="size-3.5" />
-                            </Link>
-                        </Button>
-                        <Badge variant="outline" className="px-2 py-0 rounded-md text-[10px] font-medium border-border/50 text-muted-foreground/60 leading-none">
-                            Mock History
-                        </Badge>
-                    </div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Lịch sử làm bài</h1>
-                    <p className="text-[13px] font-medium text-muted-foreground/40 leading-relaxed">
-                        Xem lại kết quả luyện thi JLPT của bạn
-                    </p>
-                </div>
-                <div className="shrink-0 flex items-center gap-6">
-                    <div className="text-right">
-                        <p className="text-[10px] font-medium text-muted-foreground/30 leading-none mb-1.5">Tổng số lượt thi</p>
-                        <p className="text-2xl font-bold text-foreground tabular-nums leading-none tracking-tight">{items.length}</p>
-                    </div>
-                    <Button asChild variant="outline" className="font-semibold h-10 px-6 rounded-full text-xs tracking-tight">
-                        <Link href="/dashboard/jlpt-list-exam">Thi thử mới</Link>
-                    </Button>
-                </div>
+  return (
+      <div className="space-y-6 animate-in fade-in duration-500 md:space-y-8 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="space-y-4 border-b border-border pb-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-lg border border-border/40"
+                asChild
+              >
+                <Link href="/dashboard/jlpt-list-exam">
+                  <ArrowLeft className="size-4" />
+                </Link>
+              </Button>
+
+              <div className="min-w-0 space-y-1.5">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">Lịch sử làm bài</h1>
+                <p className="text-sm font-medium text-muted-foreground/40">
+                  Xem lại kết quả luyện thi JLPT của bạn
+                </p>
+              </div>
             </div>
+
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-xs font-medium text-muted-foreground/40 leading-none">Tổng số lượt thi</p>
+                <p className="text-xl font-bold text-foreground tabular-nums leading-none">{items.length}</p>
+              </div>
+
+              <Button asChild variant="outline" className="h-10 px-6 rounded-lg">
+                <Link href="/dashboard/jlpt-list-exam">Thi thử mới</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
 
         {items.length === 0 ? (
           <div className="py-16 flex flex-col items-center justify-center text-center space-y-5">
