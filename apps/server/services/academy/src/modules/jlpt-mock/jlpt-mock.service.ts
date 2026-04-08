@@ -1324,7 +1324,11 @@ export class JlptMockService {
     };
   }
 
-  async submitAttempt(attemptId: string, requesterId?: string) {
+  async submitAttempt(
+    attemptId: string,
+    requesterId?: string,
+    returnResult: boolean = true,
+  ) {
     const attempt = await this.prisma.jlptMockAttempt.findUnique({
       where: { id: attemptId },
       include: {
@@ -1456,10 +1460,13 @@ export class JlptMockService {
       }),
     ]);
 
+    if (!returnResult) return;
     return this.getAttemptResult(attemptId, requesterId);
   }
 
   async getAttemptResult(attemptId: string, requesterId?: string) {
+    await this.maybeAutoSubmitExpiredAttempt(attemptId, requesterId);
+
     const attempt = await this.prisma.jlptMockAttempt.findUnique({
       where: { id: attemptId },
       include: {
@@ -1554,6 +1561,8 @@ export class JlptMockService {
   // History (learner)
   // -------------------------
   async findAttemptHistory(requesterId: string, limit = 20) {
+    await this.autoSubmitExpiredAttemptsForUser(requesterId);
+
     return this.prisma.jlptMockAttempt.findMany({
       where: { userId: requesterId },
       orderBy: [{ startedAt: 'desc' }],
@@ -1564,7 +1573,56 @@ export class JlptMockService {
     });
   }
 
+  private async maybeAutoSubmitExpiredAttempt(
+    attemptId: string,
+    requesterId?: string,
+  ) {
+    const attempt = await this.prisma.jlptMockAttempt.findUnique({
+      where: { id: attemptId },
+      select: { id: true, userId: true, status: true },
+    });
+
+    if (!attempt || attempt.status !== 'IN_PROGRESS') return;
+    if (requesterId && requesterId !== attempt.userId) {
+      throw new ForbiddenException('Not allowed');
+    }
+
+    const now = new Date();
+    const expiredSection = await this.prisma.jlptMockAttemptSection.findFirst({
+      where: { attemptId, status: 'ACTIVE', endsAt: { lte: now } },
+      select: { id: true },
+    });
+
+    if (!expiredSection) return;
+    await this.submitAttempt(attemptId, requesterId, false);
+  }
+
+  private async autoSubmitExpiredAttemptsForUser(requesterId: string) {
+    const now = new Date();
+
+    const expiredAttemptIds = await this.prisma.jlptMockAttempt.findMany({
+      where: {
+        userId: requesterId,
+        status: 'IN_PROGRESS',
+        sections: {
+          some: { status: 'ACTIVE', endsAt: { lte: now } },
+        },
+      },
+      select: { id: true },
+    });
+
+    for (const { id } of expiredAttemptIds) {
+      try {
+        await this.submitAttempt(id, requesterId, false);
+      } catch {
+        // Ignore: attempt may have been submitted concurrently.
+      }
+    }
+  }
+
   async getAttemptAnswers(attemptId: string, requesterId?: string) {
+    await this.maybeAutoSubmitExpiredAttempt(attemptId, requesterId);
+
     const attempt = await this.prisma.jlptMockAttempt.findUnique({
       where: { id: attemptId },
       select: { userId: true, status: true },
