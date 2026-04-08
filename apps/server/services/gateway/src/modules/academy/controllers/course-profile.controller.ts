@@ -96,7 +96,7 @@ export class CourseProfileController {
   }
 
   @Post(':id/submit-for-approval')
-  @Permissions('lms.catalog.delete')
+  @Permissions('lms.catalog.submit')
   async submitForApproval(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
