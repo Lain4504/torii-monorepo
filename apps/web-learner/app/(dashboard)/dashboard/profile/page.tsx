@@ -20,9 +20,27 @@ import {
     Clock,
     Flag,
     User,
-    Shield
+    Shield,
+    Star,
+    Heart,
+    Zap,
+    Flame,
+    TrendingUp
 } from 'lucide-react'
 import { formatDate, formatNumber } from '@/utils/format-utils'
+
+const achievementIconMap: Record<string, any> = {
+    Heart,
+    Trophy,
+    Star,
+    GraduationCap,
+    Award,
+    Target,
+    Flame,
+    Calendar,
+    TrendingUp,
+    Zap,
+}
 
 export default function ProfilePage() {
     const { user } = useAppSelector((state) => state.auth)
@@ -144,11 +162,19 @@ export default function ProfilePage() {
                         <CardContent>
                             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
                                 {achievementsData?.filter(a => a.isUnlocked).length ? (
-                                    achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => (
-                                        <div key={achievement.id} className="aspect-square bg-muted/20 rounded-md flex items-center justify-center border group relative cursor-help transition-all hover:bg-primary/5 hover:border-primary/20" title={achievement.achievement.title}>
-                                            <Trophy className="size-7 text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all duration-300" />
-                                        </div>
-                                    ))
+                                    achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => {
+                                        const icon = achievement.achievement.icon || 'Award';
+                                        return (
+                                            <div key={achievement.id} className="aspect-square bg-muted/20 rounded-md flex items-center justify-center border group relative cursor-help transition-all hover:bg-primary/5 hover:border-primary/20 overflow-hidden" title={achievement.achievement.title}>
+                                                {icon.startsWith('http') ? (
+                                                    <img src={icon} alt={achievement.achievement.title} className="size-full object-contain p-2 group-hover:scale-110 transition-all duration-300" />
+                                                ) : (() => {
+                                                    const Icon = achievementIconMap[icon] || Award;
+                                                    return <Icon className="size-7 text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all duration-300" />;
+                                                })()}
+                                            </div>
+                                        );
+                                    })
                                 ) : (
                                     <div className="col-span-full py-16 flex flex-col items-center justify-center text-center gap-3 opacity-30">
                                         <Trophy className="size-10" />

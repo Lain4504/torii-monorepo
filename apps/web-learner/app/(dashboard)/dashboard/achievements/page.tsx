@@ -45,16 +45,12 @@ export default function AchievementsPage() {
     const achievements = useMemo(() => {
         if (!achievementsData) return []
         return achievementsData.map((achievement) => {
-            const iconName = achievement.achievement.icon ?? 'Award'
-            const Icon = (iconName && iconName in achievementIconMap)
-                ? achievementIconMap[iconName]
-                : Award
             return {
                 id: achievement.id,
                 title: achievement.achievement.title,
                 description: achievement.achievement.description,
                 category: achievement.achievement.category,
-                icon: Icon,
+                icon: achievement.achievement.icon || 'Award',
                 earned: achievement.isUnlocked,
                 date: achievement.unlockedAt ? formatDate(achievement.unlockedAt) : null,
                 progress: achievement.progress,
@@ -171,7 +167,12 @@ export default function AchievementsPage() {
                                                 ? "bg-primary/5 text-primary/60" 
                                                 : "bg-muted/20 text-muted-foreground/30"
                                         )}>
-                                            <achievement.icon className="size-3.5" />
+                                            {achievement.icon.startsWith('http') ? (
+                                                <img src={achievement.icon} alt={achievement.title} className="size-full object-contain p-1" />
+                                            ) : (() => {
+                                                const Icon = achievementIconMap[achievement.icon] || Award;
+                                                return <Icon className="size-3.5" />;
+                                            })()}
                                         </div>
                                         <div className="flex-1 space-y-1">
                                             <div className="space-y-0.5">
