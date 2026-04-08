@@ -38,28 +38,47 @@ function navSubVisible(
     parentOk: boolean,
     can: (p: string) => boolean,
     canAny: (p: string[]) => boolean,
+    isTeachingOnly: boolean,
 ): boolean {
     if (!parentOk) return false;
+    if (sub.url === "/academy/vod-packages/my" && !isTeachingOnly) return false;
     if (sub.permission) return can(sub.permission);
     if (sub.anyPermission?.length) return canAny(sub.anyPermission);
     return true;
 }
 
 /** Ẩn mục cha nếu không đủ quyền hoặc (có con nhưng) không còn mục con nào hiển thị được. */
-function navItemShows(item: NavItem, can: (p: string) => boolean, canAny: (p: string[]) => boolean): boolean {
+function navItemShows(
+    item: NavItem,
+    can: (p: string) => boolean,
+    canAny: (p: string[]) => boolean,
+    isTeachingOnly: boolean,
+): boolean {
     if (!item.items?.length) return navParentVisible(item, can, canAny);
     const pv = navParentVisible(item, can, canAny);
     if (!pv) return false;
-    return item.items.some((sub) => navSubVisible(sub, pv, can, canAny));
+    return item.items.some((sub) => navSubVisible(sub, pv, can, canAny, isTeachingOnly));
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const user = useAppSelector(selectUser);
     const { can, canAny } = usePermissions();
+    const isTeachingOnly =
+        canAny(["lms.assessment.grade"]) &&
+        !canAny([
+            "lms.catalog.update",
+            "lms.catalog.approve",
+            "lms.delivery.approve",
+            "lms.commerce.update",
+            "lms.commerce.approve",
+            "ops.user.manage",
+            "ops.order.manage",
+            "ops.coupon.manage",
+        ]);
 
     const visibleNavGroups = NAV_GROUPS.map((g) => ({
         ...g,
-        items: g.items.filter((item) => navItemShows(item, can, canAny)),
+        items: g.items.filter((item) => navItemShows(item, can, canAny, isTeachingOnly)),
     })).filter((g) => g.items.length > 0);
 
     const mappedUser = {

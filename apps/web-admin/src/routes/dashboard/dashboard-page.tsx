@@ -33,7 +33,7 @@ export default function DashboardPage() {
       "ops.user.manage",
     ]) &&
     !hasWildcard
-  const isStaffAcademic = !isAdmin && canAny([
+  const isStaffAcademic = !isAdmin && !isLecturer && canAny([
     "lms.catalog.update",
     "lms.delivery.update",
     "lms.commerce.update",

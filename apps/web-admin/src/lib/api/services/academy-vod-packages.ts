@@ -51,6 +51,24 @@ export const academyVodPackagesApi = {
     return res.data.data!
   },
 
+  async findMyAssigned(params: AcademyVodPackageQueryDTO) {
+    const res = await apiClient.get<StandardApiResponse<AcademyVodPackageListPayload>>(
+      "/api/academy/vod-packages/my-assigned",
+      { params },
+    )
+    const payload = res.data.data
+    if (Array.isArray(payload)) return payload
+    if (Array.isArray(payload?.items)) return payload.items
+    return []
+  },
+
+  async findMyAssignedDiscussionContext(id: string) {
+    const res = await apiClient.get<StandardApiResponse<AcademyVodPackage>>(
+      `/api/academy/vod-packages/my-assigned/${id}/discussion`,
+    )
+    return res.data.data!
+  },
+
   async create(input: AcademyVodPackageCreateDTO) {
     const res = await apiClient.post<StandardApiResponse<AcademyVodPackage>>(
       "/api/academy/vod-packages",
@@ -110,6 +128,21 @@ export function useAcademyVodPackage(id?: string) {
     enabled: !!id,
     queryKey: ["academy-vod-package", id],
     queryFn: () => academyVodPackagesApi.findById(id!),
+  })
+}
+
+export function useMyAssignedAcademyVodPackages(params: AcademyVodPackageQueryDTO) {
+  return useQuery({
+    queryKey: ["academy-vod-packages", "my-assigned", params],
+    queryFn: () => academyVodPackagesApi.findMyAssigned(params),
+  })
+}
+
+export function useMyAssignedAcademyVodPackageDiscussionContext(id?: string) {
+  return useQuery({
+    enabled: !!id,
+    queryKey: ["academy-vod-package", "my-assigned-discussion", id],
+    queryFn: () => academyVodPackagesApi.findMyAssignedDiscussionContext(id!),
   })
 }
 

@@ -40,7 +40,7 @@ export default function MyCoursesPage() {
     const [filter, setFilter] = useState<'all' | 'in-progress' | 'completed'>('all')
     const [courses, setCourses] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [expiredCourse, setExpiredCourse] = useState<{ title: string, slug: string } | null>(null)
+    const [expiredCourseTitle, setExpiredCourseTitle] = useState<string | null>(null)
 
     const { data: myReviewsResp } = academyClassReviewHooks.useListMine()
     const myReviews = myReviewsResp?.data?.data || []
@@ -256,12 +256,12 @@ export default function MyCoursesPage() {
                                                 <Button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setExpiredCourse({ title: course.courseTitle || "", slug: course.slug || "" })
+                                                        setExpiredCourseTitle(course.courseTitle || "")
                                                     }}
-                                                    variant="destructive"
-                                                    className="flex-1 h-10 rounded-2xl text-xs font-bold shadow-none"
+                                                    variant="outline"
+                                                    className="flex-1 h-10 rounded-2xl text-xs font-bold shadow-none border-destructive/30 text-destructive hover:bg-destructive/10"
                                                 >
-                                                    Gia hạn khóa học
+                                                    Khóa học đã hết hạn
                                                 </Button>
                                             )
                                         }
@@ -334,10 +334,9 @@ export default function MyCoursesPage() {
             </div>
 
             <CourseExpirationModal
-                isOpen={!!expiredCourse}
-                onClose={() => setExpiredCourse(null)}
-                courseTitle={expiredCourse?.title || ''}
-                courseSlug={expiredCourse?.slug || ''}
+                isOpen={expiredCourseTitle !== null}
+                onClose={() => setExpiredCourseTitle(null)}
+                courseTitle={expiredCourseTitle || ''}
             />
 
             <ClassReviewDialog

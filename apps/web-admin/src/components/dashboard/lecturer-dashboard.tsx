@@ -151,7 +151,7 @@ export default function LecturerDashboard() {
         enabled: !!instructorId,
     })
 
-    const { data: classes = [], isLoading: classesLoading } = useAcademyLiveClasses({
+    const { data: classes = [] } = useAcademyLiveClasses({
         instructorId: instructorId as any,
     })
 

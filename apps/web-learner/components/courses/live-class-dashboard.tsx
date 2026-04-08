@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import Image from "next/image"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import {
     useClassSchedule,
@@ -35,19 +35,55 @@ const MEET_URL =
         ? process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com'
         : 'https://meet.torii.com'
 
+const DASHBOARD_TABS = ["curriculum", "assignments", "resources"] as const
+type DashboardTab = (typeof DASHBOARD_TABS)[number]
+
 export function LiveClassDashboard() {
     const params = useParams();
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const classId = params.courseId as string;
-    
-    // Check URL params for active tab and selected assignment
-    const [activeTab, setActiveTab] = useState(() => {
-        if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            return searchParams.get('tab') || "curriculum";
+
+    const activeTab = useMemo((): DashboardTab => {
+        const raw = searchParams.get("tab")
+        if (raw && (DASHBOARD_TABS as readonly string[]).includes(raw)) {
+            return raw as DashboardTab
         }
-        return "curriculum";
-    });
+        return "curriculum"
+    }, [searchParams])
+
+    const openClassAssignmentId = searchParams.get("assignmentId")
+
+    const replaceDashboardQuery = useCallback(
+        (mutate: (p: URLSearchParams) => void) => {
+            const next = new URLSearchParams(searchParams.toString())
+            mutate(next)
+            const qs = next.toString()
+            router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+        },
+        [pathname, router, searchParams],
+    )
+
+    const handleTabChange = (value: string) => {
+        replaceDashboardQuery((p) => {
+            p.set("tab", value)
+            if (value !== "assignments") {
+                p.delete("assignmentId")
+            }
+        })
+    }
+
+    const handleAssignmentDeepLinkChange = (classAssignmentId: string | null) => {
+        replaceDashboardQuery((p) => {
+            p.set("tab", "assignments")
+            if (classAssignmentId) {
+                p.set("assignmentId", classAssignmentId)
+            } else {
+                p.delete("assignmentId")
+            }
+        })
+    }
 
     const { data: academyClass, isLoading: classLoading } = useAcademyClass(classId);
     const { data: schedule, isLoading: scheduleLoading } = useClassSchedule(classId);
@@ -102,14 +138,13 @@ export function LiveClassDashboard() {
     const progress = enrollment?.progress || (enrollmentData as any)?.progress || 0;
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6">
             {/* 1. Dashboard-style Header Banner */}
-            <header className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-[2rem] -z-10 blur-xl transition-all group-hover:blur-2xl duration-700 Opacity-50" />
-                <Card className="rounded-[2.5rem] border-none bg-card/60 backdrop-blur-md shadow-2xl shadow-primary/5 overflow-hidden">
+            <header>
+                <Card className="overflow-hidden border bg-card shadow-sm rounded-2xl">
                     <div className="grid grid-cols-1 lg:grid-cols-12">
                         {/* Info Left */}
-                        <div className="lg:col-span-8 p-8 md:p-12 space-y-8">
+                        <div className="space-y-6 p-6 lg:col-span-8 md:p-8">
                             <div className="flex flex-wrap items-center gap-4">
                                 <Badge className="bg-primary/90 hover:bg-primary text-white border-none px-4 py-1 rounded-full font-bold text-xs">
                                     Lớp học trực tiếp
@@ -124,16 +159,16 @@ export function LiveClassDashboard() {
                                 </span>
                             </div>
 
-                            <div className="space-y-4">
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-normal leading-[0.95] text-foreground">
+                            <div className="space-y-2">
+                                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
                                     {academyClass.name}
                                 </h1>
-                                <p className="text-lg text-muted-foreground font-medium max-w-2xl line-clamp-2">
+                                <p className="max-w-2xl text-sm text-muted-foreground line-clamp-2">
                                     {(academyClass as any).courseProfile?.description || "Chào mừng bạn đến với lớp học tương tác trực tiếp. Hãy theo dõi lịch học để không bỏ lỡ kiến thức quan trọng."}
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-2">
+                            <div className="grid grid-cols-2 gap-4 pt-1 sm:grid-cols-4">
                                 <div className="space-y-1">
                                     <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                                         <Calendar className="size-3" /> Ngày bắt đầu
@@ -170,7 +205,7 @@ export function LiveClassDashboard() {
                         </div>
 
                         {/* Visual Right */}
-                        <div className="lg:col-span-4 relative overflow-hidden group/image sm:rounded-b-[2.5rem] lg:rounded-r-[2.5rem] lg:rounded-bl-none">
+                        <div className="relative overflow-hidden lg:col-span-4">
                             <Image
                                 src={
                                     academyClass.thumbnailUrl || 
@@ -180,16 +215,16 @@ export function LiveClassDashboard() {
                                 }
                                 alt={academyClass.name || "Class Thumbnail"}
                                 fill
-                                className="object-cover grayscale-[0.2] group-hover/image:grayscale-0 transition-all duration-1000 group-hover:scale-110"
+                                className="object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
                                 <Button 
-                                    className="w-full bg-white text-black hover:bg-zinc-100 font-bold h-14 rounded-2xl shadow-2xl shadow-black/40 text-sm group/btn"
+                                    className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-black hover:bg-zinc-100"
                                     onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
                                 >
-                                    <PlayCircle className="mr-3 size-6 group-hover/btn:scale-110 transition-transform" />
+                                    <PlayCircle className="mr-2 size-5" />
                                     Xem lại bài giảng
-                                    <ChevronRight className="ml-auto size-5 opacity-40 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all" />
+                                    <ChevronRight className="ml-auto size-4 opacity-60" />
                                 </Button>
                             </div>
                         </div>
@@ -198,14 +233,14 @@ export function LiveClassDashboard() {
             </header>
 
             {/* 2. Main content split layout */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+            <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-3">
                 
                 {/* Column Main: Left Content (2/3) */}
                 <div className="xl:col-span-2 space-y-8">
                     
                     {/* Ongoing Alert Section */}
                     {ongoingSession && (
-                        <div className="relative overflow-hidden p-6 md:p-8 rounded-[2.5rem] bg-gradient-to-r from-red-600 to-orange-500 text-white shadow-xl shadow-red-500/20 animate-in zoom-in-95 duration-500">
+                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 p-5 text-white md:p-6">
                             <div className="absolute top-0 right-0 p-8 opacity-10">
                                 <Video className="size-32 rotate-12" />
                             </div>
@@ -219,21 +254,17 @@ export function LiveClassDashboard() {
                                         <Clock className="size-4" /> Bắt đầu lúc {format(new Date(ongoingSession.scheduledAt), "HH:mm")}
                                     </p>
                                 </div>
-                                <Button
-                                    size="lg"
-                                    className="w-full md:w-auto px-12 h-16 text-lg font-bold rounded-2xl bg-white text-red-600 hover:bg-zinc-100 shadow-xl shadow-black/20 hover:scale-105 transition-transform"
-                                    onClick={() => handleJoinSession(ongoingSession.id)}
-                                >
+                                <Button size="lg" className="h-12 w-full rounded-xl bg-white px-8 font-semibold text-red-600 hover:bg-zinc-100 md:w-auto" onClick={() => handleJoinSession(ongoingSession.id)}>
                                     Vào lớp học ngay
-                                    <ArrowRight className="ml-2 size-6" />
+                                    <ArrowRight className="ml-2 size-5" />
                                 </Button>
                             </div>
                         </div>
                     )}
 
                     {/* Weekly Schedule Section */}
-                    <div className="space-y-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
+                    <div className="space-y-4">
+                        <div className="flex flex-col justify-between gap-3 px-1 sm:flex-row sm:items-center">
                             <div className="space-y-1">
                                 <h2 className="text-2xl font-bold flex items-center gap-3">
                                     <Calendar className="size-6 text-primary" />
@@ -254,7 +285,7 @@ export function LiveClassDashboard() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
                             {weekDays.map((day, idx) => {
                                 const isToday = isSameDay(day, new Date());
                                 const daySessions = sessions.filter(s => isSameDay(new Date(s.scheduledAt), day));
@@ -263,9 +294,9 @@ export function LiveClassDashboard() {
                                     <div
                                         key={idx}
                                         className={cn(
-                                            "flex flex-col min-h-[140px] rounded-3xl border transition-all duration-300 overflow-hidden",
+                                            "flex flex-col min-h-[120px] rounded-xl border transition-colors overflow-hidden",
                                             isToday 
-                                                ? "border-primary ring-2 ring-primary/10 bg-primary/[0.03] shadow-lg shadow-primary/5 scale-[1.02] z-10" 
+                                                ? "border-primary ring-2 ring-primary/10 bg-primary/[0.03]" 
                                                 : "border-border/50 bg-card hover:border-primary/30"
                                         )}
                                     >
@@ -313,9 +344,9 @@ export function LiveClassDashboard() {
                     </div>
 
                     {/* Curriculum & Resources Section */}
-                    <div className="pt-4">
-                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 bg-muted/40 p-2 rounded-2xl border border-border/50">
+                    <div className="pt-2">
+                        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                            <div className="mb-5 flex flex-col justify-between gap-3 rounded-xl border border-border/50 bg-muted/40 p-2 sm:flex-row sm:items-center">
                                 <TabsList className="bg-transparent gap-2 w-full sm:w-auto">
                                     <TabsTrigger 
                                         value="curriculum" 
@@ -339,13 +370,13 @@ export function LiveClassDashboard() {
                                         Tài liệu
                                     </TabsTrigger>
                                 </TabsList>
-                                <Button variant="ghost" className="hidden sm:flex text-xs font-bold text-muted-foreground hover:text-primary" onClick={() => router.push(`/courses/${classId}/learn`)}>
+                                <Button variant="ghost" className="hidden text-xs font-semibold text-muted-foreground hover:text-primary sm:flex" onClick={() => router.push(`/courses/${classId}/learn`)}>
                                     Học VOD <ChevronRight className="ml-1 size-3" />
                                 </Button>
                             </div>
 
                             <TabsContent value="curriculum" className="mt-0 focus-visible:outline-none focus:outline-none outline-none">
-                                <Card className="rounded-[2.5rem] border-border/50 shadow-sm overflow-hidden">
+                                <Card className="overflow-hidden rounded-xl border-border/50 shadow-sm">
                                     <div className="p-1 md:p-3">
                                         {curriculum ? (
                                             <CourseCurriculum
@@ -363,11 +394,15 @@ export function LiveClassDashboard() {
                             </TabsContent>
 
                             <TabsContent value="assignments" className="mt-0 focus-visible:outline-none focus:outline-none outline-none">
-                                <AcademyAssignmentList classId={classId} />
+                                <AcademyAssignmentList
+                                    classId={classId}
+                                    openClassAssignmentId={openClassAssignmentId}
+                                    onOpenAssignmentChange={handleAssignmentDeepLinkChange}
+                                />
                             </TabsContent>
 
                             <TabsContent value="resources" className="mt-0 focus-visible:outline-none focus:outline-none outline-none">
-                                <Card className="rounded-[2.5rem] border-border/50 shadow-sm overflow-hidden p-8">
+                                <Card className="overflow-hidden rounded-xl border-border/50 p-6 shadow-sm">
                                     <AcademyResourceList classId={classId} />
                                 </Card>
                             </TabsContent>
@@ -376,10 +411,10 @@ export function LiveClassDashboard() {
                 </div>
 
                 {/* Column Sidebar: Right Content (1/3) */}
-                <aside className="space-y-8 h-full">
+                <aside className="h-full space-y-6">
                     
                     {/* Ongoing / Next Session Widget */}
-                    <Card className="rounded-[2.5rem] overflow-hidden bg-zinc-950 text-white border-none shadow-2xl relative">
+                    <Card className="relative overflow-hidden rounded-xl border-none bg-zinc-950 text-white shadow-sm">
                         <div className="absolute top-0 right-0 p-8 text-primary overflow-hidden opacity-10">
                             <Video className="size-40 -mr-10 -mt-10" />
                         </div>
@@ -392,12 +427,12 @@ export function LiveClassDashboard() {
                         
                         <CardContent className="p-0">
                             <ScrollArea className="h-[420px] scrollbar-none">
-                                <div className="p-6 space-y-4">
+                                <div className="space-y-3 p-5">
                                     {upcomingSessions.length > 0 ? (
                                         upcomingSessions.slice(0, 6).map((session, idx) => (
                                             <div key={idx} className="group relative">
-                                                <div className="flex items-start gap-4 p-4 rounded-3xl bg-white/[0.04] border border-white/5 hover:bg-white/[0.08] hover:border-white/10 transition-all cursor-pointer">
-                                                    <div className="size-12 rounded-2xl bg-primary/20 flex flex-col items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                <div className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/5 bg-white/[0.04] p-3 hover:bg-white/[0.08] hover:border-white/10 transition-all">
+                                                    <div className="flex size-10 flex-col items-center justify-center rounded-xl bg-primary/20 text-primary">
                                                         <span className="text-xs font-bold leading-none opacity-50">{format(new Date(session.scheduledAt), "MMM")}</span>
                                                         <span className="text-xl font-bold leading-none mt-1">{format(new Date(session.scheduledAt), "dd")}</span>
                                                     </div>
@@ -424,16 +459,16 @@ export function LiveClassDashboard() {
                                     )}
                                 </div>
                             </ScrollArea>
-                            <div className="p-6 pt-0">
-                                <Button className="w-full bg-white text-black hover:bg-zinc-200 font-bold h-14 rounded-2xl shadow-xl shadow-black/40 text-sm">
-                                    Tất cả buổi học
+                            <div className="p-5 pt-0">
+                                <Button className="h-10 w-full rounded-lg bg-white text-sm font-semibold text-black hover:bg-zinc-200">
+                                    Xem tất cả buổi học
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Progress & Instructor Widget */}
-                    <Card className="rounded-[2.5rem] border-border/50 bg-card shadow-sm overflow-hidden">
+                    <Card className="overflow-hidden rounded-xl border-border/50 bg-card shadow-sm">
                         <CardHeader className="pb-4">
                             <CardTitle className="text-lg font-bold flex items-center justify-between">
                                 <span>Tiến trình lớp học</span>
@@ -441,11 +476,8 @@ export function LiveClassDashboard() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="p-6 rounded-[2rem] bg-muted/40 border border-border/50 relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-125 transition-transform">
-                                    <Star className="size-16" />
-                                </div>
-                                <div className="relative space-y-4">
+                            <div className="rounded-xl border border-border/50 bg-muted/40 p-5">
+                                <div className="space-y-3">
                                     <div className="flex items-end justify-between">
                                         <div className="text-3xl font-bold text-primary">{progress}%</div>
                                         <div className="text-xs font-bold text-muted-foreground/60">Hoàn thành</div>
@@ -453,7 +485,7 @@ export function LiveClassDashboard() {
                                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                         <div className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(var(--primary),0.3)]" style={{ width: `${progress}%` }} />
                                     </div>
-                                    <p className="text-xs font-medium text-muted-foreground italic leading-relaxed">
+                                    <p className="text-xs leading-relaxed text-muted-foreground">
                                         * Dựa trên số lượng bài giảng và file học liệu bạn đã truy cập.
                                     </p>
                                 </div>

@@ -4,11 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/config/rbac-v2.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/config/rbac-v2.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: add my assigned VOD packages and discussion context features">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/dashboard/lecturer-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-discussion-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/live-classes/tabs/class-discussion-tab.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/assignments/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/[courseId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/[courseId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/exams/[examId]/take/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/exams/[examId]/take/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/academy-assignment-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/academy-assignment-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-expiration-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-expiration-modal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/live-class-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/live-class-dashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next.config.mjs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -410,39 +419,7 @@
       <workItem from="1775571738661" duration="333000" />
       <workItem from="1775576186347" duration="7668000" />
       <workItem from="1775611860992" duration="1237000" />
-      <workItem from="1775614365987" duration="4037000" />
-    </task>
-    <task id="LOCAL-01186" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775467947440</created>
-      <option name="number" value="01186" />
-      <option name="presentableId" value="LOCAL-01186" />
-      <option name="project" value="LOCAL" />
-      <updated>1775467947440</updated>
-    </task>
-    <task id="LOCAL-01187" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775468217237</created>
-      <option name="number" value="01187" />
-      <option name="presentableId" value="LOCAL-01187" />
-      <option name="project" value="LOCAL" />
-      <updated>1775468217237</updated>
-    </task>
-    <task id="LOCAL-01188" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775468550368</created>
-      <option name="number" value="01188" />
-      <option name="presentableId" value="LOCAL-01188" />
-      <option name="project" value="LOCAL" />
-      <updated>1775468550368</updated>
-    </task>
-    <task id="LOCAL-01189" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775469178212</created>
-      <option name="number" value="01189" />
-      <option name="presentableId" value="LOCAL-01189" />
-      <option name="project" value="LOCAL" />
-      <updated>1775469178212</updated>
+      <workItem from="1775614365987" duration="6950000" />
     </task>
     <task id="LOCAL-01190" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -804,7 +781,39 @@
       <option name="project" value="LOCAL" />
       <updated>1775618323729</updated>
     </task>
-    <option name="localTasksCounter" value="1235" />
+    <task id="LOCAL-01235" summary="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE">
+      <option name="closed" value="true" />
+      <created>1775619034817</created>
+      <option name="number" value="01235" />
+      <option name="presentableId" value="LOCAL-01235" />
+      <option name="project" value="LOCAL" />
+      <updated>1775619034817</updated>
+    </task>
+    <task id="LOCAL-01236" summary="refactor: add my assigned VOD packages and discussion context features">
+      <option name="closed" value="true" />
+      <created>1775619996912</created>
+      <option name="number" value="01236" />
+      <option name="presentableId" value="LOCAL-01236" />
+      <option name="project" value="LOCAL" />
+      <updated>1775619996912</updated>
+    </task>
+    <task id="LOCAL-01237" summary="refactor: add my assigned VOD packages and discussion context features">
+      <option name="closed" value="true" />
+      <created>1775620655019</created>
+      <option name="number" value="01237" />
+      <option name="presentableId" value="LOCAL-01237" />
+      <option name="project" value="LOCAL" />
+      <updated>1775620655019</updated>
+    </task>
+    <task id="LOCAL-01238" summary="refactor: add my assigned VOD packages and discussion context features">
+      <option name="closed" value="true" />
+      <created>1775621219763</created>
+      <option name="number" value="01238" />
+      <option name="presentableId" value="LOCAL-01238" />
+      <option name="project" value="LOCAL" />
+      <updated>1775621219763</updated>
+    </task>
+    <option name="localTasksCounter" value="1239" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -839,7 +848,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
     <MESSAGE value="feat: enhance dashboard and study set components with sharing functionality and UI improvements" />
     <MESSAGE value="feat: update table header styles and badge variants for improved UI consistency" />
     <MESSAGE value="update learning path" />
@@ -864,7 +872,8 @@
     <MESSAGE value="refactor: update permission strings to align with new role-based access control" />
     <MESSAGE value="refactor: update role permissions and access controls across various components" />
     <MESSAGE value="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove LEAVE request type and update related handling to support only RESCHEDULE" />
+    <MESSAGE value="refactor: add my assigned VOD packages and discussion context features" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: add my assigned VOD packages and discussion context features" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -44,6 +44,7 @@ import { CourseCompletionModal } from '@/components/courses/course-completion-mo
 
 
 // ─── Constants & Utils ────────────────────────────────────────────────────────
+const EMPTY_IDS: string[] = [];
 
 function normalizeItemKind(kind?: string) {
     return (kind || '').toUpperCase();
@@ -348,6 +349,7 @@ export default function CourseLearnPage() {
     const requestedMode = searchParams.get('mode')?.toUpperCase();
     const queryClient = useQueryClient();
     const hasHandledForbiddenRef = useRef(false);
+    const lessonQueryParam = searchParams.get('lesson');
 
     const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
 
@@ -382,9 +384,11 @@ export default function CourseLearnPage() {
 
     // 4. Completed Lessons check
     // Original hook doesn't support options object, so we call it simply
-    const { data: liveCompletedIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
-    const { data: vodCompletedIds = [] } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
-    const completedContentItemIds = isVodCandidate ? vodCompletedIds : liveCompletedIds;
+    const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '');
+    const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
+    const completedContentItemIds = isVodCandidate
+        ? (vodCompletedIds ?? EMPTY_IDS)
+        : (liveCompletedIds ?? EMPTY_IDS);
 
     // ── Milestones ────────────────────────────────────────────────────────
     const { data: milestones = [] } = useAcademyLearnerAssessmentStatus({
@@ -433,7 +437,7 @@ export default function CourseLearnPage() {
     // ── Sorting Logic ──────────────────────────────────────────────────────
     const sortedModules = useMemo(() => {
         if (!curriculum) return [];
-        return [...curriculum.modules]
+        return [...(curriculum.modules ?? [])]
             .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
             .map((mod: any) => ({
                 ...mod,
@@ -532,7 +536,7 @@ export default function CourseLearnPage() {
         if (!curriculum) return;
 
         const flat = curriculum.modules.flatMap((m: any) => m.lessons) as CurriculumLesson[];
-        const requestedLessonId = searchParams.get('lesson');
+        const requestedLessonId = lessonQueryParam;
         const findModuleIdByLessonId = (lessonId: string) =>
             curriculum.modules.find((m: any) => (m.lessons || []).some((l: any) => l.id === lessonId))?.id;
 
@@ -583,7 +587,7 @@ export default function CourseLearnPage() {
                 return next;
             });
         }
-    }, [curriculum, searchParams, completedContentItemIds, effectiveLessonUnlocked, router, pathname]);
+    }, [curriculum, lessonQueryParam, completedContentItemIds, effectiveLessonUnlocked, router, pathname, searchParams]);
 
     // ── Check Course Completion ───────────────────────────────────────────
     useEffect(() => {
@@ -664,7 +668,7 @@ export default function CourseLearnPage() {
         }
         const eid = enrollmentData?.enrollment?.id;
         if (eid) qs.set('enrollmentId', eid);
-        if (classId) qs.set('classId', classId);
+        if (!isVodCandidate && classId) qs.set('liveClassId', classId);
         const q = qs.toString();
         const target = `/exams/${pendingMilestone.examId}${q ? `?${q}` : ''}`;
         setPendingMilestone(null);

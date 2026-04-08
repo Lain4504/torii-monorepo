@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -74,6 +75,41 @@ export class VodPackageController {
       this.nats.send({ cmd: 'academy.vod.findAll' }, query),
     );
     return successResponse(items);
+  }
+
+  @Get('my-assigned')
+  @Permissions('lms.assessment.grade')
+  async findMyAssigned(
+    @Query(new ZodValidationPipe(academyVodPackageQueryDTOSchema))
+    query: AcademyVodPackageQueryDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.vod.findAll' },
+        { ...query, instructorId: req.requester?.sub },
+      ),
+    );
+    return successResponse(items);
+  }
+
+  @Get('my-assigned/:id/discussion')
+  @Permissions('lms.assessment.grade')
+  async findMyAssignedDiscussionContext(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
+    );
+
+    if (item?.instructorId !== req.requester?.sub) {
+      throw new ForbiddenException(
+        'Bạn chỉ có thể truy cập gói VOD do chính bạn phụ trách.',
+      );
+    }
+
+    return successResponse(item);
   }
 
   @Get(':id')

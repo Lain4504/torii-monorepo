@@ -52,6 +52,8 @@ import CohortsPage from '@/routes/academy/cohorts/cohorts-page'
 import CohortDetailPage from '@/routes/academy/cohorts/cohort-detail-page'
 import VodPackagesPage from '@/routes/academy/vod-packages/vod-packages-page'
 import VodPackageDetailPage from '@/routes/academy/vod-packages/vod-package-detail-page'
+import MyVodPackagesPage from '@/routes/academy/vod-packages/my-vod-packages-page'
+import MyVodDiscussionPage from '@/routes/academy/vod-packages/my-vod-discussion-page'
 import AssignmentGradingPage from '@/routes/academy/live-classes/assignment-grading-page'
 import ApprovalsPage from '@/routes/academy/approvals/approvals-page'
 import CohortApprovalPreviewPage from '@/routes/academy/approvals/cohort-preview-page'
@@ -132,6 +134,8 @@ function App() {
                     <Route path="academy/live-classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
                     <Route path="academy/live-classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
                     <Route path="academy/live-classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
+                    <Route path="academy/vod-packages/my" element={<MyVodPackagesPage />} />
+                    <Route path="academy/vod-packages/my/:id/discussion" element={<MyVodDiscussionPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard anyPermission={["lms.delivery.approve"]} />}>

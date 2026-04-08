@@ -69,8 +69,10 @@ export class VodPackageService {
   }
 
   async findAll(query: AcademyVodPackageQueryDTO) {
+    const queryAny = query as AcademyVodPackageQueryDTO & { instructorId?: string };
     const where: any = {};
     if (query.courseProfileId) where.courseProfileId = query.courseProfileId;
+    if (queryAny.instructorId) where.instructorId = queryAny.instructorId;
     if (query.status) where.status = query.status;
     if ((query as any).level) {
       where.courseProfile = {

@@ -65,7 +65,6 @@ export function NavLearning() {
                 isOpen={showExpiredModal}
                 onClose={() => setShowExpiredModal(false)}
                 courseTitle={activeCourse.courseTitle || ""}
-                courseSlug={activeCourse.slug || ""}
             />
         </SidebarGroup>
     )

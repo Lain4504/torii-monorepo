@@ -8,14 +8,8 @@ import { Badge } from '@workspace/ui/components/badge'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { toast } from '@workspace/ui/components/sonner'
-import { Plus, MessageSquare, User, Filter } from 'lucide-react'
+import { MessageSquare, User, Filter } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@workspace/ui/components/select'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
 import { formatDate } from '@/lib/format-utils'
 import {
   Sheet,
@@ -35,24 +29,29 @@ import {
 } from "@workspace/ui/components/table"
 import { useAcademyLiveClass } from '@/lib/api/services/academy-live-classes'
 import { useAcademyVodPackage } from '@/lib/api/services/academy-vod-packages'
+import { usePermissions } from '@/hooks/use-permissions'
 
 interface ClassDiscussionTabProps {
   classId?: string
   vodPackageId?: string
+  vodPackageData?: any
 }
 
-export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTabProps) {
+export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: ClassDiscussionTabProps) {
   const { user, isAuthenticated } = useAuth()
+  const { canAny } = usePermissions()
   const createComment = useCreateComment()
 
   const [selectedTopic, setSelectedTopic] = useState<CommentResponseDTO | null>(null)
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null)
   const [replyDraftByTopic, setReplyDraftByTopic] = useState<Record<string, string>>({})
-  const [topicContent, setTopicContent] = useState('')
 
   const { data: academyClass } = useAcademyLiveClass(classId || undefined)
-  const { data: vodPackage } = useAcademyVodPackage(vodPackageId || undefined)
-  const curriculum = (academyClass as any)?.cohort?.courseProfile || (vodPackage as any)?.courseProfile
+  const { data: vodPackage } = useAcademyVodPackage(
+    vodPackageData ? undefined : (vodPackageId || undefined),
+  )
+  const resolvedVodPackage = vodPackageData ?? vodPackage
+  const curriculum = (academyClass as any)?.cohort?.courseProfile || (resolvedVodPackage as any)?.courseProfile
 
   const lessonOptions = useMemo(() => {
     const modules = (curriculum?.modules ?? []) as Array<any>
@@ -61,13 +60,21 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
   }, [curriculum])
 
   const isAssignedInstructor = useMemo(() => {
-    const instructorId = (academyClass as any)?.instructorId || (vodPackage as any)?.instructorId
+    const instructorId = (academyClass as any)?.instructorId || (resolvedVodPackage as any)?.instructorId
     return user?.id === instructorId
-  }, [user?.id, academyClass, vodPackage])
+  }, [user?.id, academyClass, resolvedVodPackage])
 
-  const isAdminOrStaff = user?.role === 'admin' || user?.role === 'staff-academic' || user?.role === 'staff-operations'
+  const isAcademicManager = canAny([
+    "lms.catalog.update",
+    "lms.delivery.update",
+    "lms.commerce.update",
+    "lms.catalog.approve",
+    "lms.delivery.approve",
+    "lms.commerce.approve",
+    "lms.approval.manage",
+  ])
   // Ở màn quản lý (lecture/admin), không cho tạo chủ đề hỏi mới, chỉ dùng để trả lời câu hỏi học viên.
-  const canPost = isAssignedInstructor || isAdminOrStaff
+  const canPost = isAssignedInstructor || isAcademicManager
 
   const [selectedLessonId, setSelectedLessonId] = useState<string>('all')
 
@@ -113,35 +120,6 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
 
   const refetchAll = async () => {
     await Promise.all(lessonQueries.map((q) => q.refetch()))
-  }
-
-  const onCreateTopic = async () => {
-    if (!isAuthenticated || !user?.id) {
-      toast.error('Vui lòng đăng nhập để đặt câu hỏi')
-      return
-    }
-    if (!selectedLessonId || selectedLessonId === 'all') {
-      toast.error('Vui lòng chọn bài học để đặt câu hỏi')
-      return
-    }
-    if (!topicContent.trim()) {
-      toast.error('Vui lòng nhập nội dung câu hỏi')
-      return
-    }
-
-    try {
-      await createComment.mutateAsync({
-        discussionId: selectedLessonId,
-        userId: user.id,
-        content: topicContent.trim(),
-        classId: classId || vodPackageId,
-      } as any)
-      setTopicContent('')
-      setSelectedTopic(null)
-      refetchAll()
-    } catch (e: any) {
-      toast.error(e?.message || 'Không thể tạo thảo luận')
-    }
   }
 
   const onReply = async (topicId: string) => {
@@ -363,9 +341,6 @@ export function ClassDiscussionTab({ classId, vodPackageId }: ClassDiscussionTab
         setReplyDraftByTopic={setReplyDraftByTopic}
         onReply={onReply}
         renderReplyTree={renderReplyTree}
-        onCreateTopic={onCreateTopic}
-        topicContent={topicContent}
-        setTopicContent={setTopicContent}
         currentUserDisplayName={user?.displayName}
       />
     </div>
@@ -383,9 +358,6 @@ interface DiscussionDetailsSheetProps {
     setReplyDraftByTopic: (val: any) => void
     onReply: (id: string) => Promise<void>
     renderReplyTree: (reply: CommentResponseDTO, depth: number) => any
-    onCreateTopic: () => Promise<void>
-    topicContent: string
-    setTopicContent: (val: string) => void
     currentUserDisplayName?: string
 }
 
@@ -400,13 +372,8 @@ function DiscussionDetailsSheet({
     setReplyDraftByTopic,
     onReply,
     renderReplyTree,
-    onCreateTopic,
-    topicContent,
-    setTopicContent,
     currentUserDisplayName
 }: DiscussionDetailsSheetProps) {
-    const isNew = false
-
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent className="w-full sm:max-w-[800px] flex flex-col h-full p-0 overflow-hidden">

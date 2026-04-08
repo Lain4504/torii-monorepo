@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation"
 import { useAcademyEnrollmentCheck } from "@/lib/api/services/academy-enrollment-api"
 import { LiveClassDashboard } from "@/components/courses/live-class-dashboard"
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 
 /**
@@ -43,7 +43,11 @@ export default function LiveClassDashboardPage() {
     // If LIVE enrollment -> Render Dashboard
     const enrollment = enrollmentData?.enrollment as any;
     if (enrollmentData?.isEnrolled && enrollment?.type?.toLowerCase() === 'live') {
-        return <LiveClassDashboard />;
+        return (
+            <Suspense fallback={<PageLoading />}>
+                <LiveClassDashboard />
+            </Suspense>
+        )
     }
 
     // Default loading while redirect

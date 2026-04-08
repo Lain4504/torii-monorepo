@@ -31,6 +31,7 @@ export type AcademyVodPackageUpdateDTO = z.infer<typeof academyVodPackageUpdateD
 
 export const academyVodPackageQueryDTOSchema = z.object({
   courseProfileId: z.string().uuid().optional(),
+  instructorId: z.string().uuid().optional(),
   status: z.string().optional(),
   q: z.string().optional(),
   level: z.string().optional(),
