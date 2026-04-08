@@ -138,6 +138,25 @@ export class VodPackageController {
     return successResponse(item);
   }
 
+  @Post(':id/submit-for-approval')
+  @Permissions('lms.commerce.submit')
+  async submitForApproval(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.vod.update' },
+        {
+          id,
+          input: { status: 'PENDING_APPROVAL' },
+          requesterId: req.requester?.sub,
+        },
+      ),
+    );
+    return successResponse(item);
+  }
+
   @Put(':id')
   @Permissions('lms.commerce.update')
   async update(

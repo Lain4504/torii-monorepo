@@ -41,7 +41,7 @@ export class LiveSessionRequestController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('lms.delivery.read')
+  @Permissions('lms.delivery.request.read')
   async findAll(
     @Query(new ZodValidationPipe(academyLiveScheduleRequestQueryDTOSchema))
     query: AcademyLiveScheduleRequestQueryDTO,
@@ -53,7 +53,7 @@ export class LiveSessionRequestController {
   }
 
   @Post()
-  @Permissions('lms.delivery.create')
+  @Permissions('lms.delivery.request.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Req() req: ReqWithRequester,
@@ -73,7 +73,7 @@ export class LiveSessionRequestController {
   }
 
   @Post(':id/cancel')
-  @Permissions('lms.delivery.update')
+  @Permissions('lms.delivery.request.cancel')
   async cancel(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
@@ -133,7 +133,7 @@ export class LiveSessionRequestController {
   }
 
   @Post('/preview-conflict')
-  @Permissions('lms.delivery.delete')
+  @Permissions('lms.delivery.request.create')
   async previewConflict(
     @Body(new ZodValidationPipe(academyLiveScheduleConflictPreviewDTOSchema))
     dto: AcademyLiveScheduleConflictPreviewDTO,

@@ -158,7 +158,6 @@ export default function CohortsPage() {
                         <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
-                                <TableHead className="w-[100px]">Thumbnail</TableHead>
                                 <TableHead className="w-[140px]">Mã Đợt khai giảng</TableHead>
                                 <TableHead>Tên đợt học / Khai giảng</TableHead>
                                 <TableHead>Trạng thái</TableHead>
@@ -170,7 +169,6 @@ export default function CohortsPage() {
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <TableRow key={i}>
                                         <TableCell><Skeleton className="h-4 w-6" /></TableCell>
-                                        <TableCell><Skeleton className="h-10 w-16 rounded-md" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
@@ -179,36 +177,14 @@ export default function CohortsPage() {
                                 ))
                             ) : !cohorts || cohorts.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                                         Không tìm thấy Đợt khai giảng nào.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 cohorts.map((cohort, index) => (
                                     <TableRow key={cohort.id} className="group hover:bg-muted/5 transition-colors">
-                                        {(() => {
-                                            const effectiveThumbnail =
-                                                (cohort as any).thumbnailUrl ||
-                                                (cohort as any).courseProfile?.thumbnailUrl
-
-                                            return (
-                                                <>
                                         <TableCell className="text-center text-muted-foreground tabular-nums">{index + 1}</TableCell>
-                                        <TableCell>
-                                            <div className="h-10 w-16 rounded-md border bg-muted/50 overflow-hidden shadow-xs flex-shrink-0">
-                                                {effectiveThumbnail ? (
-                                                    <img
-                                                        src={effectiveThumbnail}
-                                                        alt={cohort.name}
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground italic">
-                                                        Không có ảnh
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </TableCell>
                                         <TableCell className="font-mono font-bold text-xs text-primary">{cohort.code}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
@@ -287,9 +263,6 @@ export default function CohortsPage() {
                                                 )}
                                             </div>
                                         </TableCell>
-                                                </>
-                                            )
-                                        })()}
                                     </TableRow>
                                 ))
                             )}

@@ -114,6 +114,13 @@ export const academyVodPackagesApi = {
     )
     return res.data.data!
   },
+
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<AcademyVodPackage>>(
+      `/api/academy/vod-packages/${id}/submit-for-approval`,
+    )
+    return res.data.data!
+  },
 }
 
 export function useAcademyVodPackages(params: AcademyVodPackageQueryDTO) {
@@ -214,8 +221,7 @@ export function useRejectVodPackage() {
 export function useSubmitVodPackageForApproval() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) =>
-      academyVodPackagesApi.update(id, { status: "PENDING_APPROVAL" } as any),
+    mutationFn: (id: string) => academyVodPackagesApi.submitForApproval(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["academy-vod-packages"] })
       qc.invalidateQueries({ queryKey: ["academy-vod-package"] })
