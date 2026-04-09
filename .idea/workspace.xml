@@ -4,17 +4,70 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="job remider livesession">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook-notifier.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook-notifier.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/analytics/analytics.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/auth/wajlc-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/auth/wajlc-auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-user.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-create.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-create.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-duration.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-duration.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-end.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-info.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-modify.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-modify.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-user.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/user.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/waiting-room/waiting-room.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/waiting-room/waiting-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/waiting-room/waiting-room.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-auth-callout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-auth-callout.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-cache.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-consumer.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-room-events.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-room.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-stream.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-system-events.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user-info.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.service.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,8 +116,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
+    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
   },
   &quot;recentNewPullRequestHead&quot;: {
     &quot;server&quot;: {
@@ -106,7 +159,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;fix-ui-web-admin&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;refactor-meet-service&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -414,14 +467,10 @@
       <workItem from="1775540769831" duration="4356000" />
       <workItem from="1775547519434" duration="5443000" />
       <workItem from="1775718020192" duration="8518000" />
-    </task>
-    <task id="LOCAL-01194" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775478567772</created>
-      <option name="number" value="01194" />
-      <option name="presentableId" value="LOCAL-01194" />
-      <option name="project" value="LOCAL" />
-      <updated>1775478567772</updated>
+      <workItem from="1775728662547" duration="698000" />
+      <workItem from="1775729642038" duration="96000" />
+      <workItem from="1775730262347" duration="7000" />
+      <workItem from="1775737045496" duration="1822000" />
     </task>
     <task id="LOCAL-01195" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -807,7 +856,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775725363613</updated>
     </task>
-    <option name="localTasksCounter" value="1243" />
+    <task id="LOCAL-01243" summary="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any">
+      <option name="closed" value="true" />
+      <created>1775728924258</created>
+      <option name="number" value="01243" />
+      <option name="presentableId" value="LOCAL-01243" />
+      <option name="project" value="LOCAL" />
+      <updated>1775728924258</updated>
+    </task>
+    <option name="localTasksCounter" value="1244" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -842,7 +899,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update learning path" />
     <MESSAGE value="feat: learning pathway for course (#339)" />
     <MESSAGE value="feat: record coupon usage in order processing" />
     <MESSAGE value="Refactor notifications page UI &amp; behavior&#10;&#10;Simplify and reorganize the learner notifications page: remove search/filters/delete actions and related state, streamline notification mapping, and improve accessibility and loading/empty states.&#10;&#10;Key changes:&#10;- Removed unused imports and components (Search Input, several lucide icons).&#10;- Dropped complex type/category mapping and fields from the UI Notification shape; mapNotificationToUI now only maps id/title/message/date/time/read.&#10;- Removed search/filter UI and related state; notifications are shown as a simple list with loading/empty states.&#10;- Mark notifications as read on item click (and via keyboard Enter/Space) using useMarkNotificationAsRead; kept mark-all-as-read action.&#10;- Simplified card styles and layout for responsiveness and clarity.&#10;- Use unread count to show header summary; improved loading/empty visuals.&#10;&#10;Notes: This is a behavioral/UX refactor—removes delete and category-based filtering and changes Notification interface shape in the component. Adjust callers if they relied on the removed fields or behaviors." />
@@ -867,7 +923,8 @@
     <MESSAGE value="update UI meetting footer" />
     <MESSAGE value="feat: update legacy code" />
     <MESSAGE value="job remider livesession" />
-    <option name="LAST_COMMIT_MESSAGE" value="job remider livesession" />
+    <MESSAGE value="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
