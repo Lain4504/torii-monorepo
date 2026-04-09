@@ -406,7 +406,6 @@ export default function CourseLearnPage() {
     // ── Milestones ────────────────────────────────────────────────────────
     const { data: milestonesData } = useAcademyLearnerAssessmentStatus({
         classId,
-        enrollmentId: enrollmentData?.enrollment?.id,
     });
     const milestones = milestonesData ?? EMPTY_ASSESSMENT_STATUS;
 
