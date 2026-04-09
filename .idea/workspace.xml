@@ -4,9 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="job remider livesession">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +106,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix-ui-web-admin&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -111,7 +119,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -167,7 +175,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
       </set>
     </attachedChunks>
   </component>
@@ -405,86 +413,7 @@
       <workItem from="1775525032389" duration="8927000" />
       <workItem from="1775540769831" duration="4356000" />
       <workItem from="1775547519434" duration="5443000" />
-    </task>
-    <task id="LOCAL-01184" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775466638065</created>
-      <option name="number" value="01184" />
-      <option name="presentableId" value="LOCAL-01184" />
-      <option name="project" value="LOCAL" />
-      <updated>1775466638065</updated>
-    </task>
-    <task id="LOCAL-01185" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775467232056</created>
-      <option name="number" value="01185" />
-      <option name="presentableId" value="LOCAL-01185" />
-      <option name="project" value="LOCAL" />
-      <updated>1775467232056</updated>
-    </task>
-    <task id="LOCAL-01186" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775467947440</created>
-      <option name="number" value="01186" />
-      <option name="presentableId" value="LOCAL-01186" />
-      <option name="project" value="LOCAL" />
-      <updated>1775467947440</updated>
-    </task>
-    <task id="LOCAL-01187" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775468217237</created>
-      <option name="number" value="01187" />
-      <option name="presentableId" value="LOCAL-01187" />
-      <option name="project" value="LOCAL" />
-      <updated>1775468217237</updated>
-    </task>
-    <task id="LOCAL-01188" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775468550368</created>
-      <option name="number" value="01188" />
-      <option name="presentableId" value="LOCAL-01188" />
-      <option name="project" value="LOCAL" />
-      <updated>1775468550368</updated>
-    </task>
-    <task id="LOCAL-01189" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775469178212</created>
-      <option name="number" value="01189" />
-      <option name="presentableId" value="LOCAL-01189" />
-      <option name="project" value="LOCAL" />
-      <updated>1775469178212</updated>
-    </task>
-    <task id="LOCAL-01190" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775470275090</created>
-      <option name="number" value="01190" />
-      <option name="presentableId" value="LOCAL-01190" />
-      <option name="project" value="LOCAL" />
-      <updated>1775470275091</updated>
-    </task>
-    <task id="LOCAL-01191" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775470610515</created>
-      <option name="number" value="01191" />
-      <option name="presentableId" value="LOCAL-01191" />
-      <option name="project" value="LOCAL" />
-      <updated>1775470610516</updated>
-    </task>
-    <task id="LOCAL-01192" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775470915612</created>
-      <option name="number" value="01192" />
-      <option name="presentableId" value="LOCAL-01192" />
-      <option name="project" value="LOCAL" />
-      <updated>1775470915612</updated>
-    </task>
-    <task id="LOCAL-01193" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775477972198</created>
-      <option name="number" value="01193" />
-      <option name="presentableId" value="LOCAL-01193" />
-      <option name="project" value="LOCAL" />
-      <updated>1775477972198</updated>
+      <workItem from="1775718020192" duration="8518000" />
     </task>
     <task id="LOCAL-01194" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -798,7 +727,87 @@
       <option name="project" value="LOCAL" />
       <updated>1775633915119</updated>
     </task>
-    <option name="localTasksCounter" value="1233" />
+    <task id="LOCAL-01233" summary="update ui">
+      <option name="closed" value="true" />
+      <created>1775718053364</created>
+      <option name="number" value="01233" />
+      <option name="presentableId" value="LOCAL-01233" />
+      <option name="project" value="LOCAL" />
+      <updated>1775718053365</updated>
+    </task>
+    <task id="LOCAL-01234" summary="core: remove interface">
+      <option name="closed" value="true" />
+      <created>1775718112637</created>
+      <option name="number" value="01234" />
+      <option name="presentableId" value="LOCAL-01234" />
+      <option name="project" value="LOCAL" />
+      <updated>1775718112638</updated>
+    </task>
+    <task id="LOCAL-01235" summary="update logic payment gift course">
+      <option name="closed" value="true" />
+      <created>1775720612962</created>
+      <option name="number" value="01235" />
+      <option name="presentableId" value="LOCAL-01235" />
+      <option name="project" value="LOCAL" />
+      <updated>1775720612962</updated>
+    </task>
+    <task id="LOCAL-01236" summary="update logic payment gift course">
+      <option name="closed" value="true" />
+      <created>1775721047643</created>
+      <option name="number" value="01236" />
+      <option name="presentableId" value="LOCAL-01236" />
+      <option name="project" value="LOCAL" />
+      <updated>1775721047643</updated>
+    </task>
+    <task id="LOCAL-01237" summary="update UI meetting footer">
+      <option name="closed" value="true" />
+      <created>1775722196769</created>
+      <option name="number" value="01237" />
+      <option name="presentableId" value="LOCAL-01237" />
+      <option name="project" value="LOCAL" />
+      <updated>1775722196769</updated>
+    </task>
+    <task id="LOCAL-01238" summary="update UI meetting footer">
+      <option name="closed" value="true" />
+      <created>1775722429506</created>
+      <option name="number" value="01238" />
+      <option name="presentableId" value="LOCAL-01238" />
+      <option name="project" value="LOCAL" />
+      <updated>1775722429506</updated>
+    </task>
+    <task id="LOCAL-01239" summary="feat: update legacy code">
+      <option name="closed" value="true" />
+      <created>1775723568186</created>
+      <option name="number" value="01239" />
+      <option name="presentableId" value="LOCAL-01239" />
+      <option name="project" value="LOCAL" />
+      <updated>1775723568186</updated>
+    </task>
+    <task id="LOCAL-01240" summary="job remider livesession">
+      <option name="closed" value="true" />
+      <created>1775724375329</created>
+      <option name="number" value="01240" />
+      <option name="presentableId" value="LOCAL-01240" />
+      <option name="project" value="LOCAL" />
+      <updated>1775724375330</updated>
+    </task>
+    <task id="LOCAL-01241" summary="job remider livesession">
+      <option name="closed" value="true" />
+      <created>1775724601106</created>
+      <option name="number" value="01241" />
+      <option name="presentableId" value="LOCAL-01241" />
+      <option name="project" value="LOCAL" />
+      <updated>1775724601106</updated>
+    </task>
+    <task id="LOCAL-01242" summary="job remider livesession">
+      <option name="closed" value="true" />
+      <created>1775725363613</created>
+      <option name="number" value="01242" />
+      <option name="presentableId" value="LOCAL-01242" />
+      <option name="project" value="LOCAL" />
+      <updated>1775725363613</updated>
+    </task>
+    <option name="localTasksCounter" value="1243" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -815,7 +824,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="fix-ui-web-admin" />
                       </list>
                     </value>
                   </entry>
@@ -833,12 +842,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(class-attendance): add join session functionality and alert dialog for lecturers" />
-    <MESSAGE value="fix(lecturer-dashboard): update session handling and improve class ID retrieval" />
-    <MESSAGE value="chore: remove leagacy docs" />
-    <MESSAGE value="feat: add roadmap module and related functionality for personalized learning pathways" />
-    <MESSAGE value="feat: enhance dashboard and study set components with sharing functionality and UI improvements" />
-    <MESSAGE value="feat: update table header styles and badge variants for improved UI consistency" />
     <MESSAGE value="update learning path" />
     <MESSAGE value="feat: learning pathway for course (#339)" />
     <MESSAGE value="feat: record coupon usage in order processing" />
@@ -858,7 +861,13 @@
     <MESSAGE value="refactor: refactor course review" />
     <MESSAGE value="refactor: enhance role management with create, update, and delete functionalities" />
     <MESSAGE value="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities" />
+    <MESSAGE value="update ui" />
+    <MESSAGE value="core: remove interface" />
+    <MESSAGE value="update logic payment gift course" />
+    <MESSAGE value="update UI meetting footer" />
+    <MESSAGE value="feat: update legacy code" />
+    <MESSAGE value="job remider livesession" />
+    <option name="LAST_COMMIT_MESSAGE" value="job remider livesession" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
@@ -897,4 +906,4 @@
       <option value=".github/prompts" />
     </promptFileLocations>
   </component>
-</project>  
+</project>

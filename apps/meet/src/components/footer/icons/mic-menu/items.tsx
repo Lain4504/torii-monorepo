@@ -12,16 +12,21 @@ import { Check, Mic, MicOff, LogOut } from 'lucide-react';
 
 interface IMicMenuItemsProps {
   currentRoom: Room;
+  isActiveMicrophone: boolean;
+  isMicMuted: boolean;
+  onPrimaryAction: () => void;
 }
 
-const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
+const MicMenuItems = ({
+  currentRoom,
+  isActiveMicrophone,
+  isMicMuted,
+  onPrimaryAction,
+}: IMicMenuItemsProps) => {
   const dispatch = useAppDispatch();
 
   const audioDevices = useAppSelector(
     (state) => state.roomSettings.audioDevices,
-  );
-  const isMicMuted = useAppSelector(
-    (state) => state.bottomIconsActivity.isMicMuted,
   );
   const selectedAudioDevice = useAppSelector(
     (state) => state.roomSettings.selectedAudioDevice,
@@ -102,9 +107,14 @@ const MicMenuItems = ({ currentRoom }: IMicMenuItemsProps) => {
           {() => (
             <p
               className="h-8 w-full flex items-center text-sm gap-2 leading-none font-medium text-red-700 px-2 rounded-lg transition-all duration-300 hover:bg-Red-600 hover:text-white"
-              onClick={muteUnmuteMic}
+              onClick={isActiveMicrophone ? muteUnmuteMic : onPrimaryAction}
             >
-              {isMicMuted ? (
+              {!isActiveMicrophone ? (
+                <>
+                  <Mic className={'h-4 w-auto'} />
+                  Bật micrô
+                </>
+              ) : isMicMuted ? (
                 <>
                   <Mic className={'h-4 w-auto'} />
                   Bật micrô

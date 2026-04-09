@@ -211,12 +211,14 @@ export default function MyCoursesPage() {
                                     )}
                                 </div>
 
-                                <div className="absolute inset-x-0 bottom-0 h-1 bg-black/10">
-                                    <div 
-                                        className="h-full bg-primary shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out" 
-                                        style={{ width: `${course.progress}%` }} 
-                                    />
-                                </div>
+                                {course.type?.toLowerCase() !== 'live' && (
+                                    <div className="absolute inset-x-0 bottom-0 h-1 bg-black/10">
+                                        <div
+                                            className="h-full bg-primary shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out"
+                                            style={{ width: `${course.progress}%` }}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             <CardContent className="p-6 flex-1 flex flex-col justify-between gap-6">
@@ -237,13 +239,15 @@ export default function MyCoursesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between text-[10px] font-bold">
-                                            <span className="text-muted-foreground/60 uppercase tracking-tighter">Tiến độ khóa học</span>
-                                            <span className="text-primary">{Math.round(course.progress || 0)}%</span>
+                                    {course.type?.toLowerCase() !== 'live' && (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between text-[10px] font-bold">
+                                                <span className="text-muted-foreground/60 uppercase tracking-tighter">Tiến độ khóa học</span>
+                                                <span className="text-primary">{Math.round(course.progress || 0)}%</span>
+                                            </div>
+                                            <Progress value={course.progress || 0} className="h-1.5 bg-muted rounded-full" />
                                         </div>
-                                        <Progress value={course.progress || 0} className="h-1.5 bg-muted rounded-full" />
-                                    </div>
+                                    )}
                                 </div>
 
                                 <div className="flex gap-2.5">

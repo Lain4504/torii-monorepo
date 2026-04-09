@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -16,6 +17,7 @@ import type {
   AdminDashboardResponseDTO,
   AdminPresenceStatsDTO,
   LecturerDashboardResponseDTO,
+  RevenueAnalyticsResponseDTO,
   StaffAcademicDashboardResponseDTO,
   StaffOperationsDashboardResponseDTO,
   StandardApiResponse,
@@ -74,6 +76,22 @@ export class DashboardController {
       throw new UnauthorizedException('Missing authenticated user');
     }
     const data = await this.dashboardService.getLecturerDashboard(userId);
+    return successResponse(data);
+  }
+
+  /**
+   * Trang analysis doanh thu (admin + staff-operations).
+   * Filter theo ngày (UTC date) bằng query: fromDate=YYYY-MM-DD&toDate=YYYY-MM-DD
+   */
+  @Get('revenue-analytics')
+  @Permissions('ops.order.manage', 'lms.approval.manage')
+  async getRevenueAnalytics(
+    @Query() query: { fromDate?: string; toDate?: string },
+  ): Promise<StandardApiResponse<RevenueAnalyticsResponseDTO>> {
+    const data = await this.dashboardService.getRevenueAnalytics({
+      fromDate: query.fromDate,
+      toDate: query.toDate,
+    });
     return successResponse(data);
   }
 }

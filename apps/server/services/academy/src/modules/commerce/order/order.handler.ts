@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices/decorators';
 import { OrderService } from './order.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 
@@ -45,17 +45,27 @@ export class OrderHandler {
     return this.orderService.admin_getStats(query);
   }
 
-  @MessagePattern({ cmd: 'academy.order.admin.findByOffering' })
-  admin_findByOffering(@Payload() data: { offeringId: string; query: any }) {
-    return this.orderService.admin_findOrdersByOffering(
-      data.offeringId,
+  @MessagePattern({ cmd: 'academy.order.admin.findByCohort' })
+  admin_findByCohort(@Payload() data: { cohortId: string; query: any }) {
+    return this.orderService.admin_findOrdersByCohort(data.cohortId, data.query);
+  }
+
+  @MessagePattern({ cmd: 'academy.order.admin.getStatsByCohort' })
+  admin_getStatsByCohort(@Payload() data: { cohortId: string }) {
+    return this.orderService.admin_getStatsByCohort(data.cohortId);
+  }
+
+  @MessagePattern({ cmd: 'academy.order.admin.findByVodPackage' })
+  admin_findByVodPackage(@Payload() data: { vodPackageId: string; query: any }) {
+    return this.orderService.admin_findOrdersByVodPackage(
+      data.vodPackageId,
       data.query,
     );
   }
 
-  @MessagePattern({ cmd: 'academy.order.admin.getStatsByOffering' })
-  admin_getStatsByOffering(@Payload() data: { offeringId: string }) {
-    return this.orderService.admin_getStatsByOffering(data.offeringId);
+  @MessagePattern({ cmd: 'academy.order.admin.getStatsByVodPackage' })
+  admin_getStatsByVodPackage(@Payload() data: { vodPackageId: string }) {
+    return this.orderService.admin_getStatsByVodPackage(data.vodPackageId);
   }
 
   @MessagePattern({ cmd: 'academy.order.admin.findOne' })

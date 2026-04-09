@@ -8,16 +8,18 @@ import {
   updateIsActiveWebcam,
   updateVirtualBackground,
 } from '@/store/slices/bottomIconsActivitySlice';
-import { Check, VideoOff, LogOut } from 'lucide-react';
+import { Check, Video, VideoOff, LogOut } from 'lucide-react';
 
 interface IWebcamMenuItemsProps {
   currentRoom: Room;
   toggleWebcam: () => void;
+  isActiveWebcam: boolean;
 }
 
 const WebcamMenuItems = ({
   toggleWebcam,
   currentRoom,
+  isActiveWebcam,
 }: IWebcamMenuItemsProps) => {
   const dispatch = useAppDispatch();
 
@@ -92,8 +94,17 @@ const WebcamMenuItems = ({
               className="h-8 w-full flex items-center text-sm gap-2 leading-none font-medium text-red-700 px-2 rounded-lg transition-all duration-300 hover:bg-Red-600 hover:text-white"
               onClick={toggleWebcam}
             >
-              <VideoOff className={'h-4 w-auto'} />
-              Tắt máy ảnh
+              {isActiveWebcam ? (
+                <>
+                  <VideoOff className={'h-4 w-auto'} />
+                  Tắt máy ảnh
+                </>
+              ) : (
+                <>
+                  <Video className={'h-4 w-auto'} />
+                  Bật máy ảnh
+                </>
+              )}
             </p>
           )}
         </MenuItem>

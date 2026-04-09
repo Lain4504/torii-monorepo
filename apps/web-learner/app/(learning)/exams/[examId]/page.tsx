@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@work
 import { Progress } from '@workspace/ui/components/progress';
 import { RadioGroup, RadioGroupItem } from '@workspace/ui/components/radio-group';
 import { Checkbox } from '@workspace/ui/components/checkbox';
+import { Badge } from '@workspace/ui/components/badge';
+import { Separator } from '@workspace/ui/components/separator';
 import { Label } from '@workspace/ui/components/label';
 import { 
   ChevronLeft, 
@@ -154,56 +156,76 @@ export default function ExamRunnerPage() {
   }
 
   if (attempt?.status === 'SUBMITTED' && !isReviewMode) {
+    const percentage = Math.round(attempt.percentage || 0);
+    const passed = !!attempt.isPassed;
     return (
-      <div className="max-w-4xl mx-auto py-12 px-6">
-         <Card className="text-center overflow-hidden border-none shadow-xl">
-           <CardHeader className="bg-primary text-white py-10">
-              <Award className="w-16 h-16 mx-auto mb-4" />
-              <CardTitle className="text-3xl font-bold">Kết quả bài thi</CardTitle>
-              <CardDescription className="text-primary-foreground/80 mt-2">
-                 {exam?.title}
-              </CardDescription>
-           </CardHeader>
-           <CardContent className="py-12 space-y-8">
-              <div className="flex justify-center gap-12">
-                 <div className="text-center">
-                    <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">Điểm số</p>
-                    <p className="text-5xl font-black text-primary">{Math.round(attempt.percentage || 0)}%</p>
-                 </div>
-                 <div className="text-center">
-                    <p className="text-muted-foreground text-sm uppercase tracking-wider mb-1">Kết quả</p>
-                    {attempt.isPassed ? (
-                      <p className="text-5xl font-black text-emerald-500">ĐẠT</p>
-                    ) : (
-                      <p className="text-5xl font-black text-red-500">TRƯỢT</p>
-                    )}
-                 </div>
+      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+        <Card className="overflow-hidden shadow-none">
+          <CardHeader className="space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <CardTitle className="text-xl sm:text-2xl">Kết quả bài thi</CardTitle>
+                <CardDescription className="line-clamp-2">
+                  {exam?.title}
+                </CardDescription>
               </div>
+              <Badge
+                variant="secondary"
+                className={passed ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}
+              >
+                {passed ? "ĐẠT" : "KHÔNG ĐẠT"}
+              </Badge>
+            </div>
+          </CardHeader>
 
-              <div className="bg-muted/50 p-6 rounded-xl border max-w-lg mx-auto">
-                 <p className="text-sm text-foreground mb-2">Chúc mừng bạn đã hoàn thành bài thi!</p>
-                 <p className="text-xs text-muted-foreground italic">Hệ thống đã ghi nhận kết quả và cập nhật tiến độ học tập của bạn.</p>
+          <CardContent className="space-y-6">
+            <div className="rounded-xl border bg-muted/20 p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Award className="size-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">
+                    Điểm tổng
+                  </span>
+                </div>
+                <div className="text-2xl font-black tabular-nums tracking-tight text-foreground">
+                  {percentage}%
+                </div>
               </div>
+              <div className="mt-3">
+                <Progress value={percentage} />
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Hệ thống đã ghi nhận kết quả và cập nhật tiến độ học tập của bạn.
+              </p>
+            </div>
 
-              <div className="flex justify-center gap-4 pt-4">
-                 <Button variant="outline" onClick={() => router.back()}>Quay lại bài học</Button>
-                 <Button 
-                   className="bg-primary hover:bg-primary/90 text-white" 
-                   onClick={() => setIsReviewMode(true)}
-                 >
-                   <History className="w-4 h-4 mr-2" />
-                   Xem lại bài làm
-                 </Button>
-                 {!attempt.isPassed && (
-                    <Button onClick={() => {
-                        setAttemptId(null);
-                        setAnswers({});
-                        setCurrentQuestionIndex(0);
-                     }}>Thi lại</Button>
-                 )}
+            <Separator />
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <Button variant="outline" onClick={() => router.back()}>
+                Quay lại bài học
+              </Button>
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <Button variant="default" onClick={() => setIsReviewMode(true)}>
+                  <History className="mr-2 size-4" />
+                  Xem lại bài làm
+                </Button>
+                {!passed && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setAttemptId(null);
+                      setAnswers({});
+                      setCurrentQuestionIndex(0);
+                    }}
+                  >
+                    Làm lại
+                  </Button>
+                )}
               </div>
-           </CardContent>
-         </Card>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

@@ -34,7 +34,7 @@ export class OrderListener {
 
     const targetUserId = await this.orderService.resolveTargetUserId(
       order.userId,
-      order.metadata,
+      (order.metadata as any) ?? {},
     );
 
     let enrolledCount = 0;

@@ -14,7 +14,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import type { ClientProxy } from '@nestjs/microservices/client';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,

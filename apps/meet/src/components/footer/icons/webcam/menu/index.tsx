@@ -33,14 +33,20 @@ const WebcamMenuRefreshDevices = ({ open }: { open: boolean }) => {
 
 interface IWebcamMenuProps {
   currentRoom: Room;
-  isActiveWebcam: any;
+  isActiveWebcam: boolean;
   toggleWebcam: () => void;
+  buttonClassName?: string;
+  buttonChildren?: React.ReactNode;
+  noLeftBorder?: boolean;
 }
 
 const WebcamMenu = ({
   currentRoom,
   isActiveWebcam,
   toggleWebcam,
+  buttonClassName,
+  buttonChildren,
+  noLeftBorder,
 }: IWebcamMenuProps) => {
   return (
     <div className="menu relative flex h-full min-h-0 flex-row items-stretch overflow-visible">
@@ -49,9 +55,12 @@ const WebcamMenu = ({
           <>
             <WebcamMenuRefreshDevices open={open} />
             <MenuButton
-              className={`footer-icon-bg flex h-full min-h-0 w-7 shrink-0 cursor-pointer items-center justify-center overflow-hidden border-0 border-l border-white/15 pl-0.5 text-foreground transition-colors duration-200 md:w-8 3xl:w-9 ${open ? 'bg-black/5 dark:bg-white/10' : ''}`}
+              className={
+                buttonClassName ??
+                `footer-icon-bg flex h-full min-h-0 w-7 shrink-0 cursor-pointer items-center justify-center overflow-hidden border-0 ${noLeftBorder ? '' : 'border-l border-white/15 pl-0.5'} text-foreground transition-colors duration-200 md:w-8 3xl:w-9 ${open ? 'bg-black/5 dark:bg-white/10' : ''}`
+              }
             >
-              <ChevronUp className="w-4 h-4" />
+              {buttonChildren ?? <ChevronUp className="w-4 h-4" />}
             </MenuButton>
 
             {/* Use the Transition component. */}
@@ -67,6 +76,7 @@ const WebcamMenu = ({
             >
               <WebcamMenuItems
                 currentRoom={currentRoom}
+                isActiveWebcam={isActiveWebcam}
                 toggleWebcam={toggleWebcam}
               />
             </Transition>

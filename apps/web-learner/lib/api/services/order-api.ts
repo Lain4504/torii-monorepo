@@ -15,7 +15,10 @@ export interface OrderPreviewDTO {
     liveClassIds?: string[];
     subscriptionPlanIds?: string[];
     couponCode?: string;
-    metadata?: any;
+    isGift?: boolean;
+    recipientEmail?: string;
+    giftMessage?: string;
+    metadata?: any; // backward compatibility
     liveClassIdByCohort?: Record<string, string>;
 }
 
@@ -27,7 +30,10 @@ export interface OrderCheckoutDTO {
     couponCode?: string;
     paymentMethod: PaymentMethod | string;
     description?: string;
-    metadata?: any;
+    isGift?: boolean;
+    recipientEmail?: string;
+    giftMessage?: string;
+    metadata?: any; // backward compatibility
     liveClassIdByCohort?: Record<string, string>;
 }
 

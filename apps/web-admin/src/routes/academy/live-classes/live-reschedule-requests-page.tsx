@@ -19,7 +19,7 @@ import {
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { format, parseISO } from "date-fns"
 import { vi } from "date-fns/locale"
-import { CalendarSync, CheckCircle2, XCircle, Clock, Search } from "lucide-react"
+import { CalendarSync, CheckCircle2, XCircle, Search } from "lucide-react"
 import { toast } from "sonner"
 import type { AcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
 import { Input } from "@workspace/ui/components/input"
@@ -51,6 +51,10 @@ import {
 export default function LiveRescheduleRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("PENDING")
   const [search, setSearch] = useState("")
+  const [detailDialog, setDetailDialog] = useState<{
+    open: boolean
+    request: AcademyLiveScheduleRequest | null
+  }>({ open: false, request: null })
   const [actionConfirmDialog, setActionConfirmDialog] = useState<{
     open: boolean
     action: "approve" | "reject" | null
@@ -182,10 +186,8 @@ export default function LiveRescheduleRequestsPage() {
             <TableHeader className="bg-muted/30">
               <TableRow className="hover:bg-transparent">
                 <TableHead className="pl-6 py-4">Lớp học</TableHead>
-                <TableHead>Buổi học gốc</TableHead>
-                <TableHead>Loại yêu cầu</TableHead>
-                <TableHead>Đề xuất thay đổi</TableHead>
-                <TableHead>Giảng viên & Lý do</TableHead>
+                <TableHead>Đề xuất</TableHead>
+                <TableHead>Giảng viên</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead className="pr-6 text-right">Thao tác</TableHead>
               </TableRow>
@@ -196,16 +198,14 @@ export default function LiveRescheduleRequestsPage() {
                   <TableRow key={i}>
                     <TableCell className="pl-6"><Skeleton className="h-4 w-20" /><Skeleton className="h-3 w-32 mt-2" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16 mt-2" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16 mt-2" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /><Skeleton className="h-3 w-40 mt-2" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                     <TableCell className="text-right pr-6"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : filteredRequests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-48 text-center text-muted-foreground italic">
+                  <TableCell colSpan={5} className="h-48 text-center text-muted-foreground italic">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <CalendarSync className="size-8 opacity-20" />
                       <span>Không tìm thấy yêu cầu nào phù hợp.</span>
@@ -229,31 +229,15 @@ export default function LiveRescheduleRequestsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-sm tracking-tight">{req.session ? formatDateLabel(req.session.sessionDate) : "—"}</span>
-                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-black bg-muted/50 w-fit px-1.5 py-0.5 rounded mt-1">
-                            <Clock className="size-3" /> {req.session?.startTime} - {req.session?.endTime}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="default" className="text-[9px] font-black uppercase tracking-tighter">
-                          Dời lịch
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
                         <div className="flex flex-col border-l-2 border-emerald-500/40 pl-2 py-0.5">
                           <span className="font-bold text-sm text-emerald-600 dark:text-emerald-500">{req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "—"}</span>
                           <span className="text-[10px] text-emerald-600/70 font-black">{req.proposedStartTime} - {req.proposedEndTime}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col max-w-[220px]">
-                          <span className="text-xs font-bold text-foreground/80">{req.requester?.displayName || "Giảng viên"}</span>
-                          <p className="text-[10px] text-muted-foreground italic line-clamp-2 mt-1 leading-relaxed" title={req.reason || ""}>
-                            “{req.reason || "Không có lý do chi tiết"}”
-                          </p>
-                        </div>
+                        <span className="text-xs font-bold text-foreground/80">
+                          {req.requester?.displayName || "Giảng viên"}
+                        </span>
                       </TableCell>
                       <TableCell>
                         {getRequestStatusBadge(req.status)}
@@ -261,6 +245,14 @@ export default function LiveRescheduleRequestsPage() {
                       <TableCell className="pr-6 text-right">
                         {req.status === 'PENDING' ? (
                           <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8"
+                              onClick={() => setDetailDialog({ open: true, request: req })}
+                            >
+                              Xem chi tiết
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
@@ -302,6 +294,14 @@ export default function LiveRescheduleRequestsPage() {
                                 bởi {req.reviewer?.displayName || "Admin"}
                               </Badge>
                             )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => setDetailDialog({ open: true, request: req })}
+                            >
+                              Xem chi tiết
+                            </Button>
                             {req.status === 'REJECTED' ? (
                               <Button
                                 variant="outline"
@@ -329,6 +329,103 @@ export default function LiveRescheduleRequestsPage() {
           </Table>
         </div>
       </div>
+
+      <Dialog
+        open={detailDialog.open}
+        onOpenChange={(open) =>
+          setDetailDialog((prev) => (open ? prev : { open: false, request: null }))
+        }
+      >
+        <DialogContent className="sm:max-w-[680px]">
+          <DialogHeader>
+            <DialogTitle>Chi tiết yêu cầu dời lịch</DialogTitle>
+            <DialogDescription>
+              Xem đầy đủ thông tin buổi học gốc, đề xuất thay đổi và ghi chú xử lý.
+            </DialogDescription>
+          </DialogHeader>
+
+          {detailDialog.request ? (() => {
+            const req = detailDialog.request
+            const classId = req.liveClassId || req.session?.liveClassId || ""
+            const classInfo = classMap.get(classId)
+            return (
+              <div className="space-y-4">
+                <div className="rounded-lg border bg-muted/20 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground">Lớp học</p>
+                  <p className="mt-1 text-sm font-bold text-foreground">
+                    {classInfo?.code || "—"}{" "}
+                    <span className="font-medium text-muted-foreground">
+                      {classInfo?.name ? `— ${classInfo.name}` : ""}
+                    </span>
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="rounded-lg border p-3">
+                    <p className="text-xs font-semibold text-muted-foreground">Buổi học gốc</p>
+                    <p className="mt-1 text-sm font-bold">
+                      {req.session ? formatDateLabel(req.session.sessionDate) : "—"}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {req.session?.startTime} - {req.session?.endTime}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-3">
+                    <p className="text-xs font-semibold text-muted-foreground">Đề xuất thay đổi</p>
+                    <p className="mt-1 text-sm font-bold text-emerald-700">
+                      {req.proposedDate ? format(parseISO(req.proposedDate), "dd/MM/yyyy") : "—"}
+                    </p>
+                    <p className="mt-1 text-xs text-emerald-700/80">
+                      {req.proposedStartTime} - {req.proposedEndTime}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border p-3 space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground">Giảng viên</p>
+                      <p className="mt-1 text-sm font-bold">{req.requester?.displayName || "—"}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getRequestStatusBadge(req.status)}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground">Lý do</p>
+                    <div className="mt-1 rounded-md border bg-background p-3 text-sm whitespace-pre-wrap">
+                      {req.reason?.trim() ? req.reason : "Không có lý do chi tiết."}
+                    </div>
+                  </div>
+                </div>
+
+                {req.status !== "PENDING" ? (
+                  <div className="rounded-lg border p-3 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">Thông tin xử lý</p>
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">Người duyệt:</span>{" "}
+                      <span className="font-semibold">{req.reviewer?.displayName || "—"}</span>
+                    </p>
+                    {req.reviewNote ? (
+                      <div className="rounded-md border bg-muted/20 p-3 text-sm whitespace-pre-wrap">
+                        {req.reviewNote}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Không có ghi chú xử lý.</p>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            )
+          })() : null}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetailDialog({ open: false, request: null })}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={rejectReasonDialog.open}

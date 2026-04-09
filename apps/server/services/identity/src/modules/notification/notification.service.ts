@@ -11,6 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AppConfigService, PrismaService } from '@server/shared';
 import { Notification } from '@prisma/generated';
+import { Prisma } from '@prisma/generated';
 import {
   NotificationResponseDTO,
   NotificationQueryDTO,
@@ -316,15 +317,37 @@ export class NotificationService implements INotificationService, OnModuleInit {
    */
   async create(data: NotificationCreateDTO): Promise<NotificationResponseDTO> {
     try {
-      const notification = await this.notificationRepository.create({
-        userId: data.userId,
-        title: data.title,
-        message: data.message,
-        notificationType: data.notificationType,
-        metadata: data.metadata || null,
-        sentVia: data.sentVia || ['in_app'],
-        isRead: false,
-      });
+      let notification: Notification;
+      try {
+        notification = await this.notificationRepository.create({
+          userId: data.userId,
+          title: data.title,
+          message: data.message,
+          notificationType: data.notificationType,
+          dedupeKey: (data as any).dedupeKey ?? null,
+          metadata: data.metadata || null,
+          sentVia: data.sentVia || ['in_app'],
+          isRead: false,
+        } as any);
+      } catch (err: any) {
+        // Idempotency: if (userId, dedupeKey) already exists, return existing and skip push.
+        if (
+          (data as any).dedupeKey &&
+          err instanceof Prisma.PrismaClientKnownRequestError &&
+          err.code === 'P2002'
+        ) {
+          const existing = await this.prisma.notification.findFirst({
+            where: {
+              userId: data.userId,
+              dedupeKey: (data as any).dedupeKey,
+            } as any,
+          });
+          if (existing) {
+            return this.toNotificationResponseDto(existing);
+          }
+        }
+        throw err;
+      }
 
       // If push is requested, send via FCM
       if (

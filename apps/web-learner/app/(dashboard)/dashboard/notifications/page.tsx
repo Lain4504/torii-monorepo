@@ -134,7 +134,7 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="mx-auto w-full max-w-xl px-4 pb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <div className="mx-auto w-full max-w-3xl px-4 pb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <header className="mb-6 border-b border-border/80 pb-4">
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">

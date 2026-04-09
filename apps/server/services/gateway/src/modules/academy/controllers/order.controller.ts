@@ -11,8 +11,8 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import type { ClientProxy } from '@nestjs/microservices/client';
 
-import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
@@ -115,7 +115,7 @@ export class OrderController {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.findAll' }, query),
     );
-    return successPaginatedResponse(result);
+    return successPaginatedResponse(result as any);
   }
   @Get('stats')
   @Permissions('ops.order.manage')

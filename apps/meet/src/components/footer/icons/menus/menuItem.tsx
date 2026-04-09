@@ -24,7 +24,7 @@ const FooterMenuItem = ({
         variant="ghost"
         onClick={onClick}
         className={cn(
-          'relative h-auto min-h-10 w-full justify-start gap-2 rounded-none border-0 px-3 py-2.5 text-left text-sm font-medium leading-snug shadow-none whitespace-normal hover:bg-muted focus-visible:border-transparent focus-visible:ring-0',
+          'relative h-auto min-h-10 w-full justify-start gap-2 rounded-none border-0 px-3 py-2.5 text-left text-sm font-medium leading-snug shadow-none whitespace-normal hover:bg-muted focus:outline-none focus-visible:outline-none focus-visible:border-transparent focus-visible:ring-0 focus-visible:ring-offset-0',
           isActive && 'pr-9',
         )}
       >

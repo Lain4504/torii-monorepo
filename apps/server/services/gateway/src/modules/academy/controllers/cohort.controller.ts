@@ -161,8 +161,8 @@ export class CohortController {
   ) {
     const result = await firstValueFrom(
       this.nats.send(
-        { cmd: 'academy.order.admin.findByOffering' },
-        { offeringId: id, query },
+        { cmd: 'academy.order.admin.findByCohort' },
+        { cohortId: id, query },
       ),
     );
     return successPaginatedResponse(result);
@@ -173,8 +173,8 @@ export class CohortController {
   async getStats(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send(
-        { cmd: 'academy.order.admin.getStatsByOffering' },
-        { offeringId: id },
+        { cmd: 'academy.order.admin.getStatsByCohort' },
+        { cohortId: id },
       ),
     );
     return successResponse(result);
