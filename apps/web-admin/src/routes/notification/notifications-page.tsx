@@ -134,7 +134,7 @@ export default function NotificationsPage() {
   const totalPages = notificationsData?.totalPages ?? 1;
 
   return (
-    <div className="mx-auto w-full max-w-xl px-1 pb-12">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-12">
       <header className="mb-6 border-b border-border/80 pb-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">

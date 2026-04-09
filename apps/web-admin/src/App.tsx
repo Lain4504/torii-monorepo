@@ -22,6 +22,7 @@ import UsersManagementPage from '@/routes/users/users-management-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 
 import OrdersPage from '@/routes/finance/orders-page.tsx'
+import RevenueAnalyticsPage from '@/routes/finance/revenue-analytics-page.tsx'
 
 import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
@@ -184,6 +185,16 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="ops.order.manage" />}>
                     <Route path="orders" element={<OrdersPage />} />
+                  </Route>
+
+                  <Route
+                    element={
+                      <RoutePermissionGuard
+                        anyPermission={["ops.order.manage", "lms.approval.manage"]}
+                      />
+                    }
+                  >
+                    <Route path="finance/revenue-analytics" element={<RevenueAnalyticsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="ops.gamification.manage" />}>

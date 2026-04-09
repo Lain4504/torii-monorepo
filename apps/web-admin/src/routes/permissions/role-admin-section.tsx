@@ -175,7 +175,7 @@ export function RoleAdminSection({ roles }: RoleAdminSectionProps) {
                                     <TableHead className="w-[180px]">Mã</TableHead>
                                     <TableHead>Tên hiển thị</TableHead>
                                     <TableHead className="hidden md:table-cell">Mô tả</TableHead>
-                                    <TableHead className="w-[120px] text-right pr-4">Thao tác</TableHead>
+                                    <TableHead className="w-[200px] text-right pr-4">Thao tác</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -191,27 +191,29 @@ export function RoleAdminSection({ roles }: RoleAdminSectionProps) {
                                                 {role.description || "—"}
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex justify-end gap-1">
+                                                <div className="flex justify-end gap-2">
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8"
+                                                        size="sm"
+                                                        className="h-8 px-2.5"
                                                         onClick={() => setEditTarget(role)}
                                                         title="Chỉnh sửa tên và mô tả"
                                                     >
                                                         <Pencil className="size-4" />
+                                                        <span className="ml-2 text-xs font-medium">Sửa</span>
                                                     </Button>
                                                     {!protectedRole && (
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 text-destructive hover:text-destructive"
+                                                            size="sm"
+                                                            className="h-8 px-2.5 text-destructive hover:text-destructive"
                                                             onClick={() => setDeleteTarget(role)}
                                                             title="Xóa vai trò"
                                                         >
                                                             <Trash2 className="size-4" />
+                                                            <span className="ml-2 text-xs font-medium">Xóa</span>
                                                         </Button>
                                                     )}
                                                 </div>

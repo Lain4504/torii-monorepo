@@ -111,6 +111,41 @@ export interface AdminDashboardResponseDTO {
   staffOperations: StaffOperationsDashboardResponseDTO;
 }
 
+export type RevenueProductType =
+  | 'COHORT'
+  | 'VOD_PACKAGE'
+  | 'LIVE_CLASS'
+  | 'AI_SUBSCRIPTION'
+  | 'UNKNOWN';
+
+export interface RevenueBreakdownRowDTO {
+  name: string;
+  value: number;
+}
+
+export interface RevenueAnalyticsResponseDTO {
+  /** ISO date (YYYY-MM-DD), UTC */
+  fromDate: string;
+  /** ISO date (YYYY-MM-DD), UTC */
+  toDate: string;
+  stats: {
+    /** Tổng doanh thu đơn PAID trong khoảng (grand_total) */
+    totalRevenue: number;
+    /** Số đơn PAID trong khoảng */
+    paidOrders: number;
+    /** Giá trị trung bình 1 đơn PAID */
+    avgOrderValue: number;
+  };
+  /** Doanh thu PAID theo ngày (UTC date) */
+  revenueByDay: DashboardRevenueDayDTO[];
+  /** Phân bổ doanh thu theo payment_method */
+  revenueByPaymentMethod: RevenueBreakdownRowDTO[];
+  /** Phân bổ doanh thu theo loại sản phẩm (cohort/vod/live/subscription) */
+  revenueByProductType: Array<{ type: RevenueProductType; amount: number }>;
+  /** Đơn PAID gần đây trong khoảng (tối đa 20) */
+  recentPaidOrders: DashboardRecentOrderRowDTO[];
+}
+
 /** Bài nộp chờ chấm (giảng viên) — theo lớp LIVE / gói VOD do GV phụ trách */
 export interface LecturerDashboardPendingSubmissionDTO {
   submissionId: string;

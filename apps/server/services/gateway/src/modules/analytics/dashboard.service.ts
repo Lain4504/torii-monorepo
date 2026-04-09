@@ -8,6 +8,7 @@ import type {
   DashboardChartDatum,
   LecturerDashboardPendingSubmissionDTO,
   LecturerDashboardResponseDTO,
+  RevenueAnalyticsResponseDTO,
   StaffAcademicDashboardResponseDTO,
   StaffOperationsDashboardResponseDTO,
 } from '@workspace/schemas';
@@ -306,6 +307,172 @@ export class DashboardService {
       presence,
       staffAcademic,
       staffOperations,
+    };
+  }
+
+  async getRevenueAnalytics(input: {
+    fromDate?: string;
+    toDate?: string;
+  }): Promise<RevenueAnalyticsResponseDTO> {
+    const todayUtc = new Date();
+    const toDate = (input.toDate || todayUtc.toISOString().slice(0, 10)).trim();
+    const fromDate = (input.fromDate || toDate).trim();
+
+    // Parse YYYY-MM-DD into UTC midnight boundaries.
+    const from = new Date(`${fromDate}T00:00:00.000Z`);
+    const toInclusive = new Date(`${toDate}T00:00:00.000Z`);
+    if (Number.isNaN(from.getTime()) || Number.isNaN(toInclusive.getTime())) {
+      // fallback: today only
+      const fallback = todayUtc.toISOString().slice(0, 10);
+      return this.getRevenueAnalytics({ fromDate: fallback, toDate: fallback });
+    }
+
+    // Clamp range to 366 days to avoid heavy queries.
+    const maxDays = 366;
+    const diffDays = Math.floor(
+      (toInclusive.getTime() - from.getTime()) / (24 * 60 * 60 * 1000),
+    );
+    const safeTo =
+      diffDays > maxDays ? new Date(from.getTime() + maxDays * 86400000) : toInclusive;
+
+    const toExclusive = new Date(safeTo.getTime() + 24 * 60 * 60 * 1000);
+
+    const [totalRow, paidOrders, revenueDayRows, payMethodRows, productRows, recentPaidRows] =
+      await Promise.all([
+        this.prisma.$queryRaw<Array<{ total: unknown }>>`
+          SELECT COALESCE(SUM(grand_total), 0)::float AS total
+          FROM academy_orders
+          WHERE status = 'PAID'
+            AND COALESCE(paid_at, created_at) >= ${from}
+            AND COALESCE(paid_at, created_at) < ${toExclusive}
+        `,
+        this.prisma.order.count({
+          where: {
+            status: 'PAID',
+            OR: [
+              { paidAt: { gte: from, lt: toExclusive } },
+              { paidAt: null, createdAt: { gte: from, lt: toExclusive } },
+            ],
+          },
+        }),
+        this.prisma.$queryRaw<Array<{ day: Date; total: unknown }>>`
+          SELECT (DATE_TRUNC('day', COALESCE(paid_at, created_at) AT TIME ZONE 'UTC'))::date AS day,
+                 COALESCE(SUM(grand_total), 0)::float AS total
+          FROM academy_orders
+          WHERE status = 'PAID'
+            AND COALESCE(paid_at, created_at) >= ${from}
+            AND COALESCE(paid_at, created_at) < ${toExclusive}
+          GROUP BY 1
+          ORDER BY 1 ASC
+        `,
+        this.prisma.$queryRaw<Array<{ name: string; value: unknown }>>`
+          SELECT payment_method::text AS name,
+                 COALESCE(SUM(grand_total), 0)::float AS value
+          FROM academy_orders
+          WHERE status = 'PAID'
+            AND COALESCE(paid_at, created_at) >= ${from}
+            AND COALESCE(paid_at, created_at) < ${toExclusive}
+          GROUP BY 1
+          ORDER BY 2 DESC
+        `,
+        this.prisma.$queryRaw<
+          Array<{
+            type: string;
+            amount: unknown;
+          }>
+        >`
+          SELECT
+            CASE
+              WHEN oi.cohort_id IS NOT NULL THEN 'COHORT'
+              WHEN oi.vod_package_id IS NOT NULL THEN 'VOD_PACKAGE'
+              WHEN oi.live_class_id IS NOT NULL THEN 'LIVE_CLASS'
+              WHEN oi.subscription_plan_id IS NOT NULL THEN 'AI_SUBSCRIPTION'
+              ELSE 'UNKNOWN'
+            END AS type,
+            COALESCE(SUM(oi.price), 0)::float AS amount
+          FROM academy_orders o
+          JOIN academy_order_items oi ON oi.order_id = o.id
+          WHERE o.status = 'PAID'
+            AND COALESCE(o.paid_at, o.created_at) >= ${from}
+            AND COALESCE(o.paid_at, o.created_at) < ${toExclusive}
+          GROUP BY 1
+          ORDER BY 2 DESC
+        `,
+        this.prisma.order.findMany({
+          where: {
+            status: 'PAID',
+            OR: [
+              { paidAt: { gte: from, lt: toExclusive } },
+              { paidAt: null, createdAt: { gte: from, lt: toExclusive } },
+            ],
+          },
+          take: 20,
+          orderBy: [{ paidAt: 'desc' }, { createdAt: 'desc' }],
+          select: {
+            id: true,
+            code: true,
+            status: true,
+            grandTotal: true,
+            createdAt: true,
+            paidAt: true,
+            user: { select: { displayName: true, email: true } },
+          },
+        }),
+      ]);
+
+    const totalRevenue = Number(totalRow?.[0]?.total ?? 0);
+    const avgOrderValue = paidOrders > 0 ? totalRevenue / paidOrders : 0;
+
+    const byDay = new Map<string, number>();
+    for (const r of revenueDayRows) {
+      const d = r.day instanceof Date ? r.day : new Date(r.day as any);
+      const key = d.toISOString().slice(0, 10);
+      byDay.set(key, Number(r.total) || 0);
+    }
+
+    const revenueByDay: { date: string; amount: number }[] = [];
+    const cursor = new Date(from);
+    while (cursor < toExclusive) {
+      const key = cursor.toISOString().slice(0, 10);
+      revenueByDay.push({ date: key, amount: byDay.get(key) ?? 0 });
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    const revenueByPaymentMethod = payMethodRows.map((r) => ({
+      name: String(r.name),
+      value: Number(r.value) || 0,
+    }));
+
+    const revenueByProductType = productRows.map((r) => ({
+      type: String(r.type) as any,
+      amount: Number(r.amount) || 0,
+    }));
+
+    const recentPaidOrders = recentPaidRows.map((o) => {
+      const at = o.paidAt ?? o.createdAt;
+      return {
+        id: o.id,
+        code: o.code,
+        status: o.status,
+        amount: o.grandTotal.toString(),
+        userName: o.user.displayName ?? '',
+        userEmail: o.user.email ?? '',
+        date: at.toISOString().slice(0, 10),
+      };
+    });
+
+    return {
+      fromDate,
+      toDate: safeTo.toISOString().slice(0, 10),
+      stats: {
+        totalRevenue,
+        paidOrders,
+        avgOrderValue,
+      },
+      revenueByDay,
+      revenueByPaymentMethod,
+      revenueByProductType,
+      recentPaidOrders,
     };
   }
 
