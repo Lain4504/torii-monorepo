@@ -81,7 +81,8 @@ export default function CheckoutPage() {
         : 0
 
     // Gift State
-    const [isGift, setIsGift] = useState(false)
+    const giftForced = searchParams.get('gift') === 'true'
+    const [isGift, setIsGift] = useState(giftForced)
     const [recipientEmail, setRecipientEmail] = useState('')
     const [giftMessage, setGiftMessage] = useState('')
 
@@ -102,12 +103,13 @@ export default function CheckoutPage() {
         if (inList) setSelectedClassId(fromQuery)
     }, [searchParams, product])
 
-    // Handle gift parameter from URL
+    // If gift is forced from URL, lock the toggle on
     useEffect(() => {
-        if (searchParams.get('gift') === 'true') {
+        if (giftForced) {
             setIsGift(true)
         }
-    }, [searchParams])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [giftForced])
 
     // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong product.classes (siblingClasses)
     useEffect(() => {
@@ -272,7 +274,7 @@ export default function CheckoutPage() {
     return (
         <div className="pb-10">
             <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="ghost" size="sm" asChild>
                     <Link
                         href={
                             searchParams.get('classId')
@@ -297,35 +299,69 @@ export default function CheckoutPage() {
                                 <CardTitle>Thông tin khóa học</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="flex flex-col sm:flex-row gap-6">
-                                    <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
-                                        <Image src={product.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={product.learnerDisplayTitle || product.name} fill className="object-cover" />
+                                <div className="space-y-5">
+                                    <div className="relative w-full overflow-hidden rounded-xl border bg-muted">
+                                        <div className="relative h-40 w-full sm:h-48 md:h-56">
+                                            <Image
+                                                src={product.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'}
+                                                alt={product.learnerDisplayTitle || product.name}
+                                                fill
+                                                className="object-cover"
+                                                priority
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="flex-1 space-y-3">
-                                        <Badge variant="secondary">{product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
-                                        <h3 className="text-lg font-medium">{selectedClass?.name || product.learnerDisplayTitle || product.name}</h3>
-                                        {product.liveContextLine && (
-                                            <p className="text-sm text-muted-foreground">{product.liveContextLine}</p>
-                                        )}
-                                        {product.learnerMarketingSubtitle && (
-                                            <p className="text-xs text-muted-foreground">Gói: {product.learnerMarketingSubtitle}</p>
-                                        )}
-                                        <ItemGroup>
-                                            <Item size="sm">
-                                                <ItemMedia variant="icon"><Users /></ItemMedia>
-                                                <ItemContent><ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
-                                            </Item>
-                                            <Item size="sm">
-                                                <ItemMedia variant="icon"><BookOpen /></ItemMedia>
-                                                <ItemContent><ItemTitle>{formatNumber(lessonCount)} bài học</ItemTitle></ItemContent>
-                                            </Item>
-                                            <Item size="sm">
+
+                                    <div className="space-y-3">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Badge variant="secondary">
+                                                {product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}
+                                            </Badge>
+                                            {isLIVE ? (
+                                                <Badge variant="outline">LIVE</Badge>
+                                            ) : (
+                                                <Badge variant="outline">VOD</Badge>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <h3 className="text-xl font-semibold tracking-tight">
+                                                {selectedClass?.name || product.learnerDisplayTitle || product.name}
+                                            </h3>
+                                            {product.liveContextLine && (
+                                                <p className="text-sm text-muted-foreground">
+                                                    {product.liveContextLine}
+                                                </p>
+                                            )}
+                                            {product.learnerMarketingSubtitle && (
+                                                <p className="text-sm text-muted-foreground">
+                                                    {product.learnerMarketingSubtitle}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                            <Item size="sm" className="rounded-lg border border-border/50 bg-card px-3 py-2 shadow-none">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
                                                 <ItemContent>
-                                                    <ItemTitle className="text-sm">{liveCapacityLabel(selectedClass)}</ItemTitle>
+                                                    <ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp</ItemTitle>
                                                 </ItemContent>
                                             </Item>
-                                        </ItemGroup>
+                                            <Item size="sm" className="rounded-lg border border-border/50 bg-card px-3 py-2 shadow-none">
+                                                <ItemMedia variant="icon"><BookOpen /></ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle>{formatNumber(lessonCount)} bài học</ItemTitle>
+                                                </ItemContent>
+                                            </Item>
+                                            <Item size="sm" className="rounded-lg border border-border/50 bg-card px-3 py-2 shadow-none">
+                                                <ItemMedia variant="icon"><Users /></ItemMedia>
+                                                <ItemContent>
+                                                    <ItemTitle className="text-sm">
+                                                        {liveCapacityLabel(selectedClass) ?? '—'}
+                                                    </ItemTitle>
+                                                </ItemContent>
+                                            </Item>
+                                        </div>
                                     </div>
                                 </div>
                             </CardContent>
@@ -348,7 +384,11 @@ export default function CheckoutPage() {
                                         <Gift className="h-5 w-5 text-primary" />
                                         Mua làm quà tặng
                                     </CardTitle>
-                                    <Switch checked={isGift} onCheckedChange={setIsGift} />
+                                    <Switch
+                                        checked={isGift}
+                                        onCheckedChange={setIsGift}
+                                        disabled={giftForced}
+                                    />
                                 </div>
                             </CardHeader>
                             {isGift && (

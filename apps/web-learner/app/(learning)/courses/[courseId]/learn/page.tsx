@@ -88,25 +88,29 @@ function MilestoneItem({ milestone, onClick, forceLocked }: {
     milestone: any;
     onClick: () => void;
     forceLocked?: boolean;
+    compact?: boolean;
 }) {
     const isLocked = forceLocked || milestone.status === 'LOCKED';
     const isPassed = milestone.status === 'PASSED';
+    const compact = !!(arguments[0] as any)?.compact;
 
     return (
         <Button
             variant="ghost"
             className={cn(
-                "w-full justify-start h-auto py-3 px-3 gap-3 rounded-lg border border-transparent transition-all group",
+                "w-full justify-start h-auto gap-3 rounded-lg border border-transparent transition-all group",
+                compact ? "py-2 px-2.5" : "py-3 px-3",
                 isLocked && "opacity-50 grayscale pointer-events-none"
             )}
             onClick={onClick}
             disabled={isLocked}
         >
             <div className={cn(
-                "size-8 rounded-full flex items-center justify-center shrink-0 border border-border bg-background group-hover:border-primary/30 transition-colors",
+                "rounded-full flex items-center justify-center shrink-0 border border-border bg-background group-hover:border-primary/30 transition-colors",
+                compact ? "size-7" : "size-8",
                 isPassed && "border-emerald-200 bg-emerald-50 text-emerald-600",
             )}>
-                {isPassed ? <Trophy className="size-4" /> : <FileText className="size-4" />}
+                {isPassed ? <Trophy className={cn(compact ? "size-3.5" : "size-4")} /> : <FileText className={cn(compact ? "size-3.5" : "size-4")} />}
             </div>
             <div className="flex-1 text-left min-w-0">
                 <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-tight leading-none mb-1">
@@ -145,11 +149,13 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
         completedIds.has(lessonProgressId(lesson))
     ).length;
     const moduleMilestones =
-        milestones?.filter(
-            (m) =>
-                normalizeItemKind(m.kind) === 'MODULE_CHECKPOINT' &&
-                m.moduleId === mod.id
-        ) || [];
+        milestones?.filter((m) => {
+            if (m.moduleId !== mod.id) return false;
+            if (m.triggerLessonId) return false; // module-level only
+            const kind = normalizeItemKind(m.kind);
+            // Backward/forward compatible kinds from backend
+            return kind === 'MODULE_CHECKPOINT' || kind === 'MODULE_TEST' || kind === 'MODULE_EXAM';
+        }) || [];
 
 
     return (
@@ -167,7 +173,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                     </span>
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-3 space-y-0.5">
+            <AccordionContent className="pt-1 pb-6 space-y-1 relative overflow-visible">
                 {mod.lessons?.map((lesson: any) => {
                     const isActive = lesson.id === currentLessonId;
                     const isDone = completedIds.has(lessonProgressId(lesson));
@@ -209,10 +215,11 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                             </Button>
 
                             {lessonMilestones.map(m => (
-                                <div key={m.assessmentId} className="pl-6 mt-1 border-l-2 border-primary/10 ml-5">
+                                <div key={m.assessmentId} className="pl-6 mt-1 border-l-2 border-primary/10 ml-5 relative z-10">
                                     <MilestoneItem
                                         milestone={m}
                                         forceLocked={!isDone}
+                                        compact
                                         onClick={() => onSelectMilestone(m)}
                                     />
                                 </div>
@@ -231,10 +238,11 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                                     completedIds.has(lessonProgressId(lesson))
                                 );
                             return (
-                                <div key={m.assessmentId} className="pl-6 border-l-2 border-primary/10 ml-5">
+                                <div key={m.assessmentId} className="pl-6 border-l-2 border-primary/10 ml-5 relative z-10">
                                     <MilestoneItem
                                         milestone={m}
                                         forceLocked={!canOpenModuleMilestone}
+                                        compact
                                         onClick={() => onSelectMilestone(m)}
                                     />
                                 </div>
@@ -989,10 +997,10 @@ export default function CourseLearnPage() {
                         </Accordion>
 
                         {/* Final Challenge Section */}
-                        {milestones.some(m => m.kind === 'FINAL_EXAM') && (
+                        {milestones.some(m => normalizeItemKind(m.kind) === 'FINAL_EXAM') && (
                             <div className="p-4 bg-muted/30 m-4 rounded-lg">
                                 <h4 className="text-[10px] font-bold text-muted-foreground uppercase mb-4 tracking-wider">Thử thách cuối khóa</h4>
-                                {milestones.filter(m => m.kind === 'FINAL_EXAM').map(m => (
+                                {milestones.filter(m => normalizeItemKind(m.kind) === 'FINAL_EXAM').map(m => (
                                     <MilestoneItem
                                         key={m.assessmentId}
                                         milestone={m}

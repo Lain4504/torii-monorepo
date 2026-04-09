@@ -25,6 +25,7 @@ import { formatDateTime, formatDate, formatCurrency } from '@/utils/format-utils
 import { cn } from '@workspace/ui/lib/utils';
 import Link from 'next/link';
 import { useCoupons } from './use-coupons';
+import { SmartPagination } from '@/components/common/smart-pagination';
 
 export default function CouponsPage() {
     const { 
@@ -32,6 +33,9 @@ export default function CouponsPage() {
         couponsLoading, 
         gamificationHistory, 
         historyLoading, 
+        historyMeta,
+        historyPage,
+        setHistoryPage,
         handleCopyCode 
     } = useCoupons();
 
@@ -185,7 +189,7 @@ export default function CouponsPage() {
                                     gamificationHistory.map((item: any, index: number) => (
                                         <TableRow key={item.id} className="hover:bg-muted/5 transition-colors border-border/30 group h-14 border-none">
                                             <TableCell className="text-center font-semibold text-[10px] text-muted-foreground/40 pl-4">
-                                                {index + 1}
+                                                {(historyMeta.page - 1) * historyMeta.limit + index + 1}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="font-bold text-sm text-foreground/80 group-hover:text-primary transition-colors">
@@ -232,6 +236,16 @@ export default function CouponsPage() {
                             </TableBody>
                         </Table>
                     </Card>
+
+                    <div className="pt-4">
+                        <SmartPagination
+                            page={historyPage}
+                            totalPages={historyMeta.totalPages || 0}
+                            totalItems={historyMeta.total || 0}
+                            onPageChange={setHistoryPage}
+                            itemName="lượt lịch sử"
+                        />
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>

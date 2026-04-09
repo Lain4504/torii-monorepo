@@ -92,46 +92,70 @@ export default function AchievementsPage() {
                 </p>
             </div>
 
-            {/* Stats Overview (nhỏ gọn hơn) */}
+            {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Card className="shadow-none border-border/40 bg-card rounded-xl p-2 sm:p-2 flex items-center justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-0.5">
-                        <p className="text-[8px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Tổng cộng</p>
-                        <p className="text-lg font-bold tabular-nums text-foreground/80">{stats.total}</p>
-                    </div>
-                    <div className="size-6 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 shrink-0">
-                        <Trophy className="size-3" />
-                    </div>
-                </Card>
-                <Card className="shadow-none border-border/40 bg-card rounded-xl p-2 sm:p-2 flex items-center justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-0.5">
-                        <p className="text-[8px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Đã đạt</p>
-                        <p className="text-lg font-bold tabular-nums text-foreground/80">{stats.earned}</p>
-                    </div>
-                    <div className="size-6 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 shrink-0">
-                        <Star className="size-3" />
-                    </div>
-                </Card>
-                <Card className="shadow-none border-border/40 bg-card rounded-xl p-2 sm:p-2 flex items-center justify-between group hover:bg-muted/5 transition-colors">
-                    <div className="space-y-0.5">
-                        <p className="text-[8px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Còn lại</p>
-                        <p className="text-lg font-bold tabular-nums text-foreground/80">{stats.remaining}</p>
-                    </div>
-                    <div className="size-6 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 shrink-0">
-                        <Target className="size-3" />
-                    </div>
-                </Card>
-                <Card className="shadow-none border-border/40 bg-card rounded-xl p-2 sm:p-2 flex flex-col gap-1.5 group hover:bg-muted/5 transition-colors">
-                    <div className="flex items-center justify-between gap-3">
-                        <div className="space-y-0.5">
-                            <p className="text-[8px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Hoàn thành</p>
-                            <p className="text-lg font-bold tabular-nums text-primary/60">{stats.percentage}%</p>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl group hover:bg-muted/5 transition-colors">
+                    <CardContent className="p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none">
+                                Tổng cộng
+                            </p>
+                            <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
+                                {stats.total}
+                            </p>
                         </div>
-                        <div className="size-6 rounded-lg bg-primary/5 flex items-center justify-center text-primary/40 border border-primary/10 shrink-0">
-                            <TrendingUp className="size-3" />
+                        <div className="size-9 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 shrink-0">
+                            <Trophy className="size-4" />
                         </div>
-                    </div>
-                    <Progress value={stats.percentage} className="h-1 bg-muted/20" />
+                    </CardContent>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl group hover:bg-muted/5 transition-colors">
+                    <CardContent className="p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none">
+                                Đã đạt
+                            </p>
+                            <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
+                                {stats.earned}
+                            </p>
+                        </div>
+                        <div className="size-9 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 shrink-0">
+                            <Star className="size-4" />
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl group hover:bg-muted/5 transition-colors">
+                    <CardContent className="p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none">
+                                Còn lại
+                            </p>
+                            <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
+                                {stats.remaining}
+                            </p>
+                        </div>
+                        <div className="size-9 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 shrink-0">
+                            <Target className="size-4" />
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="shadow-none border-border/40 bg-card rounded-xl group hover:bg-muted/5 transition-colors">
+                    <CardContent className="p-4 space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none">
+                                    Hoàn thành
+                                </p>
+                                <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
+                                    {stats.percentage}%
+                                </p>
+                            </div>
+                            <div className="size-9 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 shrink-0">
+                                <TrendingUp className="size-4" />
+                            </div>
+                        </div>
+                        <Progress value={stats.percentage} className="h-1.5 bg-muted/30" />
+                    </CardContent>
                 </Card>
             </div>
 
