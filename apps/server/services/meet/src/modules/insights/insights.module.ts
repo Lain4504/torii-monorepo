@@ -8,7 +8,7 @@ import { InsightsService } from './insights.service';
 import { RedisInsightsService } from '@server/meet/infrastructure/redis/redis-insights.service';
 import { InsightsProviderService } from './insights.provider';
 import { NatsModule } from '@server/meet/services/nats.module';
-import { InsightsHandler } from '@server/meet/modules/insights/insights.handler';
+import { InsightsHandler } from '@server/meet/transport/nats/handlers/insights.handler';
 import { ArtifactsModule } from '@server/meet/modules/artifacts/artifacts.module';
 import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
 import { AppConfigService } from '@server/shared';

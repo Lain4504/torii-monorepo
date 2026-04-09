@@ -5,8 +5,8 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsRoomService } from './nats-room.service';
-import { NatsSystemEventsService } from './nats-system-events.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { NatsMsgServerToClientEvents } from '@workspace/protocol';
 
 /**

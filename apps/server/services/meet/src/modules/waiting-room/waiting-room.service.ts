@@ -7,11 +7,11 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsService } from '@server/meet/services/nats.service';
-import { NatsUserInfoService } from '@server/meet/services/nats-user-info.service';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
+import { NatsUserInfoService } from '@server/meet/infrastructure/nats/nats-user-info.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/infrastructure/nats/nats-room-events.service';
 import type {
   ApproveWaitingUsersReq,
   UpdateWaitingRoomMessageReq,

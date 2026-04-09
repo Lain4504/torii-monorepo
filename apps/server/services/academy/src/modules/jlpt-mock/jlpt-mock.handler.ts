@@ -174,6 +174,12 @@ export class JlptMockHandler {
     return this.jlpt.updateTemplate(data.id, data.input, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.jlptMock.template.delete' })
+  deleteTemplate(@Payload() data: { id: string; requesterId?: string }) {
+    void data.requesterId;
+    return this.jlpt.deleteTemplate(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.jlptMock.template.attachQuestions' })
   attachQuestions(
     @Payload() data: JlptMockAttachQuestionsDto & { requesterId?: string },

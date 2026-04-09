@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { MessageSquareQuote } from 'lucide-react';
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottomIconsActivitySlice';
+import { Button } from '@workspace/ui/components/button';
 
 const Translation = () => {
   const dispatch = useAppDispatch();
@@ -36,35 +37,27 @@ const Translation = () => {
     return null;
   }
 
-  const wrapperClasses = clsx(
-    'translationIcon hidden md:block relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
-    {
-      'border-primary/25':
-        isActiveDisplaySpeechSettingOptionsModal,
-      'border-transparent': !isActiveDisplaySpeechSettingOptionsModal,
-    },
-  );
-
-  const innerDivClasses = clsx(
-    'footer-icon-bg h-full w-full flex items-center justify-center rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted text-foreground bg-card',
-    {
-      'has-tooltip': showTooltip,
-      'bg-muted': isActiveDisplaySpeechSettingOptionsModal,
-      'bg-card': !isActiveDisplaySpeechSettingOptionsModal,
-    },
-  );
-
   return (
-    <div className={wrapperClasses} onClick={toggleModal}>
-      <div className={innerDivClasses}>
-        <span className="tooltip">
-          {isActiveDisplaySpeechSettingOptionsModal
-            ? 'Ẩn cài đặt dịch'
-            : 'Hiển thị cài đặt dịch'}
-        </span>
-        <MessageSquareQuote className="h-6 w-auto" />
-      </div>
-    </div>
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      onClick={toggleModal}
+      className={clsx(
+        'translationIcon footer-icon relative hidden h-11 w-11 rounded-full border-border bg-card shadow-sm hover:bg-muted md:inline-flex 3xl:h-[52px] 3xl:w-[52px]',
+        {
+          'has-tooltip': showTooltip,
+          'bg-muted': isActiveDisplaySpeechSettingOptionsModal,
+        },
+      )}
+    >
+      <span className="tooltip">
+        {isActiveDisplaySpeechSettingOptionsModal
+          ? 'Ẩn cài đặt dịch'
+          : 'Hiển thị cài đặt dịch'}
+      </span>
+      <MessageSquareQuote className="h-5 w-5 3xl:h-6 3xl:w-6" />
+    </Button>
   );
 };
 

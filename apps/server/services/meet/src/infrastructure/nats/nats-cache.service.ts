@@ -15,7 +15,7 @@ import {
   RoomUploadedFileMetadataSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 
 /**
  * Recorder Info (Standalone structure, not a proto message)

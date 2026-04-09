@@ -18,7 +18,7 @@ import {
   UserMetadata,
   UserMetadataSchema,
 } from '@workspace/protocol';
-import { NatsCacheService } from './nats-cache.service';
+import { NatsCacheService } from '@server/meet/infrastructure/nats/nats-cache.service';
 import { AppConfigService } from '@server/shared';
 import {
   connect,

@@ -13,10 +13,10 @@ import {
   RoomUploadedFileMetadataSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
-import { NatsService } from '@server/meet/services/nats.service';
-import { NatsStreamService } from '@server/meet/services/nats-stream.service';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
+import { NatsStreamService } from '@server/meet/infrastructure/nats/nats-stream.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 
 // Room status constants
 export const ROOM_STATUS_CREATED = 'created';
@@ -612,3 +612,4 @@ export class NatsRoomService {
     }
   }
 }
+

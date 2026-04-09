@@ -14,7 +14,6 @@ import { Separator } from '@workspace/ui/components/separator';
 import { cn } from '@workspace/ui/lib/utils';
 import ApplicationSettings from '@/components/header/room-settings/application';
 import DataSavings from '@/components/header/room-settings/dataSavings';
-import Ingress from '@/components/header/room-settings/ingress';
 
 declare const WAJLC_VERSION: string;
 
@@ -24,15 +23,12 @@ const RoomSettings = () => {
     serverVersion,
     currentUser,
     copyright_conf,
-    ingressFeatures,
   } = useMemo(() => {
     const session = store.getState().session;
     return {
       serverVersion: session.serverVersion,
       currentUser: session.currentUser,
       copyright_conf: session.currentRoom.metadata?.copyrightConf,
-      ingressFeatures:
-        session.currentRoom.metadata?.roomFeatures?.ingressFeatures,
     };
   }, []);
 
@@ -50,15 +46,6 @@ const RoomSettings = () => {
       content: <DataSavings />,
     },
   };
-  if (currentUser?.metadata?.isAdmin) {
-    if (ingressFeatures?.isAllow) {
-      baseCategories.ingress = {
-        title: 'Luồng vào',
-        content: <Ingress />,
-      };
-    }
-  }
-
   const tabItems = Object.keys(baseCategories).map((k) => ({
     id: k,
     title: baseCategories[k].title,
@@ -74,21 +61,27 @@ const RoomSettings = () => {
   }
 
   const renderModalFooter = () => {
-    let text = '';
     if (
-      copyright_conf &&
-      copyright_conf.display &&
-      copyright_conf.text !== ''
+      !copyright_conf ||
+      !copyright_conf.display ||
+      copyright_conf.text === ''
     ) {
-      text = sanitizeHtml(copyright_conf.text, {
-        allowedTags: ['b', 'i', 'em', 'strong', 'a'],
-        allowedAttributes: {
-          a: ['href', 'target'],
-        },
-      }).concat('&nbsp;');
+      return null;
     }
 
-    text += `Phiên bản Máy chủ: ${serverVersion}, Phiên bản Ứng dụng: ${WAJLC_VERSION}`;
+    let text = sanitizeHtml(copyright_conf.text, {
+      allowedTags: ['b', 'i', 'em', 'strong', 'a'],
+      allowedAttributes: {
+        a: ['href', 'target'],
+      },
+    });
+
+    // Remove branding line entirely (requested)
+    text = text.replace(/Powered by\s*MiraiMagicLab/gi, '').trim();
+    if (text === '') {
+      return null;
+    }
+
     return (
       <div
         className="text-center text-xs text-muted-foreground [&_a]:text-primary [&_a]:underline"
@@ -137,8 +130,12 @@ const RoomSettings = () => {
           </Tabs>
         </div>
 
-        <Separator />
-        <div className="shrink-0 px-4 py-3">{renderModalFooter()}</div>
+        {renderModalFooter() && (
+          <>
+            <Separator />
+            <div className="shrink-0 px-4 py-3">{renderModalFooter()}</div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

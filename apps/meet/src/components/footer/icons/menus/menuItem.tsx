@@ -1,7 +1,7 @@
 import React from 'react';
-import { MenuItem } from '@headlessui/react';
 
 import { Button } from '@workspace/ui/components/button';
+import { DropdownMenuItem } from '@workspace/ui/components/dropdown-menu';
 import { cn } from '@workspace/ui/lib/utils';
 
 interface IAdminMenuItemProps {
@@ -18,13 +18,13 @@ const FooterMenuItem = ({
   isActive,
 }: IAdminMenuItemProps) => {
   return (
-    <MenuItem>
+    <DropdownMenuItem asChild>
       <Button
         type="button"
         variant="ghost"
         onClick={onClick}
         className={cn(
-          'relative h-auto min-h-10 w-full justify-start gap-2 rounded-none border-0 px-3 py-2.5 text-left text-sm font-medium leading-snug shadow-none whitespace-normal hover:bg-muted focus:outline-none focus-visible:outline-none focus-visible:border-transparent focus-visible:ring-0 focus-visible:ring-offset-0',
+          'relative h-auto min-h-10 w-full justify-start gap-2 rounded-none border-0 px-3 py-2.5 text-left text-sm font-medium leading-snug shadow-none whitespace-normal hover:bg-muted focus-visible:ring-0 focus-visible:ring-offset-0',
           isActive && 'pr-9',
         )}
       >
@@ -36,7 +36,7 @@ const FooterMenuItem = ({
           <span className="absolute top-1/2 right-3 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-primary" />
         )}
       </Button>
-    </MenuItem>
+    </DropdownMenuItem>
   );
 };
 

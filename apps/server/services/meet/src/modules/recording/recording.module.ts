@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { RecordingService } from './recording.service';
 import { RecordingInfoService } from './recording-info.service';
-import { RecordingNatsController } from './recording.nats.controller';
+import { RecordingNatsController } from '@server/meet/transport/nats/handlers/recording.nats.controller';
 import { SharedModule } from '@server/shared';
 import { RoomModule } from '@server/meet/modules/room/room.module';
 import { ArtifactsModule } from '@server/meet/modules/artifacts/artifacts.module';

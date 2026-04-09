@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ExternalMediaService } from './external-media.service';
+import { ExternalMediaService } from '@server/meet/modules/external-media/external-media.service';
 import { ExternalMediaPlayerReq } from '@workspace/protocol';
 
 @Controller()
@@ -29,3 +29,4 @@ export class ExternalMediaNatsController {
     }
   }
 }
+

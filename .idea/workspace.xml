@@ -4,17 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="job remider livesession">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update ui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/directLink.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/directLink.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/livekit.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/livekit.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,8 +56,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
+    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
   },
   &quot;recentNewPullRequestHead&quot;: {
     &quot;server&quot;: {
@@ -106,7 +99,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;fix-ui-web-admin&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;refactor-meet-service&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -414,46 +407,10 @@
       <workItem from="1775540769831" duration="4356000" />
       <workItem from="1775547519434" duration="5443000" />
       <workItem from="1775718020192" duration="8518000" />
-    </task>
-    <task id="LOCAL-01194" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775478567772</created>
-      <option name="number" value="01194" />
-      <option name="presentableId" value="LOCAL-01194" />
-      <option name="project" value="LOCAL" />
-      <updated>1775478567772</updated>
-    </task>
-    <task id="LOCAL-01195" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775478860779</created>
-      <option name="number" value="01195" />
-      <option name="presentableId" value="LOCAL-01195" />
-      <option name="project" value="LOCAL" />
-      <updated>1775478860779</updated>
-    </task>
-    <task id="LOCAL-01196" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775479163558</created>
-      <option name="number" value="01196" />
-      <option name="presentableId" value="LOCAL-01196" />
-      <option name="project" value="LOCAL" />
-      <updated>1775479163558</updated>
-    </task>
-    <task id="LOCAL-01197" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775479305763</created>
-      <option name="number" value="01197" />
-      <option name="presentableId" value="LOCAL-01197" />
-      <option name="project" value="LOCAL" />
-      <updated>1775479305763</updated>
-    </task>
-    <task id="LOCAL-01198" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775480817706</created>
-      <option name="number" value="01198" />
-      <option name="presentableId" value="LOCAL-01198" />
-      <option name="project" value="LOCAL" />
-      <updated>1775480817706</updated>
+      <workItem from="1775728662547" duration="698000" />
+      <workItem from="1775729642038" duration="96000" />
+      <workItem from="1775730262347" duration="7000" />
+      <workItem from="1775737045496" duration="6152000" />
     </task>
     <task id="LOCAL-01199" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -807,7 +764,47 @@
       <option name="project" value="LOCAL" />
       <updated>1775725363613</updated>
     </task>
-    <option name="localTasksCounter" value="1243" />
+    <task id="LOCAL-01243" summary="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any">
+      <option name="closed" value="true" />
+      <created>1775728924258</created>
+      <option name="number" value="01243" />
+      <option name="presentableId" value="LOCAL-01243" />
+      <option name="project" value="LOCAL" />
+      <updated>1775728924258</updated>
+    </task>
+    <task id="LOCAL-01244" summary="feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services.">
+      <option name="closed" value="true" />
+      <created>1775740757801</created>
+      <option name="number" value="01244" />
+      <option name="presentableId" value="LOCAL-01244" />
+      <option name="project" value="LOCAL" />
+      <updated>1775740757802</updated>
+    </task>
+    <task id="LOCAL-01245" summary="update ui">
+      <option name="closed" value="true" />
+      <created>1775743546587</created>
+      <option name="number" value="01245" />
+      <option name="presentableId" value="LOCAL-01245" />
+      <option name="project" value="LOCAL" />
+      <updated>1775743546587</updated>
+    </task>
+    <task id="LOCAL-01246" summary="update ui">
+      <option name="closed" value="true" />
+      <created>1775746291280</created>
+      <option name="number" value="01246" />
+      <option name="presentableId" value="LOCAL-01246" />
+      <option name="project" value="LOCAL" />
+      <updated>1775746291280</updated>
+    </task>
+    <task id="LOCAL-01247" summary="update ui">
+      <option name="closed" value="true" />
+      <created>1775746648251</created>
+      <option name="number" value="01247" />
+      <option name="presentableId" value="LOCAL-01247" />
+      <option name="project" value="LOCAL" />
+      <updated>1775746648251</updated>
+    </task>
+    <option name="localTasksCounter" value="1248" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -842,8 +839,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update learning path" />
-    <MESSAGE value="feat: learning pathway for course (#339)" />
     <MESSAGE value="feat: record coupon usage in order processing" />
     <MESSAGE value="Refactor notifications page UI &amp; behavior&#10;&#10;Simplify and reorganize the learner notifications page: remove search/filters/delete actions and related state, streamline notification mapping, and improve accessibility and loading/empty states.&#10;&#10;Key changes:&#10;- Removed unused imports and components (Search Input, several lucide icons).&#10;- Dropped complex type/category mapping and fields from the UI Notification shape; mapNotificationToUI now only maps id/title/message/date/time/read.&#10;- Removed search/filter UI and related state; notifications are shown as a simple list with loading/empty states.&#10;- Mark notifications as read on item click (and via keyboard Enter/Space) using useMarkNotificationAsRead; kept mark-all-as-read action.&#10;- Simplified card styles and layout for responsiveness and clarity.&#10;- Use unread count to show header summary; improved loading/empty visuals.&#10;&#10;Notes: This is a behavioral/UX refactor—removes delete and category-based filtering and changes Notification interface shape in the component. Adjust callers if they relied on the removed fields or behaviors." />
     <MESSAGE value="feat: improve price normalization and enhance catalog item types in academy course API" />
@@ -861,13 +856,15 @@
     <MESSAGE value="refactor: refactor course review" />
     <MESSAGE value="refactor: enhance role management with create, update, and delete functionalities" />
     <MESSAGE value="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities" />
-    <MESSAGE value="update ui" />
     <MESSAGE value="core: remove interface" />
     <MESSAGE value="update logic payment gift course" />
     <MESSAGE value="update UI meetting footer" />
     <MESSAGE value="feat: update legacy code" />
     <MESSAGE value="job remider livesession" />
-    <option name="LAST_COMMIT_MESSAGE" value="job remider livesession" />
+    <MESSAGE value="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any" />
+    <MESSAGE value="feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services." />
+    <MESSAGE value="update ui" />
+    <option name="LAST_COMMIT_MESSAGE" value="update ui" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

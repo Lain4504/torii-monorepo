@@ -7,7 +7,7 @@
 
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { WebhookService } from './webhook.service';
+import { WebhookService } from '@server/meet/infrastructure/webhook/webhook.service';
 
 /**
  * WebhookController handles NATS messages for webhook events
@@ -19,11 +19,10 @@ export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 
   /**
-     * HandleWebhookEvent receives webhook events from gateway via NATS
-
-     * 
-     * @pattern webhook.handle
-     */
+   * HandleWebhookEvent receives webhook events from gateway via NATS
+   *
+   * @pattern webhook.handle
+   */
   @MessagePattern({ cmd: 'webhook.handle' })
   async handleWebhookEvent(@Payload() event: any): Promise<void> {
     if (!event || !event.event) {
@@ -62,3 +61,4 @@ export class WebhookController {
     }
   }
 }
+

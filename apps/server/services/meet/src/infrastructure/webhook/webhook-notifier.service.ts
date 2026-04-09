@@ -7,7 +7,7 @@ import {
 import { PrismaService, AppConfigService } from '@server/shared';
 import { WebhookNotifier } from '@server/shared';
 import type { CommonNotifyEvent } from '@workspace/protocol';
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import {
   RedisWebhookService,
   WEBHOOK_CLEANUP_SUBJECT,

@@ -4,7 +4,7 @@
 
 import { Module, forwardRef } from '@nestjs/common';
 import { ArtifactsService } from './artifacts.service';
-import { ArtifactsHandler } from '@server/meet/modules/artifacts/artifacts.handler';
+import { ArtifactsHandler } from '@server/meet/transport/nats/handlers/artifacts.handler';
 import { SharedModule } from '@server/shared';
 import { WebhookModule } from '@server/meet/infrastructure/webhook/webhook.module';
 

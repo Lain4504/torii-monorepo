@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { ExternalDisplayService } from './external-display.service';
+import { ExternalDisplayService } from '@server/meet/modules/external-display/external-display.service';
 import { ExternalDisplayLinkReq } from '@workspace/protocol';
 
 @Controller()
@@ -31,3 +31,4 @@ export class ExternalDisplayNatsController {
     }
   }
 }
+

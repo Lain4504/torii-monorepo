@@ -6,9 +6,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RoomInfoService } from './room-info.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
-import { NatsUserInfoService } from '@server/meet/services/nats-user-info.service';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+import { NatsUserInfoService } from '@server/meet/infrastructure/nats/nats-user-info.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 import { waitUntilRoomCreationCompletes } from './room-lock.helper';
 import {
@@ -20,8 +20,8 @@ import {
 } from '@workspace/protocol';
 import { v4 as uuidv4 } from 'uuid';
 import { create } from '@bufbuild/protobuf';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/infrastructure/nats/nats-room-events.service';
 import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import {

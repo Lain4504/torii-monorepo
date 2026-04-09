@@ -391,31 +391,23 @@ const MicrophoneIcon = () => {
     selectedAudioDevice !== '' || isActiveMicrophone || isLocked;
 
   const baseBorderClasses = clsx(
-    'border-[3px] 3xl:border-4 transition-colors duration-300',
+    'border border-border transition-colors duration-300',
     {
       'border-destructive! pointer-events-none opacity-60': isLocked,
-      'border-primary/40 bg-primary/10':
+      'border-primary/40 bg-muted':
         isMicConfigured && isActiveMicrophone && !isMicMuted && !isLocked,
-      'border-destructive bg-destructive/10 text-destructive':
+      'border-destructive bg-muted text-destructive':
         !isLocked && isMicMuted && isActiveMicrophone,
-      'border-border/60':
-        !isLocked &&
-        !isActiveMicrophone &&
-        selectedAudioDevice !== '',
-      'border-transparent':
-        !isLocked &&
-        !isActiveMicrophone &&
-        selectedAudioDevice === '',
     },
   );
 
   const roundButtonClasses = clsx(
-    'meet-footer-ctrl-pill footer-icon footer-icon-bg relative flex items-center justify-center h-10 md:h-11 3xl:h-[52px] w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full overflow-visible text-foreground',
+    'meet-footer-ctrl-pill footer-icon relative flex items-center justify-center !h-10 md:!h-11 3xl:!h-[52px] !w-10 md:!w-11 3xl:!w-[52px] aspect-square min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full overflow-visible text-foreground bg-card shadow-sm hover:bg-muted',
     baseBorderClasses,
   );
 
   const pillWrapperClasses = clsx(
-    'meet-footer-ctrl-pill footer-icon footer-icon-bg relative flex items-stretch overflow-visible text-foreground h-10 md:h-11 3xl:h-[52px] rounded-full',
+    'meet-footer-ctrl-pill footer-icon relative flex items-center overflow-visible text-foreground !h-10 md:!h-11 3xl:!h-[52px] rounded-full bg-card shadow-sm hover:bg-muted',
     baseBorderClasses,
   );
 
@@ -429,16 +421,16 @@ const MicrophoneIcon = () => {
   const renderMainIcon = () => {
     if (!isActiveMicrophone) {
       return selectedAudioDevice === '' ? (
-        <Mic className={'h-4 3xl:h-5 w-auto'} />
+        <Mic className="h-5 w-5 3xl:h-6 3xl:w-6" />
       ) : (
-        <MicOff className={'h-4 3xl:h-5 w-auto'} />
+        <MicOff className="h-5 w-5 3xl:h-6 3xl:w-6" />
       );
     }
 
     return isMicMuted ? (
-      <MicOff className={'h-4 3xl:h-5 w-auto'} />
+      <MicOff className="h-5 w-5 3xl:h-6 3xl:w-6" />
     ) : (
-      <Mic className={'h-4 3xl:h-5 w-auto'} />
+      <Mic className="h-5 w-5 3xl:h-6 3xl:w-6" />
     );
   };
 
@@ -493,7 +485,7 @@ const MicrophoneIcon = () => {
             <button
               type="button"
               className={clsx(
-                'relative flex items-center justify-center rounded-l-full px-4 md:px-5 3xl:px-6',
+                'relative flex items-center justify-center rounded-l-full w-10 md:w-11 3xl:w-[52px]',
                 'transition-colors duration-200',
               )}
               onClick={manageMic}
@@ -512,7 +504,7 @@ const MicrophoneIcon = () => {
                 isMicMuted={isMicMuted}
                 onPrimaryAction={manageMic}
                 buttonClassName={clsx(
-                  'flex h-full min-h-0 w-9 md:w-10 3xl:w-12 items-center justify-center rounded-r-full border-0 border-l border-white/15 pl-0.5',
+                  'flex h-full min-h-0 w-8 md:w-9 3xl:w-10 items-center justify-center rounded-r-full border-0 border-l border-white/15',
                   'transition-colors duration-200',
                   isMicMuted && isActiveMicrophone ? 'text-destructive' : '',
                 )}

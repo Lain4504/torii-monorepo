@@ -9,6 +9,7 @@ import clsx from 'clsx';
 import { store, useAppSelector } from '@/store';
 import { getNatsConn } from '@/helpers/nats';
 import { Hand } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 const RaiseHandIcon = () => {
   const conn = getNatsConn();
@@ -43,34 +44,23 @@ const RaiseHandIcon = () => {
     return null;
   }
 
-  const wrapperClasses = clsx(
-    'raise-hand relative footer-icon cursor-pointer w-10 md:w-11 3xl:w-[52px] h-10 md:h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
-    {
-      'border-primary/25': isActiveRaisehand,
-      'border-transparent': !isActiveRaisehand,
-    },
-  );
-
-  const innerDivClasses = clsx(
-    'footer-icon-bg h-full w-full flex items-center justify-center rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted text-foreground',
-    {
-      'has-tooltip': showTooltip,
-      'bg-muted': isActiveRaisehand,
-      'bg-card': !isActiveRaisehand,
-    },
-  );
-
   return (
-    <div className={wrapperClasses} onClick={toggleRaiseHand}>
-      <div className={innerDivClasses}>
-        <span className="tooltip">
-          {isActiveRaisehand
-            ? 'Hạ tay'
-            : 'Giơ tay'}
-        </span>
-        <Hand className={'h-4 md:h-5 w-auto'} />
-      </div>
-    </div>
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      onClick={toggleRaiseHand}
+      className={clsx(
+        'raise-hand footer-icon relative h-10 w-10 rounded-full border-border bg-card shadow-sm hover:bg-muted md:h-11 md:w-11 3xl:h-[52px] 3xl:w-[52px]',
+        {
+          'has-tooltip': showTooltip,
+          'bg-muted': isActiveRaisehand,
+        },
+      )}
+    >
+      <span className="tooltip">{isActiveRaisehand ? 'Hạ tay' : 'Giơ tay'}</span>
+      <Hand className="h-4 w-4 md:h-5 md:w-5" />
+    </Button>
   );
 };
 

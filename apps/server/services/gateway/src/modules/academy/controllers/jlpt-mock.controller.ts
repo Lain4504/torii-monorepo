@@ -393,6 +393,24 @@ export class JlptMockController {
     }
   }
 
+  @Delete('admin/templates/:id')
+  async adminDeleteTemplate(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.delete' },
+          { id, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
   @Post('admin/templates/:id/attach-questions')
   async adminAttachQuestions(
     @Req() req: ReqWithRequester,

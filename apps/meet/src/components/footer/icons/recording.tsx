@@ -7,6 +7,7 @@ import RecordingModal from '@/components/footer/icons/recording/recordingModal';
 import { RecordingEvent, RecordingType } from '@/components/footer/icons/recording/IRecording';
 import useLocalRecording from '@/components/footer/icons/recording/useLocalRecording';
 import { CircleDot } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 const RecordingIcon = () => {
   const {
@@ -79,24 +80,6 @@ const RecordingIcon = () => {
     return null;
   }
 
-  const buttonClasses = clsx(
-    'recorder-icon relative footer-icon cursor-pointer w-10 md:w-11 3xl:w-[52px] h-10 md:h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
-    {
-      'record border-destructive/20': isRecording,
-      'border-transparent': !isRecording,
-      'opacity-50 pointer-events-none': disable,
-    },
-  );
-
-  const innerDivClasses = clsx(
-    'footer-icon-bg h-full w-full flex items-center justify-center rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted text-foreground',
-    {
-      'has-tooltip': showTooltip,
-      'bg-muted': isRecording,
-      'bg-card': !isRecording,
-    },
-  );
-
   return (
     <>
       {openModal && (
@@ -106,21 +89,30 @@ const RecordingIcon = () => {
           onCloseModal={onCloseModal}
         />
       )}
-    <div className={buttonClasses} onClick={() => onClickRecordingBtn()}>
-      <div className={innerDivClasses}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        onClick={() => onClickRecordingBtn()}
+        className={clsx(
+          'recorder-icon footer-icon relative h-10 w-10 rounded-full border-border bg-card shadow-sm hover:bg-muted md:h-11 md:w-11 3xl:h-[52px] 3xl:w-[52px]',
+          {
+            'has-tooltip': showTooltip,
+            'bg-muted': isRecording,
+            'opacity-50 pointer-events-none': disable,
+          },
+        )}
+      >
         <span className="tooltip">
-          {isRecording
-            ? 'Dừng ghi âm/hình'
-            : 'Bắt đầu ghi âm/hình'}
+          {isRecording ? 'Dừng ghi âm/hình' : 'Bắt đầu ghi âm/hình'}
         </span>
         <CircleDot
-          className={clsx('w-4 md:w-5 3xl:w-6 h-auto transition-colors duration-300', {
+          className={clsx('h-4 w-4 transition-colors duration-300 md:h-5 md:w-5 3xl:h-6 3xl:w-6', {
             'text-destructive animate-pulse': isRecording,
             'text-foreground': !isRecording,
           })}
         />
-      </div>
-    </div>
+      </Button>
     </>
   );
 };

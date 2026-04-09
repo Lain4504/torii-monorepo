@@ -24,16 +24,16 @@ import {
   PrivateDataDeliverySchema,
 } from '@workspace/protocol';
 import { fromBinary } from '@bufbuild/protobuf';
-import { NatsUserInfoService } from '@server/meet/services/nats-user-info.service';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
+import { NatsUserInfoService } from '@server/meet/infrastructure/nats/nats-user-info.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
 import {
   NatsUserService,
   USER_STATUS_ONLINE,
-} from '@server/meet/services/nats-user.service';
+} from '@server/meet/infrastructure/nats/nats-user.service';
 
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import { AppConfigService } from '@server/shared';
 
 /**
