@@ -7,7 +7,7 @@
  */
 
 import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
 import { NatsKvUserInfo } from '@workspace/protocol';
 
 export const USER_METADATA_KEY = 'metadata';

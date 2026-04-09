@@ -1,7 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { RecordingService } from './recording.service';
-import { RecordingInfoService } from './recording-info.service';
+import { RecordingService } from '@server/meet/modules/recording/recording.service';
+import { RecordingInfoService } from '@server/meet/modules/recording/recording-info.service';
 import {
   RecordingReqSchema,
   CommonResponseSchema,
@@ -113,3 +113,4 @@ export class RecordingNatsController {
     }
   }
 }
+

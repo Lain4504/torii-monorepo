@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { FileService } from './file.service';
+import { FileService } from '@server/meet/modules/file/file.service';
 import {
   UploadedFileMergeReq,
   GetRoomUploadedFilesReq,
@@ -41,3 +41,4 @@ export class FileNatsController {
     return this.fileService.getRoomFilesByType(req.roomId, req.fileType);
   }
 }
+

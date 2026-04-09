@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { BreakoutService } from './breakout.service';
-import { BreakoutNatsController } from './breakout.nats.controller';
+import { BreakoutNatsController } from '@server/meet/transport/nats/handlers/breakout.nats.controller';
 import { SharedModule } from '@server/shared';
 import { RoomModule } from '@server/meet/modules/room/room.module';
 import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';

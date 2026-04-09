@@ -20,9 +20,9 @@ import {
   AnalyticsDataMsg,
 } from '@workspace/protocol';
 import { RedisPollService } from '@server/meet/infrastructure/redis/redis-poll.service';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/infrastructure/nats/nats-room-events.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 
 @Injectable()

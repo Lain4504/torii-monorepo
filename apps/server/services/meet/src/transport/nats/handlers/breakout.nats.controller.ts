@@ -1,6 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { BreakoutService } from './breakout.service';
+import { BreakoutService } from '@server/meet/modules/breakout/breakout.service';
 import {
   CreateBreakoutRoomsReq,
   JoinBreakoutRoomReq,
@@ -161,3 +161,4 @@ export class BreakoutNatsController {
     }
   }
 }
+

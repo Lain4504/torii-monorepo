@@ -7,8 +7,8 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import type { ChangeVisibilityRes } from '@workspace/protocol';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/infrastructure/nats/nats-room-events.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 
 /**

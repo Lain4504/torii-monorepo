@@ -25,16 +25,16 @@ import {
   PastRoomInfoSchema,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import {
   NatsRoomService,
   ROOM_STATUS_ACTIVE,
   ROOM_STATUS_CREATED,
-} from '@server/meet/services/nats-room.service';
+} from '@server/meet/infrastructure/nats/nats-room.service';
 import {
   NatsUserInfoService,
   USER_METADATA_KEY,
-} from '@server/meet/services/nats-user-info.service';
+} from '@server/meet/infrastructure/nats/nats-user-info.service';
 import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 import { waitUntilRoomCreationCompletes } from '@server/meet/modules/room/room-lock.helper';

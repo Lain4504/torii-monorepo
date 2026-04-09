@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import {
   NatsUserService,
   USER_STATUS_OFFLINE,
-} from '@server/meet/services/nats-user.service';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
+} from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
 import { NatsMsgServerToClientEvents } from '@workspace/protocol';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 

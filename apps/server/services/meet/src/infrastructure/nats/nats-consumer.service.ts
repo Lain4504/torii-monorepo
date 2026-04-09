@@ -5,8 +5,8 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsStreamService } from '@server/meet/services/nats-stream.service';
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsStreamService } from '@server/meet/infrastructure/nats/nats-stream.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import { AppConfigService } from '@server/shared';
 
 @Injectable()

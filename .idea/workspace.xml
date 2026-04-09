@@ -5,69 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook-notifier.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook-notifier.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/nats/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/nats/nats-system-events.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/nats/nats-user-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/nats/nats-user-info.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/nats/nats.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/nats/nats.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/infrastructure/webhook/webhook.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/analytics/analytics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/analytics/analytics.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/artifacts/artifacts.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/auth/wajlc-auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/auth/wajlc-auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.nats.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/breakout/breakout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.nats.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-display/external-display.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.nats.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/external-media/external-media.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.nats.controller.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/file/file.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/ingress/ingress.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/insights/insights.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/janitor/janitor-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/polls/polls.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.nats.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/recording/recording.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-create.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-create.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-duration.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-duration.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-end.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-end.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-info.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-modify.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-modify.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-user.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room-user.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/room.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/room/user.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/speech-to-text/speech-to-text.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/waiting-room/waiting-room.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/modules/waiting-room/waiting-room.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/modules/waiting-room/waiting-room.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-auth-callout.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-auth-callout.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-cache.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-consumer.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-room-events.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-room.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-stream.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-system-events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-system-events.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user-info.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user-info.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-system-events.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats-user-info.service.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/meet/src/services/nats.service.ts" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -470,7 +416,7 @@
       <workItem from="1775728662547" duration="698000" />
       <workItem from="1775729642038" duration="96000" />
       <workItem from="1775730262347" duration="7000" />
-      <workItem from="1775737045496" duration="1822000" />
+      <workItem from="1775737045496" duration="2397000" />
     </task>
     <task id="LOCAL-01195" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />

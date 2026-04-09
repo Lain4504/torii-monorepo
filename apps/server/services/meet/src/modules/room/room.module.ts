@@ -28,9 +28,9 @@ import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.s
 import { RedisRoomService } from '@server/meet/infrastructure/redis/redis-room.service';
 
 // Handlers
-import { RoomHandler } from '@server/meet/modules/room/room.handler';
-import { UserHandler } from '@server/meet/modules/room/user.handler';
-import { WaitingRoomHandler } from '@server/meet/modules/waiting-room/waiting-room.handler';
+import { RoomHandler } from '@server/meet/transport/nats/handlers/room.handler';
+import { UserHandler } from '@server/meet/transport/nats/handlers/user.handler';
+import { WaitingRoomHandler } from '@server/meet/transport/nats/handlers/waiting-room.handler';
 
 @Module({
   imports: [

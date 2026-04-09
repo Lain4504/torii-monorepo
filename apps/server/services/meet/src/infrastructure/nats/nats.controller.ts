@@ -17,12 +17,12 @@ import {
   Inject,
   forwardRef,
 } from '@nestjs/common';
-import { NatsService } from './nats.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
-import { NatsUserService } from './nats-user.service';
-import { NatsAuthCalloutService } from './nats-auth-callout.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsAuthCalloutService } from '@server/meet/infrastructure/nats/nats-auth-callout.service';
 import { RetentionPolicy, AckPolicy } from 'nats';
-import { NatsSystemEventsService } from './nats-system-events.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { fromBinary, fromJsonString } from '@bufbuild/protobuf';
 import {
   NatsMsgClientToServerSchema,

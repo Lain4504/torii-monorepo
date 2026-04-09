@@ -20,13 +20,13 @@ import {
   NatsUserMetadataUpdateSchema,
 } from '@workspace/protocol';
 import { toJsonString } from '@bufbuild/protobuf';
-import { NatsService } from '@server/meet/services/nats.service';
-import { NatsConsumerService } from '@server/meet/services/nats-consumer.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
+import { NatsConsumerService } from '@server/meet/infrastructure/nats/nats-consumer.service';
 import {
   NatsRoomService,
   ROOM_STATUS_ENDED,
-} from '@server/meet/services/nats-room.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+} from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
 
@@ -957,11 +957,7 @@ export class NatsUserService {
     }
 
     // Final cleanup: Delete NATS consumer
-    await this.natsConsumerService
-      .deleteConsumer(roomId, userId)
-      .catch(() => {});
-    this.logger.log(
-      `User ${userId} offline tasks completed for room ${roomId}`,
-    );
+    await this.natsConsumerService.deleteConsumer(roomId, userId).catch(() => {});
+    this.logger.log(`User ${userId} offline tasks completed for room ${roomId}`);
   }
 }
