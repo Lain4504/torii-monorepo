@@ -303,7 +303,12 @@ export default function CheckoutPage() {
                                     <div className="relative w-full overflow-hidden rounded-xl border bg-muted">
                                         <div className="relative h-40 w-full sm:h-48 md:h-56">
                                             <Image
-                                                src={product.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'}
+                                                src={
+                                                    selectedClass?.thumbnailUrl ||
+                                                    product.thumbnailUrl ||
+                                                    selectedClass?.courseProfile?.thumbnailUrl ||
+                                                    '/default-thumbnail.jpg'
+                                                }
                                                 alt={product.learnerDisplayTitle || product.name}
                                                 fill
                                                 className="object-cover"

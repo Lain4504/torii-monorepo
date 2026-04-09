@@ -53,7 +53,10 @@ export class AssignmentSubmissionController {
 
   private async assertLearnerEnrolledInClass(userId: string, classId: string) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.enrollment.check' }, { userId, classId }),
+      this.nats.send(
+        { cmd: 'academy.enrollment.checkByTarget' },
+        { userId, targetType: 'CLASS', targetId: classId },
+      ),
     );
     if (!result?.isEnrolled) {
       throw new ForbiddenException('You are not enrolled in this class');

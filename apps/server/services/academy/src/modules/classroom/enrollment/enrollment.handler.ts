@@ -37,19 +37,23 @@ export class EnrollmentHandler {
     return this.enrollments.completeEnrollment(data.id, data.requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.enrollment.check' })
-  check(
+  /**
+   * New explicit check command (no legacy aliases).
+   * Prefer this over `academy.enrollment.check`.
+   */
+  @MessagePattern({ cmd: 'academy.enrollment.checkByTarget' })
+  checkByTarget(
     @Payload()
     data: {
       userId: string;
-      liveClassId?: string;
-      vodPackageId?: string;
+      targetId: string;
+      targetType: 'CLASS' | 'VOD_PACKAGE';
     },
   ) {
     return this.enrollments.checkEligibility(
       data.userId,
-      data.liveClassId || data.vodPackageId || '',
-      data.liveClassId ? 'CLASS' : 'COURSE',
+      data.targetId,
+      data.targetType,
     );
   }
 
@@ -59,7 +63,7 @@ export class EnrollmentHandler {
     data: {
       userId: string;
       targetId: string;
-      targetType: 'CLASS' | 'COURSE';
+      targetType: 'CLASS' | 'VOD_PACKAGE' | 'COURSE_PROFILE';
     },
   ) {
     return this.enrollments.checkEligibility(

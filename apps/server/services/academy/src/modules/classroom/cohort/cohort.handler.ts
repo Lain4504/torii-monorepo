@@ -16,6 +16,11 @@ export class CohortHandler {
     return this.service.findById(data.id);
   }
 
+  @MessagePattern({ cmd: 'academy.cohort.findByIdPublic' })
+  findByIdPublic(@Payload() data: { id: string }) {
+    return this.service.findByIdPublic(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.cohort.create' })
   create(@Payload() data: any) {
     return this.service.create(data);

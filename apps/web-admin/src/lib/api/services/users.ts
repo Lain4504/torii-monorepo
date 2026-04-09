@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
 import type {
     PaginatedApiResponse,
@@ -102,6 +103,18 @@ export function useUsers(params: FindAllUsersParams) {
         queryKey: ['users', params],
         queryFn: () => usersApi.findAll(params),
         staleTime: 30000,
+    });
+}
+
+export function useUsersQuery(
+    params: FindAllUsersParams,
+    options?: Omit<UseQueryOptions<PaginatedApiResponse<UserResponseDTO>>, 'queryKey' | 'queryFn'>,
+) {
+    return useQuery({
+        queryKey: ['users', params],
+        queryFn: () => usersApi.findAll(params),
+        staleTime: 30000,
+        ...options,
     });
 }
 

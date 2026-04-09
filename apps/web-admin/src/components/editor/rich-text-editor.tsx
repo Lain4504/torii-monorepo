@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+ import { useEffect, useState, useRef } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 
 // ─────────────────────────────────────────────────────────────
@@ -29,6 +29,7 @@ export function RichTextEditor({
   const isControlled = controlledOnChange !== undefined;
   const [internalValue, setInternalValue] = useState(initialContent ?? '');
   const lastPushedValue = useRef(initialContent ?? '');
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>('light');
 
   const value = isControlled ? (controlledValue ?? '') : internalValue;
 
@@ -41,6 +42,18 @@ export function RichTextEditor({
     }
   }, [initialContent, isControlled]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const syncMode = () => {
+      setColorMode(root.classList.contains('dark') ? 'dark' : 'light');
+    };
+
+    syncMode();
+    const observer = new MutationObserver(syncMode);
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   const handleChange = (val?: string) => {
     const newValue = val ?? '';
     if (!isControlled) {
@@ -52,7 +65,7 @@ export function RichTextEditor({
   };
 
   return (
-    <div className="w-full" data-color-mode="light">
+    <div className="w-full" data-color-mode={colorMode}>
       <MDEditor
         value={value}
         onChange={handleChange}
@@ -77,12 +90,26 @@ interface RichTextRendererProps {
 }
 
 export function RichTextRenderer({ content, className }: RichTextRendererProps) {
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const syncMode = () => {
+      setColorMode(root.classList.contains('dark') ? 'dark' : 'light');
+    };
+
+    syncMode();
+    const observer = new MutationObserver(syncMode);
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   if (!content) {
     return <div className={className ?? 'text-muted-foreground text-sm italic'}>Không có nội dung.</div>;
   }
 
   return (
-    <div className={className ?? 'w-full'} data-color-mode="light">
+    <div className={className ?? 'w-full'} data-color-mode={colorMode}>
       <MDEditor.Markdown source={content} style={{ whiteSpace: 'pre-wrap' }} />
     </div>
   );

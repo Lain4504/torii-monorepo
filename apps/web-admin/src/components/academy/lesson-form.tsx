@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { toast } from "@workspace/ui/components/sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -68,6 +69,7 @@ export function LessonForm({
     handleSubmit,
     control,
     watch,
+    reset,
   } = useForm<LessonFormValues>({
     resolver: zodResolver(enhancedSchema),
     defaultValues: {
@@ -77,6 +79,15 @@ export function LessonForm({
       ...defaultValues,
     },
   })
+
+  useEffect(() => {
+    reset({
+      title: "",
+      type: "VIDEO",
+      videoUrl: undefined,
+      ...defaultValues,
+    } as any)
+  }, [defaultValues, reset])
 
   const contentType = watch("type")
   const isMediaUrlType = contentType === "VIDEO"

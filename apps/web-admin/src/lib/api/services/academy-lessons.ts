@@ -73,9 +73,9 @@ export function useAcademyLessons(params: AcademyLessonQueryDTO) {
   })
 }
 
-export function useAcademyLesson(id?: string) {
+export function useAcademyLesson(id?: string, options?: { enabled?: boolean }) {
   return useQuery({
-    enabled: !!id,
+    enabled: options?.enabled ?? !!id,
     queryKey: ["academy-lesson", id],
     queryFn: () => academyLessonsApi.findById(id!),
   })

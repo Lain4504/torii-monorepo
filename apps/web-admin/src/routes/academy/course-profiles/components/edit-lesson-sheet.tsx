@@ -9,7 +9,7 @@ import {
 } from "@workspace/ui/components/sheet"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useQueryClient } from "@tanstack/react-query"
-import { useUpdateAcademyLesson } from "@/lib/api/services/academy-lessons"
+import { useAcademyLesson, useUpdateAcademyLesson } from "@/lib/api/services/academy-lessons"
 
 export function EditLessonDialog({
   open,
@@ -24,6 +24,7 @@ export function EditLessonDialog({
 }) {
   const updateLessonMutation = useUpdateAcademyLesson()
   const qc = useQueryClient()
+  const { data: fetchedLesson } = useAcademyLesson(lesson?.id, { enabled: open && !!lesson?.id })
 
   async function onSubmit(values: any) {
     if (!lesson) return
@@ -53,10 +54,10 @@ export function EditLessonDialog({
             <LessonForm
               mode="edit"
               defaultValues={{
-                title: lesson?.title ?? "",
-                type: lesson?.type ?? "VIDEO",
-                videoUrl: lesson?.videoUrl ?? undefined,
-                content: lesson?.content ?? undefined,
+                title: fetchedLesson?.title ?? lesson?.title ?? "",
+                type: fetchedLesson?.type ?? lesson?.type ?? "VIDEO",
+                videoUrl: fetchedLesson?.videoUrl ?? lesson?.videoUrl ?? undefined,
+                content: fetchedLesson?.content ?? lesson?.content ?? undefined,
               }}
               submitting={updateLessonMutation.isPending}
               onSubmit={onSubmit}

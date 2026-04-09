@@ -185,58 +185,52 @@ export function AcademyAssignmentList({
                         <ChevronRight className="mr-2 size-4 rotate-180" /> Quay lại danh sách
                     </Button>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <div className="lg:col-span-8 space-y-6">
-                            <Card className="rounded-[2rem] border-zinc-100 shadow-sm">
-                                <CardHeader className="p-8 pb-4">
-                                    <div className="flex items-center justify-between gap-4 mb-4">
-                                        <Badge className="bg-primary/10 text-primary border-none font-bold px-4 py-1 rounded-full uppercase text-[10px] tracking-widest">
-                                            Chi tiết bài tập
-                                        </Badge>
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                        <div className="space-y-6 lg:col-span-8">
+                            <Card>
+                                <CardHeader className="space-y-3">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Badge variant="secondary">Chi tiết bài tập</Badge>
                                         {selectedAssignment.deadline && (
-                                            <div className="text-xs font-bold text-red-500 flex items-center gap-2 bg-red-50 px-3 py-1 rounded-full">
-                                                <Clock className="size-3.5" />
+                                            <Badge variant="destructive">
                                                 Hết hạn: {format(new Date(selectedAssignment.deadline), 'dd/MM/yyyy HH:mm')}
-                                            </div>
+                                            </Badge>
                                         )}
                                     </div>
-                                    <CardTitle className="text-3xl font-extrabold">{selectedAssignment.titleOverride || selectedAssignment.assignment?.title}</CardTitle>
+                                    <CardTitle className="text-xl font-semibold">
+                                        {selectedAssignment.titleOverride || selectedAssignment.assignment?.title}
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-8 pt-4">
-                                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                                        <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                            {selectedAssignment.assignment?.instructions || "Giảng viên chưa cung cấp hướng dẫn chi tiết."}
-                                        </p>
-                                    </div>
+                                <CardContent>
+                                    <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                                        {selectedAssignment.assignment?.instructions || "Giảng viên chưa cung cấp hướng dẫn chi tiết."}
+                                    </p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="rounded-[2rem] border-zinc-100 shadow-sm overflow-hidden">
-                                <CardHeader className="p-8 border-b bg-zinc-50/50">
-                                    <CardTitle className="text-xl font-bold flex items-center gap-3">
-                                        <Send className="size-5 text-primary" /> Bài nộp của bạn
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-base">
+                                        <Send className="size-4" /> Bài nộp của bạn
                                     </CardTitle>
-                                    <CardDescription className="text-xs font-medium">Link nộp bài (Github, Drive, Notion...) hoặc nội dung văn bản</CardDescription>
+                                    <CardDescription>
+                                        Link nộp bài (Github, Drive, Notion...) hoặc nội dung văn bản
+                                    </CardDescription>
                                 </CardHeader>
-                                <CardContent className="p-8 pt-6 space-y-6">
-                                    <Textarea 
+                                <CardContent className="space-y-4">
+                                    <Textarea
                                         placeholder="Nhập đường dẫn bài làm hoặc ghi chú nộp bài của bạn..."
-                                        className="min-h-[150px] rounded-2xl bg-zinc-50/50 border-zinc-100 focus:bg-white transition-all ring-primary/10 resize-none p-6 text-sm"
+                                        className="min-h-[132px] resize-none"
                                         value={submissionContent}
                                         onChange={(e) => setSubmissionContent(e.target.value)}
                                         disabled={getSubmissionStatus(selectedAssignment.assignmentId).label.includes('Đã nộp')}
                                     />
-                                    
-                                    <div className="flex items-center justify-end gap-3">
-                                        <Button 
-                                            variant="outline" 
-                                            className="rounded-xl px-12 h-12 font-bold"
-                                            onClick={handleCloseDetail}
-                                        >
+
+                                    <div className="flex items-center justify-end gap-2">
+                                        <Button variant="outline" onClick={handleCloseDetail}>
                                             Hủy
                                         </Button>
-                                        <Button 
-                                            className="rounded-xl px-12 h-12 font-bold bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20"
+                                        <Button
                                             onClick={handleSubmit}
                                             disabled={submitMutation.isPending || !submissionContent || getSubmissionStatus(selectedAssignment.assignmentId).label.includes('Đã nộp')}
                                         >
@@ -257,28 +251,28 @@ export function AcademyAssignmentList({
                             </Card>
                         </div>
 
-                        <div className="lg:col-span-4 space-y-6">
+                        <div className="space-y-6 lg:col-span-4">
                             {/* Feedback Section */}
                             {(() => {
                                 const submission = mySubmissions?.find(s => s.assignmentTemplateId === selectedAssignment.assignmentId)
                                 if (!submission || !submission.feedback) return null;
 
                                 return (
-                                    <Card className="rounded-[2.5rem] border-primary/20 bg-primary/[0.02] shadow-sm overflow-hidden">
-                                        <CardHeader className="p-6 bg-primary/10">
-                                            <CardTitle className="text-sm font-black flex items-center gap-2 text-primary uppercase tracking-widest">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2 text-base">
                                                 <MessageSquare className="size-4" /> Phản hồi giáo viên
                                             </CardTitle>
                                         </CardHeader>
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="space-y-0.5">
-                                                    <div className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-wider">Kết quả</div>
-                                                    <div className="text-xl font-black text-primary">{submission.grade ?? submission.score ?? '--'} / 100</div>
+                                        <CardContent>
+                                            <div className="mb-4 flex items-center justify-between">
+                                                <div className="space-y-1">
+                                                    <div className="text-xs text-muted-foreground">Kết quả</div>
+                                                    <div className="text-lg font-semibold">{submission.grade ?? submission.score ?? '--'} / 100</div>
                                                 </div>
-                                                <Trophy className="size-8 text-primary opacity-20" />
+                                                <Trophy className="size-5 text-muted-foreground" />
                                             </div>
-                                            <p className="text-sm font-medium leading-relaxed italic text-muted-foreground border-l-2 border-primary/20 pl-4 py-1">
+                                            <p className="border-l pl-3 text-sm italic text-muted-foreground">
                                                 "{submission.feedback}"
                                             </p>
                                         </CardContent>
@@ -286,37 +280,31 @@ export function AcademyAssignmentList({
                                 )
                             })()}
 
-                            <Card className="rounded-[2rem] border-zinc-100 shadow-sm">
-                                <CardHeader className="p-6">
-                                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Thông tin nộp bài</CardTitle>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base">Thông tin nộp bài</CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-6 pt-0 space-y-4">
+                                <CardContent className="space-y-4">
                                     {(() => {
                                         const submission = mySubmissions?.find(s => s.assignmentTemplateId === selectedAssignment.assignmentId)
                                         return (
                                             <>
                                                 <div className="space-y-1">
-                                                    <div className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
-                                                        Trạng thái
-                                                    </div>
-                                                    <Badge className={cn("border-none px-3 py-1 font-bold text-[10px]", getSubmissionStatus(selectedAssignment.assignmentId).color)}>
+                                                    <p className="text-xs text-muted-foreground">Trạng thái</p>
+                                                    <Badge className={cn("border-none", getSubmissionStatus(selectedAssignment.assignmentId).color)}>
                                                         {getSubmissionStatus(selectedAssignment.assignmentId).label}
                                                     </Badge>
                                                 </div>
                                                 {submission?.submittedAt && (
                                                     <div className="space-y-1">
-                                                        <div className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
-                                                            Ngày nộp
-                                                        </div>
-                                                        <div className="text-xs font-bold">{format(new Date(submission.submittedAt), 'dd/MM/yyyy HH:mm')}</div>
+                                                        <p className="text-xs text-muted-foreground">Ngày nộp</p>
+                                                        <p className="text-sm font-medium">{format(new Date(submission.submittedAt), 'dd/MM/yyyy HH:mm')}</p>
                                                     </div>
                                                 )}
                                                 {submission?.gradedAt && (
                                                     <div className="space-y-1">
-                                                        <div className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
-                                                            Ngày chấm
-                                                        </div>
-                                                        <div className="text-xs font-bold">{format(new Date(submission.gradedAt), 'dd/MM/yyyy HH:mm')}</div>
+                                                        <p className="text-xs text-muted-foreground">Ngày chấm</p>
+                                                        <p className="text-sm font-medium">{format(new Date(submission.gradedAt), 'dd/MM/yyyy HH:mm')}</p>
                                                     </div>
                                                 )}
                                             </>

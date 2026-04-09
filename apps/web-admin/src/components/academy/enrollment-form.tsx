@@ -41,7 +41,7 @@ import {
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { useAcademyVodPackages } from "@/lib/api/services/academy-vod-packages"
-import { useUsers } from "@/lib/api/services/users"
+import { useUsersQuery } from "@/lib/api/services/users"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
 
 export function EnrollmentForm({
@@ -67,6 +67,9 @@ export function EnrollmentForm({
     const [classSearch, setClassSearch] = useState("")
     const [debouncedClassSearch] = useDebounceValue(classSearch, 500)
     const [openClassPopover, setOpenClassPopover] = useState(false)
+    const [openVodPopover, setOpenVodPopover] = useState(false)
+    const [vodSearch, setVodSearch] = useState("")
+    const [debouncedVodSearch] = useDebounceValue(vodSearch, 500)
 
     const { data: classesData = [], isLoading: loadingClasses } = useAcademyLiveClasses({
         q: debouncedClassSearch,
@@ -74,18 +77,20 @@ export function EnrollmentForm({
     const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
 
     const { data: vodPackagesData = [], isLoading: loadingVodPackages } = useAcademyVodPackages({
-        q: debouncedClassSearch,
+        q: debouncedVodSearch,
     })
     const vodPackages = Array.isArray(vodPackagesData) ? vodPackagesData : (vodPackagesData as any)?.items || []
 
-    const [search, setSearch] = useState("")
-    const [debouncedSearch] = useDebounceValue(search, 500)
+    const [userSearch, setUserSearch] = useState("")
+    const [debouncedUserSearch] = useDebounceValue(userSearch, 400)
     const [openUserPopover, setOpenUserPopover] = useState(false)
 
-    const { data: learnersData, isLoading: loadingLearners } = useUsers({
+    const { data: learnersData, isLoading: loadingLearners } = useUsersQuery({
         role: "learner",
-        search: debouncedSearch,
+        search: debouncedUserSearch,
         limit: 100,
+    }, {
+        enabled: openUserPopover,
     })
     const learners = learnersData?.data || []
 
@@ -193,7 +198,7 @@ export function EnrollmentForm({
                                         render={({ field, fieldState }) => (
                                             <Field>
                                                 <FieldLabel>Gói VOD</FieldLabel>
-                                                <Popover>
+                                                <Popover open={openVodPopover} onOpenChange={setOpenVodPopover}>
                                                     <PopoverTrigger asChild>
                                                         <Button
                                                             variant="outline"
@@ -210,8 +215,8 @@ export function EnrollmentForm({
                                                         <Command shouldFilter={false}>
                                                             <CommandInput
                                                                 placeholder="Tìm gói VOD..."
-                                                                value={classSearch}
-                                                                onValueChange={setClassSearch}
+                                                                value={vodSearch}
+                                                                onValueChange={setVodSearch}
                                                             />
                                                             <CommandList className="max-h-72 overflow-y-auto">
                                                                 {loadingVodPackages && (
@@ -229,6 +234,7 @@ export function EnrollmentForm({
                                                                             value={pkg.id}
                                                                             onSelect={() => {
                                                                                 field.onChange(pkg.id)
+                                                                                setOpenVodPopover(false)
                                                                             }}
                                                                         >
                                                                             <Check
@@ -269,7 +275,11 @@ export function EnrollmentForm({
                                                     className="w-full justify-between font-normal"
                                                 >
                                                     {field.value
-                                                        ? learners.find((u: any) => u.id === field.value)?.displayName || "Đã chọn học viên"
+                                                        ? (() => {
+                                                            const selectedUser = learners.find((u: any) => u.id === field.value)
+                                                            if (!selectedUser) return "Đã chọn học viên"
+                                                            return `${selectedUser.displayName} (${selectedUser.email})`
+                                                        })()
                                                         : "Chọn học viên..."}
                                                     <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                 </Button>
@@ -277,9 +287,9 @@ export function EnrollmentForm({
                                             <PopoverContent className="w-[400px] p-0" align="start">
                                                 <Command shouldFilter={false}>
                                                     <CommandInput
-                                                        placeholder="Tìm học viên (tên hoặc email)..."
-                                                        value={search}
-                                                        onValueChange={setSearch}
+                                                        placeholder="Nhập email hoặc tên học viên (tìm qua API)..."
+                                                        value={userSearch}
+                                                        onValueChange={setUserSearch}
                                                     />
                                                     <CommandList className="max-h-72 overflow-y-auto">
                                                         {loadingLearners && (

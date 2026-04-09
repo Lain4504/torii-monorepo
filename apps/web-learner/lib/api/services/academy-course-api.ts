@@ -96,6 +96,8 @@ function normalizeProductForLearner(item: any) {
     classesForCohort: normalizedClasses,
   });
 
+  const firstClassWithThumbnail = normalizedClasses.find((cls: any) => !!cls?.thumbnailUrl);
+
   return {
     ...item,
     classes: normalizedClasses,
@@ -107,6 +109,8 @@ function normalizeProductForLearner(item: any) {
     discountPrice: parsedDiscountPrice,
     thumbnailUrl:
       item.thumbnailUrl ||
+      primaryClass?.thumbnailUrl ||
+      firstClassWithThumbnail?.thumbnailUrl ||
       profile?.thumbnailUrl ||
       item.metadata?.thumbnailUrl ||
       null,

@@ -155,7 +155,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="!w-full sm:!max-w-[680px] p-0 flex flex-col overflow-hidden">
+      <SheetContent className="w-full sm:max-w-[800px] p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-6 py-4 border-b shrink-0">
           <SheetTitle>
             {questionId ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
@@ -168,7 +168,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
         </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0">
-          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="px-6 py-5 space-y-5">
+          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 overflow-x-hidden">
 
             {/* Nội dung câu hỏi */}
             <div className="space-y-2">
@@ -294,7 +294,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                   Bấm vào ô để đánh dấu đáp án đúng
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {fields.map((field, index) => {
                   const isCorrect = form.watch(`options.${index}.isCorrect`)
                   return (

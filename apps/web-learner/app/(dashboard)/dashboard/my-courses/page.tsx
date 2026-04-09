@@ -16,6 +16,13 @@ import {
 } from 'lucide-react'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+import {
+    Item,
+    ItemContent,
+    ItemGroup,
+    ItemMedia,
+    ItemTitle
+} from '@workspace/ui/components/item'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
@@ -101,7 +108,7 @@ export default function MyCoursesPage() {
 
             </div>
 
-            {/* Next Live Session Alert - Redesigned to be Premium */}
+            {/* Next Live Session */}
             {(() => {
                 const now = new Date();
                 if (isLoadingSchedule || !schedule || schedule.length === 0) return null;
@@ -117,51 +124,56 @@ export default function MyCoursesPage() {
                 const isLive = uiState === 'live' || uiState === 'joinable';
 
                 return (
-                    <div className={cn(
-                        "relative overflow-hidden border rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 transition-all",
-                        isLive 
-                            ? "bg-red-50/50 dark:bg-red-950/10 border-red-200 dark:border-red-900/30" 
-                            : "bg-primary/5 border-primary/10"
-                    )}>
-                        <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-                            <div className={cn(
-                                "size-14 rounded-2xl flex items-center justify-center border shrink-0",
-                                isLive ? "bg-red-100 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600" : "bg-card border-border/40 text-primary"
-                            )}>
-                                <Video className={cn("size-6", isLive && "animate-pulse")} />
-                            </div>
-                            <div className="space-y-1.5 focus:outline-none">
-                                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                                    <Badge variant={isLive ? "destructive" : "outline"} className="text-[9px] font-bold px-2 py-0.5 rounded-lg border-none">
-                                        {isLive ? "ĐANG DIỄN RA" : "BUỔI HỌC TIẾP THEO"}
-                                    </Badge>
-                                    <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-wider">{nextSession.courseTitle}</span>
+                    <Card>
+                        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                            <div className="flex items-start gap-3">
+                                <div className="rounded-md border p-2 text-primary">
+                                    <Video className="size-4" />
                                 </div>
-                                <h2 className="text-xl font-bold tracking-tight text-foreground">{nextSession.title}</h2>
-                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1 text-[11px] font-bold text-muted-foreground/60">
-                                    <span className="flex items-center gap-1.5"><Calendar className="size-3.5 text-primary" /> {format(new Date(nextSession.scheduledAt), 'EEEE, dd/MM - HH:mm', { locale: vi })}</span>
-                                    <span className="flex items-center gap-1.5"><Clock className="size-3.5 text-primary" /> {nextSession.duration} phút</span>
+                                <div className="space-y-2">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Badge variant={isLive ? "destructive" : "secondary"}>
+                                            {isLive ? "Đang diễn ra" : "Buổi học sắp tới"}
+                                        </Badge>
+                                        <Badge variant="outline">{nextSession.courseTitle}</Badge>
+                                    </div>
+                                    <p className="text-sm font-semibold">{nextSession.title}</p>
+                                    <ItemGroup className="gap-2">
+                                        <Item size="sm" className="border px-2 py-1 shadow-none">
+                                            <ItemMedia variant="icon"><Calendar /></ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle className="text-xs font-medium">
+                                                    {format(new Date(nextSession.scheduledAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                                </ItemTitle>
+                                            </ItemContent>
+                                        </Item>
+                                        <Item size="sm" className="border px-2 py-1 shadow-none">
+                                            <ItemMedia variant="icon"><Clock /></ItemMedia>
+                                            <ItemContent>
+                                                <ItemTitle className="text-xs font-medium">{nextSession.duration} phút</ItemTitle>
+                                            </ItemContent>
+                                        </Item>
+                                    </ItemGroup>
                                 </div>
                             </div>
-                        </div>
 
-                        {canJoin && (
-                            <Button 
-                                className="h-12 px-10 rounded-2xl font-bold text-sm shadow-lg shadow-primary/20 shrink-0"
-                                onClick={async () => {
-                                    try {
-                                        const joinData = await liveSessionApi.joinSession(nextSession.id);
-                                        const MEET_URL = (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com');
-                                        const url = `${MEET_URL}?access_token=${joinData.token}`;
-                                        window.open(url, '_blank', 'noopener,noreferrer');
-                                    } catch (err) {}
-                                }}
-                            >
-                                Vào lớp ngay
-                                <ChevronRight className="ml-2 size-4" />
-                            </Button>
-                        )}
-                    </div>
+                            {canJoin ? (
+                                <Button
+                                    onClick={async () => {
+                                        try {
+                                            const joinData = await liveSessionApi.joinSession(nextSession.id);
+                                            const MEET_URL = (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com');
+                                            const url = `${MEET_URL}?access_token=${joinData.token}`;
+                                            window.open(url, '_blank', 'noopener,noreferrer');
+                                        } catch (err) {}
+                                    }}
+                                >
+                                    Vào lớp ngay
+                                    <ChevronRight className="ml-2 size-4" />
+                                </Button>
+                            ) : null}
+                        </CardContent>
+                    </Card>
                 );
             })()}
 

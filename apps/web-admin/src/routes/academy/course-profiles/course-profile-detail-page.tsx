@@ -5,7 +5,7 @@ import { useAcademyCourseProfile, useSubmitAcademyCourseProfileForApproval } fro
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { useAcademyVodPackages } from "@/lib/api/services/academy-vod-packages"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical } from "lucide-react"
+import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical, Eye } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -56,6 +56,7 @@ import { CreateCourseModuleDialog } from "./components/create-module-dialog"
 import { EditCourseModuleDialog } from "./components/edit-module-dialog"
 import { CreateLessonDialog } from "./components/create-lesson-sheet"
 import { EditLessonDialog } from "./components/edit-lesson-sheet"
+import { ViewLessonDialog } from "./components/view-lesson-sheet"
 import { useDeleteAcademyCourseModule, useReorderAcademyCourseModules } from "@/lib/api/services/academy-course-modules"
 import { useDeleteAcademyLesson, useReorderAcademyLessons } from "@/lib/api/services/academy-lessons"
 import { toast } from "sonner"
@@ -109,6 +110,8 @@ export default function CourseProfileDetailPage() {
 
   const [editLessonOpen, setEditLessonOpen] = useState(false)
   const [editingLesson, setEditingLesson] = useState<any | null>(null)
+  const [viewLessonOpen, setViewLessonOpen] = useState(false)
+  const [viewingLesson, setViewingLesson] = useState<any | null>(null)
 
   const [deleteModuleConfirm, setDeleteModuleConfirm] = useState<{
     open: boolean
@@ -513,6 +516,18 @@ export default function CourseProfileDetailPage() {
                                                 </div>
 
                                                 <div className="flex items-center gap-1">
+                                                  <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 px-2"
+                                                    onClick={() => {
+                                                      setViewingLesson(lesson)
+                                                      setViewLessonOpen(true)
+                                                    }}
+                                                  >
+                                                    <Eye className="size-4 sm:mr-1" />
+                                                    <span className="hidden sm:inline">Xem</span>
+                                                  </Button>
                                                   {!isLocked && (
                                                       <Button
                                                         variant="outline"
@@ -790,6 +805,17 @@ export default function CourseProfileDetailPage() {
           onOpenChange={setEditLessonOpen}
           lesson={editingLesson}
           courseProfileId={profileId as string}
+        />
+      )}
+
+      {viewingLesson && (
+        <ViewLessonDialog
+          open={viewLessonOpen}
+          onOpenChange={(open) => {
+            setViewLessonOpen(open)
+            if (!open) setViewingLesson(null)
+          }}
+          lesson={viewingLesson}
         />
       )}
 

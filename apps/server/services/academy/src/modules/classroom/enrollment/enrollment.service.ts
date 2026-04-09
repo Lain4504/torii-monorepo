@@ -511,12 +511,20 @@ export class EnrollmentService {
   async checkEligibility(
     userId: string,
     targetId: string,
-    targetType: 'CLASS' | 'COURSE',
+    targetType: 'CLASS' | 'VOD_PACKAGE' | 'COURSE_PROFILE',
   ) {
     const where =
       targetType === 'CLASS'
         ? { userId, liveClassId: targetId }
-        : { userId, vodPackageId: targetId };
+        : targetType === 'VOD_PACKAGE'
+          ? { userId, vodPackageId: targetId }
+          : {
+              userId,
+              OR: [
+                { vodPackage: { courseProfileId: targetId } },
+                { liveClass: { cohort: { courseProfileId: targetId } } },
+              ],
+            };
     const enrollment = await this.prisma.enrollment.findFirst({
       where: { ...where, status: { in: ['ACTIVE', 'COMPLETED'] } },
       include: {

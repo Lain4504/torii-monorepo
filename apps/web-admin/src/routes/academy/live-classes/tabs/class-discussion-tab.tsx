@@ -134,6 +134,7 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
     }
     const discussionId =
       (selectedTopic as any)?.discussionId ||
+      (selectedTopic as any)?.__lessonId ||
       (selectedLessonId !== 'all' ? selectedLessonId : '')
     if (!discussionId) {
       toast.error('Không xác định được bài học cho phản hồi này')
@@ -289,15 +290,13 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
                 <TableHead>Trạng thái</TableHead>
                 <TableHead>Nội dung</TableHead>
                 <TableHead>Thời gian</TableHead>
-                <TableHead className="text-right">Phản hồi</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {topics.map((topic: any) => (
                 <TableRow
                   key={topic.id}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedTopic(topic)}
                 >
                   <TableCell className="font-medium">
                     {topic.author?.displayName || "Học viên"}
@@ -321,7 +320,13 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
                     {formatDate(topic.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {topic.replyCount ?? 0}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSelectedTopic(topic)}
+                    >
+                      Phản hồi
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

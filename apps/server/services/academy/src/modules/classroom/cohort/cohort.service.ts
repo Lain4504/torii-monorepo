@@ -136,6 +136,85 @@ export class CohortService {
     return item;
   }
 
+  async findByIdPublic(id: string) {
+    const item = await this.prisma.cohort.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        courseProfileId: true,
+        code: true,
+        name: true,
+        status: true,
+        rejectionReason: true,
+        submittedForApprovalAt: true,
+        enrollmentOpenAt: true,
+        enrollmentCloseAt: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+        updatedAt: true,
+        courseProfile: {
+          select: {
+            id: true,
+            code: true,
+            title: true,
+            description: true,
+            level: true,
+            thumbnailUrl: true,
+            status: true,
+            submittedForApprovalAt: true,
+            submittedBy: true,
+            approvedAt: true,
+            approvedBy: true,
+            createdAt: true,
+            updatedAt: true,
+            modules: {
+              select: {
+                id: true,
+                courseProfileId: true,
+                title: true,
+                orderIndex: true,
+                createdAt: true,
+                updatedAt: true,
+                lessons: {
+                  select: {
+                    id: true,
+                    moduleId: true,
+                    type: true,
+                    title: true,
+                    orderIndex: true,
+                    createdAt: true,
+                    updatedAt: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        liveClasses: {
+          select: {
+            id: true,
+            cohortId: true,
+            code: true,
+            name: true,
+            status: true,
+            instructorId: true,
+            maxStudents: true,
+            price: true,
+            discountPrice: true,
+            thumbnailUrl: true,
+            createdAt: true,
+            updatedAt: true,
+            instructor: { select: { id: true, displayName: true } },
+            _count: { select: { enrollments: true } },
+          },
+        },
+      },
+    });
+    if (!item) throw new NotFoundException('Cohort not found');
+    return item;
+  }
+
   async create(data: AcademyCohortCreateDTO) {
     if (data.status === 'PENDING_APPROVAL') {
       throw new BadRequestException(

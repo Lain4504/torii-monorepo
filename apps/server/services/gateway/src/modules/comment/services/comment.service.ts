@@ -278,12 +278,12 @@ export class CommentService {
     const authorizedIds: string[] = [];
     for (const targetId of candidateIds) {
       // Determine if it's a Live Class or VOD Package for the correct enrollment check
-      let enrollmentTargetType: 'CLASS' | 'COURSE' = 'CLASS';
+      let enrollmentTargetType: 'CLASS' | 'VOD_PACKAGE' = 'CLASS';
       const isVodPackage = await this.prisma.vodPackage.findFirst({
         where: { id: targetId },
         select: { id: true },
       });
-      if (isVodPackage) enrollmentTargetType = 'COURSE';
+      if (isVodPackage) enrollmentTargetType = 'VOD_PACKAGE';
 
       const result = await firstValueFrom(
         this.natsClient.send(

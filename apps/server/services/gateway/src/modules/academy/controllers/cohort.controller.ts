@@ -59,7 +59,7 @@ export class CohortController {
   @Get('public/:id')
   async findByIdPublic(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.cohort.findById' }, { id }),
+      this.nats.send({ cmd: 'academy.cohort.findByIdPublic' }, { id }),
     );
     return successResponse({ item });
   }

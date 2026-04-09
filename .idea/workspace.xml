@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update ui">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/directLink.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/directLink.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/livekit.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/livekit.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: update build config" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,7 +16,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1850" />
+    <option name="cachedIndexableFilesCount" value="1894" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -39,7 +35,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="redesign" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,8 +52,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   },
   &quot;recentNewPullRequestHead&quot;: {
     &quot;server&quot;: {
@@ -99,7 +95,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;refactor-meet-service&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -112,7 +108,7 @@
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -168,7 +164,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -411,54 +407,8 @@
       <workItem from="1775729642038" duration="96000" />
       <workItem from="1775730262347" duration="7000" />
       <workItem from="1775737045496" duration="6152000" />
-    </task>
-    <task id="LOCAL-01199" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775483339229</created>
-      <option name="number" value="01199" />
-      <option name="presentableId" value="LOCAL-01199" />
-      <option name="project" value="LOCAL" />
-      <updated>1775483339229</updated>
-    </task>
-    <task id="LOCAL-01200" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775487079171</created>
-      <option name="number" value="01200" />
-      <option name="presentableId" value="LOCAL-01200" />
-      <option name="project" value="LOCAL" />
-      <updated>1775487079171</updated>
-    </task>
-    <task id="LOCAL-01201" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775487439059</created>
-      <option name="number" value="01201" />
-      <option name="presentableId" value="LOCAL-01201" />
-      <option name="project" value="LOCAL" />
-      <updated>1775487439060</updated>
-    </task>
-    <task id="LOCAL-01202" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775488351709</created>
-      <option name="number" value="01202" />
-      <option name="presentableId" value="LOCAL-01202" />
-      <option name="project" value="LOCAL" />
-      <updated>1775488351709</updated>
-    </task>
-    <task id="LOCAL-01203" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775488530627</created>
-      <option name="number" value="01203" />
-      <option name="presentableId" value="LOCAL-01203" />
-      <option name="project" value="LOCAL" />
-      <updated>1775488530628</updated>
-    </task>
-    <task id="LOCAL-01204" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775488608736</created>
-      <option name="number" value="01204" />
-      <option name="presentableId" value="LOCAL-01204" />
-      <option name="project" value="LOCAL" />
-      <updated>1775488608736</updated>
+      <workItem from="1775754644934" duration="2857000" />
+      <workItem from="1775759401993" duration="2968000" />
     </task>
     <task id="LOCAL-01205" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -804,7 +754,55 @@
       <option name="project" value="LOCAL" />
       <updated>1775746648251</updated>
     </task>
-    <option name="localTasksCounter" value="1248" />
+    <task id="LOCAL-01248" summary="refactor: refactor meet service (#356)&#10;&#10;* chore: update workspace configuration with job push notification details and new service paths&#10;&#10;* feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services.">
+      <option name="closed" value="true" />
+      <created>1775749683577</created>
+      <option name="number" value="01248" />
+      <option name="presentableId" value="LOCAL-01248" />
+      <option name="project" value="LOCAL" />
+      <updated>1775749683577</updated>
+    </task>
+    <task id="LOCAL-01249" summary="refactor: update layout styles to use new surface color tokens">
+      <option name="closed" value="true" />
+      <created>1775754371799</created>
+      <option name="number" value="01249" />
+      <option name="presentableId" value="LOCAL-01249" />
+      <option name="project" value="LOCAL" />
+      <updated>1775754371799</updated>
+    </task>
+    <task id="LOCAL-01250" summary="chore: update build config">
+      <option name="closed" value="true" />
+      <created>1775756468196</created>
+      <option name="number" value="01250" />
+      <option name="presentableId" value="LOCAL-01250" />
+      <option name="project" value="LOCAL" />
+      <updated>1775756468196</updated>
+    </task>
+    <task id="LOCAL-01251" summary="chore: update build config">
+      <option name="closed" value="true" />
+      <created>1775756731693</created>
+      <option name="number" value="01251" />
+      <option name="presentableId" value="LOCAL-01251" />
+      <option name="project" value="LOCAL" />
+      <updated>1775756731693</updated>
+    </task>
+    <task id="LOCAL-01252" summary="chore: update build config">
+      <option name="closed" value="true" />
+      <created>1775757126430</created>
+      <option name="number" value="01252" />
+      <option name="presentableId" value="LOCAL-01252" />
+      <option name="project" value="LOCAL" />
+      <updated>1775757126430</updated>
+    </task>
+    <task id="LOCAL-01253" summary="chore: update build config">
+      <option name="closed" value="true" />
+      <created>1775759608812</created>
+      <option name="number" value="01253" />
+      <option name="presentableId" value="LOCAL-01253" />
+      <option name="project" value="LOCAL" />
+      <updated>1775759608812</updated>
+    </task>
+    <option name="localTasksCounter" value="1254" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -821,7 +819,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="fix-ui-web-admin" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -839,8 +837,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: record coupon usage in order processing" />
-    <MESSAGE value="Refactor notifications page UI &amp; behavior&#10;&#10;Simplify and reorganize the learner notifications page: remove search/filters/delete actions and related state, streamline notification mapping, and improve accessibility and loading/empty states.&#10;&#10;Key changes:&#10;- Removed unused imports and components (Search Input, several lucide icons).&#10;- Dropped complex type/category mapping and fields from the UI Notification shape; mapNotificationToUI now only maps id/title/message/date/time/read.&#10;- Removed search/filter UI and related state; notifications are shown as a simple list with loading/empty states.&#10;- Mark notifications as read on item click (and via keyboard Enter/Space) using useMarkNotificationAsRead; kept mark-all-as-read action.&#10;- Simplified card styles and layout for responsiveness and clarity.&#10;- Use unread count to show header summary; improved loading/empty visuals.&#10;&#10;Notes: This is a behavioral/UX refactor—removes delete and category-based filtering and changes Notification interface shape in the component. Adjust callers if they relied on the removed fields or behaviors." />
     <MESSAGE value="feat: improve price normalization and enhance catalog item types in academy course API" />
     <MESSAGE value="style: improve layout and spacing in dashboard components" />
     <MESSAGE value="fix ui web-adin" />
@@ -855,7 +851,6 @@
     <MESSAGE value="feat: introduce AcademyQuestionCategoryType enum and refactor question handling" />
     <MESSAGE value="refactor: refactor course review" />
     <MESSAGE value="refactor: enhance role management with create, update, and delete functionalities" />
-    <MESSAGE value="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities" />
     <MESSAGE value="core: remove interface" />
     <MESSAGE value="update logic payment gift course" />
     <MESSAGE value="update UI meetting footer" />
@@ -864,7 +859,10 @@
     <MESSAGE value="feat: implement job push notification for mobile app&#10;&#10;* update ui&#10;&#10;* core: remove interface&#10;&#10;* check email reward gift course&#10;&#10;* rebuild exxam result&#10;&#10;* update logic payment gift course&#10;&#10;* update UI meetting footer&#10;&#10;* analystic chart&#10;&#10;* feat: update legacy code&#10;&#10;* job remider livesession&#10;&#10;* fix any" />
     <MESSAGE value="feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services." />
     <MESSAGE value="update ui" />
-    <option name="LAST_COMMIT_MESSAGE" value="update ui" />
+    <MESSAGE value="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities" />
+    <MESSAGE value="refactor: refactor meet service (#356)&#10;&#10;* chore: update workspace configuration with job push notification details and new service paths&#10;&#10;* feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services." />
+    <MESSAGE value="chore: update build config" />
+    <option name="LAST_COMMIT_MESSAGE" value="chore: update build config" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

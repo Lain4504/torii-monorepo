@@ -60,7 +60,7 @@ export class LessonController {
           {
             userId: requester.sub,
             targetId: query.courseProfileId,
-            targetType: 'COURSE',
+            targetType: 'COURSE_PROFILE',
           },
         ),
       );
@@ -103,7 +103,7 @@ export class LessonController {
           {
             userId: requester.sub,
             targetId: courseProfileId,
-            targetType: 'COURSE',
+            targetType: 'COURSE_PROFILE',
           },
         ),
       );

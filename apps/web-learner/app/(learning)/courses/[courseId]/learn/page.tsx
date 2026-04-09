@@ -41,6 +41,7 @@ import type { AcademyLessonModel } from '@workspace/schemas';
 import { LessonDiscussion } from '@/components/courses/lesson-discussion';
 import { AcademyResourceList } from '@/components/courses/academy-resource-list';
 import { CourseCompletionModal } from '@/components/courses/course-completion-modal';
+import { MarkdownRenderer } from '@/components/common/markdown-renderer';
 
 
 // ─── Constants & Utils ────────────────────────────────────────────────────────
@@ -314,10 +315,16 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
                     
                 </header>
 
-                <div 
-                    className="prose prose-slate dark:prose-invert max-w-none prose-p:text-base prose-p:leading-relaxed prose-headings:font-bold prose-img:rounded-2xl prose-img:shadow-lg prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-xl"
-                    dangerouslySetInnerHTML={{ __html: lesson?.content || '<p class="text-muted-foreground italic text-lg text-center py-20">Nội dung đang được soạn thảo...</p>' }} 
-                />
+                {lesson?.content ? (
+                    <MarkdownRenderer
+                        content={lesson.content}
+                        className="prose prose-slate dark:prose-invert max-w-none prose-p:text-base prose-p:leading-relaxed prose-headings:font-bold prose-img:rounded-2xl prose-img:shadow-lg prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-xl"
+                    />
+                ) : (
+                    <p className="text-muted-foreground italic text-lg text-center py-20">
+                        Nội dung đang được soạn thảo...
+                    </p>
+                )}
 
                 <footer className="mt-10">
                     <Card>

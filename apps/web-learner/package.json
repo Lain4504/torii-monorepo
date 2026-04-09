@@ -32,6 +32,7 @@
     "framer-motion": "^12.25.0",
     "isomorphic-dompurify": "^3.8.0",
     "livekit-client": "2.16.1",
+    "livekit-server-sdk": "^2.15.0",
     "lucide-react": "^0.475.0",
     "marked": "17.0.1",
     "nanoid": "^5.1.6",

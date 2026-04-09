@@ -13,12 +13,10 @@ import { useAcademyEnrollmentCheck } from "@/lib/api/services/academy-enrollment
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { 
-    Calendar, Clock, Video, BookOpen, Users, 
-    ChevronRight, Trophy, FileText, Sparkles,
-    PlayCircle, Star, ShieldCheck,
-    ArrowRight, FileIcon
+    Calendar, Clock, Video, BookOpen, Users,
+    ChevronLeft, ChevronRight, Trophy, FileText,
+    PlayCircle, ShieldCheck, ArrowRight, FileIcon
 } from "lucide-react"
 import { format, isSameDay, startOfWeek, addDays } from "date-fns"
 import { vi } from "date-fns/locale"
@@ -87,7 +85,7 @@ export function LiveClassDashboard() {
 
     const { data: academyClass, isLoading: classLoading } = useAcademyClass(classId);
     const { data: schedule, isLoading: scheduleLoading } = useClassSchedule(classId);
-    const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
+    const { data: curriculum } = useCurriculum(classId);
     const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(classId);
 
     const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -106,427 +104,249 @@ export function LiveClassDashboard() {
 
     if (classLoading || scheduleLoading || enrollmentLoading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-                <div className="size-10 rounded-2xl border-2 border-primary/20 border-t-primary animate-spin" />
-                <p className="text-sm font-semibold text-muted-foreground animate-pulse">Đang tải thông tin lớp học...</p>
+            <div className="flex min-h-[400px] flex-col items-center justify-center gap-3">
+                <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+                <p className="text-sm text-muted-foreground">Đang tải thông tin lớp học...</p>
             </div>
-        );
+        )
     }
 
     if (!academyClass) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8 bg-card border border-dashed rounded-3xl">
-                <div className="size-16 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Card className="mx-auto mt-4 max-w-2xl">
+                <CardContent className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-center">
                     <ShieldCheck className="size-8 text-muted-foreground" />
-                </div>
-                <h2 className="text-xl font-bold">Không tìm thấy dữ liệu lớp học</h2>
-                <p className="text-muted-foreground text-sm mt-2 max-w-md">Lớp học bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập.</p>
-                <Button className="mt-8 font-bold rounded-xl px-8" variant="default" onClick={() => router.push('/dashboard/my-courses')}>
-                    Quay lại danh sách khóa học
-                </Button>
-            </div>
-        );
+                    <h2 className="text-lg font-semibold">Không tìm thấy dữ liệu lớp học</h2>
+                    <p className="max-w-md text-sm text-muted-foreground">
+                        Lớp học bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập.
+                    </p>
+                    <Button onClick={() => router.push("/dashboard/my-courses")}>
+                        Quay lại danh sách khóa học
+                    </Button>
+                </CardContent>
+            </Card>
+        )
     }
 
-    const sessions = schedule || [];
-    const ongoingSession = sessions.find(s => canJoinLiveSessionNow(s));
-    const upcomingSessions = [...sessions]
-        .filter(s => new Date(s.scheduledAt) > new Date())
-        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+    const sessions = schedule || []
+    const ongoingSession = sessions.find((s) => canJoinLiveSessionNow(s))
 
-    const enrollment = enrollmentData?.enrollment as any;
-    const progress = enrollment?.progress || (enrollmentData as any)?.progress || 0;
+    const description =
+        (academyClass as any).courseProfile?.description ||
+        "Chào mừng bạn đến với lớp học trực tiếp. Theo dõi lịch học để không bỏ lỡ nội dung quan trọng."
+    const thumbnail =
+        academyClass.thumbnailUrl ||
+        (academyClass as any).courseProfile?.thumbnailUrl ||
+        (academyClass as any).cohort?.courseProfile?.thumbnailUrl ||
+        "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
+    const startDateValue =
+        (academyClass as any).cohort?.startDate || academyClass.startDate
+    const instructorName =
+        (academyClass as any).instructor?.displayName ||
+        (academyClass as any).courseProfile?.instructorName ||
+        "Torii Instructor"
+    const level = (academyClass as any).courseProfile?.level || "JLPT Standard"
 
     return (
-        <div className="space-y-6">
-            {/* 1. Dashboard-style Header Banner */}
-            <header>
-                <Card className="overflow-hidden border bg-card shadow-sm rounded-2xl">
-                    <div className="grid grid-cols-1 lg:grid-cols-12">
-                        {/* Info Left */}
-                        <div className="space-y-6 p-6 lg:col-span-8 md:p-8">
-                            <div className="flex flex-wrap items-center gap-4">
-                                <Badge className="bg-primary/90 hover:bg-primary text-white border-none px-4 py-1 rounded-full font-bold text-xs">
-                                    Lớp học trực tiếp
-                                </Badge>
-                                {ongoingSession && (
-                                    <Badge variant="destructive" className="animate-pulse px-4 py-1 rounded-full font-bold text-xs shadow-lg shadow-red-500/20">
-                                        Đang diễn ra
-                                    </Badge>
-                                )}
-                                <span className="text-xs font-bold text-muted-foreground/60 bg-muted/50 px-3 py-1 rounded-full">
-                                    {academyClass.code}
-                                </span>
-                            </div>
+        <div className="space-y-6 pb-8">
+            <Card className="overflow-hidden">
+                <div className="grid gap-0 lg:grid-cols-3">
+                    <CardContent className="space-y-4 p-6 lg:col-span-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Badge>Lớp học trực tiếp</Badge>
+                            {ongoingSession && <Badge variant="destructive">Đang diễn ra</Badge>}
+                            <Badge variant="outline">{academyClass.code}</Badge>
+                        </div>
 
-                            <div className="space-y-2">
-                                <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                                    {academyClass.name}
-                                </h1>
-                                <p className="max-w-2xl text-sm text-muted-foreground line-clamp-2">
-                                    {(academyClass as any).courseProfile?.description || "Chào mừng bạn đến với lớp học tương tác trực tiếp. Hãy theo dõi lịch học để không bỏ lỡ kiến thức quan trọng."}
+                        <div className="space-y-1">
+                            <h1 className="text-2xl font-semibold">{academyClass.name}</h1>
+                            <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="rounded-md border p-3">
+                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Calendar className="size-3.5" /> Ngày bắt đầu
+                                </p>
+                                <p className="text-sm font-medium">
+                                    {startDateValue ? format(new Date(startDateValue), "dd/MM/yyyy") : "Chưa xác định"}
                                 </p>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4 pt-1 sm:grid-cols-4">
-                                <div className="space-y-1">
-                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                                        <Calendar className="size-3" /> Ngày bắt đầu
-                                    </div>
-                                    <div className="text-sm font-bold">
-                                        {(academyClass as any).cohort?.startDate 
-                                            ? format(new Date((academyClass as any).cohort.startDate), 'dd/MM/yyyy') 
-                                            : academyClass.startDate 
-                                                ? format(new Date(academyClass.startDate), 'dd/MM/yyyy') 
-                                                : 'Chưa xác định'}
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                                        <Users className="size-3" /> Giảng viên
-                                    </div>
-                                    <div className="text-sm font-bold">
-                                        {(academyClass as any).instructor?.displayName || (academyClass as any).courseProfile?.instructorName || "Torii Instructor"}
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                                        <Video className="size-3" /> Số buổi học
-                                    </div>
-                                    <div className="text-sm font-bold">{sessions.length} buổi live</div>
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
-                                        <Trophy className="size-3" /> Trình độ
-                                    </div>
-                                    <div className="text-sm font-bold">{(academyClass as any).courseProfile?.level || "JLPT Standard"}</div>
-                                </div>
+                            <div className="rounded-md border p-3">
+                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Users className="size-3.5" /> Giảng viên
+                                </p>
+                                <p className="text-sm font-medium">{instructorName}</p>
+                            </div>
+                            <div className="rounded-md border p-3">
+                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Video className="size-3.5" /> Số buổi học
+                                </p>
+                                <p className="text-sm font-medium">{sessions.length} buổi live</p>
+                            </div>
+                            <div className="rounded-md border p-3">
+                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Trophy className="size-3.5" /> Trình độ
+                                </p>
+                                <p className="text-sm font-medium">{level}</p>
                             </div>
                         </div>
+                    </CardContent>
 
-                        {/* Visual Right */}
-                        <div className="relative overflow-hidden lg:col-span-4">
-                            <Image
-                                src={
-                                    academyClass.thumbnailUrl || 
-                                    (academyClass as any).courseProfile?.thumbnailUrl || 
-                                    (academyClass as any).cohort?.courseProfile?.thumbnailUrl || 
-                                    "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
-                                }
-                                alt={academyClass.name || "Class Thumbnail"}
-                                fill
-                                className="object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent flex flex-col justify-end p-8">
-                                <Button 
-                                    className="h-11 w-full rounded-xl bg-white text-sm font-semibold text-black hover:bg-zinc-100"
-                                    onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}
-                                >
-                                    <PlayCircle className="mr-2 size-5" />
-                                    Xem lại bài giảng
-                                    <ChevronRight className="ml-auto size-4 opacity-60" />
-                                </Button>
-                            </div>
+                    <div className="relative min-h-[220px] lg:min-h-full">
+                        <Image src={thumbnail} alt={academyClass.name || "Class Thumbnail"} fill className="object-cover" />
+                        <div className="absolute inset-x-4 bottom-4">
+                            <Button className="w-full" onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}>
+                                <PlayCircle className="mr-2 size-4" />
+                                Mở trang học VOD
+                            </Button>
                         </div>
-                    </div>
-                </Card>
-            </header>
-
-            {/* 2. Main content split layout */}
-            <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-3">
-                
-                {/* Column Main: Left Content (2/3) */}
-                <div className="xl:col-span-2 space-y-8">
-                    
-                    {/* Ongoing Alert Section */}
-                    {ongoingSession && (
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-600 to-orange-500 p-5 text-white md:p-6">
-                            <div className="absolute top-0 right-0 p-8 opacity-10">
-                                <Video className="size-32 rotate-12" />
-                            </div>
-                            <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
-                                <div className="space-y-2 text-center md:text-left">
-                                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none font-bold text-xs mb-2">
-                                        Vừa bắt đầu
-                                    </Badge>
-                                    <h3 className="text-2xl md:text-3xl font-bold tracking-normal">{ongoingSession.title}</h3>
-                                    <p className="text-white/80 font-medium flex items-center justify-center md:justify-start gap-2 text-sm">
-                                        <Clock className="size-4" /> Bắt đầu lúc {format(new Date(ongoingSession.scheduledAt), "HH:mm")}
-                                    </p>
-                                </div>
-                                <Button size="lg" className="h-12 w-full rounded-xl bg-white px-8 font-semibold text-red-600 hover:bg-zinc-100 md:w-auto" onClick={() => handleJoinSession(ongoingSession.id)}>
-                                    Vào lớp học ngay
-                                    <ArrowRight className="ml-2 size-5" />
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Weekly Schedule Section */}
-                    <div className="space-y-4">
-                        <div className="flex flex-col justify-between gap-3 px-1 sm:flex-row sm:items-center">
-                            <div className="space-y-1">
-                                <h2 className="text-2xl font-bold flex items-center gap-3">
-                                    <Calendar className="size-6 text-primary" />
-                                    Lịch biểu trong tuần
-                                </h2>
-                                <p className="text-xs text-muted-foreground font-semibold">Theo dõi lịch trình để không bỏ lỡ buổi học</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Button variant="outline" size="icon" className="rounded-xl h-10 w-10 border-border/50 bg-card hover:bg-muted" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>
-                                    <ChevronRight className="rotate-180 size-4" />
-                                </Button>
-                                <div className="bg-muted px-6 py-2 rounded-xl text-xs font-bold tracking-normal min-w-[160px] text-center">
-                                    {format(currentWeekStart, "dd/MM")} — {format(addDays(currentWeekStart, 6), "dd/MM")}
-                                </div>
-                                <Button variant="outline" size="icon" className="rounded-xl h-10 w-10 border-border/50 bg-card hover:bg-muted" onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>
-                                    <ChevronRight className="size-4" />
-                                </Button>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
-                            {weekDays.map((day, idx) => {
-                                const isToday = isSameDay(day, new Date());
-                                const daySessions = sessions.filter(s => isSameDay(new Date(s.scheduledAt), day));
-
-                                return (
-                                    <div
-                                        key={idx}
-                                        className={cn(
-                                            "flex flex-col min-h-[120px] rounded-xl border transition-colors overflow-hidden",
-                                            isToday 
-                                                ? "border-primary ring-2 ring-primary/10 bg-primary/[0.03]" 
-                                                : "border-border/50 bg-card hover:border-primary/30"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "p-3 text-center border-b",
-                                            isToday ? "bg-primary/10 border-primary/10" : "bg-muted/30 border-border/20"
-                                        )}>
-                                            <div className={cn(
-                                                "text-[10px] font-bold mb-0.5",
-                                                isToday ? "text-primary" : "text-muted-foreground/60"
-                                            )}>
-                                                {format(day, "eee", { locale: vi })}
-                                            </div>
-                                            <div className={cn(
-                                                "text-xl font-bold leading-none",
-                                                isToday ? "text-primary" : "text-foreground"
-                                            )}>
-                                                {format(day, "dd")}
-                                            </div>
-                                        </div>
-                                        <div className="flex-1 p-2 space-y-1.5 overflow-hidden">
-                                            {daySessions.map((session: any, sIdx: number) => (
-                                                <div
-                                                    key={sIdx}
-                                                    className="p-2 rounded-xl bg-card border border-border/50 shadow-sm group cursor-help hover:border-primary/50 transition-colors"
-                                                    title={session.title}
-                                                >
-                                                    <div className="text-xs font-bold text-primary mb-1 flex items-center gap-1">
-                                                        <Clock className="size-2.5" />
-                                                        {format(new Date(session.scheduledAt), "HH:mm")}
-                                                    </div>
-                                                    <div className="text-xs font-medium line-clamp-2 leading-tight group-hover:text-primary transition-colors">{session.title}</div>
-                                                </div>
-                                            ))}
-                                            {daySessions.length === 0 && (
-                                                <div className="h-full flex items-center justify-center opacity-10">
-                                                    <Sparkles className="size-6" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Curriculum, assignments, resources */}
-                    <div className="space-y-4">
-                        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
-                                    <TabsTrigger value="curriculum" className="gap-2">
-                                        <BookOpen className="size-4" />
-                                        Chương trình
-                                    </TabsTrigger>
-                                    <TabsTrigger value="assignments" className="gap-2">
-                                        <FileText className="size-4" />
-                                        Bài tập
-                                    </TabsTrigger>
-                                    <TabsTrigger value="resources" className="gap-2">
-                                        <FileIcon className="size-4" />
-                                        Tài liệu
-                                    </TabsTrigger>
-                                </TabsList>
-                                <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => router.push(`/courses/${classId}/learn`)}>
-                                    Mở trang học VOD
-                                    <ChevronRight className="size-4" />
-                                </Button>
-                            </div>
-
-                            <TabsContent value="curriculum" className="mt-4 outline-none">
-                                <Card>
-                                    <CardContent className="p-4 md:p-6">
-                                        {curriculum ? (
-                                            <CourseCurriculum
-                                                curriculum={{ modules: curriculum.modules }}
-                                                courseSlug={classId}
-                                            />
-                                        ) : (
-                                            <div className="flex flex-col items-center gap-3 py-16 text-center">
-                                                <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
-                                                <p className="text-sm text-muted-foreground">Đang tải chương trình học…</p>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-
-                            <TabsContent value="assignments" className="mt-4 outline-none">
-                                <AcademyAssignmentList
-                                    classId={classId}
-                                    openClassAssignmentId={openClassAssignmentId}
-                                    onOpenAssignmentChange={handleAssignmentDeepLinkChange}
-                                />
-                            </TabsContent>
-
-                            <TabsContent value="resources" className="mt-4 outline-none">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Tài liệu lớp học</CardTitle>
-                                        <CardDescription>
-                                            Tài liệu và liên kết do giảng viên đặt trong từng thư mục.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-6">
-                                        <AcademyResourceList classId={classId} />
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                        </Tabs>
                     </div>
                 </div>
+            </Card>
 
-                {/* Column Sidebar: Right Content (1/3) */}
-                <aside className="h-full space-y-6">
-                    
-                    {/* Ongoing / Next Session Widget */}
-                    <Card className="relative overflow-hidden rounded-xl border-none bg-zinc-950 text-white shadow-sm">
-                        <div className="absolute top-0 right-0 p-8 text-primary overflow-hidden opacity-10">
-                            <Video className="size-40 -mr-10 -mt-10" />
-                        </div>
-                        
-                        <CardHeader className="border-b border-white/5 pb-6">
-                            <CardTitle className="text-lg font-bold flex items-center gap-3">
-                                <Video className="size-5 text-primary" /> Buổi học sắp tới
-                            </CardTitle>
-                        </CardHeader>
-                        
-                        <CardContent className="p-0">
-                            <ScrollArea className="h-[420px] scrollbar-none">
-                                <div className="space-y-3 p-5">
-                                    {upcomingSessions.length > 0 ? (
-                                        upcomingSessions.slice(0, 6).map((session, idx) => (
-                                            <div key={idx} className="group relative">
-                                                <div className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/5 bg-white/[0.04] p-3 hover:bg-white/[0.08] hover:border-white/10 transition-all">
-                                                    <div className="flex size-10 flex-col items-center justify-center rounded-xl bg-primary/20 text-primary">
-                                                        <span className="text-xs font-bold leading-none opacity-50">{format(new Date(session.scheduledAt), "MMM")}</span>
-                                                        <span className="text-xl font-bold leading-none mt-1">{format(new Date(session.scheduledAt), "dd")}</span>
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-bold text-sm leading-tight line-clamp-1 mb-1 group-hover:text-primary transition-colors">{session.title}</h4>
-                                                        <div className="flex items-center gap-3 text-xs font-semibold text-white/40 tracking-normal">
-                                                            <span className="flex items-center gap-1"><Clock className="size-3" /> {format(new Date(session.scheduledAt), "HH:mm")}</span>
-                                                            <span className="opacity-50">/</span>
-                                                            <span>
-                                                                {format(new Date(session.scheduledAt), "i") === '7' 
-                                                                    ? 'Chủ Nhật' 
-                                                                    : `Thứ ${Number(format(new Date(session.scheduledAt), "i")) + 1}`}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-24 text-white/20">
-                                            <Calendar className="size-12 mx-auto mb-4 opacity-20" />
-                                            <p className="text-[10px] font-bold uppercase tracking-widest">Chưa có lịch mới</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </ScrollArea>
-                            <div className="p-5 pt-0">
-                                <Button className="h-10 w-full rounded-lg bg-white text-sm font-semibold text-black hover:bg-zinc-200">
-                                    Xem tất cả buổi học
+            {ongoingSession && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Buổi học đang diễn ra</CardTitle>
+                        <CardDescription>
+                            {ongoingSession.title} - bắt đầu lúc {format(new Date(ongoingSession.scheduledAt), "HH:mm")}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button onClick={() => handleJoinSession(ongoingSession.id)}>
+                            Vào lớp học ngay
+                            <ArrowRight className="ml-2 size-4" />
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
+            <div className="space-y-6">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle className="text-base">Lịch biểu trong tuần</CardTitle>
+                                <CardDescription>Theo dõi lịch để không bỏ lỡ buổi học.</CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}
+                                >
+                                    <ChevronLeft className="size-4" />
+                                </Button>
+                                <Badge variant="outline">
+                                    {format(currentWeekStart, "dd/MM")} - {format(addDays(currentWeekStart, 6), "dd/MM")}
+                                </Badge>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}
+                                >
+                                    <ChevronRight className="size-4" />
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Progress & Instructor Widget */}
-                    <Card className="overflow-hidden rounded-xl border-border/50 bg-card shadow-sm">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-lg font-bold flex items-center justify-between">
-                                <span>Tiến trình lớp học</span>
-                                <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold text-xs">Trực tuyến</Badge>
-                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="rounded-xl border border-border/50 bg-muted/40 p-5">
-                                <div className="space-y-3">
-                                    <div className="flex items-end justify-between">
-                                        <div className="text-3xl font-bold text-primary">{progress}%</div>
-                                        <div className="text-xs font-bold text-muted-foreground/60">Hoàn thành</div>
-                                    </div>
-                                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(var(--primary),0.3)]" style={{ width: `${progress}%` }} />
-                                    </div>
-                                    <p className="text-xs leading-relaxed text-muted-foreground">
-                                        * Dựa trên số lượng bài giảng và file học liệu bạn đã truy cập.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <div className="text-xs font-bold text-muted-foreground/60 px-1">Lối tắt học tập</div>
-                                <div className="grid grid-cols-1 gap-2">
-                                    <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 rounded-xl hover:bg-primary/5 hover:text-primary group/link border border-transparent hover:border-primary/10 transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 flex items-center justify-center">
-                                                <Users className="size-4" />
+                        <CardContent>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+                                {weekDays.map((day, idx) => {
+                                    const isToday = isSameDay(day, new Date())
+                                    const daySessions = sessions.filter((s) => isSameDay(new Date(s.scheduledAt), day))
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={cn(
+                                                "space-y-2 rounded-md border p-3",
+                                                isToday && "border-primary bg-muted"
+                                            )}
+                                        >
+                                            <div className="space-y-0.5 border-b pb-2">
+                                                <p className="text-xs text-muted-foreground">
+                                                    {format(day, "eee", { locale: vi })}
+                                                </p>
+                                                <p className="text-base font-medium">{format(day, "dd")}</p>
                                             </div>
-                                            <span className="text-sm font-semibold">Danh sách học viên</span>
-                                        </div>
-                                        <ChevronRight className="size-4 opacity-30 group-hover/link:translate-x-1 group-hover/link:opacity-100 transition-all" />
-                                    </Button>
-                                    <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 rounded-xl hover:bg-primary/5 hover:text-primary group/link border border-transparent hover:border-primary/10 transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center">
-                                                <Sparkles className="size-4" />
+                                            <div className="space-y-2">
+                                                {daySessions.length > 0 ? (
+                                                    daySessions.map((session: any, sIdx: number) => (
+                                                        <div key={sIdx} className="rounded-md border p-2">
+                                                            <p className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
+                                                                <Clock className="size-3" />
+                                                                {format(new Date(session.scheduledAt), "HH:mm")}
+                                                            </p>
+                                                            <p className="line-clamp-2 text-xs font-medium">{session.title}</p>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-xs text-muted-foreground">Không có buổi học</p>
+                                                )}
                                             </div>
-                                            <span className="text-sm font-semibold">Yêu cầu hỗ trợ</span>
                                         </div>
-                                        <ChevronRight className="size-4 opacity-30 group-hover/link:translate-x-1 group-hover/link:opacity-100 transition-all" />
-                                    </Button>
-                                    <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 rounded-xl hover:bg-primary/5 hover:text-primary group/link border border-transparent hover:border-primary/10 transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center">
-                                                <Star className="size-4" />
-                                            </div>
-                                            <span className="text-sm font-semibold">Đánh giá giảng viên</span>
-                                        </div>
-                                        <ChevronRight className="size-4 opacity-30 group-hover/link:translate-x-1 group-hover/link:opacity-100 transition-all" />
-                                    </Button>
-                                </div>
+                                    )
+                                })}
                             </div>
                         </CardContent>
                     </Card>
-                </aside>
+
+                    <Card>
+                        <CardContent className="space-y-4 p-4 sm:p-6">
+                            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <TabsList className="grid w-full grid-cols-3">
+                                        <TabsTrigger value="curriculum" className="gap-2">
+                                            <BookOpen className="size-4" />
+                                            Chương trình
+                                        </TabsTrigger>
+                                        <TabsTrigger value="assignments" className="gap-2">
+                                            <FileText className="size-4" />
+                                            Bài tập
+                                        </TabsTrigger>
+                                        <TabsTrigger value="resources" className="gap-2">
+                                            <FileIcon className="size-4" />
+                                            Tài liệu
+                                        </TabsTrigger>
+                                    </TabsList>
+                                    <Button variant="outline" size="sm" onClick={() => router.push(`/courses/${classId}/learn`)}>
+                                        Mở trang học VOD
+                                        <ChevronRight className="size-4" />
+                                    </Button>
+                                </div>
+
+                                <TabsContent value="curriculum" className="mt-4">
+                                    {curriculum ? (
+                                        <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={classId} />
+                                    ) : (
+                                        <div className="flex min-h-[160px] items-center justify-center">
+                                            <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+                                        </div>
+                                    )}
+                                </TabsContent>
+
+                                <TabsContent value="assignments" className="mt-4">
+                                    <AcademyAssignmentList
+                                        classId={classId}
+                                        openClassAssignmentId={openClassAssignmentId}
+                                        onOpenAssignmentChange={handleAssignmentDeepLinkChange}
+                                    />
+                                </TabsContent>
+
+                                <TabsContent value="resources" className="mt-4">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="text-sm font-medium">Tài liệu lớp học</h3>
+                                            <p className="text-sm text-muted-foreground">
+                                                Tài liệu và liên kết do giảng viên đặt trong từng thư mục.
+                                            </p>
+                                        </div>
+                                        <AcademyResourceList classId={classId} />
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+                        </CardContent>
+                    </Card>
             </div>
         </div>
-    );
+    )
 }

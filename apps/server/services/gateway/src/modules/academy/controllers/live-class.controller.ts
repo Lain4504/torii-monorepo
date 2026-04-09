@@ -147,15 +147,15 @@ export class LiveClassController {
       // - VOD: vodPackageId
       const liveResult = await firstValueFrom(
         this.nats.send(
-          { cmd: 'academy.enrollment.check' },
-          { userId: requester.sub, liveClassId: id },
+          { cmd: 'academy.enrollment.checkByTarget' },
+          { userId: requester.sub, targetType: 'CLASS', targetId: id },
         ),
       );
       if (!liveResult?.isEnrolled) {
         const vodResult = await firstValueFrom(
           this.nats.send(
-            { cmd: 'academy.enrollment.check' },
-            { userId: requester.sub, vodPackageId: id },
+            { cmd: 'academy.enrollment.checkByTarget' },
+            { userId: requester.sub, targetType: 'VOD_PACKAGE', targetId: id },
           ),
         );
         if (!vodResult?.isEnrolled) {

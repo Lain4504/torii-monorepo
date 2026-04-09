@@ -665,7 +665,7 @@ export default function JlptTemplateBuilderPage() {
 
       {/* Delete Confirmation Sheet */}
       <Sheet open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-        <SheetContent className="w-full sm:max-w-[520px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="p-6 border-b shrink-0">
             <SheetTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" /> Xác nhận xóa câu hỏi

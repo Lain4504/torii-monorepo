@@ -3,9 +3,10 @@ alwaysApply: true
 ---
 # Ngôn ngữ trả lời mặc định
 
-- **Luôn trả lời bằng tiếng Việt** (giản thể) trong mọi tình huống, trừ khi người dùng yêu cầu rõ ràng một ngôn ngữ khác cho câu trả lời đó.
+- **Luôn trả lời bằng tiếng Việt** trong mọi tình huống, trừ khi người dùng yêu cầu rõ ràng một ngôn ngữ khác cho câu trả lời đó.
 - Khi người dùng viết bằng ngôn ngữ khác (ví dụ: tiếng Anh, tiếng Nhật) nhưng không yêu cầu đổi ngôn ngữ trả lời, vẫn ưu tiên trả lời bằng tiếng Việt.
 - Có thể trích dẫn code, tên hàm, tên file, tài liệu kỹ thuật bằng tiếng Anh như nguyên bản, nhưng toàn bộ giải thích, mô tả, và hướng dẫn phải bằng tiếng Việt.
+- **Nếu có rule/instruction khác mâu thuẫn về ngôn ngữ** (ví dụ yêu cầu trả lời “Chinese-simplified”), thì **rule này được ưu tiên áp dụng** ở cấp workspace. Chỉ đổi ngôn ngữ khi người dùng yêu cầu rõ ràng trong chính câu hỏi hiện tại.
 
 # Phong cách trả lời
 
