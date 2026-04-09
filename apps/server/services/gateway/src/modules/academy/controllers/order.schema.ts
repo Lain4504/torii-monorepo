@@ -5,11 +5,6 @@ const liveClassIdByCohortSchema = z
   .record(z.string().uuid(), z.string().uuid())
   .optional();
 
-/** legacy: offeringId -> classId */
-const classIdByOfferingSchema = z
-  .record(z.string().uuid(), z.string().uuid())
-  .optional();
-
 export const orderCheckoutSchema = z.object({
   vodPackageIds: z.array(z.string().uuid()).optional(),
   cohortIds: z.array(z.string().uuid()).optional(),
@@ -19,7 +14,15 @@ export const orderCheckoutSchema = z.object({
   subscriptionPlanIds: z.array(z.string().uuid()).optional(),
   couponCode: z.string().optional(),
   description: z.string().optional(),
-  metadata: z.any().optional(),
+  // Gift fields (explicit, validated)
+  isGift: z
+    .preprocess(
+      (v) => (typeof v === 'string' ? v.toLowerCase() === 'true' : v),
+      z.boolean(),
+    )
+    .optional(),
+  recipientEmail: z.string().email().optional(),
+  giftMessage: z.string().max(500).optional(),
   paymentMethod: z.preprocess(
     (value) => (typeof value === 'string' ? value.toUpperCase() : value),
     z.enum(['PAYOS', 'BANK_TRANSFER', 'MANUAL', 'COIN']),
@@ -29,9 +32,6 @@ export const orderCheckoutSchema = z.object({
     z.enum(['PAYOS', 'MOMO', 'STRIPE', 'INTERNAL']).optional(),
   ),
 
-  // Legacy compatibility (ignored by academy new flow)
-  offeringIds: z.array(z.string()).optional(),
-  classIdByOffering: classIdByOfferingSchema,
 });
 
 export const orderPreviewSchema = z.object({
@@ -42,10 +42,14 @@ export const orderPreviewSchema = z.object({
   liveClassIdByCohort: liveClassIdByCohortSchema,
   subscriptionPlanIds: z.array(z.string().uuid()).optional(),
   couponCode: z.string().optional(),
-  metadata: z.any().optional(),
+  // Gift fields (explicit, validated)
+  isGift: z
+    .preprocess(
+      (v) => (typeof v === 'string' ? v.toLowerCase() === 'true' : v),
+      z.boolean(),
+    )
+    .optional(),
+  recipientEmail: z.string().email().optional(),
+  giftMessage: z.string().max(500).optional(),
   description: z.string().optional(),
-
-  // Legacy compatibility
-  offeringIds: z.array(z.string()).optional(),
-  classIdByOffering: classIdByOfferingSchema,
 });

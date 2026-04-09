@@ -42,9 +42,13 @@ export class OrderService {
     const subscriptionPlanIds = Array.from(
       new Set(input.subscriptionPlanIds ?? []),
     );
-    const isGift = input.metadata?.isGift === true;
-    const recipientEmail = input.metadata?.recipientEmail;
+    const isGift = input.isGift === true;
+    const recipientEmail = input.recipientEmail;
     const now = new Date();
+
+    if (isGift && (!recipientEmail || typeof recipientEmail !== 'string')) {
+      throw new BadRequestException('Vui lòng nhập email người nhận');
+    }
 
     if (
       !vodPackageIds.length &&
@@ -347,7 +351,14 @@ export class OrderService {
         couponCode: input.couponCode,
         couponId: preview.couponId,
         paymentMethod: input.paymentMethod,
-        metadata: input.metadata || {},
+        metadata:
+          input.isGift === true
+            ? {
+                isGift: true,
+                recipientEmail: input.recipientEmail,
+                ...(input.giftMessage ? { giftMessage: input.giftMessage } : {}),
+              }
+            : {},
         items: { create: orderItemsData },
       },
       include: { items: true },
@@ -498,7 +509,13 @@ export class OrderService {
         // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
         const targetUserId = await this.resolveTargetUserId(
           order.userId,
-          order.metadata,
+          {
+            isGift: order.metadata?.isGift === true,
+            recipientEmail:
+              typeof order.metadata?.recipientEmail === 'string'
+                ? order.metadata.recipientEmail
+                : undefined,
+          },
         );
         for (const item of order.items) {
           if (item.subscriptionPlanId) {
@@ -604,7 +621,13 @@ export class OrderService {
 
       const targetUserId = await this.resolveTargetUserId(
         order.userId,
-        order.metadata,
+        {
+          isGift: order.metadata?.isGift === true,
+          recipientEmail:
+            typeof order.metadata?.recipientEmail === 'string'
+              ? order.metadata.recipientEmail
+              : undefined,
+        },
       );
       for (const item of order.items) {
         if (item.subscriptionPlanId)
@@ -674,11 +697,10 @@ export class OrderService {
 
   public async resolveTargetUserId(
     buyerId: string,
-    metadata: any,
+    input: { isGift?: boolean; recipientEmail?: string },
   ): Promise<string> {
-    const md = metadata ?? {};
-    if (md.isGift && md.recipientEmail) {
-      const recipientEmail = md.recipientEmail.toLowerCase();
+    if (input?.isGift && input?.recipientEmail) {
+      const recipientEmail = input.recipientEmail.toLowerCase();
       try {
         const response = await firstValueFrom<{ user: { id: string } }>(
           this.natsClient.send(

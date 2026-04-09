@@ -192,10 +192,8 @@ export default function CheckoutPage() {
             const result = await orderApi.previewOrder({
                 ...checkoutPayload,
                 couponCode: couponCode.trim() || undefined,
-                metadata: {
-                    isGift,
-                    recipientEmail: isGift ? recipientEmail : undefined,
-                }
+                isGift,
+                recipientEmail: isGift ? recipientEmail : undefined,
             })
             setPreview(result)
         } catch (error: unknown) {
@@ -247,11 +245,9 @@ export default function CheckoutPage() {
                 ...checkoutPayload,
                 paymentMethod: method,
                 couponCode: couponCode.trim() || undefined,
-                metadata: {
-                    isGift,
-                    recipientEmail: isGift ? recipientEmail : undefined,
-                    giftMessage: isGift ? giftMessage : undefined,
-                }
+                isGift,
+                recipientEmail: isGift ? recipientEmail : undefined,
+                giftMessage: isGift ? giftMessage : undefined,
             })
 
             if (result.paymentUrl) {

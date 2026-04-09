@@ -12,7 +12,6 @@ import {
   Res,
 } from '@nestjs/common';
 
-import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
@@ -28,7 +27,7 @@ import { orderCheckoutSchema, orderPreviewSchema } from './order.schema';
 @Controller('api/academy/orders')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class OrderController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: any) {}
 
   @Post('preview')
   async preview(
@@ -115,7 +114,7 @@ export class OrderController {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.findAll' }, query),
     );
-    return successPaginatedResponse(result);
+    return successPaginatedResponse(result as any);
   }
   @Get('stats')
   @Permissions('ops.order.manage')
