@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useForm, Controller, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -39,6 +39,7 @@ import { useUsers } from "@/lib/api/services/users"
 import { toast } from "sonner"
 import { Loader2, Plus, Trash2, Calendar, Zap } from "lucide-react"
 import { useCreateAcademyLiveSchedule } from "@/lib/api/services/academy-live-schedules"
+import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 
 const scheduleItemSchema = z.object({
@@ -121,6 +122,16 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
     name: "schedules",
   })
 
+  const canEditSchedules = useMemo(() => {
+    if (!academyClass) return true
+    return academyClass.status === "DRAFT"
+  }, [academyClass])
+
+  const { data: liveSchedules } = useAcademyLiveSchedules(
+    { classId: academyClass?.id } as any,
+    { enabled: open && !!academyClass?.id },
+  )
+
   const WEEKDAYS = [
     { value: "1", label: "Thứ Hai" },
     { value: "2", label: "Thứ Ba" },
@@ -143,6 +154,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         price: (academyClass as any).price ? Number((academyClass as any).price) : 0,
         discountPrice: (academyClass as any).discountPrice ? Number((academyClass as any).discountPrice) : null,
         thumbnailUrl: academyClass.thumbnailUrl || "",
+        schedules: [],
       })
     } else {
       reset({
@@ -159,6 +171,20 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
       })
     }
   }, [academyClass, reset, defaultCohortId])
+
+  useEffect(() => {
+    if (!open) return
+    if (!academyClass?.id) return
+    if (!liveSchedules) return
+
+    replace(
+      liveSchedules.map((s) => ({
+        weekday: s.weekday,
+        startTime: s.startTime,
+        endTime: s.endTime,
+      })),
+    )
+  }, [academyClass?.id, liveSchedules, open, replace])
 
   async function onSubmit(values: LiveClassFormValues) {
     try {
@@ -382,10 +408,10 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                   />
                 </FieldSet>
 
-                {!isEditing && (
-                  <FieldSet>
-                    <div className="flex items-center justify-between">
-                      <FieldLegend>Thiết lập lịch học tuần</FieldLegend>
+                <FieldSet>
+                  <div className="flex items-center justify-between">
+                    <FieldLegend>Lịch học tuần</FieldLegend>
+                    {!isEditing && (
                       <div className="flex gap-2">
                         <Button
                           type="button"
@@ -416,64 +442,77 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                           Mẫu 3-5-7
                         </Button>
                       </div>
-                    </div>
-                    <FieldDescription>
-                      Quy định khung giờ học định kỳ để hệ thống tự động sinh buổi học.
-                    </FieldDescription>
+                    )}
+                  </div>
+                  <FieldDescription>
+                    {isEditing
+                      ? "Lịch học đang áp dụng cho lớp. Nếu lớp đã được xuất bản/đang diễn ra, lịch được khóa để tránh ảnh hưởng vận hành."
+                      : "Thiết lập khung giờ học định kỳ để hệ thống tự động sinh buổi học."}
+                  </FieldDescription>
 
-                    <FieldGroup className="mt-4">
-                      {fields.length === 0 && (
-                        <div
-                          className="flex flex-col items-center justify-center py-8 border-2 border-dashed rounded-xl text-muted-foreground bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer"
-                          onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
-                        >
-                          <Calendar className="size-8 opacity-20 mb-2" />
-                          <p className="text-xs font-medium">Chưa có lịch. Click để thêm khung giờ.</p>
-                        </div>
-                      )}
+                  <FieldGroup className="mt-4">
+                    {fields.length === 0 && !isEditing && (
+                      <div
+                        className="flex flex-col items-center justify-center py-8 border-2 border-dashed rounded-xl text-muted-foreground bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer"
+                        onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
+                      >
+                        <Calendar className="size-8 opacity-20 mb-2" />
+                        <p className="text-xs font-medium">Chưa có lịch. Click để thêm khung giờ.</p>
+                      </div>
+                    )}
 
-                      <div className="space-y-4">
-                        {fields.map((field, index) => (
-                          <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-background/50 p-3 rounded-lg border shadow-sm relative group">
-                            <div className="md:col-span-4">
-                              <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Thứ</FieldLabel>
-                              <Controller
-                                name={`schedules.${index}.weekday`}
-                                control={control}
-                                render={({ field }) => (
-                                  <Select
-                                    onValueChange={(val) => field.onChange(parseInt(val, 10))}
-                                    value={field.value?.toString() ?? ""}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Chọn thứ" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {WEEKDAYS.map((day) => (
-                                        <SelectItem key={day.value} value={day.value}>
-                                          {day.label}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                )}
-                              />
-                            </div>
-                            <div className="md:col-span-3">
-                              <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Bắt đầu</FieldLabel>
-                              <Input
-                                type="time"
-                                {...control.register(`schedules.${index}.startTime`)}
-                              />
-                            </div>
-                            <div className="md:col-span-3">
-                              <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Kết thúc</FieldLabel>
-                              <Input
-                                type="time"
-                                {...control.register(`schedules.${index}.endTime`)}
-                              />
-                            </div>
-                            <div className="md:col-span-2 flex justify-end">
+                    {fields.length === 0 && isEditing && (
+                      <div className="rounded-xl border bg-muted/20 p-4 text-xs text-muted-foreground">
+                        Lớp này chưa có lịch học hoặc chưa tải được lịch.
+                      </div>
+                    )}
+
+                    <div className="space-y-4">
+                      {fields.map((field, index) => (
+                        <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end bg-background/50 p-3 rounded-lg border shadow-sm relative group">
+                          <div className="md:col-span-4">
+                            <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Thứ</FieldLabel>
+                            <Controller
+                              name={`schedules.${index}.weekday`}
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  onValueChange={(val) => field.onChange(parseInt(val, 10))}
+                                  value={field.value?.toString() ?? ""}
+                                  disabled={isEditing && !canEditSchedules}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Chọn thứ" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {WEEKDAYS.map((day) => (
+                                      <SelectItem key={day.value} value={day.value}>
+                                        {day.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                          </div>
+                          <div className="md:col-span-3">
+                            <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Bắt đầu</FieldLabel>
+                            <Input
+                              type="time"
+                              {...control.register(`schedules.${index}.startTime`)}
+                              disabled={isEditing && !canEditSchedules}
+                            />
+                          </div>
+                          <div className="md:col-span-3">
+                            <FieldLabel className="text-[10px] uppercase text-muted-foreground mb-1">Kết thúc</FieldLabel>
+                            <Input
+                              type="time"
+                              {...control.register(`schedules.${index}.endTime`)}
+                              disabled={isEditing && !canEditSchedules}
+                            />
+                          </div>
+                          <div className="md:col-span-2 flex justify-end">
+                            {!isEditing && (
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -483,25 +522,25 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                               >
                                 <Trash2 className="size-4" />
                               </Button>
-                            </div>
+                            )}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
+                    </div>
 
-                      {fields.length > 0 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="w-full border-dashed border"
-                          onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
-                        >
-                          <Plus className="size-3" /> Thêm khung giờ
-                        </Button>
-                      )}
-                    </FieldGroup>
-                  </FieldSet>
-                )}
+                    {!isEditing && fields.length > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="w-full border-dashed border"
+                        onClick={() => append({ weekday: 1, startTime: "18:00", endTime: "20:00" })}
+                      >
+                        <Plus className="size-3" /> Thêm khung giờ
+                      </Button>
+                    )}
+                  </FieldGroup>
+                </FieldSet>
               </FieldGroup>
             </form>
           </div>

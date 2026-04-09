@@ -15,7 +15,6 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
   Public,
@@ -39,7 +38,7 @@ import {
 @Controller('api/academy/vod-packages')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class VodPackageController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: any) { }
 
   @Public()
   @Get('public')
@@ -99,9 +98,9 @@ export class VodPackageController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
   ) {
-    const item = await firstValueFrom(
+    const item = (await firstValueFrom(
       this.nats.send({ cmd: 'academy.vod.findById' }, { id }),
-    );
+    )) as any;
 
     if (item?.instructorId !== req.requester?.sub) {
       throw new ForbiddenException(
@@ -226,11 +225,11 @@ export class VodPackageController {
   ) {
     const result = await firstValueFrom(
       this.nats.send(
-        { cmd: 'academy.order.admin.findByOffering' },
-        { offeringId: id, query },
+        { cmd: 'academy.order.admin.findByVodPackage' },
+        { vodPackageId: id, query },
       ),
     );
-    return successPaginatedResponse(result);
+    return successPaginatedResponse(result as any);
   }
 
   @Get(':id/stats')
@@ -238,8 +237,8 @@ export class VodPackageController {
   async getStats(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
       this.nats.send(
-        { cmd: 'academy.order.admin.getStatsByOffering' },
-        { offeringId: id },
+        { cmd: 'academy.order.admin.getStatsByVodPackage' },
+        { vodPackageId: id },
       ),
     );
     return successResponse(result);

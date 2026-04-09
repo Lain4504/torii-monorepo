@@ -265,6 +265,8 @@ export default function LiveClassesPage() {
                                 classes.map((cls: AcademyLiveClass, index: number) => {
                                     const isCohortPending = cls.cohort?.status === 'PENDING_APPROVAL';
                                     const effectiveThumbnail = cls.thumbnailUrl || cls.cohort?.courseProfile?.thumbnailUrl;
+                                    const canEditClass =
+                                        cls.status === "DRAFT";
 
                                     return (
                                         <TableRow key={cls.id} className="group hover:bg-muted/5 transition-colors">
@@ -346,14 +348,16 @@ export default function LiveClassesPage() {
                                                     </Button>
                                                     {isStaff && (
                                                         <>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 bg-transparent hover:bg-emerald-50 font-medium"
-                                                                onClick={() => handleEdit(cls)}
-                                                            >
-                                                                <Pencil className="h-4 w-4" /> Sửa
-                                                            </Button>
+                                                            {canEditClass && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="h-8 gap-1.5 border-emerald-500/40 text-emerald-700 bg-transparent hover:bg-emerald-50 font-medium"
+                                                                    onClick={() => handleEdit(cls)}
+                                                                >
+                                                                    <Pencil className="h-4 w-4" /> Sửa
+                                                                </Button>
+                                                            )}
                                                             {cls.status === 'DRAFT' && !isCohortPending && (
                                                                 <Button
                                                                     variant="outline"
