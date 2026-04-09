@@ -215,31 +215,22 @@ const WebcamIcon = () => {
     selectedVideoDevice !== '' || isActiveWebcam || isWebcamLocked;
 
   const baseBorderClasses = clsx(
-    'border-[3px] 3xl:border-4 transition-colors duration-300',
+    'border border-border transition-colors duration-300',
     {
       'border-destructive! pointer-events-none opacity-60': isWebcamLocked,
-      'border-primary/40 bg-primary/10':
-        isCamConfigured && isActiveWebcam && !isWebcamLocked,
-      'border-destructive bg-destructive/10 text-destructive':
+      'border-primary/40 bg-muted': isCamConfigured && isActiveWebcam && !isWebcamLocked,
+      'border-destructive bg-muted text-destructive':
         !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
-      'border-border/60':
-        !isWebcamLocked &&
-        !isActiveWebcam &&
-        selectedVideoDevice !== '',
-      'border-transparent':
-        !isWebcamLocked &&
-        !isActiveWebcam &&
-        selectedVideoDevice === '',
     },
   );
 
   const roundButtonClasses = clsx(
-    'meet-footer-ctrl-pill footer-icon footer-icon-bg relative flex items-center justify-center h-10 md:h-11 3xl:h-[52px] w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full overflow-visible text-foreground',
+    'meet-footer-ctrl-pill footer-icon relative flex items-center justify-center !h-10 md:!h-11 3xl:!h-[52px] !w-10 md:!w-11 3xl:!w-[52px] aspect-square min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full overflow-visible text-foreground bg-card shadow-sm hover:bg-muted',
     baseBorderClasses,
   );
 
   const pillWrapperClasses = clsx(
-    'meet-footer-ctrl-pill footer-icon footer-icon-bg relative flex items-stretch overflow-visible text-foreground h-10 md:h-11 3xl:h-[52px] rounded-full',
+    'meet-footer-ctrl-pill footer-icon relative flex items-center overflow-visible text-foreground !h-10 md:!h-11 3xl:!h-[52px] rounded-full bg-card shadow-sm hover:bg-muted',
     baseBorderClasses,
   );
 
@@ -251,11 +242,11 @@ const WebcamIcon = () => {
   );
 
   const renderMainIcon = () => {
-    if (isActiveWebcam) return <Video className={'h-4 3xl:h-5 w-auto'} />;
+    if (isActiveWebcam) return <Video className="h-5 w-5 3xl:h-6 3xl:w-6" />;
     return selectedVideoDevice === '' ? (
-      <Video className={'h-4 3xl:h-5 w-auto'} />
+      <Video className="h-5 w-5 3xl:h-6 3xl:w-6" />
     ) : (
-      <VideoOff className={'h-4 3xl:h-5 w-auto'} />
+      <VideoOff className="h-5 w-5 3xl:h-6 3xl:w-6" />
     );
   };
 
@@ -285,7 +276,7 @@ const WebcamIcon = () => {
             <button
               type="button"
               className={clsx(
-                'relative flex items-center justify-center rounded-l-full px-4 md:px-5 3xl:px-6',
+                'relative flex items-center justify-center rounded-l-full w-10 md:w-11 3xl:w-[52px]',
                 'transition-colors duration-200',
               )}
               onClick={() => toggleWebcam()}
@@ -301,7 +292,7 @@ const WebcamIcon = () => {
                 isActiveWebcam={isActiveWebcam}
                 toggleWebcam={toggleWebcam}
                 buttonClassName={clsx(
-                  'flex h-full min-h-0 w-9 md:w-10 3xl:w-12 items-center justify-center rounded-r-full border-0 border-l border-white/15 pl-0.5',
+                  'flex h-full min-h-0 w-8 md:w-9 3xl:w-10 items-center justify-center rounded-r-full border-0 border-l border-white/15',
                   'transition-colors duration-200',
                 )}
               />

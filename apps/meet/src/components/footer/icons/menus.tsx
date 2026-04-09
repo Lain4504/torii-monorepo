@@ -1,5 +1,4 @@
-import React, { Fragment } from 'react';
-import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
+import React from 'react';
 
 import { useAppSelector } from '@/store';
 import LockSettingsModal from '@/components/footer/modals/lockSettingsModal';
@@ -13,6 +12,13 @@ import AdminMenus from '@/components/footer/icons/menus/adminMenus';
 import IconsInMenu from '@/components/footer/icons/menus/iconsInMenu';
 import TranslationTranscriptionSettingModal from '@/components/translation-transcription/settingModal';
 import InsightsAiSettingsModal from '@/components/insights-ai';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@workspace/ui/components/dropdown-menu';
+import { Button } from '@workspace/ui/components/button';
 
 interface MenusIconProps {
   isAdmin: boolean;
@@ -48,51 +54,31 @@ const MenusIcon = ({ isAdmin }: MenusIconProps) => {
   return (
     <>
       <div className="menu relative z-10">
-        <Menu>
-          {({ open }) => (
-            <div>
-              <MenuButton>
-                <div
-                  className={`footer-menu relative footer-icon cursor-pointer w-10 md:w-11 3xl:w-[52px] h-10 md:h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4 ${open ? 'border-primary/25' : 'border-transparent'}`}
-                >
-                  <div
-                    className={`footer-icon-bg relative footer-icon flex items-center justify-center cursor-pointer w-full h-full rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted text-foreground ${open ? 'bg-muted' : 'bg-card'}`}
-                  >
-                    <MoreHorizontal className="w-auto h-4 md:h-5 3xl:h-6" />
-                  </div>
-                </div>
-              </MenuButton>
-              <Transition
-                as={Fragment}
-                show={open}
-                enter="transition ease-out duration-200"
-                enterFrom="transform opacity-0 scale-95 translate-y-2"
-                enterTo="transform opacity-100 scale-100 translate-y-0"
-                leave="transition ease-in duration-150"
-                leaveFrom="transform opacity-100 scale-100 translate-y-0"
-                leaveTo="transform opacity-0 scale-95 translate-y-2"
-              >
-                <MenuItems
-                  static={false}
-                  className="origin-bottom-left -right-11 lg:left-0 z-9999 absolute mt-2 w-[300px] bottom-14 shadow-lg rounded-xl overflow-hidden border border-border bg-popover p-2"
-                  id="footer-menu"
-                >
-                  <div className="inner">
-                    {isAdmin && (
-                      <>
-                        <AdminMenus />
-                      </>
-                    )}
-                    <div className="mobile-menu-icons block md:hidden">
-                      <div className="divider h-1 w-[110%] bg-border -ml-3 my-0.5 last-one"></div>
-                      <IconsInMenu />
-                    </div>
-                  </div>
-                </MenuItems>
-              </Transition>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="footer-menu footer-icon h-10 w-10 rounded-full border-border bg-card shadow-sm hover:bg-muted md:h-11 md:w-11 3xl:h-[52px] 3xl:w-[52px]"
+            >
+              <MoreHorizontal className="h-4 w-4 md:h-5 md:w-5 3xl:h-6 3xl:w-6" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            side="top"
+            sideOffset={12}
+            className="z-50 w-[300px] rounded-xl border border-border bg-popover p-2 shadow-lg"
+            id="footer-menu"
+          >
+            {isAdmin && <AdminMenus />}
+            {isAdmin && <DropdownMenuSeparator className="my-1" />}
+            <div className="mobile-menu-icons block md:hidden">
+              <IconsInMenu />
             </div>
-          )}
-        </Menu>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       {showLockSettingsModal && <LockSettingsModal />}
       {showRtmpModal && <RtmpModal />}

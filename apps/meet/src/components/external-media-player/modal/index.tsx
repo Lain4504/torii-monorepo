@@ -15,9 +15,14 @@ import {
 import DirectLink from '@/components/external-media-player/modal/directLink';
 import Upload from '@/components/external-media-player/modal/upload';
 import Modal from '@/helpers/ui/modal';
-import Tabs from '@/helpers/ui/tabs';
 import ActionButton from '@/helpers/ui/actionButton';
 import sendAPIRequest from '@/helpers/api/api-client';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@workspace/ui/components/tabs';
 
 const ExternalMediaPlayerModal = () => {
   const dispatch = useAppDispatch();
@@ -36,6 +41,7 @@ const ExternalMediaPlayerModal = () => {
   const [selectedUrl, setSelectedUrl] = useState<string>(lastLink ?? '');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
+  const [activeTab, setActiveTab] = useState<'direct' | 'upload'>('direct');
 
   const handleStartPlayingUrl = async () => {
     setIsLoading(true);
@@ -64,23 +70,6 @@ const ExternalMediaPlayerModal = () => {
     dispatch(updateShowExternalMediaPlayerModal(false));
   };
 
-  const items = [
-    {
-      id: 1,
-      title: 'Liên kết trực tiếp',
-      content: (
-        <DirectLink setSelectedUrl={setSelectedUrl} selectedUrl={selectedUrl} />
-      ),
-    },
-    {
-      id: 2,
-      title: 'Tải lên tệp',
-      content: (
-        <Upload setSelectedUrl={setSelectedUrl} isPlayBtnLoading={isLoading} />
-      ),
-    },
-  ];
-
   const closeStartModal = () => {
     dispatch(updateShowExternalMediaPlayerModal(false));
   };
@@ -96,7 +85,23 @@ const ExternalMediaPlayerModal = () => {
         {errorMsg && (
           <div className="error-msg text-xs text-destructive py-1">{errorMsg}</div>
         )}
-        <Tabs items={items} vertical />
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as 'direct' | 'upload')}
+          className="w-full min-w-0"
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="direct">Liên kết trực tiếp</TabsTrigger>
+            <TabsTrigger value="upload">Tải lên tệp</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="direct" className="min-w-0 pt-3">
+            <DirectLink setSelectedUrl={setSelectedUrl} selectedUrl={selectedUrl} />
+          </TabsContent>
+          <TabsContent value="upload" className="min-w-0 pt-3">
+            <Upload setSelectedUrl={setSelectedUrl} isPlayBtnLoading={isLoading} />
+          </TabsContent>
+        </Tabs>
         <div className="mt-8 flex justify-end">
           <ActionButton
             isLoading={isLoading}

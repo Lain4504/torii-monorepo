@@ -907,6 +907,29 @@ export class JlptMockService {
     });
   }
 
+  async deleteTemplate(id: string) {
+    const template = await this.prisma.jlptMockExamTemplate.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!template) throw new NotFoundException('JLPT mock template not found');
+
+    // Prisma schema: attempts.template has onDelete: Restrict
+    // => refuse deletion if any attempts exist.
+    const attemptsCount = await this.prisma.jlptMockAttempt.count({
+      where: { templateId: id },
+    });
+    if (attemptsCount > 0) {
+      throw new BadRequestException(
+        'Không thể xóa đề thi vì đã có lượt làm bài (attempts). Hãy lưu trữ (ARCHIVED) thay vì xóa.',
+      );
+    }
+
+    // Cascade will remove sections, template questions, etc.
+    await this.prisma.jlptMockExamTemplate.delete({ where: { id } });
+    return { ok: true };
+  }
+
   async assembleTemplateFromBank(input: JlptAssembleTemplateFromBankDto) {
     const template = await this.prisma.jlptMockExamTemplate.findUnique({
       where: { id: input.templateId },

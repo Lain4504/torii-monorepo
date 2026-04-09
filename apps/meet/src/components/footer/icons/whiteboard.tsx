@@ -11,6 +11,8 @@ import { updateIsActiveWhiteboard } from '@/store/slices/bottomIconsActivitySlic
 import sendAPIRequest from '@/helpers/api/api-client';
 import { Presentation } from 'lucide-react';
 import { participantsSelector } from '@/store/slices/participantSlice';
+import clsx from 'clsx';
+import { Button } from '@workspace/ui/components/button';
 
 const WhiteboardIcon = () => {
   const dispatch = useAppDispatch();
@@ -125,22 +127,24 @@ const WhiteboardIcon = () => {
 
   return (
     allowedWhiteboard && (
-      <div
-        className={`whiteboard hidden md:block relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4 ${isActiveWhiteboard ? 'border-primary/25' : 'border-transparent'}`}
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
         onClick={toggleWhiteboard}
+        className={clsx(
+          'whiteboard footer-icon relative hidden h-11 w-11 rounded-full border-border bg-card shadow-sm hover:bg-muted md:inline-flex 3xl:h-[52px] 3xl:w-[52px]',
+          {
+            'has-tooltip': showTooltip,
+            'bg-muted': isActiveWhiteboard,
+          },
+        )}
       >
-        <div
-          className={`footer-icon-bg h-full w-full flex items-center justify-center rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted  text-foreground ${showTooltip ? 'has-tooltip' : ''
-            } ${isActiveWhiteboard ? 'bg-muted' : 'bg-card'}`}
-        >
-          <span className="tooltip">
-            {isActiveWhiteboard
-              ? 'Ẩn bảng trắng'
-              : 'Hiển thị bảng trắng'}
-          </span>
-          <Presentation className="w-auto h-4 3xl:h-5" />
-        </div>
-      </div>
+        <span className="tooltip">
+          {isActiveWhiteboard ? 'Ẩn bảng trắng' : 'Hiển thị bảng trắng'}
+        </span>
+        <Presentation className="h-4 w-4 3xl:h-5 3xl:w-5" />
+      </Button>
     )
   );
 };
