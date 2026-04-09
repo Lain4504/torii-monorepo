@@ -90,6 +90,9 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, vod.id);
+          if (!res.isRegistered) {
+            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
+          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã sở hữu gói VOD ${vod.title}`);
         }
         continue;
@@ -124,6 +127,9 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
+          if (!res.isRegistered) {
+            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
+          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký khóa học ${cohort.name}`);
         }
       } else {
@@ -162,6 +168,9 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
+          if (!res.isRegistered) {
+            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
+          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký đợt học ${cohort.name}`);
         }
       } else {

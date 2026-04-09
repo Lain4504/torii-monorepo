@@ -217,6 +217,8 @@ export default function CheckoutPage() {
         if (isGift) {
             if (!recipientEmail) return toast.error('Vui lòng nhập email người nhận')
             if (recipientStatus === 'enrolled') return toast.error('Người nhận đã sở hữu khóa học này')
+            if (recipientStatus === 'not_found') return toast.error('Email người nhận chưa đăng ký trong hệ thống')
+            if (recipientStatus === 'checking') return toast.error('Đang kiểm tra email người nhận, vui lòng đợi…')
             if (recipientEmail === user.email) return toast.error('Bạn không thể tự mua tặng chính mình')
         }
 
@@ -361,6 +363,7 @@ export default function CheckoutPage() {
                                             <Input placeholder="email@vi-du.com" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} />
                                             {recipientStatus === 'checking' && <FieldDescription>Đang kiểm tra...</FieldDescription>}
                                             {recipientStatus === 'enrolled' && <FieldDescription className="text-destructive">Người nhận đã sở hữu khóa học này.</FieldDescription>}
+                                            {recipientStatus === 'not_found' && <FieldDescription className="text-destructive">Email này chưa đăng ký tài khoản trong hệ thống.</FieldDescription>}
                                         </Field>
                                         <Field>
                                             <FieldLabel>Lời nhắn (tùy chọn)</FieldLabel>
@@ -410,6 +413,8 @@ export default function CheckoutPage() {
                                             isProcessing ||
                                             isPreviewing ||
                                             (isGift && recipientStatus === 'enrolled') ||
+                                            (isGift && recipientStatus === 'not_found') ||
+                                            (isGift && recipientStatus === 'checking') ||
                                             (isLIVE && (!selectedClass || isLiveClassFull(selectedClass)))
                                         }
                                     >
