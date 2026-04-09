@@ -22,8 +22,8 @@ import {
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import { Label } from "@workspace/ui/components/label"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 
 import { CheckCircle2, Loader2, Upload, Image as ImageIcon, FileAudio, X } from "lucide-react"
@@ -175,10 +175,11 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
               <Label className="text-sm font-semibold">
                 Nội dung câu hỏi <span className="text-destructive">*</span>
               </Label>
-              <Textarea
+              <RichTextEditor
+                value={form.watch("stem")}
+                onChange={(val) => form.setValue("stem", val, { shouldDirty: true })}
                 placeholder="Nhập nội dung câu hỏi..."
-                {...form.register("stem")}
-                className="min-h-[100px] text-sm resize-none"
+                minHeight={150}
               />
               {form.formState.errors.stem && (
                 <p className="text-destructive text-xs">{form.formState.errors.stem.message}</p>
@@ -336,10 +337,11 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                 Giải thích đáp án{" "}
                 <span className="text-muted-foreground font-normal">(tùy chọn)</span>
               </Label>
-              <Textarea
+              <RichTextEditor
+                value={form.watch("explanation") ?? ""}
+                onChange={(val) => form.setValue("explanation", val, { shouldDirty: true })}
                 placeholder="Giải thích ngắn gọn tại sao đây là đáp án đúng..."
-                {...form.register("explanation")}
-                className="min-h-[80px] text-sm resize-none"
+                minHeight={120}
               />
             </div>
 

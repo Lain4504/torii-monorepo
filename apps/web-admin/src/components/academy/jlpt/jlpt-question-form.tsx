@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { Textarea } from "@workspace/ui/components/textarea";
+import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import {
   Select,
   SelectContent,
@@ -522,9 +522,11 @@ export function JlptQuestionForm({
             render={({ field }) => (
               <Field>
                 <FieldLabel>Ngữ cảnh (Context)</FieldLabel>
-                <Textarea
-                  {...field}
+                <RichTextEditor
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
                   placeholder="Đoạn văn dài, hội thoại, hoặc chỉ dẫn (nếu stem chỉ là câu hỏi lẻ)"
+                  minHeight={160}
                 />
               </Field>
             )}
@@ -536,7 +538,12 @@ export function JlptQuestionForm({
             render={({ field }) => (
               <Field>
                 <FieldLabel>Nội dung câu hỏi (Stem)</FieldLabel>
-                <Textarea {...field} placeholder="Câu hỏi / đoạn cần chọn đáp án…" className="min-h-[100px]" />
+                <RichTextEditor
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  placeholder="Câu hỏi / đoạn cần chọn đáp án…"
+                  minHeight={140}
+                />
               </Field>
             )}
           />
