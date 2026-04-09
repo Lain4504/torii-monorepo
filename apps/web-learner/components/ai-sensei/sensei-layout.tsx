@@ -19,14 +19,14 @@ export function SenseiLayout({ children }: { children: React.ReactNode }) {
     }, [])
 
     React.useEffect(() => {
-        if (!mounted || status === "loading") return
+        if (!mounted || status === "loading" || status === "idle") return
         if (!isAuthenticated) {
             const from = pathname || "/ai-sensei"
             router.replace(`/login?from=${encodeURIComponent(from)}`)
         }
     }, [mounted, status, isAuthenticated, pathname, router])
 
-    if (!mounted || status === "loading") {
+    if (!mounted || status === "loading" || status === "idle") {
         return <PageLoading className="min-h-screen" />
     }
 

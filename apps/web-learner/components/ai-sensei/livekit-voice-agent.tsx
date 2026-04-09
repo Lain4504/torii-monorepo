@@ -3,30 +3,23 @@
 import React, { useState, useCallback, useRef, useEffect } from "react"
 import { Mic, PhoneOff, Loader2, Wifi, Zap, Sparkles } from "lucide-react"
 import {
-    LiveKitRoom,
-    RoomAudioRenderer,
-    useTracks,
     useConnectionState,
-    useParticipants,
-    useRoomContext
+    useRoomContext,
+    useVoiceAssistant,
 } from "@livekit/components-react"
-import { Track, ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
-import { useQueryClient } from "@tanstack/react-query"
-import { agentApi } from "@/lib/api/services/agent-api"
+import { ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
+import { VoiceConnectionProvider, useVoiceConnection } from "@/components/ai-sensei/voice-core/use-connection"
+import { VoiceRoomWrapper } from "@/components/ai-sensei/voice-core/room-wrapper"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { cn } from "@workspace/ui/lib/utils"
 
 // Types
-type LocalConnectionState = "idle" | "connecting" | "connected" | "error"
-
-interface LiveKitInfo {
-    token: string
-    wsUrl: string
-    roomId: string
-}
+type LocalConnectionState = "idle" | "connecting" | "connected" | "disconnecting" | "error"
 
 type GraphName = "japanese_tutor" | "roleplay" | "free_conversation"
+
+const VOICE_AGENT_URL = process.env.NEXT_PUBLIC_VOICE_AGENT_URL || "http://localhost:8082"
 
 const GRAPH_OPTIONS: Array<{ value: GraphName; label: string }> = [
     { value: "japanese_tutor", label: "Japanese Tutor (Sakura)" },
@@ -89,124 +82,181 @@ function buildRuntimeConfigPayload(graphName: GraphName, geminiApiKey?: string) 
 }
 
 export function LivekitVoiceAgent() {
+    return (
+        <VoiceConnectionProvider>
+            <LivekitVoiceAgentContent />
+        </VoiceConnectionProvider>
+    )
+}
+
+function LivekitVoiceAgentContent() {
     const [connectionState, setConnectionState] = useState<LocalConnectionState>("idle")
     const [selectedGraph, setSelectedGraph] = useState<GraphName>("japanese_tutor")
     const [isUpdatingConfig, setIsUpdatingConfig] = useState(false)
-    const [liveKitInfo, setLiveKitInfo] = useState<LiveKitInfo | null>(null)
+    const [queuedStart, setQueuedStart] = useState(false)
     const [sessionTokens, setSessionTokens] = useState({ prompt: 0, completion: 0, total: 0 })
-    const sessionTokensRef = useRef({ prompt: 0, completion: 0, total: 0 })
     const [error, setError] = useState<string | null>(null)
-    const startTimeRef = useRef<number | null>(null)
-    const liveKitInfoRef = useRef<LiveKitInfo | null>(null)
-    const abortControllerRef = useRef<AbortController | null>(null)
-    const queryClient = useQueryClient()
-    const sessionGeminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    const pendingStartRef = useRef(false)
+    const connectInFlightRef = useRef(false)
+    const lastDisconnectedAtRef = useRef(0)
+    const disconnectFallbackRef = useRef<number | null>(null)
+    const roomIdRef = useRef<string | null>(null)
+    const allowClientGeminiKey = process.env.NEXT_PUBLIC_LIVEKIT_ALLOW_CLIENT_GEMINI_KEY === "true"
+    const sessionGeminiApiKey = allowClientGeminiKey ? process.env.NEXT_PUBLIC_GEMINI_API_KEY : undefined
+    const {
+        connect: connectToRoom,
+        disconnect: disconnectFromRoom,
+        wsUrl,
+        token,
+        shouldConnect,
+    } = useVoiceConnection()
 
-    // Connect
-    const connect = useCallback(async () => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort()
+    const startAgentForRoom = useCallback(async (roomId: string, graphName: GraphName) => {
+        const payload = {
+            channel_name: roomId,
+            graph_name: graphName,
+            user_id: "Learner",
         }
-        const abortController = new AbortController()
-        abortControllerRef.current = abortController
 
+        let lastError: Error | null = null
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+            try {
+                const resp = await fetch(`${VOICE_AGENT_URL}/start`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                })
+
+                if (!resp.ok) {
+                    const message = await resp.text().catch(() => "")
+                    throw new Error(message || `Voice agent start failed (status ${resp.status})`)
+                }
+
+                return
+            } catch (err: any) {
+                lastError = err instanceof Error ? err : new Error(String(err))
+                if (attempt < 3) {
+                    await new Promise((resolve) => window.setTimeout(resolve, 400 * attempt))
+                }
+            }
+        }
+
+        if (lastError) {
+            throw lastError
+        }
+    }, [])
+
+    const stopAgentForRoom = useCallback(async (roomId?: string | null) => {
+        if (!roomId) {
+            return
+        }
+
+        try {
+            await fetch(`${VOICE_AGENT_URL}/stop`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ channel_name: roomId }),
+            })
+        } catch (err) {
+            console.error("[VoiceAgent] Failed to send stop signal:", err)
+        }
+    }, [])
+
+    const connectInternal = useCallback(async () => {
+        if (connectInFlightRef.current) {
+            console.log("[voice-ui] Ignore connect: request is already in flight")
+            return
+        }
+
+        connectInFlightRef.current = true
         setConnectionState("connecting")
         setError(null)
         setSessionTokens({ prompt: 0, completion: 0, total: 0 })
-        sessionTokensRef.current = { prompt: 0, completion: 0, total: 0 }
-        startTimeRef.current = Date.now()
+        console.log("[voice-ui] Start connect flow")
 
         try {
-            // 1. Get LiveKit Token from Torii Gateway
-            const result = await agentApi.sensei.getLivekitToken(selectedGraph, sessionGeminiApiKey)
-            if (abortController.signal.aborted) return
-
-            const { token, wsUrl, roomId } = result
-
-            setLiveKitInfo({ token, wsUrl, roomId })
-            liveKitInfoRef.current = { token, wsUrl, roomId }
-
-            if (abortController.signal.aborted) return
-            setConnectionState("connected")
-        } catch (err: any) {
-            if (err.name === "AbortError") {
-                console.log("[VoiceAgent] Connection aborted")
-                return
+            const elapsedSinceDisconnected = Date.now() - lastDisconnectedAtRef.current
+            const reconnectCooldownMs = 250
+            const waitMs = reconnectCooldownMs - elapsedSinceDisconnected
+            if (waitMs > 0) {
+                await new Promise((resolve) => window.setTimeout(resolve, waitMs))
             }
+
+            const details = await connectToRoom(selectedGraph, sessionGeminiApiKey)
+            roomIdRef.current = details.roomId
+            await startAgentForRoom(details.roomId, selectedGraph)
+            console.log("[voice-ui] Token ready, waiting for LiveKit connection")
+        } catch (err: any) {
             console.error("[VoiceAgent] Connection failed:", err)
+            void stopAgentForRoom(roomIdRef.current)
+            disconnectFromRoom()
             setError(err.message || "Failed to connect")
             setConnectionState("error")
         } finally {
-            if (abortControllerRef.current === abortController) {
-                abortControllerRef.current = null
-            }
+            connectInFlightRef.current = false
         }
-    }, [selectedGraph, sessionGeminiApiKey])
+    }, [connectToRoom, disconnectFromRoom, selectedGraph, sessionGeminiApiKey, startAgentForRoom, stopAgentForRoom])
+
+    // Connect
+    const connect = useCallback(async () => {
+        if (connectionState === "disconnecting") {
+            pendingStartRef.current = true
+            setQueuedStart(true)
+            return
+        }
+
+        pendingStartRef.current = false
+        setQueuedStart(false)
+        await connectInternal()
+    }, [connectionState, connectInternal])
 
     const disconnect = useCallback(() => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort()
-            abortControllerRef.current = null
-        }
+        console.log("[voice-ui] Start disconnect flow")
+        pendingStartRef.current = false
+        setQueuedStart(false)
+        setConnectionState("disconnecting")
+        void stopAgentForRoom(roomIdRef.current)
+        roomIdRef.current = null
+        disconnectFromRoom()
 
-        if (liveKitInfo?.roomId) {
-            const durationSec = startTimeRef.current ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0
-            // Send end signal to gateway for billing
-            agentApi.sensei.livekitEnd(liveKitInfo.roomId, {
-                inputTokens: sessionTokensRef.current.prompt,
-                outputTokens: sessionTokensRef.current.completion,
-                totalTokens: sessionTokensRef.current.total,
-                durationSec
-            }).then(() => {
-                // Invalidate quota status to trigger UI update
-                queryClient.invalidateQueries({ queryKey: ["quota-status"] })
-            }).catch(console.error)
+        if (disconnectFallbackRef.current) {
+            window.clearTimeout(disconnectFallbackRef.current)
         }
+        disconnectFallbackRef.current = window.setTimeout(() => {
+            setConnectionState((prev) => (prev === "disconnecting" ? "idle" : prev))
+            lastDisconnectedAtRef.current = Date.now()
+        }, 3000)
+    }, [disconnectFromRoom, stopAgentForRoom])
 
+    const handleRoomConnected = useCallback(() => {
+        setConnectionState((prev) => (prev === "disconnecting" ? prev : "connected"))
+        setError(null)
+        console.log("[voice-ui] LiveKit connected")
+    }, [])
+
+    const handleRoomDisconnected = useCallback(() => {
+        if (disconnectFallbackRef.current) {
+            window.clearTimeout(disconnectFallbackRef.current)
+            disconnectFallbackRef.current = null
+        }
+        void stopAgentForRoom(roomIdRef.current)
+        roomIdRef.current = null
+        disconnectFromRoom()
         setConnectionState("idle")
-        setLiveKitInfo(null)
-        liveKitInfoRef.current = null
-        startTimeRef.current = null
-    }, [liveKitInfo, queryClient])
+        lastDisconnectedAtRef.current = Date.now()
 
-    // Cleanup on Unmount and Page Navigation
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            const currentRoomId = liveKitInfoRef.current?.roomId
-            if (startTimeRef.current && currentRoomId) {
-                const durationSec = Math.floor((Date.now() - startTimeRef.current) / 1000)
-                const payload = JSON.stringify({
-                    roomName: currentRoomId,
-                    inputTokens: sessionTokensRef.current.prompt,
-                    outputTokens: sessionTokensRef.current.completion,
-                    totalTokens: sessionTokensRef.current.total,
-                    durationSec
-                })
-
-                // Using sendBeacon for reliable delivery during page unload
-                const blob = new Blob([payload], { type: "application/json" })
-                navigator.sendBeacon(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/api/agents/livekit-end`, blob)
-
-                console.log("[VoiceAgent] beforeunload cleanup: Signals sent for room", currentRoomId)
-            }
+        if (pendingStartRef.current) {
+            pendingStartRef.current = false
+            setQueuedStart(false)
+            void connectInternal()
         }
+    }, [disconnectFromRoom, connectInternal, stopAgentForRoom])
 
-        window.addEventListener("beforeunload", handleBeforeUnload)
-
+    useEffect(() => {
         return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload)
-            // If the component unmounts while connected (e.g. React router navigation)
-            const currentRoomId = liveKitInfoRef.current?.roomId
-            if (startTimeRef.current && currentRoomId) {
-                const durationSec = Math.floor((Date.now() - startTimeRef.current) / 1000)
-                agentApi.sensei.livekitEnd(currentRoomId, {
-                    inputTokens: sessionTokensRef.current.prompt,
-                    outputTokens: sessionTokensRef.current.completion,
-                    totalTokens: sessionTokensRef.current.total,
-                    durationSec
-                }).catch(console.error)
-
-                console.log("[VoiceAgent] Unmount cleanup: Signal sent for room", currentRoomId)
+            if (disconnectFallbackRef.current) {
+                window.clearTimeout(disconnectFallbackRef.current)
+                disconnectFallbackRef.current = null
             }
         }
     }, [])
@@ -274,7 +324,7 @@ export function LivekitVoiceAgent() {
                 </Card>
             )}
 
-            {connectionState === "connecting" && (
+            {(connectionState === "connecting" || connectionState === "disconnecting") && (
                 <Card className="w-full max-w-xl mx-auto border-border/40 rounded-3xl bg-card/85 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-500">
                     <CardContent className="py-14 px-6 flex flex-col items-center justify-center gap-5">
                         <div className="relative">
@@ -282,22 +332,30 @@ export function LivekitVoiceAgent() {
                             <Loader2 className="relative size-12 text-primary animate-spin" strokeWidth={2.5} />
                         </div>
                         <div className="text-center space-y-2">
-                            <p className="text-base text-foreground font-bold">Sensei đang chuẩn bị phòng...</p>
-                            <p className="text-xs text-muted-foreground">Vui lòng chờ trong giây lát khi chúng tôi thiết lập giáo án</p>
+                            <p className="text-base text-foreground font-bold">
+                                {connectionState === "disconnecting" ? "Đang đóng phiên trước..." : "Sensei đang chuẩn bị phòng..."}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {connectionState === "disconnecting"
+                                    ? queuedStart
+                                        ? "Đã ghi nhận yêu cầu bắt đầu lại. Hệ thống sẽ tự nối lại ngay khi phiên cũ đóng xong"
+                                        : "Vui lòng chờ một chút trước khi bắt đầu lại để tránh mất âm thanh"
+                                    : "Vui lòng chờ trong giây lát khi chúng tôi thiết lập giáo án"}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
             )}
 
-            {connectionState === "connected" && liveKitInfo && (
-                <div className="w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {token && wsUrl && (shouldConnect || connectionState === "disconnecting") && (
+                <div className={cn(
+                    "w-full h-full animate-in fade-in slide-in-from-bottom-4 duration-700",
+                    connectionState === "connected" ? "" : "hidden",
+                )}>
                     <Card className="border-border/40 shadow-none rounded-3xl overflow-hidden bg-card/85 backdrop-blur-xl relative max-h-[calc(100dvh-180px)]">
-                        <LiveKitRoom
-                            video={false}
-                            audio={true}
-                            token={liveKitInfo.token}
-                            serverUrl={liveKitInfo.wsUrl}
-                            onDisconnected={disconnect}
+                        <VoiceRoomWrapper
+                            onConnected={handleRoomConnected}
+                            onDisconnected={handleRoomDisconnected}
                             className="w-full h-full p-3 sm:p-4"
                         >
                             <RuntimeSessionConfigUpdater
@@ -307,15 +365,11 @@ export function LivekitVoiceAgent() {
                             />
 
                             <UsageMonitor onUpdate={(usage: { prompt: number; completion: number; total: number }) => {
-                                setSessionTokens(prev => {
-                                    const newTokens = {
-                                        prompt: prev.prompt + usage.prompt,
-                                        completion: prev.completion + usage.completion,
-                                        total: prev.total + usage.total
-                                    }
-                                    sessionTokensRef.current = newTokens
-                                    return newTokens
-                                })
+                                setSessionTokens(prev => ({
+                                    prompt: prev.prompt + usage.prompt,
+                                    completion: prev.completion + usage.completion,
+                                    total: prev.total + usage.total,
+                                }))
                             }} />
 
                             <div className="w-full max-w-2xl mx-auto rounded-2xl border border-border/50 bg-background/60 p-4 sm:p-5 flex flex-col items-center gap-4 sm:gap-5">
@@ -358,8 +412,7 @@ export function LivekitVoiceAgent() {
                                 </Button>
                             </div>
 
-                            <RoomAudioRenderer />
-                        </LiveKitRoom>
+                        </VoiceRoomWrapper>
                     </Card>
                 </div>
             )}
@@ -377,7 +430,7 @@ function RuntimeSessionConfigUpdater({
     onUpdatingChange?: (updating: boolean) => void
 }) {
     const room = useRoomContext()
-    const participants = useParticipants()
+    const { agent } = useVoiceAssistant()
     const connectionState = useConnectionState()
     const previousGraphRef = useRef<GraphName>(graphName)
 
@@ -391,8 +444,7 @@ function RuntimeSessionConfigUpdater({
             return
         }
 
-        const agentParticipant = participants.find((p) => p.identity.startsWith("agent-") || p.isAgent)
-        if (!agentParticipant?.identity) {
+        if (!agent?.identity) {
             return
         }
 
@@ -401,7 +453,7 @@ function RuntimeSessionConfigUpdater({
             onUpdatingChange?.(true)
             try {
                 const response = await room.localParticipant.performRpc({
-                    destinationIdentity: agentParticipant.identity,
+                    destinationIdentity: agent.identity,
                     method: "pg.updateConfig",
                     payload: JSON.stringify(buildRuntimeConfigPayload(graphName, geminiApiKey)),
                 })
@@ -421,7 +473,7 @@ function RuntimeSessionConfigUpdater({
         return () => {
             cancelled = true
         }
-    }, [connectionState, graphName, participants, room, geminiApiKey, onUpdatingChange])
+    }, [connectionState, graphName, room, geminiApiKey, onUpdatingChange, agent?.identity])
 
     return null
 }
@@ -431,13 +483,9 @@ function RuntimeSessionConfigUpdater({
  */
 function AgentStatus() {
     const connState = useConnectionState()
-    const participants = useParticipants()
-    const tracks = useTracks([Track.Source.Microphone])
+    const { agent } = useVoiceAssistant()
 
-    // Find agent participant
-    const agentParticipant = participants.find(p => p.identity.startsWith("agent-") || p.isAgent)
-    const agentTrack = tracks.find((t: any) => t.participant.identity.startsWith("agent-") || t.participant.isAgent)
-    const isSpeaking = agentTrack?.participant.isSpeaking ?? false
+    const isSpeaking = agent?.isSpeaking ?? false
 
     // Multi-phase status logic
     let statusLabel = ""
@@ -447,7 +495,7 @@ function AgentStatus() {
     if (connState === LiveKitConnectionState.Connecting || connState === LiveKitConnectionState.Reconnecting) {
         statusLabel = "Đang kết nối phòng..."
         subLabel = "Đang thiết lập đường truyền bảo mật..."
-    } else if (!agentParticipant) {
+    } else if (!agent) {
         statusLabel = "Đang chờ Sensei vào lớp..."
         subLabel = "Sensei đang chuẩn bị giáo án, đợi một xíu nhé!"
     } else {
@@ -464,7 +512,7 @@ function AgentStatus() {
                 "px-3 py-1.5 rounded-full border text-[9px] font-bold uppercase tracking-tighter shadow-sm transition-all duration-500",
                 isConnected
                     ? (isSpeaking ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted/50 text-muted-foreground border-border/40")
-                    : "bg-primary/5 text-primary border-primary/10"
+                    : "bg-primary/5 text-primary border-primary/10",
             )}>
                 {isConnected ? (isSpeaking ? "Sensei đang nói" : "Trực tuyến • Sẵn sàng") : "Đang đồng bộ..."}
             </div>
@@ -485,20 +533,19 @@ function AgentStatus() {
  * Visualizer component that listens to tracks in the room
  */
 function AgentVisualizer() {
-    const tracks = useTracks([Track.Source.Microphone])
-    const agentTrack = tracks.find((t: any) => t.participant.identity.startsWith("agent-") || t.participant.isAgent)
-    const isSpeaking = agentTrack?.participant.isSpeaking ?? false
+    const { agent } = useVoiceAssistant()
+    const isSpeaking = agent?.isSpeaking ?? false
 
     return (
         <div className="w-full flex items-center justify-center py-1">
             <div className={cn(
                 "size-32 sm:size-40 rounded-full flex items-center justify-center border transition-all duration-500 bg-gradient-to-b from-background to-muted/20",
-                isSpeaking ? "border-emerald-400/60 shadow-[0_0_40px_rgba(16,185,129,0.25)]" : "border-border/70"
+                isSpeaking ? "border-emerald-400/60 shadow-[0_0_40px_rgba(16,185,129,0.25)]" : "border-border/70",
             )}>
                 <Mic
                     className={cn(
                         "size-12 sm:size-14 transition-all duration-300",
-                        isSpeaking ? "text-emerald-500 animate-pulse" : "text-muted-foreground/40"
+                        isSpeaking ? "text-emerald-500 animate-pulse" : "text-muted-foreground/40",
                     )}
                     strokeWidth={1.8}
                 />
@@ -522,7 +569,7 @@ function UsageMonitor({ onUpdate }: { onUpdate: (usage: { prompt: number; comple
                         onUpdate({
                             prompt: data.inputTokens || 0,
                             completion: data.outputTokens || 0,
-                            total: data.totalTokens || 0
+                            total: data.totalTokens || 0,
                         })
                     }
                 } catch (e) {

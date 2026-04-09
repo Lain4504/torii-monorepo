@@ -167,27 +167,6 @@ export const agentApi = {
             const response = await apiClient.get<{ success: boolean; data: { limit: number; used: number; remaining: number; tier: string; resetAt: string } }>('/api/agents/sensei/quota-status');
             return response.data.data;
         },
-        getLivekitToken: async (graphName?: string, geminiApiKey?: string): Promise<{ token: string; wsUrl: string; roomId: string }> => {
-            const response = await apiClient.post<{ success: boolean; data: { token: string; wsUrl: string; roomId: string }; message?: string }>('/api/agents/livekit-token', {
-                graphName,
-                geminiApiKey,
-            });
-            if (!response.data.success || !response.data.data) {
-                throw new Error(response.data.message || 'Failed to get LiveKit token');
-            }
-            return response.data.data;
-        },
-
-        livekitEnd: async (roomName: string, usage: { inputTokens: number; outputTokens: number; totalTokens: number; durationSec?: number }): Promise<{ billed: boolean }> => {
-            const response = await apiClient.post<{ success: boolean; data: { billed: boolean }; message?: string }>('/api/agents/livekit-end', {
-                roomName,
-                ...usage
-            });
-            if (!response.data.success || !response.data.data) {
-                throw new Error(response.data.message || 'Failed to end LiveKit session');
-            }
-            return response.data.data;
-        }
     },
 
     assessment: {

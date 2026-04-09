@@ -149,99 +149,242 @@ function areConfigsEqual(a: SessionConfig, b: SessionConfig): boolean {
     );
 }
 
-export default defineAgent({
-    entry: async (ctx: JobContext) => {
-        const roomName = ctx.job.room?.name || 'unknown';
-        console.log(`[Agent] Joining room: ${roomName}`);
+class SessionManager {
+    private activeConfig: SessionConfig;
+    private activeSession: voice.AgentSession | null = null;
+    private replaceQueue: Promise<void> = Promise.resolve();
+    private userSpeechStartedAt = 0;
+    private userSpeechEndedAt = 0;
 
-        // Wait for room connection
-        await ctx.connect(undefined, AutoSubscribe.AUDIO_ONLY);
-        // Make our presence known to other agents immediately
-        const myJoiningTimeStr = Date.now().toString();
-        // We use metadata as it's more standard and triggers specific events
-        await ctx.room.localParticipant.updateMetadata(JSON.stringify({ joinedAt: myJoiningTimeStr }));
-        // Also update name for legacy compatibility with older agents until they are all restarted
-        await ctx.room.localParticipant.updateName(myJoiningTimeStr);
+    constructor(
+        private readonly ctx: JobContext,
+        private readonly roomName: string,
+        private readonly participantIdentity: string,
+        initialConfig: SessionConfig,
+    ) {
+        this.activeConfig = initialConfig;
+    }
 
-        // ─── Continuous Agent Safety (Anti-Double Agent) ─────────────────────────
-        const myIdentity = `agent-${ctx.job.id}`;
-        let shouldQuit = false;
+    private createModel(config: SessionConfig) {
+        return new google.beta.realtime.RealtimeModel({
+            model: config.model,
+            voice: config.voice as any,
+            temperature: config.temperature,
+            instructions: config.instructions,
+            apiKey: config.geminiApiKey || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY,
+            maxOutputTokens: config.maxOutputTokens === 'inf' ? undefined : config.maxOutputTokens,
+            modalities: config.modalities as any,
+            // Speed up end-of-turn detection for snappier voice replies.
+            realtimeInputConfig: {
+                automaticActivityDetection: {
+                    startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_HIGH,
+                    endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_HIGH,
+                    silenceDurationMs: 220,
+                    prefixPaddingMs: 120,
+                },
+            },
+            // Disable explicit reasoning budget for lower first-token latency.
+            thinkingConfig: {
+                thinkingBudget: 0,
+            },
+        });
+    }
 
-        const checkSafety = async () => {
-            const myTime = parseInt(myJoiningTimeStr, 10);
+    private createSession(config: SessionConfig) {
+        return new voice.AgentSession({
+            llm: this.createModel(config),
+            voiceOptions: {
+                preemptiveGeneration: true,
+                minEndpointingDelay: 120,
+                maxEndpointingDelay: 1200,
+            },
+        });
+    }
 
-            let newestPeerId = '';
-            let newestPeerTime = 0;
+    private createAgent(config: SessionConfig, chatCtx?: any) {
+        return new voice.Agent({
+            instructions: config.instructions,
+            ...(chatCtx ? { chatCtx } : {}),
+        });
+    }
 
-            for (const [, p] of ctx.room.remoteParticipants) {
-                if (p.identity.startsWith('agent-')) {
-                    // Try to get peer join time from their metadata first
-                    let peerTime = 0;
-                    try {
-                        const meta = JSON.parse(p.metadata || '{}');
-                        peerTime = parseInt(meta.joinedAt || '0', 10) || 0;
-                    } catch (e) {
-                        // Not JSON, fallback to name
-                    }
-
-                    // Fallback to name (for legacy compatibility)
-                    if (peerTime === 0) {
-                        peerTime = parseInt(p.name || '0', 10) || 0;
-                    }
-
-                    if (peerTime > newestPeerTime || (peerTime === newestPeerTime && p.identity > newestPeerId)) {
-                        newestPeerTime = peerTime;
-                        newestPeerId = p.identity;
-                    }
-                }
+    private attachLatencyTracking(session: voice.AgentSession) {
+        session.on(voice.AgentSessionEventTypes.UserStateChanged, (ev: any) => {
+            if (ev?.newState === 'speaking') {
+                this.userSpeechStartedAt = Date.now();
+                this.userSpeechEndedAt = 0;
             }
-
-            if (newestPeerId) {
-                // If peer joined AFTER me (larger timestamp), I am the OLD agent. I should quit.
-                // If timestamps are equal, use identity as tie-breaker.
-                if (newestPeerTime > myTime || (newestPeerTime === myTime && myIdentity > newestPeerId)) {
-                    if (!shouldQuit) {
-                        console.log(`[Agent] [Safety] Newer peer agent detected: ${newestPeerId} (Newer: ${newestPeerTime} > MyTime: ${myTime}). Quitting OLD job: ${myIdentity}`);
-                        shouldQuit = true;
-                        await ctx.room.disconnect();
-                    }
-                    return true;
-                }
-                console.log(`[Agent] [Safety] Peer agent detected: ${newestPeerId} (Older: ${newestPeerTime} <= MyTime: ${myTime}). Proceeding...`);
-            }
-            return false;
-        };
-
-        // 1. Initial check with minimal jitter to avoid race conditions
-        const jitter = Math.floor(Math.random() * 100) + 50; // Just 50-150ms
-        await new Promise(resolve => setTimeout(resolve, jitter));
-
-        if (await checkSafety()) return;
-
-        // Removed retry loop for legacy name propagation to minimize initial delay.
-        // Modern agents use metadata which is much faster.
-
-        // 2. Continuous monitoring for new agents joining or updating info
-        ctx.room.on('participantConnected', async (p) => {
-            if (p.identity.startsWith('agent-')) {
-                console.log(`[Agent] [Safety] New agent joined: ${p.identity}. Re-running safety check in 1s...`);
-                await new Promise(r => setTimeout(r, 1000));
-                await checkSafety();
+            if (ev?.oldState === 'speaking' && ev?.newState === 'listening') {
+                this.userSpeechEndedAt = Date.now();
+                console.log(`[Agent] User speech ended at ${this.userSpeechEndedAt}`);
             }
         });
 
-        // Instant reaction if another agent updates its metadata/name
-        const onPeerUpdate = async (p: any) => {
-            if (p.identity.startsWith('agent-') && p.identity !== myIdentity) {
-                console.log(`[Agent] [Safety] Peer agent ${p.identity} updated info. Re-checking safety...`);
-                await checkSafety();
+        session.on(voice.AgentSessionEventTypes.AgentStateChanged, (ev: any) => {
+            if (ev?.newState === 'speaking') {
+                const now = Date.now();
+                const hasValidEndMarker =
+                    this.userSpeechEndedAt > 0 && this.userSpeechEndedAt >= this.userSpeechStartedAt;
+                const fromUserEnd = hasValidEndMarker ? now - this.userSpeechEndedAt : -1;
+                const fromUserStart = this.userSpeechStartedAt > 0 ? now - this.userSpeechStartedAt : -1;
+                if (fromUserEnd >= 0) {
+                    console.log(
+                        `[Agent] Latency stop-speaking->agent-speaking: ${fromUserEnd}ms (start->speak: ${fromUserStart}ms)`,
+                    );
+                } else {
+                    console.log(`[Agent] Agent speaking (no user end marker yet, start->speak: ${fromUserStart}ms)`);
+                }
+            }
+        });
+    }
+
+    private async startSession(config: SessionConfig, chatCtx?: any, announceUpdate = false) {
+        const session = this.createSession(config);
+        const agent = this.createAgent(config, chatCtx);
+
+        this.attachLatencyTracking(session);
+        await (session as any).start({ agent, room: this.ctx.room });
+
+        this.activeConfig = config;
+        this.activeSession = session;
+
+        console.log(`[Agent] Session started for room: ${this.roomName} using model: ${config.model}`);
+
+        if (announceUpdate) {
+            try {
+                await session.generateReply({
+                    instructions:
+                        'Briefly acknowledge that your configuration has been updated and you are ready to continue speaking Japanese.',
+                });
+            } catch (error) {
+                console.warn('[Agent] Failed to send post-update acknowledgement.', error);
+            }
+        }
+    }
+
+    private async replaceSession(nextConfig: SessionConfig) {
+        if (!this.activeSession) {
+            return;
+        }
+
+        const previousSession = this.activeSession;
+        const preservedChatCtx = previousSession.history;
+
+        console.log(`[Agent] Replacing session with updated config for participant ${this.participantIdentity}`);
+        try {
+            await previousSession.close();
+        } catch (error) {
+            console.warn('[Agent] Failed to close previous session cleanly, continuing replacement.', error);
+        }
+
+        await this.startSession(nextConfig, preservedChatCtx, true);
+    }
+
+    private async queueSessionReplacement(nextConfig: SessionConfig) {
+        this.replaceQueue = this.replaceQueue
+            .then(async () => {
+                await this.replaceSession(nextConfig);
+            })
+            .catch((error) => {
+                console.error('[Agent] Session replacement queue failed.', error);
+            });
+        await this.replaceQueue;
+    }
+
+    async startInitialSession() {
+        await this.startSession(this.activeConfig);
+
+        try {
+            await this.activeSession?.generateReply({
+                instructions: 'Please begin the interaction with the user in a manner consistent with your instructions.',
+            });
+        } catch (error) {
+            console.warn('[Agent] Failed to send initial greeting.', error);
+        }
+    }
+
+    registerConfigUpdateRpc() {
+        this.ctx.room.localParticipant.registerRpcMethod('pg.updateConfig', async (data: any) => {
+            try {
+                if (!this.activeSession || data?.callerIdentity !== this.participantIdentity) {
+                    return JSON.stringify({ changed: false });
+                }
+
+                const incomingPatch = parseSessionMetadata(
+                    typeof data?.payload === 'string' ? data.payload : undefined,
+                );
+                const nextConfig = mergeSessionConfig(this.activeConfig, incomingPatch);
+
+                if (areConfigsEqual(this.activeConfig, nextConfig)) {
+                    return JSON.stringify({ changed: false });
+                }
+
+                await this.queueSessionReplacement(nextConfig);
+                return JSON.stringify({ changed: true });
+            } catch (error) {
+                console.error('[Agent] pg.updateConfig failed.', error);
+                return JSON.stringify({ changed: false, error: 'update_failed' });
+            }
+        });
+    }
+}
+
+export default defineAgent({
+    entry: async (ctx: JobContext) => {
+        const roomName = ctx.job.room?.name || 'unknown';
+        let shutdownRequested = false;
+        let pendingNoHumanShutdown: ReturnType<typeof setTimeout> | null = null;
+
+        const clearPendingNoHumanShutdown = () => {
+            if (!pendingNoHumanShutdown) {
+                return;
+            }
+            clearTimeout(pendingNoHumanShutdown);
+            pendingNoHumanShutdown = null;
+        };
+
+        const requestShutdown = (reason: string) => {
+            if (shutdownRequested) {
+                return;
+            }
+            shutdownRequested = true;
+            clearPendingNoHumanShutdown();
+            console.log(`[Agent] Requesting shutdown: ${reason}`);
+            try {
+                ctx.shutdown(reason);
+            } catch (error) {
+                console.warn('[Agent] Failed to request shutdown cleanly.', error);
             }
         };
 
-        ctx.room.on('participantMetadataChanged', (_, p) => onPeerUpdate(p));
-        ctx.room.on('participantNameChanged', (_, p) => onPeerUpdate(p));
+        const scheduleNoHumanShutdown = () => {
+            clearPendingNoHumanShutdown();
+            pendingNoHumanShutdown = setTimeout(() => {
+                pendingNoHumanShutdown = null;
+                const learnersLeft = Array.from(ctx.room.remoteParticipants.values()).filter(rem =>
+                    !rem.identity.startsWith('agent-')
+                ).length;
 
-        // 3. Disconnect when human leaves
+                if (learnersLeft === 0) {
+                    console.log('[Agent] No human participants left after grace period. Shutting down job.');
+                    requestShutdown('no_human_participants');
+                    return;
+                }
+
+                console.log('[Agent] Human participant rejoined during grace period. Keeping session alive.');
+            }, 4000);
+        };
+
+        console.log(`[Agent] Joining room: ${roomName}`);
+
+        // Keep startup flow minimal and deterministic, like gemini-playground.
+        await ctx.connect(undefined, AutoSubscribe.AUDIO_ONLY);
+        ctx.room.on('participantConnected', (p) => {
+            if (!p.identity.startsWith('agent-')) {
+                clearPendingNoHumanShutdown();
+            }
+        });
+        // Disconnect when no learner remains in the room.
         ctx.room.on('participantDisconnected', (p) => {
             if (!p.identity.startsWith('agent-')) {
                 const learnersLeft = Array.from(ctx.room.remoteParticipants.values()).filter(rem =>
@@ -249,14 +392,11 @@ export default defineAgent({
                 ).length;
 
                 if (learnersLeft === 0) {
-                    console.log(`[Agent] No human participants left. Job ${myIdentity} disconnecting...`);
-                    setTimeout(() => ctx.room.disconnect(), 1000);
+                    console.log('[Agent] No human participants detected. Starting shutdown grace period.');
+                    scheduleNoHumanShutdown();
                 }
             }
         });
-
-
-
 
         console.log(`[Agent] Connected to room: ${roomName} (Job: ${ctx.job.id})`);
 
@@ -295,161 +435,9 @@ export default defineAgent({
             console.log('[Agent] Applying session config from participant metadata.');
         }
 
-        const createModel = (config: SessionConfig) =>
-            new google.beta.realtime.RealtimeModel({
-                model: config.model,
-                voice: config.voice as any,
-                temperature: config.temperature,
-                instructions: config.instructions,
-                apiKey: config.geminiApiKey,
-                maxOutputTokens: config.maxOutputTokens === 'inf' ? undefined : config.maxOutputTokens,
-                modalities: config.modalities as any,
-                // ─── Latency Optimization ──────────────────────────────────────────
-                // Use high speech sensitivity and shorter silence window for faster turn-end detection.
-                realtimeInputConfig: {
-                    automaticActivityDetection: {
-                        startOfSpeechSensitivity: StartSensitivity.START_SENSITIVITY_HIGH,
-                        endOfSpeechSensitivity: EndSensitivity.END_SENSITIVITY_HIGH,
-                        silenceDurationMs: 220,
-                        prefixPaddingMs: 120,
-                    },
-                },
-                // Disable reasoning/thinking budget to reduce voice reply latency.
-                thinkingConfig: {
-                    thinkingBudget: 0,
-                },
-            });
-
-        const createSession = (config: SessionConfig) =>
-            new voice.AgentSession({
-                llm: createModel(config),
-                // Keep endpointing tight to reduce handoff delay from user speech to model response.
-                voiceOptions: {
-                    preemptiveGeneration: true,
-                    minEndpointingDelay: 120,
-                    maxEndpointingDelay: 1200,
-                },
-            });
-
-        const createAgent = (config: SessionConfig, chatCtx?: any) =>
-            new voice.Agent({
-                instructions: config.instructions,
-                ...(chatCtx ? { chatCtx } : {}),
-            });
-
-        let userSpeechStartedAt = 0;
-        let userSpeechEndedAt = 0;
-        const attachLatencyTracking = (session: voice.AgentSession) => {
-            session.on(voice.AgentSessionEventTypes.UserStateChanged, (ev: any) => {
-                if (ev?.newState === 'speaking') {
-                    userSpeechStartedAt = Date.now();
-                    // Reset end marker at start of a new user turn to avoid stale carry-over.
-                    userSpeechEndedAt = 0;
-                }
-                if (ev?.oldState === 'speaking' && ev?.newState === 'listening') {
-                    userSpeechEndedAt = Date.now();
-                    console.log(`[Agent] User speech ended at ${userSpeechEndedAt}`);
-                }
-            });
-
-            session.on(voice.AgentSessionEventTypes.AgentStateChanged, (ev: any) => {
-                if (ev?.newState === 'speaking') {
-                    const now = Date.now();
-                    const hasValidEndMarker = userSpeechEndedAt > 0 && userSpeechEndedAt >= userSpeechStartedAt;
-                    const fromUserEnd = hasValidEndMarker ? now - userSpeechEndedAt : -1;
-                    const fromUserStart = userSpeechStartedAt > 0 ? now - userSpeechStartedAt : -1;
-                    if (fromUserEnd >= 0) {
-                        console.log(`[Agent] Latency stop-speaking->agent-speaking: ${fromUserEnd}ms (start->speak: ${fromUserStart}ms)`);
-                    } else {
-                        console.log(`[Agent] Agent speaking (no user end marker yet, start->speak: ${fromUserStart}ms)`);
-                    }
-                }
-            });
-        };
-
-        let activeConfig = initialConfig;
-        let activeSession: voice.AgentSession | null = null;
-        let activeAgent: voice.Agent | null = null;
-
-        const startSession = async (config: SessionConfig, chatCtx?: any, announceUpdate = false) => {
-            const session = createSession(config);
-            const agent = createAgent(config, chatCtx);
-
-            attachLatencyTracking(session);
-            await (session as any).start({ agent, room: ctx.room });
-
-            activeConfig = config;
-            activeSession = session;
-            activeAgent = agent;
-
-            console.log(`[Agent] Session started for room: ${roomName} using model: ${config.model}`);
-
-            if (announceUpdate) {
-                try {
-                    await session.generateReply({
-                        instructions:
-                            'Briefly acknowledge that your configuration has been updated and you are ready to continue speaking Japanese.',
-                    });
-                } catch (error) {
-                    console.warn('[Agent] Failed to send post-update acknowledgement.', error);
-                }
-            }
-        };
-
-        const replaceSession = async (nextConfig: SessionConfig) => {
-            if (!activeSession || !activeAgent) {
-                return;
-            }
-
-            const previousSession = activeSession;
-            const preservedChatCtx = previousSession.history;
-
-            console.log(`[Agent] Replacing session with updated config for participant ${participant.identity}`);
-            try {
-                await previousSession.close();
-            } catch (error) {
-                console.warn('[Agent] Failed to close previous session cleanly, continuing replacement.', error);
-            }
-
-            await startSession(nextConfig, preservedChatCtx, true);
-        };
-
-        let replaceQueue: Promise<void> = Promise.resolve();
-        const queueSessionReplacement = async (nextConfig: SessionConfig) => {
-            replaceQueue = replaceQueue
-                .then(async () => {
-                    await replaceSession(nextConfig);
-                })
-                .catch((error) => {
-                    console.error('[Agent] Session replacement queue failed.', error);
-                });
-            await replaceQueue;
-        };
-
-        await startSession(initialConfig);
-
-        ctx.room.localParticipant.registerRpcMethod('pg.updateConfig', async (data: any) => {
-            try {
-                if (!activeSession || data?.callerIdentity !== participant.identity) {
-                    return JSON.stringify({ changed: false });
-                }
-
-                const incomingPatch = parseSessionMetadata(
-                    typeof data?.payload === 'string' ? data.payload : undefined,
-                );
-                const nextConfig = mergeSessionConfig(activeConfig, incomingPatch);
-
-                if (areConfigsEqual(activeConfig, nextConfig)) {
-                    return JSON.stringify({ changed: false });
-                }
-
-                await queueSessionReplacement(nextConfig);
-                return JSON.stringify({ changed: true });
-            } catch (error) {
-                console.error('[Agent] pg.updateConfig failed.', error);
-                return JSON.stringify({ changed: false, error: 'update_failed' });
-            }
-        });
+        const sessionManager = new SessionManager(ctx, roomName, participant.identity, initialConfig);
+        await sessionManager.startInitialSession();
+        sessionManager.registerConfigUpdateRpc();
 
         // ─── Token Tracking & Billing (DISABLED) ───────────────────────────────────
         /*
@@ -481,9 +469,27 @@ export default defineAgent({
         });
         */
 
-        // Wait for disconnection
-        await new Promise((resolve) => {
-            ctx.room.on('disconnected', resolve);
+        // Wait for either room disconnect or an explicit job shutdown.
+        await new Promise<void>((resolve) => {
+            if (shutdownRequested) {
+                resolve();
+                return;
+            }
+
+            let settled = false;
+            const finish = () => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                clearPendingNoHumanShutdown();
+                resolve();
+            };
+
+            ctx.room.on('disconnected', finish);
+            ctx.addShutdownCallback(async () => {
+                finish();
+            });
         });
 
         console.log(`[Agent] Finished session for room: ${roomName}`);

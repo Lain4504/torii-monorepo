@@ -8,12 +8,12 @@ dotenv.config({ path: envPath, override: true });
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
+import { execSync } from 'child_process';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerOptions, AgentServer, initializeLogger } from '@livekit/agents';
 import { WorkerMessage, JobType } from '@livekit/protocol';
 import { Room, ParticipantInfo, RoomServiceClient } from 'livekit-server-sdk';
 import { VOICE_GRAPHS } from './graphs';
-import fs from 'fs';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 const PORT = parseInt(process.env.PORT || '8082', 10);
@@ -40,6 +40,54 @@ app.use(express.json());
 // ─── LiveKit Agent Server ────────────────────────────────────────────────────
 let agentServer: AgentServer | null = null;
 const activeRoomJobs = new Map<string, { jobId: string, timestamp: number }>();
+
+type CleanupPhase = 'startup' | 'shutdown';
+
+function cleanupJobProcesses(phase: CleanupPhase) {
+    const procFilter = 'job_proc_lazy_main.cjs';
+    const agentEntryFilter = '/apps/voice-agent/src/agent-entry.ts';
+    const cmd = `ps -eo pid,ppid,args | grep '${procFilter}' | grep '${agentEntryFilter}' | grep -v grep`;
+
+    try {
+        const output = execSync(cmd, { encoding: 'utf8' }).trim();
+        if (!output) {
+            return;
+        }
+
+        const lines = output.split('\n');
+        for (const line of lines) {
+            const match = line.trim().match(/^(\d+)\s+(\d+)\s+/);
+            if (!match) {
+                continue;
+            }
+
+            const pid = Number(match[1]);
+            const ppid = Number(match[2]);
+            if (!Number.isInteger(pid) || pid <= 0 || pid === process.pid) {
+                continue;
+            }
+
+            // Startup: only remove clear orphans (ppid=1).
+            // Shutdown: remove all worker job processes tied to this entrypoint.
+            if (phase === 'startup' && ppid !== 1) {
+                continue;
+            }
+
+            try {
+                process.kill(pid, 'SIGKILL');
+                console.log(`[Server] [Cleanup] Sent SIGKILL to stale job process pid=${pid}, ppid=${ppid} (${phase}).`);
+            } catch (error) {
+                console.warn(`[Server] [Cleanup] Failed to terminate pid=${pid} (${phase}).`, error);
+            }
+        }
+    } catch (error: any) {
+        // Exit code 1 means no match found.
+        if (typeof error?.status === 'number' && error.status === 1) {
+            return;
+        }
+        console.warn(`[Server] [Cleanup] Failed to scan job processes (${phase}).`, error);
+    }
+}
 
 async function startAgentWorker() {
     console.log('[Server] Starting LiveKit Agent worker...');
@@ -240,6 +288,8 @@ httpServer.listen(PORT, async () => {
     console.log(`   HTTP: http://localhost:${PORT}`);
     console.log(`   Internal LiveKit URL: ${LIVEKIT_URL}\n`);
 
+    cleanupJobProcesses('startup');
+
     await startAgentWorker();
 });
 
@@ -248,6 +298,7 @@ const shutdown = () => {
     console.log('\n[Server] Shutting down gracefully...');
     // Immediately stop accepting new HTTP connections to free port 8082
     httpServer.close();
+    cleanupJobProcesses('shutdown');
 
     // In dev mode (tsx watch), we want to exit quickly so the new process
     // can bind to the port without EADDRINUSE. LiveKit's internal graceful 
