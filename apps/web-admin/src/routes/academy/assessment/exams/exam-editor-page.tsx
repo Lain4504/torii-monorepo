@@ -46,7 +46,6 @@ export default function AcademyExamEditorPage() {
 
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
     examType: "QUIZ",
     status: "DRAFT",
     totalTimeLimitMinutes: 60,
@@ -57,7 +56,6 @@ export default function AcademyExamEditorPage() {
     if (exam && isEditing) {
       setFormData({
         title: exam.title || "",
-        description: exam.description || "",
         examType: exam.examType || "QUIZ",
         status: exam.status || "DRAFT",
         totalTimeLimitMinutes: exam.totalTimeLimitMinutes || 60,
@@ -244,18 +242,7 @@ export default function AcademyExamEditorPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Mô tả/Hướng dẫn</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => {
-                    setFormData({ ...formData, description: e.target.value })
-                  }}
-                  placeholder="Nhập mô tả hoặc hướng dẫn làm bài cho học viên..."
-                  rows={6}
-                  className="resize-none focus-visible:ring-sky-500"
-                />
-              </div>
+
             </CardContent>
           </Card>
 

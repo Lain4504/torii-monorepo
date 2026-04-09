@@ -141,7 +141,6 @@ export default function ExamsPage() {
                 <TableHead className="w-[60px] text-center">#</TableHead>
                 <TableHead className="w-[300px]">Tên đề thi</TableHead>
                 <TableHead>Loại</TableHead>
-                <TableHead>Mô tả</TableHead>
                 <TableHead>Thời gian</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead>Ngày tạo</TableHead>
@@ -168,9 +167,6 @@ export default function ExamsPage() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{exam.examType}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="line-clamp-1 text-muted-foreground text-sm">{exam.description || '-'}</div>
                     </TableCell>
                     <TableCell>
                       {exam.totalTimeLimitMinutes ? `${exam.totalTimeLimitMinutes} ph` : '—'}

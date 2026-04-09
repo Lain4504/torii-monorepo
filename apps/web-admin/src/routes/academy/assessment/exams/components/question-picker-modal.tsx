@@ -166,7 +166,7 @@ export function QuestionPickerModal({
                       onCheckedChange={toggleAll}
                     />
                   </TableHead>
-                  <TableHead>Nội dung câu hỏi</TableHead>
+                  <TableHead className="w-[420px]">Nội dung câu hỏi</TableHead>
                   <TableHead className="w-[150px]">Loại</TableHead>
                   <TableHead className="w-[100px]">Cấp độ</TableHead>
                   <TableHead className="w-[140px]">Nhóm</TableHead>
@@ -196,9 +196,9 @@ export function QuestionPickerModal({
                             disabled={isAlreadyInExam}
                           />
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium max-w-[420px]">
                           <div className="flex flex-col gap-1">
-                            <div className="line-clamp-2">{q.stem}</div>
+                            <div className="whitespace-normal break-words">{q.stem}</div>
                             {isAlreadyInExam && (
                               <div className="text-[10px] text-amber-600 font-bold flex items-center gap-1">
                                 <Check className="w-3 h-3" /> Đã có trong bài thi
