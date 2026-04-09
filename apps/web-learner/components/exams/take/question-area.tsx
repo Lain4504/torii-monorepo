@@ -5,6 +5,7 @@ import { Label } from "@workspace/ui/components/label"
 import { Button } from "@workspace/ui/components/button"
 import { Flag, ArrowLeft, ArrowRight, Play, Pause } from "lucide-react"
 import { useState, useRef } from 'react'
+import { MarkdownRenderer } from "@/components/common/markdown-renderer"
 
 export interface Question {
     id: string
@@ -103,9 +104,9 @@ export function QuestionArea({
 
             {/* Question Content */}
             <div>
-                <h2 className="text-xl md:text-2xl font-semibold text-foreground leading-relaxed mb-6">
-                    {question.content}
-                </h2>
+                <div className="text-xl md:text-2xl font-semibold text-foreground leading-relaxed mb-6">
+                    <MarkdownRenderer content={question.content} className="prose-p:my-0 prose-headings:my-1" />
+                </div>
 
                 <RadioGroup
                     value={selectedOption}

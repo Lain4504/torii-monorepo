@@ -10,6 +10,7 @@ import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Award } from 'lucide
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { useAcademyExamAttempt } from '@/lib/api/services/academy-exam-api'
 import { format } from 'date-fns'
+import { MarkdownRenderer } from '@/components/common/markdown-renderer'
 
 export default function ExamReviewPage() {
     const { examId, sessionId } = useParams<{ examId: string, sessionId: string }>()
@@ -170,9 +171,9 @@ export default function ExamReviewPage() {
                                                     {detail.pointsEarned} / {detail.pointsEarned + (detail.isCorrect ? 0 : 1)} điểm
                                                 </span>
                                             </div>
-                                            <p className="text-base font-medium text-foreground leading-relaxed">
-                                                {detail.questionText}
-                                            </p>
+                                            <div className="text-base font-medium text-foreground leading-relaxed">
+                                                <MarkdownRenderer content={detail.questionText} className="prose-p:my-0" />
+                                            </div>
                                         </div>
                                     </div>
 
@@ -220,9 +221,9 @@ export default function ExamReviewPage() {
                                         {detail.explanation && (
                                             <div className="space-y-1">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Giải thích:</p>
-                                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                                    {detail.explanation}
-                                                </p>
+                                                <div className="text-sm text-muted-foreground leading-relaxed">
+                                                    <MarkdownRenderer content={detail.explanation} className="prose-p:my-0 prose-sm" />
+                                                </div>
                                             </div>
                                         )}
                                     </div>
