@@ -10,10 +10,10 @@ import {
   NatsRoomService,
   ROOM_STATUS_ENDED,
   ROOM_STATUS_TRIGGERED_END,
-} from '@server/meet/services/nats-room.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
-import { NatsStreamService } from '@server/meet/services/nats-stream.service';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
+} from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
+import { NatsStreamService } from '@server/meet/infrastructure/nats/nats-stream.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
 import { RedisLockService } from '@server/meet/infrastructure/redis/redis-lock.service';
 import { RedisRoomService } from '@server/meet/infrastructure/redis/redis-room.service';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';

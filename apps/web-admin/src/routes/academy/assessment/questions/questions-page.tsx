@@ -217,8 +217,8 @@ export default function QuestionsPage() {
                   <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                     {idx + 1}
                   </TableCell>
-                  <TableCell className="pl-4 font-medium">
-                    <div className="line-clamp-2 text-sm">{q.stem}</div>
+                  <TableCell className="pl-4 font-medium max-w-[420px]">
+                    <div className="whitespace-normal break-words text-sm">{q.stem}</div>
                   </TableCell>
                   <TableCell>{levelBadge(q.level)}</TableCell>
                   <TableCell>

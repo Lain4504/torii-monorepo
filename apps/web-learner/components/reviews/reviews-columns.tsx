@@ -98,11 +98,14 @@ export const getReviewsColumns = ({
       const c = row.original.content?.trim() || "";
       if (!c) return <span className="text-muted-foreground text-sm">—</span>;
       return (
-        <p className="text-sm text-muted-foreground max-w-[280px] leading-snug" title={c}>
-          {truncateText(c, CONTENT_PREVIEW_MAX)}
-        </p>
+        <div className="w-[320px] min-w-[320px] max-w-[320px] whitespace-normal break-words">
+          <p className="text-sm text-muted-foreground leading-snug" title={c}>
+            {c}
+          </p>
+        </div>
       );
     },
+    size: 320,
   },
   {
     id: "createdAt",

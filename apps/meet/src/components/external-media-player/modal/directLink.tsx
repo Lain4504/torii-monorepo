@@ -97,10 +97,11 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
         <div className="error-msg text-xs text-red-600 py-1">{errorMsg}</div>
       )}
       {playbackUrls.length > 0 && (
-        <div className="max-h-50 overflow-y-auto scrollBar grid gap-2 mt-8">
+        <div className="mt-8 grid min-w-0 gap-2 overflow-hidden">
+          <div className="max-h-50 min-w-0 overflow-y-auto scrollBar grid gap-2">
           {playbackUrls.map((url, i) => {
             let classNames =
-              'flex items-center gap-4 py-2 px-3 w-full rounded-xl cursor-pointer transition-all duration-200';
+              'flex min-w-0 items-center gap-4 py-2 px-3 w-full rounded-xl cursor-pointer transition-all duration-200 overflow-hidden';
             if (selectedUrl === url) {
               classNames += ' border-2 border-primary bg-primary/10';
             } else {
@@ -113,11 +114,11 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
                 className={classNames}
                 onClick={() => setSelectedUrl(url)}
               >
-                <div className="icon w-9 h-9 rounded-full bg-sidebar-border text-Blue2-800 relative inline-flex items-center justify-center shrink-0">
+                <div className="icon relative inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-sidebar-border text-Blue2-800">
                   <File className="w-4 h-4" />
                 </div>
-                <div className="text flex-1 text-foreground text-sm overflow-hidden">
-                  <p className="break-all truncate">{url}</p>
+                <div className="text min-w-0 flex-1 overflow-hidden text-sm text-foreground">
+                  <p className="truncate leading-snug">{url}</p>
                 </div>
                 <Button
                   variant="ghost"
@@ -133,6 +134,7 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
               </div>
             );
           })}
+          </div>
         </div>
       )}
     </>

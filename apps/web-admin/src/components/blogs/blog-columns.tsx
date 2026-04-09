@@ -88,22 +88,13 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
             if (!author) return <div className="text-muted-foreground text-sm">N/A</div>;
 
             return (
-                <div className="flex items-center gap-2.5 min-w-[160px]">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary overflow-hidden shrink-0">
-                        {author.avatarUrl ? (
-                            <img src={author.avatarUrl} alt={author.displayName} className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="text-[10px] font-bold uppercase">{author.displayName?.slice(0, 2)}</div>
-                        )}
-                    </div>
-                    <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-foreground text-sm truncate">
-                            {author.displayName}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground/80 truncate">
-                            {author.email}
-                        </span>
-                    </div>
+                <div className="flex flex-col min-w-[180px]">
+                    <span className="font-semibold text-foreground text-sm truncate">
+                        {author.displayName}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground/80 truncate">
+                        {author.email}
+                    </span>
                 </div>
             );
         },

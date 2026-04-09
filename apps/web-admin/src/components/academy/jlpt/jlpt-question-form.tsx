@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
-import { Textarea } from "@workspace/ui/components/textarea";
+import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import {
   Select,
   SelectContent,
@@ -331,7 +331,7 @@ export function JlptQuestionForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 sm:space-y-6">
+    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 sm:space-y-6 pb-10">
       <Alert>
         <Info className="size-4" />
         <AlertTitle>Cấu trúc JLPT trong ngân hàng</AlertTitle>
@@ -342,7 +342,7 @@ export function JlptQuestionForm({
         </AlertDescription>
       </Alert>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-none border border-border/60">
         <CardHeader className="space-y-1 p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg">
             {initialData?.id ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
@@ -519,9 +519,11 @@ export function JlptQuestionForm({
             render={({ field }) => (
               <Field>
                 <FieldLabel>Ngữ cảnh (Context)</FieldLabel>
-                <Textarea
-                  {...field}
+                <RichTextEditor
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
                   placeholder="Đoạn văn dài, hội thoại, hoặc chỉ dẫn (nếu stem chỉ là câu hỏi lẻ)"
+                  minHeight={160}
                 />
               </Field>
             )}
@@ -533,7 +535,12 @@ export function JlptQuestionForm({
             render={({ field }) => (
               <Field>
                 <FieldLabel>Nội dung câu hỏi (Stem)</FieldLabel>
-                <Textarea {...field} placeholder="Câu hỏi / đoạn cần chọn đáp án…" className="min-h-[100px]" />
+                <RichTextEditor
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  placeholder="Câu hỏi / đoạn cần chọn đáp án…"
+                  minHeight={140}
+                />
               </Field>
             )}
           />
@@ -636,7 +643,7 @@ export function JlptQuestionForm({
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-none border border-border/60">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg">Đáp án (Options)</CardTitle>
           <CardDescription className="text-xs">
@@ -711,11 +718,11 @@ export function JlptQuestionForm({
         </CardContent>
       </Card>
 
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-        <Button variant="outline" className="w-full sm:w-auto" onClick={onCancel} disabled={submitting}>
+      <div className="flex flex-col-reverse gap-3 pt-6 border-t sm:flex-row sm:justify-end">
+        <Button variant="ghost" className="w-full sm:w-auto" onClick={onCancel} disabled={submitting}>
           Hủy
         </Button>
-        <Button type="submit" className="w-full sm:w-auto" disabled={submitting || !!uploading}>
+        <Button type="submit" className="w-full sm:w-[140px]" disabled={submitting || !!uploading}>
           {submitting && <Loader2 className="mr-2 size-4 animate-spin" />}
           {initialData?.id ? "Cập nhật" : "Lưu câu hỏi"}
         </Button>

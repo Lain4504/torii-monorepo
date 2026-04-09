@@ -20,9 +20,9 @@ import {
   AnalyticsStatus,
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
 import { RedisSpeechToTextService } from '@server/meet/infrastructure/redis/redis-speech-to-text.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { WebhookNotifierService } from '@server/meet/infrastructure/webhook/webhook-notifier.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { AppConfigService } from '@server/shared';

@@ -43,7 +43,7 @@ import {
 } from '@/helpers/utils';
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { getNatsConn } from '@/helpers/nats';
-import { Mic, MicOff, Plus, X, Lock as LockIcon } from 'lucide-react';
+import { Mic, MicOff, Plus, X } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
 const MicrophoneIcon = () => {
@@ -390,34 +390,25 @@ const MicrophoneIcon = () => {
   const isMicConfigured =
     selectedAudioDevice !== '' || isActiveMicrophone || isLocked;
 
-  const wrapperClasses = clsx(
-    'meet-footer-ctrl-pill footer-icon flex items-center justify-center h-10 md:h-11 3xl:h-[52px] w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full border-[3px] 3xl:border-4 transition-colors duration-300',
+  const baseBorderClasses = clsx(
+    'border border-border transition-colors duration-300',
     {
       'border-destructive! pointer-events-none opacity-60': isLocked,
-      'border-primary/40 bg-primary/10':
+      'border-primary/40 bg-muted':
         isMicConfigured && isActiveMicrophone && !isMicMuted && !isLocked,
-      'border-destructive bg-destructive/10 text-destructive':
+      'border-destructive bg-muted text-destructive':
         !isLocked && isMicMuted && isActiveMicrophone,
-      'border-border/60':
-        !isLocked &&
-        !isActiveMicrophone &&
-        selectedAudioDevice !== '',
-      'border-transparent':
-        !isLocked &&
-        !isActiveMicrophone &&
-        selectedAudioDevice === '',
     },
   );
 
-  const micWrapClasses = clsx(
-    'footer-icon-bg microphone-wrap relative cursor-pointer rounded-full h-full w-full flex items-center justify-center overflow-visible transition-colors duration-300 text-foreground',
-    {
-      'border-destructive/50!':
-        !isLocked &&
-        ((isMicMuted && isActiveMicrophone) ||
-          (!isActiveMicrophone && selectedAudioDevice !== '')),
-      'border-destructive/50! text-destructive': isLocked,
-    },
+  const roundButtonClasses = clsx(
+    'meet-footer-ctrl-pill footer-icon relative flex items-center justify-center !h-10 md:!h-11 3xl:!h-[52px] !w-10 md:!w-11 3xl:!w-[52px] aspect-square min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full overflow-visible text-foreground bg-card shadow-sm hover:bg-muted',
+    baseBorderClasses,
+  );
+
+  const pillWrapperClasses = clsx(
+    'meet-footer-ctrl-pill footer-icon relative flex items-center overflow-visible text-foreground !h-10 md:!h-11 3xl:!h-[52px] rounded-full bg-card shadow-sm hover:bg-muted',
+    baseBorderClasses,
   );
 
   const iconDivClasses = clsx(
@@ -427,67 +418,99 @@ const MicrophoneIcon = () => {
     },
   );
 
+  const renderMainIcon = () => {
+    if (!isActiveMicrophone) {
+      return selectedAudioDevice === '' ? (
+        <Mic className="h-5 w-5 3xl:h-6 3xl:w-6" />
+      ) : (
+        <MicOff className="h-5 w-5 3xl:h-6 3xl:w-6" />
+      );
+    }
+
+    return isMicMuted ? (
+      <MicOff className="h-5 w-5 3xl:h-6 3xl:w-6" />
+    ) : (
+      <Mic className="h-5 w-5 3xl:h-6 3xl:w-6" />
+    );
+  };
+
   return (
     <>
       <div className="flex items-center gap-1.5">
-        <div className={wrapperClasses}>
-          {showMutedTooltip && (
-            <div className="micro-muted-tooltip tooltip-left absolute -left-3 rtl:microphone-rtl-left bottom-[48px] 3xl:bottom-[55px]">
-              <div className="inner w-max bg-secondary rounded-lg shadow-lg px-4 pr-6 py-4 flex items-center gap-2 relative">
-                <MicOff className={'h-4 3xl:h-5 w-auto text-destructive'} />
-                <p className="text-sm text-foreground">
-                  Bạn đang bị tắt tiếng
-                </p>
-                <Button
-                  className="text-foreground absolute cursor-pointer top-1 right-1"
-                  onClick={() => {
-                    tooltipDismissedRef.current = true;
-                    setShowMutedTooltip(false);
-                  }}
-                  variant="ghost"
-                  size="icon"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-          <div className={micWrapClasses}>
-            <div className={iconDivClasses} onClick={manageMic}>
-              <span className="tooltip tooltip-left -left-3 rtl:microphone-rtl-left">
-                {getTooltipText()}
-              </span>
-              {!isActiveMicrophone ? (
-                <>
-                  {selectedAudioDevice === '' ? (
-                    <>
-                      <Mic className={'h-4 3xl:h-5 w-auto'} />
-                      {isLocked && (
-                        <span className="absolute -bottom-1.5 text-[9px] font-semibold text-primary">
-                          Khóa
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <MicOff className={'h-4 3xl:h-5 w-auto'} />
-                  )}
-                </>
-              ) : null}
-              {!isMicMuted && isActiveMicrophone ? (
-                <Mic className={'h-4 3xl:h-5 w-auto'} />
-              ) : null}
-              {isMicMuted && isActiveMicrophone ? (
-                <MicOff className={'h-4 3xl:h-5 w-auto'} />
-              ) : null}
+        {showMutedTooltip && (
+          <div className="micro-muted-tooltip tooltip-left absolute -left-3 rtl:microphone-rtl-left bottom-[48px] 3xl:bottom-[55px]">
+            <div className="inner w-max bg-secondary rounded-lg shadow-lg px-4 pr-6 py-4 flex items-center gap-2 relative">
+              <MicOff className={'h-4 3xl:h-5 w-auto text-destructive'} />
+              <p className="text-sm text-foreground">Bạn đang bị tắt tiếng</p>
+              <Button
+                className="text-foreground absolute cursor-pointer top-1 right-1"
+                onClick={() => {
+                  tooltipDismissedRef.current = true;
+                  setShowMutedTooltip(false);
+                }}
+                variant="ghost"
+                size="icon"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-        </div>
-        {isActiveMicrophone && (
+        )}
+
+        {/* Trạng thái ban đầu: nút tròn nhỏ (+) để mở setting */}
+        {!isActiveMicrophone ? (
           <MicMenu
             currentRoom={currentRoom}
             isActiveMicrophone={isActiveMicrophone}
             isMicMuted={isMicMuted}
+            onPrimaryAction={manageMic}
+            noLeftBorder
+            buttonClassName={clsx(
+              roundButtonClasses,
+              'cursor-pointer',
+              showTooltip ? 'has-tooltip' : '',
+            )}
+            buttonChildren={
+              <div className={iconDivClasses}>
+                <span className="tooltip tooltip-left -left-3 rtl:microphone-rtl-left">
+                  {getTooltipText()}
+                </span>
+                <Plus className={'h-4 3xl:h-5 w-auto'} />
+              </div>
+            }
           />
+        ) : (
+          /* Khi enable: dạng pill chia 2 phần */
+          <div className={pillWrapperClasses}>
+            <button
+              type="button"
+              className={clsx(
+                'relative flex items-center justify-center rounded-l-full w-10 md:w-11 3xl:w-[52px]',
+                'transition-colors duration-200',
+              )}
+              onClick={manageMic}
+            >
+              <div className={iconDivClasses}>
+                <span className="tooltip tooltip-left -left-3 rtl:microphone-rtl-left">
+                  {getTooltipText()}
+                </span>
+                {renderMainIcon()}
+              </div>
+            </button>
+            <div className="flex items-stretch">
+              <MicMenu
+                currentRoom={currentRoom}
+                isActiveMicrophone={isActiveMicrophone}
+                isMicMuted={isMicMuted}
+                onPrimaryAction={manageMic}
+                buttonClassName={clsx(
+                  'flex h-full min-h-0 w-8 md:w-9 3xl:w-10 items-center justify-center rounded-r-full border-0 border-l border-white/15',
+                  'transition-colors duration-200',
+                  isMicMuted && isActiveMicrophone ? 'text-destructive' : '',
+                )}
+              />
+            </div>
+          </div>
         )}
       </div>
       {showMicrophoneModal && (

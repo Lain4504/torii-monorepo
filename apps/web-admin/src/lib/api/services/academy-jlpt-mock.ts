@@ -172,6 +172,13 @@ export const academyJlptMockApi = {
     return res.data.data?.item;
   },
 
+  async deleteTemplate(id: string) {
+    const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/jlpt-mock/admin/templates/${id}`,
+    );
+    return res.data.data?.ok;
+  },
+
   async attachQuestions(templateId: string, items: { questionId: string; sectionId: string; orderIndex: number; weight?: number; mondaiId?: string }[]) {
     const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/jlpt-mock/admin/templates/${templateId}/attach-questions`,

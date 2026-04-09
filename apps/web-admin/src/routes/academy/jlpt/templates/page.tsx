@@ -83,6 +83,7 @@ export default function JlptTemplatesPage() {
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState<string>("all");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
 
@@ -127,11 +128,14 @@ export default function JlptTemplatesPage() {
   const handleDelete = async () => {
     if (!deleteTargetId) return;
     try {
-      // Lưu ý: Hiện tại API mock chưa có deleteTemplate
-      toast.info("Chức năng xóa đề thi đang được cập nhật");
+      setDeleting(true);
+      await academyJlptMockApi.deleteTemplate(deleteTargetId);
+      toast.success("Đã xóa đề thi JLPT");
+      await fetchTemplates();
     } catch {
       toast.error("Không thể xóa đề thi");
     } finally {
+      setDeleting(false);
       setDeleteTargetId(null);
     }
   };
@@ -327,9 +331,17 @@ export default function JlptTemplatesPage() {
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
+              disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Xác nhận xóa
+              {deleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xóa...
+                </>
+              ) : (
+                "Xác nhận xóa"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

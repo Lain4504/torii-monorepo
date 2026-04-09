@@ -4,7 +4,6 @@ import * as React from "react"
 import {
     Languages,
     ArrowRightLeft,
-    Volume2,
     Copy,
     Sparkles,
     Check,
@@ -100,15 +99,6 @@ export function TranslatorView() {
         }
     }
 
-    const handleSpeak = (text: string, langCode: string) => {
-        if (!text) return
-        window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(text)
-        const langMap: Record<string, string> = { 'ja': 'ja-JP', 'vi': 'vi-VN' }
-        utterance.lang = langMap[langCode] || langCode
-        window.speechSynthesis.speak(utterance)
-    }
-
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text)
         toast.success("Đã sao chép")
@@ -161,16 +151,7 @@ export function TranslatorView() {
                         />
                     </div>
                     <div className="p-2 border-t border-border flex items-center justify-between bg-muted/5">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground"
-                            onClick={() => handleSpeak(sourceText, sourceLang)}
-                            disabled={!sourceText}
-                        >
-                            <Volume2 className="size-4" />
-                        </Button>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 ml-auto">
                             <span className="text-[10px] font-bold text-muted-foreground/30 tabular-nums">{sourceText.length}/5000</span>
                             <Button onClick={handleTranslate} disabled={!sourceText.trim() || isTranslating} className="h-8 rounded-lg px-3 sm:px-4 font-bold text-xs">
                                 {isTranslating ? <Spinner className="size-3 mr-2" /> : <Languages className="size-3.5 mr-2" />}
@@ -203,15 +184,6 @@ export function TranslatorView() {
                             disabled={!targetText}
                         >
                             <Copy className="size-3.5" />
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground" 
-                            onClick={() => handleSpeak(targetText, targetLang)}
-                            disabled={!targetText}
-                        >
-                            <Volume2 className="size-4" />
                         </Button>
                     </div>
                 </Card>

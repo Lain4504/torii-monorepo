@@ -13,6 +13,7 @@ import { getScreenShareResolution } from '@/helpers/utils';
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { MonitorUp, Lock as LockIcon } from 'lucide-react';
 import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { Button } from '@workspace/ui/components/button';
 
 const ScrenshareIcon = () => {
   const dispatch = useAppDispatch();
@@ -145,42 +146,33 @@ const ScrenshareIcon = () => {
     }
   };
 
-  const wrapperClasses = clsx(
-    'share-screen hidden md:block relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
-    {
-      'border-primary/25':
-        isActiveScreenshare,
-      'border-transparent': !isActiveScreenshare,
-      '!border-destructive pointer-events-none': isLocked,
-    },
-  );
-
-  const innerDivClasses = clsx(
-    'footer-icon-bg h-full relative w-full flex items-center justify-center rounded-lg border border-border shadow-sm transition-all duration-300 hover:bg-muted text-foreground',
-    {
-      'has-tooltip': showTooltip,
-      'bg-muted': isActiveScreenshare,
-      'bg-card': !isActiveScreenshare,
-      '!border-destructive/50 text-destructive': isLocked,
-    },
-  );
-
   if (!isScreenShareAllowed) {
     return null;
   }
 
   return (
-    <div className={wrapperClasses} onClick={() => toggleScreenShare()}>
-      <div className={innerDivClasses}>
-        <span className="tooltip">{text()}</span>
-        <MonitorUp className="w-auto h-4 3xl:h-5" />
-        {isLocked && (
-          <span className="add absolute -top-2 -right-2 z-10">
-            <LockIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
-          </span>
-        )}
-      </div>
-    </div>
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      onClick={() => toggleScreenShare()}
+      className={clsx(
+        'share-screen footer-icon relative hidden h-11 w-11 rounded-full border-border bg-card shadow-sm hover:bg-muted md:inline-flex 3xl:h-[52px] 3xl:w-[52px]',
+        {
+          'has-tooltip': showTooltip,
+          'bg-muted': isActiveScreenshare,
+          'pointer-events-none opacity-60 text-destructive border-destructive/50': isLocked,
+        },
+      )}
+    >
+      <span className="tooltip">{text()}</span>
+      <MonitorUp className="h-4 w-4 3xl:h-5 3xl:w-5" />
+      {isLocked && (
+        <span className="add absolute -top-2 -right-2 z-10">
+          <LockIcon className="h-3 w-3 text-primary md:h-3.5 md:w-3.5" />
+        </span>
+      )}
+    </Button>
   );
 };
 

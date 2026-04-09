@@ -15,9 +15,9 @@ import { AuditLoggerService } from '../../audit-logger.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
-import { ClientProxy } from '@nestjs/microservices';
 import { AiSubscriptionService } from '../quota/ai-subscription.service';
 import * as ExcelJS from 'exceljs';
+import type { ClientProxy } from '@nestjs/microservices/client';
 
 
 @Injectable()
@@ -42,9 +42,13 @@ export class OrderService {
     const subscriptionPlanIds = Array.from(
       new Set(input.subscriptionPlanIds ?? []),
     );
-    const isGift = input.metadata?.isGift === true;
-    const recipientEmail = input.metadata?.recipientEmail;
+    const isGift = input.isGift === true;
+    const recipientEmail = input.recipientEmail;
     const now = new Date();
+
+    if (isGift && (!recipientEmail || typeof recipientEmail !== 'string')) {
+      throw new BadRequestException('Vui lòng nhập email người nhận');
+    }
 
     if (
       !vodPackageIds.length &&
@@ -90,6 +94,9 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, vod.id);
+          if (!res.isRegistered) {
+            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
+          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã sở hữu gói VOD ${vod.title}`);
         }
         continue;
@@ -124,6 +131,9 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
+          if (!res.isRegistered) {
+            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
+          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký khóa học ${cohort.name}`);
         }
       } else {
@@ -162,6 +172,9 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
+          if (!res.isRegistered) {
+            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
+          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký đợt học ${cohort.name}`);
         }
       } else {
@@ -338,7 +351,14 @@ export class OrderService {
         couponCode: input.couponCode,
         couponId: preview.couponId,
         paymentMethod: input.paymentMethod,
-        metadata: input.metadata || {},
+        metadata:
+          input.isGift === true
+            ? {
+                isGift: true,
+                recipientEmail: input.recipientEmail,
+                ...(input.giftMessage ? { giftMessage: input.giftMessage } : {}),
+              }
+            : {},
         items: { create: orderItemsData },
       },
       include: { items: true },
@@ -489,7 +509,13 @@ export class OrderService {
         // 5. Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
         const targetUserId = await this.resolveTargetUserId(
           order.userId,
-          order.metadata,
+          {
+            isGift: order.metadata?.isGift === true,
+            recipientEmail:
+              typeof order.metadata?.recipientEmail === 'string'
+                ? order.metadata.recipientEmail
+                : undefined,
+          },
         );
         for (const item of order.items) {
           if (item.subscriptionPlanId) {
@@ -595,7 +621,13 @@ export class OrderService {
 
       const targetUserId = await this.resolveTargetUserId(
         order.userId,
-        order.metadata,
+        {
+          isGift: order.metadata?.isGift === true,
+          recipientEmail:
+            typeof order.metadata?.recipientEmail === 'string'
+              ? order.metadata.recipientEmail
+              : undefined,
+        },
       );
       for (const item of order.items) {
         if (item.subscriptionPlanId)
@@ -665,11 +697,10 @@ export class OrderService {
 
   public async resolveTargetUserId(
     buyerId: string,
-    metadata: any,
+    input: { isGift?: boolean; recipientEmail?: string },
   ): Promise<string> {
-    const md = metadata ?? {};
-    if (md.isGift && md.recipientEmail) {
-      const recipientEmail = md.recipientEmail.toLowerCase();
+    if (input?.isGift && input?.recipientEmail) {
+      const recipientEmail = input.recipientEmail.toLowerCase();
       try {
         const response = await firstValueFrom<{ user: { id: string } }>(
           this.natsClient.send(
@@ -1000,12 +1031,144 @@ export class OrderService {
     return ordersToCancel.length;
   }
 
-  async admin_findOrdersByOffering(offeringId: string, query: any) {
-    return { data: [], total: 0, limit: 10, page: 1, totalPages: 0 };
+  async admin_findOrdersByCohort(cohortId: string, query: any) {
+    const where: any = {
+      items: { some: { cohortId } },
+    };
+    if (query?.status) where.status = query.status;
+    if (query?.userId) where.userId = query.userId;
+    if (query?.startDate || query?.endDate) {
+      where.createdAt = {};
+      if (query.startDate)
+        where.createdAt.gte = new Date(query.startDate + 'T00:00:00.000Z');
+      if (query.endDate)
+        where.createdAt.lte = new Date(query.endDate + 'T23:59:59.999Z');
+    }
+    if (query?.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { user: { email: { contains: query.search, mode: 'insensitive' } } },
+        {
+          user: { displayName: { contains: query.search, mode: 'insensitive' } },
+        },
+      ];
+    }
+
+    const limit = Math.max(1, Number(query?.limit || 20));
+    const skip = query?.page ? (Math.max(1, Number(query.page)) - 1) * limit : 0;
+
+    const [total, items] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        where,
+        include: {
+          user: { select: { email: true, displayName: true } },
+          items: {
+            include: {
+              vodPackage: true,
+              cohort: true,
+              liveClass: true,
+              subscriptionPlan: true,
+            },
+          },
+          transactions: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+    ]);
+
+    return {
+      data: items,
+      total,
+      limit,
+      page: Math.floor(skip / limit) + 1,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  async admin_getStatsByOffering(offeringId: string) {
-    return { totalOrders: 0, totalRevenue: 0 };
+  async admin_getStatsByCohort(cohortId: string) {
+    const [totalOrders, rev] = await Promise.all([
+      this.prisma.order.count({
+        where: { items: { some: { cohortId } } },
+      }),
+      this.prisma.order.aggregate({
+        where: { status: OrderStatus.PAID, items: { some: { cohortId } } },
+        _sum: { grandTotal: true },
+      }),
+    ]);
+    return { totalOrders, totalRevenue: Number(rev._sum.grandTotal || 0) };
+  }
+
+  async admin_findOrdersByVodPackage(vodPackageId: string, query: any) {
+    const where: any = {
+      items: { some: { vodPackageId } },
+    };
+    if (query?.status) where.status = query.status;
+    if (query?.userId) where.userId = query.userId;
+    if (query?.startDate || query?.endDate) {
+      where.createdAt = {};
+      if (query.startDate)
+        where.createdAt.gte = new Date(query.startDate + 'T00:00:00.000Z');
+      if (query.endDate)
+        where.createdAt.lte = new Date(query.endDate + 'T23:59:59.999Z');
+    }
+    if (query?.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { user: { email: { contains: query.search, mode: 'insensitive' } } },
+        {
+          user: { displayName: { contains: query.search, mode: 'insensitive' } },
+        },
+      ];
+    }
+
+    const limit = Math.max(1, Number(query?.limit || 20));
+    const skip = query?.page ? (Math.max(1, Number(query.page)) - 1) * limit : 0;
+
+    const [total, items] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        where,
+        include: {
+          user: { select: { email: true, displayName: true } },
+          items: {
+            include: {
+              vodPackage: true,
+              cohort: true,
+              liveClass: true,
+              subscriptionPlan: true,
+            },
+          },
+          transactions: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip,
+      }),
+    ]);
+
+    return {
+      data: items,
+      total,
+      limit,
+      page: Math.floor(skip / limit) + 1,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async admin_getStatsByVodPackage(vodPackageId: string) {
+    const [totalOrders, rev] = await Promise.all([
+      this.prisma.order.count({
+        where: { items: { some: { vodPackageId } } },
+      }),
+      this.prisma.order.aggregate({
+        where: { status: OrderStatus.PAID, items: { some: { vodPackageId } } },
+        _sum: { grandTotal: true },
+      }),
+    ]);
+    return { totalOrders, totalRevenue: Number(rev._sum.grandTotal || 0) };
   }
 
   async admin_exportOrders(query: any) {

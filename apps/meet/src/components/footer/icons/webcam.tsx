@@ -14,7 +14,7 @@ import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
 import VirtualBackground from '@/components/virtual-background/virtualBackground';
 import { createEmptyVideoStreamTrack } from '@/helpers/utils';
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
-import { Video, VideoOff, Plus, Lock as LockIcon } from 'lucide-react';
+import { Video, VideoOff, Plus } from 'lucide-react';
 import useWebcamPublisher from '@/components/footer/icons/webcam/useWebcamPublisher';
 import useVirtualBackground from '@/components/footer/icons/webcam/useVirtualBackground';
 
@@ -214,32 +214,24 @@ const WebcamIcon = () => {
   const isCamConfigured =
     selectedVideoDevice !== '' || isActiveWebcam || isWebcamLocked;
 
-  const wrapperClasses = clsx(
-    'meet-footer-ctrl-pill footer-icon flex items-center justify-center h-10 md:h-11 3xl:h-[52px] w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full border-[3px] 3xl:border-4 transition-colors duration-300',
+  const baseBorderClasses = clsx(
+    'border border-border transition-colors duration-300',
     {
       'border-destructive! pointer-events-none opacity-60': isWebcamLocked,
-      'border-primary/40 bg-primary/10':
-        isCamConfigured && isActiveWebcam && !isWebcamLocked,
-      'border-destructive bg-destructive/10 text-destructive':
+      'border-primary/40 bg-muted': isCamConfigured && isActiveWebcam && !isWebcamLocked,
+      'border-destructive bg-muted text-destructive':
         !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
-      'border-border/60':
-        !isWebcamLocked &&
-        !isActiveWebcam &&
-        selectedVideoDevice !== '',
-      'border-transparent':
-        !isWebcamLocked &&
-        !isActiveWebcam &&
-        selectedVideoDevice === '',
     },
   );
 
-  const camWrapClasses = clsx(
-    'footer-icon-bg cam-wrap relative cursor-pointer rounded-full h-full w-full flex items-center justify-center overflow-visible transition-colors duration-300 text-foreground',
-    {
-      'border-destructive/50!':
-        !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
-      'border-destructive/50! text-destructive': isWebcamLocked,
-    },
+  const roundButtonClasses = clsx(
+    'meet-footer-ctrl-pill footer-icon relative flex items-center justify-center !h-10 md:!h-11 3xl:!h-[52px] !w-10 md:!w-11 3xl:!w-[52px] aspect-square min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full overflow-visible text-foreground bg-card shadow-sm hover:bg-muted',
+    baseBorderClasses,
+  );
+
+  const pillWrapperClasses = clsx(
+    'meet-footer-ctrl-pill footer-icon relative flex items-center overflow-visible text-foreground !h-10 md:!h-11 3xl:!h-[52px] rounded-full bg-card shadow-sm hover:bg-muted',
+    baseBorderClasses,
   );
 
   const iconDivClasses = clsx(
@@ -249,39 +241,63 @@ const WebcamIcon = () => {
     },
   );
 
+  const renderMainIcon = () => {
+    if (isActiveWebcam) return <Video className="h-5 w-5 3xl:h-6 3xl:w-6" />;
+    return selectedVideoDevice === '' ? (
+      <Video className="h-5 w-5 3xl:h-6 3xl:w-6" />
+    ) : (
+      <VideoOff className="h-5 w-5 3xl:h-6 3xl:w-6" />
+    );
+  };
+
   return (
     <>
       <div className="flex items-center gap-1.5">
-        <div className={wrapperClasses}>
-          <div className={camWrapClasses}>
-            <div className={iconDivClasses} onClick={() => toggleWebcam()}>
-              <span className="tooltip">{getTooltipText()}</span>
-              {isActiveWebcam ? <Video className={'h-4 3xl:h-5 w-auto'} /> : null}
-              {!isActiveWebcam && (
-                <>
-                  {selectedVideoDevice === '' ? (
-                    <>
-                      <Video className={'h-4 3xl:h-5 w-auto'} />
-                      {isWebcamLocked && (
-                        <span className="absolute -bottom-1.5 text-[9px] font-semibold text-primary">
-                          Khóa
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <VideoOff className={'h-4 3xl:h-5 w-auto'} />
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-        {isActiveWebcam && (
+        {!isActiveWebcam ? (
           <WebcamMenu
             currentRoom={currentRoom}
             isActiveWebcam={isActiveWebcam}
             toggleWebcam={toggleWebcam}
+            noLeftBorder
+            buttonClassName={clsx(
+              roundButtonClasses,
+              'cursor-pointer',
+              showTooltip ? 'has-tooltip' : '',
+            )}
+            buttonChildren={
+              <div className={iconDivClasses}>
+                <span className="tooltip">{getTooltipText()}</span>
+                <Plus className={'h-4 3xl:h-5 w-auto'} />
+              </div>
+            }
           />
+        ) : (
+          <div className={pillWrapperClasses}>
+            <button
+              type="button"
+              className={clsx(
+                'relative flex items-center justify-center rounded-l-full w-10 md:w-11 3xl:w-[52px]',
+                'transition-colors duration-200',
+              )}
+              onClick={() => toggleWebcam()}
+            >
+              <div className={iconDivClasses}>
+                <span className="tooltip">{getTooltipText()}</span>
+                {renderMainIcon()}
+              </div>
+            </button>
+            <div className="flex items-stretch">
+              <WebcamMenu
+                currentRoom={currentRoom}
+                isActiveWebcam={isActiveWebcam}
+                toggleWebcam={toggleWebcam}
+                buttonClassName={clsx(
+                  'flex h-full min-h-0 w-8 md:w-9 3xl:w-10 items-center justify-center rounded-r-full border-0 border-l border-white/15',
+                  'transition-colors duration-200',
+                )}
+              />
+            </div>
+          </div>
         )}
       </div>
 

@@ -19,9 +19,9 @@ import {
   NatsMsgServerToClientEvents,
 } from '@workspace/protocol';
 import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.service';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { AppConfigService } from '@server/shared';
 

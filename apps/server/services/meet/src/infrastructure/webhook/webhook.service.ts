@@ -8,10 +8,10 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsUserInfoService } from '@server/meet/services/nats-user-info.service';
-import { NatsUserService } from '@server/meet/services/nats-user.service';
-import { NatsService } from '@server/meet/services/nats.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsUserInfoService } from '@server/meet/infrastructure/nats/nats-user-info.service';
+import { NatsUserService } from '@server/meet/infrastructure/nats/nats-user.service';
+import { NatsService } from '@server/meet/infrastructure/nats/nats.service';
 import { RedisRoomService } from '../../infrastructure/redis/redis-room.service';
 import { WebhookNotifierService } from './webhook-notifier.service';
 import {
@@ -34,10 +34,10 @@ import { LiveKitService } from '@server/meet/infrastructure/livekit/livekit.serv
 import {
   ROOM_STATUS_ACTIVE,
   ROOM_STATUS_ENDED,
-} from '@server/meet/services/nats-room.service';
+} from '@server/meet/infrastructure/nats/nats-room.service';
 import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';
 import { RoomInfoService } from '@server/meet/modules/room/room-info.service';
-import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
+import { NatsRoomEventsService } from '@server/meet/infrastructure/nats/nats-room-events.service';
 import { AnalyticsService } from '@server/meet/modules/analytics/analytics.service';
 import { SpeechToTextService } from '@server/meet/modules/speech-to-text/speech-to-text.service';
 import { RoomEndService } from '@server/meet/modules/room/room-end.service';

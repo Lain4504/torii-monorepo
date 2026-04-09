@@ -7,7 +7,7 @@ import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { generateWajlcJWTAccessToken } from '@server/shared/utils/access_token';
 import { verifyWajlcAccessToken } from '@server/shared/utils/verify_token';
 import { verifyWebhookRequest } from '@server/shared/utils/webhook_verify';
-import { NatsUserInfoService } from '@server/meet/services/nats-user-info.service';
+import { NatsUserInfoService } from '@server/meet/infrastructure/nats/nats-user-info.service';
 import * as jwt from 'jsonwebtoken';
 import { AppConfigService } from '@server/shared';
 

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { NatsRoomService } from '@server/meet/services/nats-room.service';
-import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
-import { NatsSystemEventsService } from '@server/meet/services/nats-system-events.service';
+import { NatsRoomService } from '@server/meet/infrastructure/nats/nats-room.service';
+import { NatsRoomEventsService } from '@server/meet/infrastructure/nats/nats-room-events.service';
+import { NatsSystemEventsService } from '@server/meet/infrastructure/nats/nats-system-events.service';
 import {
   RoomUploadedFileType,
   RoomUploadedFileMetadataSchema,

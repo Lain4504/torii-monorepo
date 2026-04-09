@@ -1,9 +1,12 @@
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
+  IsEmail,
   IsOptional,
   IsString,
   IsObject,
+  MaxLength,
 } from 'class-validator';
 import { PaymentMethod } from '@prisma/generated';
 
@@ -37,7 +40,17 @@ export class OrderCheckoutDto {
   description?: string;
 
   @IsOptional()
-  metadata?: any;
+  @IsBoolean()
+  isGift?: boolean;
+
+  @IsOptional()
+  @IsEmail()
+  recipientEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  giftMessage?: string;
 
   @IsOptional()
   @IsObject()
@@ -81,7 +94,17 @@ export class OrderPreviewDto {
   description?: string;
 
   @IsOptional()
-  metadata?: any;
+  @IsBoolean()
+  isGift?: boolean;
+
+  @IsOptional()
+  @IsEmail()
+  recipientEmail?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  giftMessage?: string;
 
   @IsOptional()
   @IsObject()

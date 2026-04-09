@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { MarkdownRenderer } from "@/components/common/markdown-renderer"
 import { Button } from "@workspace/ui/components/button"
 import { AlertCircle, Clock, Maximize2, Send, List, BookOpen, Volume2, Trophy, Activity } from "lucide-react"
 import {
@@ -241,11 +242,13 @@ export default function JlptMockSectionPage() {
         sentence: (
           <div className="space-y-2">
             {q.question.contextText && (
-              <span className="block text-sm text-muted-foreground font-medium">
-                {q.question.contextText}
-              </span>
+              <div className="text-sm text-muted-foreground font-medium">
+                <MarkdownRenderer content={q.question.contextText} className="prose-p:my-0.5" />
+              </div>
             )}
-            <span className="text-lg sm:text-xl font-bold text-foreground">{q.question.stemText}</span>
+            <div className="text-lg sm:text-xl font-bold text-foreground">
+              <MarkdownRenderer content={q.question.stemText} className="prose-p:my-0" />
+            </div>
           </div>
         ),
         options: q.question.options.map((opt) => ({
@@ -377,7 +380,7 @@ export default function JlptMockSectionPage() {
   }
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       <ScrollArea className="flex-1">
         <div className="p-5 space-y-8">
             <section className="space-y-4">
@@ -526,7 +529,7 @@ export default function JlptMockSectionPage() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <aside className="hidden md:flex w-72 lg:w-80 border-r bg-background flex-col shrink-0">
+        <aside className="hidden md:flex w-72 lg:w-80 border-r bg-background flex-col shrink-0 min-h-0">
           <SidebarContent />
         </aside>
 

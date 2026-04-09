@@ -6,7 +6,6 @@ import { store, useAppDispatch } from '@/store';
 import usePolls from '@/components/footer/icons/menus/hooks/usePolls';
 import useMuteAll from '@/components/footer/icons/menus/hooks/useMuteAll';
 import useExternalMediaPlayer from '@/components/footer/icons/menus/hooks/useExternalMediaPlayer';
-import useDisplayExternalLink from '@/components/footer/icons/menus/hooks/useDisplayExternalLink';
 import {
   updateDisplayInsightsAISettingsModal,
   updateDisplaySpeechSettingsModal,
@@ -14,7 +13,7 @@ import {
   updateShowManageBreakoutRoomModal,
   updateShowManageWaitingRoomModal,
 } from '@/store/slices/bottomIconsActivitySlice';
-import { BarChart2, LayoutGrid, Bot, Play, MonitorPlay, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
+import { BarChart2, LayoutGrid, Bot, Play, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
 
 const AdminMenus = () => {
   const dispatch = useAppDispatch();
@@ -30,8 +29,6 @@ const AdminMenus = () => {
   const { muteAllUsers } = useMuteAll();
   const { toggleExternalMediaPlayer, isActiveExternalMediaPlayer } =
     useExternalMediaPlayer();
-  const { toggleDisplayExternalLinkModal, isActiveDisplayExternalLink } =
-    useDisplayExternalLink();
 
   const openLockSettingsModal = useCallback(() => {
     dispatch(updateShowLockSettingsModal(true));
@@ -96,19 +93,6 @@ const AdminMenus = () => {
           }
         />
       )}
-      {roomFeatures?.displayExternalLinkFeatures?.isAllow && (
-        <FooterMenuItem
-          onClick={toggleDisplayExternalLinkModal}
-          isActive={isActiveDisplayExternalLink}
-          icon={<MonitorPlay />}
-          text={
-            isActiveDisplayExternalLink
-              ? 'Dừng hiển thị liên kết bên ngoài'
-              : 'Bắt đầu hiển thị liên kết bên ngoài'
-          }
-        />
-      )}
-
       <div className="divider h-1 w-[110%] bg-muted -ml-3 my-0.5"></div>
       <FooterMenuItem
         onClick={muteAllUsers}
