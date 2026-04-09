@@ -95,8 +95,17 @@ export const academyClassReviewsClient = {
 
     /** Auth: Hide review */
     hide: async (id: string) => {
-        return apiClient.delete<{ data: ClassReview }>(
-            `/api/academy/reviews/${id}`,
+        // Prefer POST alias to avoid DELETE restrictions in some proxies/environments.
+        return apiClient.post<{ data: ClassReview }>(
+            `/api/academy/reviews/${id}/hide`,
+        );
+    },
+
+    /** Auth: Hard delete review */
+    delete: async (id: string) => {
+        // Use POST alias to avoid DELETE restrictions in some proxies/environments.
+        return apiClient.post<{ data: ClassReview }>(
+            `/api/academy/reviews/${id}/delete`,
         );
     },
 };
@@ -154,6 +163,17 @@ export const academyClassReviewHooks = {
         const qc = useQueryClient();
         return useMutation({
             mutationFn: (id: string) => academyClassReviewsClient.hide(id),
+            onSuccess: () => {
+                qc.invalidateQueries({ queryKey: ['class-reviews'] });
+                qc.invalidateQueries({ queryKey: ['my-class-reviews'] });
+            },
+        });
+    },
+
+    useDeleteReview: () => {
+        const qc = useQueryClient();
+        return useMutation({
+            mutationFn: (id: string) => academyClassReviewsClient.delete(id),
             onSuccess: () => {
                 qc.invalidateQueries({ queryKey: ['class-reviews'] });
                 qc.invalidateQueries({ queryKey: ['my-class-reviews'] });

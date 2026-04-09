@@ -6,10 +6,12 @@ import type {
     StandardApiResponse,
     AcademyLiveScheduleSessionModel,
 } from '@workspace/schemas';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 const SCHEDULE_WINDOW_PAST_WEEKS = 2;
 const SCHEDULE_WINDOW_FUTURE_WEEKS = 12;
 export const LIVE_SESSION_JOIN_OPEN_BEFORE_MINUTES = 30;
 export const LIVE_SESSION_JOIN_CLOSE_AFTER_END_HOURS = 4;
+const VN_TZ = 'Asia/Ho_Chi_Minh';
 
 export type LiveSessionUiState = 'scheduled' | 'joinable' | 'live' | 'ended';
 
@@ -18,18 +20,18 @@ function parseHHmmToMinutes(time: string): number {
     return (h || 0) * 60 + (m || 0);
 }
 
-function withMinutes(base: Date, minutesOfDay: number): Date {
-    const d = new Date(base);
-    // `sessionDate` is stored as UTC in DB, so we must build scheduledAt using UTC too.
-    d.setUTCHours(Math.floor(minutesOfDay / 60), minutesOfDay % 60, 0, 0);
-    return d;
-}
-
 function computeDurationMinutes(startTime: string, endTime: string): number {
     const start = parseHHmmToMinutes(startTime);
     const end = parseHHmmToMinutes(endTime);
     if (end >= start) return end - start;
     return 0;
+}
+
+function buildZonedDateTime(dateInTz: string, timeHHmm: string): Date {
+    // Interpret the wall time in VN timezone and convert to an absolute instant.
+    // This prevents the common "UTC setUTCHours" +7h drift.
+    const local = new Date(`${dateInTz}T${timeHHmm}:00`);
+    return fromZonedTime(local, VN_TZ);
 }
 
 export function getSessionJoinWindow(session: LiveSessionResponseDTO) {
@@ -72,12 +74,16 @@ function toSessionResponse(
     classId: string,
     now: Date,
 ): LiveSessionResponseDTO {
-    const sessionDate = new Date(session.sessionDate as any);
-    sessionDate.setUTCHours(0, 0, 0, 0);
-    const startMinutes = parseHHmmToMinutes(session.startTime);
-    const endMinutes = parseHHmmToMinutes(session.endTime);
-    const scheduledAt = withMinutes(sessionDate, startMinutes);
-    const endAt = withMinutes(sessionDate, endMinutes);
+    const serverScheduledAt = (session as any)?.scheduledAt;
+    const serverEndAt = (session as any)?.endAt;
+    const scheduledAt = serverScheduledAt ? new Date(serverScheduledAt) : (() => {
+        const dateKey = formatInTimeZone(new Date(session.sessionDate as any), VN_TZ, 'yyyy-MM-dd');
+        return buildZonedDateTime(dateKey, session.startTime);
+    })();
+    const endAt = serverEndAt ? new Date(serverEndAt) : (() => {
+        const dateKey = formatInTimeZone(new Date(session.sessionDate as any), VN_TZ, 'yyyy-MM-dd');
+        return buildZonedDateTime(dateKey, session.endTime);
+    })();
     const duration = computeDurationMinutes(session.startTime, session.endTime);
 
     const status =

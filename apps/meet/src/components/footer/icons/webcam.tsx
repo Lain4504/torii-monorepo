@@ -215,22 +215,26 @@ const WebcamIcon = () => {
     selectedVideoDevice !== '' || isActiveWebcam || isWebcamLocked;
 
   const wrapperClasses = clsx(
-    'meet-footer-ctrl-pill relative footer-icon cursor-pointer h-10 md:h-11 3xl:h-[52px] rounded-full border-[3px] 3xl:border-4 transition-[width,min-width] duration-300',
-    isCamConfigured
-      ? 'w-[52px] md:w-[62px] 3xl:w-[72px] min-w-[52px] md:min-w-[62px] 3xl:min-w-[72px]'
-      : 'w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px]',
+    'meet-footer-ctrl-pill footer-icon flex items-center justify-center h-10 md:h-11 3xl:h-[52px] w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full border-[3px] 3xl:border-4 transition-colors duration-300',
     {
-      'border-destructive! pointer-events-none': isWebcamLocked,
-      'border-primary/25': isActiveWebcam && !isWebcamLocked,
-      'border-destructive!':
+      'border-destructive! pointer-events-none opacity-60': isWebcamLocked,
+      'border-primary/40 bg-primary/10':
+        isCamConfigured && isActiveWebcam && !isWebcamLocked,
+      'border-destructive bg-destructive/10 text-destructive':
         !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
+      'border-border/60':
+        !isWebcamLocked &&
+        !isActiveWebcam &&
+        selectedVideoDevice !== '',
       'border-transparent':
-        !isWebcamLocked && !isActiveWebcam && selectedVideoDevice === '',
+        !isWebcamLocked &&
+        !isActiveWebcam &&
+        selectedVideoDevice === '',
     },
   );
 
   const camWrapClasses = clsx(
-    'footer-icon-bg cam-wrap relative cursor-pointer shadow-sm border border-border rounded-full h-full w-full flex flex-row items-stretch overflow-visible transition-all duration-300 hover:bg-muted text-foreground bg-card',
+    'footer-icon-bg cam-wrap relative cursor-pointer rounded-full h-full w-full flex items-center justify-center overflow-visible transition-colors duration-300 text-foreground',
     {
       'border-destructive/50!':
         !isWebcamLocked && !isActiveWebcam && selectedVideoDevice !== '',
@@ -239,7 +243,7 @@ const WebcamIcon = () => {
   );
 
   const iconDivClasses = clsx(
-    'w-[32px] md:w-[36px] 3xl:w-[42px] h-full relative flex items-center justify-center',
+    'w-full h-full relative flex items-center justify-center',
     {
       'has-tooltip': showTooltip,
     },
@@ -247,38 +251,38 @@ const WebcamIcon = () => {
 
   return (
     <>
-      <div className={wrapperClasses}>
-        <div className={camWrapClasses}>
-          <div className={iconDivClasses} onClick={() => toggleWebcam()}>
-            <span className="tooltip">{getTooltipText()}</span>
-            {isActiveWebcam ? <Video className={'h-4 3xl:h-5 w-auto'} /> : null}
-            {!isActiveWebcam && (
-              <>
-                {selectedVideoDevice === '' ? (
-                  <>
-                    <Video className={'h-4 3xl:h-5 w-auto'} />
-                    <span className="add absolute -top-2 -right-2 z-10">
-                      {isWebcamLocked ? (
-                        <LockIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
-                      ) : (
-                        <Plus className="w-3 h-3 md:w-4 md:h-4" />
+      <div className="flex items-center gap-1.5">
+        <div className={wrapperClasses}>
+          <div className={camWrapClasses}>
+            <div className={iconDivClasses} onClick={() => toggleWebcam()}>
+              <span className="tooltip">{getTooltipText()}</span>
+              {isActiveWebcam ? <Video className={'h-4 3xl:h-5 w-auto'} /> : null}
+              {!isActiveWebcam && (
+                <>
+                  {selectedVideoDevice === '' ? (
+                    <>
+                      <Video className={'h-4 3xl:h-5 w-auto'} />
+                      {isWebcamLocked && (
+                        <span className="absolute -bottom-1.5 text-[9px] font-semibold text-primary">
+                          Khóa
+                        </span>
                       )}
-                    </span>
-                  </>
-                ) : (
-                  <VideoOff className={'h-4 3xl:h-5 w-auto'} />
-                )}
-              </>
-            )}
+                    </>
+                  ) : (
+                    <VideoOff className={'h-4 3xl:h-5 w-auto'} />
+                  )}
+                </>
+              )}
+            </div>
           </div>
-          {isActiveWebcam && (
-            <WebcamMenu
-              currentRoom={currentRoom}
-              isActiveWebcam={isActiveWebcam}
-              toggleWebcam={toggleWebcam}
-            />
-          )}
         </div>
+        {isActiveWebcam && (
+          <WebcamMenu
+            currentRoom={currentRoom}
+            isActiveWebcam={isActiveWebcam}
+            toggleWebcam={toggleWebcam}
+          />
+        )}
       </div>
 
       {showVideoShareModal && (

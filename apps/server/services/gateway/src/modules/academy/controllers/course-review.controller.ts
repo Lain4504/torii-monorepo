@@ -33,7 +33,7 @@ import {
 } from '@workspace/schemas';
 
 @Controller('api/academy/reviews')
-@UseGuards(GatewayAuthGuard, PermissionsGuard)
+@UseGuards(GatewayAuthGuard)
 export class CourseReviewController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
@@ -119,9 +119,52 @@ export class CourseReviewController {
     return successResponse(result);
   }
 
+  /**
+   * Some environments/proxies can be picky about DELETE requests.
+   * Provide a POST alias for the same "hide" operation.
+   */
+  @Post(':id/hide')
+  @HttpCode(HttpStatus.OK)
+  async hideViaPost(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseReview.hide' }, { id, userId }),
+    );
+    return successResponse(result);
+  }
+
+  @Delete(':id/hard')
+  async hardDelete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseReview.delete' }, { id, userId }),
+    );
+    return successResponse(result);
+  }
+
+  @Post(':id/delete')
+  @HttpCode(HttpStatus.OK)
+  async hardDeleteViaPost(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseReview.delete' }, { id, userId }),
+    );
+    return successResponse(result);
+  }
+
   // ── Admin routes ───────────────────────────────────────────────────────────
 
   @Get('admin')
+  @UseGuards(PermissionsGuard)
   @Permissions('lms.delivery.update')
   async adminList(
     @Query(new ZodValidationPipe(academyCourseReviewAdminQueryDTOSchema))
@@ -134,6 +177,7 @@ export class CourseReviewController {
   }
 
   @Post('admin/:id/moderate')
+  @UseGuards(PermissionsGuard)
   @Permissions('lms.delivery.update')
   @HttpCode(HttpStatus.OK)
   async moderate(

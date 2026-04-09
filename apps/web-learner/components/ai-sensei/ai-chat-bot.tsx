@@ -277,7 +277,9 @@ export function AiChatBot() {
                                                 </Reasoning>
                                             )}
                                             <MessageContent>
-                                                <MessageResponse className="font-semibold text-sm leading-relaxed whitespace-pre-wrap">{version.content}</MessageResponse>
+                                                <MessageResponse className="font-semibold text-sm leading-relaxed whitespace-pre-wrap break-words [word-break:normal]">
+                                                    {version.content}
+                                                </MessageResponse>
                                             </MessageContent>
                                         </div>
                                     </Message>

@@ -391,25 +391,26 @@ const MicrophoneIcon = () => {
     selectedAudioDevice !== '' || isActiveMicrophone || isLocked;
 
   const wrapperClasses = clsx(
-    'meet-footer-ctrl-pill relative footer-icon cursor-pointer h-10 md:h-11 3xl:h-[52px] rounded-full border-[3px] 3xl:border-4 transition-[width,min-width] duration-300',
-    isMicConfigured
-      ? 'w-[52px] md:w-[62px] 3xl:w-[72px] min-w-[52px] md:min-w-[62px] 3xl:min-w-[72px]'
-      : 'w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px]',
+    'meet-footer-ctrl-pill footer-icon flex items-center justify-center h-10 md:h-11 3xl:h-[52px] w-10 md:w-11 3xl:w-[52px] min-w-10 md:min-w-11 3xl:min-w-[52px] rounded-full border-[3px] 3xl:border-4 transition-colors duration-300',
     {
-      'border-destructive! pointer-events-none': isLocked,
-      'border-primary/25':
-        isActiveMicrophone && !isMicMuted && !isLocked,
-      'border-destructive!':
+      'border-destructive! pointer-events-none opacity-60': isLocked,
+      'border-primary/40 bg-primary/10':
+        isMicConfigured && isActiveMicrophone && !isMicMuted && !isLocked,
+      'border-destructive bg-destructive/10 text-destructive':
+        !isLocked && isMicMuted && isActiveMicrophone,
+      'border-border/60':
         !isLocked &&
-        ((isMicMuted && isActiveMicrophone) ||
-          (!isActiveMicrophone && selectedAudioDevice !== '')),
+        !isActiveMicrophone &&
+        selectedAudioDevice !== '',
       'border-transparent':
-        !isLocked && !isActiveMicrophone && selectedAudioDevice === '',
+        !isLocked &&
+        !isActiveMicrophone &&
+        selectedAudioDevice === '',
     },
   );
 
   const micWrapClasses = clsx(
-    'footer-icon-bg microphone-wrap relative cursor-pointer shadow-sm border border-border rounded-full h-full w-full flex flex-row items-stretch overflow-visible transition-all duration-300 hover:bg-muted text-foreground bg-card',
+    'footer-icon-bg microphone-wrap relative cursor-pointer rounded-full h-full w-full flex items-center justify-center overflow-visible transition-colors duration-300 text-foreground',
     {
       'border-destructive/50!':
         !isLocked &&
@@ -420,7 +421,7 @@ const MicrophoneIcon = () => {
   );
 
   const iconDivClasses = clsx(
-    'w-[32px] md:w-[36px] 3xl:w-[42px] h-full relative flex items-center justify-center',
+    'w-full h-full relative flex items-center justify-center',
     {
       'has-tooltip': showTooltip,
     },
@@ -428,66 +429,66 @@ const MicrophoneIcon = () => {
 
   return (
     <>
-      <div className={wrapperClasses}>
-        {showMutedTooltip && (
-          <div className="micro-muted-tooltip tooltip-left absolute -left-3 rtl:microphone-rtl-left bottom-[48px] 3xl:bottom-[55px]">
-            <div className="inner w-max bg-secondary rounded-lg shadow-lg px-4 pr-6 py-4 flex items-center gap-2 relative">
-              <MicOff className={'h-4 3xl:h-5 w-auto text-destructive'} />
-              <p className="text-sm text-foreground">
-                Bạn đang bị tắt tiếng
-              </p>
-              <Button
-                className="text-foreground absolute cursor-pointer top-1 right-1"
-                onClick={() => {
-                  tooltipDismissedRef.current = true;
-                  setShowMutedTooltip(false);
-                }}
-                variant="ghost"
-                size="icon"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+      <div className="flex items-center gap-1.5">
+        <div className={wrapperClasses}>
+          {showMutedTooltip && (
+            <div className="micro-muted-tooltip tooltip-left absolute -left-3 rtl:microphone-rtl-left bottom-[48px] 3xl:bottom-[55px]">
+              <div className="inner w-max bg-secondary rounded-lg shadow-lg px-4 pr-6 py-4 flex items-center gap-2 relative">
+                <MicOff className={'h-4 3xl:h-5 w-auto text-destructive'} />
+                <p className="text-sm text-foreground">
+                  Bạn đang bị tắt tiếng
+                </p>
+                <Button
+                  className="text-foreground absolute cursor-pointer top-1 right-1"
+                  onClick={() => {
+                    tooltipDismissedRef.current = true;
+                    setShowMutedTooltip(false);
+                  }}
+                  variant="ghost"
+                  size="icon"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+          <div className={micWrapClasses}>
+            <div className={iconDivClasses} onClick={manageMic}>
+              <span className="tooltip tooltip-left -left-3 rtl:microphone-rtl-left">
+                {getTooltipText()}
+              </span>
+              {!isActiveMicrophone ? (
+                <>
+                  {selectedAudioDevice === '' ? (
+                    <>
+                      <Mic className={'h-4 3xl:h-5 w-auto'} />
+                      {isLocked && (
+                        <span className="absolute -bottom-1.5 text-[9px] font-semibold text-primary">
+                          Khóa
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <MicOff className={'h-4 3xl:h-5 w-auto'} />
+                  )}
+                </>
+              ) : null}
+              {!isMicMuted && isActiveMicrophone ? (
+                <Mic className={'h-4 3xl:h-5 w-auto'} />
+              ) : null}
+              {isMicMuted && isActiveMicrophone ? (
+                <MicOff className={'h-4 3xl:h-5 w-auto'} />
+              ) : null}
             </div>
           </div>
-        )}
-        <div className={micWrapClasses}>
-          <div className={iconDivClasses} onClick={manageMic}>
-            <span className="tooltip tooltip-left -left-3 rtl:microphone-rtl-left">
-              {getTooltipText()}
-            </span>
-            {!isActiveMicrophone ? (
-              <>
-                {selectedAudioDevice === '' ? (
-                  <>
-                    <Mic className={'h-4 3xl:h-5 w-auto'} />
-                    <span className="add absolute -top-2 -right-2 z-10">
-                      {isLocked ? (
-                        <LockIcon className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
-                      ) : (
-                        <Plus className="w-3 h-3 md:w-4 md:h-4" />
-                      )}
-                    </span>
-                  </>
-                ) : (
-                  <MicOff className={'h-4 3xl:h-5 w-auto'} />
-                )}
-              </>
-            ) : null}
-            {!isMicMuted && isActiveMicrophone ? (
-              <Mic className={'h-4 3xl:h-5 w-auto'} />
-            ) : null}
-            {isMicMuted && isActiveMicrophone ? (
-              <MicOff className={'h-4 3xl:h-5 w-auto'} />
-            ) : null}
-          </div>
-          {isActiveMicrophone && (
-            <MicMenu
-              currentRoom={currentRoom}
-              isActiveMicrophone={isActiveMicrophone}
-              isMicMuted={isMicMuted}
-            />
-          )}
         </div>
+        {isActiveMicrophone && (
+          <MicMenu
+            currentRoom={currentRoom}
+            isActiveMicrophone={isActiveMicrophone}
+            isMicMuted={isMicMuted}
+          />
+        )}
       </div>
       {showMicrophoneModal && (
         <MicrophoneModal

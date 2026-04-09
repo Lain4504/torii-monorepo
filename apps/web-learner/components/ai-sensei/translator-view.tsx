@@ -41,7 +41,6 @@ import { toast } from "sonner"
 const LANGUAGES = [
     { value: "ja", label: "Tiếng Nhật", flag: "🇯🇵" },
     { value: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
-    { value: "en", label: "Tiếng Anh", flag: "🇺🇸" },
 ]
 
 export function TranslatorView() {
@@ -105,7 +104,7 @@ export function TranslatorView() {
         if (!text) return
         window.speechSynthesis.cancel()
         const utterance = new SpeechSynthesisUtterance(text)
-        const langMap: Record<string, string> = { 'ja': 'ja-JP', 'vi': 'vi-VN', 'en': 'en-US' }
+        const langMap: Record<string, string> = { 'ja': 'ja-JP', 'vi': 'vi-VN' }
         utterance.lang = langMap[langCode] || langCode
         window.speechSynthesis.speak(utterance)
     }

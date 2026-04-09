@@ -64,11 +64,12 @@ export default function MyCoursesPage() {
     const filteredCourses = courses.filter((course) => {
         const status = (course.status || "ACTIVE").toUpperCase();
         if (status === 'CANCELLED') return false;
+        const isCompleted = status === 'COMPLETED';
 
         const matchesFilter =
             filter === 'all' ||
-            (filter === 'in-progress' && (course.progress || 0) < 100 && status !== 'COMPLETED') ||
-            (filter === 'completed' && ((course.progress || 0) >= 100 || status === 'COMPLETED'))
+            (filter === 'in-progress' && !isCompleted) ||
+            (filter === 'completed' && isCompleted)
         
         return matchesFilter
     })
@@ -203,7 +204,7 @@ export default function MyCoursesPage() {
                                             LIVE
                                         </Badge>
                                     )}
-                                    {course.progress >= 100 && (
+                                    {String(course.status || 'ACTIVE').toUpperCase() === 'COMPLETED' && (
                                         <Badge className="bg-emerald-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm">
                                             HOÀN THÀNH
                                         </Badge>
@@ -285,7 +286,7 @@ export default function MyCoursesPage() {
                                         );
                                     })()}
                                     
-                                    {course.progress >= 100 && (() => {
+                                    {String(course.status || 'ACTIVE').toUpperCase() === 'COMPLETED' && (() => {
                                         const existingReview = myReviews.find(
                                             (r: any) => r.enrollmentId && r.enrollmentId === course.id,
                                         );

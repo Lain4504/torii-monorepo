@@ -86,14 +86,14 @@ export default function CouponsPage() {
                                 <Card key={coupon.id} className="overflow-hidden border-border/40 bg-card transition-all duration-300 rounded-2xl shadow-none hover:bg-muted/5 hover:border-primary/20">
                                     <div className="flex flex-col sm:flex-row h-full">
                                         <div className="bg-primary/[0.03] border-b sm:border-b-0 sm:border-r border-border/40 p-5 flex flex-col items-center justify-center min-w-[120px] shrink-0">
-                                            <Ticket className="size-6 text-primary/40 mb-2" />
+                                            <Ticket className="size-6 text-primary mb-2" />
                                             <span className="font-mono font-bold text-primary text-sm bg-primary/10 tracking-widest px-2 py-1 rounded-md">{coupon.code}</span>
                                         </div>
                                         <div className="p-5 flex-1 flex flex-col justify-center space-y-3">
                                             <div className="space-y-1">
-                                                <h4 className="font-semibold text-sm text-foreground/80 leading-snug line-clamp-2">{coupon.description || 'Ưu đãi nội bộ'}</h4>
-                                                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground/50">
-                                                    <Clock className="size-3 opacity-70" />
+                                                <h4 className="font-semibold text-sm text-foreground leading-snug line-clamp-2">{coupon.description || 'Ưu đãi nội bộ'}</h4>
+                                                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+                                                    <Clock className="size-3" />
                                                     <span>{coupon.validUntil ? `Hết hạn: ${formatDate(coupon.validUntil)}` : 'Vô thời hạn'}</span>
                                                 </div>
                                             </div>
@@ -107,7 +107,12 @@ export default function CouponsPage() {
                                             )}
 
                                             <div className="flex items-center gap-2 pt-1 border-t border-border/30 mt-auto">
-                                                <Button size="sm" variant="ghost" className="h-8 flex-1 font-semibold text-xs text-muted-foreground/60 hover:text-primary transition-colors hover:bg-primary/5" onClick={() => handleCopyCode(coupon.code)}>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8 flex-1 font-semibold text-xs"
+                                                    onClick={() => handleCopyCode(coupon.code)}
+                                                >
                                                     <Copy className="size-3 mr-1.5" />
                                                     Lưu mã
                                                 </Button>
@@ -207,7 +212,9 @@ export default function CouponsPage() {
                                                     item.amount > 0 ? "text-emerald-500" : "text-destructive/80"
                                                 )}>
                                                     {item.amount > 0 ? `+${item.amount}` : item.amount.toLocaleString()} 
-                                                    <span className="text-[10px] ml-1">{item.currency === 'XP' ? 'XP' : 'P'}</span>
+                                                    <span className="text-[10px] ml-1">
+                                                        {String(item.currency || '').toUpperCase() === 'XP' ? 'XP' : 'Điểm'}
+                                                    </span>
                                                 </span>
                                             </TableCell>
                                         </TableRow>

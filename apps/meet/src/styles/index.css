@@ -225,13 +225,15 @@
   overflow: visible !important;
 }
 
-/* Mic + cam: pill giống các nút footer khác, chiều rộng theo nội dung (nút composite) */
+/* Mic + cam: pill giống các nút footer khác (w-11 / 52px 3xl), chiều rộng theo nội dung khi có menu chevron */
 #main-footer.meet-footer-bar .meet-footer-ctrl-primary .footer-icon {
   width: auto !important;
-  min-width: 2.5rem !important;
+  min-width: 2.75rem !important;
   border-radius: 9999px !important;
   height: 2.5rem !important;
   min-height: 2.5rem !important;
+  align-items: stretch !important;
+  display: flex !important;
 }
 
 #main-footer.meet-footer-bar .meet-footer-ctrl-primary .footer-icon .footer-icon-bg {

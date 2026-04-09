@@ -19,7 +19,7 @@ import { ReviewDetailDialog } from './review-detail-dialog'
 
 export function ReviewList() {
     const { data: axiosRes, isLoading } = academyClassReviewHooks.useListMine()
-    const hideMutation = academyClassReviewHooks.useHideReview()
+    const deleteMutation = academyClassReviewHooks.useDeleteReview()
 
     const reviews = useMemo((): ReviewRow[] => {
         const raw = axiosRes?.data?.data ?? []
@@ -48,9 +48,9 @@ export function ReviewList() {
     const confirmRemove = () => {
         if (!pendingRemove) return
         const id = pendingRemove.id
-        hideMutation.mutate(id, {
+        deleteMutation.mutate(id, {
             onSuccess: () => {
-                toast.success('Đã gỡ đánh giá.')
+                toast.success('Đã xóa đánh giá.')
                 setConfirmOpen(false)
                 setPendingRemove(null)
                 if (detailReview?.id === id) {
@@ -59,7 +59,7 @@ export function ReviewList() {
                 }
             },
             onError: () => {
-                toast.error('Không thể gỡ đánh giá. Vui lòng thử lại.')
+                toast.error('Không thể xóa đánh giá. Vui lòng thử lại.')
             },
         })
     }
@@ -90,7 +90,7 @@ export function ReviewList() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Gỡ đánh giá này?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Đánh giá sẽ bị ẩn khỏi hệ thống. Bạn có thể đánh giá lại sau tại trang khóa học nếu cần.
+                            Đánh giá sẽ bị xóa khỏi hệ thống. Bạn có thể đánh giá lại sau tại trang khóa học nếu cần.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -104,10 +104,10 @@ export function ReviewList() {
                         <Button
                             type="button"
                             variant="destructive"
-                            disabled={hideMutation.isPending}
+                            disabled={deleteMutation.isPending}
                             onClick={confirmRemove}
                         >
-                            {hideMutation.isPending ? 'Đang xử lý…' : 'Gỡ đánh giá'}
+                            {deleteMutation.isPending ? 'Đang xử lý…' : 'Xóa đánh giá'}
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>

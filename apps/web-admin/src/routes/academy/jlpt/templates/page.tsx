@@ -44,6 +44,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
+import { useForm, Controller } from "react-hook-form";
+import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field";
 import { PageHeader } from "@/components/common/page-header";
 import {
   listPageFiltersRowClass,
@@ -60,6 +70,12 @@ import { useNavigate } from "react-router-dom";
 
 const LEVELS = ["N1", "N2", "N3", "N4", "N5"];
 
+type CreateJlptTemplateForm = {
+  title: string;
+  code: string;
+  levelCode: string;
+};
+
 export default function JlptTemplatesPage() {
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<JlptMockTemplate[]>([]);
@@ -67,6 +83,22 @@ export default function JlptTemplatesPage() {
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState<string>("all");
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<CreateJlptTemplateForm>({
+    defaultValues: {
+      title: "",
+      code: "",
+      levelCode: "N3",
+    },
+  });
 
   const fetchTemplates = async () => {
     try {
@@ -104,13 +136,49 @@ export default function JlptTemplatesPage() {
     }
   };
 
+  const handleCloseCreate = (open: boolean) => {
+    if (!open) {
+      if (!creating) {
+        setCreateOpen(false);
+        reset();
+      }
+      return;
+    }
+    setCreateOpen(true);
+  };
+
+  const onCreate = async (data: CreateJlptTemplateForm) => {
+    const title = data.title.trim();
+    const code = data.code.trim();
+    if (!title || !code) return;
+
+    try {
+      setCreating(true);
+      const created = await academyJlptMockApi.createTemplate({
+        title,
+        code,
+        levelCode: data.levelCode,
+      });
+      if (!created?.id) {
+        throw new Error("CREATE_FAILED");
+      }
+      toast.success("Đã tạo đề thi JLPT");
+      handleCloseCreate(false);
+      navigate(`/academy/jlpt/templates/${created.id}`);
+    } catch {
+      toast.error("Không thể tạo đề thi");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Quản lý Đề thi JLPT (Mẫu đề)"
         subtitle="Danh sách các bản mẫu đề thi JLPT."
         actions={
-          <Button onClick={() => navigate("/academy/jlpt/templates/new")}>
+          <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Tạo đề thi
           </Button>
@@ -266,6 +334,84 @@ export default function JlptTemplatesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Sheet open={createOpen} onOpenChange={handleCloseCreate}>
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle>Tạo đề thi JLPT (mẫu đề)</SheetTitle>
+            <SheetDescription>
+              Tạo nhanh một mẫu đề, sau đó chuyển sang trang builder để cấu hình sections và câu hỏi.
+            </SheetDescription>
+          </SheetHeader>
+          <form
+            onSubmit={handleSubmit(onCreate)}
+            className="flex flex-col flex-1 overflow-hidden"
+            noValidate
+          >
+            <ScrollArea className="flex-1 min-h-0">
+              <div className="space-y-6 p-6">
+                <Field>
+                  <FieldLabel>Tiêu đề đề thi</FieldLabel>
+                  <Input
+                    placeholder="Ví dụ: JLPT N3 Mock Exam #1"
+                    {...register("title", { required: "Vui lòng nhập tiêu đề" })}
+                  />
+                  {errors.title?.message && (
+                    <FieldError>{errors.title.message}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Mã đề (Code)</FieldLabel>
+                  <Input
+                    placeholder="Ví dụ: JLPT-N3-MOCK-001"
+                    {...register("code", { required: "Vui lòng nhập mã đề" })}
+                  />
+                  {errors.code?.message && (
+                    <FieldError>{errors.code.message}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Cấp độ</FieldLabel>
+                  <Controller
+                    control={control}
+                    name="levelCode"
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Chọn cấp độ" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {LEVELS.map((l) => (
+                            <SelectItem key={l} value={l}>
+                              {l}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </Field>
+              </div>
+            </ScrollArea>
+            <div className="p-6 border-t bg-muted/30 shrink-0 flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleCloseCreate(false)}
+                disabled={creating}
+              >
+                Hủy
+              </Button>
+              <Button type="submit" disabled={creating}>
+                {creating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Tạo đề thi
+              </Button>
+            </div>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

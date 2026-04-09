@@ -9,6 +9,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 
@@ -33,6 +34,12 @@ export enum JlptBankSectionCodeDto {
 
 const emptyToUndef = ({ value }: { value: unknown }) =>
   value === '' || value === null || value === undefined ? undefined : value;
+
+/** Chuỗi rỗng → null (gỡ media); undefined giữ nguyên (PATCH không đổi). */
+const emptyStrToNull = ({ value }: { value: unknown }) => {
+  if (value === '') return null;
+  return value;
+};
 
 export class JlptBankQuestionQueryDto {
   @Transform(emptyToUndef)
@@ -148,6 +155,18 @@ export class JlptBankQuestionCreateDto {
   @ValidateNested({ each: true })
   @Type(() => JlptBankOptionInputDto)
   options!: JlptBankOptionInputDto[];
+
+  @Transform(emptyStrToNull)
+  @IsOptional()
+  @ValidateIf((_, v) => v != null)
+  @IsUUID()
+  audioAssetId?: string | null;
+
+  @Transform(emptyStrToNull)
+  @IsOptional()
+  @ValidateIf((_, v) => v != null)
+  @IsUUID()
+  imageAssetId?: string | null;
 }
 
 export class JlptBankQuestionUpdateDto {
@@ -184,4 +203,16 @@ export class JlptBankQuestionUpdateDto {
   @ValidateNested({ each: true })
   @Type(() => JlptBankOptionInputDto)
   options?: JlptBankOptionInputDto[];
+
+  @Transform(emptyStrToNull)
+  @IsOptional()
+  @ValidateIf((_, v) => v != null)
+  @IsUUID()
+  audioAssetId?: string | null;
+
+  @Transform(emptyStrToNull)
+  @IsOptional()
+  @ValidateIf((_, v) => v != null)
+  @IsUUID()
+  imageAssetId?: string | null;
 }

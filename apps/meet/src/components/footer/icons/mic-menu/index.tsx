@@ -42,16 +42,15 @@ const MicMenu = ({
   isMicMuted,
 }: IMicMenuProps) => {
   return (
-    <div className="menu relative overflow-visible">
+    <div className="menu relative flex h-full min-h-0 flex-row items-stretch overflow-visible">
       <Menu>
         {({ open }) => (
           <>
             <MicMenuRefreshDevices open={open} />
             <MenuButton
-              className={`footer-icon-bg w-[20px] md:w-[25px] 3xl:w-[30px] h-[34px] md:h-9 3xl:h-11 flex items-center justify-center border-r-0 border border-border overflow-hidden cursor-pointer transition-colors duration-200
-                ${isMicMuted && isActiveMicrophone ? '!bg-destructive/10 !border-destructive/20 text-destructive' : 'text-foreground'}
-                ${isActiveMicrophone ? 'bg-muted rounded-r-full' : ''}
-                ${open ? 'bg-accent' : ''}
+              className={`footer-icon-bg flex h-full min-h-0 w-7 shrink-0 cursor-pointer items-center justify-center overflow-hidden border-0 border-l border-white/15 pl-0.5 text-foreground transition-colors duration-200 md:w-8 3xl:w-9
+                ${isMicMuted && isActiveMicrophone ? 'text-destructive' : ''}
+                ${open ? 'bg-black/5 dark:bg-white/10' : ''}
               `}
             >
               <ChevronUp className="w-4 h-4" />

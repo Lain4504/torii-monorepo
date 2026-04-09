@@ -42,7 +42,7 @@ export function ClassReviewDialog({
 }) {
     const createMutation = academyClassReviewHooks.useCreateReview()
     const updateMutation = academyClassReviewHooks.useUpdateReview()
-    const hideMutation = academyClassReviewHooks.useHideReview()
+    const deleteMutation = academyClassReviewHooks.useDeleteReview()
     const [hoverRating, setHoverRating] = useState(0)
 
     const form = useForm({
@@ -97,7 +97,7 @@ export function ClassReviewDialog({
         if (!window.confirm("Bạn có chắc chắn muốn xóa đánh giá này?")) return
 
         try {
-            await hideMutation.mutateAsync(existingReview.id)
+            await deleteMutation.mutateAsync(existingReview.id)
             toast.success("Đã xóa đánh giá thành công!")
             setIsOpen(false)
         } catch (error: any) {
@@ -202,10 +202,10 @@ export function ClassReviewDialog({
                                 type="button"
                                 variant="destructive"
                                 onClick={handleDelete}
-                                disabled={hideMutation.isPending || updateMutation.isPending}
+                                disabled={deleteMutation.isPending || updateMutation.isPending}
                                 className="w-full sm:w-auto mt-2 sm:mt-0 order-first"
                             >
-                                {hideMutation.isPending ? "Đang xóa..." : "Xóa đánh giá"}
+                                {deleteMutation.isPending ? "Đang xóa..." : "Xóa đánh giá"}
                             </Button>
                         ) : (
                             <div />
@@ -215,14 +215,14 @@ export function ClassReviewDialog({
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsOpen(false)}
-                                disabled={createMutation.isPending || updateMutation.isPending || hideMutation.isPending}
+                                disabled={createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
                             >
                                 Hủy
                             </Button>
                             <Button
                                 type="submit"
                                 className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                                disabled={createMutation.isPending || updateMutation.isPending || hideMutation.isPending}
+                                disabled={createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
                             >
                                 {(createMutation.isPending || updateMutation.isPending) ? "Đang gửi..." : "Gửi đánh giá"}
                             </Button>

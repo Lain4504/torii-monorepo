@@ -34,6 +34,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -465,29 +466,36 @@ export default function JlptQuestionsPage() {
       </AlertDialog>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full sm:!w-[70vw] sm:!max-w-none overflow-y-auto p-0 border-l shadow-2xl">
-          <SheetHeader className="p-8 border-b sticky top-0 bg-background/95 backdrop-blur-md z-20">
-             <SheetTitle>{currentQuestion ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}</SheetTitle>
-             <SheetDescription>
-               Hoàn thiện thông tin bên dưới để lưu câu hỏi vào ngân hàng.
-             </SheetDescription>
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle>
+              {currentQuestion ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}
+            </SheetTitle>
+            <SheetDescription>
+              Hoàn thiện thông tin bên dưới để lưu câu hỏi vào ngân hàng.
+            </SheetDescription>
           </SheetHeader>
-          <div className="p-8 pb-12">
-            {isFetchingQuestion ? (
-               <div className="flex flex-col items-center justify-center py-20 gap-3">
+
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="space-y-6 p-6">
+              {isFetchingQuestion ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Đang tải dữ liệu...</p>
-               </div>
-            ) : (
-              <JlptQuestionForm
-                initialData={currentQuestion}
-                onSuccess={handleFormSuccess}
-                onCancel={() => setIsSheetOpen(false)}
-                presetLevelCode={level !== "all" ? level : undefined}
-                presetSectionCode={section !== "all" ? section : undefined}
-              />
-            )}
-          </div>
+                  <p className="text-sm text-muted-foreground">
+                    Đang tải dữ liệu...
+                  </p>
+                </div>
+              ) : (
+                <JlptQuestionForm
+                  initialData={currentQuestion}
+                  onSuccess={handleFormSuccess}
+                  onCancel={() => setIsSheetOpen(false)}
+                  presetLevelCode={level !== "all" ? level : undefined}
+                  presetSectionCode={section !== "all" ? section : undefined}
+                />
+              )}
+            </div>
+          </ScrollArea>
         </SheetContent>
       </Sheet>
     </div>

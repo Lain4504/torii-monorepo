@@ -21,13 +21,14 @@ import { Input } from "@workspace/ui/components/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card";
 import { Badge } from "@workspace/ui/components/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter
-} from "@workspace/ui/components/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { 
   Select, 
   SelectContent, 
@@ -481,141 +482,213 @@ export default function JlptTemplateBuilderPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Question Picker Dialog */}
-      <Dialog open={isPickerOpen} onOpenChange={setIsPickerOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
-          <DialogHeader className="p-6 border-b">
-            <DialogTitle className="flex justify-between items-center pr-4">
-              <span>Chọn câu hỏi cho {template.sections.find((s: any) => s.id === targetSectionId)?.title}</span>
-              <Badge variant="secondary">{selectedBankIds.size} đã chọn</Badge>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-muted/10">
-            {pickerLoading ? (
-               <div className="p-12 text-center flex flex-col items-center gap-3">
-                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                 <p className="text-sm text-muted-foreground">Đang tải ngân hàng...</p>
-               </div>
-            ) : (
-              pickerQuestions.map(q => (
-                <div key={q.id} className="flex items-center gap-4 p-4 border bg-background rounded-xl hover:shadow-md transition-shadow cursor-pointer" onClick={() => {
-                  const next = new Set(selectedBankIds);
-                  if (next.has(q.id)) next.delete(q.id);
-                  else next.add(q.id);
-                  setSelectedBankIds(next);
-                }}>
-                  <Checkbox checked={selectedBankIds.has(q.id)} onCheckedChange={() => {}} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold line-clamp-1" dangerouslySetInnerHTML={{ __html: q.stemText }} />
-                    <div className="text-[11px] text-muted-foreground mt-1 flex gap-2">
-                       <span className="font-bold">{q.questionType}</span>
-                       {q.mondai?.code && <span>· {q.mondai.code}</span>}
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="font-bold">{q.levelCode}</Badge>
+      {/* Question Picker Sheet */}
+      <Sheet open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle className="flex items-center justify-between gap-4">
+              <span className="min-w-0 truncate">
+                Chọn câu hỏi cho{" "}
+                {template.sections.find((s: any) => s.id === targetSectionId)?.title}
+              </span>
+              <Badge variant="secondary" className="shrink-0">
+                {selectedBankIds.size} đã chọn
+              </Badge>
+            </SheetTitle>
+            <SheetDescription>
+              Chọn câu hỏi từ ngân hàng để gắn vào phần thi hiện tại.
+            </SheetDescription>
+          </SheetHeader>
+
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="space-y-2 p-6 bg-muted/10">
+              {pickerLoading ? (
+                <div className="p-12 text-center flex flex-col items-center gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                    Đang tải ngân hàng...
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
-          <DialogFooter className="p-4 border-t bg-muted/30">
-            <Button variant="outline" onClick={() => setIsPickerOpen(false)}>Hủy</Button>
-            <Button disabled={selectedBankIds.size === 0} onClick={() => void handleAttachQuestions(Array.from(selectedBankIds)).then(() => setIsPickerOpen(false))}>
-               Thêm {selectedBankIds.size} câu hỏi
+              ) : (
+                pickerQuestions.map((q) => (
+                  <div
+                    key={q.id}
+                    className="flex items-center gap-4 p-4 border bg-background rounded-xl hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => {
+                      const next = new Set(selectedBankIds);
+                      if (next.has(q.id)) next.delete(q.id);
+                      else next.add(q.id);
+                      setSelectedBankIds(next);
+                    }}
+                  >
+                    <Checkbox
+                      checked={selectedBankIds.has(q.id)}
+                      onCheckedChange={() => {}}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="text-sm font-semibold line-clamp-1"
+                        dangerouslySetInnerHTML={{ __html: q.stemText }}
+                      />
+                      <div className="text-[11px] text-muted-foreground mt-1 flex gap-2">
+                        <span className="font-bold">{q.questionType}</span>
+                        {q.mondai?.code && <span>· {q.mondai.code}</span>}
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="font-bold shrink-0">
+                      {q.levelCode}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+
+          <div className="p-6 border-t bg-muted/30 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsPickerOpen(false)}>
+              Hủy
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Button
+              disabled={selectedBankIds.size === 0}
+              onClick={() =>
+                void handleAttachQuestions(Array.from(selectedBankIds)).then(() =>
+                  setIsPickerOpen(false),
+                )
+              }
+            >
+              Thêm {selectedBankIds.size} câu hỏi
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Quick Create Dialog */}
-      <Dialog open={isQuickCreateOpen} onOpenChange={setIsQuickCreateOpen}>
-        <DialogContent className="max-w-4xl max-h-[95vh] flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="p-6 border-b">
-            <DialogTitle>Tạo câu hỏi mới và gắn vào đề thi</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto p-6">
-            <JlptQuestionForm
-              presetLevelCode={template.levelCode}
-              presetSectionCode={template.sections.find((s: any) => s.id === targetSectionId)?.code}
-              onSuccess={handleQuickCreateSuccess}
-              onCancel={() => setIsQuickCreateOpen(false)}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <Sheet open={isQuickCreateOpen} onOpenChange={setIsQuickCreateOpen}>
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle>Tạo câu hỏi mới và gắn vào đề thi</SheetTitle>
+            <SheetDescription>
+              Tạo nhanh câu hỏi theo phần thi đang chọn, sau đó tự động gắn vào đề.
+            </SheetDescription>
+          </SheetHeader>
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="space-y-6 p-6">
+              <JlptQuestionForm
+                presetLevelCode={template.levelCode}
+                presetSectionCode={template.sections.find((s: any) => s.id === targetSectionId)?.code}
+                onSuccess={handleQuickCreateSuccess}
+                onCancel={() => setIsQuickCreateOpen(false)}
+              />
+            </div>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
 
-      {/* General Settings Dialog */}
-      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Cài đặt chung đề thi</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tiêu đề đề thi</label>
-              <Input 
-                value={settingsData.title}
-                onChange={(e) => setSettingsData({...settingsData, title: e.target.value})}
-              />
+      {/* General Settings Sheet */}
+      <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle>Cài đặt chung đề thi</SheetTitle>
+            <SheetDescription>
+              Cập nhật tiêu đề, mã, trạng thái và mô tả cho đề thi.
+            </SheetDescription>
+          </SheetHeader>
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="space-y-6 p-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tiêu đề đề thi</label>
+                <Input
+                  value={settingsData.title}
+                  onChange={(e) =>
+                    setSettingsData({ ...settingsData, title: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mã đề (Code)</label>
+                <Input
+                  value={settingsData.code}
+                  onChange={(e) =>
+                    setSettingsData({ ...settingsData, code: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Trạng thái (Status)</label>
+                <Select
+                  value={settingsData.status}
+                  onValueChange={(v) =>
+                    setSettingsData({ ...settingsData, status: v })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DRAFT">Bản nháp (DRAFT)</SelectItem>
+                    <SelectItem value="READY">Sẵn sàng (READY)</SelectItem>
+                    <SelectItem value="PUBLISHED">Công bố (PUBLISHED)</SelectItem>
+                    <SelectItem value="ARCHIVED">Lưu trữ (ARCHIVED)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mô tả</label>
+                <Input
+                  value={settingsData.description}
+                  onChange={(e) =>
+                    setSettingsData({
+                      ...settingsData,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Mã đề (Code)</label>
-              <Input 
-                value={settingsData.code}
-                onChange={(e) => setSettingsData({...settingsData, code: e.target.value})}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Trạng thái (Status)</label>
-              <Select 
-                value={settingsData.status} 
-                onValueChange={(v) => setSettingsData({...settingsData, status: v})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Bản nháp (DRAFT)</SelectItem>
-                  <SelectItem value="READY">Sẵn sàng (READY)</SelectItem>
-                  <SelectItem value="PUBLISHED">Công bố (PUBLISHED)</SelectItem>
-                  <SelectItem value="ARCHIVED">Lưu trữ (ARCHIVED)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Mô tả</label>
-              <Input 
-                value={settingsData.description}
-                onChange={(e) => setSettingsData({...settingsData, description: e.target.value})}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>Hủy</Button>
+          </ScrollArea>
+
+          <div className="p-6 border-t bg-muted/30 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
+              Hủy
+            </Button>
             <Button onClick={handleUpdateSettings} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {saving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
               Lưu cài đặt
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader className="pt-4">
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+      {/* Delete Confirmation Sheet */}
+      <Sheet open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <SheetContent className="w-full sm:max-w-[520px] max-h-screen p-0 flex flex-col overflow-hidden">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" /> Xác nhận xóa câu hỏi
-            </DialogTitle>
-            <CardDescription className="pt-2">
+            </SheetTitle>
+            <SheetDescription>
               Bạn có chắc chắn muốn xóa câu hỏi này khỏi đề thi không? Hành động này sẽ gỡ bỏ liên kết giữa câu hỏi và đề thi hiện tại.
-            </CardDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 p-4 pt-2">
-            <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)}>Hủy bỏ</Button>
-            <Button variant="destructive" onClick={confirmDeleteQuestion}>Xác nhận xóa</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="p-6">
+            <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-4 text-sm text-foreground">
+              Thao tác này không thể hoàn tác.
+            </div>
+          </div>
+          <div className="p-6 border-t bg-muted/30 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
+              Hủy bỏ
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteQuestion}>
+              Xác nhận xóa
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

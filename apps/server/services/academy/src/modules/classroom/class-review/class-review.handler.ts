@@ -74,6 +74,11 @@ export class CourseReviewHandler {
     return this.reviews.hideReview(data.id, data.userId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseReview.delete' })
+  delete(@Payload() data: { id: string; userId: string }) {
+    return this.reviews.deleteReview(data.id, data.userId);
+  }
+
   // ── Admin ────────────────────────────────────────────────────────────────
 
   @MessagePattern({ cmd: 'academy.courseReview.adminList' })

@@ -322,6 +322,32 @@ export class ClassReviewService {
     });
   }
 
+  /**
+   * Hard-delete a review. Only owner can call this.
+   *
+   * NOTE: this removes the row entirely so the user can submit a new review
+   * for the same enrollment later (unique constraint is on courseReview.enrollmentId).
+   */
+  async deleteReview(id: string, userId: string) {
+    const review = await this._findOrThrow(id);
+    if (review.userId !== userId) {
+      throw new ForbiddenException('Not allowed to delete this review');
+    }
+
+    await this.audit.log({
+      userId,
+      action: 'delete',
+      entity: 'class_review',
+      entityId: id,
+      description: `Review ${id} deleted`,
+      metadata: { enrollmentId: review.enrollmentId },
+    });
+
+    return this.prisma.courseReview.delete({
+      where: { id },
+    });
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Admin operations
   // ─────────────────────────────────────────────────────────────────────────

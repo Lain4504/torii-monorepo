@@ -26,6 +26,105 @@ export class EnrollmentService {
 
   private readonly logger = new Logger(EnrollmentService.name);
 
+  private async computeLiveProgress(params: {
+    enrollmentId: string;
+    userId: string;
+    liveClassId: string;
+    courseProfileId?: string | null;
+    cohortEndDate?: Date | null;
+  }): Promise<{
+    progressPercent: number;
+    totalSessions: number;
+    attendedSessions: number;
+    requiredExams: number;
+    completedRequiredExams: number;
+    isEligibleToComplete: boolean;
+  }> {
+    const { enrollmentId, userId, liveClassId } = params;
+
+    // Determine cutoff date (prefer cohort endDate; fallback to last session date)
+    let cutoffDate: Date | null = params.cohortEndDate ?? null;
+    if (!cutoffDate) {
+      const last = await this.prisma.liveScheduleSession.findFirst({
+        where: {
+          liveClassId,
+          status: { in: ['SCHEDULED', 'COMPLETED'] },
+        },
+        orderBy: { sessionDate: 'desc' },
+        select: { sessionDate: true },
+      });
+      cutoffDate = last?.sessionDate ?? null;
+    }
+
+    const sessions = await this.prisma.liveScheduleSession.findMany({
+      where: {
+        liveClassId,
+        status: { in: ['SCHEDULED', 'COMPLETED'] },
+        ...(cutoffDate ? { sessionDate: { lte: cutoffDate } } : {}),
+      },
+      select: { id: true },
+    });
+    const sessionIds = sessions.map((s) => s.id);
+    const totalSessions = sessionIds.length;
+
+    const attendedSessions =
+      totalSessions === 0
+        ? 0
+        : await this.prisma.classAttendance.count({
+            where: {
+              userId,
+              sessionId: { in: sessionIds },
+              status: { in: ['PRESENT', 'LATE', 'EXCUSED'] },
+            },
+          });
+
+    const courseProfileId = params.courseProfileId ?? null;
+    const requiredExamIds = courseProfileId
+      ? (
+          await this.prisma.academyCourseProfileAssessment.findMany({
+            where: { courseProfileId, isActive: true, isRequired: true },
+            select: { examId: true },
+          })
+        ).map((a) => a.examId)
+      : [];
+
+    const completedRequiredExams =
+      requiredExamIds.length === 0
+        ? 0
+        : (
+            await this.prisma.academyExamAttempt.findMany({
+              where: {
+                userId,
+                enrollmentId,
+                examId: { in: requiredExamIds },
+                status: 'SUBMITTED',
+              },
+              orderBy: { startedAt: 'desc' },
+              distinct: ['examId'],
+              select: { examId: true },
+            })
+          ).length;
+
+    const progressPercent =
+      totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0;
+
+    const isCourseEnded = cutoffDate ? new Date() >= cutoffDate : false;
+    const attendanceOk = totalSessions > 0 && attendedSessions >= totalSessions;
+    const examsOk =
+      requiredExamIds.length === 0
+        ? true
+        : completedRequiredExams >= requiredExamIds.length;
+
+    return {
+      progressPercent,
+      totalSessions,
+      attendedSessions,
+      requiredExams: requiredExamIds.length,
+      completedRequiredExams,
+      isEligibleToComplete: isCourseEnded && attendanceOk && examsOk,
+    };
+  }
+
   async findAll(query: any) {
     const where: any = {
       userId: query.userId ?? undefined,
@@ -71,7 +170,10 @@ export class EnrollmentService {
           include: {
             instructor: { select: { displayName: true, avatarUrl: true } },
             cohort: {
-              include: {
+              select: {
+                courseProfileId: true,
+                startDate: true,
+                endDate: true,
                 courseProfile: {
                   select: {
                     id: true,
@@ -111,11 +213,9 @@ export class EnrollmentService {
           let completedLessons = 0;
           let totalLessons = 0;
 
-          if (e.liveClassId || e.vodPackageId) {
-            // Find lessons from course profile
-            const cpId =
-              e.liveClass?.cohort?.courseProfileId ||
-              e.vodPackage?.courseProfileId;
+          // VOD: progress by completed lessons
+          if (e.vodPackageId) {
+            const cpId = e.vodPackage?.courseProfileId;
             if (cpId) {
               totalLessons = await this.prisma.lesson.count({
                 where: { module: { courseProfileId: cpId } },
@@ -131,6 +231,50 @@ export class EnrollmentService {
                 totalLessons > 0
                   ? Math.round((completedLessons / totalLessons) * 100)
                   : 0;
+            }
+
+            // Self-heal: VOD enrollment becomes COMPLETED when lessons are done.
+            // This keeps dashboard logic consistent (Completed tab is status-based).
+            if (e.status === 'ACTIVE' && progressPercent >= 100) {
+              try {
+                await this.prisma.enrollment.update({
+                  where: { id: e.id },
+                  data: { status: 'COMPLETED' },
+                });
+                e.status = 'COMPLETED';
+                this.nats.emit('enrollment.completed', { enrollmentId: e.id });
+              } catch (err) {
+                this.logger.error(`Failed to mark VOD enrollment ${e.id} as COMPLETED`, err);
+              }
+            }
+          }
+
+          // LIVE: completion is NOT based on VOD lesson progress.
+          // Only eligible when: finished all teaching sessions (attendance) AND completed required final exams.
+          if (e.liveClassId) {
+            const liveComputed = await this.computeLiveProgress({
+              enrollmentId: e.id,
+              userId: e.userId,
+              liveClassId: e.liveClassId,
+              courseProfileId: e.liveClass?.cohort?.courseProfileId,
+              cohortEndDate: (e.liveClass?.cohort as any)?.endDate ?? null,
+            });
+
+            progressPercent = liveComputed.isEligibleToComplete
+              ? 100
+              : Math.min(99, liveComputed.progressPercent);
+
+            if (e.status === 'ACTIVE' && liveComputed.isEligibleToComplete) {
+              try {
+                await this.prisma.enrollment.update({
+                  where: { id: e.id },
+                  data: { status: 'COMPLETED' },
+                });
+                e.status = 'COMPLETED';
+                this.nats.emit('enrollment.completed', { enrollmentId: e.id });
+              } catch (err) {
+                this.logger.error(`Failed to mark LIVE enrollment ${e.id} as COMPLETED`, err);
+              }
             }
           }
 
@@ -229,8 +373,8 @@ export class EnrollmentService {
     for (const r of list as any[]) {
       let p = r.progressPercent ?? 0;
 
-      // Self-healing: If ACTIVE but 100%, transition to COMPLETED
-      if (r.status === 'ACTIVE' && p >= 100) {
+      // Self-healing: VOD only. LIVE completion is handled via attendance + required exams.
+      if (r.status === 'ACTIVE' && r.type !== 'live' && p >= 100) {
         try {
           await this.prisma.enrollment.update({
             where: { id: r.id },
@@ -507,27 +651,32 @@ export class EnrollmentService {
     );
 
     // Recalculate progress to check for completion
-    const cpId = enrollment.liveClass?.cohort?.courseProfileId || enrollment.vodPackage?.courseProfileId;
-    if (cpId) {
-      const totalLessons = await this.prisma.lesson.count({
-        where: { module: { courseProfileId: cpId } },
-      });
-      const completedCount = await this.prisma.userLessonProgress.count({
-        where: {
-          enrollmentId: enrollment.id,
-          isCompleted: true,
-        },
-      });
-
-      if (totalLessons > 0 && completedCount >= totalLessons && enrollment.status !== 'COMPLETED') {
-        // Mark enrollment as completed
-        await this.prisma.enrollment.update({
-          where: { id: enrollment.id },
-          data: { status: 'COMPLETED' },
+    // VOD completion is lesson-based; LIVE completion is attendance + final exams (not VOD lessons).
+    if (enrollment.vodPackageId) {
+      const cpId = enrollment.vodPackage?.courseProfileId;
+      if (cpId) {
+        const totalLessons = await this.prisma.lesson.count({
+          where: { module: { courseProfileId: cpId } },
+        });
+        const completedCount = await this.prisma.userLessonProgress.count({
+          where: {
+            enrollmentId: enrollment.id,
+            isCompleted: true,
+          },
         });
 
-        // Emit enrollment.completed event to trigger certificate generation
-        this.nats.emit('enrollment.completed', { enrollmentId: enrollment.id });
+        if (
+          totalLessons > 0 &&
+          completedCount >= totalLessons &&
+          enrollment.status !== 'COMPLETED'
+        ) {
+          await this.prisma.enrollment.update({
+            where: { id: enrollment.id },
+            data: { status: 'COMPLETED' },
+          });
+
+          this.nats.emit('enrollment.completed', { enrollmentId: enrollment.id });
+        }
       }
     }
 

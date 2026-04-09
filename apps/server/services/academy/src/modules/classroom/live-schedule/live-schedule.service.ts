@@ -54,6 +54,36 @@ export class LiveScheduleService {
     return `${segment(3)}-${segment(3)}-${segment(3)}`;
   }
 
+  private computeDurationMinutes(startTime: string, endTime: string) {
+    const [startHour, startMinute] = this.parseHourMinute(startTime);
+    const [endHour, endMinute] = this.parseHourMinute(endTime);
+    const start = startHour * 60 + startMinute;
+    const end = endHour * 60 + endMinute;
+    if (end <= start) return 0;
+    return end - start;
+  }
+
+  private attachComputedScheduleFields(session: {
+    sessionDate: Date;
+    startTime: string;
+    endTime: string;
+  }) {
+    const dateYmd = this.formatDateInTimeZone(
+      session.sessionDate,
+      'Asia/Ho_Chi_Minh',
+    );
+    const scheduledAt = this.buildInstantFromVnDateTime(
+      dateYmd,
+      session.startTime,
+    );
+    const endAt = this.buildInstantFromVnDateTime(dateYmd, session.endTime);
+    const duration = this.computeDurationMinutes(
+      session.startTime,
+      session.endTime,
+    );
+    return { scheduledAt, endAt, duration };
+  }
+
   private async assertTemplateMutable(liveClassId: string) {
     if (!liveClassId) throw new BadRequestException('liveClassId is required');
     const klass = await this.prisma.liveClass.findUnique({
@@ -488,7 +518,7 @@ export class LiveScheduleService {
   }
 
   async listSessionsForClassRange(liveClassId: string, from: Date, to: Date) {
-    return this.prisma.liveScheduleSession.findMany({
+    const items = await this.prisma.liveScheduleSession.findMany({
       where: {
         liveClassId,
         sessionDate: {
@@ -499,6 +529,10 @@ export class LiveScheduleService {
       },
       orderBy: [{ sessionDate: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
     });
+    return items.map((s) => ({
+      ...s,
+      ...this.attachComputedScheduleFields(s),
+    }));
   }
 
   /** Lịch buổi LIVE của học viên trong khoảng ngày + trạng thái điểm danh (nếu có). */
@@ -1379,21 +1413,18 @@ export class LiveScheduleService {
     }
     const now = new Date();
 
-    const [startHour, startMinute] = this.parseHourMinute(schedule.startTime);
-    const [endHour, endMinute] = this.parseHourMinute(schedule.endTime);
-    const expectedWeekday = schedule.weekday;
-    // `weekday` is generated from UTC in `generateInstancesForClassRange` (getUTCDay),
-    // so join-window validation must also use UTC to avoid timezone drift.
-    if (now.getUTCDay() !== expectedWeekday) {
-      throw new BadRequestException(
-        'Session is not available on this weekday.',
-      );
+    // Schedules are defined in Vietnam local time (Asia/Ho_Chi_Minh).
+    const todayYmd = this.formatDateInTimeZone(now, 'Asia/Ho_Chi_Minh'); // yyyy-MM-dd
+    // Use noon to avoid any edge issues when converting across timezones.
+    const vnNoonInstant = this.buildInstantFromVnDateTime(todayYmd, '12:00');
+    const vnNowWeekday = vnNoonInstant.getUTCDay();
+
+    if (vnNowWeekday !== schedule.weekday) {
+      throw new BadRequestException('Session is not available on this weekday.');
     }
 
-    const sessionStart = new Date(now);
-    sessionStart.setUTCHours(startHour, startMinute, 0, 0);
-    const sessionEnd = new Date(now);
-    sessionEnd.setUTCHours(endHour, endMinute, 0, 0);
+    const sessionStart = this.buildInstantFromVnDateTime(todayYmd, schedule.startTime);
+    const sessionEnd = this.buildInstantFromVnDateTime(todayYmd, schedule.endTime);
 
     const joinOpenAt = new Date(sessionStart.getTime() - 30 * 60 * 1000);
     const joinCloseAt = new Date(sessionEnd.getTime() + 4 * 60 * 60 * 1000);
@@ -1421,18 +1452,12 @@ export class LiveScheduleService {
     }
 
     const now = new Date();
-    const sessionDate = new Date(input.sessionDate);
-    // `sessionDate` is stored as UTC (see `startOfDay` uses setUTCHours).
-    // Use UTC consistently to compute join window.
-    sessionDate.setUTCHours(0, 0, 0, 0);
 
-    const [startHour, startMinute] = this.parseHourMinute(input.startTime);
-    const [endHour, endMinute] = this.parseHourMinute(input.endTime);
-
-    const sessionStart = new Date(sessionDate);
-    sessionStart.setUTCHours(startHour, startMinute, 0, 0);
-    const sessionEnd = new Date(sessionDate);
-    sessionEnd.setUTCHours(endHour, endMinute, 0, 0);
+    // LIVE schedules are defined in Vietnam local time (Asia/Ho_Chi_Minh).
+    // Build join window using VN wall time to avoid UTC +/-7 drift.
+    const sessionYmd = this.formatDateInTimeZone(input.sessionDate, 'Asia/Ho_Chi_Minh'); // yyyy-MM-dd
+    const sessionStart = this.buildInstantFromVnDateTime(sessionYmd, input.startTime);
+    const sessionEnd = this.buildInstantFromVnDateTime(sessionYmd, input.endTime);
 
     const joinOpenAt = new Date(sessionStart.getTime() - 30 * 60 * 1000);
     const joinCloseAt = new Date(sessionEnd.getTime() + 4 * 60 * 60 * 1000);
@@ -1441,6 +1466,27 @@ export class LiveScheduleService {
         'Session join window is closed. You can join 30 minutes before start and up to 4 hours after end.',
       );
     }
+  }
+
+  private formatDateInTimeZone(date: Date, timeZone: string) {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date(date));
+    const y = parts.find((p) => p.type === 'year')?.value;
+    const m = parts.find((p) => p.type === 'month')?.value;
+    const d = parts.find((p) => p.type === 'day')?.value;
+    return `${y}-${m}-${d}`;
+  }
+
+  private buildInstantFromVnDateTime(dateYmd: string, timeHHmm: string) {
+    const [y, m, d] = dateYmd.split('-').map(Number);
+    const [hh, mm] = this.parseHourMinute(timeHHmm);
+    // VN timezone is UTC+7 with no DST.
+    const utcMs = Date.UTC(y, m - 1, d, hh - 7, mm, 0, 0);
+    return new Date(utcMs);
   }
 
   private async ensureSessionRoomId(
