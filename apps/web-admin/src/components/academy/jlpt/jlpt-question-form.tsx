@@ -331,10 +331,7 @@ export function JlptQuestionForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmitForm)}
-      className="space-y-4 sm:space-y-6 max-w-3xl mx-auto"
-    >
+    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 sm:space-y-6 pb-10">
       <Alert>
         <Info className="size-4" />
         <AlertTitle>Cấu trúc JLPT trong ngân hàng</AlertTitle>
@@ -721,11 +718,11 @@ export function JlptQuestionForm({
         </CardContent>
       </Card>
 
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-        <Button variant="outline" className="w-full sm:w-auto" onClick={onCancel} disabled={submitting}>
+      <div className="flex flex-col-reverse gap-3 pt-6 border-t sm:flex-row sm:justify-end">
+        <Button variant="ghost" className="w-full sm:w-auto" onClick={onCancel} disabled={submitting}>
           Hủy
         </Button>
-        <Button type="submit" className="w-full sm:w-auto" disabled={submitting || !!uploading}>
+        <Button type="submit" className="w-full sm:w-[140px]" disabled={submitting || !!uploading}>
           {submitting && <Loader2 className="mr-2 size-4 animate-spin" />}
           {initialData?.id ? "Cập nhật" : "Lưu câu hỏi"}
         </Button>
