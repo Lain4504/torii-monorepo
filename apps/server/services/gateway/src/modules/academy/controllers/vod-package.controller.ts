@@ -15,6 +15,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
+import type { ClientProxy } from '@nestjs/microservices/client';
 import { firstValueFrom } from 'rxjs';
 import {
   Public,
@@ -38,7 +39,7 @@ import {
 @Controller('api/academy/vod-packages')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class VodPackageController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: any) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Public()
   @Get('public')

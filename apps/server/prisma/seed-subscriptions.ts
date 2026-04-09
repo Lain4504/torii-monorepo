@@ -1,29 +1,14 @@
 /**
- * SUBSCRIPTION PRICING SEED SCRIPT
+ * AI SUBSCRIPTION PLAN SEED SCRIPT
  * ==================================
- * Mục đích: Khởi tạo các gói đăng ký AI Sensei vào database.
+ * Mục đích: Khởi tạo/cập nhật các gói AI Sensei trong bảng `ai_subscription_plans`.
  *
- * Chạy lệnh sau để seed (hoặc cập nhật) giá gói:
+ * Chạy:
  *   cd apps/server
  *   npx ts-node -r tsconfig-paths/register -T prisma/seed-subscriptions.ts
- *
- * ⚠️  LƯU Ý QUAN TRỌNG:
- * Giá gói được lưu ở 2 chỗ và phải cập nhật ĐỒNG BỘ cả 2:
- *
- *  1. DATABASE (file này) — nguồn thật:
- *     Dùng khi checkout, tính tiền, ghi vào lịch sử giao dịch.
- *
- *  2. FRONTEND UI — chỉ để hiển thị:
- *     apps/web-learner/app/(dashboard)/dashboard/payment/subscriptions/page.tsx
- *     const tiers = [{ id: 'plus', price: 50000, ... }, ...]
- *
- * BẢNG GIÁ HIỆN TẠI:
- *   free    = 0đ     (10 lượt/ngày)
- *   plus    = 50,000đ  ~$2  (100 lượt/ngày)
- *   premium = 125,000đ ~$5  (5000 lượt/ngày)
  */
 
-import { PrismaClient, OrderType, OfferingStatus } from '@prisma/generated';
+import { PrismaClient } from '@prisma/generated';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { loadConfig } from '../libs/shared/src/config/app.config';
 
@@ -35,76 +20,54 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-    console.log('🌱 Seeding subscription offerings...');
-
-    // 1. Create a Course Profile for Subscriptions
-    const courseProfile = await prisma.courseProfile.upsert({
-        where: { code: 'subscriptions' },
-        update: {},
-        create: {
-            code: 'subscriptions',
-            title: 'AI Sensei Subscriptions',
-            description: 'Tiered access to AI Sensei features',
-        },
-    });
+    console.log('🌱 Seeding ai_subscription_plans...');
 
     const tiers = [
         {
             code: 'free',
-            title: 'Free Tier',
+            name: 'Free',
+            description: 'Gói miễn phí',
             price: 0,
             quota: 10,
+            features: [] as string[],
         },
         {
             code: 'plus',
-            title: 'Plus Tier ($2)',
+            name: 'Plus',
+            description: 'Gói Plus',
             price: 50000,
             quota: 100,
+            features: [] as string[],
         },
         {
             code: 'premium',
-            title: 'Premium Tier ($5)',
+            name: 'Premium',
+            description: 'Gói Premium',
             price: 125000,
             quota: 5000,
+            features: [] as string[],
         },
     ];
 
     for (const tier of tiers) {
-        // Create Class for this tier
-        const classObj = await prisma.class.upsert({
-            where: { code: `class-${tier.code}` },
-            update: {},
-            create: {
-                code: `class-${tier.code}`,
-                name: `${tier.title} Access`,
-                courseProfileId: courseProfile.id,
-                mode: 'VOD',
-                status: 'PUBLISHED',
-            },
-        });
-
-        // Create Offering (1:1 with Class)
-        await prisma.courseOffering.upsert({
+        await prisma.aiSubscriptionPlan.upsert({
             where: { code: tier.code },
             update: {
-                type: OrderType.SUBSCRIPTION,
-                status: OfferingStatus.PUBLISHED,
-                metadata: { quotas: { ai_turns: tier.quota } },
-                originalPrice: tier.price,
-                classId: classObj.id,
-                mode: 'VOD',
+                name: tier.name,
+                description: tier.description,
+                price: tier.price,
+                quotas: { ai_turns: tier.quota } as any,
+                features: tier.features,
+                isActive: true,
             },
             create: {
                 code: tier.code,
-                title: tier.title,
-                type: OrderType.SUBSCRIPTION,
-                status: OfferingStatus.PUBLISHED,
-                originalPrice: tier.price,
-                metadata: { quotas: { ai_turns: tier.quota } },
-                classId: classObj.id,
-                mode: 'VOD',
                 price: tier.price,
-                currency: 'VND',
+                name: tier.name,
+                description: tier.description,
+                quotas: { ai_turns: tier.quota } as any,
+                features: tier.features,
+                isActive: true,
             },
         });
 

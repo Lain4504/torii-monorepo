@@ -17,6 +17,7 @@ import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
 import { AiSubscriptionService } from '../quota/ai-subscription.service';
 import * as ExcelJS from 'exceljs';
+import type { ClientProxy } from '@nestjs/microservices/client';
 
 
 @Injectable()
@@ -31,7 +32,7 @@ export class OrderService {
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
     private readonly aiSubscriptionService: AiSubscriptionService,
-    @Inject('NATS_SERVICE') private readonly natsClient: any,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {

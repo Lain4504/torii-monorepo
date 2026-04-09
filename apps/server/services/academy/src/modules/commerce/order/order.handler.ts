@@ -1,11 +1,7 @@
 import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices/decorators';
 import { OrderService } from './order.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
-
-// Workaround for TS type resolution differences across services.
-// Runtime decorators still come from @nestjs/microservices.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { MessagePattern, Payload } = require('@nestjs/microservices') as any;
 
 @Controller()
 export class OrderHandler {

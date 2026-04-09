@@ -14,6 +14,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import type { ClientProxy } from '@nestjs/microservices/client';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
@@ -34,7 +35,7 @@ import {
 @Controller('api/academy/reviews')
 @UseGuards(GatewayAuthGuard)
 export class CourseReviewController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: any) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   // ── Public routes ──────────────────────────────────────────────────────────
 

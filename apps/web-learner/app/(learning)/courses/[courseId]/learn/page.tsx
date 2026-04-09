@@ -366,38 +366,39 @@ export default function CourseLearnPage() {
 
     const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
 
-    // ── API (Smart Bridge) ────────────────────────────────────────────────
-    // 1. Try to fetch as a Live Class
-    const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(classId);
-    const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(classId);
+    // ── API (Strict mode by Enrollment) ───────────────────────────────────
+    // Nguồn sự thật để quyết định LIVE vs VOD là Enrollment (vodPackageId/liveClassId/type/mode),
+    // không suy đoán bằng 403/404 fallback.
+    const enrollment = enrollmentData?.enrollment;
+    const enrollmentType = String(enrollment?.type ?? '').toLowerCase();
+    const enrollmentMode = String(enrollment?.mode ?? '').toUpperCase();
 
-    // 2. Determine mode (VOD vs LIVE)
-    // - Check Gateway's Smart Bridge fallback (returns mode: 'VOD' for liveClassId)
-    // - Check explicit enrollment type
-    // - Check for 404/403 errors that suggest the class is not of this type
-    const liveMode = String((liveClassData as any)?.mode ?? '').toUpperCase();
-    const isVodCandidateAuto =
-        liveMode === 'VOD' ||
-        enrollmentData?.enrollment?.type === 'vod' ||
-        (liveClassError as any)?.response?.status === 404 ||
-        (liveClassError as any)?.response?.status === 403 ||
-        (liveCurriculumError as any)?.response?.status === 404 ||
-        (liveCurriculumError as any)?.response?.status === 403;
+    const isVodByEnrollment =
+        !!enrollment?.vodPackageId ||
+        enrollmentType === 'vod' ||
+        enrollmentMode === 'VOD';
+    const isLiveByEnrollment =
+        !!enrollment?.liveClassId ||
+        enrollmentType === 'live' ||
+        enrollmentMode === 'LIVE';
 
-    // `?mode=LIVE`/`?mode=VOD` override
-    const isVodCandidate = requestedMode === 'LIVE' ? false : (requestedMode === 'VOD' ? true : isVodCandidateAuto);
+    // Optional override via query string should only be used for debugging.
+    // If it's inconsistent with enrollment, we ignore it to avoid wrong data.
+    const isVodCandidate =
+        isVodByEnrollment ? true : (isLiveByEnrollment ? false : requestedMode === 'VOD');
+
+    const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(classId, { enabled: !isVodCandidate });
+    const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(classId, { enabled: !isVodCandidate });
 
     const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
     const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
 
-    // 3. Consolidated Data (Explicit Selection)
-    const classData = isVodCandidate ? (vodPackageData || liveClassData) : (liveClassData || vodPackageData);
-    const curriculum = isVodCandidate ? (vodCurriculum || liveCurriculum) : (liveCurriculum || vodCurriculum);
+    const classData = isVodCandidate ? vodPackageData : liveClassData;
+    const curriculum = isVodCandidate ? vodCurriculum : liveCurriculum;
 
-    // 4. Loading States & Fallbacks
     const isModeDetermined = !!enrollmentData;
     
-    const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '');
+    const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '', { enabled: !isVodCandidate });
     const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
 
     const isDataLoading = isVodCandidate
@@ -440,10 +441,13 @@ export default function CourseLearnPage() {
             return;
         }
 
-        // Handle case where course is truly not found in both modes (only if not loading)
-        const isNotFound = !isLoading && !classData &&
-            (liveClassError as any)?.response?.status === 404 &&
-            (isVodCandidate ? (vodLoading || !vodPackageData) : true);
+        // Handle case where course is truly not found (only if not loading)
+        const isNotFound =
+            !isLoading &&
+            !classData &&
+            (isVodCandidate
+                ? !vodLoading && !vodPackageData
+                : !liveClassLoading && !liveClassData);
 
 
         if (!hasHandledForbiddenRef.current && isNotFound) {
@@ -451,7 +455,18 @@ export default function CourseLearnPage() {
             toast.error('Không tìm thấy thông tin lớp học.');
             router.replace('/dashboard/my-courses');
         }
-    }, [enrollmentData, enrollmentError, liveClassError, isLoading, classData, isVodCandidate, vodLoading, vodPackageData, router]);
+    }, [
+        enrollmentData,
+        enrollmentError,
+        isLoading,
+        classData,
+        isVodCandidate,
+        vodLoading,
+        vodPackageData,
+        liveClassLoading,
+        liveClassData,
+        router,
+    ]);
 
     // ── Computed data & State ─────────────────────────────────────────────
     const completedIds = useMemo(() => new Set<string>(completedContentItemIds), [completedContentItemIds]);

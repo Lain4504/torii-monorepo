@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="job remider livesession" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="job remider livesession">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/seed-subscriptions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-review.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/vod-package.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-classes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -402,15 +413,7 @@
       <workItem from="1775525032389" duration="8927000" />
       <workItem from="1775540769831" duration="4356000" />
       <workItem from="1775547519434" duration="5443000" />
-      <workItem from="1775718020192" duration="6573000" />
-    </task>
-    <task id="LOCAL-01193" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775477972198</created>
-      <option name="number" value="01193" />
-      <option name="presentableId" value="LOCAL-01193" />
-      <option name="project" value="LOCAL" />
-      <updated>1775477972198</updated>
+      <workItem from="1775718020192" duration="8518000" />
     </task>
     <task id="LOCAL-01194" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -796,7 +799,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775724601106</updated>
     </task>
-    <option name="localTasksCounter" value="1242" />
+    <task id="LOCAL-01242" summary="job remider livesession">
+      <option name="closed" value="true" />
+      <created>1775725363613</created>
+      <option name="number" value="01242" />
+      <option name="presentableId" value="LOCAL-01242" />
+      <option name="project" value="LOCAL" />
+      <updated>1775725363613</updated>
+    </task>
+    <option name="localTasksCounter" value="1243" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

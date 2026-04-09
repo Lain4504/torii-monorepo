@@ -98,11 +98,14 @@ export function useAcademyLearningStats() {
 /**
  * Hook: Get completed lesson IDs for a class
  */
-export function useAcademyCompletedLessonIds(classId?: string) {
+export function useAcademyCompletedLessonIds(
+    classId?: string,
+    options?: { enabled?: boolean },
+) {
     return useQuery({
         queryKey: ['academy-learning', 'completed-lessons', classId],
         queryFn: () => academyLearningProgressApi.getCompletedLessonIds(classId!),
-        enabled: !!classId,
+        enabled: (options?.enabled ?? true) && !!classId,
     });
 }
 

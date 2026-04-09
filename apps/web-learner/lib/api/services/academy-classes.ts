@@ -128,21 +128,21 @@ export function useAcademyClasses(params: AcademyClassQueryDTO) {
 /**
  * Hook: Get academy class by ID
  */
-export function useAcademyClass(id?: string) {
+export function useAcademyClass(id?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['academy-classes', 'id', id],
     queryFn: () => academyClassesApi.findById(id!),
-    enabled: !!id,
+    enabled: (options?.enabled ?? true) && !!id,
   });
 }
 
 /**
  * Hook: Get curriculum for a class
  */
-export function useCurriculum(classId?: string) {
+export function useCurriculum(classId?: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['curriculum', classId],
     queryFn: () => academyClassesApi.getCurriculum(classId!),
-    enabled: !!classId,
+    enabled: (options?.enabled ?? true) && !!classId,
   });
 }

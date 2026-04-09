@@ -11,6 +11,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
+import type { ClientProxy } from '@nestjs/microservices/client';
 
 import { firstValueFrom } from 'rxjs';
 import {
@@ -27,7 +28,7 @@ import { orderCheckoutSchema, orderPreviewSchema } from './order.schema';
 @Controller('api/academy/orders')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class OrderController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: any) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Post('preview')
   async preview(
