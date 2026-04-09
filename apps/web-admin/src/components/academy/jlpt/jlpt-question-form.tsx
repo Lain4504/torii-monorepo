@@ -331,7 +331,10 @@ export function JlptQuestionForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 sm:space-y-6">
+    <form
+      onSubmit={handleSubmit(onSubmitForm)}
+      className="space-y-4 sm:space-y-6 max-w-3xl mx-auto"
+    >
       <Alert>
         <Info className="size-4" />
         <AlertTitle>Cấu trúc JLPT trong ngân hàng</AlertTitle>
@@ -342,7 +345,7 @@ export function JlptQuestionForm({
         </AlertDescription>
       </Alert>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-none border border-border/60">
         <CardHeader className="space-y-1 p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg">
             {initialData?.id ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
@@ -636,7 +639,7 @@ export function JlptQuestionForm({
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-none border border-border/60">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg">Đáp án (Options)</CardTitle>
           <CardDescription className="text-xs">
