@@ -29,6 +29,9 @@ export const notificationCreateDTOSchema = z.object({
     title: z.string().min(1),
     message: z.string().min(1),
     notificationType: z.nativeEnum(NotificationType),
+    // Dedupe key để chống gửi trùng (idempotent) theo user.
+    // VD: "LIVE_SESSION:STARTS_IN_30_MIN:<sessionId>"
+    dedupeKey: z.string().min(1).max(160).optional(),
     metadata: z.any().optional(),
     sentVia: z.array(z.string()).optional(),
 });

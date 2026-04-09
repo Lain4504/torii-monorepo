@@ -778,7 +778,7 @@ model CouponUsage {
   @@map("academy_coupon_usages")
 }
 
-// Wishlist (legacy course_run) removed; academy wishlist will be reintroduced against CourseOffering/Class later.
+// Wishlist (legacy course_run) removed; academy wishlist will be reintroduced later.
 
 // ==================================================
 // 9. GAMIFICATION
@@ -1062,6 +1062,9 @@ model Notification {
   title            String    @db.VarChar(255)
   message          String    @db.Text
   notificationType String?   @map("notification_type") @db.VarChar(50)
+  /// Idempotency key: dùng để chống gửi trùng cho các job/trigger (per-user).
+  /// VD: "LIVE_SESSION:STARTS_IN_30_MIN:<sessionId>"
+  dedupeKey        String?   @map("dedupe_key") @db.VarChar(160)
   metadata         Json?     @map("data")
   isRead           Boolean   @default(false) @map("is_read")
   readAt           DateTime? @map("read_at")
@@ -1071,6 +1074,7 @@ model Notification {
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
+  @@unique([userId, dedupeKey])
   @@map("notifications")
 }
 

@@ -65,6 +65,12 @@ export default function AiSubscriptionsPage() {
     );
 }
 
+function isFreePlan(plan: any) {
+    const code = String(plan?.code || '').toUpperCase();
+    const price = Number(plan?.price ?? NaN);
+    return code === 'FREE' || price === 0;
+}
+
 function PlansTabContent() {
     const { data: plans, isLoading } = useAiSubscriptionPlans();
     const updateMutation = useUpdateAiSubscriptionPlan();
@@ -84,11 +90,12 @@ function PlansTabContent() {
 
     const handleSave = async () => {
         try {
+            const free = isFreePlan(editData);
             await updateMutation.mutateAsync({
                 id: editingId!,
                 data: {
                     name: editData.name,
-                    price: parseFloat(editData.price),
+                    price: free ? 0 : Number(editData.price),
                     isActive: editData.isActive,
                     description: editData.description
                 }
@@ -185,11 +192,16 @@ function PlansTabContent() {
                                                 value={editData.price}
                                                 onChange={(e) => setEditData({ ...editData, price: e.target.value })}
                                                 className="h-8 py-0 px-2 text-center"
+                                                disabled={isFreePlan(plan)}
                                             />
                                         ) : (
-                                            <span className="font-medium tabular-nums">
-                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(plan.price)}
-                                            </span>
+                                            isFreePlan(plan) ? (
+                                                <span className="text-muted-foreground text-xs">—</span>
+                                            ) : (
+                                                <span className="font-medium tabular-nums">
+                                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(plan.price)}
+                                                </span>
+                                            )
                                         )}
                                     </TableCell>
                                     <TableCell className="text-center">
