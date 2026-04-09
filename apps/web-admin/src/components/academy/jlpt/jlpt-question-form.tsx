@@ -124,9 +124,14 @@ export function JlptQuestionForm({
 
   const sectionCode = watch("sectionCode");
   const levelCode = watch("levelCode");
+  const questionTypeWatch = watch("questionType");
   const mondaiCodeWatch = watch("mondaiCode");
   const audioAssetId = watch("audioAssetId");
   const imageAssetId = watch("imageAssetId");
+
+  /** Upload / preview audio: phần 聴解 hoặc domain LISTENING (câu hỏi dạng audio). */
+  const showAudioUpload =
+    sectionCode === "LISTENING" || questionTypeWatch === "LISTENING";
 
   useEffect(() => {
     reset(defaultValues);
@@ -290,20 +295,31 @@ export function JlptQuestionForm({
     }
   };
 
+  const normalizeAssetId = (v: unknown): string | null => {
+    if (v === null || v === undefined) return null;
+    const s = String(v).trim();
+    return s === "" ? null : s;
+  };
+
   const onSubmitForm = async (data: Record<string, unknown>) => {
     const mc = typeof data.mondaiCode === "string" ? data.mondaiCode.trim() : "";
     if (!mc) {
       toast.error("Chọn Mondai (問題形式) đúng phần thi JLPT");
       return;
     }
+    const payload = {
+      ...data,
+      audioAssetId: normalizeAssetId(data.audioAssetId),
+      imageAssetId: normalizeAssetId(data.imageAssetId),
+    };
     try {
       setSubmitting(true);
       let res: any;
       if (initialData?.id) {
-        res = await academyJlptMockApi.updateBankQuestion(initialData.id, data);
+        res = await academyJlptMockApi.updateBankQuestion(initialData.id, payload);
         toast.success("Cập nhật câu hỏi thành công");
       } else {
-        res = await academyJlptMockApi.createBankQuestion(data);
+        res = await academyJlptMockApi.createBankQuestion(payload);
         toast.success("Thêm câu hỏi thành công");
       }
       onSuccess(res);
@@ -525,7 +541,7 @@ export function JlptQuestionForm({
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="min-w-0 flex-1 space-y-2">
               <FieldLabel className="flex items-center gap-2">
-                <ImageIcon className="size-4 shrink-0" /> Hình ảnh
+                <ImageIcon className="size-4 shrink-0" /> Hình ảnh (tùy chọn)
               </FieldLabel>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                 <Input
@@ -536,6 +552,19 @@ export function JlptQuestionForm({
                   disabled={!!uploading}
                 />
                 {uploading === "image" && <Loader2 className="size-4 shrink-0 animate-spin" />}
+                {watch("imageAssetId") ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setValue("imageAssetId", "");
+                      setImagePreviewUrl(null);
+                    }}
+                  >
+                    Gỡ ảnh
+                  </Button>
+                ) : null}
               </div>
               {watch("imageAssetId") && (
                 <div className="space-y-2">
@@ -558,11 +587,14 @@ export function JlptQuestionForm({
               )}
             </div>
 
-            {sectionCode === "LISTENING" && (
+            {showAudioUpload && (
               <div className="min-w-0 flex-1 space-y-2">
                 <FieldLabel className="flex items-center gap-2">
-                  <FileAudio className="size-4 shrink-0" /> File nghe (MP3/WAV)
+                  <FileAudio className="size-4 shrink-0" /> File âm thanh câu hỏi (MP3, WAV, …)
                 </FieldLabel>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Dùng cho phần 聴解: file được lưu và phát cho học viên khi làm bài. Nên tải trước khi lưu câu hỏi.
+                </p>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                   <Input
                     type="file"
@@ -572,6 +604,19 @@ export function JlptQuestionForm({
                     disabled={!!uploading}
                   />
                   {uploading === "audio" && <Loader2 className="size-4 shrink-0 animate-spin" />}
+                  {watch("audioAssetId") ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setValue("audioAssetId", "");
+                        setAudioPreviewUrl(null);
+                      }}
+                    >
+                      Gỡ audio
+                    </Button>
+                  ) : null}
                 </div>
                 {watch("audioAssetId") && (
                   <div className="space-y-2">

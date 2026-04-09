@@ -531,6 +531,8 @@ export class JlptMockService {
         contextText: input.contextText ?? null,
         explanation: input.explanation ?? null,
         difficulty: (input.difficulty as any) ?? 'EASY',
+        audioAssetId: input.audioAssetId ?? null,
+        imageAssetId: input.imageAssetId ?? null,
         sourceProvider: requesterId ? 'manual' : 'manual',
         sourceRef: null,
         sourcePayload: Prisma.DbNull,
@@ -599,6 +601,12 @@ export class JlptMockService {
         contextText: input.contextText ?? undefined,
         explanation: input.explanation ?? undefined,
         difficulty: (input.difficulty as any) ?? undefined,
+        ...(input.audioAssetId !== undefined
+          ? { audioAssetId: input.audioAssetId }
+          : {}),
+        ...(input.imageAssetId !== undefined
+          ? { imageAssetId: input.imageAssetId }
+          : {}),
         options:
           input.options !== undefined
             ? {
