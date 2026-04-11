@@ -239,11 +239,7 @@ services:
       dockerfile: apps/voice-agent/Dockerfile
     image: ${DOCKER_USERNAME}/torii-voice-agent:latest
     restart: always
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    networks:
-      - voice-agent-net
+    network_mode: "host"
     env_file:
       - .env
     environment:
@@ -252,8 +248,6 @@ services:
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-    ports:
-      - "8082:8082" # Maps host 8082 to container 8082
     depends_on:
       - livekit
 
