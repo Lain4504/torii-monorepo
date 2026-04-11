@@ -298,11 +298,11 @@ export default function JlptQuestionsPage() {
                           <TableCell>
                             {/<[a-z][\s\S]*>/i.test(q.stemText) ? (
                               <div
-                                className="line-clamp-2 max-w-[min(70vw,520px)] text-sm sm:max-w-[500px]"
+                                className="max-w-[min(70vw,520px)] text-sm sm:max-w-[500px] whitespace-normal break-words"
                                 dangerouslySetInnerHTML={{ __html: q.stemText }}
                               />
                             ) : (
-                              <div className="line-clamp-2 max-w-[min(70vw,520px)] text-sm sm:max-w-[500px]">
+                              <div className="max-w-[min(70vw,520px)] text-sm sm:max-w-[500px] whitespace-normal break-words">
                                 {q.stemText}
                               </div>
                             )}

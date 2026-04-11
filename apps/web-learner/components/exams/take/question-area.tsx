@@ -84,9 +84,7 @@ export function QuestionArea({
             {question.type === 'reading' && question.readingPassage && (
                 <div className="bg-card border p-6 rounded-lg prose max-w-none">
                     <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-2">Đọc đoạn văn sau</h4>
-                    <p className="whitespace-pre-wrap leading-relaxed text-card-foreground">
-                        {question.readingPassage}
-                    </p>
+                    <MarkdownRenderer content={question.readingPassage} className="leading-relaxed text-card-foreground" />
                 </div>
             )}
 
@@ -124,7 +122,7 @@ export function QuestionArea({
                         >
                             <RadioGroupItem value={opt.id} id={opt.id} />
                             <Label htmlFor={opt.id} className="flex-1 cursor-pointer font-medium text-card-foreground text-base">
-                                {opt.label}
+                                <MarkdownRenderer content={opt.label} inline />
                             </Label>
                         </div>
                     ))}

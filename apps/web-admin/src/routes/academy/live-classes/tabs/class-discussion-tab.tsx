@@ -160,7 +160,7 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
   const renderReplyTree = (reply: CommentResponseDTO, depth: number): any => {
     const canRecurse = depth < 3 && (reply.replies?.length ?? 0) > 0
     const isReplying = activeReplyId === reply.id
-    
+
     return (
       <div key={reply.id} className={depth === 0 ? "" : "mt-3"}>
         <div className="space-y-2 rounded-md border bg-card p-3">
@@ -255,10 +255,10 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
                   {((m.lessons || []) as Array<any>)
                     .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
                     .map((l: any) => (
-                    <SelectItem key={l.id} value={l.id} className="pl-6">
-                      {l.title || l.id}
-                    </SelectItem>
-                  ))}
+                      <SelectItem key={l.id} value={l.id} className="pl-6">
+                        {l.title || l.id}
+                      </SelectItem>
+                    ))}
                 </SelectGroup>
               ))}
             </SelectContent>
@@ -282,15 +282,15 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
         </div>
       ) : (
         <div className="rounded-lg border bg-background">
-          <Table>
+          <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>Học viên</TableHead>
-                <TableHead>Bài học</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead>Nội dung</TableHead>
-                <TableHead>Thời gian</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead className="w-[140px]">Học viên</TableHead>
+                <TableHead className="w-[160px]">Bài học</TableHead>
+                <TableHead className="w-[120px]">Trạng thái</TableHead>
+                <TableHead className="w-auto">Nội dung</TableHead>
+                <TableHead className="w-[120px]">Thời gian</TableHead>
+                <TableHead className="w-[100px] text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -313,7 +313,7 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
                       <Badge variant="warning" className="text-[10px]">Chờ phản hồi</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="max-w-[420px] truncate text-muted-foreground">
+                  <TableCell className="break-all whitespace-normal text-muted-foreground">
                     {topic.content}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
@@ -335,9 +335,9 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
         </div>
       )}
 
-      <DiscussionDetailsSheet 
-        topic={selectedTopic} 
-        open={!!selectedTopic} 
+      <DiscussionDetailsSheet
+        topic={selectedTopic}
+        open={!!selectedTopic}
         onOpenChange={(open) => !open && setSelectedTopic(null)}
         canPost={canPost}
         isAuthenticated={isAuthenticated}
@@ -353,144 +353,144 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
 }
 
 interface DiscussionDetailsSheetProps {
-    topic: CommentResponseDTO | null
-    open: boolean
-    onOpenChange: (open: boolean) => void
-    canPost: boolean
-    isAuthenticated: boolean
-    createCommentPending: boolean
-    replyDraftByTopic: Record<string, string>
-    setReplyDraftByTopic: (val: any) => void
-    onReply: (id: string) => Promise<void>
-    renderReplyTree: (reply: CommentResponseDTO, depth: number) => any
-    currentUserDisplayName?: string
+  topic: CommentResponseDTO | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  canPost: boolean
+  isAuthenticated: boolean
+  createCommentPending: boolean
+  replyDraftByTopic: Record<string, string>
+  setReplyDraftByTopic: (val: any) => void
+  onReply: (id: string) => Promise<void>
+  renderReplyTree: (reply: CommentResponseDTO, depth: number) => any
+  currentUserDisplayName?: string
 }
 
 function DiscussionDetailsSheet({
-    topic,
-    open,
-    onOpenChange,
-    canPost,
-    isAuthenticated,
-    createCommentPending,
-    replyDraftByTopic,
-    setReplyDraftByTopic,
-    onReply,
-    renderReplyTree,
-    currentUserDisplayName
+  topic,
+  open,
+  onOpenChange,
+  canPost,
+  isAuthenticated,
+  createCommentPending,
+  replyDraftByTopic,
+  setReplyDraftByTopic,
+  onReply,
+  renderReplyTree,
+  currentUserDisplayName
 }: DiscussionDetailsSheetProps) {
-    return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col h-full p-0 overflow-hidden">
-                <SheetHeader className="p-5 border-b shrink-0 bg-muted/5">
-                    <SheetTitle>Chi tiết thảo luận</SheetTitle>
-                    <SheetDescription>
-                        {topic
-                            ? `Thảo luận từ ${topic.author?.displayName || "Học viên"} · ${formatDate(
-                                topic.createdAt,
-                              )}`
-                            : "Xem và phản hồi câu hỏi của học viên."}
-                    </SheetDescription>
-                </SheetHeader>
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-full sm:max-w-[800px] flex flex-col h-full p-0 overflow-hidden">
+        <SheetHeader className="p-5 border-b shrink-0 bg-muted/5">
+          <SheetTitle>Chi tiết thảo luận</SheetTitle>
+          <SheetDescription>
+            {topic
+              ? `Thảo luận từ ${topic.author?.displayName || "Học viên"} · ${formatDate(
+                topic.createdAt,
+              )}`
+              : "Xem và phản hồi câu hỏi của học viên."}
+          </SheetDescription>
+        </SheetHeader>
 
-                <ScrollArea className="flex-1 min-h-0 bg-background">
-                    <div className="space-y-8 p-5">
-                        {topic && (
-                            <div className="space-y-8">
-                                {/* Câu hỏi gốc */}
-                                <div className="space-y-4 rounded-xl border bg-card p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex size-9 items-center justify-center rounded-full bg-primary/10">
-                                                {topic.author?.avatarUrl ? (
-                                                    <img src={topic.author.avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
-                                                ) : (
-                                                    <User className="size-5 text-primary" />
-                                                )}
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-medium text-foreground">
-                                                    {topic.author?.displayName || "Học viên"}
-                                                </span>
-                                                <span className="text-[11px] text-muted-foreground">
-                                                    {formatDate(topic.createdAt)}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <Badge
-                                            variant={topic.status === "ANSWERED" ? "success" : "warning"}
-                                            className="text-[10px]"
-                                        >
-                                            {topic.status === "ANSWERED" ? "ĐÃ TRẢ LỜI" : "CHỜ PHẢN HỒI"}
-                                        </Badge>
-                                    </div>
-                                    <div className="whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm leading-relaxed">
-                                        {topic.content}
-                                    </div>
-                                </div>
-
-                                {/* Danh sách phản hồi */}
-                                <div className="space-y-6">
-                                    <div className="flex items-center gap-2 border-b pb-2 text-sm font-medium">
-                                        <MessageSquare className="size-4 text-primary" />
-                                        <span>Phản hồi ({topic.replyCount ?? 0})</span>
-                                    </div>
-                                    <div className="ml-1 space-y-4 border-l border-muted-foreground/10 pl-4">
-                                        {(topic.replies?.length ?? 0) > 0 ? (
-                                            topic.replies.map((r: any) => renderReplyTree(r as any, 0))
-                                        ) : (
-                                            <div className="rounded-lg border border-dashed bg-muted/10 py-6 text-center">
-                                                <p className="text-xs italic text-muted-foreground">
-                                                    Chưa có phản hồi nào cho thảo luận này.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+        <ScrollArea className="flex-1 min-h-0 bg-background">
+          <div className="space-y-8 p-5">
+            {topic && (
+              <div className="space-y-8">
+                {/* Câu hỏi gốc */}
+                <div className="space-y-4 rounded-xl border bg-card p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 items-center justify-center rounded-full bg-primary/10">
+                        {topic.author?.avatarUrl ? (
+                          <img src={topic.author.avatarUrl} alt="" className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                          <User className="size-5 text-primary" />
                         )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-foreground">
+                          {topic.author?.displayName || "Học viên"}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {formatDate(topic.createdAt)}
+                        </span>
+                      </div>
                     </div>
-                </ScrollArea>
+                    <Badge
+                      variant={topic.status === "ANSWERED" ? "success" : "warning"}
+                      className="text-[10px]"
+                    >
+                      {topic.status === "ANSWERED" ? "ĐÃ TRẢ LỜI" : "CHỜ PHẢN HỒI"}
+                    </Badge>
+                  </div>
+                  <div className="whitespace-pre-wrap rounded-lg bg-muted/40 p-3 text-sm leading-relaxed">
+                    {topic.content}
+                  </div>
+                </div>
 
-                {topic && canPost && (
-                    <div className="shrink-0 border-t bg-muted/5 p-4">
-                        <div className="space-y-3 rounded-xl border bg-background p-4">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                    Trả lời thảo luận
-                                </span>
-                                {currentUserDisplayName && (
-                                    <span className="text-[11px] italic text-muted-foreground">
-                                        Trả lời với danh nghĩa {currentUserDisplayName}
-                                    </span>
-                                )}
-                            </div>
-                            <Textarea
-                                value={replyDraftByTopic[topic.id] ?? ''}
-                                onChange={(e) =>
-                                    setReplyDraftByTopic((prev: any) => ({
-                                        ...prev,
-                                        [topic.id]: e.target.value,
-                                    }))
-                                }
-                                placeholder="Viết phản hồi hoặc giải đáp thắc mắc của học viên..."
-                                className="min-h-[90px]"
-                            />
-                            <div className="flex justify-end">
-                                <Button
-                                    disabled={!isAuthenticated || createCommentPending}
-                                    onClick={() => onReply(topic.id)}
-                                    size="sm"
-                                    className="gap-1 text-xs"
-                                >
-                                    <MessageSquare className="size-3.5" />
-                                    Gửi phản hồi
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                {/* Danh sách phản hồi */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2 border-b pb-2 text-sm font-medium">
+                    <MessageSquare className="size-4 text-primary" />
+                    <span>Phản hồi ({topic.replyCount ?? 0})</span>
+                  </div>
+                  <div className="ml-1 space-y-4 border-l border-muted-foreground/10 pl-4">
+                    {(topic.replies?.length ?? 0) > 0 ? (
+                      topic.replies.map((r: any) => renderReplyTree(r as any, 0))
+                    ) : (
+                      <div className="rounded-lg border border-dashed bg-muted/10 py-6 text-center">
+                        <p className="text-xs italic text-muted-foreground">
+                          Chưa có phản hồi nào cho thảo luận này.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {topic && canPost && (
+          <div className="shrink-0 border-t bg-muted/5 p-4">
+            <div className="space-y-3 rounded-xl border bg-background p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Trả lời thảo luận
+                </span>
+                {currentUserDisplayName && (
+                  <span className="text-[11px] italic text-muted-foreground">
+                    Trả lời với danh nghĩa {currentUserDisplayName}
+                  </span>
                 )}
-            </SheetContent>
-        </Sheet>
-    )
+              </div>
+              <Textarea
+                value={replyDraftByTopic[topic.id] ?? ''}
+                onChange={(e) =>
+                  setReplyDraftByTopic((prev: any) => ({
+                    ...prev,
+                    [topic.id]: e.target.value,
+                  }))
+                }
+                placeholder="Viết phản hồi hoặc giải đáp thắc mắc của học viên..."
+                className="min-h-[90px]"
+              />
+              <div className="flex justify-end">
+                <Button
+                  disabled={!isAuthenticated || createCommentPending}
+                  onClick={() => onReply(topic.id)}
+                  size="sm"
+                  className="gap-1 text-xs"
+                >
+                  <MessageSquare className="size-3.5" />
+                  Gửi phản hồi
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
+  )
 }

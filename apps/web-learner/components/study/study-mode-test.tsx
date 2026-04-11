@@ -7,6 +7,7 @@ import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, AlertCircle } from 'lucide-react';
 import { StudyModeSelection } from './study-mode-selection';
 import { Quiz, type QuizData, type QuizResult } from '@workspace/ui/components/custom/quiz';
+import { MarkdownRenderer } from '../common/markdown-renderer';
 
 interface Question {
     id: string;
@@ -190,6 +191,12 @@ const TestResultScreen = ({
                         hideInternalResult
                         onComplete={(res) => setQuizResult(res)}
                         className="max-w-4xl"
+                        renderContent={(content, context) => (
+                            <MarkdownRenderer 
+                                content={content} 
+                                inline={['option', 'title'].includes(context)} 
+                            />
+                        )}
                     />
                 )}
 
