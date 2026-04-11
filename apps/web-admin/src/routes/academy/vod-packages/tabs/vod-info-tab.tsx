@@ -144,17 +144,6 @@ export function VodInfoTab({ pkg, profile }: VodInfoTabProps) {
                 </Card>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base font-bold">Mô tả chi tiết</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div
-                        className="prose prose-sm max-w-none text-muted-foreground"
-                        dangerouslySetInnerHTML={{ __html: pkg.description || 'Chưa có mô tả chi tiết.' }}
-                    />
-                </CardContent>
-            </Card>
         </div>
     )
 }
