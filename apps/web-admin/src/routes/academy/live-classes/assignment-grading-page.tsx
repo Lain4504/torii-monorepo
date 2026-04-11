@@ -10,9 +10,10 @@ import {
     User,
     Clock,
     CheckCircle2,
+    Loader2,
 } from 'lucide-react';
 import { useAcademyClassAssignment } from '@/lib/api/services/academy-class-assignments';
-import { useAcademyAssignmentSubmissions } from '@/lib/api/services/academy-assignment-submissions';
+import { useAcademyAssignmentSubmissions, useUpdateAcademyAssignmentSubmission } from '@/lib/api/services/academy-assignment-submissions';
 import type { AcademyAssignmentSubmission } from '@/lib/api/services/academy-assignment-submissions';
 import { Badge } from '@workspace/ui/components/badge';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -31,6 +32,17 @@ import {
   listPageSearchInputClass,
   listPageSearchWrapClass,
 } from "@/lib/ui-shell"
+import { toast } from 'sonner';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@workspace/ui/components/dialog";
+import { Label } from "@workspace/ui/components/label";
+import { Textarea } from "@workspace/ui/components/textarea";
 
 function submissionToRow(s: AcademyAssignmentSubmission) {
     const grade = s.score ?? s.grade;
@@ -42,12 +54,20 @@ function submissionToRow(s: AcademyAssignmentSubmission) {
         status: s.status ?? 'SUBMITTED',
         rawScore: num ?? null,
         maxScore: 10,
+        content: s.content,
+        fileUrls: s.fileUrls,
+        feedback: s.feedback,
     };
 }
 
 export default function AssignmentGradingPage() {
     const { assessmentId } = useParams<{ classId: string; assessmentId: string }>();
     const [search, setSearch] = useState('');
+    
+    // Grading states
+    const [gradingSubmission, setGradingSubmission] = useState<any | null>(null);
+    const [score, setScore] = useState<string>('');
+    const [feedback, setFeedback] = useState<string>('');
 
     const classAssignmentQuery = useAcademyClassAssignment(assessmentId);
     const classAssignment = classAssignmentQuery.data;
@@ -56,6 +76,8 @@ export default function AssignmentGradingPage() {
         { classAssessmentId: assessmentId! },
         { enabled: !!classAssignment && !classAssignmentQuery.isError }
     );
+
+    const updateSubmission = useUpdateAcademyAssignmentSubmission();
 
     const isLoading = classAssignmentQuery.isLoading && !classAssignment;
 
@@ -79,6 +101,57 @@ export default function AssignmentGradingPage() {
     const submittedCount = rows.filter(r => r.submittedAt).length;
     const gradedCount = rows.filter(r => r.status === 'GRADED' || r.status === 'COMPLETED').length;
     const pendingCount = rows.filter(r => r.status === 'SUBMITTED').length;
+
+    const handleOpenGrading = (row: any) => {
+        setGradingSubmission(row);
+        setScore(row.rawScore?.toString() || '');
+        setFeedback(row.feedback || '');
+    };
+
+    const handleSaveGrade = async () => {
+        if (!gradingSubmission) return;
+        
+        const numScore = parseFloat(score);
+        if (isNaN(numScore) || numScore < 0 || numScore > 10) {
+            toast.error("Điểm số không hợp lệ (0-10)");
+            return;
+        }
+
+        try {
+            await updateSubmission.mutateAsync({
+                id: gradingSubmission.id,
+                input: {
+                    score: numScore,
+                    status: 'GRADED',
+                    content: { feedback } // Optionally store feedback in content or specific field
+                    // Note: In our service, feedback is a top level field in update
+                } as any
+            });
+            toast.success("Đã chấm điểm thành công");
+            setGradingSubmission(null);
+        } catch (error) {
+            console.error(error);
+            toast.error("Có lỗi xảy ra khi lưu điểm");
+        }
+    };
+
+    const handleDownload = (row: any) => {
+        const fileUrl = row.fileUrls?.[0] || row.content?.url;
+        if (fileUrl) {
+            window.open(fileUrl, '_blank');
+        } else if (row.content?.text) {
+            // If it's just text, create a blob and download
+            const blob = new Blob([row.content.text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `submission-${row.user?.displayName || row.id}.txt`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } else {
+            toast.error("Không tìm thấy file đính kèm để tải về");
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -197,10 +270,22 @@ export default function AssignmentGradingPage() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <Button variant="outline" size="sm" className="h-8 gap-1.5">
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className="h-8 gap-1.5"
+                                                    onClick={() => handleOpenGrading(row)}
+                                                    disabled={!row.submittedAt}
+                                                >
                                                     <FileEdit className="size-4" /> Chấm điểm
                                                 </Button>
-                                                <Button variant="outline" size="sm" className="h-8 gap-1.5">
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className="h-8 gap-1.5"
+                                                    onClick={() => handleDownload(row)}
+                                                    disabled={!row.submittedAt}
+                                                >
                                                     <Download className="size-4" /> Tải bài làm
                                                 </Button>
                                             </div>
@@ -212,6 +297,53 @@ export default function AssignmentGradingPage() {
                     </Table>
                 )}
             </div>
+
+            {/* Grading Dialog */}
+            <Dialog open={!!gradingSubmission} onOpenChange={(open) => !open && setGradingSubmission(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Chấm điểm bài nộp</DialogTitle>
+                        <DialogDescription>
+                            Sinh viên: {gradingSubmission?.user?.displayName}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="score">Điểm số (thang điểm 10)</Label>
+                            <Input
+                                id="score"
+                                type="number"
+                                min="0"
+                                max="10"
+                                step="0.5"
+                                value={score}
+                                onChange={(e) => setScore(e.target.value)}
+                                placeholder="Nhập điểm số..."
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="feedback">Nhận xét</Label>
+                            <Textarea
+                                id="feedback"
+                                value={feedback}
+                                onChange={(e) => setFeedback(e.target.value)}
+                                placeholder="Nhập nhận xét cho sinh viên..."
+                                className="min-h-[100px]"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setGradingSubmission(null)}>Hủy</Button>
+                        <Button 
+                            onClick={handleSaveGrade} 
+                            disabled={updateSubmission.isPending}
+                        >
+                            {updateSubmission.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Lưu kết quả
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

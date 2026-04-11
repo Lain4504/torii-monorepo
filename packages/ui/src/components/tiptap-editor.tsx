@@ -114,12 +114,12 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
   function TiptapEditor({
     content = "",
     onChange,
-    placeholder = "Start writing...",
+    placeholder = "Bắt đầu viết...",
     className,
     editable = true,
     mode = editable ? 'admin' : 'readonly',
     ariaInvalid,
-    ariaLabel = "Rich text editor",
+    ariaLabel = "Trình soạn thảo văn bản",
     minHeight = "200px",
     maxHeight,
     showCharacterCount = false,
@@ -411,7 +411,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
         <div
           className="border-b border-border bg-muted/30 p-2 flex flex-wrap items-center gap-1 rounded-t-xl"
           role="toolbar"
-          aria-label="Text formatting toolbar"
+          aria-label="Thanh công cụ định dạng văn bản"
         >
           {/* Text Formatting */}
           {finalToolbarConfig.bold && (
@@ -425,7 +425,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                 "h-7 w-7 p-0 transition-colors",
                 editor.isActive("bold") && "bg-muted"
               )}
-              aria-label="Bold"
+              aria-label="Chữ đậm"
               aria-pressed={editor.isActive("bold")}
             >
               <Bold className="h-4 w-4" />
@@ -442,7 +442,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                 "h-7 w-7 p-0 transition-colors",
                 editor.isActive("italic") && "bg-muted"
               )}
-              aria-label="Italic"
+              aria-label="Chữ nghiêng"
               aria-pressed={editor.isActive("italic")}
             >
               <Italic className="h-4 w-4" />
@@ -467,7 +467,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                   "h-7 w-7 p-0 transition-colors",
                   editor.isActive("heading", { level: 1 }) && "bg-muted"
                 )}
-                aria-label="Heading 1"
+                aria-label="Tiêu đề 1"
                 aria-pressed={editor.isActive("heading", { level: 1 })}
               >
                 <Heading1 className="h-4 w-4" />
@@ -483,7 +483,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                   "h-7 w-7 p-0 transition-colors",
                   editor.isActive("heading", { level: 2 }) && "bg-muted"
                 )}
-                aria-label="Heading 2"
+                aria-label="Tiêu đề 2"
                 aria-pressed={editor.isActive("heading", { level: 2 })}
               >
                 <Heading2 className="h-4 w-4" />
@@ -499,7 +499,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                   "h-7 w-7 p-0 transition-colors",
                   editor.isActive("heading", { level: 3 }) && "bg-muted"
                 )}
-                aria-label="Heading 3"
+                aria-label="Tiêu đề 3"
                 aria-pressed={editor.isActive("heading", { level: 3 })}
               >
                 <Heading3 className="h-4 w-4" />
@@ -522,7 +522,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                 "h-7 w-7 p-0 transition-colors",
                 editor.isActive("bulletList") && "bg-muted"
               )}
-              aria-label="Bullet List"
+              aria-label="Danh sách dấu chấm"
               aria-pressed={editor.isActive("bulletList")}
             >
               <List className="h-4 w-4" />
@@ -541,7 +541,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                 "h-7 w-7 p-0 transition-colors",
                 editor.isActive("orderedList") && "bg-muted"
               )}
-              aria-label="Ordered List"
+              aria-label="Danh sách số"
               aria-pressed={editor.isActive("orderedList")}
             >
               <ListOrdered className="h-4 w-4" />
@@ -638,7 +638,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
                 "h-7 w-7 p-0 transition-colors",
                 editor.isActive("link") && "bg-muted"
               )}
-              aria-label="Insert Link"
+              aria-label="Chèn liên kết"
               aria-pressed={editor.isActive("link")}
             >
               <LinkIcon className="h-4 w-4" />
@@ -653,7 +653,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
               size="sm"
               onClick={handleImageUpload}
               className="h-7 w-7 p-0 transition-colors"
-              aria-label="Insert Image"
+              aria-label="Chèn hình ảnh"
             >
               <ImageIcon className="h-4 w-4" />
             </Button>
@@ -672,7 +672,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
               onClick={() => editor.chain().focus().undo().run()}
               disabled={!editor.can().chain().focus().undo().run()}
               className="h-7 w-7 p-0 transition-colors"
-              aria-label="Undo"
+              aria-label="Hoàn tác"
             >
               <Undo className="h-4 w-4" />
             </Button>
@@ -685,7 +685,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
               onClick={() => editor.chain().focus().redo().run()}
               disabled={!editor.can().chain().focus().redo().run()}
               className="h-7 w-7 p-0 transition-colors"
-              aria-label="Redo"
+              aria-label="Làm lại"
             >
               <Redo className="h-4 w-4" />
             </Button>
@@ -704,7 +704,7 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
           )}
           aria-label={ariaLabel}
         >
-          <div className="text-muted-foreground text-sm">Loading editor...</div>
+          <div className="text-muted-foreground text-sm">Đang tải trình soạn thảo...</div>
         </div>
       )
     }
@@ -742,10 +742,10 @@ export const TiptapEditor = React.memo(React.forwardRef<Editor, TiptapEditorProp
           <div className="flex items-center justify-between text-xs text-muted-foreground px-2 py-1 border-t border-border/40">
             <div className="flex items-center gap-4">
               <span className="font-medium">
-                {characterCount.characters} {characterCount.characters === 1 ? 'character' : 'characters'}
+                {characterCount.characters} ký tự
               </span>
               <span className="font-medium">
-                {characterCount.words} {characterCount.words === 1 ? 'word' : 'words'}
+                {characterCount.words} từ
               </span>
             </div>
             {maxCharacters && (

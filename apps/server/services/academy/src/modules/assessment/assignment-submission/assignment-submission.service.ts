@@ -18,6 +18,18 @@ export class AssignmentSubmissionService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
   ) {}
+  
+  private parseContent(submission: any) {
+    if (!submission) return submission;
+    if (typeof submission.content === 'string') {
+      try {
+        submission.content = JSON.parse(submission.content);
+      } catch (e) {
+        // Keep as is if not valid JSON
+      }
+    }
+    return submission;
+  }
 
   async findAll(
     query: AssignmentSubmissionQueryDto,
@@ -29,7 +41,7 @@ export class AssignmentSubmissionService {
       isExamManager || canViewAll
         ? query.userId
         : (requesterId ?? query.userId);
-    return this.prisma.assignmentSubmission.findMany({
+    const submissions = await this.prisma.assignmentSubmission.findMany({
       where: {
         liveClassAssignmentId: query.classAssessmentId ?? undefined,
         userId: effectiveUserId ?? undefined,
@@ -38,14 +50,32 @@ export class AssignmentSubmissionService {
         user: {
           select: { id: true, displayName: true, email: true },
         },
+        liveClassAssignment: {
+          select: { id: true, liveClassId: true, assignmentId: true },
+        },
       },
       orderBy: [{ createdAt: 'desc' }],
+    });
+
+    return submissions.map((item) => {
+      const parsed = this.parseContent(item);
+      return {
+        ...parsed,
+        classAssessmentId: parsed.liveClassAssignmentId,
+        assignmentTemplateId: parsed.liveClassAssignment?.assignmentId,
+        classId: parsed.liveClassAssignment?.liveClassId,
+      };
     });
   }
 
   async findById(id: string, requesterId?: string, isExamManager = false) {
     const item = await this.prisma.assignmentSubmission.findUnique({
       where: { id },
+      include: {
+        liveClassAssignment: {
+          select: { id: true, liveClassId: true, assignmentId: true },
+        },
+      },
     });
     if (!item) throw new NotFoundException('AssignmentSubmission not found');
     if (
@@ -56,7 +86,13 @@ export class AssignmentSubmissionService {
     ) {
       throw new BadRequestException('You can only access your own submissions');
     }
-    return item;
+    const parsed = this.parseContent(item);
+    return {
+      ...parsed,
+      classAssessmentId: parsed.liveClassAssignmentId,
+      assignmentTemplateId: parsed.liveClassAssignment?.assignmentId,
+      classId: parsed.liveClassAssignment?.liveClassId,
+    };
   }
 
   async create(
@@ -115,12 +151,19 @@ export class AssignmentSubmissionService {
           (input.status ?? 'SUBMITTED').toUpperCase() === 'SUBMITTED'
             ? new Date()
             : null,
-        content: input.content ?? null,
+        content:
+          typeof input.content === 'object'
+            ? JSON.stringify(input.content)
+            : input.content ?? null,
         fileUrls: input.fileUrls ?? [],
       },
     });
 
-    return result;
+    const parsed = this.parseContent(result);
+    // Since create and findUnique return slightly different include structures, 
+    // we fetch again or just include relations in create
+    // Let's use fetch again for simplicity and consistency
+    return this.findById(result.id, requesterId, isExamManager);
   }
 
   async update(
@@ -145,7 +188,10 @@ export class AssignmentSubmissionService {
           input.status && input.status.toUpperCase() === 'SUBMITTED'
             ? new Date()
             : undefined,
-        content: input.content ?? undefined,
+        content:
+          typeof input.content === 'object'
+            ? JSON.stringify(input.content)
+            : input.content ?? undefined,
         fileUrls: input.fileUrls ?? undefined,
       },
     });
@@ -162,7 +208,7 @@ export class AssignmentSubmissionService {
       });
     }
 
-    return updated;
+    return this.parseContent(updated);
   }
 
   async delete(id: string, requesterId = 'SYSTEM', isExamManager = false) {

@@ -9,6 +9,7 @@ export const academyAssignmentSubmissionCreateDTOSchema = z.object({
   userId: z.string().uuid().optional(),
   status: z.string().max(20).optional(),
   content: z.unknown().optional(),
+  fileUrls: z.array(z.string()).optional(),
 });
 export type AcademyAssignmentSubmissionCreateDTO = z.infer<
   typeof academyAssignmentSubmissionCreateDTOSchema
@@ -18,6 +19,8 @@ export const academyAssignmentSubmissionUpdateDTOSchema = z.object({
   status: z.string().max(20).optional(),
   score: z.number().min(0).optional(),
   content: z.unknown().optional(),
+  fileUrls: z.array(z.string()).optional(),
+  feedback: z.string().optional(),
 });
 export type AcademyAssignmentSubmissionUpdateDTO = z.infer<
   typeof academyAssignmentSubmissionUpdateDTOSchema
@@ -42,8 +45,8 @@ export type AcademyAssignmentSubmissionModel = {
   status: string; // DRAFT, SUBMITTED, GRADED, RETURNED
   score?: number | null;
   content?: any | null;
+  fileUrls?: string[] | null;
   submittedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };
-

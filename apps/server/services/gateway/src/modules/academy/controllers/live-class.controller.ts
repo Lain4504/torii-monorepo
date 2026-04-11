@@ -272,8 +272,25 @@ export class LiveClassController {
   // --- Assignments ---
 
   @Get(':id/assignments')
-  @Permissions('lms.delivery.read')
-  async findAssignments(@Param('id', new ParseUUIDPipe()) id: string) {
+  async findAssignments(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
+    const hasReadPerm = requester.permissions?.includes('lms.delivery.read');
+
+    if (!hasReadPerm) {
+      const enrollment = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.checkByTarget' },
+          { userId: requester.sub, targetType: 'CLASS', targetId: id },
+        ),
+      );
+      if (!enrollment?.isEnrolled) {
+        throw new ForbiddenException('You are not enrolled in this class');
+      }
+    }
+
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.findAssignments' },
