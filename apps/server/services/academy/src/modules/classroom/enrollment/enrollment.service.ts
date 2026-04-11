@@ -498,7 +498,15 @@ export class EnrollmentService {
         
         // Clear previous progress so the user starts fresh
         await tx.userLessonProgress.deleteMany({
-          where: { enrollmentId: existing.id }
+          where: { enrollmentId: existing.id },
+        });
+
+        await tx.academyExamAttempt.deleteMany({
+          where: { enrollmentId: existing.id },
+        });
+
+        await tx.learningRoadmap.deleteMany({
+          where: { enrollmentId: existing.id },
         });
       } else {
         enrollment = await tx.enrollment.create({
@@ -718,6 +726,7 @@ export class EnrollmentService {
       where: {
         userId,
         OR: [{ vodPackageId: targetId }, { liveClassId: targetId }],
+        status: { in: ['ACTIVE', 'COMPLETED'] },
       },
     });
 

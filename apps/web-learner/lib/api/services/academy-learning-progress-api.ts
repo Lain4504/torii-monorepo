@@ -13,7 +13,7 @@ export const academyLearningProgressApi = {
      */
     getMyCourses: async (): Promise<AcademyEnrollmentModel[]> => {
         const response = await academyEnrollmentApi.getMyEnrollments({ page: 1, limit: 100 });
-        return response.data ?? [];
+        return (response.data ?? []).filter(e => e.status !== 'CANCELLED');
     },
 
     /**

@@ -87,9 +87,10 @@ export function useAcademyVodEnrollmentCheck(packageId: string, options?: { enab
                 '/api/academy/enrollments/me',
             );
             const enrollment = response.data.data?.items?.find(e => e.vodPackageId === packageId);
+            const isValid = enrollment && (enrollment.status === 'ACTIVE' || enrollment.status === 'COMPLETED');
             return {
-                isEnrolled: !!enrollment,
-                enrollment
+                isEnrolled: !!isValid,
+                enrollment: isValid ? enrollment : undefined
             };
         },
         enabled: (options?.enabled ?? true) && !!packageId,
