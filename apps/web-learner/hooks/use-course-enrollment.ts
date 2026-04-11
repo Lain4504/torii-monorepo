@@ -28,17 +28,23 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
         try {
             setIsLoadingEnrollment(true)
             const result = await enrollmentApi.checkEnrollment(courseMasterId)
-            setIsEnrolled(result.isEnrolled)
-            if (result.enrollment) {
-                setEnrollment(result.enrollment)
-                // Check if expired
-                if (result.enrollment.expiresAt) {
-                    const expiresAt = new Date(result.enrollment.expiresAt)
-                    setIsExpired(expiresAt < new Date() || result.enrollment.status === 'EXPIRED')
-                } else if (result.enrollment.status === 'EXPIRED') {
-                    setIsExpired(true)
-                } else {
-                    setIsExpired(false)
+            if (result.enrollment && result.enrollment.status === 'CANCELLED') {
+                setIsEnrolled(false)
+                setEnrollment(null)
+                setIsExpired(false)
+            } else {
+                setIsEnrolled(result.isEnrolled)
+                if (result.enrollment) {
+                    setEnrollment(result.enrollment)
+                    // Check if expired
+                    if (result.enrollment.expiresAt) {
+                        const expiresAt = new Date(result.enrollment.expiresAt)
+                        setIsExpired(expiresAt < new Date() || result.enrollment.status === 'EXPIRED')
+                    } else if (result.enrollment.status === 'EXPIRED') {
+                        setIsExpired(true)
+                    } else {
+                        setIsExpired(false)
+                    }
                 }
             }
             // Mocking as hasNewerVersion is not yet in the refined schema
