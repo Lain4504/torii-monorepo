@@ -101,6 +101,7 @@ export class TicketService implements ITicketService {
 
         const enrollment = result.enrollment;
         const enrolledAt = new Date(enrollment.enrolledAt || enrollment.enrollmentDate);
+        const originalStatus = enrollment.status;
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - enrolledAt.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -173,24 +174,51 @@ export class TicketService implements ITicketService {
         // Auto-resolve orderId for the ticket if it's a refund
         const orderId = enrollment.sourceOrderId;
 
+        // Fetch order amount and store in metadata so admin doesn't need a separate API call
+        let orderAmount = 0;
+        if (orderId) {
+          try {
+            const order = await this.prisma.order.findUnique({
+              where: { id: orderId },
+              select: { grandTotal: true },
+            });
+            orderAmount = Number(order?.grandTotal || 0);
+          } catch {
+            // non-fatal: orderAmount stays 0
+          }
+        }
+
         ticketMetadata = {
           ...dto.metadata,
           progress,
           enrolledAt,
+          originalStatus,
           courseTitle,
           liveClassId,
           vodPackageId,
           originalOrderId: orderId,
+          orderAmount,
         };
 
         // Create the ticket with the resolved orderId
-        return this.ticketRepository.create({
+        const ticket = await this.ticketRepository.create({
           ...dto,
           userId,
           liveClassId: liveClassId || undefined,
           orderId: (dto as any).orderId || orderId,
           metadata: ticketMetadata,
         });
+
+        // Block enrollment access immediately upon refund request
+        if (enrollment?.id) {
+          await this.prisma.enrollment.update({
+            where: { id: enrollment.id },
+            data: { status: 'REFUND_PENDING' },
+          });
+          this.logger.log(`Enrollment ${enrollment.id} locked (REFUND_PENDING) due to refund ticket ${ticket.id}`);
+        }
+
+        return ticket;
       } catch (error) {
         if (error instanceof BadRequestException) throw error;
         this.logger.error(
@@ -325,6 +353,13 @@ export class TicketService implements ITicketService {
       await this.handleRefundResolved(updatedTicket, handlerId);
     }
 
+    if (
+      ticket.type === TicketType.REFUND &&
+      dto.status === TicketStatus.CANCELLED
+    ) {
+      await this.handleRefundCancelled(updatedTicket);
+    }
+
     await this.audit.log({
       userId: requesterId || handlerId,
       action: 'ticket.update_status',
@@ -404,8 +439,8 @@ export class TicketService implements ITicketService {
           userId,
           amount,
           type: 'REFUND',
-          referenceId: ticket.id,
-          description: `Refund for course enrollment (Ticket: ${ticket.subject})`,
+          referenceId: orderId || ticket.id,
+          description: `Hoàn tiền khóa học: ${(ticket.metadata as any)?.courseTitle || ticket.subject} (Mã yêu cầu: #${ticket.id.slice(-6).toUpperCase()})`,
         },
       });
 
@@ -456,6 +491,32 @@ export class TicketService implements ITicketService {
     });
   }
 
+  private async handleRefundCancelled(ticket: Ticket) {
+    const { userId, liveClassId } = ticket;
+    const vodPackageId = (ticket.metadata as any)?.vodPackageId;
+    const originalStatus = (ticket.metadata as any)?.originalStatus || 'ACTIVE';
+
+    if (liveClassId || vodPackageId) {
+      const where = liveClassId
+        ? { userId_liveClassId: { userId, liveClassId } }
+        : { userId_vodPackageId: { userId, vodPackageId } };
+
+      const enrollment = await this.prisma.enrollment.findUnique({
+        where: where as any,
+      });
+
+      if (enrollment && enrollment.status === 'REFUND_PENDING') {
+        await this.prisma.enrollment.update({
+          where: { id: enrollment.id },
+          data: { status: originalStatus },
+        });
+        this.logger.log(
+          `Enrollment ${enrollment.id} restored to ${originalStatus} after refund ticket ${ticket.id} was cancelled/rejected`,
+        );
+      }
+    }
+  }
+
   async getTicketStats(): Promise<{
     pendingCount: number;
     refundCount: number;
@@ -497,6 +558,9 @@ export class TicketService implements ITicketService {
     }
 
     if (isAdmin) {
+      if (ticket.type === TicketType.REFUND) {
+        await this.handleRefundCancelled(ticket);
+      }
       await this.ticketRepository.delete(id);
     } else {
       await this.ticketRepository.updateStatus(

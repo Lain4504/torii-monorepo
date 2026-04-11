@@ -143,7 +143,7 @@ export function VodInfoTab({ pkg, profile }: VodInfoTabProps) {
                     </CardContent>
                 </Card>
             </div>
-
         </div>
+
     )
 }
