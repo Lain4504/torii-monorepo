@@ -71,39 +71,39 @@ export class EnrollmentService {
       totalSessions === 0
         ? 0
         : await this.prisma.classAttendance.count({
-            where: {
-              userId,
-              sessionId: { in: sessionIds },
-              status: { in: ['PRESENT', 'LATE', 'EXCUSED'] },
-            },
-          });
+          where: {
+            userId,
+            sessionId: { in: sessionIds },
+            status: { in: ['PRESENT', 'LATE', 'EXCUSED'] },
+          },
+        });
 
     const courseProfileId = params.courseProfileId ?? null;
     const requiredExamIds = courseProfileId
       ? (
-          await this.prisma.academyCourseProfileAssessment.findMany({
-            where: { courseProfileId, isActive: true, isRequired: true },
-            select: { examId: true },
-          })
-        ).map((a) => a.examId)
+        await this.prisma.academyCourseProfileAssessment.findMany({
+          where: { courseProfileId, isActive: true, isRequired: true },
+          select: { examId: true },
+        })
+      ).map((a) => a.examId)
       : [];
 
     const completedRequiredExams =
       requiredExamIds.length === 0
         ? 0
         : (
-            await this.prisma.academyExamAttempt.findMany({
-              where: {
-                userId,
-                enrollmentId,
-                examId: { in: requiredExamIds },
-                status: 'SUBMITTED',
-              },
-              orderBy: { startedAt: 'desc' },
-              distinct: ['examId'],
-              select: { examId: true },
-            })
-          ).length;
+          await this.prisma.academyExamAttempt.findMany({
+            where: {
+              userId,
+              enrollmentId,
+              examId: { in: requiredExamIds },
+              status: 'SUBMITTED',
+            },
+            orderBy: { startedAt: 'desc' },
+            distinct: ['examId'],
+            select: { examId: true },
+          })
+        ).length;
 
     const progressPercent =
       totalSessions > 0 ? Math.round((attendedSessions / totalSessions) * 100) : 0;
@@ -549,12 +549,12 @@ export class EnrollmentService {
         : targetType === 'VOD_PACKAGE'
           ? { userId, vodPackageId: targetId }
           : {
-              userId,
-              OR: [
-                { vodPackage: { courseProfileId: targetId } },
-                { liveClass: { cohort: { courseProfileId: targetId } } },
-              ],
-            };
+            userId,
+            OR: [
+              { vodPackage: { courseProfileId: targetId } },
+              { liveClass: { cohort: { courseProfileId: targetId } } },
+            ],
+          };
     const enrollment = await this.prisma.enrollment.findFirst({
       where: { ...where, status: { in: ['ACTIVE', 'COMPLETED'] } },
       include: {

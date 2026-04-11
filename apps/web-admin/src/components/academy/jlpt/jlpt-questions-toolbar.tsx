@@ -1,4 +1,4 @@
-import { Filter, Layers, Loader2, RefreshCw, Search, BookOpen, Gauge } from 'lucide-react';
+import { Filter, Layers, Loader2, RefreshCw, Search } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import {
@@ -83,13 +83,6 @@ export interface JlptQuestionsToolbarProps {
     onLevelChange: (value: string) => void;
     section: string;
     onSectionChange: (value: string) => void;
-    questionType: string;
-    onQuestionTypeChange: (value: string) => void;
-    difficulty: string;
-    onDifficultyChange: (value: string) => void;
-    mondaiCode: string;
-    onMondaiCodeChange: (value: string) => void;
-    mondaiOptions: JlptMondaiOption[];
     onRefresh: () => void;
     loading?: boolean;
 }
@@ -102,148 +95,74 @@ export function JlptQuestionsToolbar({
     onLevelChange,
     section,
     onSectionChange,
-    questionType,
-    onQuestionTypeChange,
-    difficulty,
-    onDifficultyChange,
-    mondaiCode,
-    onMondaiCodeChange,
-    mondaiOptions,
     onRefresh,
     loading,
 }: JlptQuestionsToolbarProps) {
-    const mondaiDisabled = level === 'all' || section === 'all';
-
     return (
         <div className={listPageToolbarRootClass}>
-            <form onSubmit={onSearchSubmit} className={listPageSearchWrapClass}>
-                <Search className={listPageSearchIconClass} />
-                <Input
-                    placeholder="Tìm kiếm nội dung câu hỏi..."
-                    value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                    className={listPageSearchInputClass}
-                />
-            </form>
-
             <div className={listPageFiltersRowClass}>
-            <div className="w-full md:w-[150px]">
-            <Select value={level} onValueChange={onLevelChange}>
-                <SelectTrigger className="w-full">
-                    <div className="flex min-w-0 items-center gap-2">
-                        <Filter className="size-3.5 shrink-0 text-muted-foreground" />
-                        <SelectValue placeholder="Cấp độ" />
-                    </div>
-                </SelectTrigger>
-                <SelectContent align="start">
-                    <SelectItem value="all">Tất cả cấp độ</SelectItem>
-                    {JLPT_LEVELS.map((l) => (
-                        <SelectItem key={l} value={l}>
-                            {l}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            </div>
-
-            <div className="w-full md:min-w-[220px] md:max-w-[280px]">
-            <Select value={section} onValueChange={onSectionChange}>
-                <SelectTrigger className="w-full">
-                    <div className="flex min-w-0 flex-1 items-center gap-2">
-                        <Layers className="size-3.5 shrink-0 text-muted-foreground" />
-                        <SelectValue placeholder="Phần thi" />
-                    </div>
-                </SelectTrigger>
-                <SelectContent align="start" className="max-h-[min(320px,50vh)]">
-                    <SelectItem value="all">Tất cả phần thi</SelectItem>
-                    {JLPT_SECTIONS.map((s) => (
-                        <SelectItem key={s.code} value={s.code}>
-                            {s.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            </div>
-
-            <div className="w-full md:w-[188px]">
-            <Select value={questionType} onValueChange={onQuestionTypeChange}>
-                <SelectTrigger className="w-full">
-                    <div className="flex min-w-0 items-center gap-2">
-                        <BookOpen className="size-3.5 shrink-0 text-muted-foreground" />
-                        <SelectValue placeholder="Dạng bài" />
-                    </div>
-                </SelectTrigger>
-                <SelectContent align="start">
-                    <SelectItem value="all">Tất cả dạng</SelectItem>
-                    {JLPT_QUESTION_TYPES.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>
-                            {t.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            </div>
-
-            <div className="w-full md:w-[140px]">
-            <Select value={difficulty} onValueChange={onDifficultyChange}>
-                <SelectTrigger className="w-full">
-                    <div className="flex min-w-0 items-center gap-2">
-                        <Gauge className="size-3.5 shrink-0 text-muted-foreground" />
-                        <SelectValue placeholder="Độ khó" />
-                    </div>
-                </SelectTrigger>
-                <SelectContent align="start">
-                    <SelectItem value="all">Tất cả độ khó</SelectItem>
-                    {JLPT_DIFFICULTIES.map((d) => (
-                        <SelectItem key={d.value} value={d.value}>
-                            {d.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            </div>
-
-            <div className="w-full md:min-w-[200px] md:max-w-[280px]">
-            <Select value={mondaiCode} onValueChange={onMondaiCodeChange} disabled={mondaiDisabled}>
-                <SelectTrigger className="w-full">
-                    <SelectValue
-                        placeholder={
-                            mondaiDisabled
-                                ? 'Chọn cấp + phần thi → Mondai'
-                                : 'Mondai (問題形式)'
-                        }
+                <form onSubmit={onSearchSubmit} className="relative w-full md:w-[280px]">
+                    <Search className={listPageSearchIconClass} />
+                    <Input
+                        placeholder="Tìm kiếm nội dung câu hỏi..."
+                        value={search}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                        className={listPageSearchInputClass}
                     />
-                </SelectTrigger>
-                <SelectContent align="start" className="max-h-[min(280px,45vh)]">
-                    <SelectItem value="all">Tất cả mondai</SelectItem>
-                    {mondaiOptions.map((m) => (
-                        <SelectItem key={m.id} value={m.code}>
-                            <span className="line-clamp-2">
-                                {formatJlptMondaiLabel(m)}
-                                <span className="ml-1 font-mono text-[10px] text-muted-foreground">
-                                    · {m.code}
-                                </span>
-                            </span>
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            </div>
+                </form>
 
-            <Button
-                type="button"
-                variant="outline"
-                className="w-full shrink-0 gap-2 md:ml-auto md:w-auto"
-                onClick={onRefresh}
-                disabled={loading}
-            >
-                {loading ? (
-                    <Loader2 className="size-4 animate-spin" />
-                ) : (
-                    <RefreshCw className="size-4" />
-                )}
-                Làm mới
-            </Button>
+                <div className="w-full md:w-[120px]">
+                    <Select value={level} onValueChange={onLevelChange}>
+                        <SelectTrigger className="w-full">
+                            <div className="flex min-w-0 items-center gap-2">
+                                <Filter className="size-3.5 shrink-0 text-muted-foreground" />
+                                <SelectValue placeholder="Cấp độ" />
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent align="start">
+                            <SelectItem value="all">Cấp độ</SelectItem>
+                            {JLPT_LEVELS.map((l) => (
+                                <SelectItem key={l} value={l}>
+                                    {l}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="w-full md:w-[320px]">
+                    <Select value={section} onValueChange={onSectionChange}>
+                        <SelectTrigger className="w-full">
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                                <Layers className="size-3.5 shrink-0 text-muted-foreground" />
+                                <SelectValue placeholder="Phần thi" />
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent align="start" className="max-h-[min(320px,50vh)]">
+                            <SelectItem value="all">Phần thi</SelectItem>
+                            {JLPT_SECTIONS.map((s) => (
+                                <SelectItem key={s.code} value={s.code}>
+                                    {s.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full shrink-0 gap-2 md:ml-auto md:w-auto"
+                    onClick={onRefresh}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                        <RefreshCw className="size-4" />
+                    )}
+                    Làm mới
+                </Button>
             </div>
         </div>
     );

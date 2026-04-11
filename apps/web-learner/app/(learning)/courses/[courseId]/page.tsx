@@ -10,14 +10,14 @@ export default function CoursePortalPage() {
     const params = useParams();
     const router = useRouter();
     const courseId = params.courseId as string;
-    
+
     // Kiểm tra quyền truy cập của user với class này
     const { data: enrollmentData, isLoading } = useAcademyEnrollmentCheck(courseId);
 
     useEffect(() => {
         if (!isLoading && enrollmentData) {
             const enrollment = enrollmentData.enrollment as any;
-            
+
             // Nếu KHÔNG có enrollment -> Redirect ra trang danh sách khóa học
             if (!enrollmentData.isEnrolled) {
                 router.replace('/dashboard/my-courses');

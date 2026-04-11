@@ -71,57 +71,53 @@ export function CommandMenu() {
                             <LayoutDashboard className="mr-2 h-4 w-4" />
                             <span>Tổng quan hệ thống</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/analytics"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/finance/revenue-analytics"))}>
                             <BarChart className="mr-2 h-4 w-4" />
-                            <span>Thống kê dữ liệu</span>
+                            <span>Thống kê doanh thu</span>
                         </CommandItem>
                     </CommandGroup>
 
                     <CommandSeparator />
 
                     <CommandGroup heading="Quản lý thực thể">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/learners"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/users"))}>
                             <User className="mr-2 h-4 w-4" />
-                            <span>Danh sách học viên</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/personnel/lecturers"))}>
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Đội ngũ giảng viên</span>
+                            <span>Quản lý người dùng</span>
                         </CommandItem>
                     </CommandGroup>
 
                     <CommandSeparator />
 
                     <CommandGroup heading="Kho tài nguyên">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/academy/questions"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/academy/assessment/questions"))}>
                             <FileQuestion className="mr-2 h-4 w-4" />
-                            <span>Question bank (Academy)</span>
+                            <span>Ngân hàng câu hỏi</span>
                         </CommandItem>
                     </CommandGroup>
 
                     <CommandSeparator />
 
                     <CommandGroup heading="Công cụ & Tiện ích">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/rooms"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/academy/live-classes"))}>
                             <Video className="mr-2 h-4 w-4" />
-                            <span>Phòng học trực tuyến</span>
+                            <span>Quản lý lớp học (Live Classes)</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/blogs"))}>
                             <FileEdit className="mr-2 h-4 w-4" />
                             <span>Bài viết Blog</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/ai-service"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/academy/ai-subscriptions"))}>
                             <Bot className="mr-2 h-4 w-4" />
-                            <span>Dịch vụ AI</span>
+                            <span>Dịch vụ AI Subscriptions</span>
                         </CommandItem>
                     </CommandGroup>
 
                     <CommandSeparator />
 
                     <CommandGroup heading="Tài chính">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/payments"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/orders"))}>
                             <DollarSign className="mr-2 h-4 w-4" />
-                            <span>Giao dịch tài chính</span>
+                            <span>Quản lý đơn hàng</span>
                         </CommandItem>
                     </CommandGroup>
 

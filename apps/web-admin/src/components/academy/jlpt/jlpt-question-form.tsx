@@ -25,8 +25,6 @@ import {
 import { toast } from "sonner";
 import {
   JLPT_SECTIONS,
-  JLPT_QUESTION_TYPES,
-  JLPT_DIFFICULTIES,
   formatJlptMondaiLabel,
   jlptSectionLabel,
 } from "@/components/academy/jlpt/jlpt-questions-toolbar";
@@ -465,53 +463,7 @@ export function JlptQuestionForm({
             )}
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Controller
-              name="questionType"
-              control={control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Phân loại domain (VOCAB / GRAMMAR / READING / LISTENING)</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {JLPT_QUESTION_TYPES.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>
-                          {t.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    Gợi ý tự động từ mondai; có thể chỉnh nếu dữ liệu đặc biệt.
-                  </p>
-                </Field>
-              )}
-            />
-            <Controller
-              name="difficulty"
-              control={control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Độ khó</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {JLPT_DIFFICULTIES.map((d) => (
-                        <SelectItem key={d.value} value={d.value}>
-                          {d.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              )}
-            />
-          </div>
+          {/* Removed questionType and difficulty fields as per request. QuestionType is still auto-inferred in the background. */}
 
           <Controller
             name="contextText"

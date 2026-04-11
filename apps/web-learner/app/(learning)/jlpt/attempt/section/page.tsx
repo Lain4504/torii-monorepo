@@ -611,7 +611,7 @@ export default function JlptMockSectionPage() {
                                 {index + 1}
                             </span>
                             <span className="text-base flex-1">
-                                {opt.label}
+                                <MarkdownRenderer content={opt.label} inline />
                             </span>
                         </button>
                     ))}
