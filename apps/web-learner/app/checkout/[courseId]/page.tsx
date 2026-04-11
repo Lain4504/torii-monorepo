@@ -195,7 +195,7 @@ export default function CheckoutPage() {
                 ...checkoutPayload,
                 couponCode: couponCode.trim() || undefined,
                 isGift,
-                recipientEmail: isGift ? recipientEmail : undefined,
+                recipientEmail: isGift && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail) ? recipientEmail : undefined,
             })
             setPreview(result)
         } catch (error: unknown) {
@@ -216,6 +216,7 @@ export default function CheckoutPage() {
 
         if (isGift) {
             if (!recipientEmail) return toast.error('Vui lòng nhập email người nhận')
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) return toast.error('Email người nhận không hợp lệ')
             if (recipientStatus === 'enrolled') return toast.error('Người nhận đã sở hữu khóa học này')
             if (recipientStatus === 'not_found') return toast.error('Email người nhận chưa đăng ký trong hệ thống')
             if (recipientStatus === 'checking') return toast.error('Đang kiểm tra email người nhận, vui lòng đợi…')

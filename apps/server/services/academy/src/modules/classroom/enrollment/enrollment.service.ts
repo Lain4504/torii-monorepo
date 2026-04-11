@@ -461,9 +461,12 @@ export class EnrollmentService {
         liveClassId: input.liveClassId || undefined,
         vodPackageId: input.vodPackageId || undefined,
       },
-      select: { id: true },
+      select: { id: true, status: true },
     });
-    if (existing) throw new BadRequestException('User is already enrolled');
+    
+    if (existing && existing.status !== 'CANCELLED') {
+      throw new BadRequestException('User is already enrolled');
+    }
 
     return this.prisma.$transaction(async (tx) => {
       if (input.liveClassId) {
@@ -480,16 +483,43 @@ export class EnrollmentService {
         }
       }
 
-      const enrollment = await tx.enrollment.create({
-        data: {
-          userId: input.userId,
-          liveClassId: input.liveClassId,
-          vodPackageId: input.vodPackageId,
-          expiresAt: input.expiresAt,
-          status: 'ACTIVE',
-          ...(input.sourceOrderId ? { sourceOrderId: input.sourceOrderId } : {}),
-        },
-      });
+      let enrollment;
+      if (existing && existing.status === 'CANCELLED') {
+        // Reset enrollment to ACTIVE and clear previous progress
+        enrollment = await tx.enrollment.update({
+          where: { id: existing.id },
+          data: {
+            status: 'ACTIVE',
+            enrolledAt: new Date(),
+            expiresAt: input.expiresAt,
+            ...(input.sourceOrderId ? { sourceOrderId: input.sourceOrderId } : {}),
+          },
+        });
+        
+        // Clear previous progress so the user starts fresh
+        await tx.userLessonProgress.deleteMany({
+          where: { enrollmentId: existing.id },
+        });
+
+        await tx.academyExamAttempt.deleteMany({
+          where: { enrollmentId: existing.id },
+        });
+
+        await tx.learningRoadmap.deleteMany({
+          where: { enrollmentId: existing.id },
+        });
+      } else {
+        enrollment = await tx.enrollment.create({
+          data: {
+            userId: input.userId,
+            liveClassId: input.liveClassId,
+            vodPackageId: input.vodPackageId,
+            expiresAt: input.expiresAt,
+            status: 'ACTIVE',
+            ...(input.sourceOrderId ? { sourceOrderId: input.sourceOrderId } : {}),
+          },
+        });
+      }
       return enrollment;
     });
   }
@@ -696,6 +726,7 @@ export class EnrollmentService {
       where: {
         userId,
         OR: [{ vodPackageId: targetId }, { liveClassId: targetId }],
+        status: { in: ['ACTIVE', 'COMPLETED'] },
       },
     });
 

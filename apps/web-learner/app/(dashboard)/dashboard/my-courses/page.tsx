@@ -70,7 +70,6 @@ export default function MyCoursesPage() {
 
     const filteredCourses = courses.filter((course) => {
         const status = (course.status || "ACTIVE").toUpperCase();
-        if (status === 'CANCELLED') return false;
         const isCompleted = status === 'COMPLETED';
 
         const matchesFilter =

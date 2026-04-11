@@ -15,7 +15,7 @@ export function NavLearning() {
     const isCollapsed = state === "collapsed"
     const [showExpiredModal, setShowExpiredModal] = useState(false)
 
-    const activeCourse = courses?.[0]
+    const activeCourse = courses?.find(c => c.status === 'ACTIVE' && (c.progress ?? 0) < 100) || courses?.[0]
     const isExpired = activeCourse?.expiresAt && new Date(activeCourse.expiresAt) < new Date()
 
     if (isLoading || !activeCourse || (isCollapsed && !isMobile)) return null

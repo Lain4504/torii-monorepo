@@ -46,8 +46,29 @@ export class OrderService {
     const recipientEmail = input.recipientEmail;
     const now = new Date();
 
-    if (isGift && (!recipientEmail || typeof recipientEmail !== 'string')) {
-      throw new BadRequestException('Vui lòng nhập email người nhận');
+    if (isGift) {
+      if (!recipientEmail || typeof recipientEmail !== 'string') {
+        throw new BadRequestException('Vui lòng nhập email người nhận');
+      }
+
+      // 1. Kiểm tra bao quát: Người nhận phải là tài khoản có thực trên hệ thống Torii
+      try {
+        const response = await firstValueFrom<{ user: { id: string } }>(
+          this.natsClient.send(
+            { cmd: 'identity.users.findByEmail' },
+            { email: recipientEmail.toLowerCase() },
+          ),
+        );
+        if (!response?.user?.id) {
+          throw new BadRequestException(
+            'Email người nhận chưa đăng ký trong hệ thống',
+          );
+        }
+      } catch (err: any) {
+        throw new BadRequestException(
+          'Email người nhận chưa đăng ký trong hệ thống',
+        );
+      }
     }
 
     if (
@@ -94,9 +115,6 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, vod.id);
-          if (!res.isRegistered) {
-            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
-          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã sở hữu gói VOD ${vod.title}`);
         }
         continue;
@@ -131,9 +149,6 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
-          if (!res.isRegistered) {
-            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
-          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký khóa học ${cohort.name}`);
         }
       } else {
@@ -172,9 +187,6 @@ export class OrderService {
       if (isGift) {
         if (recipientEmail) {
           const res = await this.enrollmentService.checkGiftRecipient(recipientEmail, cohort.id);
-          if (!res.isRegistered) {
-            throw new BadRequestException('Email người nhận chưa đăng ký trong hệ thống');
-          }
           if (res.isEnrolled) throw new BadRequestException(`Người nhận đã đăng ký đợt học ${cohort.name}`);
         }
       } else {

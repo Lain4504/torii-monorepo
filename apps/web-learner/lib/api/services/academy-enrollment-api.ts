@@ -44,9 +44,13 @@ export const academyEnrollmentApi = {
             { params: { classId, limit: 1 } }
         );
         const enrollment = response.data.data?.items?.[0];
+
+        // Ensure the enrollment is active or completed, not CANCELLED or EXPIRED
+        const isValid = enrollment && (enrollment.status === 'ACTIVE' || enrollment.status === 'COMPLETED');
+
         return {
-            isEnrolled: !!enrollment,
-            enrollment
+            isEnrolled: !!isValid,
+            enrollment: isValid ? enrollment : undefined
         };
     },
 

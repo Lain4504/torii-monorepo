@@ -426,8 +426,22 @@ export class TicketService implements ITicketService {
             where: { id: enrollment.id },
             data: { status: 'CANCELLED' },
           });
+
+          // Clear progress data upon refund/cancellation
+          await tx.userLessonProgress.deleteMany({
+            where: { enrollmentId: enrollment.id },
+          });
+
+          await tx.academyExamAttempt.deleteMany({
+            where: { enrollmentId: enrollment.id },
+          });
+
+          await tx.learningRoadmap.deleteMany({
+            where: { enrollmentId: enrollment.id },
+          });
+
           this.logger.log(
-            `Enrollment ${enrollment.id} (${liveClassId ? 'Live' : 'VOD'}) cancelled for refund ticket ${ticket.id}`,
+            `Enrollment ${enrollment.id} (${liveClassId ? 'Live' : 'VOD'}) cancelled and progress cleared for refund ticket ${ticket.id}`,
           );
         }
       }
