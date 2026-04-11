@@ -79,18 +79,18 @@ export class TicketService implements ITicketService {
       try {
         const result = liveClassId
           ? await firstValueFrom(
-              this.natsClient.send(
-                { cmd: 'academy.enrollment.checkByTarget' },
-                { userId, targetType: 'CLASS', targetId: liveClassId },
-              ),
-            )
+            this.natsClient.send(
+              { cmd: 'academy.enrollment.checkByTarget' },
+              { userId, targetType: 'CLASS', targetId: liveClassId },
+            ),
+          )
           : vodPackageId
             ? await firstValueFrom(
-                this.natsClient.send(
-                  { cmd: 'academy.enrollment.checkByTarget' },
-                  { userId, targetType: 'VOD_PACKAGE', targetId: vodPackageId },
-                ),
-              )
+              this.natsClient.send(
+                { cmd: 'academy.enrollment.checkByTarget' },
+                { userId, targetType: 'VOD_PACKAGE', targetId: vodPackageId },
+              ),
+            )
             : null;
 
         if (!result || !result.isEnrolled) {

@@ -49,11 +49,8 @@ import { PageHeader } from "@/components/common/page-header";
 import {
   JlptQuestionsToolbar,
   JLPT_SECTIONS,
-  jlptQuestionTypeLabel,
   jlptSectionLabel,
-  jlptDifficultyLabel,
   formatJlptMondaiLabel,
-  type JlptMondaiOption,
 } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
 import { JlptQuestionForm } from "@/components/academy/jlpt/jlpt-question-form";
@@ -69,10 +66,6 @@ export default function JlptQuestionsPage() {
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState<string>("all");
   const [section, setSection] = useState<string>("all");
-  const [questionType, setQuestionType] = useState<string>("all");
-  const [difficulty, setDifficulty] = useState<string>("all");
-  const [mondaiCode, setMondaiCode] = useState<string>("all");
-  const [mondaiOptions, setMondaiOptions] = useState<JlptMondaiOption[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
@@ -88,29 +81,8 @@ export default function JlptQuestionsPage() {
   const prevFilters = useRef({
     level,
     section,
-    questionType,
-    difficulty,
-    mondaiCode,
   });
 
-  useEffect(() => {
-    if (level === "all" || section === "all") {
-      setMondaiOptions([]);
-      return;
-    }
-    let cancelled = false;
-    academyJlptMockApi
-      .listBankMondaiOptions({ level, sectionCode: section })
-      .then((items) => {
-        if (!cancelled) setMondaiOptions(items);
-      })
-      .catch(() => {
-        if (!cancelled) setMondaiOptions([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [level, section]);
 
   const fetchQuestions = async (pageOverride?: number) => {
     const p = pageOverride ?? page;
@@ -120,9 +92,6 @@ export default function JlptQuestionsPage() {
         level: level === "all" ? undefined : level,
         sectionCode: section === "all" ? undefined : section,
         q: search || undefined,
-        questionType: questionType === "all" ? undefined : questionType,
-        difficulty: difficulty === "all" ? undefined : difficulty,
-        mondaiCode: mondaiCode === "all" ? undefined : mondaiCode,
         page: p,
         limit: PAGE_SIZE,
       });
@@ -140,16 +109,10 @@ export default function JlptQuestionsPage() {
     const prev = prevFilters.current;
     const filtersChanged =
       prev.level !== level ||
-      prev.section !== section ||
-      prev.questionType !== questionType ||
-      prev.difficulty !== difficulty ||
-      prev.mondaiCode !== mondaiCode;
+      prev.section !== section;
     prevFilters.current = {
       level,
       section,
-      questionType,
-      difficulty,
-      mondaiCode,
     };
 
     if (filtersChanged && page !== 1) {
@@ -158,7 +121,7 @@ export default function JlptQuestionsPage() {
     }
 
     fetchQuestions();
-  }, [level, section, questionType, difficulty, mondaiCode, page]);
+  }, [level, section, page]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,12 +131,10 @@ export default function JlptQuestionsPage() {
 
   const handleLevelChange = (v: string) => {
     setLevel(v);
-    setMondaiCode("all");
   };
 
   const handleSectionChange = (v: string) => {
     setSection(v);
-    setMondaiCode("all");
   };
 
   const handleDelete = (id: string) => {
@@ -268,14 +229,7 @@ export default function JlptQuestionsPage() {
           onLevelChange={handleLevelChange}
           section={section}
           onSectionChange={handleSectionChange}
-          questionType={questionType}
-          onQuestionTypeChange={setQuestionType}
-          difficulty={difficulty}
-          onDifficultyChange={setDifficulty}
-          mondaiCode={mondaiCode}
-          onMondaiCodeChange={setMondaiCode}
-          mondaiOptions={mondaiOptions}
-          onRefresh={fetchQuestions}
+          onRefresh={() => fetchQuestions()}
           loading={loading}
         />
 
@@ -287,10 +241,8 @@ export default function JlptQuestionsPage() {
                   <TableHead className="w-[60px] text-center">#</TableHead>
                   <TableHead className="w-[72px]">Cấp độ</TableHead>
                   <TableHead>Nội dung (stem)</TableHead>
-                  <TableHead className="w-[128px]">Dạng bài</TableHead>
-                  <TableHead className="w-[140px]">Phần thi</TableHead>
-                  <TableHead className="w-[200px]">Mondai</TableHead>
-                  <TableHead className="w-[88px]">Độ khó</TableHead>
+                  <TableHead className="w-[160px]">Phần thi</TableHead>
+                  <TableHead className="w-[280px]">Mondai</TableHead>
                   <TableHead className="w-[72px]">Media</TableHead>
                   <TableHead className="w-[100px] text-right pr-4">Thao tác</TableHead>
                 </TableRow>
@@ -308,7 +260,7 @@ export default function JlptQuestionsPage() {
                   ))
                 ) : questions.length === 0 ? (
                   <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={9} className="h-[400px] text-center">
+                    <TableCell colSpan={7} className="h-[400px] text-center">
                       <Empty>
                         <EmptyMedia>
                           <Search className="size-8 text-muted-foreground" />
@@ -326,7 +278,7 @@ export default function JlptQuestionsPage() {
                   questionsBySection.map(({ sectionCode, label, items }) => (
                     <Fragment key={sectionCode}>
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
-                        <TableCell colSpan={9} className="py-2.5 text-sm font-semibold">
+                        <TableCell colSpan={7} className="py-2.5 text-sm font-semibold">
                           <span>{label}</span>
                           <span className="ml-2 font-normal text-muted-foreground">
                             ({items.length} câu) · <span className="font-mono text-xs">{sectionCode}</span>
@@ -367,11 +319,6 @@ export default function JlptQuestionsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className="text-[11px] leading-tight text-muted-foreground sm:text-xs">
-                              {jlptQuestionTypeLabel(q.questionType)}
-                            </span>
-                          </TableCell>
-                          <TableCell>
                             <span className="text-xs text-muted-foreground">
                               {jlptSectionLabel(q.sectionCode)}
                             </span>
@@ -387,11 +334,6 @@ export default function JlptQuestionsPage() {
                             ) : (
                               <span className="text-xs text-muted-foreground">—</span>
                             )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="secondary" className="text-[10px] font-normal">
-                              {q.difficulty ? jlptDifficultyLabel(q.difficulty) : "—"}
-                            </Badge>
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
