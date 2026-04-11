@@ -9,12 +9,16 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
 import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
 import { academyClassesApi } from '@/lib/api/services/academy-classes'
+import { certificateApi } from '@/lib/api/services/certificate-api'
+import { toast } from 'sonner'
 
 export default function CourseCertificatePage() {
     const params = useParams()
     const classId = params.courseId as string
     const [course, setCourse] = useState<any>(null)
+    const [certificate, setCertificate] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [downloading, setDownloading] = useState(false)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,6 +30,12 @@ export default function CourseCertificatePage() {
                     if (courseData) {
                         setCourse(courseData)
                     }
+                }
+
+                // Fetch certificate for this course
+                const certs = await certificateApi.getAllCertificates({ classId })
+                if (certs.data && certs.data.length > 0) {
+                    setCertificate(certs.data[0])
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -53,6 +63,32 @@ export default function CourseCertificatePage() {
                 <p className="text-muted-foreground">Không tìm thấy khóa học</p>
             </div>
         )
+    }
+
+    const handleDownload = async () => {
+        if (!certificate) {
+            toast.error("Chưa có thông tin chứng chỉ để tải xuống")
+            return
+        }
+
+        try {
+            setDownloading(true)
+            const blob = await certificateApi.downloadCertificatePdfById(certificate.id)
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `certificate-${certificate.certificateCode || certificate.id}.pdf`)
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+            window.URL.revokeObjectURL(url)
+            toast.success("Đã tải xuống chứng chỉ thành công")
+        } catch (error) {
+            console.error('Download error:', error)
+            toast.error("Có lỗi xảy ra khi tải xuống chứng chỉ")
+        } finally {
+            setDownloading(false)
+        }
     }
 
     return (
@@ -107,9 +143,9 @@ export default function CourseCertificatePage() {
 
                 {/* Actions */}
                 <div className="flex items-center justify-center gap-4 mt-6">
-                    <Button size="lg">
+                    <Button size="lg" onClick={handleDownload} disabled={downloading || !certificate}>
                         <Download className="mr-2 w-4 h-4" />
-                        Tải xuống PDF
+                        {downloading ? "Đang xử lý..." : "Tải xuống PDF"}
                     </Button>
                     <Button variant="outline" size="lg">
                         <Share2 className="mr-2 w-4 h-4" />

@@ -247,7 +247,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                 {loading ? (
                     <div className="py-20 flex flex-col items-center gap-6">
                         <Spinner className="size-5 text-primary" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 animate-pulse">Synchronizing thoughts...</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 animate-pulse">Đang đồng bộ ý kiến...</span>
                     </div>
                 ) : rootComments.length > 0 ? (
                     rootComments.map((comment, index) => (
@@ -371,7 +371,7 @@ function CommentItem({
                         </span>
                         {comment.isOfficialReply && comment.authorRoleLabel && (
                             <Badge className="bg-primary text-primary-foreground border-none text-[8px] font-black uppercase tracking-tighter h-4 px-2">
-                                Official
+                                Chính thức
                             </Badge>
                         )}
                         <span className="text-[9px] font-mono font-bold uppercase tracking-tighter text-muted-foreground/30">
@@ -420,13 +420,13 @@ function CommentItem({
                             disabled={!isAuthenticated}
                         >
                             <Reply className="size-3.5" />
-                            <span>Reply</span>
+                            <span>Trả lời</span>
                         </button>
 
                         {isOwner && !isEditing && (
                             <div className="flex items-center gap-4">
-                                <button onClick={() => setIsEditing(true)} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 hover:text-foreground transition-colors">Edit</button>
-                                <button onClick={() => onRequestDelete(comment.id)} className="text-[9px] font-black uppercase tracking-widest text-destructive/20 hover:text-destructive transition-colors">Delete</button>
+                                <button onClick={() => setIsEditing(true)} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/20 hover:text-foreground transition-colors">Sửa</button>
+                                <button onClick={() => onRequestDelete(comment.id)} className="text-[9px] font-black uppercase tracking-widest text-destructive/20 hover:text-destructive transition-colors">Xóa</button>
                             </div>
                         )}
                     </div>
@@ -513,7 +513,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
                             onClick={onCancel}
                             className="font-black text-[10px] uppercase tracking-widest text-muted-foreground/40 hover:text-foreground hover:bg-transparent"
                         >
-                            Cancel
+                            Hủy
                         </Button>
                     )}
 
@@ -527,7 +527,7 @@ function CommentInput({ user, onSubmit, placeholder = "Viết bình luận...", 
                     >
                         {submitting ? (
                             <Spinner className="size-4 animate-spin text-background" />
-                        ) : submitLabel || 'Publish'}
+                        ) : submitLabel || 'Gửi'}
                     </Button>
                 </div>
             </div>

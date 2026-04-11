@@ -37,6 +37,7 @@ export type AcademyAssignmentSubmission = {
   submittedAt?: string | null
   gradedAt?: string | null
   content?: any
+  fileUrls?: string[]
   feedback?: string | null
   createdAt: string
   updatedAt: string
@@ -70,8 +71,10 @@ export const academyAssignmentApi = {
    */
   async submitAssignment(input: {
     classId: string
+    classAssessmentId: string
     assignmentTemplateId: string
     content: any
+    fileUrls?: string[]
   }) {
     const res = await apiClient.post<
       StandardApiResponse<{ item: AcademyAssignmentSubmission }>
@@ -100,6 +103,7 @@ export function useSubmitAssignment(classId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (input: {
+      classAssessmentId: string
       assignmentTemplateId: string
       content: any
     }) => academyAssignmentApi.submitAssignment({ ...input, classId }),

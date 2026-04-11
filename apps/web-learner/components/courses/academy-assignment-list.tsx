@@ -109,6 +109,7 @@ export function AcademyAssignmentList({
 
         try {
             await submitMutation.mutateAsync({
+                classAssessmentId: selectedAssignment.id,
                 assignmentTemplateId: selectedAssignment.assignmentId,
                 content: { text: submissionContent, url: submissionContent.startsWith('http') ? submissionContent : undefined }
             })

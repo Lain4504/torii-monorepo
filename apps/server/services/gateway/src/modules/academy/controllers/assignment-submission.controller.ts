@@ -115,7 +115,7 @@ export class AssignmentSubmissionController {
     );
 
     if (!isExamManager && !hasDeliveryRead) {
-      const classId = item?.classId;
+      const classId = item?.liveClassAssignment?.liveClassId;
       if (!classId) {
         throw new ForbiddenException(
           'Submission is not associated with any class',
@@ -176,7 +176,7 @@ export class AssignmentSubmissionController {
           { id, requesterId: req.requester?.sub, isExamManager },
         ),
       );
-      const classId = existing?.classId;
+      const classId = existing?.liveClassAssignment?.liveClassId;
       if (!classId) {
         throw new ForbiddenException(
           'Submission is not associated with any class',
