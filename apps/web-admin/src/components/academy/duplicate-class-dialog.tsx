@@ -58,7 +58,7 @@ export function DuplicateClassDialog({
             })
             toast.success("Đã nhân bản lớp học thành công")
             onOpenChange(false)
-            navigate(`/academy/live-classes/${result.id}`)
+            navigate(`/academy/live-classes/${result.id}/detail`)
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Không thể nhân bản lớp học")
         }

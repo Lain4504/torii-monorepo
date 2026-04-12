@@ -105,7 +105,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                 // OrderId is now auto-resolved by backend, so we don't strictly need to pass it
                 metadata: {
                     courseTitle: selectedEnrollment?.class?.name || selectedEnrollment?.courseTitle,
-                    enrollmentDate: selectedEnrollment?.enrollmentDate,
+                    enrolledAt: selectedEnrollment?.enrolledAt,
                 },
             });
             toast.success('Yêu cầu của bạn đã được gửi thành công.');

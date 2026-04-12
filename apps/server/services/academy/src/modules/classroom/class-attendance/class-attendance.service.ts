@@ -19,14 +19,14 @@ export class ClassAttendanceService {
   ) { }
 
   async findAll(query: ClassAttendanceQueryDto) {
-    const { sessionId, userId, classId, page = 1, limit = 100 } = query;
+    const { sessionId, userId, liveClassId, page = 1, limit = 100 } = query;
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);
 
     const where: any = {};
     if (sessionId) where.sessionId = sessionId;
     if (userId) where.userId = userId;
-    if (classId) where.session = { liveClassId: classId };
+    if (liveClassId) where.session = { liveClassId };
 
     const [items, total] = await Promise.all([
       this.prisma.classAttendance.findMany({

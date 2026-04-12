@@ -41,23 +41,6 @@ export class CouponService {
     return false;
   }
 
-  /** Gỡ field không tồn tại trên model Coupon (payload từ client phiên bản cũ). */
-  private scrubCouponAdminPayload(
-    data: Record<string, unknown> | null | undefined,
-  ): Record<string, unknown> {
-    const input = { ...(data ?? {}) };
-    for (const key of [
-      'applicableCourseMasterIds',
-      'excludedCourseMasterIds',
-      'applicableRunIds',
-      'excludedRunIds',
-    ]) {
-      delete input[key];
-    }
-    delete input.ownerId;
-    return input;
-  }
-
   private normalizeStatus(value: unknown): CouponStatus | undefined {
     if (value === undefined || value === null) return undefined;
     if (value === CouponStatus.ACTIVE || value === 'active')
@@ -159,7 +142,7 @@ export class CouponService {
       } as any,
     );
 
-    // 2) Coupons the user has already used in orders (backwards compatibility / history)
+    // 2) Coupon đã từng dùng trong đơn (lịch sử)
     const usagesPromise = this.prisma.couponUsage.findMany({
       where: { userId },
       include: { coupon: true },
@@ -270,7 +253,7 @@ export class CouponService {
   }
 
   async admin_create(data: any, requesterId = 'SYSTEM') {
-    const cleaned = this.scrubCouponAdminPayload(data);
+    const cleaned = { ...(data ?? {}) };
     const { discountType, status, ...rest } = cleaned;
 
     const normalizedDiscountType = this.normalizeDiscountType(discountType);
@@ -313,7 +296,7 @@ export class CouponService {
 
   async admin_update(id: string, data: any, requesterId = 'SYSTEM') {
     const old = await this.admin_findOne(id);
-    const cleaned = this.scrubCouponAdminPayload(data);
+    const cleaned = { ...(data ?? {}) };
     const { discountType, status, ...rest } = cleaned;
 
     const normalizedDiscountType =

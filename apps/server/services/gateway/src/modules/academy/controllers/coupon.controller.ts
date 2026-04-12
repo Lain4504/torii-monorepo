@@ -19,7 +19,14 @@ import {
   Permissions,
   PermissionsGuard,
   ReqWithRequester,
+  ZodValidationPipe,
 } from '@server/shared';
+import {
+  couponCreateDTOSchema,
+  couponUpdateDTOSchema,
+  type CouponCreateDTO,
+  type CouponUpdateDTO,
+} from '@workspace/schemas';
 
 @Controller('api/academy/coupons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
@@ -35,8 +42,9 @@ export class CouponController {
   async validate(@Body() body: any, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.coupon.validate' }, {
-        ...body,
-        userId: body?.userId ?? req.requester?.sub,
+        code: body?.code,
+        orderValue: body?.orderValue,
+        userId: req.requester?.sub,
       }),
     );
     return successResponse(result);
@@ -76,7 +84,10 @@ export class CouponController {
 
   @Post('admin')
   @Permissions('ops.coupon.manage')
-  async create(@Body() body: any, @Req() req: ReqWithRequester) {
+  async create(
+    @Body(new ZodValidationPipe(couponCreateDTOSchema)) body: CouponCreateDTO,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.coupon.admin.create' },
@@ -90,7 +101,7 @@ export class CouponController {
   @Permissions('ops.coupon.manage')
   async update(
     @Param('id') id: string,
-    @Body() body: any,
+    @Body(new ZodValidationPipe(couponUpdateDTOSchema)) body: CouponUpdateDTO,
     @Req() req: ReqWithRequester,
   ) {
     const result = await firstValueFrom(

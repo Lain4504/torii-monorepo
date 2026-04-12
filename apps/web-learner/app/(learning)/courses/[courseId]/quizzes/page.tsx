@@ -10,8 +10,8 @@ import { useAcademyCourseById } from '@/lib/api/services/academy-course-api'
 
 export default function CourseQuizzesPage() {
     const params = useParams()
-    const classId = params.courseId as string
-    const { data: classData, isLoading: classLoading } = useAcademyClass(classId)
+    const courseId = params.courseId as string
+    const { data: classData, isLoading: classLoading } = useAcademyClass(courseId)
     const { data: course, isLoading: courseLoading } = useAcademyCourseById(classData?.courseProfileId)
 
     const loading = classLoading || courseLoading
@@ -37,7 +37,7 @@ export default function CourseQuizzesPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${classId}/learn`}>
+                        <Link href={`/courses/${courseId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>

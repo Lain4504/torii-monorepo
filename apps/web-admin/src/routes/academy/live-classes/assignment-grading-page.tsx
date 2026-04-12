@@ -61,7 +61,7 @@ function submissionToRow(s: AcademyAssignmentSubmission) {
 }
 
 export default function AssignmentGradingPage() {
-    const { assessmentId } = useParams<{ classId: string; assessmentId: string }>();
+    const { assessmentId } = useParams<{ liveClassId: string; assessmentId: string }>();
     const [search, setSearch] = useState('');
     
     // Grading states

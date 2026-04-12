@@ -101,7 +101,7 @@ export class TicketService implements ITicketService {
         }
 
         const enrollment = result.enrollment;
-        const enrolledAt = new Date(enrollment.enrolledAt || enrollment.enrollmentDate);
+        const enrolledAt = new Date(enrollment.enrolledAt);
         const originalStatus = enrollment.status;
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - enrolledAt.getTime());

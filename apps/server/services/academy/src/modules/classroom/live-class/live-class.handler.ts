@@ -32,8 +32,8 @@ export class LiveClassHandler {
   }
 
   @MessagePattern({ cmd: 'academy.liveClass.findAssignments' })
-  findAssignments(@Payload() data: { classId: string }) {
-    return this.service.findAssignments(data.classId);
+  findAssignments(@Payload() data: { liveClassId: string }) {
+    return this.service.findAssignments(data.liveClassId);
   }
 
   @MessagePattern({ cmd: 'academy.liveClass.addAssignment' })

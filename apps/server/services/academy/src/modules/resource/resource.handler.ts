@@ -7,12 +7,12 @@ export class ResourceHandler {
     constructor(private readonly service: ResourceService) { }
 
     @MessagePattern({ cmd: 'academy.resource.getFoldersForLearner' })
-    getFoldersForLearner(@Payload() data: { userId: string; role?: string; classId?: string }) {
-        return this.service.getFoldersForLearner(data.userId, data.role, data.classId);
+    getFoldersForLearner(@Payload() data: { userId: string; role?: string; deliveryScopeId?: string }) {
+        return this.service.getFoldersForLearner(data.userId, data.role, data.deliveryScopeId);
     }
 
     @MessagePattern({ cmd: 'academy.resource.getResourcesForLearner' })
-    getResourcesForLearner(@Payload() data: { folderId?: string; classId?: string; userId: string; role?: string }) {
+    getResourcesForLearner(@Payload() data: { folderId?: string; deliveryScopeId?: string; userId: string; role?: string }) {
         return this.service.getResourcesForLearner(data);
     }
 

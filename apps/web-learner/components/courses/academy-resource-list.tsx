@@ -30,7 +30,7 @@ import {
 import { useAcademyFolders, useAcademyResources } from '@/lib/api/services/academy-resource-api'
 
 interface AcademyResourceListProps {
-    classId: string
+    deliveryScopeId: string
     className?: string
 }
 
@@ -49,11 +49,11 @@ function fileIcon(resource: { resourceType: string; title: string }) {
     return <FileIcon className={cls} />
 }
 
-export function AcademyResourceList({ classId, className }: AcademyResourceListProps) {
+export function AcademyResourceList({ deliveryScopeId, className }: AcademyResourceListProps) {
     const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
 
-    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(classId)
+    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(deliveryScopeId)
     const { data: resources, isLoading: isLoadingResources } = useAcademyResources(activeFolderId || undefined)
 
     const activeFolder = folders?.find((f) => f.folderId === activeFolderId)

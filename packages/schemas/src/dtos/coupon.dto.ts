@@ -64,15 +64,11 @@ export const couponResponseDTOSchema = couponSchema;
 export type CouponResponseDTO = z.infer<typeof couponResponseDTOSchema>;
 
 /**
- * Coupon Validate Request DTO
- */
-/**
- * Client gửi `code` + `orderValue`; gateway gắn `userId` từ JWT trước khi gọi academy.
+ * Client chỉ gửi `code` + `orderValue`; `userId` luôn lấy từ JWT ở gateway.
  */
 export const couponValidateRequestDTOSchema = z.object({
   code: z.string().min(1),
   orderValue: z.number().nonnegative(),
-  userId: z.string().uuid().optional(),
 });
 
 export type CouponValidateRequestDTO = z.infer<typeof couponValidateRequestDTOSchema>;

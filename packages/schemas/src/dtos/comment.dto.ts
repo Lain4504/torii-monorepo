@@ -13,7 +13,7 @@ export const commentCreateDTOSchema = z.object({
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    deliveryScopeId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
 });
 
@@ -36,7 +36,7 @@ export const commentQueryDTOSchema = z.object({
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    deliveryScopeId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
 });
 
@@ -52,7 +52,7 @@ export const commentResponseDTOSchema: z.ZodType<any> = commentSchema.extend({
     blogId: z.string().uuid().optional(),
     feedId: z.string().uuid().optional(),
     discussionId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    deliveryScopeId: z.string().uuid().optional(),
     courseId: z.string().uuid().optional(),
     authorRoleLabel: z.string().optional(),
     isOfficialReply: z.boolean().optional(),

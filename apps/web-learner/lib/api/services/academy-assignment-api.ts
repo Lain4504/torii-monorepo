@@ -14,7 +14,8 @@ export type AcademyAssignment = {
 
 export type AcademyClassAssignment = {
   id: string
-  classId: string
+  liveClassId: string | null
+  vodPackageId?: string | null
   assignmentId: string
   titleOverride?: string | null
   openAt?: string | null
@@ -27,7 +28,7 @@ export type AcademyClassAssignment = {
 
 export type AcademyAssignmentSubmission = {
   id: string
-  classId?: string
+  liveClassId?: string | null
   classAssessmentId?: string
   assignmentTemplateId?: string
   userId: string
@@ -44,33 +45,24 @@ export type AcademyAssignmentSubmission = {
 }
 
 export const academyAssignmentApi = {
-  /**
-   * Get all assignments for a specific class
-   */
-  async findAssignmentsByClassId(classId: string) {
+  async findAssignmentsByLiveClassId(liveClassId: string) {
     const res = await apiClient.get<
       StandardApiResponse<{ items: AcademyClassAssignment[] }>
-    >(`/api/academy/live-classes/${classId}/assignments`)
+    >(`/api/academy/live-classes/${liveClassId}/assignments`)
     return res.data.data!.items
   },
 
-  /**
-   * Get my submissions for a specific class
-   */
-  async findMySubmissions(classId: string) {
+  async findMySubmissions(liveClassId: string) {
     const res = await apiClient.get<
       StandardApiResponse<{ items: AcademyAssignmentSubmission[] }>
     >("/api/academy/assignment-submissions", {
-      params: { classId },
+      params: { liveClassId },
     })
     return res.data.data!.items
   },
 
-  /**
-   * Create a new submission
-   */
   async submitAssignment(input: {
-    classId: string
+    liveClassId: string
     classAssessmentId: string
     assignmentTemplateId: string
     content: any
@@ -83,33 +75,33 @@ export const academyAssignmentApi = {
   }
 }
 
-export function useAcademyClassAssignments(classId: string) {
+export function useAcademyClassAssignments(liveClassId: string) {
   return useQuery({
-    enabled: !!classId,
-    queryKey: ["academy-class-assignments", classId],
-    queryFn: () => academyAssignmentApi.findAssignmentsByClassId(classId),
+    enabled: !!liveClassId,
+    queryKey: ["academy-class-assignments", liveClassId],
+    queryFn: () => academyAssignmentApi.findAssignmentsByLiveClassId(liveClassId),
   })
 }
 
-export function useMyAssignmentSubmissions(classId: string) {
+export function useMyAssignmentSubmissions(liveClassId: string) {
   return useQuery({
-    enabled: !!classId,
-    queryKey: ["academy-my-submissions", classId],
-    queryFn: () => academyAssignmentApi.findMySubmissions(classId),
+    enabled: !!liveClassId,
+    queryKey: ["academy-my-submissions", liveClassId],
+    queryFn: () => academyAssignmentApi.findMySubmissions(liveClassId),
   })
 }
 
-export function useSubmitAssignment(classId: string) {
+export function useSubmitAssignment(liveClassId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (input: {
       classAssessmentId: string
       assignmentTemplateId: string
       content: any
-    }) => academyAssignmentApi.submitAssignment({ ...input, classId }),
+    }) => academyAssignmentApi.submitAssignment({ ...input, liveClassId }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["academy-my-submissions", classId] })
-      qc.invalidateQueries({ queryKey: ["academy-class-assignments", classId] })
+      qc.invalidateQueries({ queryKey: ["academy-my-submissions", liveClassId] })
+      qc.invalidateQueries({ queryKey: ["academy-class-assignments", liveClassId] })
     },
   })
 }

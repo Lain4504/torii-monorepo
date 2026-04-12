@@ -32,7 +32,7 @@ import { cn } from '@workspace/ui/lib/utils'
 import { toast } from 'sonner'
 
 interface AcademyAssignmentListProps {
-    classId: string
+    liveClassId: string
     className?: string
     /** `AcademyClassAssignment.id` — đồng bộ với query `assignmentId` trên URL */
     openClassAssignmentId?: string | null
@@ -40,14 +40,14 @@ interface AcademyAssignmentListProps {
 }
 
 export function AcademyAssignmentList({
-    classId,
+    liveClassId,
     className,
     openClassAssignmentId,
     onOpenAssignmentChange,
 }: AcademyAssignmentListProps) {
-    const { data: assignments, isLoading: isLoadingAssignments } = useAcademyClassAssignments(classId)
-    const { data: mySubmissions, isLoading: isLoadingSubmissions } = useMyAssignmentSubmissions(classId)
-    const submitMutation = useSubmitAssignment(classId)
+    const { data: assignments, isLoading: isLoadingAssignments } = useAcademyClassAssignments(liveClassId)
+    const { data: mySubmissions, isLoading: isLoadingSubmissions } = useMyAssignmentSubmissions(liveClassId)
+    const submitMutation = useSubmitAssignment(liveClassId)
 
     const [selectedAssignment, setSelectedAssignment] = useState<AcademyClassAssignment | null>(null)
     const [submissionContent, setSubmissionContent] = useState('')

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const academyLiveScheduleConflictPreviewDTOSchema = z.object({
-  classId: z.string().uuid(),
+  liveClassId: z.string().uuid(),
   excludeSessionId: z.string().uuid().optional(),
   sessionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'sessionDate must be yyyy-MM-dd'),
   startTime: z.string().min(1).max(20),
@@ -39,7 +39,7 @@ export type AcademyLiveScheduleRequestRejectDTO = z.infer<
 >;
 
 export const academyLiveScheduleRequestQueryDTOSchema = z.object({
-  classId: z.string().uuid().optional(),
+  liveClassId: z.string().uuid().optional(),
   sessionId: z.string().uuid().optional(),
   requestedBy: z.string().uuid().optional(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED']).optional(),

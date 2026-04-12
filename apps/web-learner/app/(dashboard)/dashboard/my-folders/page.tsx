@@ -22,16 +22,16 @@ export default function MyFoldersPage() {
     const { data: allFolders, isLoading } = useAcademyFolders()
 
     const classesWithFolders = allFolders?.reduce((acc, folder) => {
-        const classId = folder.liveClass?.id || folder.vodPackage?.id || 'other'
-        if (!acc[classId]) {
-            acc[classId] = {
-                id: classId,
+        const scopeKey = folder.liveClass?.id || folder.vodPackage?.id || 'other'
+        if (!acc[scopeKey]) {
+            acc[scopeKey] = {
+                id: scopeKey,
                 className: folder.liveClass?.name || folder.vodPackage?.title || 'Tài liệu khác',
                 classCode: folder.liveClass?.code || folder.vodPackage?.code || '',
                 foldersCount: 0,
             }
         }
-        acc[classId].foldersCount += 1
+        acc[scopeKey].foldersCount += 1
         return acc
     }, {} as Record<string, { id: string; className: string; classCode: string; foldersCount: number }>)
 

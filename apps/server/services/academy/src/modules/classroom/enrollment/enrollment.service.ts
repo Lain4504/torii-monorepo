@@ -602,7 +602,6 @@ export class EnrollmentService {
       enrollment: {
         ...enrollment,
         progress,
-        enrollmentDate: enrollment.enrolledAt, // Alias for legacy ticket service compatibility
       },
     };
   }
@@ -687,6 +686,7 @@ export class EnrollmentService {
         courseTitle,
         enrollmentId: enrollment.id,
         targetId,
+        deliveryScopeId: targetId,
       },
     );
 

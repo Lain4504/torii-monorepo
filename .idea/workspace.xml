@@ -4,36 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add feedback field to assignment submission DTOs and update grading logic (#364)">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: rename classId to liveClassId across multiple files for consistency">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.handler.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order.listener.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order.listener.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/resource/resource.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/resource/resource.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/academy-resource.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/academy-resource.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/coupon.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/coupon.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.schema.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/interfaces/services/i-notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/interfaces/services/i-notification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-hero-actions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-hero-actions.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/support/create-ticket-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/support/create-ticket-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/hooks/use-course-enrollment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/hooks/use-course-enrollment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-enrollment-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-enrollment-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/order-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/order-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/coupon.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/coupon.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/live-session.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/live-session.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/order.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/order.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/coupon.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/coupon.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,16 +43,32 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;history&quot;: [
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "history": [
     {
-      &quot;state&quot;: &quot;OPEN&quot;
+      "state": "OPEN"
     }
   ],
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;
-  }
-}</component>
+  "lastFilter": {}
+}]]></component>
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM7RxamC",
+        "number": 365
+      },
+      "lastSeen": 1776042538350
+    },
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM7R1rSy",
+        "number": 368
+      },
+      "lastSeen": 1776042543692
+    }
+  ]
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
@@ -125,7 +114,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;remove-leagacy-code-part2&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -440,23 +429,7 @@
       <workItem from="1775754644934" duration="2857000" />
       <workItem from="1775759401993" duration="2968000" />
       <workItem from="1775966402266" duration="3382000" />
-      <workItem from="1776003909935" duration="820000" />
-    </task>
-    <task id="LOCAL-01207" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775490123830</created>
-      <option name="number" value="01207" />
-      <option name="presentableId" value="LOCAL-01207" />
-      <option name="project" value="LOCAL" />
-      <updated>1775490123830</updated>
-    </task>
-    <task id="LOCAL-01208" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775490958368</created>
-      <option name="number" value="01208" />
-      <option name="presentableId" value="LOCAL-01208" />
-      <option name="project" value="LOCAL" />
-      <updated>1775490958368</updated>
+      <workItem from="1776003909935" duration="3313000" />
     </task>
     <task id="LOCAL-01209" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -834,7 +807,23 @@
       <option name="project" value="LOCAL" />
       <updated>1776001403759</updated>
     </task>
-    <option name="localTasksCounter" value="1256" />
+    <task id="LOCAL-01256" summary="refactor: remove legacy course offering fields and update related logic">
+      <option name="closed" value="true" />
+      <created>1776004958284</created>
+      <option name="number" value="01256" />
+      <option name="presentableId" value="LOCAL-01256" />
+      <option name="project" value="LOCAL" />
+      <updated>1776004958285</updated>
+    </task>
+    <task id="LOCAL-01257" summary="refactor: rename classId to liveClassId across multiple files for consistency">
+      <option name="closed" value="true" />
+      <created>1776043611049</created>
+      <option name="number" value="01257" />
+      <option name="presentableId" value="LOCAL-01257" />
+      <option name="project" value="LOCAL" />
+      <updated>1776043611051</updated>
+    </task>
+    <option name="localTasksCounter" value="1258" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -869,8 +858,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix ui web-adin" />
-    <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
     <MESSAGE value="feat(ui): enhance ticket management UI with improved layout and functionality" />
     <MESSAGE value="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling" />
     <MESSAGE value="feat(ui): add live reschedule requests page and update navigation" />
@@ -894,7 +881,9 @@
     <MESSAGE value="chore: update build config" />
     <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic" />
     <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic (#364)" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add feedback field to assignment submission DTOs and update grading logic (#364)" />
+    <MESSAGE value="refactor: remove legacy course offering fields and update related logic" />
+    <MESSAGE value="refactor: rename classId to liveClassId across multiple files for consistency" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: rename classId to liveClassId across multiple files for consistency" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

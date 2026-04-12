@@ -139,10 +139,10 @@ export function useAcademyClass(id?: string, options?: { enabled?: boolean }) {
 /**
  * Hook: Get curriculum for a class
  */
-export function useCurriculum(classId?: string, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: ['curriculum', classId],
-    queryFn: () => academyClassesApi.getCurriculum(classId!),
-    enabled: (options?.enabled ?? true) && !!classId,
+export function useCurriculum(courseId?: string, options?: { enabled?: boolean }) {
+    return useQuery({
+        queryKey: ['curriculum', courseId],
+        queryFn: () => academyClassesApi.getCurriculum(courseId!),
+        enabled: (options?.enabled ?? true) && !!courseId,
   });
 }

@@ -219,7 +219,7 @@ export class LiveClassService {
     if (dataWithSchedules.schedules?.length) {
       for (const s of dataWithSchedules.schedules) {
         await this.liveSchedules.create({
-          classId: klass.id,
+          liveClassId: klass.id,
           weekday: s.weekday,
           startTime: s.startTime,
           endTime: s.endTime,

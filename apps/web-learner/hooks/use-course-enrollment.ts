@@ -5,7 +5,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
 import { type AcademyEnrollmentModel as EnrollmentResponseDTO } from '@workspace/schemas'
 
-/** Hook cho trang marketing course profile (legacy). Ghi danh thật qua checkout / discovery — không POST /enrollments (chỉ staff). */
+/** Trang marketing course profile: không tự POST ghi danh — học viên qua checkout / discovery. */
 export function useCourseEnrollment(courseProfileId: string, courseSlug: string) {
     const [isEnrolled, setIsEnrolled] = useState(false)
     const [isExpired, setIsExpired] = useState(false)

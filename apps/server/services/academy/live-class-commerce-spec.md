@@ -10,7 +10,7 @@ Tài liệu mô tả luồng **Cohort / LiveClass / VodPackage / Enrollment / Or
 | **LiveClass** | Một lớp LIVE cụ thể (thuộc cohort). |
 | **VodPackage** | Gói VOD (catalog). |
 | **Enrollment** | `userId` + **một trong hai**: `liveClassId` **hoặc** `vodPackageId`. |
-| **Order** / **OrderItem** | Giỏ: `cohortId`, `liveClassId`, `vodPackageId`, … và **`deliverySnapshot`** (JSON, cột DB: `offering_snapshot`) — ảnh chụp giá/tên/mô tả lúc mua. |
+| **Order** / **OrderItem** | Giỏ: `cohortId`, `liveClassId`, `vodPackageId`, … và **`deliverySnapshot`** (JSON, cột `delivery_snapshot`) — ảnh chụp giá/tên/mô tả lúc mua. |
 
 ## Luồng nghiệp vụ
 

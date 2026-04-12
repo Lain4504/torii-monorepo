@@ -60,7 +60,8 @@ export const academyLearningProgressApi = {
         return (response.data.data?.items ?? []).map((it: any) => ({
             id: it.id,
             userId: it.userId,
-            classId: it.metadata?.classId,
+            deliveryScopeId:
+                it.metadata?.deliveryScopeId ?? it.metadata?.targetId,
             lessonId: it.metadata?.lessonId,
             lessonTitle: it.description,
             courseTitle: it.metadata?.courseTitle ?? 'Khóa học',

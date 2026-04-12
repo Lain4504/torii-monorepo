@@ -56,7 +56,7 @@ type ScheduleFormValues = z.infer<typeof scheduleFormSchema>
 interface ClassScheduleSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  classId: string
+  liveClassId: string
 }
 
 const WEEKDAYS = [
@@ -69,10 +69,10 @@ const WEEKDAYS = [
   { value: "0", label: "Chủ Nhật" },
 ]
 
-export function ClassScheduleSheet({ open, onOpenChange, classId }: ClassScheduleSheetProps) {
+export function ClassScheduleSheet({ open, onOpenChange, liveClassId }: ClassScheduleSheetProps) {
   const { data: existingSchedules = [] } = useAcademyLiveSchedules(
-    { classId },
-    { enabled: open && !!classId }
+    { liveClassId },
+    { enabled: open && !!liveClassId }
   )
 
   const createScheduleMutation = useCreateAcademyLiveSchedule()
@@ -121,7 +121,7 @@ export function ClassScheduleSheet({ open, onOpenChange, classId }: ClassSchedul
         // Create new ones
         for (const s of toCreate) {
             await createScheduleMutation.mutateAsync({
-                classId,
+                liveClassId,
                 weekday: s.weekday,
                 startTime: s.startTime,
                 endTime: s.endTime,

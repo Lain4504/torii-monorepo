@@ -7,11 +7,11 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 
 export default function MyFolderClassPage() {
-    const params = useParams<{ classId: string }>()
+    const params = useParams<{ deliveryScopeId: string }>()
     const router = useRouter()
-    const classId = typeof params?.classId === 'string' ? params.classId : ''
+    const deliveryScopeId = typeof params?.deliveryScopeId === 'string' ? params.deliveryScopeId : ''
 
-    if (!classId) {
+    if (!deliveryScopeId) {
         return (
             <div className="space-y-6 animate-in fade-in duration-500">
                 <Button
@@ -62,7 +62,7 @@ export default function MyFolderClassPage() {
                 </div>
             </div>
 
-            <AcademyFolderTree classId={classId} />
+            <AcademyFolderTree deliveryScopeId={deliveryScopeId} />
         </div>
     )
 }

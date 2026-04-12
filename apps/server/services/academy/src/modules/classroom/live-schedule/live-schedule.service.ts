@@ -103,7 +103,7 @@ export class LiveScheduleService {
 
   async findAll(query: LiveScheduleQueryDto) {
     return this.prisma.liveSchedule.findMany({
-      where: { liveClassId: query.classId ?? undefined },
+      where: { liveClassId: query.liveClassId ?? undefined },
       orderBy: [{ weekday: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
       include: {
         liveClass: {
@@ -132,17 +132,17 @@ export class LiveScheduleService {
   }
 
   async create(input: LiveScheduleCreateDto, requesterId = 'SYSTEM') {
-    if (!input.classId) {
-      throw new BadRequestException('classId is required');
+    if (!input.liveClassId) {
+      throw new BadRequestException('liveClassId is required');
     }
     const klass = await this.prisma.liveClass.findUnique({
-      where: { id: input.classId },
+      where: { id: input.liveClassId },
       include: { cohort: true },
     });
-    if (!klass) throw new BadRequestException('Invalid classId');
-    await this.assertTemplateMutable(input.classId);
+    if (!klass) throw new BadRequestException('Invalid liveClassId');
+    await this.assertTemplateMutable(input.liveClassId);
     await this.assertNoScheduleConflicts({
-      liveClassId: input.classId,
+      liveClassId: input.liveClassId,
       cohortId: klass.cohortId,
       weekday: input.weekday,
       startTime: input.startTime,
@@ -154,7 +154,7 @@ export class LiveScheduleService {
 
     const schedule = await this.prisma.liveSchedule.create({
       data: {
-        liveClassId: input.classId,
+        liveClassId: input.liveClassId,
         weekday: input.weekday,
         startTime: input.startTime,
         endTime: input.endTime,
@@ -166,7 +166,7 @@ export class LiveScheduleService {
     // Migration DB sẽ được chạy sau; nếu bảng chưa tồn tại thì bỏ qua để không chặn tạo template.
     if (klass.cohort?.startDate && klass.cohort?.endDate) {
       try {
-        await this.generateInstancesForClassRange(input.classId, requesterId);
+        await this.generateInstancesForClassRange(input.liveClassId, requesterId);
       } catch (err) {
         this.logger.warn(
           `generateInstancesForClassRange skipped after create schedule: ${err instanceof Error ? err.message : String(err)}`,
@@ -813,15 +813,15 @@ export class LiveScheduleService {
   }
 
   async previewConflict(input: LiveScheduleConflictPreviewDto) {
-    if (!input.classId) {
-      throw new BadRequestException('classId is required');
+    if (!input.liveClassId) {
+      throw new BadRequestException('liveClassId is required');
     }
     const klass = await this.prisma.liveClass.findUnique({
-      where: { id: input.classId },
+      where: { id: input.liveClassId },
       select: { instructorId: true, id: true, cohortId: true },
     });
     if (!klass) {
-      throw new BadRequestException('Invalid classId');
+      throw new BadRequestException('Invalid liveClassId');
     }
 
     const sessionDate = new Date(input.sessionDate);
@@ -832,7 +832,7 @@ export class LiveScheduleService {
 
     const inClassCandidates = await this.prisma.liveScheduleSession.findMany({
       where: {
-        liveClassId: input.classId,
+        liveClassId: input.liveClassId,
         sessionDate,
         id: input.excludeSessionId
           ? { not: input.excludeSessionId }
@@ -892,7 +892,7 @@ export class LiveScheduleService {
       });
 
       teacherConflicts = (teacherCandidates as any[])
-        .filter((c) => c.liveClass.id !== input.classId)
+        .filter((c) => c.liveClass.id !== input.liveClassId)
         .filter((c: any) =>
           this.isTimeOverlap(
             input.startTime,
@@ -926,7 +926,7 @@ export class LiveScheduleService {
     const toDate = query.toDate ? new Date(query.toDate) : undefined;
     return this.prisma.liveScheduleRequest.findMany({
       where: {
-        liveClassId: query.classId,
+        liveClassId: query.liveClassId,
         sessionId: query.sessionId,
         status: query.status as any,
         requestedBy: query.requestedBy,
@@ -1011,7 +1011,7 @@ export class LiveScheduleService {
     }
 
     const preview = await this.previewConflict({
-      classId: session.liveClassId,
+      liveClassId: session.liveClassId,
       sessionDate: input.proposedDate,
       startTime: input.proposedStartTime,
       endTime: input.proposedEndTime,
@@ -1123,7 +1123,7 @@ export class LiveScheduleService {
       );
     }
     const preview = await this.previewConflict({
-      classId: request.session.liveClassId,
+      liveClassId: request.session.liveClassId,
       sessionDate: request.proposedDate.toISOString().slice(0, 10),
       startTime: request.proposedStartTime,
       endTime: request.proposedEndTime,

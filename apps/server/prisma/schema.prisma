@@ -676,8 +676,8 @@ model OrderItem {
   liveClassId        String? @map("live_class_id") @db.Uuid
   subscriptionPlanId String? @map("subscription_plan_id") @db.Uuid
   price              Decimal @db.Decimal(12, 2)
-  /// Ảnh chụp giá/tên/mô tả dòng hàng lúc thanh toán (cột DB legacy: offering_snapshot).
-  deliverySnapshot   Json    @map("offering_snapshot") @db.JsonB
+  /// Ảnh chụp giá/tên/mô tả dòng hàng lúc thanh toán.
+  deliverySnapshot   Json    @map("delivery_snapshot") @db.JsonB
 
   // Relations
   order            Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)

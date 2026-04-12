@@ -128,7 +128,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
   }, [academyClass])
 
   const { data: liveSchedules } = useAcademyLiveSchedules(
-    { classId: academyClass?.id } as any,
+    { liveClassId: academyClass?.id } as any,
     { enabled: open && !!academyClass?.id },
   )
 

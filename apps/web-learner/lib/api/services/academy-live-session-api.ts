@@ -71,7 +71,7 @@ export function canJoinLiveSessionNow(
 
 function toSessionResponse(
     session: AcademyLiveScheduleSessionModel,
-    classId: string,
+    liveClassId: string,
     now: Date,
 ): LiveSessionResponseDTO {
     const serverScheduledAt = (session as any)?.scheduledAt;
@@ -95,7 +95,7 @@ function toSessionResponse(
 
     return {
         id: session.id,
-        classId: classId,
+        liveClassId,
         lecturerId: null,
         title: session.note?.trim() ? session.note : 'Buoi hoc truc tuyen',
         description: session.location ?? null,
@@ -111,9 +111,9 @@ function toSessionResponse(
 
 export const liveSessionApi = {
     // Build active session from weekly live schedules of class
-    async getActiveSession(classId: string): Promise<LiveSessionResponseDTO | null> {
+    async getActiveSession(liveClassId: string): Promise<LiveSessionResponseDTO | null> {
         try {
-            const sessions = await liveSessionApi.getSessions(classId);
+            const sessions = await liveSessionApi.getSessions(liveClassId);
             return sessions.find((s) => (s.status || '').toLowerCase() === 'live') ?? null;
         } catch (error) {
             console.error('Error fetching active live session:', error);
@@ -122,8 +122,8 @@ export const liveSessionApi = {
     },
 
     // List session instances from /api/academy/live-sessions
-    async getSessions(classId: string): Promise<LiveSessionResponseDTO[]> {
-        if (!classId) return [];
+    async getSessions(liveClassId: string): Promise<LiveSessionResponseDTO[]> {
+        if (!liveClassId) return [];
 
         const now = new Date();
         const from = new Date(now);
@@ -135,7 +135,7 @@ export const liveSessionApi = {
             StandardApiResponse<{ items: AcademyLiveScheduleSessionModel[] }>
         >('/api/academy/live-sessions', {
             params: {
-                classId,
+                liveClassId,
                 from: from.toISOString().slice(0, 10),
                 to: to.toISOString().slice(0, 10),
             },
@@ -143,7 +143,7 @@ export const liveSessionApi = {
 
         const sessions = response.data.data?.items ?? [];
         return sessions
-            .map((s) => toSessionResponse(s, classId, now))
+            .map((s) => toSessionResponse(s, s.liveClassId, now))
             .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
     },
 
@@ -189,7 +189,7 @@ export const liveSessionApi = {
         const items = response.data.data?.items ?? [];
         return items
             .map((s) => ({
-                ...toSessionResponse(s, s.classId, now),
+                ...toSessionResponse(s, s.liveClassId, now),
                 courseTitle: s.courseTitle || 'Khóa học',
                 courseThumbnail: s.courseThumbnail ?? null,
                 attendanceStatus: (s.attendanceStatus as LiveSessionResponseDTO['attendanceStatus']) ?? null,
@@ -206,11 +206,11 @@ export function useMySchedule() {
     });
 }
 
-export function useClassSchedule(classId?: string) {
+export function useClassSchedule(liveClassId?: string) {
     return useQuery({
-        queryKey: ['class-schedule', classId],
-        queryFn: () => liveSessionApi.getSessions(classId!),
-        enabled: !!classId,
+        queryKey: ['class-schedule', liveClassId],
+        queryFn: () => liveSessionApi.getSessions(liveClassId!),
+        enabled: !!liveClassId,
         staleTime: 5 * 60 * 1000,
     });
 }

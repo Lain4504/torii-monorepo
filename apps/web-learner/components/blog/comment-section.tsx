@@ -60,11 +60,11 @@ interface CommentSectionProps {
     blogId?: string
     feedId?: string
     discussionId?: string
-    classId?: string
+    deliveryScopeId?: string
     onCommentCountChange?: (delta: number) => void
 }
 
-export function CommentSection({ blogId, feedId, discussionId, classId, onCommentCountChange }: CommentSectionProps) {
+export function CommentSection({ blogId, feedId, discussionId, deliveryScopeId, onCommentCountChange }: CommentSectionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const [comments, setComments] = useState<CommentResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
@@ -79,7 +79,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
             const response = await commentApi.findAll({
                 page: 1,
                 limit: 100,
-                ...(blogId ? { blogId } : feedId ? { feedId } : { discussionId, classId }),
+                ...(blogId ? { blogId } : feedId ? { feedId } : { discussionId, deliveryScopeId }),
             })
 
             const flatComments: CommentResponseDTO[] = []
@@ -110,7 +110,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
         if (blogId || feedId || discussionId) {
             fetchComments()
         }
-    }, [blogId, feedId, discussionId, classId])
+    }, [blogId, feedId, discussionId, deliveryScopeId])
 
     const handleSubmitComment = async (content: string, parentId?: string) => {
         if (!content.trim()) return
@@ -125,7 +125,7 @@ export function CommentSection({ blogId, feedId, discussionId, classId, onCommen
                 ? { entityId: blogId, targetType: CommentTargetType.BLOG, blogId }
                 : feedId
                     ? { entityId: feedId, targetType: CommentTargetType.FEED, feedId }
-                    : { entityId: discussionId!, targetType: CommentTargetType.DISCUSSION, discussionId: discussionId!, classId }
+                    : { entityId: discussionId!, targetType: CommentTargetType.DISCUSSION, discussionId: discussionId!, deliveryScopeId }
 
             const newComment = await commentApi.create({
                 ...targetPayload,
