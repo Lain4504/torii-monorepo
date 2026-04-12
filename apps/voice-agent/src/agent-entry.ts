@@ -327,6 +327,53 @@ class SessionManager {
             }
         });
     }
+
+    ensureParticipantTrackSubscriptions(reason: string) {
+        const participant = this.ctx.room.remoteParticipants.get(this.participantIdentity);
+        if (!participant) {
+            return;
+        }
+
+        let requestedSubscriptions = 0;
+        for (const publication of participant.trackPublications.values()) {
+            const remotePublication = publication as any;
+            if (typeof remotePublication?.setSubscribed === 'function' && remotePublication?.subscribed === false) {
+                try {
+                    remotePublication.setSubscribed(true);
+                    requestedSubscriptions++;
+                } catch (error) {
+                    console.warn('[Agent] Failed to request track subscription.', error);
+                }
+            }
+        }
+
+        if (requestedSubscriptions > 0) {
+            console.log(
+                `[Agent] Requested subscription for ${requestedSubscriptions} track(s) on ${this.participantIdentity} (${reason}).`,
+            );
+        }
+    }
+
+    refreshParticipantAudioBinding(reason: string): boolean {
+        const roomIO = (this.activeSession as any)?._roomIO;
+        if (!roomIO || typeof roomIO.setParticipant !== 'function') {
+            return false;
+        }
+
+        try {
+            if (typeof roomIO.unsetParticipant === 'function') {
+                roomIO.unsetParticipant();
+            } else {
+                roomIO.setParticipant(null);
+            }
+            roomIO.setParticipant(this.participantIdentity);
+            console.log(`[Agent] Refreshed participant audio input binding (${reason}).`);
+            return true;
+        } catch (error) {
+            console.warn('[Agent] Failed to refresh participant audio input binding.', error);
+            return false;
+        }
+    }
 }
 
 export default defineAgent({
@@ -439,6 +486,90 @@ export default defineAgent({
         await sessionManager.startInitialSession();
         sessionManager.registerConfigUpdateRpc();
 
+        const targetParticipantIdentity = participant.identity;
+        const forceAudioInputRecovery = (reason: string) => {
+            sessionManager.ensureParticipantTrackSubscriptions(reason);
+            sessionManager.refreshParticipantAudioBinding(reason);
+        };
+
+        const onTrackPublished = (publication: any, remoteParticipant: any) => {
+            if (remoteParticipant?.identity !== targetParticipantIdentity) {
+                return;
+            }
+
+            console.log(
+                `[Agent] Target participant track published (kind=${publication?.kind}, source=${publication?.source}).`,
+            );
+            forceAudioInputRecovery('track_published');
+        };
+
+        const onTrackSubscribed = (_track: any, publication: any, remoteParticipant: any) => {
+            if (remoteParticipant?.identity !== targetParticipantIdentity) {
+                return;
+            }
+
+            console.log(
+                `[Agent] Target participant track subscribed (kind=${publication?.kind}, source=${publication?.source}).`,
+            );
+            forceAudioInputRecovery('track_subscribed');
+        };
+
+        const onTrackSubscriptionFailed = (trackSid: string, remoteParticipant: any, reason?: string) => {
+            if (remoteParticipant?.identity !== targetParticipantIdentity) {
+                return;
+            }
+
+            console.warn(
+                `[Agent] Track subscription failed for target participant (sid=${trackSid}, reason=${reason || 'unknown'}).`,
+            );
+            forceAudioInputRecovery('track_subscription_failed');
+        };
+
+        ctx.room.on('trackPublished', onTrackPublished as any);
+        ctx.room.on('trackSubscribed', onTrackSubscribed as any);
+        ctx.room.on('trackSubscriptionFailed', onTrackSubscriptionFailed as any);
+
+        let recoveryAttempt = 0;
+        const maxRecoveryAttempts = 12;
+        const recoveryInterval = setInterval(() => {
+            if (shutdownRequested) {
+                clearInterval(recoveryInterval);
+                return;
+            }
+
+            const targetParticipant = ctx.room.remoteParticipants.get(targetParticipantIdentity);
+            const hasSubscribedTrack = targetParticipant
+                ? Array.from(targetParticipant.trackPublications.values()).some(publication => !!(publication as any).track)
+                : false;
+
+            if (hasSubscribedTrack) {
+                clearInterval(recoveryInterval);
+                return;
+            }
+
+            recoveryAttempt += 1;
+            forceAudioInputRecovery(`startup_recovery_${recoveryAttempt}`);
+
+            if (recoveryAttempt >= maxRecoveryAttempts) {
+                clearInterval(recoveryInterval);
+                console.warn('[Agent] Could not detect a subscribed track from target participant during startup.');
+            }
+        }, 1000);
+
+        forceAudioInputRecovery('session_started');
+
+        let audioHooksCleaned = false;
+        const cleanupAudioHooks = () => {
+            if (audioHooksCleaned) {
+                return;
+            }
+            audioHooksCleaned = true;
+            clearInterval(recoveryInterval);
+            ctx.room.off('trackPublished', onTrackPublished as any);
+            ctx.room.off('trackSubscribed', onTrackSubscribed as any);
+            ctx.room.off('trackSubscriptionFailed', onTrackSubscriptionFailed as any);
+        };
+
         // ─── Token Tracking & Billing (DISABLED) ───────────────────────────────────
         /*
         session.on(voice.AgentSessionEventTypes.MetricsCollected, async (ev: any) => {
@@ -483,6 +614,7 @@ export default defineAgent({
                 }
                 settled = true;
                 clearPendingNoHumanShutdown();
+                cleanupAudioHooks();
                 resolve();
             };
 
