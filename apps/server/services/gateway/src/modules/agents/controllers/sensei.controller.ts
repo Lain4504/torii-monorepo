@@ -257,6 +257,42 @@ export class SenseiHandler {
     }
   }
 
+  @Post('livekit-consume')
+  @UseGuards(GatewayAuthGuard)
+  async consumeLivekitQuota(@Req() req: ReqWithRequester) {
+    const userId = req.requester?.sub;
+
+    try {
+      const usageResult = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'billing.quota.checkAndConsume' },
+          {
+            userId,
+            feature: 'ai_turns',
+          },
+        ),
+      );
+
+      if (!usageResult || usageResult.allowed === false) {
+        return errorResponse(
+          usageResult?.message ||
+            'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
+        );
+      }
+
+      return successResponse({
+        allowed: true,
+        status: usageResult.status,
+      });
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to consume livekit quota for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to consume livekit quota');
+    }
+  }
+
   @Post('livekit-token')
   @UseGuards(GatewayAuthGuard)
   async getLivekitToken(
