@@ -137,14 +137,15 @@ export class EnrollmentService {
       };
     }
 
-    // Smart Bridge logic: if a generic ID is provided, check both liveClassId and vodPackageId
     if (query.liveClassId) {
       where.liveClassId = query.liveClassId;
     } else if (query.vodPackageId) {
       where.vodPackageId = query.vodPackageId;
-    } else if (query.classId || query.courseId) {
-      const targetId = query.classId || query.courseId;
-      where.OR = [{ liveClassId: targetId }, { vodPackageId: targetId }];
+    } else if (query.deliveryTargetId) {
+      where.OR = [
+        { liveClassId: query.deliveryTargetId },
+        { vodPackageId: query.deliveryTargetId },
+      ];
     }
 
     const enrollments = await this.prisma.enrollment.findMany({

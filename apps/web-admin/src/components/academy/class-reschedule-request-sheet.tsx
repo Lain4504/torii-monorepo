@@ -93,8 +93,7 @@ export function ClassRescheduleRequestSheet({
   const watchProposedDate = form.watch("proposedDate")
   const watchProposedStartTime = form.watch("proposedStartTime")
   const watchProposedEndTime = form.watch("proposedEndTime")
-  const targetLiveClassId =
-    (session as any).liveClassId ?? (session as any).classId
+  const targetLiveClassId = session.classId
 
   // Preview conflict when inputs change
   useEffect(() => {

@@ -38,10 +38,10 @@ export const academyEnrollmentApi = {
     /**
      * Check if user is enrolled in a specific class
      */
-    async checkEnrollment(classId: string): Promise<{ isEnrolled: boolean; enrollment?: AcademyEnrollmentModel }> {
+    async checkEnrollment(deliveryTargetId: string): Promise<{ isEnrolled: boolean; enrollment?: AcademyEnrollmentModel }> {
         const response = await apiClient.get<StandardApiResponse<{ items: AcademyEnrollmentModel[] }>>(
             '/api/academy/enrollments/me',
-            { params: { classId, limit: 1 } }
+            { params: { deliveryTargetId, limit: 1 } }
         );
         const enrollment = response.data.data?.items?.[0];
 
@@ -90,10 +90,10 @@ export function useAcademyEnrollment(id?: string) {
 /**
  * Hook: Check enrollment status for a class
  */
-export function useAcademyEnrollmentCheck(classId: string) {
+export function useAcademyEnrollmentCheck(deliveryTargetId: string) {
     return useQuery({
-        queryKey: ['academy-enrollments', 'check', classId],
-        queryFn: () => academyEnrollmentApi.checkEnrollment(classId),
-        enabled: !!classId,
+        queryKey: ['academy-enrollments', 'check', deliveryTargetId],
+        queryFn: () => academyEnrollmentApi.checkEnrollment(deliveryTargetId),
+        enabled: !!deliveryTargetId,
     });
 }

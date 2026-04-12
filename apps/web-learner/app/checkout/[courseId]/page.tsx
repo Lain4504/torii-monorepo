@@ -70,9 +70,9 @@ export default function CheckoutPage() {
     const isLIVE = product?.type === 'LIVE'
 
     // Selection state
-    const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
+    const [selectedLiveClassId, setSelectedLiveClassId] = useState<string | null>(null)
 
-    const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedClassId) || product?.class || null
+    const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedLiveClassId) || product?.class || null
     const lessonCount = Array.isArray(selectedClass?.curriculum?.chapters)
         ? selectedClass.curriculum.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
@@ -95,12 +95,12 @@ export default function CheckoutPage() {
     const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
-    // Preselect class từ URL (?classId=) khi vào từ trang chi tiết lớp
+    // Preselect từ URL (?liveClassId=) khi vào từ catalog / chi tiết lớp
     useEffect(() => {
-        const fromQuery = searchParams.get('classId')
+        const fromQuery = searchParams.get('liveClassId')
         if (!fromQuery || !product || product.type !== 'LIVE') return
         const inList = (product.classes || []).some((c: { id: string }) => c.id === fromQuery)
-        if (inList) setSelectedClassId(fromQuery)
+        if (inList) setSelectedLiveClassId(fromQuery)
     }, [searchParams, product])
 
     // If gift is forced from URL, lock the toggle on
@@ -111,15 +111,16 @@ export default function CheckoutPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [giftForced])
 
-    // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong product.classes (siblingClasses)
+    // LIVE: chọn mặc định từ defaultLiveClassId hoặc lớp đơn (siblingClasses)
     useEffect(() => {
-        if (!product || selectedClassId) return
-        if (product.classId) {
+        if (!product || selectedLiveClassId) return
+        const defaultId = (product as { defaultLiveClassId?: string | null }).defaultLiveClassId
+        if (defaultId) {
             const c =
-                (product.classes || []).find((x: { id: string }) => x.id === product.classId) ??
+                (product.classes || []).find((x: { id: string }) => x.id === defaultId) ??
                 product.class
             if (c && !isLiveClassFull(c)) {
-                setSelectedClassId(product.classId)
+                setSelectedLiveClassId(defaultId)
             }
             return
         }
@@ -130,10 +131,10 @@ export default function CheckoutPage() {
         ) {
             const c = product.classes[0]
             if (!isLiveClassFull(c)) {
-                setSelectedClassId(c.id)
+                setSelectedLiveClassId(c.id)
             }
         }
-    }, [product, selectedClassId])
+    }, [product, selectedLiveClassId])
 
     // Debounced Recipient Check
     useEffect(() => {
@@ -164,16 +165,16 @@ export default function CheckoutPage() {
         if (product?.id) {
             handlePreview()
         }
-    }, [product?.id, couponCode, selectedClassId, isGift])
+    }, [product?.id, couponCode, selectedLiveClassId, isGift])
 
     const handlePreview = async () => {
         if (!product?.id) return
         if (product.type === 'LIVE') {
-            if (!selectedClassId) {
+            if (!selectedLiveClassId) {
                 setPreview(null)
                 return
             }
-            const picked = (product.classes || []).find((x: { id: string }) => x.id === selectedClassId)
+            const picked = (product.classes || []).find((x: { id: string }) => x.id === selectedLiveClassId)
             if (picked && isLiveClassFull(picked)) {
                 setPreview(null)
                 return
@@ -185,8 +186,8 @@ export default function CheckoutPage() {
             const checkoutPayload = isLiveProduct
                 ? {
                     cohortIds: [product.id],
-                    liveClassIds: selectedClassId ? [selectedClassId] : undefined,
-                    liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
+                    liveClassIds: selectedLiveClassId ? [selectedLiveClassId] : undefined,
+                    liveClassIdByCohort: selectedLiveClassId ? { [product.id]: selectedLiveClassId } : undefined,
                 }
                 : {
                     vodPackageIds: [product.id],
@@ -223,7 +224,7 @@ export default function CheckoutPage() {
             if (recipientEmail === user.email) return toast.error('Bạn không thể tự mua tặng chính mình')
         }
 
-        if (isLIVE && !selectedClassId) {
+        if (isLIVE && !selectedLiveClassId) {
             toast.error('Vui lòng chọn một lớp học để tham gia.')
             return
         }
@@ -238,8 +239,8 @@ export default function CheckoutPage() {
             const checkoutPayload = isLiveProduct
                 ? {
                     cohortIds: [product.id],
-                    liveClassIds: selectedClassId ? [selectedClassId] : undefined,
-                    liveClassIdByCohort: selectedClassId ? { [product.id]: selectedClassId } : undefined,
+                    liveClassIds: selectedLiveClassId ? [selectedLiveClassId] : undefined,
+                    liveClassIdByCohort: selectedLiveClassId ? { [product.id]: selectedLiveClassId } : undefined,
                 }
                 : {
                     vodPackageIds: [product.id],
@@ -278,8 +279,8 @@ export default function CheckoutPage() {
                 <Button variant="ghost" size="sm" asChild>
                     <Link
                         href={
-                            searchParams.get('classId')
-                                ? `/dashboard/available-courses/class/${searchParams.get('classId')}`
+                            searchParams.get('liveClassId')
+                                ? `/dashboard/available-courses/class/${searchParams.get('liveClassId')}`
                                 : '/dashboard/available-courses'
                         }
                     >

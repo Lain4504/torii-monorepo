@@ -10,8 +10,8 @@ export interface MetadataDefinition {
     defaultValue?: string;
 }
 
-// 1. Course Offering Metadata
-export const COURSE_OFFERING_METADATA: MetadataDefinition[] = [
+// 1. Metadata hiển thị / catalog (Cohort LIVE hoặc VodPackage)
+export const ACADEMY_PRODUCT_LISTING_METADATA: MetadataDefinition[] = [
     { key: "sale_price", label: "Giá khuyến mãi", description: "Giá sau giảm (để 0 nếu miễn phí)", defaultValue: "0" },
     { key: "discount_percentage", label: "Giảm giá (%)", description: "Hiển thị badge giảm giá", defaultValue: "0" },
     { key: "course_badge", label: "Badge khóa học", description: "Ví dụ: Hot, New, Best Seller", defaultValue: "Hot" },
@@ -35,5 +35,3 @@ export const LIVE_CLASS_METADATA: MetadataDefinition[] = [
     { key: "zoom_password", label: "Mật khẩu Zoom", description: "Nếu có" },
     { key: "messenger_group", label: "Nhóm hỗ trợ", description: "Link Zalo/Telegram/Discord cho lớp" },
 ];
-
-export const CLASS_METADATA = LIVE_CLASS_METADATA; // For backward compatibility

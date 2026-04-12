@@ -36,7 +36,7 @@ export default function ApprovalsPage() {
   const { can, hasWildcard } = usePermissions()
   const showCourseProfileApprovals =
     hasWildcard || can("lms.catalog.approve")
-  const showOfferingApprovals = hasWildcard || can("lms.commerce.approve")
+  const showCatalogCommerceApprovals = hasWildcard || can("lms.commerce.approve")
 
   const [tab, setTab] = useState<ApprovalTab>("cohorts")
 
@@ -44,18 +44,18 @@ export default function ApprovalsPage() {
     if (
       tab === "courseProfiles" &&
       !showCourseProfileApprovals &&
-      showOfferingApprovals
+      showCatalogCommerceApprovals
     ) {
       setTab("cohorts")
     }
     if (
       (tab === "cohorts" || tab === "vodPackages") &&
-      !showOfferingApprovals &&
+      !showCatalogCommerceApprovals &&
       showCourseProfileApprovals
     ) {
       setTab("courseProfiles")
     }
-  }, [tab, showCourseProfileApprovals, showOfferingApprovals])
+  }, [tab, showCourseProfileApprovals, showCatalogCommerceApprovals])
 
   const [cohortSearch, setCohortSearch] = useState("")
   const [debouncedCohortSearch] = useDebounceValue(cohortSearch, 500)
@@ -123,14 +123,14 @@ export default function ApprovalsPage() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as ApprovalTab)}>
         <TabsList className="w-full overflow-x-auto whitespace-nowrap">
-          {showOfferingApprovals ? (
+          {showCatalogCommerceApprovals ? (
             <TabsTrigger value="cohorts" className="gap-2">
               <Package className="size-4" />
               Đợt khai giảng
               <Badge variant="secondary">{pendingCohorts.length}</Badge>
             </TabsTrigger>
           ) : null}
-          {showOfferingApprovals ? (
+          {showCatalogCommerceApprovals ? (
             <TabsTrigger value="vodPackages" className="gap-2">
               <Package className="size-4" />
               Gói học liệu VOD

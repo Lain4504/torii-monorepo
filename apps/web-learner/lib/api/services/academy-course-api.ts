@@ -63,9 +63,9 @@ function normalizeProductForLearner(item: any) {
 
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const classId = urlParams.get('classId');
-      if (classId) {
-        const found = classes.find((c: any) => c.id === classId);
+      const liveClassIdFromUrl = urlParams.get('liveClassId');
+      if (liveClassIdFromUrl) {
+        const found = classes.find((c: any) => c.id === liveClassIdFromUrl);
         if (found) sampleClass = found;
       }
     }
@@ -103,6 +103,8 @@ function normalizeProductForLearner(item: any) {
     classes: normalizedClasses,
     class: primaryClass,
     siblingClasses,
+    /** UUID lớp LIVE gợi ý (API có thể gửi `defaultLiveClassId` hoặc `classId`). */
+    defaultLiveClassId: item.defaultLiveClassId ?? item.classId ?? null,
     /** Luôn có khi curriculum lấy từ courseProfile (kể cả LIVE không có class 1:1) */
     curriculum: curriculum ?? null,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
@@ -150,7 +152,7 @@ export const academyProductApi = {
   },
 };
 
-/** Lớp học (catalog learner) — không expose CourseOffering như đơn vị hiển thị; chỉ map giá/checkout qua catalogOfferingId. */
+/** Catalog lớp học (learner): cohort / vodPackage / liveClass — map giá & checkout theo ID sản phẩm hiện tại. */
 export const academyClassCatalogApi = {
   /**
    * Lấy đúng `price` / `discountPrice` từ mỗi item trong response catalog (JSON có thể là số hoặc chuỗi Decimal).

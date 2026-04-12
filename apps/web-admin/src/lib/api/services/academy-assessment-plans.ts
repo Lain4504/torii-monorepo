@@ -37,7 +37,7 @@ export const academyAssessmentPlansApi = {
     return res.data
   },
 
-  async getLearnerStatus(params: { classId?: string; enrollmentId?: string }) {
+  async getLearnerStatus(params: { deliveryTargetId?: string; enrollmentId?: string }) {
     const res = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
       "/api/academy/assessment-plans/learner/status",
       { params },
@@ -64,9 +64,9 @@ export function useUpdateAcademyAssessmentPlan() {
   })
 }
 
-export function useAcademyLearnerAssessmentStatus(params: { classId?: string; enrollmentId?: string }) {
+export function useAcademyLearnerAssessmentStatus(params: { deliveryTargetId?: string; enrollmentId?: string }) {
   return useQuery({
-    enabled: !!(params.classId || params.enrollmentId),
+    enabled: !!(params.deliveryTargetId || params.enrollmentId),
     queryKey: ["academy-learner-assessment-status", params],
     queryFn: () => academyAssessmentPlansApi.getLearnerStatus(params),
   })

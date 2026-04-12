@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const academyLearningProgressModelSchema = z.object({
     userId: z.string().uuid(),
-    classId: z.string().uuid(),
+    liveClassId: z.string().uuid(),
     lessonId: z.string().uuid(),
     isCompleted: z.boolean(),
     lastWatchedAt: z.coerce.date().nullable(),

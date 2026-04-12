@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const academyAssignmentSubmissionCreateDTOSchema = z.object({
-  classId: z.string().uuid(),
+  liveClassId: z.string().uuid(),
   classAssessmentId: z.string().uuid(),
   assignmentTemplateId: z.string().uuid(),
   // For learner flows, userId is derived from requester token at gateway.
@@ -27,7 +27,7 @@ export type AcademyAssignmentSubmissionUpdateDTO = z.infer<
 >;
 
 export const academyAssignmentSubmissionQueryDTOSchema = z.object({
-  classId: z.string().uuid().optional(),
+  liveClassId: z.string().uuid().optional(),
   classAssessmentId: z.string().uuid().optional(),
   assignmentTemplateId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
@@ -38,7 +38,7 @@ export type AcademyAssignmentSubmissionQueryDTO = z.infer<
 
 export type AcademyAssignmentSubmissionModel = {
   id: string;
-  classId: string;
+  liveClassId: string;
   classAssessmentId: string;
   assignmentTemplateId: string;
   userId: string;

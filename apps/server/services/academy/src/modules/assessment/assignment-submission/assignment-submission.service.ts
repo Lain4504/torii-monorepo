@@ -63,7 +63,7 @@ export class AssignmentSubmissionService {
         ...parsed,
         classAssessmentId: parsed.liveClassAssignmentId,
         assignmentTemplateId: parsed.liveClassAssignment?.assignmentId,
-        classId: parsed.liveClassAssignment?.liveClassId,
+        liveClassId: parsed.liveClassAssignment?.liveClassId,
       };
     });
   }
@@ -91,7 +91,7 @@ export class AssignmentSubmissionService {
       ...parsed,
       classAssessmentId: parsed.liveClassAssignmentId,
       assignmentTemplateId: parsed.liveClassAssignment?.assignmentId,
-      classId: parsed.liveClassAssignment?.liveClassId,
+      liveClassId: parsed.liveClassAssignment?.liveClassId,
     };
   }
 
