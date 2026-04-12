@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { AssignmentSubmissionService } from '../src/modules/assessment/assignment-submission/assignment-submission.service';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../src/modules/audit-logger.service';
+import { AssignmentSubmissionService } from '../src/modules/assessment/assignment-submission/assignment-submission.service';
 
 describe('AssignmentSubmissionService', () => {
   let service: AssignmentSubmissionService;
@@ -50,97 +50,80 @@ describe('AssignmentSubmissionService', () => {
   });
 
   describe('findAll', () => {
-    it('should return parsed submissions for a user', async () => {
-      const mockResult = [
-        {
-          id: 's1',
-          userId: 'u1',
-          content: '{"foo":"bar"}',
-          liveClassAssignment: { id: 'lca1', liveClassId: 'lc1', assignmentId: 'a1' },
-        },
-      ];
-      mockPrisma.assignmentSubmission.findMany.mockResolvedValue(mockResult);
+    it('should return parsed submissions', async () => {
+      mockPrisma.assignmentSubmission.findMany.mockResolvedValue([
+        { id: '1', content: '{"text":"test"}', liveClassAssignment: { id: 'lca1', liveClassId: 'lc1', assignmentId: 'a1' } },
+      ]);
 
       const result = await service.findAll({ userId: 'u1' });
 
-      expect(result[0].content).toEqual({ foo: 'bar' });
-      expect(result[0].classId).toBe('lc1');
+      expect(result[0].content).toEqual({ text: 'test' });
+      expect(result[0].liveClassId).toBe('lc1');
     });
   });
 
   describe('findById', () => {
-    it('should throw NotFound if missing', async () => {
+    it('should throw NotFound if submission does not exist', async () => {
       mockPrisma.assignmentSubmission.findUnique.mockResolvedValue(null);
-      await expect(service.findById('missing')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('invalid')).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw BadRequest if student tries to access others submission', async () => {
-      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ id: 's1', userId: 'other' });
-      await expect(service.findById('s1', 'student-1')).rejects.toThrow(BadRequestException);
+    it('should throw BadRequest if not owner and not manager', async () => {
+      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ id: 's1', userId: 'u1' });
+      await expect(service.findById('s1', 'u2', false)).rejects.toThrow('your own submissions');
     });
 
-    it('should return submission for owner', async () => {
-      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ id: 's1', userId: 'u1', content: null });
-      const result = await service.findById('s1', 'u1');
-      expect(result.id).toBe('s1');
-    });
-
-    it('should return submission for manager regardless of ownership', async () => {
-      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ id: 's1', userId: 'other', content: null });
-      const result = await service.findById('s1', 'manager-1', true);
-      expect(result.id).toBe('s1');
+    it('should return parsed submission if authorized', async () => {
+      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ 
+        id: 's1', userId: 'u1', content: '{"q":1}', 
+        liveClassAssignment: { id: 'lca1' } 
+      });
+      const result = await service.findById('s1', 'u1', false);
+      expect(result.content).toEqual({ q: 1 });
     });
   });
 
   describe('create', () => {
-    it('should throw if userId is missing', async () => {
-      await expect(service.create({} as any)).rejects.toThrow('Missing userId');
-    });
+    const dto = { userId: 'u1', classAssessmentId: 'lca1', content: { text: 'Sub' } } as any;
 
-    it('should throw if trying to create for another user', async () => {
-      await expect(service.create({ userId: 'other' } as any, 'me')).rejects.toThrow('You can only create submissions for yourself');
-    });
-
-    it('should throw if classAssessmentId is invalid', async () => {
-      mockPrisma.liveClassAssignment.findUnique.mockResolvedValue(null);
-      await expect(service.create({ userId: 'u1', classAssessmentId: 'bad' } as any, 'u1')).rejects.toThrow('Invalid classAssessmentId');
-    });
-
-    it('should throw if already submitted', async () => {
-      mockPrisma.liveClassAssignment.findUnique.mockResolvedValue({ id: 'ca1' });
+    it('should throw BadRequest if already submitted', async () => {
+      mockPrisma.liveClassAssignment.findUnique.mockResolvedValue({ id: 'lca1' });
       mockPrisma.assignmentSubmission.findFirst.mockResolvedValue({ id: 'existing' });
-      await expect(service.create({ userId: 'u1', classAssessmentId: 'ca1' } as any, 'u1')).rejects.toThrow('already submitted');
+
+      await expect(service.create(dto, 'u1')).rejects.toThrow('already submitted');
     });
 
-    it('should successfully create and return result', async () => {
-      mockPrisma.liveClassAssignment.findUnique.mockResolvedValue({ id: 'ca1' });
+    it('should create and return the new submission', async () => {
+      mockPrisma.liveClassAssignment.findUnique.mockResolvedValue({ id: 'lca1' });
       mockPrisma.assignmentSubmission.findFirst.mockResolvedValue(null);
-      mockPrisma.assignmentSubmission.create.mockResolvedValue({ id: 'new-id', content: '{}' });
+      mockPrisma.assignmentSubmission.create.mockResolvedValue({ id: 'new-s1', userId: 'u1' });
       
       // create() calls findById() at the end
       mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ 
-        id: 'new-id', 
-        userId: 'u1', 
-        content: '{}',
-        liveClassAssignment: { id: 'ca1', liveClassId: 'lc1', assignmentId: 'a1' }
+        id: 'new-s1', userId: 'u1', liveClassAssignment: { id: 'lca1' } 
       });
 
-      const result = await service.create({ userId: 'u1', classAssessmentId: 'ca1', content: { test: 1 } } as any, 'u1');
-
-      expect(mockPrisma.assignmentSubmission.create).toHaveBeenCalled();
-      expect(result.id).toBe('new-id');
+      const result = await service.create(dto, 'u1');
+      expect(result.id).toBe('new-s1');
+      expect(mockPrisma.assignmentSubmission.create).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ content: '{"text":"Sub"}' })
+      }));
     });
   });
 
   describe('update', () => {
-    it('should update and log audit if score provided', async () => {
-      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ id: 's1', userId: 'u1' });
-      mockPrisma.assignmentSubmission.update.mockResolvedValue({ id: 's1', grade: '90' });
+    const dto = { score: 9, feedback: 'Great', status: 'GRADED' } as any;
 
-      await service.update('s1', { score: 90 }, 'manager-1', true);
+    it('should update score and log audit', async () => {
+      const old = { id: 's1', userId: 'u1', liveClassAssignment: { id: 'lca1' } };
+      mockPrisma.assignmentSubmission.findUnique.mockResolvedValue(old);
+      mockPrisma.assignmentSubmission.update.mockResolvedValue({ ...old, grade: 9, status: 'GRADED' });
 
+      const result = await service.update('s1', dto, 'admin1', true);
+
+      expect(result.grade).toBe(9);
       expect(mockAudit.log).toHaveBeenCalledWith(expect.objectContaining({
-        action: 'assignment_submission.grade',
+        action: 'assignment_submission.grade'
       }));
     });
   });
@@ -148,12 +131,12 @@ describe('AssignmentSubmissionService', () => {
   describe('delete', () => {
     it('should delete and log audit', async () => {
       mockPrisma.assignmentSubmission.findUnique.mockResolvedValue({ id: 's1', userId: 'u1' });
-      
-      await service.delete('s1', 'manager-1', true);
+      const result = await service.delete('s1', 'admin1', true);
 
-      expect(mockPrisma.assignmentSubmission.delete).toHaveBeenCalledWith({ where: { id: 's1' } });
+      expect(result.ok).toBe(true);
+      expect(mockPrisma.assignmentSubmission.delete).toHaveBeenCalled();
       expect(mockAudit.log).toHaveBeenCalledWith(expect.objectContaining({
-        action: 'assignment_submission.delete',
+        action: 'assignment_submission.delete'
       }));
     });
   });

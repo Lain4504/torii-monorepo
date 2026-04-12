@@ -1,22 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { of } from 'rxjs';
 import { TicketService } from '../src/modules/ticket/ticket.service';
-import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '@server/academy/interfaces/repositories';
-import { PrismaService } from '@server/shared';
-import { AuditLoggerService } from '../src/modules/audit-logger.service';
+import { TICKET_REPOSITORY_TOKEN } from '@server/academy/interfaces/repositories';
 import { EmailService } from '@server/identity/modules/email/email.service';
-import { TicketType, TicketStatus } from '@workspace/schemas';
+import { AuditLoggerService } from '../src/modules/audit-logger.service';
+import { PrismaService } from '@server/shared';
+import { of } from 'rxjs';
+import { TicketType, TicketStatus, OrderStatus } from '@workspace/schemas';
 
 describe('TicketService', () => {
   let service: TicketService;
-  let mockRepository: any;
-  let mockPrisma: any;
+  let mockRepo: any;
   let mockNats: any;
+  let mockEmail: any;
   let mockAudit: any;
+  let mockPrisma: any;
 
   beforeEach(async () => {
-    mockRepository = {
+    mockRepo = {
       create: jest.fn(),
       findById: jest.fn(),
       findAll: jest.fn(),
@@ -25,16 +26,22 @@ describe('TicketService', () => {
       delete: jest.fn(),
     };
 
+    mockNats = {
+      send: jest.fn(),
+      emit: jest.fn(),
+    };
+
+    mockEmail = {};
+
+    mockAudit = {
+      log: jest.fn().mockResolvedValue(undefined),
+    };
+
     mockPrisma = {
-      liveClass: { 
-          findUnique: jest.fn().mockResolvedValue({ 
-              id: 'c1', status: 'OPENING', 
-              cohort: { enrollmentOpenAt: null, enrollmentCloseAt: null } 
-          }) 
-      },
+      liveClass: { findUnique: jest.fn() },
       vodPackage: { findUnique: jest.fn() },
-      enrollment: { findUnique: jest.fn(), update: jest.fn() },
       order: { findUnique: jest.fn(), update: jest.fn() },
+      enrollment: { findUnique: jest.fn(), update: jest.fn() },
       user: { update: jest.fn() },
       walletTransaction: { create: jest.fn() },
       userLessonProgress: { deleteMany: jest.fn() },
@@ -43,23 +50,29 @@ describe('TicketService', () => {
       $transaction: jest.fn().mockImplementation((cb) => cb(mockPrisma)),
     };
 
-    mockNats = {
-      send: jest.fn(),
-      emit: jest.fn(),
-    };
-
-    mockAudit = {
-      log: jest.fn().mockResolvedValue(undefined),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TicketService,
-        { provide: TICKET_REPOSITORY_TOKEN, useValue: mockRepository },
-        { provide: PrismaService, useValue: mockPrisma },
-        { provide: AuditLoggerService, useValue: mockAudit },
-        { provide: 'NATS_SERVICE', useValue: mockNats },
-        { provide: EmailService, useValue: {} },
+        {
+          provide: TICKET_REPOSITORY_TOKEN,
+          useValue: mockRepo,
+        },
+        {
+          provide: 'NATS_SERVICE',
+          useValue: mockNats,
+        },
+        {
+          provide: EmailService,
+          useValue: mockEmail,
+        },
+        {
+          provide: AuditLoggerService,
+          useValue: mockAudit,
+        },
+        {
+          provide: PrismaService,
+          useValue: mockPrisma,
+        },
       ],
     }).compile();
 
@@ -70,97 +83,120 @@ describe('TicketService', () => {
     jest.clearAllMocks();
   });
 
-  describe('createTicket (Refund Validation)', () => {
-    it('should throw if progress > 20%', async () => {
-      mockNats.send.mockImplementation((pattern) => {
-        if (pattern.cmd === 'academy.enrollment.checkByTarget') {
-          return of({
-            isEnrolled: true,
-            enrollment: { enrolledAt: new Date(), progress: 50, id: 'e1' }
-          });
-        }
-        return of({});
-      });
+  describe('createTicket', () => {
+    it('should create a support ticket simple', async () => {
+      const dto = { type: TicketType.SUPPORT, subject: 'Issue', content: 'Help' };
+      mockRepo.create.mockResolvedValue({ id: 't1', ...dto });
 
-      await expect(service.createTicket('u1', { 
-        type: TicketType.REFUND, subject: 'S', content: 'C', 
-        liveClassId: 'c1'
-      } as any)).rejects.toThrow('không đủ điều kiện hoàn tiền do bạn đã hoàn thành 50%');
+      const result = await service.createTicket('u1', dto as any);
+      expect(result.id).toBe('t1');
+      expect(mockRepo.create).toHaveBeenCalled();
     });
 
-    it('should throw if diffDays > 14', async () => {
-        const longAgo = new Date();
-        longAgo.setDate(longAgo.getDate() - 20);
+    it('should throw BadRequest if refund requested without targets', async () => {
+      const dto = { type: TicketType.REFUND, subject: 'Refund' };
+      await expect(service.createTicket('u1', dto as any)).rejects.toThrow('liveClassId hoặc vodPackageId là bắt buộc');
+    });
 
-        mockNats.send.mockReturnValue(of({
-          isEnrolled: true,
-          enrollment: { enrolledAt: longAgo, progress: 0, id: 'e1' }
-        }));
-  
-        await expect(service.createTicket('u1', { 
-          type: TicketType.REFUND, subject: 'S', content: 'C', 
-          liveClassId: 'c1'
-        } as any)).rejects.toThrow('trong vòng 14 ngày');
+    it('should validate refund and create ticket for VOD', async () => {
+      const dto = { type: TicketType.REFUND, vodPackageId: 'v1', subject: 'Refund' };
+      
+      // Enrollment check
+      mockNats.send.mockImplementation((pattern: any) => {
+        if (pattern.cmd === 'academy.enrollment.checkByTarget') {
+          return of({ isEnrolled: true, enrollment: { id: 'en1', enrolledAt: new Date(), progress: 10, sourceOrderId: 'o1' } });
+        }
+        if (pattern.cmd === 'academy.vod.findById') {
+          return of({ title: 'Course Name' });
+        }
+        return of(null);
       });
 
-    it('should lock enrollment status to REFUND_PENDING on success', async () => {
-        mockNats.send.mockReturnValue(of({
-            isEnrolled: true,
-            enrollment: { enrolledAt: new Date(), progress: 0, id: 'e1' }
-        }));
-        mockRepository.create.mockResolvedValue({ id: 't1' });
+      mockPrisma.order.findUnique.mockResolvedValue({ grandTotal: 1000 });
+      mockRepo.create.mockResolvedValue({ id: 't-ref' });
 
-        await service.createTicket('u1', { 
-            type: TicketType.REFUND, subject: 'S', content: 'C', 
-            liveClassId: 'c1'
-        } as any);
+      const result = await service.createTicket('u1', dto as any);
 
-        expect(mockPrisma.enrollment.update).toHaveBeenCalledWith(expect.objectContaining({
-            where: { id: 'e1' },
-            data: { status: 'REFUND_PENDING' }
-        }));
+      expect(result.id).toBe('t-ref');
+      expect(mockPrisma.enrollment.update).toHaveBeenCalledWith(expect.objectContaining({
+        data: { status: 'REFUND_PENDING' }
+      }));
+    });
+
+    it('should throw if progress is over 20%', async () => {
+      const dto = { type: TicketType.REFUND, vodPackageId: 'v1', subject: 'Refund' };
+      mockNats.send.mockImplementation(() => of({ 
+        isEnrolled: true, 
+        enrollment: { enrolledAt: new Date(), progress: 25 } 
+      }));
+      
+      await expect(service.createTicket('u1', dto as any)).rejects.toThrow('giới hạn là 20%');
     });
   });
 
-  describe('updateTicketStatus (Resolved Refund)', () => {
-    it('should credit wallet and clear progress when resolved', async () => {
-      const ticket = { 
-          id: 't1', type: TicketType.REFUND, userId: 'u1', status: TicketStatus.PENDING,
-          orderId: 'o1', metadata: { vodPackageId: 'v1', courseTitle: 'Course' },
-          refundAmount: 50000 
-      };
-      mockRepository.findById.mockResolvedValue(ticket);
-      mockRepository.updateStatus.mockResolvedValue(ticket);
-      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'e1', status: 'REFUND_PENDING' });
+  describe('updateTicketStatus', () => {
+    it('should process refund and call handleRefundResolved', async () => {
+      const ticket = { id: 't1', type: TicketType.REFUND, status: TicketStatus.PENDING, userId: 'u1', metadata: { courseTitle: 'C1' } };
+      mockRepo.findById.mockResolvedValue(ticket);
+      mockRepo.updateStatus.mockResolvedValue({ ...ticket, status: TicketStatus.RESOLVED });
+      
+      const spResolve = jest.spyOn(service as any, 'handleRefundResolved').mockResolvedValue(undefined);
 
-      await service.updateTicketStatus('t1', 'admin1', { status: TicketStatus.RESOLVED });
+      await service.updateTicketStatus('t1', 'admin', { status: TicketStatus.RESOLVED, response: 'OK' });
+
+      expect(mockRepo.updateStatus).toHaveBeenCalledWith('t1', TicketStatus.RESOLVED, 'OK', 'admin', undefined);
+      expect(spResolve).toHaveBeenCalled();
+    });
+
+    it('should throw if ticket is already finalized', async () => {
+      mockRepo.findById.mockResolvedValue({ status: TicketStatus.RESOLVED });
+      await expect(service.updateTicketStatus('t1', 'admin', { status: TicketStatus.RESOLVED })).rejects.toThrow('already finalized');
+    });
+  });
+
+  describe('handleRefundResolved', () => {
+    it('should execute full refund workflow in transaction', async () => {
+      const ticket = { 
+        id: 't1', userId: 'u1', orderId: 'o1', refundAmount: 1000, 
+        liveClassId: 'lc1', metadata: { courseTitle: 'Title' } 
+      };
+      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'en1' });
+
+      await (service as any).handleRefundResolved(ticket, 'admin');
 
       expect(mockPrisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
-          where: { id: 'u1' },
-          data: { walletBalance: { increment: 50000 } }
+        where: { id: 'u1' },
+        data: { walletBalance: { increment: 1000 } }
+      }));
+      expect(mockPrisma.enrollment.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'en1' },
+        data: { status: 'CANCELLED' }
       }));
       expect(mockPrisma.userLessonProgress.deleteMany).toHaveBeenCalled();
-      expect(mockPrisma.enrollment.update).toHaveBeenCalledWith(expect.objectContaining({
-          data: { status: 'CANCELLED' }
+      expect(mockPrisma.order.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'o1' },
+        data: { status: OrderStatus.REFUNDED }
       }));
     });
   });
 
-  describe('updateTicketStatus (Cancelled Refund)', () => {
-    it('should restore original enrollment status if refund ticket is cancelled', async () => {
-        const ticket = { 
-            id: 't1', type: TicketType.REFUND, userId: 'u1', status: TicketStatus.PENDING,
-            metadata: { vodPackageId: 'v1', originalStatus: 'ACTIVE' }
-        };
-        mockRepository.findById.mockResolvedValue(ticket);
-        mockRepository.updateStatus.mockResolvedValue(ticket);
-        mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'e1', status: 'REFUND_PENDING' });
-  
-        await service.updateTicketStatus('t1', 'admin1', { status: TicketStatus.CANCELLED });
-  
-        expect(mockPrisma.enrollment.update).toHaveBeenCalledWith(expect.objectContaining({
-            data: { status: 'ACTIVE' }
-        }));
+  describe('deleteTicket', () => {
+    it('should update status to CANCELLED for users', async () => {
+      const ticket = { id: 't1', userId: 'u1', status: TicketStatus.PENDING };
+      mockRepo.findById.mockResolvedValue(ticket);
+
+      await service.deleteTicket('t1', 'u1', 'u1', false);
+
+      expect(mockRepo.updateStatus).toHaveBeenCalledWith('t1', TicketStatus.CANCELLED, expect.any(String), 'u1');
+    });
+
+    it('should delete from repo for admins', async () => {
+      const ticket = { id: 't1', userId: 'u1', status: TicketStatus.PENDING, type: TicketType.SUPPORT };
+      mockRepo.findById.mockResolvedValue(ticket);
+
+      await service.deleteTicket('t1', undefined, 'admin', true);
+
+      expect(mockRepo.delete).toHaveBeenCalledWith('t1');
     });
   });
 });

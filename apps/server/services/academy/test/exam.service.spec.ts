@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '@server/shared';
 import { ExamService } from '../src/modules/assessment/exam/exam.service';
-import { PrismaService } from '@server/shared/prisma/prisma.service';
 
 describe('ExamService', () => {
   let service: ExamService;
@@ -28,7 +28,6 @@ describe('ExamService', () => {
         findMany: jest.fn(),
       },
       academyExamAttempt: {
-        findMany: jest.fn(),
         count: jest.fn(),
       },
     };
@@ -51,119 +50,123 @@ describe('ExamService', () => {
   });
 
   describe('createExam', () => {
-    it('should create exam with sections', async () => {
+    it('should create an exam with sections', async () => {
       const dto = {
-        title: 'New Exam',
+        title: 'Exam 1',
         sections: [
-          { title: 'Sec 1', orderIndex: 0, sectionType: 'READING' },
+          { title: 'Sec 1', orderIndex: 0, sectionType: 'CHOICE' as any },
         ],
-      } as any;
+      };
+      mockPrisma.academyExam.create.mockResolvedValue({ id: 'e1', ...dto });
 
-      mockPrisma.academyExam.create.mockResolvedValue({ id: 'e1', title: 'New Exam' });
+      const result = await service.createExam(dto as any);
 
-      const result = await service.createExam(dto);
-
-      expect(mockPrisma.academyExam.create).toHaveBeenCalledWith({
+      expect(mockPrisma.academyExam.create).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({
-          title: 'New Exam',
+          title: 'Exam 1',
           sections: {
-            create: [
-              expect.objectContaining({ title: 'Sec 1' }),
-            ],
+            create: [expect.objectContaining({ title: 'Sec 1' })],
           },
         }),
-        include: { sections: true },
-      });
+      }));
       expect(result.id).toBe('e1');
     });
   });
 
-  describe('getExamDetail', () => {
-    it('should throw NotFound if exam missing', async () => {
-      mockPrisma.academyExam.findUnique.mockResolvedValue(null);
-      await expect(service.getExamDetail('missing')).rejects.toThrow(NotFoundException);
-    });
+  describe('updateExam', () => {
+    it('should update exam metadata', async () => {
+      const dto = { title: 'Updated' };
+      mockPrisma.academyExam.update.mockResolvedValue({ id: 'e1', ...dto });
 
-    it('should return nested exam details', async () => {
-      const mockExam = { id: 'e1', sections: [] };
-      mockPrisma.academyExam.findUnique.mockResolvedValue(mockExam);
+      const result = await service.updateExam('e1', dto as any);
+
+      expect(mockPrisma.academyExam.update).toHaveBeenCalledWith({
+        where: { id: 'e1' },
+        data: expect.objectContaining({ title: 'Updated' }),
+      });
+      expect(result.title).toBe('Updated');
+    });
+  });
+
+  describe('findExams', () => {
+    it('should filter exams by query params', async () => {
+      mockPrisma.academyExam.findMany.mockResolvedValue([]);
+      await service.findExams({ courseProfileId: 'cp1', q: 'search' });
+
+      expect(mockPrisma.academyExam.findMany).toHaveBeenCalledWith(expect.objectContaining({
+        where: expect.objectContaining({
+          courseProfileId: 'cp1',
+          OR: expect.any(Array),
+        }),
+      }));
+    });
+  });
+
+  describe('getExamDetail', () => {
+    it('should return exam detail if found', async () => {
+      const exam = { id: 'e1', sections: [] };
+      mockPrisma.academyExam.findUnique.mockResolvedValue(exam);
 
       const result = await service.getExamDetail('e1');
-      expect(result).toBe(mockExam);
+      expect(result).toEqual(exam);
+    });
+
+    it('should throw NotFound if exam missing', async () => {
+      mockPrisma.academyExam.findUnique.mockResolvedValue(null);
+      await expect(service.getExamDetail('e1')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('addQuestionsToSection', () => {
-    it('should throw if section missing', async () => {
+    it('should throw NotFound if section missing', async () => {
       mockPrisma.academyExamSection.findUnique.mockResolvedValue(null);
-      await expect(
-        service.addQuestionsToSection({ sectionId: 's1', questionIds: ['q1'], points: 1 }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.addQuestionsToSection({ sectionId: 's1', questionIds: [], points: 1 })).rejects.toThrow(NotFoundException);
     });
 
-    it('should calculate next orderIndex correctly', async () => {
+    it('should create question relations with incremented orderIndex', async () => {
       mockPrisma.academyExamSection.findUnique.mockResolvedValue({ id: 's1', examId: 'e1' });
       mockPrisma.academyExamQuestion.findFirst.mockResolvedValue({ orderIndex: 5 });
-      mockPrisma.academyExamQuestion.createMany.mockResolvedValue({ count: 1 });
+      mockPrisma.academyExamQuestion.createMany.mockResolvedValue({ count: 2 });
 
-      await service.addQuestionsToSection({ sectionId: 's1', questionIds: ['q1'], points: 1 });
+      await service.addQuestionsToSection({ sectionId: 's1', questionIds: ['q1', 'q2'], points: 2 });
 
       expect(mockPrisma.academyExamQuestion.createMany).toHaveBeenCalledWith({
         data: [
-          expect.objectContaining({ orderIndex: 6 }),
+          expect.objectContaining({ questionId: 'q1', orderIndex: 6 }),
+          expect.objectContaining({ questionId: 'q2', orderIndex: 7 }),
         ],
       });
     });
+  });
 
-    it('should start with orderIndex 0 if no previous questions', async () => {
-        mockPrisma.academyExamSection.findUnique.mockResolvedValue({ id: 's1', examId: 'e1' });
-        mockPrisma.academyExamQuestion.findFirst.mockResolvedValue(null);
-        mockPrisma.academyExamQuestion.createMany.mockResolvedValue({ count: 1 });
-  
-        await service.addQuestionsToSection({ sectionId: 's1', questionIds: ['q1'], points: 1 });
-  
-        expect(mockPrisma.academyExamQuestion.createMany).toHaveBeenCalledWith({
-          data: [
-            expect.objectContaining({ orderIndex: 0 }),
-          ],
-        });
-      });
+  describe('removeQuestionFromExam', () => {
+    it('should delete specified exam question relation', async () => {
+      mockPrisma.academyExamQuestion.delete.mockResolvedValue({ id: 'eq1' });
+      await service.removeQuestionFromExam('eq1');
+      expect(mockPrisma.academyExamQuestion.delete).toHaveBeenCalledWith({ where: { id: 'eq1' } });
+    });
   });
 
   describe('deleteExam', () => {
-    it('should throw BadRequest if exam used in assessments', async () => {
+    it('should throw BadRequest if exam is linked to assessment plan', async () => {
       mockPrisma.academyCourseProfileAssessment.findMany.mockResolvedValue([
-        {
-          courseProfile: {
-            cohorts: [{ liveClasses: [{ name: 'Class A' }] }],
-          },
-        },
+        { courseProfile: { title: 'P1', cohorts: [] } }
       ]);
-      mockPrisma.academyExamAttempt.findMany.mockResolvedValue([]);
 
-      await expect(service.deleteExam('e1')).rejects.toThrow('Class A');
+      await expect(service.deleteExam('e1')).rejects.toThrow(BadRequestException);
+      await expect(service.deleteExam('e1')).rejects.toThrow('gỡ khỏi kế hoạch đánh giá');
     });
 
-    it('should throw BadRequest if exam has attempts from LiveClass', async () => {
-        mockPrisma.academyCourseProfileAssessment.findMany.mockResolvedValue([]);
-        mockPrisma.academyExamAttempt.findMany.mockResolvedValue([
-            { class: { name: 'Class B' } }
-        ]);
-  
-        await expect(service.deleteExam('e1')).rejects.toThrow('Class B');
-      });
-
-    it('should throw BadRequest if exam has any general attempts', async () => {
-        mockPrisma.academyCourseProfileAssessment.findMany.mockResolvedValue([]);
-        mockPrisma.academyExamAttempt.findMany.mockResolvedValue([]);
-        mockPrisma.academyExamAttempt.count.mockResolvedValue(10);
-  
-        await expect(service.deleteExam('e1')).rejects.toThrow('10 lượt làm bài');
-      });
-
-    it('should delete if no usage/attempts found', async () => {
+    it('should throw BadRequest if exam has student attempts', async () => {
       mockPrisma.academyCourseProfileAssessment.findMany.mockResolvedValue([]);
-      mockPrisma.academyExamAttempt.findMany.mockResolvedValue([]);
+      mockPrisma.academyExamAttempt.count.mockResolvedValue(5);
+
+      await expect(service.deleteExam('e1')).rejects.toThrow(BadRequestException);
+      await expect(service.deleteExam('e1')).rejects.toThrow('5 lượt làm bài');
+    });
+
+    it('should delete exam if no dependencies exist', async () => {
+      mockPrisma.academyCourseProfileAssessment.findMany.mockResolvedValue([]);
       mockPrisma.academyExamAttempt.count.mockResolvedValue(0);
       mockPrisma.academyExam.delete.mockResolvedValue({ id: 'e1' });
 

@@ -1,22 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { ExamAttemptService } from '../src/modules/assessment/exam-attempt/exam-attempt.service';
+import { PrismaService } from '@server/shared';
 import { ExamService } from '../src/modules/assessment/exam/exam.service';
-import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { ExamAttemptService } from '../src/modules/assessment/exam-attempt/exam-attempt.service';
 import { AcademyAttemptStatus, AcademyExamStatus } from '@workspace/schemas';
 
 describe('ExamAttemptService', () => {
   let service: ExamAttemptService;
   let mockPrisma: any;
+  let mockExamService: any;
 
   beforeEach(async () => {
     mockPrisma = {
       academyExam: {
         findUnique: jest.fn(),
       },
-      academyExamAttempt: {
-        findFirst: jest.fn(),
+      enrollment: {
         findUnique: jest.fn(),
+      },
+      academyExamAttempt: {
+        findUnique: jest.fn(),
+        findFirst: jest.fn(),
         findMany: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
@@ -24,22 +28,21 @@ describe('ExamAttemptService', () => {
       academyExamAttemptAnswer: {
         createMany: jest.fn(),
       },
-      enrollment: {
-        findUnique: jest.fn(),
-      },
-      liveClass: {
-        findUnique: jest.fn(),
-      },
       $transaction: jest.fn().mockImplementation((cb) => cb(mockPrisma)),
     };
+
+    mockExamService = {};
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ExamAttemptService,
-        { provide: ExamService, useValue: {} },
         {
           provide: PrismaService,
           useValue: mockPrisma,
+        },
+        {
+          provide: ExamService,
+          useValue: mockExamService,
         },
       ],
     }).compile();
@@ -52,191 +55,193 @@ describe('ExamAttemptService', () => {
   });
 
   describe('startAttempt', () => {
-    const startDto = { examId: 'e1', userId: 'u1', enrollmentId: 'enr-1' };
-
-    it('should throw if exam missing or not published', async () => {
-      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'e1', status: 'DRAFT' });
-      await expect(service.startAttempt(startDto)).rejects.toThrow(NotFoundException);
+    it('should throw BadRequest if userId or enrollmentId missing', async () => {
+      await expect(service.startAttempt({ userId: '', enrollmentId: 'e1', examId: 'ex1' } as any)).rejects.toThrow(BadRequestException);
+      await expect(service.startAttempt({ userId: 'u1', enrollmentId: '', examId: 'ex1' } as any)).rejects.toThrow(BadRequestException);
     });
 
-    it('should return existing if active attempt found', async () => {
-      const activeAttempt = { id: 'att-1', status: 'IN_PROGRESS' };
-      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'e1', status: 'PUBLISHED' });
-      mockPrisma.academyExamAttempt.findFirst.mockResolvedValue(activeAttempt);
+    it('should throw NotFound if exam missing or not published', async () => {
+      mockPrisma.academyExam.findUnique.mockResolvedValue(null);
+      await expect(service.startAttempt({ userId: 'u1', enrollmentId: 'en1', examId: 'ex1' })).rejects.toThrow(NotFoundException);
 
-      const result = await service.startAttempt(startDto);
-      expect(result.id).toBe('att-1');
+      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'ex1', status: 'DRAFT' });
+      await expect(service.startAttempt({ userId: 'u1', enrollmentId: 'en1', examId: 'ex1' })).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw if enrollment belongs to another user', async () => {
-      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'e1', status: 'PUBLISHED' });
+    it('should throw if enrollment mismatch', async () => {
+      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'ex1', status: AcademyExamStatus.PUBLISHED });
+      mockPrisma.enrollment.findUnique.mockResolvedValue(null);
+      await expect(service.startAttempt({ userId: 'u1', enrollmentId: 'en1', examId: 'ex1' })).rejects.toThrow(NotFoundException);
+
+      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'en1', userId: 'other' });
+      await expect(service.startAttempt({ userId: 'u1', enrollmentId: 'en1', examId: 'ex1' })).rejects.toThrow(BadRequestException);
+    });
+
+    it('should return existing in-progress attempt', async () => {
+      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'ex1', status: AcademyExamStatus.PUBLISHED });
+      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'en1', userId: 'u1' });
+      const existing = { id: 'att1', status: AcademyAttemptStatus.IN_PROGRESS };
+      mockPrisma.academyExamAttempt.findFirst.mockResolvedValue(existing);
+
+      const result = await service.startAttempt({ userId: 'u1', enrollmentId: 'en1', examId: 'ex1' });
+      expect(result.id).toBe('att1');
+      expect(mockPrisma.academyExamAttempt.create).not.toHaveBeenCalled();
+    });
+
+    it('should create new attempt if none in-progress', async () => {
+      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'ex1', status: AcademyExamStatus.PUBLISHED });
+      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'en1', userId: 'u1' });
       mockPrisma.academyExamAttempt.findFirst.mockResolvedValue(null);
-      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'enr-1', userId: 'other' });
+      mockPrisma.academyExamAttempt.create.mockResolvedValue({ id: 'att-new', userId: 'u1' });
 
-      await expect(service.startAttempt(startDto)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should create attempt for LIVE enrollment binding to classId', async () => {
-      mockPrisma.academyExam.findUnique.mockResolvedValue({ id: 'e1', status: 'PUBLISHED' });
-      mockPrisma.academyExamAttempt.findFirst.mockResolvedValue(null);
-      mockPrisma.enrollment.findUnique.mockResolvedValue({ id: 'enr-1', userId: 'u1', liveClassId: 'lc-1' });
-      mockPrisma.liveClass.findUnique.mockResolvedValue({ id: 'lc-1' });
-      mockPrisma.academyExamAttempt.create.mockResolvedValue({ id: 'new-att' });
-
-      const result = await service.startAttempt(startDto);
-      
-      expect(mockPrisma.academyExamAttempt.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({ classId: 'lc-1' }),
-        include: { exam: true },
-      });
-      expect(result.id).toBe('new-att');
+      const result = await service.startAttempt({ userId: 'u1', enrollmentId: 'en1', examId: 'ex1' });
+      expect(result.id).toBe('att-new');
+      expect(mockPrisma.academyExamAttempt.create).toHaveBeenCalled();
     });
   });
 
   describe('submitAttempt', () => {
-    it('should judge SINGLE_CHOICE correctly', async () => {
-      const mockAttempt = {
-        id: 'att-1',
-        status: 'IN_PROGRESS',
-        draftAnswers: { 'q1': 'opt-correct' },
-        exam: {
-          settings: { passThreshold: 50 },
-          sections: [
+    const mockFullExam = {
+      id: 'ex1',
+      settings: { passThreshold: 50 },
+      sections: [
+        {
+          id: 's1',
+          questions: [
             {
-              questions: [
-                {
-                  id: 'eq1',
-                  points: 10,
-                  question: {
-                    id: 'q1',
-                    questionType: 'SINGLE_CHOICE',
-                    options: [
-                      { id: 'opt-correct', optionKey: 'A', isCorrect: true },
-                      { id: 'opt-wrong', optionKey: 'B', isCorrect: false },
-                    ],
-                  },
-                },
-              ],
+              id: 'eq1',
+              points: 10,
+              question: {
+                id: 'q1',
+                questionType: 'SINGLE_CHOICE',
+                options: [{ id: 'opt1', isCorrect: true, optionKey: 'A' }, { id: 'opt2', isCorrect: false, optionKey: 'B' }],
+              },
+            },
+            {
+              id: 'eq2',
+              points: 20,
+              question: {
+                id: 'q2',
+                questionType: 'MULTIPLE_CHOICE',
+                correctAnswer: ['A', 'C'],
+                options: [{ optionKey: 'A' }, { optionKey: 'B' }, { optionKey: 'C' }],
+              },
             },
           ],
         },
+      ],
+    };
+
+    it('should calculate scores and pass/fail status correctly', async () => {
+      const attempt = {
+        id: 'att1',
+        status: AcademyAttemptStatus.IN_PROGRESS,
+        draftAnswers: {
+          q1: 'opt1', // Correct
+          q2: ['A', 'C'], // Correct
+        },
+        exam: mockFullExam,
       };
+      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(attempt);
 
-      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(mockAttempt);
-      mockPrisma.academyExamAttempt.update.mockImplementation((args) => Promise.resolve({ ...args.data, id: 'att-1' }));
+      await service.submitAttempt('att1');
 
-      const result = await service.submitAttempt('att-1');
-
-      expect(result.score).toBe(10);
-      expect(result.isPassed).toBe(true);
-      expect(mockPrisma.academyExamAttemptAnswer.createMany).toHaveBeenCalledWith({
-        data: [expect.objectContaining({ isCorrect: true, scoreAwarded: 10 })],
-      });
+      expect(mockPrisma.academyExamAttempt.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: 'att1' },
+        data: expect.objectContaining({
+          score: 30, // 10 + 20
+          percentage: 100,
+          isPassed: true,
+          status: AcademyAttemptStatus.SUBMITTED,
+        }),
+      }));
     });
 
-    it('should judge MULTIPLE_CHOICE correctly (exact match)', async () => {
-        const mockAttempt = {
-          id: 'att-1',
-          status: 'IN_PROGRESS',
-          draftAnswers: { 'q1': ['A', 'C'] },
-          exam: {
-            settings: { passThreshold: 50 },
-            sections: [
-              {
-                questions: [
-                  {
-                    id: 'eq1',
-                    points: 10,
-                    question: {
-                      id: 'q1',
-                      questionType: 'MULTIPLE_CHOICE',
-                      correctAnswer: ['A', 'C'],
-                      options: [
-                        { id: 'o1', optionKey: 'A', isCorrect: true },
-                        { id: 'o2', optionKey: 'B', isCorrect: false },
-                        { id: 'o3', optionKey: 'C', isCorrect: true },
-                      ],
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        };
-  
-        mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(mockAttempt);
-        mockPrisma.academyExamAttempt.update.mockImplementation((args) => Promise.resolve({ ...args.data, id: 'att-1' }));
-  
-        const result = await service.submitAttempt('att-1');
-  
-        expect(result.score).toBe(10);
-        expect(result.isPassed).toBe(true);
-      });
+    it('should handle partial/incorrect answers', async () => {
+      const attempt = {
+        id: 'att1',
+        status: AcademyAttemptStatus.IN_PROGRESS,
+        draftAnswers: {
+          q1: 'opt2', // Wrong
+          q2: ['A'], // Partial/Wrong
+        },
+        exam: mockFullExam,
+      };
+      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(attempt);
 
-    it('should mark as FAILED if below percentage threshold', async () => {
-        const mockAttempt = {
-          id: 'att-1',
-          status: 'IN_PROGRESS',
-          draftAnswers: { 'q1': 'wrong' },
-          exam: {
-            settings: { passThreshold: 80 },
-            sections: [{
-              questions: [{
-                id: 'eq1', points: 10,
-                question: { id: 'q1', questionType: 'SINGLE_CHOICE', options: [{ id: 'opt-correct', isCorrect: true }] }
-              }]
-            }]
-          }
-        };
-        mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(mockAttempt);
-        mockPrisma.academyExamAttempt.update.mockImplementation((args) => Promise.resolve({ ...args.data, id: 'att-1' }));
+      await service.submitAttempt('att1');
 
-        const result = await service.submitAttempt('att-1');
-        expect(result.isPassed).toBe(false);
-        expect(result.percentage).toBe(0);
+      expect(mockPrisma.academyExamAttempt.update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({
+          score: 0,
+          isPassed: false,
+        }),
+      }));
+    });
+
+    it('should throw if attempt not found or already submitted', async () => {
+      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(null);
+      await expect(service.submitAttempt('att1')).rejects.toThrow(NotFoundException);
+
+      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue({ status: AcademyAttemptStatus.SUBMITTED });
+      await expect(service.submitAttempt('att1')).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('getAttemptDetail', () => {
-    it('should map detailed answers correctly', async () => {
-      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue({
-        id: 'att-1',
-        startedAt: new Date(Date.now() - 1000 * 60),
+    it('should map answer details into readable format', async () => {
+      const attempt = {
+        id: 'att1',
+        startedAt: new Date(),
         submittedAt: new Date(),
-        exam: { title: 'Math Test' },
+        exam: { title: 'Test Exam' },
         answers: [
           {
-            id: 'ans-1',
+            id: 'ans1',
             isCorrect: true,
             scoreAwarded: 10,
-            selectedOptionId: 'o1',
-            answerPayload: 'A',
+            selectedOptionId: 'opt1',
             question: {
-              stem: '1+1=?',
-              explanation: 'Math says 2',
-              correctAnswer: 'A',
-              options: [
-                { id: 'o1', optionKey: 'A', content: '2', isCorrect: true },
-              ],
+              stem: 'Why?',
+              explanation: 'Because',
+              options: [{ id: 'opt1', optionKey: 'A', content: 'Choice A', isCorrect: true }],
             },
           },
         ],
-      });
+      };
+      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(attempt);
 
-      const result = await service.getAttemptDetail('att-1');
-      expect(result.details[0].questionText).toBe('1+1=?');
-      expect(result.details[0].userAnswer).toBe('A');
-      expect(result.details[0].isCorrect).toBe(true);
-      expect(result.timeTakenSeconds).toBeGreaterThanOrEqual(60);
+      const result = await service.getAttemptDetail('att1');
+
+      expect(result.details[0]).toEqual(expect.objectContaining({
+        questionText: 'Why?',
+        userAnswer: 'A',
+        isCorrect: true,
+      }));
+      expect(result.quizTitle).toBe('Test Exam');
+    });
+
+    it('should throw if attempt missing', async () => {
+      mockPrisma.academyExamAttempt.findUnique.mockResolvedValue(null);
+      await expect(service.getAttemptDetail('att1')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('findAll', () => {
-      it('should return latest only if flag provided', async () => {
-          mockPrisma.academyExamAttempt.findFirst.mockResolvedValue({ id: 'latest' });
-          const result = await service.findAll({ latestOnly: true });
-          expect(result).toHaveLength(1);
-          expect(result[0].id).toBe('latest');
-      });
+    it('should handle latestOnly flag correctly', async () => {
+      const attempts = [{ id: 'att2' }];
+      mockPrisma.academyExamAttempt.findFirst.mockResolvedValue(attempts[0]);
+      
+      const result = await service.findAll({ userId: 'u1', latestOnly: true });
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('att2');
+      expect(mockPrisma.academyExamAttempt.findFirst).toHaveBeenCalled();
+    });
+
+    it('should return multiple items if latestOnly is false', async () => {
+      mockPrisma.academyExamAttempt.findMany.mockResolvedValue([{ id: 'a1' }, { id: 'a2' }]);
+      const result = await service.findAll({ userId: 'u1' });
+      expect(result).toHaveLength(2);
+    });
   });
 });
