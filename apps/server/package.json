@@ -172,6 +172,8 @@
       "^@server/identity(|/.*)$": "<rootDir>/services/identity/src/$1",
       "^@server/meet(|/.*)$": "<rootDir>/services/meet/src/$1",
       "^@server/agents(|/.*)$": "<rootDir>/services/agents/src/$1",
+      "^@server/academy(|/.*)$": "<rootDir>/services/academy/src/$1",
+      "^@server/learning(|/.*)$": "<rootDir>/services/learning/src/$1",
       "^@server/proto(|/.*)$": "<rootDir>/libs/proto/src/$1",
       "^@prisma/generated$": "<rootDir>/generated/prisma/client",
       "^@prisma/generated/(.*)$": "<rootDir>/generated/prisma/$1",
