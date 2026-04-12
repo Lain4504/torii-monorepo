@@ -7,6 +7,7 @@ import {
     useRoomContext,
     useVoiceAssistant,
 } from "@livekit/components-react"
+import { useQueryClient } from "@tanstack/react-query"
 import { ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
 import { VoiceConnectionProvider, useVoiceConnection } from "@/components/ai-sensei/voice-core/use-connection"
 import { VoiceRoomWrapper } from "@/components/ai-sensei/voice-core/room-wrapper"
@@ -90,6 +91,7 @@ export function LivekitVoiceAgent() {
 }
 
 function LivekitVoiceAgentContent() {
+    const queryClient = useQueryClient()
     const [connectionState, setConnectionState] = useState<LocalConnectionState>("idle")
     const [selectedGraph, setSelectedGraph] = useState<GraphName>("japanese_tutor")
     const [isUpdatingConfig, setIsUpdatingConfig] = useState(false)
@@ -183,6 +185,8 @@ function LivekitVoiceAgentContent() {
             }
 
             const details = await connectToRoom(selectedGraph, sessionGeminiApiKey)
+            // Quota is consumed when token is issued, so refresh UI immediately.
+            queryClient.invalidateQueries({ queryKey: ["quota-status"] })
             roomIdRef.current = details.roomId
             await startAgentForRoom(details.roomId, selectedGraph)
             console.log("[voice-ui] Token ready, waiting for LiveKit connection")
@@ -195,7 +199,7 @@ function LivekitVoiceAgentContent() {
         } finally {
             connectInFlightRef.current = false
         }
-    }, [connectToRoom, disconnectFromRoom, selectedGraph, sessionGeminiApiKey, startAgentForRoom, stopAgentForRoom])
+    }, [connectToRoom, disconnectFromRoom, queryClient, selectedGraph, sessionGeminiApiKey, startAgentForRoom, stopAgentForRoom])
 
     // Connect
     const connect = useCallback(async () => {

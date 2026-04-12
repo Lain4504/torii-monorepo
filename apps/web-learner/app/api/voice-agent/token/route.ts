@@ -8,6 +8,20 @@ type TokenRequestBody = {
     geminiApiKey?: string
 }
 
+type QuotaConsumeSuccessPayload = {
+    success: true
+    data: {
+        allowed: boolean
+        status?: unknown
+    }
+}
+
+type QuotaConsumeErrorPayload = {
+    success?: false
+    message?: string
+    error?: string
+}
+
 function resolveGeminiApiKey(body: TokenRequestBody): string {
     const allowClientGeminiKey = process.env.LIVEKIT_ALLOW_CLIENT_GEMINI_KEY === "true"
     const clientGeminiKey = typeof body.geminiApiKey === "string" ? body.geminiApiKey.trim() : ""
@@ -36,11 +50,50 @@ function buildRoomId(graphName: string): string {
     return `voice-${graphName}-${timestamp}-${randomId}`
 }
 
+async function consumeVoiceQuota(request: Request): Promise<{ ok: boolean; message?: string }> {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"
+    const endpoint = `${apiUrl}/api/agents/livekit-consume`
+
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Cookie: request.headers.get("cookie") || "",
+            Authorization: request.headers.get("authorization") || "",
+        },
+        cache: "no-store",
+    })
+
+    const payload = (await response.json().catch(() => null)) as
+        | QuotaConsumeSuccessPayload
+        | QuotaConsumeErrorPayload
+        | null
+
+    if (!response.ok || !payload || !("success" in payload) || payload.success !== true || !payload.data?.allowed) {
+        const message =
+            (payload && "message" in payload && payload.message) ||
+            (payload && "error" in payload && payload.error) ||
+            "Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục."
+
+        return { ok: false, message }
+    }
+
+    return { ok: true }
+}
+
 export async function POST(request: Request) {
     try {
         const body = (await request.json().catch(() => ({}))) as TokenRequestBody
         const graphName = normalizeGraphName(body.graphName)
         const geminiApiKey = resolveGeminiApiKey(body)
+
+        const quotaResult = await consumeVoiceQuota(request)
+        if (!quotaResult.ok) {
+            return new NextResponse(quotaResult.message || "Failed to consume voice quota", {
+                status: 402,
+                headers: { "Content-Type": "text/plain; charset=utf-8" },
+            })
+        }
 
         const apiKey = process.env.LIVEKIT_API_KEY
         const apiSecret = process.env.LIVEKIT_API_SECRET
