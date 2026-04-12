@@ -1,6 +1,6 @@
 # 🏯 Torii Nihongo Monorepo
 
-> **Hệ sinh thái học tiếng Nhật thế hệ mới** tích hợp công nghệ AI Tutor (FastMCP, Gemini Live) và Live Class (WebRTC). Monorepo này được thiết kế với kiến trúc **Microservices** hiện đại, sử dụng **NATS JetStream** làm xương sống giao tiếp và **Turborepo** để quản lý hiệu năng.
+> **Hệ sinh thái học tiếng Nhật thế hệ mới** tích hợp công nghệ AI Tutor (FastMCP, Gemini Live) và Live Class (WebRTC). Monorepo này được thiết kế với kiến trúc **Microservices** hiện đại, sử dụng **NATS JetStream** làm xương sống giao tiếp và **Turborepo** để quản lý hiệu năng. 
 
 [![Technology](https://img.shields.io/badge/Architecture-Microservices-orange?style=for-the-badge)](https://microservices.io/)
 [![Framework](https://img.shields.io/badge/Framework-NestJS%20|%20Next.js-red?style=for-the-badge)](https://nestjs.com/)
