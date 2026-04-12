@@ -220,6 +220,11 @@ export default function MyCoursesPage() {
                                             HOÀN THÀNH
                                         </Badge>
                                     )}
+                                    {String(course.status || 'ACTIVE').toUpperCase() === 'REFUND_PENDING' && (
+                                        <Badge className="bg-amber-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm">
+                                            CHỜ HOÀN TIỀN
+                                        </Badge>
+                                    )}
                                 </div>
 
                                 {course.type?.toLowerCase() !== 'live' && (
@@ -267,6 +272,9 @@ export default function MyCoursesPage() {
                                         const isLive = courseType === 'live';
                                         const courseMasterId = isLive ? course.liveClassId : (course.vodPackageId ?? course.courseProfileId ?? course.id);
 
+                                        const status = String(course.status || 'ACTIVE').toUpperCase();
+                                        const isRefundPending = status === 'REFUND_PENDING';
+
                                         if (course.expiresAt && new Date(course.expiresAt) < new Date()) {
                                             return (
                                                 <Button
@@ -278,6 +286,18 @@ export default function MyCoursesPage() {
                                                     className="flex-1 h-10 rounded-2xl text-xs font-bold shadow-none border-destructive/30 text-destructive hover:bg-destructive/10"
                                                 >
                                                     Khóa học đã hết hạn
+                                                </Button>
+                                            )
+                                        }
+
+                                        if (isRefundPending) {
+                                            return (
+                                                <Button
+                                                    disabled
+                                                    variant="outline"
+                                                    className="flex-1 h-11 rounded-2xl text-[10px] font-bold opacity-70 bg-muted/50"
+                                                >
+                                                    Đang xử lý hoàn tiền
                                                 </Button>
                                             )
                                         }

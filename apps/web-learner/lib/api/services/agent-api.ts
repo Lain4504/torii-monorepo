@@ -21,6 +21,14 @@ export interface AnalyticsSnapshot {
     targetLevel: string;
 }
 
+export interface FlashcardAutofillResponse {
+    term: string;
+    phonetic: string;
+    definition: string;
+    note: string;
+    type: 'Từ vựng' | 'Ngữ pháp' | 'Hán tự' | 'Mẫu câu';
+}
+
 // Non-AI metrics/track types
 export interface RoleplayResponse {
     response: string;
@@ -106,6 +114,15 @@ export const agentApi = {
             });
             if (!response.data.success || !response.data.data) {
                 throw new Error(response.data.message || 'Failed to create flashcard');
+            }
+            return response.data.data;
+        },
+        autofillFlashcard: async (term: string): Promise<FlashcardAutofillResponse> => {
+            const response = await apiClient.post<{ success: boolean; data: FlashcardAutofillResponse; message?: string }>('/api/agents/flashcard/autofill', {
+                term,
+            });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to autofill flashcard');
             }
             return response.data.data;
         },

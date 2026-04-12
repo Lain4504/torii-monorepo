@@ -185,4 +185,4 @@ docker image prune -f
 4.  **Security-First**: Mọi request qua Gateway đều được kiểm tra bởi JWT Guard và RBAC policy.
 
 ---
-**Torii Nihongo Team** - *Mang sức mạnh AI vào giáo dục tiếng Nhật.* 🗼🚀
+**Torii Nihongo Team** - *Mang sức mạnh AI vào giáo dục tiếng Nhật.* 🗼🚀 

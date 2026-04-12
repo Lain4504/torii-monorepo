@@ -155,7 +155,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-[800px] p-0 flex flex-col overflow-hidden">
+      <SheetContent className="w-full sm:!max-w-[1000px] xl:!max-w-[1200px] p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-6 py-4 border-b shrink-0">
           <SheetTitle>
             {questionId ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}

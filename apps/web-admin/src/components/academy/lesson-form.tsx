@@ -166,8 +166,8 @@ export function LessonForm({
             <Field>
               <FieldLabel>Nội dung</FieldLabel>
               <RichTextEditor
-                initialContent={(field.value as any) ?? ""}
-                onUpdate={field.onChange}
+                value={(field.value as string) ?? ""}
+                onChange={field.onChange}
                 placeholder="Nhập nội dung bài học..."
                 minHeight={260}
               />

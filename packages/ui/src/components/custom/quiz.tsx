@@ -64,6 +64,8 @@ export interface QuizProps {
     className?: string;
     /** Nếu true, ẩn màn hình kết quả nội bộ để parent tự render UI kết quả. */
     hideInternalResult?: boolean;
+    /** Custom renderer for markdown or other formatted content */
+    renderContent?: (content: string, context: 'question' | 'option' | 'explanation' | 'title' | 'description') => React.ReactNode;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -74,7 +76,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function Quiz({ quizData, onComplete, className, hideInternalResult }: QuizProps) {
+export function Quiz({ quizData, onComplete, className, hideInternalResult, renderContent }: QuizProps) {
     const {
         title,
         description,
@@ -227,15 +229,23 @@ export function Quiz({ quizData, onComplete, className, hideInternalResult }: Qu
                     )}
                 </div>
                 <Progress value={progress} className="h-1.5 mb-3" />
-                <CardTitle className="text-lg leading-snug">{title}</CardTitle>
-                {description && <CardDescription>{description}</CardDescription>}
+                <CardTitle className="text-lg leading-snug">
+                    {renderContent ? renderContent(title, 'title') : title}
+                </CardTitle>
+                {description && (
+                    <CardDescription>
+                        {renderContent ? renderContent(description, 'description') : description}
+                    </CardDescription>
+                )}
             </CardHeader>
 
             <CardContent className="space-y-4">
-                <p className="font-medium text-base">{question.question}</p>
+                <div className="font-medium text-base">
+                    {renderContent ? renderContent(question.question, 'question') : question.question}
+                </div>
                 {question.hint && !submitted && (
                     <p className="text-sm text-muted-foreground italic">
-                        Hint: {question.hint}
+                        Hint: {renderContent ? renderContent(question.hint, 'explanation') : question.hint}
                     </p>
                 )}
                 {isMultiple && !submitted && (
@@ -290,10 +300,10 @@ export function Quiz({ quizData, onComplete, className, hideInternalResult }: Qu
                                         )}
                                     </span>
                                     <span className="flex-1">
-                                        {opt.label}
+                                        {renderContent ? renderContent(opt.label, 'option') : opt.label}
                                         {submitted && showExplanations && opt.explanation && (
                                             <span className="block mt-1 text-xs text-muted-foreground">
-                                                {opt.explanation}
+                                                {renderContent ? renderContent(opt.explanation, 'explanation') : opt.explanation}
                                             </span>
                                         )}
                                     </span>

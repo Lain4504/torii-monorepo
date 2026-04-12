@@ -30,9 +30,6 @@ import { useUpdateTicketStatus } from "@/lib/api/services/tickets";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Input } from "@workspace/ui/components/input";
-import React from 'react';
-import { orderApi } from '@/lib/api/services/order-api';
-import { useQuery } from '@tanstack/react-query';
 
 interface ChangeTicketStatusDialogProps {
     open: boolean;
@@ -51,36 +48,25 @@ export function ChangeTicketStatusDialog({
     const [refundAmount, setRefundAmount] = useState<number>(0);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Fetch order details if this is a refund ticket and has an orderId
-    const { data: orderData } = useQuery({
-        queryKey: ['order', ticket?.orderId],
-        queryFn: () => ticket?.orderId ? orderApi.getOrder(ticket.orderId) : Promise.resolve(null),
-        enabled: open && !!ticket?.orderId && ticket.type === TicketType.REFUND,
-    });
+    // Derive refund amount from metadata.orderAmount (stored at ticket creation time)
+    const metaOrderAmount = Number((ticket?.metadata as any)?.orderAmount ?? 0);
+    // Fallback: previously stored refundAmount on the ticket itself
+    const storedRefundAmount = Number((ticket as any)?.refundAmount ?? 0);
 
     useEffect(() => {
         if (ticket) {
             setSelectedStatus(ticket.status as TicketStatus);
             setResponse(ticket.response || '');
-            setRefundAmount((ticket as any).refundAmount || 0);
+            // Pre-fill: use ticket.refundAmount if already set, otherwise use metadata.orderAmount
+            const initial = storedRefundAmount || metaOrderAmount;
+            setRefundAmount(initial);
         }
     }, [ticket, open]);
 
-    // Auto-calculate refund amount when order data is loaded and status is being set to RESOLVED
-    useEffect(() => {
-        if (
-            open &&
-            ticket?.type === TicketType.REFUND &&
-            selectedStatus === TicketStatus.RESOLVED &&
-            orderData &&
-            refundAmount === 0
-        ) {
-            // tỷ lệ 1:1, grandTotal là số tiền VND
-            setRefundAmount(Number((orderData as any).grandTotal || orderData.amount || 0));
-        }
-    }, [open, ticket?.type, selectedStatus, orderData, refundAmount]);
-
     if (!ticket) return null;
+
+    const isRefundTicket = ticket.type === TicketType.REFUND;
+    const hasOrderAmount = metaOrderAmount > 0;
 
     const handleUpdateClick = () => {
         if (selectedStatus === ticket.status) {
@@ -96,7 +82,9 @@ export function ChangeTicketStatusDialog({
                 id: ticket.id,
                 status: selectedStatus,
                 response: response,
-                refundAmount: selectedStatus === TicketStatus.RESOLVED && ticket.type === TicketType.REFUND ? refundAmount : undefined,
+                refundAmount: selectedStatus === TicketStatus.RESOLVED && isRefundTicket
+                    ? refundAmount
+                    : undefined,
             });
             toast.success('Đã cập nhật trạng thái ticket', {
                 description: `Trạng thái của ticket đã được thay đổi thành công.`,
@@ -149,9 +137,7 @@ export function ChangeTicketStatusDialog({
                                     <SelectItem value={TicketStatus.PROCESSING} disabled={ticket.status === TicketStatus.CANCELLED || ticket.status === TicketStatus.RESOLVED}>
                                         {getStatusLabel(TicketStatus.PROCESSING)}
                                     </SelectItem>
-                                    <SelectItem
-                                        value={TicketStatus.RESOLVED}
-                                    >
+                                    <SelectItem value={TicketStatus.RESOLVED}>
                                         {getStatusLabel(TicketStatus.RESOLVED)}
                                     </SelectItem>
                                     <SelectItem value={TicketStatus.CANCELLED}>
@@ -159,34 +145,40 @@ export function ChangeTicketStatusDialog({
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-                            {ticket.type === TicketType.REFUND && (
+                            {isRefundTicket && (
                                 <p className="text-[13px] text-muted-foreground mt-2 bg-muted/50 p-2 rounded border border-dashed">
                                     {ticket.status === TicketStatus.PENDING ? (
                                         "ℹ️ Ticket Hoàn tiền cần được xác minh trước khi hoàn trả."
                                     ) : ticket.status === TicketStatus.PROCESSING ? (
-                                        "ℹ️ Khi chuyển sang 'Đã giải quyết', số tiền xu sẽ được cộng vào ví của người dùng."
+                                        "ℹ️ Khi chuyển sang 'Đã giải quyết', số xu sẽ được cộng vào ví người dùng."
                                     ) : null}
                                 </p>
                             )}
                         </Field>
-                        {selectedStatus === TicketStatus.RESOLVED && ticket.type === TicketType.REFUND && (
+
+                        {/* Refund Amount – pre-filled from metadata.orderAmount, still editable */}
+                        {selectedStatus === TicketStatus.RESOLVED && isRefundTicket && (
                             <Field className="space-y-2">
                                 <FieldLabel>Số tiền hoàn trả (Xu)</FieldLabel>
                                 <div className="relative">
                                     <Input
                                         type="number"
                                         value={refundAmount}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRefundAmount(Number(e.target.value))}
-                                        placeholder="Nhập số tiền..."
+                                        onChange={(e) => setRefundAmount(Number(e.target.value))}
                                         className="pr-12"
+                                        placeholder="Nhập số xu..."
                                     />
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">Xu</span>
                                 </div>
                                 <p className="text-xs text-muted-foreground">
-                                    Nếu bỏ trống hoặc bằng 0, hệ thống sẽ tự động tính toán dựa trên giá trị đơn hàng.
+                                    {hasOrderAmount
+                                        ? `Tự động điền từ đơn hàng gốc (1 VND = 1 Xu). Có thể chỉnh sửa nếu cần.`
+                                        : `⚠️ Không tìm thấy giá đơn hàng, vui lòng nhập thủ công.`
+                                    }
                                 </p>
                             </Field>
                         )}
+
                         <Field className="space-y-2">
                             <FieldLabel>Phản hồi cho người dùng (tùy chọn)</FieldLabel>
                             <Textarea
@@ -218,6 +210,11 @@ export function ChangeTicketStatusDialog({
                             <span className="font-medium text-foreground mx-1">{getStatusLabel(ticket.status as TicketStatus)}</span>
                             sang
                             <span className="font-medium text-primary mx-1">{getStatusLabel(selectedStatus)}</span>.
+                            {selectedStatus === TicketStatus.RESOLVED && isRefundTicket && refundAmount > 0 && (
+                                <span className="block mt-1 text-amber-600 font-medium">
+                                    💰 {refundAmount.toLocaleString('vi-VN')} Xu sẽ được hoàn vào ví người dùng.
+                                </span>
+                            )}
                             Một thông báo sẽ được gửi đến người dùng.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

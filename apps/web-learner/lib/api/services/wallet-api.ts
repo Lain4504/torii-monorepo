@@ -28,18 +28,10 @@ export const walletApi = {
      * Get wallet transactions
      */
     async getTransactions(query?: { page?: number; limit?: number }): Promise<PaginatedApiResponse<WalletTransaction>> {
-        const response = await apiClient.get<StandardApiResponse<{ data: WalletTransaction[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/wallet/transactions', {
+        const response = await apiClient.get<PaginatedApiResponse<WalletTransaction>>('/api/academy/wallet/transactions', {
             params: query,
         });
-        const payload = response.data.data!;
-        return {
-            success: response.data.success,
-            data: payload.data,
-            total: payload.total,
-            page: payload.page,
-            limit: payload.limit,
-            totalPages: payload.totalPages,
-        };
+        return response.data;
     },
 };
 

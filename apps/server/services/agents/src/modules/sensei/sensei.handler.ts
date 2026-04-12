@@ -55,6 +55,17 @@ export class SenseiHandler {
     );
   }
 
+  @MessagePattern({ cmd: 'agents.sensei.autofillFlashcard' })
+  async autofillFlashcard(
+    @Payload()
+    data: {
+      term: string;
+      requester: Requester;
+    },
+  ) {
+    return this.senseiService.autofillFlashcard(data.requester, data.term);
+  }
+
   @MessagePattern({ cmd: 'agents.sensei.simulateConversation' })
   async simulateConversation(
     @Payload()

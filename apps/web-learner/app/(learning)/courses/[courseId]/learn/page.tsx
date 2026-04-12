@@ -130,7 +130,7 @@ function MilestoneItem({ milestone, onClick, forceLocked }: {
                 <CheckCircle2 className="size-4 text-emerald-500" />
             ) : !isLocked && (
                 <ChevronRight className="size-4 text-muted-foreground/40 group-hover:translate-x-0.5 transition-transform" />
-            ) }
+            )}
         </Button>
     );
 }
@@ -179,7 +179,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                     const isActive = lesson.id === currentLessonId;
                     const isDone = completedIds.has(lessonProgressId(lesson));
                     const unlocked = isLessonUnlocked(lesson);
-                    const lessonMilestones = milestones?.filter(m => 
+                    const lessonMilestones = milestones?.filter(m =>
                         (m.triggerLessonId && (m.triggerLessonId === lesson.id || m.triggerLessonId === lesson.referenceId))
                     ) || [];
 
@@ -312,7 +312,7 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
                             {lesson?.title}
                         </h1>
                     </div>
-                    
+
                 </header>
 
                 {lesson?.content ? (
@@ -404,7 +404,7 @@ export default function CourseLearnPage() {
     const curriculum = isVodCandidate ? vodCurriculum : liveCurriculum;
 
     const isModeDetermined = !!enrollmentData;
-    
+
     const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '', { enabled: !isVodCandidate });
     const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
 
@@ -488,7 +488,7 @@ export default function CourseLearnPage() {
             }));
     }, [curriculum]);
 
-    const allLessons: CurriculumLesson[] = useMemo(() => 
+    const allLessons: CurriculumLesson[] = useMemo(() =>
         sortedModules.flatMap((m: any) => m.lessons),
         [sortedModules]
     );
@@ -652,7 +652,7 @@ export default function CourseLearnPage() {
         const allMilestonesPassed = milestones.length === 0 || milestones.every(m => m.status === 'PASSED');
 
         if (total > 0 && done === total && allMilestonesPassed) {
-             // For LIVE classes, wait until endDate
+            // For LIVE classes, wait until endDate
             if (!isVodCandidate) {
                 const endDateString = (classData as any)?.cohort?.endDate || (classData as any)?.endDate;
                 if (endDateString && isBefore(new Date(), endOfDay(new Date(endDateString)))) return;
@@ -676,7 +676,7 @@ export default function CourseLearnPage() {
     const markLessonComplete = useCallback(async () => {
         if (!currentLesson || !isTrackableLessonKind(currentLesson.kind)) return;
         if (completedIds.has(lessonProgressId(currentLesson))) return;
-        
+
         try {
             if (isVodCandidate) {
                 await academyVodLearningProgressApi.trackProgress({ lessonId: currentLesson.id, packageId: classId! });
@@ -738,7 +738,7 @@ export default function CourseLearnPage() {
     const totalLessons = totalTrackableLessons + milestones.length;
     const completedCount = completedLessonsCount + passedMilestonesCount;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-    
+
     const isCurrentDone = !!currentLesson && completedIds.has(lessonProgressId(currentLesson));
 
     // ── Loading ────────────────────────────────────────────────────────────
@@ -798,8 +798,8 @@ export default function CourseLearnPage() {
 
             {/* ── HEADER ─────────────────────────────────────────────────── */}
             <header className="h-16 border-b bg-card flex items-center justify-between px-4 sm:px-6 z-50 shrink-0 shadow-sm">
-                <div 
-                    className="flex items-center gap-4 cursor-pointer group hover:bg-muted/30 px-2 -ml-2 rounded-lg transition-colors overflow-hidden" 
+                <div
+                    className="flex items-center gap-4 cursor-pointer group hover:bg-muted/30 px-2 -ml-2 rounded-lg transition-colors overflow-hidden"
                     onClick={() => setSidebarOpen(true)}
                 >
                     <div className="flex flex-col min-w-0">
@@ -822,7 +822,7 @@ export default function CourseLearnPage() {
 
                 <div className="flex items-center gap-6">
                     <Separator orientation="vertical" className="h-6 bg-border/40 hidden md:block" />
-                    
+
                     <Button
                         variant="ghost"
                         size="icon"
@@ -841,7 +841,7 @@ export default function CourseLearnPage() {
 
                 {/* ── MAIN CONTENT ─────────────────────────────────────────── */}
                 <main className="flex-1 flex flex-col relative overflow-y-auto no-scrollbar scroll-smooth">
-                    
+
                     {/* Video / Content Section */}
                     <div className="flex-none w-full">
                         {isVideoLesson && (
@@ -992,17 +992,17 @@ export default function CourseLearnPage() {
                                     milestones={milestones.filter(m => {
                                         const kind = normalizeItemKind(m.kind);
                                         if (kind === 'FINAL_EXAM') return false;
-                                        
+
                                         // Check if Module Checkpoint matches current module
                                         if (kind === 'MODULE_CHECKPOINT' && m.moduleId === mod.id) return true;
-                                        
+
                                         // Check if Lesson Checkpoint matches any lesson in current module
                                         if (kind === 'LESSON_CHECKPOINT' && m.triggerLessonId) {
-                                            return mod.lessons?.some((l: any) => 
+                                            return mod.lessons?.some((l: any) =>
                                                 l.id === m.triggerLessonId || l.referenceId === m.triggerLessonId
                                             );
                                         }
-                                        
+
                                         return false;
                                     })}
 
@@ -1036,8 +1036,8 @@ export default function CourseLearnPage() {
 
                 {/* Overlays for mobile */}
                 {sidebarOpen && (
-                    <div 
-                        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] xl:hidden animate-in fade-in duration-300" 
+                    <div
+                        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] xl:hidden animate-in fade-in duration-300"
                         onClick={() => setSidebarOpen(false)}
                     />
                 )}

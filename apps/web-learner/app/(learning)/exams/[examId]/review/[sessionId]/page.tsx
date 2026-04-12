@@ -195,7 +195,7 @@ export default function ExamReviewPage() {
                                                                 }`}
                                                         >
                                                             <span className="font-bold mr-2">{key}:</span>
-                                                            {value}
+                                                            <MarkdownRenderer content={value} inline />
                                                         </div>
                                                     ))}
                                                 </div>

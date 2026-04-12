@@ -1,3 +1,4 @@
+import React from "react"
 import { toast } from "sonner"
 import { LessonForm } from "@/components/academy/lesson-form"
 import {
@@ -26,6 +27,13 @@ export function EditLessonDialog({
   const qc = useQueryClient()
   const { data: fetchedLesson } = useAcademyLesson(lesson?.id, { enabled: open && !!lesson?.id })
 
+  const defaultValues = React.useMemo(() => ({
+    title: fetchedLesson?.title ?? lesson?.title ?? "",
+    type: fetchedLesson?.type ?? lesson?.type ?? "VIDEO",
+    videoUrl: fetchedLesson?.videoUrl ?? lesson?.videoUrl ?? undefined,
+    content: fetchedLesson?.content ?? lesson?.content ?? undefined,
+  }), [fetchedLesson, lesson])
+
   async function onSubmit(values: any) {
     if (!lesson) return
     try {
@@ -34,6 +42,7 @@ export function EditLessonDialog({
         input: values,
       })
       qc.invalidateQueries({ queryKey: ["academy-course-profile", courseProfileId] })
+      qc.invalidateQueries({ queryKey: ["academy-lesson", lesson.id] })
       toast.success("Cập nhật bài giảng thành công")
       onOpenChange(false)
     } catch (err: any) {
@@ -53,12 +62,7 @@ export function EditLessonDialog({
           <div className="p-6">
             <LessonForm
               mode="edit"
-              defaultValues={{
-                title: fetchedLesson?.title ?? lesson?.title ?? "",
-                type: fetchedLesson?.type ?? lesson?.type ?? "VIDEO",
-                videoUrl: fetchedLesson?.videoUrl ?? lesson?.videoUrl ?? undefined,
-                content: fetchedLesson?.content ?? lesson?.content ?? undefined,
-              }}
+              defaultValues={defaultValues}
               submitting={updateLessonMutation.isPending}
               onSubmit={onSubmit}
               onCancel={() => onOpenChange(false)}

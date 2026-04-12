@@ -65,7 +65,7 @@ export function RichTextEditor({
   };
 
   return (
-    <div className="w-full" data-color-mode={colorMode}>
+    <div className="w-full break-all overflow-hidden" data-color-mode={colorMode}>
       <MDEditor
         value={value}
         onChange={handleChange}
@@ -109,8 +109,14 @@ export function RichTextRenderer({ content, className }: RichTextRendererProps) 
   }
 
   return (
-    <div className={className ?? 'w-full'} data-color-mode={colorMode}>
-      <MDEditor.Markdown source={content} style={{ whiteSpace: 'pre-wrap' }} />
+    <div 
+      className={`${className ?? 'w-full'} break-all overflow-hidden`} 
+      data-color-mode={colorMode}
+    >
+      <MDEditor.Markdown 
+        source={content} 
+        style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }} 
+      />
     </div>
   );
 }
