@@ -55,7 +55,7 @@ export class AcademyAssessmentPlanController {
 
   @Get('learner/status')
   async getLearnerStatus(
-    @Query('classId') classId: string,
+    @Query('deliveryTargetId') deliveryTargetId: string,
     @Query('enrollmentId') enrollmentId: string,
     @Req() req: ReqWithRequester,
   ) {
@@ -64,7 +64,7 @@ export class AcademyAssessmentPlanController {
         { cmd: 'academy.assessmentPlan.getLearnerStatus' },
         { 
           userId: req.requester?.sub, 
-          classId: classId || undefined, 
+          deliveryTargetId: deliveryTargetId || undefined, 
           enrollmentId: enrollmentId || undefined,
         },
       ),

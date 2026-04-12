@@ -251,18 +251,7 @@ enum AcademyResourceVisibility {
 }
 
 // ==================================================
-// 1. COURSE BLUEPRINT (LEGACY) — REMOVED
-// ==================================================
-// ==================================================
-// 2. COURSE DELIVERY (LEGACY) — REMOVED
-// ==================================================
-
-// ==================================================
-// 3. REVIEWS & APPROVAL (LEGACY) — REMOVED
-// ==================================================
-
-// ==================================================
-// 4. LIVE SESSIONS & SCHEDULING
+// 1. LIVE SESSIONS & SCHEDULING (Meet / phòng học)
 // ==================================================
 
 // --- Room Artifacts ---
@@ -335,12 +324,7 @@ model RoomArtifact {
 }
 
 // ==================================================
-// 5. ASSESSMENT (LEGACY) — REMOVED
-// ==================================================
-// Quiz/Assignment/Question/Attempt mới sẽ nằm trong khối `ACADEMY CORE LMS (NEW)` (ở cuối file).
-
-// ==================================================
-// 6. FLASHCARD / SRS
+// 2. FLASHCARD / SRS
 // ==================================================
 
 // --- Flashcards & Notes ---
@@ -778,10 +762,8 @@ model CouponUsage {
   @@map("academy_coupon_usages")
 }
 
-// Wishlist (legacy course_run) removed; academy wishlist will be reintroduced later.
-
 // ==================================================
-// 9. GAMIFICATION
+// GAMIFICATION
 // ==================================================
 
 // --- Gamification ---
@@ -1052,8 +1034,6 @@ model CommentLike {
   @@map("comment_likes")
 }
 
-// DiscussionTopic (legacy course_run) removed; will be redesigned for `academy` later.
-
 // --- Notifications ---
 
 model Notification {
@@ -1169,8 +1149,6 @@ enum CourseProfileStatus {
   PUBLISHED
   ARCHIVED
 }
-
-// LIVE term status (cohort/term grouping) — REMOVED (Legacy)
 
 // Lesson content type
 enum LessonType {
@@ -1351,7 +1329,6 @@ model LiveClass {
   tickets              Ticket[]
   certificates         Certificate[]
   academySharedFolders AcademyFolder[]
-  academyExamAttempts  AcademyExamAttempt[]
   reviews              CourseReview[]
 
   @@index([cohortId])
@@ -2278,8 +2255,8 @@ model AcademyExamAttempt {
   id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   examId         String               @map("exam_id") @db.Uuid
   userId         String               @map("user_id") @db.Uuid
+  /// Phạm vi delivery (LIVE/VOD): mỗi enrollment một dòng — không gộp quiz giữa các khóa cùng course profile.
   enrollmentId   String?              @map("enrollment_id") @db.Uuid
-  classId        String?              @map("class_id") @db.Uuid
   status         AcademyAttemptStatus @default(IN_PROGRESS)
   score          Decimal?             @db.Decimal(6, 2)
   maxScore       Decimal?             @map("max_score") @db.Decimal(6, 2)
@@ -2296,12 +2273,12 @@ model AcademyExamAttempt {
   exam       AcademyExam @relation(fields: [examId], references: [id], onDelete: Restrict)
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   enrollment Enrollment? @relation(fields: [enrollmentId], references: [id], onDelete: SetNull)
-  class      LiveClass?  @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   answers AcademyExamAttemptAnswer[]
 
   @@index([examId, userId, startedAt(sort: Desc)])
   @@index([userId])
+  @@index([enrollmentId, examId])
   @@map("academy_exam_attempts")
 }
 

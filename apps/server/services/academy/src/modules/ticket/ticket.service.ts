@@ -48,11 +48,10 @@ export class TicketService implements ITicketService {
     let ticketMetadata = dto.metadata;
 
     if (dto.type === TicketType.REFUND) {
-      let liveClassId = (dto as any).liveClassId || (dto as any).classId;
-      let vodPackageId = (dto as any).vodPackageId || (dto as any).courseId;
+      let liveClassId = dto.liveClassId;
+      let vodPackageId = dto.vodPackageId;
 
-      // Backward-compatible bridge:
-      // some clients still send a single `liveClassId` field for both LIVE and VOD.
+      // Một số client gửi một UUID ở `liveClassId` cho cả LIVE và VOD — suy ra loại theo DB.
       // Resolve target type explicitly to avoid mis-validating VOD as LIVE.
       if (liveClassId && !vodPackageId) {
         const [liveClassExists, vodPackageExists] = await Promise.all([
@@ -73,7 +72,9 @@ export class TicketService implements ITicketService {
       }
 
       if (!liveClassId && !vodPackageId) {
-        throw new BadRequestException('Class or Course ID is required for refund ticket');
+        throw new BadRequestException(
+          'liveClassId hoặc vodPackageId là bắt buộc cho yêu cầu hoàn tiền',
+        );
       }
 
       try {
@@ -287,8 +288,7 @@ export class TicketService implements ITicketService {
       ticket.type === TicketType.REFUND &&
       !refundAmount
     ) {
-      const liveClassId =
-        (ticket as any).liveClassId || (ticket as any).classId;
+      const liveClassId = ticket.liveClassId;
       const vodPackageId = (ticket as any).metadata?.vodPackageId;
       const userId = ticket.userId;
 

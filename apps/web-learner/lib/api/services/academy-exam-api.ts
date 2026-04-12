@@ -27,6 +27,7 @@ export type AcademyExamAttempt = {
     id: string
     examId: string
     userId: string
+    enrollmentId?: string | null
     status: string
     score?: number
     maxScore?: number
@@ -83,7 +84,12 @@ export const academyExamsApi = {
         return res.data.data!.item
     },
 
-    async findAttempts(params?: { examId?: string; status?: string; userId?: string }) {
+    async findAttempts(params?: {
+        examId?: string
+        status?: string
+        userId?: string
+        enrollmentId?: string
+    }) {
         const res = await apiClient.get<StandardApiResponse<{ items: AcademyExamAttempt[] }>>(
             "/api/academy/exam-attempts",
             { params },
@@ -136,7 +142,12 @@ export function useAcademyExamAttempt(id?: string) {
     })
 }
 
-export function useAcademyExamAttempts(params?: { examId?: string; status?: string; userId?: string }) {
+export function useAcademyExamAttempts(params?: {
+    examId?: string
+    status?: string
+    userId?: string
+    enrollmentId?: string
+}) {
     return useQuery({
         queryKey: ["academy-exam-attempts", params],
         queryFn: () => academyExamsApi.findAttempts(params),

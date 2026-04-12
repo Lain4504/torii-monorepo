@@ -51,11 +51,14 @@ export class AssignmentSubmissionController {
     return permissions.includes('lms.delivery.read');
   }
 
-  private async assertLearnerEnrolledInClass(userId: string, classId: string) {
+  private async assertLearnerEnrolledInLiveClass(
+    userId: string,
+    liveClassId: string,
+  ) {
     const result = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.enrollment.checkByTarget' },
-        { userId, targetType: 'CLASS', targetId: classId },
+        { userId, targetType: 'CLASS', targetId: liveClassId },
       ),
     );
     if (!result?.isEnrolled) {
@@ -74,10 +77,13 @@ export class AssignmentSubmissionController {
     const hasDeliveryRead = this.hasDeliveryReadPermission(req);
 
     if (!isExamManager && !hasDeliveryRead) {
-      if (!query.classId) {
-        throw new ForbiddenException('classId is required for learners');
+      if (!query.liveClassId) {
+        throw new ForbiddenException('liveClassId is required for learners');
       }
-      await this.assertLearnerEnrolledInClass(requester.sub, query.classId);
+      await this.assertLearnerEnrolledInLiveClass(
+        requester.sub,
+        query.liveClassId,
+      );
     }
 
     const items = await firstValueFrom(
@@ -115,13 +121,13 @@ export class AssignmentSubmissionController {
     );
 
     if (!isExamManager && !hasDeliveryRead) {
-      const classId = item?.liveClassAssignment?.liveClassId;
-      if (!classId) {
+      const liveClassId = item?.liveClassAssignment?.liveClassId;
+      if (!liveClassId) {
         throw new ForbiddenException(
-          'Submission is not associated with any class',
+          'Submission is not associated with any live class',
         );
       }
-      await this.assertLearnerEnrolledInClass(requester.sub, classId);
+      await this.assertLearnerEnrolledInLiveClass(requester.sub, liveClassId);
     }
 
     return successResponse({ item });
@@ -141,7 +147,10 @@ export class AssignmentSubmissionController {
       isExamManager && dto.userId ? dto.userId : req.requester?.sub;
 
     if (!isExamManager && !hasDeliveryRead) {
-      await this.assertLearnerEnrolledInClass(requester.sub, dto.classId);
+      await this.assertLearnerEnrolledInLiveClass(
+        requester.sub,
+        dto.liveClassId,
+      );
     }
 
     const item = await firstValueFrom(
@@ -176,13 +185,13 @@ export class AssignmentSubmissionController {
           { id, requesterId: req.requester?.sub, isExamManager },
         ),
       );
-      const classId = existing?.liveClassAssignment?.liveClassId;
-      if (!classId) {
+      const liveClassId = existing?.liveClassAssignment?.liveClassId;
+      if (!liveClassId) {
         throw new ForbiddenException(
-          'Submission is not associated with any class',
+          'Submission is not associated with any live class',
         );
       }
-      await this.assertLearnerEnrolledInClass(requester.sub, classId);
+      await this.assertLearnerEnrolledInLiveClass(requester.sub, liveClassId);
     }
 
     const item = await firstValueFrom(

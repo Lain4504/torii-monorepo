@@ -3,8 +3,7 @@ import { AcademyAttemptStatus } from '../enums/academy.enum';
 
 export const academyExamAttemptStartDTOSchema = z.object({
   examId: z.string().uuid(),
-  liveClassId: z.string().uuid().optional(),
-  enrollmentId: z.string().uuid().optional(),
+  enrollmentId: z.string().uuid(),
   assessmentId: z.string().uuid().optional(),
   // For learner flows, userId is derived from requester token at gateway.
   userId: z.string().uuid().optional(),
@@ -31,7 +30,6 @@ export type AcademyExamAttemptSubmitDTO = z.infer<
 export const academyExamAttemptQueryDTOSchema = z.object({
   examId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
-  classId: z.string().uuid().optional(),
   enrollmentId: z.string().uuid().optional(),
   status: z.nativeEnum(AcademyAttemptStatus).optional(),
   latestOnly: z.coerce.boolean().optional(),
@@ -45,7 +43,6 @@ export type AcademyExamAttemptModelDTO = {
   examId: string;
   userId: string;
   enrollmentId?: string | null;
-  classId?: string | null;
   status: AcademyAttemptStatus;
   score?: number | null;
   maxScore?: number | null;

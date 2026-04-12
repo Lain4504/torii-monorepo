@@ -13,10 +13,6 @@ export class EnrollmentCreateDto {
   vodPackageId?: string;
 
   @IsOptional()
-  @IsUUID()
-  offeringId?: string;
-
-  @IsOptional()
   expiresAt?: Date;
 
   @IsOptional()
@@ -37,10 +33,6 @@ export class EnrollmentQueryDto {
   @IsOptional()
   @IsUUID()
   vodPackageId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  offeringId?: string;
 
   @IsOptional()
   @IsUUID()

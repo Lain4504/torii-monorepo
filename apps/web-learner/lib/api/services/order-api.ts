@@ -18,7 +18,7 @@ export interface OrderPreviewDTO {
     isGift?: boolean;
     recipientEmail?: string;
     giftMessage?: string;
-    metadata?: any; // backward compatibility
+    metadata?: Record<string, unknown>;
     liveClassIdByCohort?: Record<string, string>;
 }
 
@@ -33,7 +33,7 @@ export interface OrderCheckoutDTO {
     isGift?: boolean;
     recipientEmail?: string;
     giftMessage?: string;
-    metadata?: any; // backward compatibility
+    metadata?: Record<string, unknown>;
     liveClassIdByCohort?: Record<string, string>;
 }
 
@@ -74,9 +74,9 @@ export interface OrderFulfillmentSummary {
         productId: string;
         productCode: string;
         productName: string;
-        expectedClassIds: string[];
-        enrolledClassIds: string[];
-        missingClassIds: string[];
+        expectedLiveClassIds: string[];
+        enrolledLiveClassIds: string[];
+        missingLiveClassIds: string[];
     }>;
 }
 
@@ -244,5 +244,5 @@ export function useRepayOrder() {
     });
 }
 
-// Legacy Export for transient phase
+/** Alias tên module thanh toán / đơn hàng */
 export const paymentApi = orderApi;

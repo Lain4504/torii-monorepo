@@ -362,7 +362,7 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
 
 export default function CourseLearnPage() {
     const params = useParams<{ courseId: string }>();
-    const classId = params.courseId;
+    const deliveryTargetId = params.courseId;
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -371,7 +371,7 @@ export default function CourseLearnPage() {
     const hasHandledForbiddenRef = useRef(false);
     const lessonQueryParam = searchParams.get('lesson');
 
-    const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
+    const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(deliveryTargetId);
 
     // ── API (Strict mode by Enrollment) ───────────────────────────────────
     // Nguồn sự thật để quyết định LIVE vs VOD là Enrollment (vodPackageId/liveClassId/type/mode),
@@ -394,19 +394,19 @@ export default function CourseLearnPage() {
     const isVodCandidate =
         isVodByEnrollment ? true : (isLiveByEnrollment ? false : requestedMode === 'VOD');
 
-    const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(classId, { enabled: !isVodCandidate });
-    const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(classId, { enabled: !isVodCandidate });
+    const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(deliveryTargetId, { enabled: !isVodCandidate });
+    const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(deliveryTargetId, { enabled: !isVodCandidate });
 
-    const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(classId, { enabled: isVodCandidate });
-    const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(classId, { enabled: isVodCandidate });
+    const { data: vodPackageData, isLoading: vodLoading } = useAcademyVodPackage(deliveryTargetId, { enabled: isVodCandidate });
+    const { data: vodCurriculum, isLoading: vodCurriculumLoading } = useAcademyVodCurriculum(deliveryTargetId, { enabled: isVodCandidate });
 
     const classData = isVodCandidate ? vodPackageData : liveClassData;
     const curriculum = isVodCandidate ? vodCurriculum : liveCurriculum;
 
     const isModeDetermined = !!enrollmentData;
 
-    const { data: liveCompletedIds } = useAcademyCompletedLessonIds(classId ?? '', { enabled: !isVodCandidate });
-    const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(classId ?? '', { enabled: isVodCandidate });
+    const { data: liveCompletedIds } = useAcademyCompletedLessonIds(deliveryTargetId ?? '', { enabled: !isVodCandidate });
+    const { data: vodCompletedIds } = useAcademyVodCompletedLessonIds(deliveryTargetId ?? '', { enabled: isVodCandidate });
 
     const isDataLoading = isVodCandidate
         ? (vodLoading || vodCurriculumLoading)
@@ -421,7 +421,8 @@ export default function CourseLearnPage() {
 
     // ── Milestones ────────────────────────────────────────────────────────
     const { data: milestonesData } = useAcademyLearnerAssessmentStatus({
-        classId,
+        deliveryTargetId,
+        enrollmentId: enrollmentData?.enrollment?.id,
     });
     const milestones = milestonesData ?? EMPTY_ASSESSMENT_STATUS;
 
@@ -645,7 +646,7 @@ export default function CourseLearnPage() {
 
     // ── Check Course Completion ───────────────────────────────────────────
     useEffect(() => {
-        if (!classId || !classData || allLessons.length === 0) return;
+        if (!deliveryTargetId || !classData || allLessons.length === 0) return;
         const trackable = allLessons.filter(l => isTrackableLessonKind(l.kind));
         const total = trackable.length;
         const done = trackable.filter(l => completedIds.has(lessonProgressId(l))).length;
@@ -658,13 +659,13 @@ export default function CourseLearnPage() {
                 if (endDateString && isBefore(new Date(), endOfDay(new Date(endDateString)))) return;
             }
 
-            const key = `course_completed_${classId}`;
+            const key = `course_completed_${deliveryTargetId}`;
             if (!localStorage.getItem(key)) {
                 setShowCompletionModal(true);
                 localStorage.setItem(key, 'true');
             }
         }
-    }, [classId, classData, allLessons, completedIds, isVodCandidate, milestones]);
+    }, [deliveryTargetId, classData, allLessons, completedIds, isVodCandidate, milestones]);
 
     // ── Lesson Details ────────────────────────────────────────────────────
     const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(
@@ -679,17 +680,17 @@ export default function CourseLearnPage() {
 
         try {
             if (isVodCandidate) {
-                await academyVodLearningProgressApi.trackProgress({ lessonId: currentLesson.id, packageId: classId! });
-                await queryClient.invalidateQueries({ queryKey: ['academy-vod-learning', 'completed-lessons', classId] });
+                await academyVodLearningProgressApi.trackProgress({ lessonId: currentLesson.id, packageId: deliveryTargetId! });
+                await queryClient.invalidateQueries({ queryKey: ['academy-vod-learning', 'completed-lessons', deliveryTargetId] });
             } else {
-                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, classId: classId! });
-                await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', classId] });
+                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, classId: deliveryTargetId! });
+                await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', deliveryTargetId] });
             }
             toast.success('Bài học đã hoàn thành! 🎉');
         } catch (e: any) {
             toast.error(e?.userMessage || 'Lỗi cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, queryClient, classId, isVodCandidate]);
+    }, [currentLesson, completedIds, queryClient, deliveryTargetId, isVodCandidate]);
 
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
@@ -716,13 +717,17 @@ export default function CourseLearnPage() {
 
     const handleConfirmMilestone = () => {
         if (!pendingMilestone?.examId) return;
+        const eid = enrollmentData?.enrollment?.id;
+        if (!eid) {
+            toast.error('Không xác định được ghi danh khóa học. Vui lòng tải lại trang hoặc liên hệ hỗ trợ.');
+            setPendingMilestone(null);
+            return;
+        }
         const qs = new URLSearchParams();
+        qs.set('enrollmentId', eid);
         if (pendingMilestone.latestAttemptId) {
             qs.set('attemptId', pendingMilestone.latestAttemptId);
         }
-        const eid = enrollmentData?.enrollment?.id;
-        if (eid) qs.set('enrollmentId', eid);
-        if (!isVodCandidate && classId) qs.set('liveClassId', classId);
         const q = qs.toString();
         const target = `/exams/${pendingMilestone.examId}${q ? `?${q}` : ''}`;
         setPendingMilestone(null);
@@ -911,14 +916,14 @@ export default function CourseLearnPage() {
 
                                     <TabsContent value="discussion" className="py-6">
                                         <LessonDiscussion
-                                            classId={classId as string}
+                                            classId={deliveryTargetId as string}
                                             lessonId={(currentLesson as any)?.id ?? ''}
                                             moduleId={(currentLesson as any)?.moduleId}
                                         />
                                     </TabsContent>
 
                                     <TabsContent value="resources" className="py-6">
-                                        <AcademyResourceList classId={classId as string} />
+                                        <AcademyResourceList classId={deliveryTargetId as string} />
                                     </TabsContent>
                                 </Tabs>
                             </section>

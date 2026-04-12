@@ -139,14 +139,20 @@ export class ExamService {
       a.courseProfile.cohorts.flatMap((c) => c.liveClasses.map((lc) => lc.name))
     );
 
-    // Check if there are direct attempts in any LiveClass
-    const attemptsWithClass = await this.prisma.academyExamAttempt.findMany({
-      where: { examId: id, classId: { not: null } },
-      include: { class: true },
-    });
+    // Attempts thuộc enrollment LIVE (VOD chỉ có vodPackageId trên enrollment)
+    const attemptsWithLiveEnrollment =
+      await this.prisma.academyExamAttempt.findMany({
+        where: {
+          examId: id,
+          enrollment: { liveClassId: { not: null } },
+        },
+        include: {
+          enrollment: { include: { liveClass: { select: { name: true } } } },
+        },
+      });
 
-    const liveClassesInAttempts = attemptsWithClass
-      .map((a) => a.class?.name)
+    const liveClassesInAttempts = attemptsWithLiveEnrollment
+      .map((a) => a.enrollment?.liveClass?.name)
       .filter(Boolean) as string[];
 
     // Collect all unique live class names

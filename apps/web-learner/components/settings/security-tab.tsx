@@ -72,20 +72,37 @@ export function SecurityTab() {
 
     const handleLinkGoogle = () => {
         const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-        if (!googleClientId) return toast.error('Google OAuth chưa được cấu hình');
-        
+        if (!googleClientId) {
+            toast.error('Google OAuth chưa được cấu hình');
+            return;
+        }
         setGoogleLoading(true);
+        if (typeof window === 'undefined' || !(window as any).google?.accounts?.id) {
+            toast.error('Google Sign-In chưa tải. Vui lòng tải lại trang.');
+            setGoogleLoading(false);
+            return;
+        }
         const guard = createGoogleGsiLoadingGuard(setGoogleLoading, 90_000);
+
+        const handleFocus = () => {
+            setTimeout(() => {
+                window.removeEventListener('focus', handleFocus);
+                guard.end();
+            }, 1000);
+        };
+        window.addEventListener('focus', handleFocus);
 
         (window as any).google.accounts.id.initialize({
             client_id: googleClientId,
             callback: async (response: any) => {
+                window.removeEventListener('focus', handleFocus);
                 try {
                     const res = await linkGoogleMutation.mutateAsync(response.credential);
                     if (res.success) toast.success('Liên kết Google thành công');
+                } catch (error: any) {
+                    toast.error(error?.message || 'Liên kết Google thất bại');
                 } finally {
-                    guard.disarm();
-                    setGoogleLoading(false);
+                    guard.end();
                 }
             },
         });
@@ -98,7 +115,23 @@ export function SecurityTab() {
         setTimeout(() => {
             const btn = buttonWrapper.querySelector('div[role="button"]') as HTMLElement;
             if (btn) btn.click();
-            setTimeout(() => buttonWrapper.parentNode && document.body.removeChild(buttonWrapper), 2000);
+            else {
+                try {
+                    (window as any).google.accounts.id.prompt((notification: unknown) => {
+                        if (shouldEndFlowFromPromptMoment(notification)) {
+                            window.removeEventListener('focus', handleFocus);
+                            guard.end();
+                        }
+                    });
+                } catch {
+                    window.removeEventListener('focus', handleFocus);
+                    guard.end();
+                    toast.error('Không thể khởi tạo Google Sign-In');
+                }
+            }
+            setTimeout(() => {
+                if (buttonWrapper.parentNode) document.body.removeChild(buttonWrapper);
+            }, 2000);
         }, 100);
     };
 
