@@ -101,7 +101,7 @@ export default function ClassCatalogDetailPage() {
   const checkoutHref =
     klass && classId
       ? isLIVE
-        ? `/checkout/${klass.cohortId ?? classId}?type=LIVE&classId=${encodeURIComponent(classId)}`
+        ? `/checkout/${klass.cohortId ?? classId}?type=LIVE&liveClassId=${encodeURIComponent(classId)}`
         : `/checkout/${classId}?type=VOD`
       : '#'
 

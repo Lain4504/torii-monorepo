@@ -98,11 +98,9 @@ export function LoginForm() {
         
         // Listen for window focus to detect popup closure
         const handleFocus = () => {
-            // Small delay to allow the Google SDK callback to fire first if it was a success
             setTimeout(() => {
-                setGoogleLoading(false)
-                guard.disarm()
                 window.removeEventListener('focus', handleFocus)
+                guard.end()
             }, 1000)
         }
         window.addEventListener('focus', handleFocus)
@@ -128,8 +126,7 @@ export function LoginForm() {
                 } catch (error: any) {
                     toast.error(error?.message || 'Đăng nhập Google thất bại')
                 } finally {
-                    guard.disarm()
-                    setGoogleLoading(false)
+                    guard.end()
                 }
             },
         })
@@ -145,14 +142,12 @@ export function LoginForm() {
                     ; (window as any).google.accounts.id.prompt((notification: unknown) => {
                         if (shouldEndFlowFromPromptMoment(notification)) {
                             window.removeEventListener('focus', handleFocus)
-                            guard.disarm()
-                            setGoogleLoading(false)
+                            guard.end()
                         }
                     })
                 } catch {
                     window.removeEventListener('focus', handleFocus)
-                    guard.disarm()
-                    setGoogleLoading(false)
+                    guard.end()
                     toast.error('Không thể khởi tạo Google Sign-In')
                 }
             }

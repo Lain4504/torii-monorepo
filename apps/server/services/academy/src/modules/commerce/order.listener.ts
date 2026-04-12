@@ -49,7 +49,7 @@ export class OrderListener {
       let targetLiveClassId: string | undefined = item.liveClassId ?? undefined;
 
       if (isCohort && !targetLiveClassId) {
-        targetLiveClassId = snapshot?.selectedClassId;
+        targetLiveClassId = snapshot?.selectedLiveClassId;
       }
 
       console.log(

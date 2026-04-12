@@ -52,6 +52,7 @@ export class CertificateService {
         const attempts = await this.prisma.academyExamAttempt.findMany({
           where: {
             userId: enrollment.userId,
+            enrollmentId: enrollment.id,
             examId: { in: examIds },
           },
           orderBy: { startedAt: 'desc' },

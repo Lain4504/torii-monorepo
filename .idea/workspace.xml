@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="chore: update build config" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add feedback field to assignment submission DTOs and update grading logic">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,7 +19,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1894" />
+    <option name="cachedIndexableFilesCount" value="1893" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -409,14 +412,7 @@
       <workItem from="1775737045496" duration="6152000" />
       <workItem from="1775754644934" duration="2857000" />
       <workItem from="1775759401993" duration="2968000" />
-    </task>
-    <task id="LOCAL-01205" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775489126187</created>
-      <option name="number" value="01205" />
-      <option name="presentableId" value="LOCAL-01205" />
-      <option name="project" value="LOCAL" />
-      <updated>1775489126187</updated>
+      <workItem from="1775966402266" duration="3382000" />
     </task>
     <task id="LOCAL-01206" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -802,7 +798,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775759608812</updated>
     </task>
-    <option name="localTasksCounter" value="1254" />
+    <task id="LOCAL-01254" summary="feat: add feedback field to assignment submission DTOs and update grading logic">
+      <option name="closed" value="true" />
+      <created>1775962080177</created>
+      <option name="number" value="01254" />
+      <option name="presentableId" value="LOCAL-01254" />
+      <option name="project" value="LOCAL" />
+      <updated>1775962080177</updated>
+    </task>
+    <option name="localTasksCounter" value="1255" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -837,7 +841,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: improve price normalization and enhance catalog item types in academy course API" />
     <MESSAGE value="style: improve layout and spacing in dashboard components" />
     <MESSAGE value="fix ui web-adin" />
     <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
@@ -862,7 +865,8 @@
     <MESSAGE value="refactor: migration role permisison (#348)&#10;&#10;* refactor: update role handling and permissions throughout the application&#10;&#10;* refactor: update permissions for various controllers and components to align with new role-based access control&#10;&#10;* refactor: update role permissions and access controls across various components&#10;&#10;* refactor: remove LEAVE request type and update related handling to support only RESCHEDULE&#10;&#10;* refactor: add my assigned VOD packages and discussion context features&#10;&#10;* refactor: enhance role management with create, update, and delete functionalities" />
     <MESSAGE value="refactor: refactor meet service (#356)&#10;&#10;* chore: update workspace configuration with job push notification details and new service paths&#10;&#10;* feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services." />
     <MESSAGE value="chore: update build config" />
-    <option name="LAST_COMMIT_MESSAGE" value="chore: update build config" />
+    <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add feedback field to assignment submission DTOs and update grading logic" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

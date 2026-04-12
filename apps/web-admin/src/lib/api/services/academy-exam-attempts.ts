@@ -11,9 +11,8 @@ import type {
 export type AcademyExamAttempt = {
   id: string
   examId: string
-  classId?: string | null
+  enrollmentId?: string | null
   userId: string
-  classAssessmentId?: string | null
   status: string
   startedAt: string
   submittedAt?: string | null
@@ -60,7 +59,7 @@ export const academyExamAttemptsApi = {
   async saveAnswers(input: AcademyExamAttemptSaveAnswersDTO) {
     const res = await apiClient.post<
       StandardApiResponse<{ item: AcademyExamAttempt }>
-    >("/api/academy/exam-attempts/save-answers", input)
+    >("/api/academy/exam-attempts/save-draft", input)
     return res.data.data!.item
   },
 

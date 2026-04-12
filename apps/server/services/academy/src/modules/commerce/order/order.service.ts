@@ -318,7 +318,7 @@ export class OrderService {
             title: c.name,
             code: c.code,
             mode: 'LIVE',
-            selectedClassId: lc?.id,
+            selectedLiveClassId: lc?.id,
             basePrice: lc?.price ?? 0,
             isDiscounted: !!lc?.discountPrice,
           } as any,
@@ -333,7 +333,7 @@ export class OrderService {
             title: lc.name,
             code: lc.code,
             mode: 'LIVE',
-            selectedClassId: lc.id,
+            selectedLiveClassId: lc.id,
             basePrice: lc.price ?? 0,
             isDiscounted: !!lc.discountPrice,
             courseProfileId: lc.cohort?.courseProfileId,
@@ -872,20 +872,19 @@ export class OrderService {
 
     const itemResults = order.items.map((item) => {
       const snapshot = (item.offeringSnapshot ?? {}) as {
-        selectedClassId?: string;
+        selectedLiveClassId?: string;
         mode?: string;
       };
-      const expectedClassIds =
-        snapshot.mode === 'LIVE' && snapshot.selectedClassId
-          ? [snapshot.selectedClassId]
-          : [];
-      const enrolledClassIds = order.enrollments
+      const selectedLc = snapshot.selectedLiveClassId;
+      const expectedLiveClassIds =
+        snapshot.mode === 'LIVE' && selectedLc ? [selectedLc] : [];
+      const enrolledLiveClassIds = order.enrollments
         .filter(
-          (e) => e.liveClassId && expectedClassIds.includes(e.liveClassId),
+          (e) => e.liveClassId && expectedLiveClassIds.includes(e.liveClassId),
         )
         .map((e) => e.liveClassId!);
-      const missingClassIds = expectedClassIds.filter(
-        (id) => !enrolledClassIds.includes(id),
+      const missingLiveClassIds = expectedLiveClassIds.filter(
+        (id) => !enrolledLiveClassIds.includes(id),
       );
       const productName =
         item.vodPackage?.title ??
@@ -908,9 +907,9 @@ export class OrderService {
         productId,
         productCode,
         productName,
-        expectedClassIds,
-        enrolledClassIds,
-        missingClassIds,
+        expectedLiveClassIds,
+        enrolledLiveClassIds,
+        missingLiveClassIds,
       };
     });
 

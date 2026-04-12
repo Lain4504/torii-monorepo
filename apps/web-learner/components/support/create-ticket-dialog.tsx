@@ -90,10 +90,9 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
             const selectedEnrollment = (enrollments as any[]).find(
-                (en: any) => (en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id) === values.courseMasterId,
+                (en: any) => en.id === values.courseMasterId,
             );
-            const selectedLiveClassId =
-                selectedEnrollment?.liveClassId ?? selectedEnrollment?.classId ?? undefined;
+            const selectedLiveClassId = selectedEnrollment?.liveClassId ?? undefined;
             const selectedVodPackageId = selectedEnrollment?.vodPackageId ?? undefined;
 
             await createTicketMutation.mutateAsync({
@@ -162,7 +161,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                         onValueChange={(val) => {
                                             setValue('courseMasterId', val);
                                             const en = (enrollments as any[]).find(
-                                                (e: any) => (e.liveClassId ?? e.classId ?? e.vodPackageId ?? e.courseProfileId ?? e.id) === val,
+                                                (e: any) => e.id === val,
                                             );
                                             if (en) {
                                                 setValue('subject', `Hoàn tiền khóa học: ${en.class?.name || en.courseTitle}`);
@@ -175,8 +174,8 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                         <SelectContent>
                                             {enrollments.map((en: any) => (
                                                 <SelectItem
-                                                    key={en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id}
-                                                    value={en.liveClassId ?? en.classId ?? en.vodPackageId ?? en.courseProfileId ?? en.id}
+                                                    key={en.id}
+                                                    value={en.id}
                                                 >
                                                     {en.class?.name || en.courseTitle || 'Khóa học không tên'}
                                                 </SelectItem>

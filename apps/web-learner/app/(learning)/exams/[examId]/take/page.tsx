@@ -110,8 +110,7 @@ export default function TakeExamPage() {
     const { examId } = useParams<{ examId: string }>()
     const searchParams = useSearchParams()
     const userId = useAppSelector((state: RootState) => state.auth.user?.id)
-    const liveClassId =
-        searchParams.get('liveClassId') ?? searchParams.get('classId') ?? undefined
+    const enrollmentId = searchParams.get('enrollmentId') ?? undefined
     const classAssessmentId = searchParams.get('classAssessmentId') ?? undefined
 
     const [loading, setLoading] = useState(true)
@@ -137,6 +136,11 @@ export default function TakeExamPage() {
     useEffect(() => {
         async function loadExam() {
             if (!userId) return;
+            if (!enrollmentId) {
+                setError('Thiếu mã ghi danh (enrollment). Hãy mở bài quiz từ trang học của khóa.')
+                setLoading(false)
+                return
+            }
             try {
                 setLoading(true)
 
@@ -144,7 +148,7 @@ export default function TakeExamPage() {
                 const attempt = await academyExamsApi.startAttempt({
                     examId,
                     userId,
-                    liveClassId,
+                    enrollmentId,
                     assessmentId: classAssessmentId,
                 })
                 setSessionId(attempt.id)
@@ -193,7 +197,7 @@ export default function TakeExamPage() {
         if (examId && userId) {
             loadExam()
         }
-    }, [examId, userId, liveClassId, classAssessmentId])
+    }, [examId, userId, enrollmentId, classAssessmentId])
 
     // Auto-save function
     const autoSave = useCallback(async () => {

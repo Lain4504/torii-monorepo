@@ -20,7 +20,7 @@ export class AssessmentPlanHandler {
   }
 
   @MessagePattern({ cmd: 'academy.assessmentPlan.getLearnerStatus' })
-  getLearnerStatus(@Payload() data: { userId: string; classId?: string; enrollmentId?: string }) {
+  getLearnerStatus(@Payload() data: { userId: string; deliveryTargetId?: string; enrollmentId?: string }) {
     return this.assessmentPlanService.getLearnerAssessmentStatus(data);
   }
 }
