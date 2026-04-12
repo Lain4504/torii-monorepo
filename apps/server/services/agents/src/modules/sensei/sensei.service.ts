@@ -19,6 +19,14 @@ import { PrismaService, AppConfigService } from '@server/shared';
 import { AIUsageTrackingService } from '../analytics/ai-usage-tracking.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 
+const AgentFlashcardAutofillResponseSchema = z.object({
+  term: z.string(),
+  phonetic: z.string().default(''),
+  definition: z.string(),
+  note: z.string().default(''),
+  type: z.enum(['Từ vựng', 'Ngữ pháp', 'Hán tự', 'Mẫu câu']),
+});
+
 @Injectable()
 export class SenseiService implements OnModuleInit {
   private readonly logger = new Logger(SenseiService.name);
@@ -177,6 +185,44 @@ export class SenseiService implements OnModuleInit {
         );
 
         // await this.deductCoins(userId, 'flashcard_creation', usage);
+
+        return data;
+      },
+    );
+
+    // 4. Autofill a single flashcard from a term
+    this.fastMcpService.addTool(
+      'sensei_autofill_flashcard',
+      'Autofill a single flashcard form from one Japanese term',
+      z.object({
+        userId: z.string(),
+        term: z.string().min(1),
+      }),
+      async ({ userId, term }) => {
+        const userContext = await this.fastMcpService.getUserContext(userId);
+        const template = this.fastMcpService.loadPromptTemplate(
+          'sensei/flashcard-autofill.md',
+        );
+        const prompt = template({
+          term,
+          userContext,
+          timestamp: new Date().toISOString(),
+        });
+
+        const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
+          prompt,
+          AgentFlashcardAutofillResponseSchema,
+          { maxRetries: 1 },
+        );
+
+        await this.aiUsageTracking.updateAITextChatUsage(
+          `gen-${userId}`,
+          userId,
+          'flashcard_autofill',
+          usage.promptTokenCount,
+          usage.candidatesTokenCount,
+          usage.totalTokenCount,
+        );
 
         return data;
       },
@@ -500,6 +546,16 @@ export class SenseiService implements OnModuleInit {
       userId: requester.sub,
       topic,
       level,
+    });
+  }
+
+  async autofillFlashcard(
+    requester: Requester,
+    term: string,
+  ): Promise<z.infer<typeof AgentFlashcardAutofillResponseSchema>> {
+    return this.fastMcpService.callTool('sensei_autofill_flashcard', {
+      userId: requester.sub,
+      term,
     });
   }
 
