@@ -12,9 +12,8 @@ export class ExamAttemptStartDto {
   @IsUUID()
   examId!: string;
 
-  @IsOptional()
   @IsUUID()
-  classId?: string;
+  enrollmentId!: string;
 
   @IsOptional()
   @IsUUID()
@@ -55,12 +54,12 @@ export class ExamAttemptQueryDto {
   userId?: string;
 
   @IsOptional()
-  @IsUUID()
-  classId?: string;
-
-  @IsOptional()
   @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsUUID()
+  enrollmentId?: string;
 
   @IsOptional()
   @IsUUID()

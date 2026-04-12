@@ -55,27 +55,27 @@ export class AssessmentPlanService {
 
   async getLearnerAssessmentStatus(params: {
     userId: string;
-    classId?: string;
+    deliveryTargetId?: string;
     enrollmentId?: string;
   }): Promise<AcademyAssessmentStatusDTO[]> {
-    const { userId, classId, enrollmentId } = params;
+    const { userId, deliveryTargetId, enrollmentId } = params;
 
     // 1. Identify CourseProfile + enrollment scope (attempts must be per enrollment, not global per user+exam)
     let courseProfileId: string | undefined;
     let resolvedEnrollmentId: string | undefined;
 
-    if (classId) {
+    if (deliveryTargetId) {
       const cls = await this.prisma.liveClass.findUnique({
-        where: { id: classId },
+        where: { id: deliveryTargetId },
         include: { cohort: true },
       });
       if (cls) {
         courseProfileId = cls.cohort.courseProfileId;
       } else {
         const pkg = await this.prisma.vodPackage.findUnique({
-          where: { id: classId },
+          where: { id: deliveryTargetId },
         });
-        if (!pkg) throw new NotFoundException('Class or VOD package not found');
+        if (!pkg) throw new NotFoundException('Live class or VOD package not found');
         courseProfileId = pkg.courseProfileId;
       }
     }
@@ -85,18 +85,24 @@ export class AssessmentPlanService {
         where: {
           id: enrollmentId,
           userId,
-          ...(classId
-            ? { OR: [{ vodPackageId: classId }, { liveClassId: classId }] }
+          ...(deliveryTargetId
+            ? {
+                OR: [
+                  { vodPackageId: deliveryTargetId },
+                  { liveClassId: deliveryTargetId },
+                ],
+              }
             : {}),
         },
+        orderBy: { enrolledAt: 'desc' },
         include: {
           vodPackage: true,
           liveClass: { include: { cohort: true } },
         },
       });
       if (!enr) {
-        throw classId
-          ? new BadRequestException('Enrollment does not match this class')
+        throw deliveryTargetId
+          ? new BadRequestException('Enrollment does not match this delivery target')
           : new NotFoundException('Enrollment not found');
       }
       resolvedEnrollmentId = enr.id;
@@ -104,18 +110,22 @@ export class AssessmentPlanService {
         courseProfileId =
           enr.vodPackage?.courseProfileId || enr.liveClass?.cohort.courseProfileId;
       }
-    } else if (classId) {
+    } else if (deliveryTargetId) {
       const enr = await this.prisma.enrollment.findFirst({
         where: {
           userId,
-          OR: [{ vodPackageId: classId }, { liveClassId: classId }],
+          OR: [
+            { vodPackageId: deliveryTargetId },
+            { liveClassId: deliveryTargetId },
+          ],
         },
+        orderBy: { enrolledAt: 'desc' },
       });
       resolvedEnrollmentId = enr?.id;
     }
 
-    if (!classId && !enrollmentId) {
-      throw new Error('Either classId or enrollmentId must be provided');
+    if (!deliveryTargetId && !enrollmentId) {
+      throw new Error('Either deliveryTargetId or enrollmentId must be provided');
     }
 
     if (!courseProfileId) throw new NotFoundException('CourseProfile not found');

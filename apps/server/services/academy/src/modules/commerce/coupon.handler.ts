@@ -15,15 +15,19 @@ export class CouponHandler {
       code: string;
       userId: string;
       orderValue: number;
-      offeringIds: string[];
+      /** UUID cohort / vodPackage / liveClass trong giỏ */
+      cartTargetIds?: string[];
+      /** @deprecated dùng cartTargetIds */
+      offeringIds?: string[];
     },
   ) {
     try {
+      const cartTargetIds = data.cartTargetIds ?? data.offeringIds ?? [];
       return this.couponService.validateCoupon(
         data.code,
         data.userId,
         data.orderValue,
-        data.offeringIds,
+        cartTargetIds,
       );
     } catch (error) {
       this.logger.error(`Error validating coupon: ${error.message}`);

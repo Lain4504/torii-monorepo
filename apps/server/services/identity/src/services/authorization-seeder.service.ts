@@ -61,13 +61,13 @@ export class AuthorizationSeederService implements OnModuleInit {
           code: 'staff-academic',
           name: 'Academic Staff',
           description:
-            'Nội dung, lớp/lịch live, duyệt yêu cầu lịch; soạn & duyệt xuất bản offering',
+            'Nội dung, lớp/lịch live, duyệt yêu cầu lịch; soạn & duyệt xuất bản sản phẩm catalog',
         },
         {
           code: 'staff-operations',
           name: 'Operations Staff',
           description:
-            'Đơn hàng/coupon/subscription/blog/gamification/support; đọc academy; duyệt xuất bản offering',
+            'Đơn hàng/coupon/subscription/blog/gamification/support; đọc academy; duyệt xuất bản sản phẩm catalog',
         },
         {
           code: 'lecturer',

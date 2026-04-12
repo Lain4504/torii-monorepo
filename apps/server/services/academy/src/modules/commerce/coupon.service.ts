@@ -80,11 +80,14 @@ export class CouponService {
     return coupon;
   }
 
+  /**
+   * @param cartTargetIds UUID trong giỏ: vodPackageId, cohortId, liveClassId (không còn entity CourseOffering).
+   */
   async validateCoupon(
     code: string,
     userId: string,
     orderValue: number,
-    offeringIds: string[],
+    cartTargetIds: string[],
   ) {
     const coupon = await this.findByCode(code);
 
@@ -132,13 +135,14 @@ export class CouponService {
     // Check scope
     if (coupon.scope === CouponScope.SPECIFIC_OFFERING) {
       const metadata = coupon.metadata as any;
-      const allowedOfferingIds = metadata?.offeringIds || [];
-      const hasValidOffering = offeringIds.some((id) =>
-        allowedOfferingIds.includes(id),
+      const allowedTargetIds: string[] =
+        metadata?.applicableTargetIds ?? metadata?.offeringIds ?? [];
+      const matchesCart = cartTargetIds.some((id) =>
+        allowedTargetIds.includes(id),
       );
-      if (!hasValidOffering) {
+      if (!matchesCart) {
         throw new BadRequestException(
-          'Coupon is not applicable to the selected offerings',
+          'Coupon is not applicable to the selected products',
         );
       }
     }

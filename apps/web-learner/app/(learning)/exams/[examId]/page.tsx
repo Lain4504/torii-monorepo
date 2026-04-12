@@ -42,7 +42,6 @@ export default function ExamRunnerPage() {
   const searchParams = useSearchParams();
   const attemptIdFromQuery = searchParams.get('attemptId');
   const enrollmentIdFromQuery = searchParams.get('enrollmentId') || undefined;
-  const liveClassIdFromQuery = searchParams.get('liveClassId') || undefined;
   const router = useRouter();
 
   const { data: exam, isLoading: isLoadingExam } = useAcademyExam(examId);
@@ -67,21 +66,26 @@ export default function ExamRunnerPage() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-start or load attempt (pass enrollment/class so progress is scoped per course enrollment)
+  // Auto-start or load attempt (scoped theo enrollment — bắt buộc khi chưa có attemptId)
   useEffect(() => {
-    if (exam && !attemptId && !startAttemptMutation.isPending) {
-       startAttemptMutation.mutate(
-         {
-           examId,
-           ...(enrollmentIdFromQuery ? { enrollmentId: enrollmentIdFromQuery } : {}),
-          ...(liveClassIdFromQuery ? { liveClassId: liveClassIdFromQuery } : {}),
-         },
-         {
-           onSuccess: (data) => setAttemptId(data.id),
-         },
-       );
+    if (
+      exam &&
+      !attemptId &&
+      !startAttemptMutation.isPending &&
+      enrollmentIdFromQuery
+    ) {
+      startAttemptMutation.mutate(
+        { examId, enrollmentId: enrollmentIdFromQuery },
+        { onSuccess: (data) => setAttemptId(data.id) },
+      );
     }
-  }, [exam, attemptId, examId, startAttemptMutation, enrollmentIdFromQuery, liveClassIdFromQuery]);
+  }, [
+    exam,
+    attemptId,
+    examId,
+    startAttemptMutation,
+    enrollmentIdFromQuery,
+  ]);
 
   // Sync answers from draft
   useEffect(() => {
@@ -144,6 +148,27 @@ export default function ExamRunnerPage() {
     } catch (error: any) {
       toast.error("Không thể nộp bài: " + error.message);
     }
+  }
+
+  if (
+    exam &&
+    !attemptIdFromQuery &&
+    !enrollmentIdFromQuery &&
+    !attemptId &&
+    !startAttemptMutation.isPending
+  ) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-4 px-4">
+        <AlertTriangle className="h-10 w-10 text-amber-500" />
+        <p className="text-center text-muted-foreground">
+          Không tìm thấy thông tin ghi danh khóa học. Hãy mở bài thi từ trang học trong lộ trình
+          (có kèm enrollment).
+        </p>
+        <Button variant="outline" onClick={() => router.back()}>
+          Quay lại
+        </Button>
+      </div>
+    );
   }
 
   if (isLoadingExam || isLoadingAttempt || startAttemptMutation.isPending) {

@@ -27,7 +27,7 @@ export class SubscriptionGuard implements CanActivate {
     const userId = requester.sub;
     const now = new Date();
 
-    // Check for active enrollment in a SUBSCRIPTION type offering
+    // Check for active subscription (stub)
     const activeSubscription = true;
 
     if (!activeSubscription) {

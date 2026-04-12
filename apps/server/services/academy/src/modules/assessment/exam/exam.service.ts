@@ -119,15 +119,18 @@ export class ExamService {
   }
 
   async deleteExam(id: string) {
-    // Check if used in Course Profile Assessments (connected to Live Classes via Cohorts)
+    // Khớp FK `AcademyCourseProfileAssessment.exam` (onDelete: Restrict).
+    // Kế hoạch đánh giá gắn course profile — áp dụng cho cả LIVE và VOD, không chỉ lớp live.
     const assessments = await this.prisma.academyCourseProfileAssessment.findMany({
       where: { examId: id },
       include: {
         courseProfile: {
-          include: {
+          select: {
+            title: true,
+            code: true,
             cohorts: {
-              include: {
-                liveClasses: true,
+              select: {
+                liveClasses: { select: { name: true } },
               },
             },
           },
@@ -135,40 +138,44 @@ export class ExamService {
       },
     });
 
-    const liveClassesInPlans = assessments.flatMap((a) =>
-      a.courseProfile.cohorts.flatMap((c) => c.liveClasses.map((lc) => lc.name))
-    );
+    if (assessments.length > 0) {
+      const profileLabels = new Set<string>();
+      for (const row of assessments) {
+        const p = row.courseProfile;
+        const label = `${p.title}${p.code ? ` (${p.code})` : ''}`.trim();
+        if (label.length > 0) profileLabels.add(label);
+      }
+      const profilePart =
+        profileLabels.size > 0
+          ? [...profileLabels].join(', ')
+          : `${assessments.length} khóa (course profile)`;
 
-    // Check if there are direct attempts in any LiveClass
-    const attemptsWithClass = await this.prisma.academyExamAttempt.findMany({
-      where: { examId: id, classId: { not: null } },
-      include: { class: true },
-    });
+      const liveNames = new Set<string>();
+      for (const row of assessments) {
+        for (const c of row.courseProfile.cohorts) {
+          for (const lc of c.liveClasses) {
+            const n = lc.name?.trim();
+            if (n) liveNames.add(n);
+          }
+        }
+      }
+      const livePart =
+        liveNames.size > 0
+          ? ` Lớp live liên quan (nếu có): ${[...liveNames].join(', ')}.`
+          : '';
 
-    const liveClassesInAttempts = attemptsWithClass
-      .map((a) => a.class?.name)
-      .filter(Boolean) as string[];
-
-    // Collect all unique live class names
-    const allClassNameSet = new Set([...liveClassesInPlans, ...liveClassesInAttempts]);
-    const allClassNames = Array.from(allClassNameSet);
-
-    if (allClassNames.length > 0) {
       throw new BadRequestException(
-        `Bài thi này đang được sử dụng trong các lớp: ${allClassNames.join(
-          ', '
-        )}. Vui lòng gỡ bỏ khỏi kế hoạch học tập hoặc xóa các lượt thi trước khi xóa bài thi.`
+        `Bài thi đang được gắn trong kế hoạch đánh giá (LIVE và/hoặc VOD) của: ${profilePart}.${livePart} Vui lòng gỡ khỏi kế hoạch đánh giá trước khi xóa bài thi.`,
       );
     }
 
-    // Check for any other attempts (general usage / historical data)
     const totalAttempts = await this.prisma.academyExamAttempt.count({
       where: { examId: id },
     });
 
     if (totalAttempts > 0) {
       throw new BadRequestException(
-        `Bài thi này đã có ${totalAttempts} lượt làm bài của học viên. Vui lòng xóa các lượt làm bài trước khi xóa bài thi.`
+        `Bài thi này đã có ${totalAttempts} lượt làm bài của học viên (LIVE hoặc VOD). Vui lòng xóa các lượt làm bài trước khi xóa bài thi.`,
       );
     }
 

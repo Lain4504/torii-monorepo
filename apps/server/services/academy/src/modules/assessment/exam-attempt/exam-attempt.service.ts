@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
+import { Prisma } from '@prisma/generated';
 import {
   AcademyExamAttemptStartDTO,
   AcademyExamAttemptSaveAnswersDTO,
@@ -17,12 +18,12 @@ export class ExamAttemptService {
   ) {}
 
   async startAttempt(dto: AcademyExamAttemptStartDTO) {
-    const startDto = dto as AcademyExamAttemptStartDTO & {
-      liveClassId?: string;
-    };
-    const { examId, userId, enrollmentId, liveClassId } = startDto;
+    const { examId, userId, enrollmentId } = dto;
     if (!userId) {
       throw new BadRequestException('userId is required');
+    }
+    if (!enrollmentId) {
+      throw new BadRequestException('enrollmentId is required');
     }
 
     // Check exam exists and published
@@ -33,77 +34,36 @@ export class ExamAttemptService {
       throw new NotFoundException('Exam not found or not published');
     }
 
-    // Check for existing active attempt (scoped by enrollment so two courses don't share one in-progress row)
-    const existingWhere: {
-      userId: string;
-      examId: string;
-      status: any;
-      enrollmentId?: string | null;
-    } = {
-      userId,
-      examId,
-      status: AcademyAttemptStatus.IN_PROGRESS as any,
-    };
-    if (enrollmentId) {
-      existingWhere.enrollmentId = enrollmentId;
-    } else {
-      existingWhere.enrollmentId = null;
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { id: enrollmentId },
+      select: { id: true, userId: true },
+    });
+    if (!enrollment) {
+      throw new NotFoundException('Enrollment not found');
     }
+    if (enrollment.userId !== userId) {
+      throw new BadRequestException(
+        'Enrollment does not belong to current user',
+      );
+    }
+
+    // Check for existing active attempt (scoped by enrollment so two courses don't share one in-progress row)
     const existing = await this.prisma.academyExamAttempt.findFirst({
-      where: existingWhere,
+      where: {
+        userId,
+        examId,
+        enrollmentId,
+        status: AcademyAttemptStatus.IN_PROGRESS as any,
+      },
       include: { exam: true },
     });
     if (existing) return this.attachComputedFields(existing);
-
-    let resolvedClassId: string | null = liveClassId ?? null;
-
-    // Resolve class scope from enrollment to avoid sending VOD package id into class FK.
-    if (enrollmentId) {
-      const enrollment = await this.prisma.enrollment.findUnique({
-        where: { id: enrollmentId },
-        select: {
-          id: true,
-          userId: true,
-          liveClassId: true,
-          vodPackageId: true,
-        },
-      });
-      if (!enrollment) {
-        throw new NotFoundException('Enrollment not found');
-      }
-      if (enrollment.userId !== userId) {
-        throw new BadRequestException(
-          'Enrollment does not belong to current user',
-        );
-      }
-
-      // LIVE enrollment -> classId must follow enrollment.liveClassId
-      if (enrollment.liveClassId) {
-        resolvedClassId = enrollment.liveClassId;
-      } else {
-        // VOD enrollment -> exam attempt should not bind to class FK
-        resolvedClassId = null;
-      }
-    }
-
-    if (resolvedClassId) {
-      const liveClassExists = await this.prisma.liveClass.findUnique({
-        where: { id: resolvedClassId },
-        select: { id: true },
-      });
-      if (!liveClassExists) {
-        throw new BadRequestException(
-          'classId is invalid. Only LIVE class id is accepted.',
-        );
-      }
-    }
 
     const created = await this.prisma.academyExamAttempt.create({
       data: {
         examId,
         userId,
         enrollmentId,
-        classId: resolvedClassId,
         status: AcademyAttemptStatus.IN_PROGRESS as any,
       },
       include: { exam: true },
@@ -325,17 +285,12 @@ export class ExamAttemptService {
   }
 
   async findAll(query: AcademyExamAttemptQueryDTO) {
-    const { examId, status, userId, enrollmentId, classId, latestOnly } = query;
-    const where: any = {
-      examId,
-      userId,
-      enrollmentId,
-      classId,
-    };
-
-    if (status) {
-      where.status = status as any;
-    }
+    const { examId, status, userId, enrollmentId, latestOnly } = query;
+    const where: Prisma.AcademyExamAttemptWhereInput = {};
+    if (examId) where.examId = examId;
+    if (userId) where.userId = userId;
+    if (enrollmentId) where.enrollmentId = enrollmentId;
+    if (status) where.status = status as any;
 
     if (latestOnly) {
       const top = await this.prisma.academyExamAttempt.findFirst({
