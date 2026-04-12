@@ -12,7 +12,6 @@ import {
     listPageFiltersRowClass,
     listPageSearchIconClass,
     listPageSearchInputClass,
-    listPageSearchWrapClass,
     listPageToolbarRootClass,
 } from '@/lib/ui-shell';
 

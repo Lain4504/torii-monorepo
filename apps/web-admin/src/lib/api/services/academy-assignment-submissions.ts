@@ -19,6 +19,8 @@ export type AcademyAssignmentSubmission = {
   submittedAt?: string | null
   gradedAt?: string | null
   content?: unknown | null
+  fileUrls?: string[] | null
+  feedback?: string | null
   createdAt: string
   updatedAt: string
   user?: { id: string; displayName?: string | null; email?: string | null } | null

@@ -123,9 +123,8 @@ export default function AssignmentGradingPage() {
                 input: {
                     score: numScore,
                     status: 'GRADED',
-                    content: { feedback } // Optionally store feedback in content or specific field
-                    // Note: In our service, feedback is a top level field in update
-                } as any
+                    feedback: feedback,
+                }
             });
             toast.success("Đã chấm điểm thành công");
             setGradingSubmission(null);

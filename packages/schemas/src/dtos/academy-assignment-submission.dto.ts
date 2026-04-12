@@ -46,6 +46,7 @@ export type AcademyAssignmentSubmissionModel = {
   score?: number | null;
   content?: any | null;
   fileUrls?: string[] | null;
+  feedback?: string | null;
   submittedAt?: string | null;
   createdAt: string;
   updatedAt: string;
