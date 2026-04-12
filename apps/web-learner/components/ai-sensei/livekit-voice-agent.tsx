@@ -188,7 +188,11 @@ function LivekitVoiceAgentContent() {
             // Quota is consumed when token is issued, so refresh UI immediately.
             queryClient.invalidateQueries({ queryKey: ["quota-status"] })
             roomIdRef.current = details.roomId
-            await startAgentForRoom(details.roomId, selectedGraph)
+            if (details.requiresManualStart) {
+                await startAgentForRoom(details.roomId, selectedGraph)
+            } else {
+                console.log("[voice-ui] Agent dispatch is embedded in token; skipping /start call")
+            }
             console.log("[voice-ui] Token ready, waiting for LiveKit connection")
         } catch (err: any) {
             console.error("[VoiceAgent] Connection failed:", err)
