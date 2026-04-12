@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import * as React from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { useAppSelector } from '@/hooks/hooks';
 import {
     useAcademyStudySet,
@@ -12,6 +13,7 @@ import {
     useDeleteAcademySetCard,
     useShareAcademyStudySet,
 } from '@/lib/api/services/academy-study-set-api';
+import { agentApi } from '@/lib/api/services/agent-api';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import {
@@ -58,6 +60,9 @@ export default function StudySetDetailPage() {
     const updateCard = useUpdateAcademySetCard();
     const deleteCard = useDeleteAcademySetCard();
     const shareSet = useShareAcademyStudySet();
+    const autoFillCard = useMutation({
+        mutationFn: (term: string) => agentApi.sensei.autofillFlashcard(term),
+    });
     
     const [page, setPage] = React.useState(1);
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -123,6 +128,21 @@ export default function StudySetDetailPage() {
             setPage(1);
         } catch (e: any) {
             toast.error(e?.message || 'Lỗi tạo thẻ');
+        }
+    };
+
+    const handleAutoFillCard = async (term: string): Promise<Partial<FlashcardFormValues>> => {
+        try {
+            const generated = await autoFillCard.mutateAsync(term);
+            return {
+                term: generated.term,
+                phonetic: generated.phonetic,
+                definition: generated.definition,
+                note: generated.note,
+                type: generated.type,
+            };
+        } catch (e: any) {
+            throw new Error(e?.message || 'AI không thể điền thẻ lúc này');
         }
     };
 
@@ -400,6 +420,8 @@ export default function StudySetDetailPage() {
                 open={openCreateDialog}
                 onOpenChange={setOpenCreateDialog}
                 onSave={handleCreateCard}
+                onAutoFill={handleAutoFillCard}
+                isAutoFillPending={autoFillCard.isPending}
                 isPending={createCard.isPending}
                 title="Tạo thẻ mới"
             />

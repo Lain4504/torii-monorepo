@@ -107,6 +107,34 @@ export class SenseiHandler {
     }
   }
 
+  @Post('flashcard/autofill')
+  @UseGuards(GatewayAuthGuard)
+  async autofillFlashcard(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+
+    if (!body?.term || typeof body.term !== 'string' || !body.term.trim()) {
+      throw new BadRequestException('term is required');
+    }
+
+    try {
+      this.logger.log(`✨ Flashcard autofill request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.autofillFlashcard' },
+          { requester, term: body.term.trim() },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Flashcard autofill failed for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to autofill flashcard');
+    }
+  }
+
   @Post('conversation/simulate')
   @UseGuards(GatewayAuthGuard)
   async simulateConversation(@Req() req: ReqWithRequester, @Body() body: any) {
