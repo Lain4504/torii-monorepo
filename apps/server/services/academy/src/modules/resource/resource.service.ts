@@ -39,6 +39,10 @@ export class ResourceService {
         });
     }
 
+    /**
+     * @param classId Tuỳ chọn — UUID của **LiveClass** hoặc **VodPackage** (instance giao hàng).
+     * Không truyền **Cohort.id**: ghi danh/enrollment không trỏ cohort; cohort chỉ là nhóm các live class trong kỳ.
+     */
     async getFoldersForLearner(userId: string, role?: string, classId?: string) {
         // Privileged roles can see all class folders
         const isPrivileged = role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(role);
@@ -195,6 +199,7 @@ export class ResourceService {
     }
 
 
+    /** `classId` khi không có folderId: LiveClass.id hoặc VodPackage.id (không phải Cohort.id). */
     async getResourcesForLearner(data: { folderId?: string; classId?: string; userId: string; role?: string }) {
         let folderId = data.folderId;
 
@@ -291,6 +296,7 @@ export class ResourceService {
     }
 
 
+    /** `classId`: LiveClass.id hoặc VodPackage.id (delivery scope), không phải Cohort.id. */
     async getResourcesByClassId(classId: string, userId: string) {
         const folder = await this.prisma.academyFolder.findFirst({
             where: { 

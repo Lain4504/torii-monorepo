@@ -31,9 +31,15 @@ export function NavLearning() {
                         if (isExpired) {
                             setShowExpiredModal(true)
                         } else {
-                            const targetId = activeCourse.liveClassId ?? activeCourse.vodPackageId ?? activeCourse.courseProfileId ?? activeCourse.id
-                            const mode = activeCourse.liveClassId ? 'VOD' : null
-                            window.location.href = mode ? `/courses/${targetId}/learn?mode=${mode}` : `/courses/${targetId}/learn`
+                            // Trang learn dùng `courseId` = liveClassId hoặc vodPackageId (delivery), không phải enrollmentId / courseProfileId.
+                            const deliveryTargetId =
+                                activeCourse.liveClassId ?? activeCourse.vodPackageId ?? ''
+                            if (!deliveryTargetId) {
+                                window.location.href = '/dashboard/my-courses'
+                                return
+                            }
+                            const mode = activeCourse.liveClassId ? 'LIVE' : 'VOD'
+                            window.location.href = `/courses/${deliveryTargetId}/learn?mode=${encodeURIComponent(mode)}`
                         }
                     }}
                     className={cn(

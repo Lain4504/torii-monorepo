@@ -17,12 +17,11 @@ export const academyLearningProgressApi = {
     },
 
     /**
-     * Track progress for a specific lesson
-     * Maps to new class lesson completion endpoint
+     * Đánh dấu hoàn thành bài (chỉ LIVE — `liveClassId` là UUID LiveClass).
      */
-    trackProgress: async (payload: { lessonId: string; classId: string }): Promise<any> => {
+    trackProgress: async (payload: { lessonId: string; liveClassId: string }): Promise<any> => {
         const response = await apiClient.post<StandardApiResponse<any>>(
-            `/api/academy/live-classes/${payload.classId}/lessons/${payload.lessonId}/complete`
+            `/api/academy/live-classes/${payload.liveClassId}/lessons/${payload.lessonId}/complete`
         );
         return response.data.data!;
     },
@@ -35,12 +34,10 @@ export const academyLearningProgressApi = {
         return response.data.data!;
     },
 
-    /**
-     * Get progress detail for a specific class
-     */
-    getClassProgress: async (classId: string): Promise<string[]> => {
+    /** Danh sách lesson id đã hoàn thành cho một LiveClass. */
+    getLiveClassCompletedLessonIds: async (liveClassId: string): Promise<string[]> => {
         try {
-            const response = await apiClient.get<StandardApiResponse<string[]>>(`/api/academy/live-classes/${classId}/completed-lessons`);
+            const response = await apiClient.get<StandardApiResponse<string[]>>(`/api/academy/live-classes/${liveClassId}/completed-lessons`);
             return response.data.data!;
         } catch {
             return [];
@@ -48,11 +45,10 @@ export const academyLearningProgressApi = {
     },
 
     /**
-     * Get IDs of completed content items for a specific class.
-     * Backend `getUserProgress` trả `{ modules: [{ lessons: [{ id, isCompleted, ... }] }] }` — không có `lessons` phẳng.
+     * Alias LIVE — cùng endpoint completed-lessons theo LiveClass.
      */
-    getCompletedLessonIds: async (classId: string): Promise<string[]> => {
-        return academyLearningProgressApi.getClassProgress(classId);
+    getCompletedLessonIds: async (liveClassId: string): Promise<string[]> => {
+        return academyLearningProgressApi.getLiveClassCompletedLessonIds(liveClassId);
     },
 
     /**
@@ -96,16 +92,16 @@ export function useAcademyLearningStats() {
 }
 
 /**
- * Hook: Get completed lesson IDs for a class
+ * Hook: completed lesson IDs cho một LiveClass (UUID lớp LIVE).
  */
 export function useAcademyCompletedLessonIds(
-    classId?: string,
+    liveClassId?: string,
     options?: { enabled?: boolean },
 ) {
     return useQuery({
-        queryKey: ['academy-learning', 'completed-lessons', classId],
-        queryFn: () => academyLearningProgressApi.getCompletedLessonIds(classId!),
-        enabled: (options?.enabled ?? true) && !!classId,
+        queryKey: ['academy-learning', 'completed-lessons', liveClassId],
+        queryFn: () => academyLearningProgressApi.getCompletedLessonIds(liveClassId!),
+        enabled: (options?.enabled ?? true) && !!liveClassId,
     });
 }
 

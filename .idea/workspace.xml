@@ -4,9 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add feedback field to assignment submission DTOs and update grading logic">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add feedback field to assignment submission DTOs and update grading logic (#364)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order.listener.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order.listener.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/resource/resource.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/resource/resource.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/academy-resource.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/academy-resource.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/coupon.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/coupon.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.schema.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/order.schema.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/interfaces/services/i-notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/interfaces/services/i-notification.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/modules/notification/notification.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/my-courses/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/courses/[courseId]/learn/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/course-hero-actions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/course-hero-actions.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/nav-learning.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/support/create-ticket-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/support/create-ticket-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/hooks/use-course-enrollment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/hooks/use-course-enrollment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-enrollment-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-enrollment-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-learning-progress-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/order-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/order-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/coupon.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/coupon.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/live-session.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/live-session.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/order.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/order.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/coupon.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/coupon.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +46,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1893" />
+    <option name="cachedIndexableFilesCount" value="1903" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -38,7 +65,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="redesign" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -413,14 +440,7 @@
       <workItem from="1775754644934" duration="2857000" />
       <workItem from="1775759401993" duration="2968000" />
       <workItem from="1775966402266" duration="3382000" />
-    </task>
-    <task id="LOCAL-01206" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775489949723</created>
-      <option name="number" value="01206" />
-      <option name="presentableId" value="LOCAL-01206" />
-      <option name="project" value="LOCAL" />
-      <updated>1775489949723</updated>
+      <workItem from="1776003909935" duration="820000" />
     </task>
     <task id="LOCAL-01207" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -806,7 +826,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775962080177</updated>
     </task>
-    <option name="localTasksCounter" value="1255" />
+    <task id="LOCAL-01255" summary="feat: add feedback field to assignment submission DTOs and update grading logic (#364)">
+      <option name="closed" value="true" />
+      <created>1776001403758</created>
+      <option name="number" value="01255" />
+      <option name="presentableId" value="LOCAL-01255" />
+      <option name="project" value="LOCAL" />
+      <updated>1776001403759</updated>
+    </task>
+    <option name="localTasksCounter" value="1256" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -841,7 +869,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="style: improve layout and spacing in dashboard components" />
     <MESSAGE value="fix ui web-adin" />
     <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
     <MESSAGE value="feat(ui): enhance ticket management UI with improved layout and functionality" />
@@ -866,7 +893,8 @@
     <MESSAGE value="refactor: refactor meet service (#356)&#10;&#10;* chore: update workspace configuration with job push notification details and new service paths&#10;&#10;* feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services." />
     <MESSAGE value="chore: update build config" />
     <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add feedback field to assignment submission DTOs and update grading logic" />
+    <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic (#364)" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add feedback field to assignment submission DTOs and update grading logic (#364)" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

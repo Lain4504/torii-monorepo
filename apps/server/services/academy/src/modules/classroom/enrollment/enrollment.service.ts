@@ -297,6 +297,7 @@ export class EnrollmentService {
             vodPackageId: e.vodPackageId,
             liveClassId: e.liveClassId,
             cohortId: e.liveClass?.cohortId,
+            courseProfileId: courseProfile?.id,
             type: e.liveClassId ? 'live' : 'vod',
             courseTitle,
             courseCode: courseProfile?.code,
@@ -793,7 +794,7 @@ export class EnrollmentService {
       return { isRegistered: false, isEnrolled: false };
     }
 
-    // 2. Check if already enrolled in the specific course/cohort
+    // 2. Đã ghi danh? targetId có thể là liveClassId, vodPackageId, hoặc cohortId (bất kỳ lớp nào trong kỳ LIVE đó).
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {
         userId: user.id,

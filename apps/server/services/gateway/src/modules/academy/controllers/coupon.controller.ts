@@ -32,9 +32,12 @@ export class CouponController {
    * Validate a coupon code
    */
   @Post('validate')
-  async validate(@Body() body: any) {
+  async validate(@Body() body: any, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.coupon.validate' }, body),
+      this.nats.send({ cmd: 'academy.coupon.validate' }, {
+        ...body,
+        userId: body?.userId ?? req.requester?.sub,
+      }),
     );
     return successResponse(result);
   }

@@ -371,14 +371,14 @@ export class NotificationService implements INotificationService, OnModuleInit {
    * Handle course published event - create notifications for interested learners
    */
   async handleCoursePublished(payload: {
-    courseMasterId: string;
+    courseProfileId: string;
     courseTitle: string;
     courseJlptLevel: string;
     userIds?: string[]; // Optional: specific user IDs to notify
   }): Promise<void> {
     try {
       this.logger.log(
-        `Handling course published event for course: ${payload.courseMasterId}`,
+        `Handling course published event for course profile: ${payload.courseProfileId}`,
       );
 
       let userIdsToNotify: string[] = [];
@@ -406,7 +406,7 @@ export class NotificationService implements INotificationService, OnModuleInit {
         message: `Khóa học "${payload.courseTitle}" đã được phát hành và sẵn sàng để bạn học tập!`,
         notificationType: 'course' as const,
         metadata: {
-          courseMasterId: payload.courseMasterId,
+          courseProfileId: payload.courseProfileId,
           courseTitle: payload.courseTitle,
           courseJlptLevel: payload.courseJlptLevel,
         },
@@ -418,7 +418,7 @@ export class NotificationService implements INotificationService, OnModuleInit {
       await this.notificationRepository.createMany(notifications);
 
       this.logger.log(
-        `Successfully created ${notifications.length} notifications for course: ${payload.courseMasterId}`,
+        `Successfully created ${notifications.length} notifications for course profile: ${payload.courseProfileId}`,
       );
     } catch (error: any) {
       this.logger.error('Error handling course published event:', error);

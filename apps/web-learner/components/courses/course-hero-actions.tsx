@@ -6,13 +6,13 @@ import { useRouter } from 'next/navigation'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 
 interface CourseHeroActionsProps {
-    courseMasterId: string
+    courseProfileId: string
     courseSlug: string
 }
 
-export function CourseHeroActions({ courseMasterId, courseSlug }: CourseHeroActionsProps) {
+export function CourseHeroActions({ courseProfileId, courseSlug }: CourseHeroActionsProps) {
     const router = useRouter()
-    const { isEnrolled, isExpired, isLoadingEnrollment } = useCourseEnrollment(courseMasterId, courseSlug)
+    const { isEnrolled, isExpired, isLoadingEnrollment } = useCourseEnrollment(courseProfileId, courseSlug)
 
     if (isLoadingEnrollment) {
         return <div className="h-12 w-40 bg-muted animate-pulse rounded-md" />

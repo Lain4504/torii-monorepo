@@ -37,15 +37,16 @@ const createTicketSchema = z.object({
     type: z.nativeEnum(TicketType),
     subject: z.string().min(5, 'Tiêu đề phải ít nhất 5 ký tự'),
     description: z.string().min(10, 'Nội dung phải ít nhất 10 ký tự'),
-    courseMasterId: z.string().optional(),
+    /** UUID enrollment (bảng Enrollment), không phải course profile. */
+    enrollmentId: z.string().optional(),
 }).refine((data) => {
-    if (data.type === TicketType.REFUND && !data.courseMasterId) {
+    if (data.type === TicketType.REFUND && !data.enrollmentId) {
         return false;
     }
     return true;
 }, {
     message: "Vui lòng chọn khóa học cần hoàn tiền",
-    path: ["courseMasterId"],
+    path: ["enrollmentId"],
 });
 
 type CreateTicketFormValues = z.infer<typeof createTicketSchema>;
@@ -66,7 +67,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
             type: TicketType.SUPPORT,
             subject: '',
             description: '',
-            courseMasterId: '',
+            enrollmentId: '',
         },
     });
 
@@ -90,7 +91,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
             const selectedEnrollment = (enrollments as any[]).find(
-                (en: any) => en.id === values.courseMasterId,
+                (en: any) => en.id === values.enrollmentId,
             );
             const selectedLiveClassId = selectedEnrollment?.liveClassId ?? undefined;
             const selectedVodPackageId = selectedEnrollment?.vodPackageId ?? undefined;
@@ -159,7 +160,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                     <FieldLabel>Khóa học hoàn tiền</FieldLabel>
                                     <Select
                                         onValueChange={(val) => {
-                                            setValue('courseMasterId', val);
+                                            setValue('enrollmentId', val);
                                             const en = (enrollments as any[]).find(
                                                 (e: any) => e.id === val,
                                             );
@@ -182,7 +183,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.courseMasterId && <p className="text-xs text-destructive">{errors.courseMasterId.message}</p>}
+                                    {errors.enrollmentId && <p className="text-xs text-destructive">{errors.enrollmentId.message}</p>}
                                 </Field>
                             )}
 

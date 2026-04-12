@@ -45,6 +45,7 @@ export class AcademyResourceController {
 
     // --- Learner APIs ---
 
+    /** Query `classId` (tên lịch sử): UUID LiveClass hoặc VodPackage — không phải Cohort.id. */
     @Get('my-folders/live-classes')
     async getMyLiveClassFolders(
         @Req() req: ReqWithRequester,
@@ -59,6 +60,7 @@ export class AcademyResourceController {
         return successResponse(folders);
     }
 
+    /** Path `classId`: LiveClass.id hoặc VodPackage.id (không phải Cohort.id). */
     @Get('my-folders/live-classes/:classId/resources')
     async getMyLiveClassResources(
         @Param('classId', new ParseUUIDPipe()) classId: string,

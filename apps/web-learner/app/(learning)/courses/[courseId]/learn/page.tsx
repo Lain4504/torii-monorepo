@@ -683,7 +683,7 @@ export default function CourseLearnPage() {
                 await academyVodLearningProgressApi.trackProgress({ lessonId: currentLesson.id, packageId: deliveryTargetId! });
                 await queryClient.invalidateQueries({ queryKey: ['academy-vod-learning', 'completed-lessons', deliveryTargetId] });
             } else {
-                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, classId: deliveryTargetId! });
+                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, liveClassId: deliveryTargetId! });
                 await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', deliveryTargetId] });
             }
             toast.success('Bài học đã hoàn thành! 🎉');

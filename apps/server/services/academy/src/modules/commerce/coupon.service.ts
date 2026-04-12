@@ -8,7 +8,6 @@ import { AuditLoggerService } from '../audit-logger.service';
 import {
   CouponStatus,
   CouponDiscountType,
-  CouponScope,
 } from '@prisma/generated';
 
 /** Coupon tạo khi học viên đổi điểm lấy quà — chỉ hiển thị ở web-learner, không quản trị ở admin list */
@@ -40,6 +39,23 @@ export class CouponService {
     if (c.ownerId != null) return true;
     if (c.source === COUPON_SOURCE_GAMIFICATION_REWARD) return true;
     return false;
+  }
+
+  /** Gỡ field không tồn tại trên model Coupon (payload từ client phiên bản cũ). */
+  private scrubCouponAdminPayload(
+    data: Record<string, unknown> | null | undefined,
+  ): Record<string, unknown> {
+    const input = { ...(data ?? {}) };
+    for (const key of [
+      'applicableCourseMasterIds',
+      'excludedCourseMasterIds',
+      'applicableRunIds',
+      'excludedRunIds',
+    ]) {
+      delete input[key];
+    }
+    delete input.ownerId;
+    return input;
   }
 
   private normalizeStatus(value: unknown): CouponStatus | undefined {
@@ -81,14 +97,10 @@ export class CouponService {
   }
 
   /**
-   * @param cartTargetIds UUID trong giỏ: vodPackageId, cohortId, liveClassId (không còn entity CourseOffering).
+   * Kiểm tra mã giảm giá (thời hạn, owner, min order, limit…).
+   * Không lọc theo từng dòng giỏ — ghi danh theo LiveClass / VodPackage sau khi thanh toán.
    */
-  async validateCoupon(
-    code: string,
-    userId: string,
-    orderValue: number,
-    cartTargetIds: string[],
-  ) {
+  async validateCoupon(code: string, userId: string, orderValue: number) {
     const coupon = await this.findByCode(code);
 
     if (coupon.ownerId != null && coupon.ownerId !== userId) {
@@ -130,21 +142,6 @@ export class CouponService {
       throw new BadRequestException(
         'You have reached the usage limit for this coupon',
       );
-    }
-
-    // Check scope
-    if (coupon.scope === CouponScope.SPECIFIC_OFFERING) {
-      const metadata = coupon.metadata as any;
-      const allowedTargetIds: string[] =
-        metadata?.applicableTargetIds ?? metadata?.offeringIds ?? [];
-      const matchesCart = cartTargetIds.some((id) =>
-        allowedTargetIds.includes(id),
-      );
-      if (!matchesCart) {
-        throw new BadRequestException(
-          'Coupon is not applicable to the selected products',
-        );
-      }
     }
 
     return coupon;
@@ -273,17 +270,8 @@ export class CouponService {
   }
 
   async admin_create(data: any, requesterId = 'SYSTEM') {
-    const {
-      discountType,
-      status,
-      ownerId: _ignoreOwner,
-      // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
-      applicableCourseMasterIds,
-      excludedCourseMasterIds,
-      applicableRunIds,
-      excludedRunIds,
-      ...rest
-    } = data ?? {};
+    const cleaned = this.scrubCouponAdminPayload(data);
+    const { discountType, status, ...rest } = cleaned;
 
     const normalizedDiscountType = this.normalizeDiscountType(discountType);
     const normalizedDiscountValue = Number(rest.discountValue);
@@ -299,11 +287,11 @@ export class CouponService {
       data: {
         ...rest,
         ownerId: null,
-        code: data.code.toUpperCase(),
+        code: String(cleaned.code).toUpperCase(),
         discountType: normalizedDiscountType,
         discountValue: normalizedDiscountValue,
         status: this.normalizeStatus(status),
-        source: (data as { source?: string }).source ?? 'MANUAL',
+        source: (cleaned as { source?: string }).source ?? 'MANUAL',
       },
     });
 
@@ -325,17 +313,8 @@ export class CouponService {
 
   async admin_update(id: string, data: any, requesterId = 'SYSTEM') {
     const old = await this.admin_findOne(id);
-    const {
-      discountType,
-      status,
-      ownerId: _ignoreOwner,
-      // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
-      applicableCourseMasterIds,
-      excludedCourseMasterIds,
-      applicableRunIds,
-      excludedRunIds,
-      ...rest
-    } = data ?? {};
+    const cleaned = this.scrubCouponAdminPayload(data);
+    const { discountType, status, ...rest } = cleaned;
 
     const normalizedDiscountType =
       this.normalizeDiscountType(discountType) ?? old.discountType;
@@ -352,7 +331,10 @@ export class CouponService {
       where: { id },
       data: {
         ...rest,
-        code: data.code?.toUpperCase(),
+        code:
+          cleaned.code !== undefined && cleaned.code !== null
+            ? String(cleaned.code).toUpperCase()
+            : undefined,
         discountType: this.normalizeDiscountType(discountType),
         discountValue:
           rest.discountValue !== undefined

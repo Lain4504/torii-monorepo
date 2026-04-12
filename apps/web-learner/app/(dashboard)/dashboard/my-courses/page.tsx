@@ -270,7 +270,9 @@ export default function MyCoursesPage() {
                                     {(() => {
                                         const courseType = course.type?.toLowerCase();
                                         const isLive = courseType === 'live';
-                                        const courseMasterId = isLive ? course.liveClassId : (course.vodPackageId ?? course.courseProfileId ?? course.id);
+                                        const learnOrLiveTargetId = isLive
+                                            ? course.liveClassId
+                                            : (course.vodPackageId ?? course.courseProfileId ?? course.id);
 
                                         const status = String(course.status || 'ACTIVE').toUpperCase();
                                         const isRefundPending = status === 'REFUND_PENDING';
@@ -302,11 +304,11 @@ export default function MyCoursesPage() {
                                             )
                                         }
 
-                                        if (!courseMasterId) return null;
+                                        if (!learnOrLiveTargetId) return null;
 
                                         return (
                                             <Link
-                                                href={isLive ? `/dashboard/my-courses/${courseMasterId}` : `/courses/${courseMasterId}/learn`}
+                                                href={isLive ? `/dashboard/my-courses/${learnOrLiveTargetId}` : `/courses/${learnOrLiveTargetId}/learn`}
                                                 className="flex-1"
                                                 onClick={(e) => e.stopPropagation()}
                                             >

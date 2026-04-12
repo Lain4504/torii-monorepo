@@ -62,10 +62,6 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
             startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
             endDate: coupon.endDate ? new Date(coupon.endDate) : new Date(),
             status: coupon.status,
-            applicableCourseMasterIds: coupon.applicableCourseMasterIds || [],
-            excludedCourseMasterIds: coupon.excludedCourseMasterIds || [],
-            applicableRunIds: coupon.applicableRunIds || [],
-            excludedRunIds: coupon.excludedRunIds || [],
         },
     });
 
@@ -84,10 +80,6 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                 startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
                 endDate: coupon.endDate ? new Date(coupon.endDate) : new Date(),
                 status: coupon.status,
-                applicableCourseMasterIds: coupon.applicableCourseMasterIds || [],
-                excludedCourseMasterIds: coupon.excludedCourseMasterIds || [],
-                applicableRunIds: coupon.applicableRunIds || [],
-                excludedRunIds: coupon.excludedRunIds || [],
             });
         }
     }, [open, coupon.id, reset]);
