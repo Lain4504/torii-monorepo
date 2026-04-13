@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: rename classId to liveClassId across multiple files for consistency">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix bug missing audio" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,32 +40,32 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "history": [
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
     {
-      "state": "OPEN"
+      &quot;state&quot;: &quot;OPEN&quot;
     }
   ],
-  "lastFilter": {}
-}]]></component>
-  <component name="GitHubPullRequestState"><![CDATA[{
-  "prStates": [
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM7RxamC",
-        "number": 365
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM7RxamC&quot;,
+        &quot;number&quot;: 365
       },
-      "lastSeen": 1776042538350
+      &quot;lastSeen&quot;: 1776042538350
     },
     {
-      "id": {
-        "id": "PR_kwDOQmD9iM7R1rSy",
-        "number": 368
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOQmD9iM7R1rSy&quot;,
+        &quot;number&quot;: 368
       },
-      "lastSeen": 1776042543692
+      &quot;lastSeen&quot;: 1776042543692
     }
   ]
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
@@ -101,41 +98,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;remove-leagacy-code-part2&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "Jest.CourseRunService.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\docs\spec" />
@@ -430,30 +427,6 @@
       <workItem from="1775759401993" duration="2968000" />
       <workItem from="1775966402266" duration="3382000" />
       <workItem from="1776003909935" duration="3313000" />
-    </task>
-    <task id="LOCAL-01209" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775491836938</created>
-      <option name="number" value="01209" />
-      <option name="presentableId" value="LOCAL-01209" />
-      <option name="project" value="LOCAL" />
-      <updated>1775491836938</updated>
-    </task>
-    <task id="LOCAL-01210" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775492981154</created>
-      <option name="number" value="01210" />
-      <option name="presentableId" value="LOCAL-01210" />
-      <option name="project" value="LOCAL" />
-      <updated>1775492981154</updated>
-    </task>
-    <task id="LOCAL-01211" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775496809968</created>
-      <option name="number" value="01211" />
-      <option name="presentableId" value="LOCAL-01211" />
-      <option name="project" value="LOCAL" />
-      <updated>1775496809968</updated>
     </task>
     <task id="LOCAL-01212" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
       <option name="closed" value="true" />
@@ -823,7 +796,31 @@
       <option name="project" value="LOCAL" />
       <updated>1776043611051</updated>
     </task>
-    <option name="localTasksCounter" value="1258" />
+    <task id="LOCAL-01258" summary="fix bug missing audio">
+      <option name="closed" value="true" />
+      <created>1776049855855</created>
+      <option name="number" value="01258" />
+      <option name="presentableId" value="LOCAL-01258" />
+      <option name="project" value="LOCAL" />
+      <updated>1776049855855</updated>
+    </task>
+    <task id="LOCAL-01259" summary="fix bug missing audio">
+      <option name="closed" value="true" />
+      <created>1776050697537</created>
+      <option name="number" value="01259" />
+      <option name="presentableId" value="LOCAL-01259" />
+      <option name="project" value="LOCAL" />
+      <updated>1776050697537</updated>
+    </task>
+    <task id="LOCAL-01260" summary="fix bug missing audio">
+      <option name="closed" value="true" />
+      <created>1776052251758</created>
+      <option name="number" value="01260" />
+      <option name="presentableId" value="LOCAL-01260" />
+      <option name="project" value="LOCAL" />
+      <updated>1776052251758</updated>
+    </task>
+    <option name="localTasksCounter" value="1261" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -858,8 +855,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(ui): enhance ticket management UI with improved layout and functionality" />
-    <MESSAGE value="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling" />
     <MESSAGE value="feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
@@ -882,8 +877,10 @@
     <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic" />
     <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic (#364)" />
     <MESSAGE value="refactor: remove legacy course offering fields and update related logic" />
+    <MESSAGE value="feat: enhance unit test coverage for agents and academy services (#369)" />
     <MESSAGE value="refactor: rename classId to liveClassId across multiple files for consistency" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: rename classId to liveClassId across multiple files for consistency" />
+    <MESSAGE value="fix bug missing audio" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug missing audio" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
