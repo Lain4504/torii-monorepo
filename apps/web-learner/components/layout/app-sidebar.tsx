@@ -1,9 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { LayoutDashboard, History, Bot } from "lucide-react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
 import Image from "next/image"
 
 import { NavMain } from "@/components/layout/nav-main"
@@ -16,17 +13,12 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
-    SidebarGroup,
-    SidebarGroupLabel,
-    SidebarGroupContent,
 } from "@workspace/ui/components/sidebar"
 import { learningNav, progressNav, accountNav, aiSenseiNav } from "@/config/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 import { useLogo } from "@/hooks/useLogo"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const pathname = usePathname()
-    const isAISenseiPath = pathname?.startsWith('/ai-sensei')
     const logo = useLogo()
     return (
         <Sidebar
@@ -70,29 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavLearning />
                 <NavMain label="Tiến độ" items={progressNav as any} />
                 <NavMain label="Tài khoản" items={accountNav as any} />
-
-                {isAISenseiPath && (
-                    <SidebarGroup className="mt-auto group-data-[collapsible=icon]:px-0">
-                        <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 mb-2 px-4 group-data-[collapsible=icon]:hidden">
-                            Lịch sử
-                        </SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem className="px-2 group-data-[collapsible=icon]:px-0">
-                                    <SidebarMenuButton
-                                        className={cn(
-                                            "h-10 text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                                            "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
-                                        )}
-                                    >
-                                        <History className="size-4 shrink-0" />
-                                        <span className="ml-2 font-medium text-sm group-data-[collapsible=icon]:hidden">Lịch sử chat</span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                )}
 
             </SidebarContent>
 
