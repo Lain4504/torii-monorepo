@@ -70,11 +70,11 @@ import { AcademyFolderType, AcademyFolderOwnerType, AcademyResourceType, Academy
 import { toast } from "sonner"
 
 interface ClassResourcesTabProps {
-    classId?: string
+    liveClassId?: string
     vodPackageId?: string
 }
 
-export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabProps) {
+export function ClassResourcesTab({ liveClassId, vodPackageId }: ClassResourcesTabProps) {
     const [isAddingResource, setIsAddingResource] = useState(false)
     const [isAddingFolder, setIsAddingFolder] = useState(false)
     const [resourceToDelete, setResourceToDelete] = useState<string | null>(null)
@@ -82,7 +82,7 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
     const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
     const [newFolderName, setNewFolderName] = useState("")
 
-    const ownerId = (vodPackageId || classId) as string
+    const ownerId = (vodPackageId || liveClassId) as string
     const ownerType = vodPackageId ? AcademyFolderOwnerType.COURSE_VOD : AcademyFolderOwnerType.LIVE_CLASS
     const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(ownerId, ownerType)
 
@@ -143,7 +143,7 @@ export function ClassResourcesTab({ classId, vodPackageId }: ClassResourcesTabPr
 
         setIsUploading(true)
         try {
-            const result = await storageApi.uploadFile(file, 'academy', { classId, vodPackageId })
+            const result = await storageApi.uploadFile(file, 'academy', { liveClassId, vodPackageId })
             setNewResource(prev => ({
                 ...prev,
                 fileAssetId: result.fileId,

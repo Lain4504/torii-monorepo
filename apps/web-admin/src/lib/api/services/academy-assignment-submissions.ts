@@ -9,7 +9,7 @@ import type {
 
 export type AcademyAssignmentSubmission = {
   id: string
-  classId?: string
+  liveClassId?: string | null
   classAssessmentId?: string
   assignmentTemplateId?: string
   userId: string

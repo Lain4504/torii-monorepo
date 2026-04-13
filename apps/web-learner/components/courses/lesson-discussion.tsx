@@ -24,16 +24,21 @@ import {
 } from "@workspace/ui/components/collapsible"
 
 interface LessonDiscussionProps {
-    classId: string
+    deliveryScopeId: string
     moduleId?: string
     lessonId: string
 }
 
-// Local hooks to replace missing discussion-topic-api
-function useDiscussions(lessonId: string, classId: string) {
+function useDiscussions(lessonId: string, deliveryScopeId: string) {
     return useQuery({
-        queryKey: ['discussions', lessonId, classId],
-        queryFn: () => commentApi.findAll({ discussionId: lessonId, classId, limit: 100, page: 1 }),
+        queryKey: ['discussions', lessonId, deliveryScopeId],
+        queryFn: () =>
+            commentApi.findAll({
+                discussionId: lessonId,
+                deliveryScopeId,
+                limit: 100,
+                page: 1,
+            }),
         enabled: !!lessonId
     })
 }
@@ -43,18 +48,18 @@ function useCreateDiscussion() {
     const { user } = useAppSelector(state => state.auth)
 
     return useMutation({
-        mutationFn: (data: { content: string, classId: string, moduleId?: string, lessonId: string, category: string }) => {
+        mutationFn: (data: { content: string, deliveryScopeId: string, moduleId?: string, lessonId: string, category: string }) => {
             return commentApi.create({
                 entityId: data.lessonId,
                 targetType: CommentTargetType.DISCUSSION,
                 discussionId: data.lessonId,
-                classId: data.classId,
+                deliveryScopeId: data.deliveryScopeId,
                 userId: user?.id || '',
                 content: data.content,
             })
         },
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['discussions', variables.lessonId, variables.classId] })
+            queryClient.invalidateQueries({ queryKey: ['discussions', variables.lessonId, variables.deliveryScopeId] })
         }
     })
 }
@@ -80,9 +85,9 @@ function useDeleteDiscussion() {
 }
 
 
-export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussionProps) {
+export function LessonDiscussion({ deliveryScopeId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
-    const { data: discussions, isLoading } = useDiscussions(lessonId, classId)
+    const { data: discussions, isLoading } = useDiscussions(lessonId, deliveryScopeId)
     const createDiscussion = useCreateDiscussion()
     const updateDiscussion = useUpdateDiscussion()
     const deleteDiscussion = useDeleteDiscussion()
@@ -96,7 +101,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
     const handleCreateTopic = async () => {
         if (!content.trim() || !isAuthenticated) return;
         try {
-            await createDiscussion.mutateAsync({ content: content.trim(), classId, moduleId, lessonId, category: 'QUESTION' })
+            await createDiscussion.mutateAsync({ content: content.trim(), deliveryScopeId, moduleId, lessonId, category: 'QUESTION' })
             setContent(''); setIsCreating(false);
             toast.success('Đã gửi câu hỏi.')
         } catch (error: any) {
@@ -297,7 +302,7 @@ export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussi
                                                     </CollapsibleTrigger>
                                                 </div>
                                                 <CollapsibleContent className="pt-4">
-                                                    <CommentSection discussionId={topic.id} classId={classId} />
+                                                    <CommentSection discussionId={topic.id} deliveryScopeId={deliveryScopeId} />
                                                 </CollapsibleContent>
                                             </Collapsible>
                                         </div>

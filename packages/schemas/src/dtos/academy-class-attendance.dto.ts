@@ -27,7 +27,7 @@ export type AcademyClassAttendanceUpdateDTO = z.infer<typeof academyClassAttenda
 export const academyClassAttendanceQueryDTOSchema = paginationQuerySchema.extend({
     sessionId: z.string().uuid().optional(),
     userId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    liveClassId: z.string().uuid().optional(),
 });
 
 export type AcademyClassAttendanceQueryDTO = z.infer<typeof academyClassAttendanceQueryDTOSchema>;

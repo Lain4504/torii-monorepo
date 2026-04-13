@@ -13,14 +13,15 @@ export const certificateQueryDTOSchema = z.object({
     page: z.string().optional(),
     limit: z.string().optional(),
     userId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    liveClassId: z.string().uuid().optional(),
+    vodPackageId: z.string().uuid().optional(),
 });
 
 export type CertificateQueryDTO = z.infer<typeof certificateQueryDTOSchema>;
 
 export const certificateIssueDTOSchema = z.object({
     userId: z.string().uuid(),
-    classId: z.string().uuid(),
+    liveClassId: z.string().uuid(),
     enrollmentId: z.string().uuid(),
 });
 

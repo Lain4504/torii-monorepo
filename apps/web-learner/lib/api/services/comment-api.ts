@@ -48,7 +48,8 @@ export const commentApi = {
                 backendParams.entityId = params.discussionId;
                 backendParams.targetType = 'DISCUSSION';
                 delete backendParams.discussionId;
-                if (params.classId) backendParams.classId = params.classId;
+                if (params.deliveryScopeId)
+                    backendParams.deliveryScopeId = params.deliveryScopeId;
                 if (params.courseId) backendParams.courseId = params.courseId;
             }
 
@@ -102,7 +103,8 @@ export const commentApi = {
             backendDto.entityId = dto.discussionId;
             backendDto.targetType = 'DISCUSSION';
             delete backendDto.discussionId;
-            if (dto.classId) backendDto.classId = dto.classId;
+            if (dto.deliveryScopeId)
+                backendDto.deliveryScopeId = dto.deliveryScopeId;
             if (dto.courseId) backendDto.courseId = dto.courseId;
         }
 

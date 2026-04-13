@@ -33,10 +33,6 @@ export const couponSchema = z.object({
 
   // Conditions
   minOrderValue: z.number().nonnegative().optional().nullable(),
-  applicableCourseMasterIds: z.array(z.string().uuid()).default([]),
-  excludedCourseMasterIds: z.array(z.string().uuid()).default([]),
-  applicableRunIds: z.array(z.string().uuid()).default([]),
-  excludedRunIds: z.array(z.string().uuid()).default([]),
 
   // Validity Period
   startDate: z.date().optional().nullable(),

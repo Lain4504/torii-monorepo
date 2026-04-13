@@ -9,9 +9,9 @@ import { vi } from "date-fns/locale"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Button } from "@workspace/ui/components/button"
 
-export function StudentReviewsSection({ classId }: { classId: string }) {
+export function StudentReviewsSection({ liveClassId }: { liveClassId: string }) {
     const [limit, setLimit] = useState(5)
-    const { data, isLoading } = academyClassReviewHooks.useListByLiveClass(classId, { limit, offset: 0, status: "PUBLISHED" })
+    const { data, isLoading } = academyClassReviewHooks.useListByLiveClass(liveClassId, { limit, offset: 0, status: "PUBLISHED" })
 
     const reviews = data?.data?.data?.items || []
     const total = data?.data?.data?.total || 0

@@ -52,5 +52,9 @@ export class AssignmentSubmissionQueryDto {
 
   @IsOptional()
   @IsUUID()
+  liveClassId?: string;
+
+  @IsOptional()
+  @IsUUID()
   userId?: string;
 }

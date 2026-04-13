@@ -15,7 +15,7 @@ describe('LiveScheduleService', () => {
 
   const scheduleMock = {
     id: 'schedule-id',
-    classId: 'class-id',
+    liveClassId: 'class-id',
     roomId: 'room-1',
     weekday: now.getDay(),
     startTime,

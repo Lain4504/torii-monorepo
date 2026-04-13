@@ -15,19 +15,21 @@ export class CouponHandler {
       code: string;
       userId: string;
       orderValue: number;
-      /** UUID cohort / vodPackage / liveClass trong giỏ */
-      cartTargetIds?: string[];
-      /** @deprecated dùng cartTargetIds */
-      offeringIds?: string[];
     },
   ) {
     try {
-      const cartTargetIds = data.cartTargetIds ?? data.offeringIds ?? [];
+      if (
+        !data?.code ||
+        !data?.userId ||
+        typeof data.orderValue !== 'number' ||
+        data.orderValue < 0
+      ) {
+        throw new RpcException('Invalid coupon validation payload');
+      }
       return this.couponService.validateCoupon(
         data.code,
         data.userId,
         data.orderValue,
-        cartTargetIds,
       );
     } catch (error) {
       this.logger.error(`Error validating coupon: ${error.message}`);

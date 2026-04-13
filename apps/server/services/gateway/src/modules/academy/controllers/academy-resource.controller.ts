@@ -45,29 +45,31 @@ export class AcademyResourceController {
 
     // --- Learner APIs ---
 
+    /** Query `deliveryScopeId`: UUID LiveClass hoặc VodPackage — không phải Cohort.id. */
     @Get('my-folders/live-classes')
     async getMyLiveClassFolders(
         @Req() req: ReqWithRequester,
-        @Query('classId') classId?: string,
+        @Query('deliveryScopeId') deliveryScopeId?: string,
     ) {
         const folders = await firstValueFrom(
             this.nats.send(
                 { cmd: 'academy.resource.getFoldersForLearner' },
-                { userId: req.requester.sub, role: req.requester.role, classId },
+                { userId: req.requester.sub, role: req.requester.role, deliveryScopeId },
             ),
         );
         return successResponse(folders);
     }
 
-    @Get('my-folders/live-classes/:classId/resources')
+    /** Path `deliveryScopeId`: LiveClass.id hoặc VodPackage.id (không phải Cohort.id). */
+    @Get('my-folders/live-classes/:deliveryScopeId/resources')
     async getMyLiveClassResources(
-        @Param('classId', new ParseUUIDPipe()) classId: string,
+        @Param('deliveryScopeId', new ParseUUIDPipe()) deliveryScopeId: string,
         @Req() req: ReqWithRequester,
     ) {
         const resources = await firstValueFrom(
             this.nats.send(
                 { cmd: 'academy.resource.getResourcesForLearner' },
-                { classId, userId: req.requester.sub, role: req.requester.role },
+                { deliveryScopeId, userId: req.requester.sub, role: req.requester.role },
             ),
         );
         return successResponse(resources);

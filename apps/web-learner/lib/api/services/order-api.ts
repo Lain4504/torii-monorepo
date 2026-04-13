@@ -110,7 +110,7 @@ export const orderApi = {
         const limit = Array.isArray(raw) ? raw.length : (raw.limit ?? 10);
         const totalPages = Array.isArray(raw) ? 1 : (raw.totalPages ?? 1);
         const getItemTitle = (item: any) =>
-            item.vodPackage?.title ?? item.cohort?.name ?? item.subscriptionPlan?.name ?? (item.offeringSnapshot as any)?.title ?? null;
+            item.vodPackage?.title ?? item.cohort?.name ?? item.subscriptionPlan?.name ?? (item.deliverySnapshot as any)?.title ?? null;
         const mapped = items.map((order: any) => ({
             id: order.id,
             transactionId: order.code,

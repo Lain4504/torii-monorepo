@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 
 function NavigateToClassTab({ tab }: { tab: string }) {
-  const { classId } = useParams<{ classId: string }>()
-  return <Navigate to={`/academy/live-classes/${classId}/detail?tab=${tab}`} replace />
+  const { liveClassId } = useParams<{ liveClassId: string }>()
+  return <Navigate to={`/academy/live-classes/${liveClassId}/detail?tab=${tab}`} replace />
 }
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -131,10 +131,10 @@ function App() {
 
                   <Route element={<RoutePermissionGuard anyPermission={["lms.delivery.read", "lms.delivery.update", "lms.assessment.grade"]} />}>
                     <Route path="academy/live-classes" element={<LiveClassesPage />} />
-                    <Route path="academy/live-classes/:classId/detail" element={<LiveClassStudentsPage />} />
-                    <Route path="academy/live-classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
-                    <Route path="academy/live-classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
-                    <Route path="academy/live-classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
+                    <Route path="academy/live-classes/:liveClassId/detail" element={<LiveClassStudentsPage />} />
+                    <Route path="academy/live-classes/:liveClassId/schedule" element={<NavigateToClassTab tab="schedule" />} />
+                    <Route path="academy/live-classes/:liveClassId/assessments" element={<NavigateToClassTab tab="assignments" />} />
+                    <Route path="academy/live-classes/:liveClassId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
                     <Route path="academy/vod-packages/my" element={<MyVodPackagesPage />} />
                     <Route path="academy/vod-packages/my/:id/discussion" element={<MyVodDiscussionPage />} />
                   </Route>

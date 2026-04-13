@@ -13,10 +13,6 @@ const couponCreateDTOBaseSchema = z.object({
 
   // Conditions
   minOrderValue: z.number().nonnegative().optional().nullable(),
-  applicableCourseMasterIds: z.array(z.string().uuid()).default([]),
-  excludedCourseMasterIds: z.array(z.string().uuid()).default([]),
-  applicableRunIds: z.array(z.string().uuid()).default([]),
-  excludedRunIds: z.array(z.string().uuid()).default([]),
 
   // Validity Period
   startDate: z.date().or(z.string().datetime()),
@@ -68,13 +64,11 @@ export const couponResponseDTOSchema = couponSchema;
 export type CouponResponseDTO = z.infer<typeof couponResponseDTOSchema>;
 
 /**
- * Coupon Validate Request DTO
+ * Client chỉ gửi `code` + `orderValue`; `userId` luôn lấy từ JWT ở gateway.
  */
 export const couponValidateRequestDTOSchema = z.object({
   code: z.string().min(1),
-  courseMasterId: z.string().uuid(),
-  courseRunId: z.string().uuid().optional(),
-  userId: z.string().uuid().optional(),
+  orderValue: z.number().nonnegative(),
 });
 
 export type CouponValidateRequestDTO = z.infer<typeof couponValidateRequestDTOSchema>;
@@ -96,9 +90,9 @@ export type CouponValidateResponseDTO = z.infer<typeof couponValidateResponseDTO
  */
 export const couponCalculateDiscountRequestDTOSchema = z.object({
   couponId: z.string().uuid(),
-  courseMasterId: z.string().uuid(),
-  courseRunId: z.string().uuid().optional(),
   basePrice: z.number().nonnegative(),
+  /** LiveClass hoặc VodPackage — dùng khi tính giảm theo delivery (tùy backend). */
+  deliveryTargetId: z.string().uuid().optional(),
 });
 
 export type CouponCalculateDiscountRequestDTO = z.infer<typeof couponCalculateDiscountRequestDTOSchema>;

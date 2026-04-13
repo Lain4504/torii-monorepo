@@ -6,11 +6,11 @@ import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
 export default function ClassSchedulePage() {
-  const { classId } = useParams<{ classId: string }>()
-  const { data: academyClass, isLoading } = useAcademyLiveClass(classId)
+  const { liveClassId } = useParams<{ liveClassId: string }>()
+  const { data: academyClass, isLoading } = useAcademyLiveClass(liveClassId)
 
-  if (!classId) {
-    return <div className="p-8">Thiếu classId trên URL.</div>
+  if (!liveClassId) {
+    return <div className="p-8">Thiếu mã lớp trên URL.</div>
   }
 
   return (
@@ -53,7 +53,7 @@ export default function ClassSchedulePage() {
           <Skeleton className="h-64 w-full" />
         </div>
       ) : (
-        <ClassAttendanceTab classId={classId} />
+        <ClassAttendanceTab liveClassId={liveClassId} />
       )}
     </div>
   )

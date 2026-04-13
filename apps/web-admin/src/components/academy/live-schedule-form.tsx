@@ -37,7 +37,7 @@ export function LiveScheduleForm({
   onSubmit,
   onCancel,
   submitting,
-  defaultClassId,
+  defaultLiveClassId,
 }: {
   mode: "create" | "edit"
   initial?: AcademyLiveSchedule
@@ -46,7 +46,7 @@ export function LiveScheduleForm({
   ) => Promise<void>
   onCancel: () => void
   submitting?: boolean
-  defaultClassId?: string
+  defaultLiveClassId?: string
 }) {
   const isEdit = mode === "edit"
 
@@ -65,7 +65,7 @@ export function LiveScheduleForm({
         endTime: initial?.endTime ?? "",
       }
       : {
-        classId: defaultClassId ?? "",
+        liveClassId: defaultLiveClassId ?? "",
         weekday: 1,
         startTime: "19:00",
         endTime: "21:00",
@@ -87,12 +87,12 @@ export function LiveScheduleForm({
           <FieldGroup>
             {!isEdit && (
               <Controller
-                name={"classId" as any}
+                name={"liveClassId" as any}
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Class ID</FieldLabel>
-                    <Input placeholder="UUID của Class" disabled {...field} />
+                    <FieldLabel>Live class ID</FieldLabel>
+                    <Input placeholder="UUID lớp LIVE" disabled {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}

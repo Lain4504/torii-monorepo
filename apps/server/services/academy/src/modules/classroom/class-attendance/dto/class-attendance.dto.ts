@@ -28,7 +28,7 @@ export class ClassAttendanceQueryDto {
 
   @IsOptional()
   @IsUUID()
-  classId?: string;
+  liveClassId?: string;
 
   @IsOptional()
   @IsInt()

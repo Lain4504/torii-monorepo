@@ -258,16 +258,10 @@ export class OrderService {
     let couponId: string | undefined;
 
     if (input.couponCode) {
-      const allProductIds = [
-        ...vodPackageIds,
-        ...cohortIds,
-        ...liveClassIds,
-      ];
       const coupon = await this.couponService.validateCoupon(
         input.couponCode,
         userId,
         subTotal,
-        allProductIds,
       );
       discountTotal = await this.couponService.calculateDiscount(
         coupon.id,
@@ -301,7 +295,7 @@ export class OrderService {
       ...preview.vodPackages.map((v: any) => ({
         vodPackageId: v.id,
         price: v.discountPrice ?? v.price,
-        offeringSnapshot: {
+        deliverySnapshot: {
           title: v.title,
           code: v.code,
           mode: 'VOD',
@@ -314,7 +308,7 @@ export class OrderService {
         return {
           cohortId: c.id,
           price: lc?.discountPrice ?? lc?.price ?? 0,
-          offeringSnapshot: {
+          deliverySnapshot: {
             title: c.name,
             code: c.code,
             mode: 'LIVE',
@@ -329,7 +323,7 @@ export class OrderService {
         .map((lc: any) => ({
           liveClassId: lc.id,
           price: lc.discountPrice ?? lc.price ?? 0,
-          offeringSnapshot: {
+          deliverySnapshot: {
             title: lc.name,
             code: lc.code,
             mode: 'LIVE',
@@ -342,7 +336,7 @@ export class OrderService {
       ...preview.subscriptionPlans.map((s: any) => ({
         subscriptionPlanId: s.id,
         price: s.price,
-        offeringSnapshot: {
+        deliverySnapshot: {
           title: s.name,
           code: s.code,
           isSubscription: true,
@@ -699,7 +693,7 @@ export class OrderService {
       data: {
         userId: targetUserId,
         planId: item.subscriptionPlanId,
-        planCode: item.offeringSnapshot?.code || 'unknown',
+        planCode: item.deliverySnapshot?.code || 'unknown',
         startedAt: now,
         expiresAt: newExpiresAt,
         status: 'ACTIVE',
@@ -871,7 +865,7 @@ export class OrderService {
       throw new NotFoundException('Order not found');
 
     const itemResults = order.items.map((item) => {
-      const snapshot = (item.offeringSnapshot ?? {}) as {
+      const snapshot = (item.deliverySnapshot ?? {}) as {
         selectedLiveClassId?: string;
         mode?: string;
       };

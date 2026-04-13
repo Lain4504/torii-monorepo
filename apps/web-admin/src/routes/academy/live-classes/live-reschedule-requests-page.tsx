@@ -214,13 +214,13 @@ export default function LiveRescheduleRequestsPage() {
                 </TableRow>
               ) : (
                 filteredRequests.map((req: AcademyLiveScheduleRequest) => {
-                  const classId = req.liveClassId || req.session?.liveClassId || ""
-                  const classInfo = classMap.get(classId)
+                  const liveClassId = req.liveClassId || req.session?.liveClassId || ""
+                  const classInfo = classMap.get(liveClassId)
                   return (
                     <TableRow key={req.id} className="hover:bg-muted/5 transition-colors group">
                       <TableCell className="pl-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-bold text-sm text-primary group-hover:underline cursor-pointer" onClick={() => window.open(`/academy/live-classes/${classId}/detail?tab=schedule`, '_blank')}>
+                          <span className="font-bold text-sm text-primary group-hover:underline cursor-pointer" onClick={() => window.open(`/academy/live-classes/${liveClassId}/detail?tab=schedule`, '_blank')}>
                             {classInfo?.code || "—"}
                           </span>
                           <span className="text-[10px] text-muted-foreground truncate max-w-[180px]" title={classInfo?.name}>
@@ -346,8 +346,8 @@ export default function LiveRescheduleRequestsPage() {
 
           {detailDialog.request ? (() => {
             const req = detailDialog.request
-            const classId = req.liveClassId || req.session?.liveClassId || ""
-            const classInfo = classMap.get(classId)
+            const liveClassId = req.liveClassId || req.session?.liveClassId || ""
+            const classInfo = classMap.get(liveClassId)
             return (
               <div className="space-y-4">
                 <div className="rounded-lg border bg-muted/20 p-3">

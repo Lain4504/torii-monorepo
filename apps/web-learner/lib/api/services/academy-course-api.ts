@@ -103,8 +103,8 @@ function normalizeProductForLearner(item: any) {
     classes: normalizedClasses,
     class: primaryClass,
     siblingClasses,
-    /** UUID lớp LIVE gợi ý (API có thể gửi `defaultLiveClassId` hoặc `classId`). */
-    defaultLiveClassId: item.defaultLiveClassId ?? item.classId ?? null,
+    /** UUID lớp LIVE gợi ý từ API (`defaultLiveClassId`). */
+    defaultLiveClassId: item.defaultLiveClassId ?? null,
     /** Luôn có khi curriculum lấy từ courseProfile (kể cả LIVE không có class 1:1) */
     curriculum: curriculum ?? null,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
@@ -306,11 +306,11 @@ export function useAcademyClassCatalog(
   })
 }
 
-export function useAcademyClassCatalogById(classId?: string, mode?: 'LIVE' | 'VOD') {
-  return useQuery({
-    queryKey: ['academy-class-catalog', 'id', classId, mode],
-    queryFn: () => academyClassCatalogApi.getPublicById(classId!, mode),
-    enabled: !!classId,
+export function useAcademyClassCatalogById(catalogItemId?: string, mode?: 'LIVE' | 'VOD') {
+    return useQuery({
+        queryKey: ['academy-class-catalog', 'id', catalogItemId, mode],
+        queryFn: () => academyClassCatalogApi.getPublicById(catalogItemId!, mode),
+        enabled: !!catalogItemId,
     retry: false,
   });
 }

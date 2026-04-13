@@ -55,11 +55,10 @@ const MEET_URL = import.meta.env.VITE_MEET_URL || "https://meet.torii.sbs"
 type SessionWithClass = AcademyLiveScheduleSessionModel & {
     className?: string
     classCode?: string
-    liveClassId?: string
 }
 
 function getSessionClassId(session: SessionWithClass): string | undefined {
-    return session.liveClassId || (session.classId as string | undefined)
+    return session.liveClassId
 }
 
 function sessionToDate(s: SessionWithClass): Date {
@@ -169,10 +168,10 @@ export default function LecturerDashboard() {
     }, [classes])
 
     const sessionQueries = useQueries({
-        queries: liveClassIds.slice(0, 15).map((classId) => ({
-            queryKey: ["academy-live-sessions", classId, fromDate, toDate],
-            queryFn: () => academyLiveSessionsApi.findAll({ classId, from: fromDate, to: toDate }),
-            enabled: !!classId && !!instructorId,
+        queries: liveClassIds.slice(0, 15).map((liveClassId) => ({
+            queryKey: ["academy-live-sessions", liveClassId, fromDate, toDate],
+            queryFn: () => academyLiveSessionsApi.findAll({ liveClassId, from: fromDate, to: toDate }),
+            enabled: !!liveClassId && !!instructorId,
         })),
     })
 
@@ -184,7 +183,6 @@ export default function LecturerDashboard() {
                 q.data.forEach((s: AcademyLiveScheduleSessionModel) => {
                     results.push({
                         ...s,
-                        liveClassId: (s as any).liveClassId,
                         className: cls?.name,
                         classCode: cls?.code,
                     })

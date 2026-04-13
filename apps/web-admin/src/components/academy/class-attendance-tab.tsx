@@ -49,13 +49,13 @@ const WEEKDAY_MAP: Record<number, string> = {
 }
 
 interface ClassAttendanceTabProps {
-    classId?: string
+    liveClassId?: string
     academyClass?: AcademyLiveClass
 }
 
-export function ClassAttendanceTab({ classId: propClassId, academyClass: propAcademyClass }: ClassAttendanceTabProps) {
+export function ClassAttendanceTab({ liveClassId: propLiveClassId, academyClass: propAcademyClass }: ClassAttendanceTabProps) {
     const params = useParams()
-    const classId = propClassId || params.classId || ""
+    const liveClassId = propLiveClassId || params.liveClassId || ""
 
     // Dynamic date range for sessions (past 6 months to future 1 year)
     const now = new Date()
@@ -84,23 +84,23 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
         "ops.user.manage",
     ])
 
-    const { data: fetchedClass } = useAcademyLiveClass(propAcademyClass ? undefined : classId)
+    const { data: fetchedClass } = useAcademyLiveClass(propAcademyClass ? undefined : liveClassId)
     const academyClass = propAcademyClass || fetchedClass
 
-    const { data: enrollmentsData = [] } = useAcademyEnrollments({ liveClassId: classId, page: 1, limit: 100 })
+    const { data: enrollmentsData = [] } = useAcademyEnrollments({ liveClassId, page: 1, limit: 100 })
     const { data: sessions = [] } = useAcademyLiveSessions({
-        classId,
+        liveClassId,
         from: fromDate,
         to: toDate
     })
     const { data: attendanceData } = useAcademyClassAttendances({
         page: 1,
         limit: 100,
-        classId: classId || undefined,
+        liveClassId: liveClassId || undefined,
     })
-    const { data: schedules = [] } = useAcademyLiveSchedules({ classId })
-    const { data: allRequests = [] } = useAcademyLiveScheduleRequests({ classId })
-    const requests = allRequests.filter(r => r.liveClassId === classId || r.session?.liveClassId === classId)
+    const { data: schedules = [] } = useAcademyLiveSchedules({ liveClassId })
+    const { data: allRequests = [] } = useAcademyLiveScheduleRequests({ liveClassId })
+    const requests = allRequests.filter(r => r.liveClassId === liveClassId || r.session?.liveClassId === liveClassId)
 
     const enrollments = enrollmentsData as AcademyEnrollment[]
     const attendances = attendanceData?.items || []
@@ -232,7 +232,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
             <ClassScheduleSheet
                 open={scheduleSheetOpen}
                 onOpenChange={setScheduleSheetOpen}
-                classId={classId}
+                liveClassId={liveClassId}
             />
 
             {selectedSessionForReschedule && (

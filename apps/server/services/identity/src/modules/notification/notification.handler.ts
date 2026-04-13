@@ -115,15 +115,14 @@ export class NotificationHandler {
   }
 
   /**
-   * Handle course published event
+   * Khóa học (course profile) phát hành — thông báo học viên.
    * Pattern: course.published
-   * Legacy event, kept for backward compatibility
    */
   @MessagePattern({ cmd: 'course.published' })
   async handleCoursePublished(
     @Payload()
     payload: {
-      courseMasterId: string;
+      courseProfileId: string;
       courseTitle: string;
       courseJlptLevel: string;
       userIds?: string[];
@@ -131,7 +130,7 @@ export class NotificationHandler {
   ): Promise<void> {
     try {
       this.logger.log(
-        `Received course.published event for course: ${payload.courseMasterId}`,
+        `Received course.published event for course profile: ${payload.courseProfileId}`,
       );
       await this.notificationService.handleCoursePublished(payload);
     } catch (error: any) {

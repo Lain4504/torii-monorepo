@@ -1,6 +1,6 @@
 # Commerce LIVE/VOD & Enrollment (trạng thái hiện tại)
 
-Tài liệu này **thay thế** các bản spec cũ về entity **`CourseOffering`** — model đó **không còn** trong `schema.prisma` và không dùng trong luồng runtime hiện tại.
+Tài liệu mô tả luồng **Cohort / LiveClass / VodPackage / Enrollment / Order** trong academy service. Các khái niệm catalog cũ (master / run / offering dạng entity) **không** còn trong runtime.
 
 ## Thực thể chính (Prisma)
 
@@ -9,8 +9,8 @@ Tài liệu này **thay thế** các bản spec cũ về entity **`CourseOfferin
 | **Cohort** | Đợt / gói bán LIVE (catalog). |
 | **LiveClass** | Một lớp LIVE cụ thể (thuộc cohort). |
 | **VodPackage** | Gói VOD (catalog). |
-| **Enrollment** | `userId` + **một trong hai**: `liveClassId` **hoặc** `vodPackageId`. Không có cột `offering_id`. |
-| **Order** / **OrderItem** | Giỏ: `cohortId`, `liveClassId`, `vodPackageId`, … và **`offeringSnapshot`** (JSON) — **ảnh chụp** giá/tên/mô tả lúc mua, **không** là FK tới bảng CourseOffering. |
+| **Enrollment** | `userId` + **một trong hai**: `liveClassId` **hoặc** `vodPackageId`. |
+| **Order** / **OrderItem** | Giỏ: `cohortId`, `liveClassId`, `vodPackageId`, … và **`deliverySnapshot`** (JSON, cột `delivery_snapshot`) — ảnh chụp giá/tên/mô tả lúc mua. |
 
 ## Luồng nghiệp vụ
 
@@ -28,6 +28,6 @@ Tài liệu này **thay thế** các bản spec cũ về entity **`CourseOfferin
 
 Các file trong `prisma/migrations/**` giữ nguyên (audit DB). **Không** sửa migration đã chạy.
 
-## Coupon & metadata
+## Coupon
 
-Coupon scope `SPECIFIC_OFFERING` (enum Prisma) là **tên lịch sử**. Giá trị áp dụng trong `metadata` có thể dùng key cũ `offeringIds` hoặc key mới `applicableTargetIds` — UUID **cohort / vodPackage / liveClass** trong giỏ, không phải bảng `academy_course_offerings`.
+`CouponScope` trong Prisma chỉ còn **GLOBAL**. Validate coupon dùng `code`, `userId`, `orderValue` — không lọc theo từng dòng giỏ.
