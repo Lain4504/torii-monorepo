@@ -41,11 +41,15 @@ export class AssignmentSubmissionService {
       isExamManager || canViewAll
         ? query.userId
         : (requesterId ?? query.userId);
+    const where: Prisma.AssignmentSubmissionWhereInput = {
+      liveClassAssignmentId: query.classAssessmentId ?? undefined,
+      userId: effectiveUserId ?? undefined,
+    };
+    if (query.liveClassId) {
+      where.liveClassAssignment = { liveClassId: query.liveClassId };
+    }
     const submissions = await this.prisma.assignmentSubmission.findMany({
-      where: {
-        liveClassAssignmentId: query.classAssessmentId ?? undefined,
-        userId: effectiveUserId ?? undefined,
-      },
+      where,
       include: {
         user: {
           select: { id: true, displayName: true, email: true },

@@ -124,7 +124,8 @@ export class CertificateService {
     page?: string | number;
     limit?: string | number;
     userId?: string;
-    classId?: string;
+    liveClassId?: string;
+    vodPackageId?: string;
   }) {
     const page = Math.max(1, Number(query?.page ?? 1) || 1);
     const limit = Math.min(100, Math.max(1, Number(query?.limit ?? 20) || 20));
@@ -132,7 +133,8 @@ export class CertificateService {
 
     const where: any = {};
     if (query?.userId) where.userId = query.userId;
-    if (query?.classId) where.liveClassId = query.classId;
+    if (query?.liveClassId) where.liveClassId = query.liveClassId;
+    if (query?.vodPackageId) where.vodPackageId = query.vodPackageId;
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.certificate.findMany({

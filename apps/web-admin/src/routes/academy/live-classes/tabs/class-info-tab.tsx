@@ -14,8 +14,6 @@ import { formatDate } from "@/lib/format-utils"
 
 interface ClassInfoTabProps {
   academyClass: AcademyLiveClass | null | undefined
-  classId: string
-  canManageStatus: boolean
 }
 
 const STATUS_LABELS: Record<string, string> = {

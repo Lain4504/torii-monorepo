@@ -41,7 +41,7 @@ export function LiveClassDashboard() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const classId = params.courseId as string;
+    const courseId = params.courseId as string;
 
     const activeTab = useMemo((): DashboardTab => {
         const raw = searchParams.get("tab")
@@ -83,10 +83,10 @@ export function LiveClassDashboard() {
         })
     }
 
-    const { data: academyClass, isLoading: classLoading } = useAcademyClass(classId);
-    const { data: schedule, isLoading: scheduleLoading } = useClassSchedule(classId);
-    const { data: curriculum } = useCurriculum(classId);
-    const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(classId);
+    const { data: academyClass, isLoading: classLoading } = useAcademyClass(courseId);
+    const { data: schedule, isLoading: scheduleLoading } = useClassSchedule(courseId);
+    const { data: curriculum } = useCurriculum(courseId);
+    const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(courseId);
 
     const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i));
@@ -196,7 +196,7 @@ export function LiveClassDashboard() {
                     <div className="relative min-h-[220px] lg:min-h-full">
                         <Image src={thumbnail} alt={academyClass.name || "Class Thumbnail"} fill className="object-cover" />
                         <div className="absolute inset-x-4 bottom-4">
-                            <Button className="w-full" onClick={() => router.push(`/courses/${classId}/learn?mode=VOD`)}>
+                            <Button className="w-full" onClick={() => router.push(`/courses/${courseId}/learn?mode=VOD`)}>
                                 <PlayCircle className="mr-2 size-4" />
                                 Mở trang học VOD
                             </Button>
@@ -308,7 +308,7 @@ export function LiveClassDashboard() {
                                             Tài liệu
                                         </TabsTrigger>
                                     </TabsList>
-                                    <Button variant="outline" size="sm" onClick={() => router.push(`/courses/${classId}/learn`)}>
+                                    <Button variant="outline" size="sm" onClick={() => router.push(`/courses/${courseId}/learn`)}>
                                         Mở trang học VOD
                                         <ChevronRight className="size-4" />
                                     </Button>
@@ -316,7 +316,7 @@ export function LiveClassDashboard() {
 
                                 <TabsContent value="curriculum" className="mt-4">
                                     {curriculum ? (
-                                        <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={classId} />
+                                        <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
                                     ) : (
                                         <div className="flex min-h-[160px] items-center justify-center">
                                             <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
@@ -326,7 +326,7 @@ export function LiveClassDashboard() {
 
                                 <TabsContent value="assignments" className="mt-4">
                                     <AcademyAssignmentList
-                                        classId={classId}
+                                        liveClassId={courseId}
                                         openClassAssignmentId={openClassAssignmentId}
                                         onOpenAssignmentChange={handleAssignmentDeepLinkChange}
                                     />
@@ -340,7 +340,7 @@ export function LiveClassDashboard() {
                                                 Tài liệu và liên kết do giảng viên đặt trong từng thư mục.
                                             </p>
                                         </div>
-                                        <AcademyResourceList classId={classId} />
+                                        <AcademyResourceList deliveryScopeId={courseId} />
                                     </div>
                                 </TabsContent>
                             </Tabs>

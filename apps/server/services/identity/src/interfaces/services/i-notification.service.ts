@@ -56,7 +56,7 @@ export interface INotificationService {
    * Handle course published event - create notifications for interested learners
    */
   handleCoursePublished(payload: {
-    courseMasterId: string;
+    courseProfileId: string;
     courseTitle: string;
     courseJlptLevel: string;
     userIds?: string[];

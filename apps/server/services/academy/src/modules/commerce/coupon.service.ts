@@ -8,7 +8,6 @@ import { AuditLoggerService } from '../audit-logger.service';
 import {
   CouponStatus,
   CouponDiscountType,
-  CouponScope,
 } from '@prisma/generated';
 
 /** Coupon tạo khi học viên đổi điểm lấy quà — chỉ hiển thị ở web-learner, không quản trị ở admin list */
@@ -81,14 +80,10 @@ export class CouponService {
   }
 
   /**
-   * @param cartTargetIds UUID trong giỏ: vodPackageId, cohortId, liveClassId (không còn entity CourseOffering).
+   * Kiểm tra mã giảm giá (thời hạn, owner, min order, limit…).
+   * Không lọc theo từng dòng giỏ — ghi danh theo LiveClass / VodPackage sau khi thanh toán.
    */
-  async validateCoupon(
-    code: string,
-    userId: string,
-    orderValue: number,
-    cartTargetIds: string[],
-  ) {
+  async validateCoupon(code: string, userId: string, orderValue: number) {
     const coupon = await this.findByCode(code);
 
     if (coupon.ownerId != null && coupon.ownerId !== userId) {
@@ -132,21 +127,6 @@ export class CouponService {
       );
     }
 
-    // Check scope
-    if (coupon.scope === CouponScope.SPECIFIC_OFFERING) {
-      const metadata = coupon.metadata as any;
-      const allowedTargetIds: string[] =
-        metadata?.applicableTargetIds ?? metadata?.offeringIds ?? [];
-      const matchesCart = cartTargetIds.some((id) =>
-        allowedTargetIds.includes(id),
-      );
-      if (!matchesCart) {
-        throw new BadRequestException(
-          'Coupon is not applicable to the selected products',
-        );
-      }
-    }
-
     return coupon;
   }
 
@@ -162,7 +142,7 @@ export class CouponService {
       } as any,
     );
 
-    // 2) Coupons the user has already used in orders (backwards compatibility / history)
+    // 2) Coupon đã từng dùng trong đơn (lịch sử)
     const usagesPromise = this.prisma.couponUsage.findMany({
       where: { userId },
       include: { coupon: true },
@@ -273,17 +253,8 @@ export class CouponService {
   }
 
   async admin_create(data: any, requesterId = 'SYSTEM') {
-    const {
-      discountType,
-      status,
-      ownerId: _ignoreOwner,
-      // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
-      applicableCourseMasterIds,
-      excludedCourseMasterIds,
-      applicableRunIds,
-      excludedRunIds,
-      ...rest
-    } = data ?? {};
+    const cleaned = { ...(data ?? {}) };
+    const { discountType, status, ...rest } = cleaned;
 
     const normalizedDiscountType = this.normalizeDiscountType(discountType);
     const normalizedDiscountValue = Number(rest.discountValue);
@@ -299,11 +270,11 @@ export class CouponService {
       data: {
         ...rest,
         ownerId: null,
-        code: data.code.toUpperCase(),
+        code: String(cleaned.code).toUpperCase(),
         discountType: normalizedDiscountType,
         discountValue: normalizedDiscountValue,
         status: this.normalizeStatus(status),
-        source: (data as { source?: string }).source ?? 'MANUAL',
+        source: (cleaned as { source?: string }).source ?? 'MANUAL',
       },
     });
 
@@ -325,17 +296,8 @@ export class CouponService {
 
   async admin_update(id: string, data: any, requesterId = 'SYSTEM') {
     const old = await this.admin_findOne(id);
-    const {
-      discountType,
-      status,
-      ownerId: _ignoreOwner,
-      // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
-      applicableCourseMasterIds,
-      excludedCourseMasterIds,
-      applicableRunIds,
-      excludedRunIds,
-      ...rest
-    } = data ?? {};
+    const cleaned = { ...(data ?? {}) };
+    const { discountType, status, ...rest } = cleaned;
 
     const normalizedDiscountType =
       this.normalizeDiscountType(discountType) ?? old.discountType;
@@ -352,7 +314,10 @@ export class CouponService {
       where: { id },
       data: {
         ...rest,
-        code: data.code?.toUpperCase(),
+        code:
+          cleaned.code !== undefined && cleaned.code !== null
+            ? String(cleaned.code).toUpperCase()
+            : undefined,
         discountType: this.normalizeDiscountType(discountType),
         discountValue:
           rest.discountValue !== undefined

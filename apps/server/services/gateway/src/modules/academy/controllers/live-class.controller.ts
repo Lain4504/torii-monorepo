@@ -48,7 +48,7 @@ export class LiveClassController {
 
   private async assertLecturerOwnsClassIfScoped(
     req: ReqWithRequester,
-    classId: string,
+    liveClassId: string,
   ) {
     const requester = req.requester;
     const perms = requester?.permissions || [];
@@ -61,7 +61,7 @@ export class LiveClassController {
     if (isGlobalAcademicManager) return;
 
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveClass.findById' }, { id: classId }),
+      this.nats.send({ cmd: 'academy.liveClass.findById' }, { id: liveClassId }),
     );
     if (!item?.id) throw new NotFoundException('Live class not found');
     if (item.instructorId !== requester.sub) {
@@ -294,7 +294,7 @@ export class LiveClassController {
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveClass.findAssignments' },
-        { classId: id },
+        { liveClassId: id },
       ),
     );
     return successResponse({ items });

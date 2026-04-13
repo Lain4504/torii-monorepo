@@ -69,7 +69,7 @@ export class LiveScheduleHandler {
   async findAllSessionsByClassAndRange(
     @Payload()
     data: {
-      classId: string;
+      liveClassId: string;
       from: string;
       to: string;
       requesterId?: string;
@@ -78,11 +78,11 @@ export class LiveScheduleHandler {
     const fromDate = new Date(data.from);
     const toDate = new Date(data.to);
     await this.schedules.generateInstancesForClassRange(
-      data.classId,
+      data.liveClassId,
       data.requesterId ?? 'SYSTEM',
     );
     return this.schedules.listSessionsForClassRange(
-      data.classId,
+      data.liveClassId,
       fromDate,
       toDate,
     );

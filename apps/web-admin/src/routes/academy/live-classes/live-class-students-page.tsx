@@ -24,13 +24,11 @@ const TAB_RESOURCES = "resources"
 const TAB_SYLLABUS = "syllabus"
 
 export default function ClassStudentsPage() {
-  const { classId } = useParams<{ classId: string }>()
+  const { liveClassId } = useParams<{ liveClassId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { data: academyClass, isLoading: isLoadingClass } = useAcademyLiveClass(classId)
+  const { data: academyClass, isLoading: isLoadingClass } = useAcademyLiveClass(liveClassId)
   useAuth()
   const { canAny, hasWildcard } = usePermissions()
-
-  const canManageStatus = canAny(["lms.delivery.update", "lms.delivery.approve"]) || canAny(["lms.assessment.grade"]) || hasWildcard
 
   const defaultTab = TAB_INFO
   const tabParam = searchParams.get("tab") || defaultTab
@@ -120,8 +118,8 @@ export default function ClassStudentsPage() {
         }
       />
 
-      {!classId ? (
-        <div className="p-8 text-muted-foreground">Thiếu classId trên URL.</div>
+      {!liveClassId ? (
+        <div className="p-8 text-muted-foreground">Thiếu mã lớp (liveClassId) trên URL.</div>
       ) : isLoadingClass ? (
         <div className="space-y-4">
           <Skeleton className="h-10 w-64" />
@@ -165,36 +163,32 @@ export default function ClassStudentsPage() {
           </TabsList>
           <div className="mt-6">
             <TabsContent value={TAB_INFO}>
-              <ClassInfoTab
-                academyClass={academyClass}
-                classId={classId}
-                canManageStatus={canManageStatus}
-              />
+              <ClassInfoTab academyClass={academyClass} />
             </TabsContent>
             <TabsContent value={TAB_SYLLABUS}>
               <ClassSyllabusTab courseProfileId={academyClass?.cohort?.courseProfileId} />
             </TabsContent>
             <TabsContent value={TAB_STUDENTS}>
               <ClassStudentsTab
-                classId={classId}
+                liveClassId={liveClassId}
                 canManageEnrollment={canManageEnrollment}
               />
             </TabsContent>
             <TabsContent value={TAB_DISCUSSION}>
-              <ClassDiscussionTab classId={classId} />
+              <ClassDiscussionTab liveClassId={liveClassId} />
             </TabsContent>
             {availableTabs.schedule && (
               <TabsContent value={TAB_SCHEDULE}>
-                <ClassAttendanceTab classId={classId} academyClass={academyClass} />
+                <ClassAttendanceTab liveClassId={liveClassId} academyClass={academyClass} />
               </TabsContent>
             )}
             {availableTabs.assignments && (
               <TabsContent value={TAB_ASSIGNMENTS}>
-                <ClassAssignmentsTab classId={classId} />
+                <ClassAssignmentsTab liveClassId={liveClassId} />
               </TabsContent>
             )}
             <TabsContent value={TAB_RESOURCES}>
-              <ClassResourcesTab classId={classId} />
+              <ClassResourcesTab liveClassId={liveClassId} />
             </TabsContent>
           </div>
         </Tabs>

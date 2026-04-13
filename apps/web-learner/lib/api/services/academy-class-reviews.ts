@@ -78,9 +78,9 @@ export const academyClassReviewsClient = {
     },
 
     /** Auth: Create review */
-    create: async (classId: string, dto: AcademyCourseReviewCreateDTO) => {
+    create: async (liveClassId: string, dto: AcademyCourseReviewCreateDTO) => {
         return apiClient.post<{ data: ClassReview }>(
-            `/api/academy/live-classes/${classId}/reviews`,
+            `/api/academy/live-classes/${liveClassId}/reviews`,
             dto,
         );
     },

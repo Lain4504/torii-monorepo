@@ -32,12 +32,16 @@ import { useAcademyVodPackage } from '@/lib/api/services/academy-vod-packages'
 import { usePermissions } from '@/hooks/use-permissions'
 
 interface ClassDiscussionTabProps {
-  classId?: string
+  liveClassId?: string
   vodPackageId?: string
   vodPackageData?: any
 }
 
-export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: ClassDiscussionTabProps) {
+export function ClassDiscussionTab({
+  liveClassId,
+  vodPackageId,
+  vodPackageData,
+}: ClassDiscussionTabProps) {
   const { user, isAuthenticated } = useAuth()
   const { canAny } = usePermissions()
   const createComment = useCreateComment()
@@ -46,7 +50,7 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null)
   const [replyDraftByTopic, setReplyDraftByTopic] = useState<Record<string, string>>({})
 
-  const { data: academyClass } = useAcademyLiveClass(classId || undefined)
+  const { data: academyClass } = useAcademyLiveClass(liveClassId || undefined)
   const { data: vodPackage } = useAcademyVodPackage(
     vodPackageData ? undefined : (vodPackageId || undefined),
   )
@@ -80,15 +84,15 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
 
   const lessonQueries = useQueries({
     queries: lessonOptions.map((lesson) => ({
-      queryKey: ['comments', 'discussion-timeline', classId || vodPackageId, lesson.id],
+      queryKey: ['comments', 'discussion-timeline', liveClassId || vodPackageId, lesson.id],
       queryFn: () =>
         commentApi.findAll({
           discussionId: lesson.id,
-          classId: classId || vodPackageId,
+          deliveryScopeId: liveClassId || vodPackageId,
           page: 1,
           limit: 100,
-        } as any),
-      enabled: !!(classId || vodPackageId),
+        }),
+      enabled: !!(liveClassId || vodPackageId),
     })),
   })
 
@@ -147,7 +151,7 @@ export function ClassDiscussionTab({ classId, vodPackageId, vodPackageData }: Cl
         userId: user.id,
         parentId: topicId,
         content: text,
-        classId: classId || vodPackageId,
+        deliveryScopeId: liveClassId || vodPackageId,
       } as any)
       setReplyDraftByTopic((prev) => ({ ...prev, [topicId]: '' }))
       setActiveReplyId(null)

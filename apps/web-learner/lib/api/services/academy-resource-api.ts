@@ -10,10 +10,10 @@ export const academyResourceApi = {
     /**
      * Get live class folders for a specific class or all
      */
-    getFolders: async (classId?: string): Promise<AcademyFolderResponseDTO[]> => {
+    getFolders: async (deliveryScopeId?: string): Promise<AcademyFolderResponseDTO[]> => {
         const response = await apiClient.get<StandardApiResponse<AcademyFolderResponseDTO[]>>(
             '/api/academy/my-folders/live-classes',
-            { params: { classId } }
+            { params: { deliveryScopeId } }
         );
         return response.data.data!;
     },
@@ -32,10 +32,10 @@ export const academyResourceApi = {
 /**
  * Hook: Get academy folders
  */
-export function useAcademyFolders(classId?: string) {
+export function useAcademyFolders(deliveryScopeId?: string) {
     return useQuery({
-        queryKey: ['academy', 'folders', classId],
-        queryFn: () => academyResourceApi.getFolders(classId),
+        queryKey: ['academy', 'folders', deliveryScopeId],
+        queryFn: () => academyResourceApi.getFolders(deliveryScopeId),
     });
 }
 

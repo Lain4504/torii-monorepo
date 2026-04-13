@@ -19,7 +19,7 @@ interface LearningSidebarProps {
     onToggle: () => void
     onLessonSelect: (lessonId: string) => void
     /** When true, show live sessions block with "Vào phòng" */
-    classId?: string
+    liveClassId?: string
     isLiveCourse?: boolean
 }
 
@@ -34,7 +34,7 @@ export function LearningSidebar({
     isOpen,
     onToggle,
     onLessonSelect,
-    classId,
+    liveClassId,
     isLiveCourse,
 }: LearningSidebarProps) {
     const [expandedSections, setExpandedSections] = useState<number[]>([0])
@@ -81,9 +81,9 @@ export function LearningSidebar({
                 </div>
             </div>
 
-            {isLiveCourse && classId && (
+            {isLiveCourse && liveClassId && (
                 <div className="p-4 border-b border-border/40">
-                    <LiveSessionBlock classId={classId} compact maxSessions={3} />
+                    <LiveSessionBlock liveClassId={liveClassId} compact maxSessions={3} />
                 </div>
             )}
 

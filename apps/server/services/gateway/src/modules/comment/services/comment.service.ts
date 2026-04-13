@@ -134,15 +134,13 @@ export class CommentService {
   }
 
   /**
-   * Resolve candidate course classes for DISCUSSION entity.
-   *
-   * Legacy mapping used by current UI:
-   * - entityId can be:
-   *   1) Class.id (course-level)
+   * Resolve candidate delivery scopes (LiveClass / VodPackage) for DISCUSSION entity.
+   * entityId can be:
+   *   1) LiveClass.id or VodPackage.id (course-level board)
    *   2) Lesson.id (lesson-level)
-   *   3) Topic comment id (nested replies UI) -> resolved via comment_targets(commentId=topicId,targetId=lessonId)
+   *   3) Topic comment id -> resolved via comment_targets(commentId=topicId,targetId=lessonId)
    */
-  private async resolveClassIdsFromDiscussionEntity(
+  private async resolveDeliveryScopeIdsFromDiscussionEntity(
     targetType: string,
     entityId: string,
   ): Promise<string[]> {
@@ -212,12 +210,11 @@ export class CommentService {
     targetType: string,
     entityId: string,
     isWrite: boolean = true,
-    classId?: string,
+    deliveryScopeId?: string,
   ): Promise<string[]> {
-    // 1. Resolve which classes or packages this discussion belongs to.
-    const candidateIds = classId
-      ? [classId]
-      : await this.resolveClassIdsFromDiscussionEntity(targetType, entityId);
+    const candidateIds = deliveryScopeId
+      ? [deliveryScopeId]
+      : await this.resolveDeliveryScopeIdsFromDiscussionEntity(targetType, entityId);
 
     // 2. Load the user's explicit role to handle role-based restrictions
     const user = await this.prisma.user.findUnique({
@@ -334,7 +331,7 @@ export class CommentService {
         query.targetType,
         query.entityId,
         false, // isWrite = false (view list)
-        query.classId,
+        query.deliveryScopeId,
       );
     }
 
@@ -354,8 +351,9 @@ export class CommentService {
         },
       };
 
-      // Optional: Narrow down by classIds either from query or authorized list
-      const filterTargetIds = query.classId ? [query.classId] : allowedIds;
+      const filterTargetIds = query.deliveryScopeId
+        ? [query.deliveryScopeId]
+        : allowedIds;
       if (filterTargetIds.length > 0) {
         where.AND = [
           {
@@ -373,7 +371,7 @@ export class CommentService {
       }
     }
 
-    if (query.classId && query.targetType !== 'DISCUSSION') {
+    if (query.deliveryScopeId && query.targetType !== 'DISCUSSION') {
       delete where.targets;
       where.AND = [
         {
@@ -383,7 +381,7 @@ export class CommentService {
         },
         {
           targets: {
-            some: { targetId: query.classId },
+            some: { targetId: query.deliveryScopeId },
           },
         },
       ];
@@ -524,7 +522,7 @@ export class CommentService {
       targetType,
       entityId,
       true, // isWrite = true (creating)
-      dto.classId,
+      dto.deliveryScopeId,
     );
 
     if (parentId) {
@@ -586,12 +584,11 @@ export class CommentService {
         },
       });
 
-      // Class-target: scopes discussion to a specific class/course instance.
-      if (dto.classId) {
+      if (dto.deliveryScopeId) {
         await tx.commentTarget.create({
           data: {
             commentId: created.id,
-            targetId: dto.classId,
+            targetId: dto.deliveryScopeId,
             targetType: 'CLASS',
           },
         });

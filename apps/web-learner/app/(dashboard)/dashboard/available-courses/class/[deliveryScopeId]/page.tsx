@@ -44,25 +44,23 @@ import { cn } from '@workspace/ui/lib/utils'
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
 export default function ClassCatalogDetailPage() {
-  const params = useParams<{ classId: string }>()
+  const params = useParams<{ deliveryScopeId: string }>()
   const searchParams = useSearchParams()
-  const classId = params?.classId
+  const deliveryScopeId = typeof params?.deliveryScopeId === 'string' ? params.deliveryScopeId : ''
   const modeParam = (searchParams.get('mode') || '').toUpperCase()
   
   const mode = modeParam === 'LIVE' || modeParam === 'VOD' ? (modeParam as 'LIVE' | 'VOD') : undefined
-  const { data: klass, isLoading } = useAcademyClassCatalogById(classId, mode)
+  const { data: klass, isLoading } = useAcademyClassCatalogById(deliveryScopeId || undefined, mode)
   const { isAuthenticated } = useAppSelector((state) => state.auth)
 
-  // Kiểm tra người dùng đã ghi danh/chưa (đã mua) cho class này
-  const enrollmentCheckClassId = isAuthenticated && classId ? classId : ''
-  const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(enrollmentCheckClassId)
+  const enrollmentCheckTargetId = isAuthenticated && deliveryScopeId ? deliveryScopeId : ''
+  const { data: enrollmentData, isLoading: enrollmentLoading } = useAcademyEnrollmentCheck(enrollmentCheckTargetId)
 
   const isLIVE = mode === 'LIVE' || klass?.mode === 'LIVE'
   const isVOD = mode === 'VOD' || klass?.mode === 'VOD'
 
-  const liveClassId = classId || '';
-  const { data: liveReviewsResponse } = academyClassReviewHooks.useListByLiveClass(liveClassId, { limit: 10, offset: 0 })
-  const { data: vodReviewsResponse } = academyClassReviewHooks.useListByVodPackage(classId || '', { limit: 10, offset: 0 })
+  const { data: liveReviewsResponse } = academyClassReviewHooks.useListByLiveClass(deliveryScopeId, { limit: 10, offset: 0 })
+  const { data: vodReviewsResponse } = academyClassReviewHooks.useListByVodPackage(deliveryScopeId, { limit: 10, offset: 0 })
 
   const reviews = isLIVE 
     ? (liveReviewsResponse?.data?.data?.items ?? [] as any[]) 
@@ -99,10 +97,10 @@ export default function ClassCatalogDetailPage() {
     klass?.liveEnrollment?.activeEnrollmentCount ?? klass?._count?.enrollments ?? 0
 
   const checkoutHref =
-    klass && classId
+    klass && deliveryScopeId
       ? isLIVE
-        ? `/checkout/${klass.cohortId ?? classId}?type=LIVE&liveClassId=${encodeURIComponent(classId)}`
-        : `/checkout/${classId}?type=VOD`
+        ? `/checkout/${klass.cohortId ?? deliveryScopeId}?type=LIVE&liveClassId=${encodeURIComponent(deliveryScopeId)}`
+        : `/checkout/${deliveryScopeId}?type=VOD`
       : '#'
 
   if (isLoading) {
@@ -159,7 +157,7 @@ export default function ClassCatalogDetailPage() {
         return (
           <div className="space-y-3">
             <Button className="w-full h-12 font-bold rounded-xl" size="lg" asChild>
-              <Link href={classId ? `/courses/${classId}/learn` : '#'}>
+              <Link href={deliveryScopeId ? `/courses/${deliveryScopeId}/learn` : '#'}>
                 Tiếp tục học <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -181,7 +179,7 @@ export default function ClassCatalogDetailPage() {
             size="lg"
             asChild
           >
-            <Link href={classId ? `/courses/${classId}/learn` : '#'}>
+            <Link href={deliveryScopeId ? `/courses/${deliveryScopeId}/learn` : '#'}>
               Tiếp tục học <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>

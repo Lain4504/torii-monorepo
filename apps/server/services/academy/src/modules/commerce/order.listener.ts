@@ -45,7 +45,7 @@ export class OrderListener {
 
       if (!isVod && !isCohort && !isLiveClass) continue;
 
-      const snapshot = item.offeringSnapshot as any;
+      const snapshot = item.deliverySnapshot as any;
       let targetLiveClassId: string | undefined = item.liveClassId ?? undefined;
 
       if (isCohort && !targetLiveClassId) {

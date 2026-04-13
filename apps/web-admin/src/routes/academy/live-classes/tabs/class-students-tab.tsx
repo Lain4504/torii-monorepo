@@ -31,13 +31,13 @@ import {
 } from "@workspace/ui/components/dialog"
 
 interface ClassStudentsTabProps {
-  classId?: string
+  liveClassId?: string
   vodPackageId?: string
   canManageEnrollment?: boolean
 }
 
 export function ClassStudentsTab({
-  classId,
+  liveClassId,
   vodPackageId,
   canManageEnrollment = false,
 }: ClassStudentsTabProps) {
@@ -47,7 +47,7 @@ export function ClassStudentsTab({
     data: enrollments = [],
     isLoading: isLoadingEnrollments,
   } = useAcademyEnrollments({
-    liveClassId: classId,
+    liveClassId,
     vodPackageId: vodPackageId,
     page: 1,
     limit: 100,
@@ -262,7 +262,7 @@ export function ClassStudentsTab({
       <ClassEnrollmentSheet
         open={enrollmentSheetOpen}
         onOpenChange={setEnrollmentSheetOpen}
-        classId={classId}
+        liveClassId={liveClassId}
         vodPackageId={vodPackageId}
         submitting={createEnrollment.isPending}
         onSubmit={handleCreateEnrollment}

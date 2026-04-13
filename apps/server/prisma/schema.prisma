@@ -136,9 +136,9 @@ enum CouponDiscountType {
   FIXED_AMOUNT
 }
 
+/// Chỉ còn GLOBAL — không còn giới hạn theo từng sản phẩm (liveClass/vod) qua metadata.
 enum CouponScope {
   GLOBAL
-  SPECIFIC_OFFERING
 }
 
 enum VodStatus {
@@ -676,7 +676,8 @@ model OrderItem {
   liveClassId        String? @map("live_class_id") @db.Uuid
   subscriptionPlanId String? @map("subscription_plan_id") @db.Uuid
   price              Decimal @db.Decimal(12, 2)
-  offeringSnapshot   Json    @map("offering_snapshot") @db.JsonB
+  /// Ảnh chụp giá/tên/mô tả dòng hàng lúc thanh toán.
+  deliverySnapshot   Json    @map("delivery_snapshot") @db.JsonB
 
   // Relations
   order            Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -725,12 +726,12 @@ model Coupon {
   usageLimit        Int?               @map("usage_limit")
   usageCount        Int                @default(0) @map("usage_count")
   perUserLimit      Int                @default(1) @map("per_user_limit")
-  /// Scope of applicability: GLOBAL (anyone), SPECIFIC_OFFERING, PERSONAL (assigned to a single user), etc.
+  /// Phạm vi: hiện chỉ GLOBAL. Coupon cá nhân phân biệt bằng `ownerId`, không bằng scope.
   startDate         DateTime?          @map("start_date")
   endDate           DateTime?          @map("end_date")
   status            CouponStatus       @default(ACTIVE)
   scope             CouponScope        @default(GLOBAL)
-  /// Owner of the coupon when scope = PERSONAL (e.g. redeemed from gamification rewards)
+  /// Ví dụ coupon đổi điểm gamification — gắn một user
   ownerId           String?            @map("owner_id") @db.Uuid
   /// Logical source for audit/analytics: MANUAL, CAMPAIGN, GAMIFICATION_REWARD, etc.
   source            String?            @db.VarChar(50)
@@ -1277,6 +1278,8 @@ model VodPackage {
   @@map("academy_vod_packages")
 }
 
+/// Đợt khai giảng LIVE: một CourseProfile có thể có nhiều Cohort; mỗi Cohort chứa các [LiveClass].
+/// Không dùng Cohort cho VOD — gói tự học là [VodPackage] gắn trực tiếp CourseProfile.
 model Cohort {
   id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseProfileId String       @map("course_profile_id") @db.Uuid
@@ -1303,6 +1306,7 @@ model Cohort {
   @@map("academy_cohorts")
 }
 
+/// Một lớp cụ thể trong một Cohort (cùng đợt/kỳ). Enrollment LIVE trỏ vào đây, không trỏ Cohort.
 model LiveClass {
   id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   cohortId     String          @map("cohort_id") @db.Uuid
@@ -1504,7 +1508,7 @@ model LiveScheduleRequest {
 // COMMERCE & ENROLLMENT LAYER
 // ==================================================
 
-/// Enrollment: Learner's access to a VodPackage or LiveClass
+/// Ghi danh: một VodPackage (VOD) hoặc một LiveClass (LIVE). Cohort không có cột ở đây — truy qua LiveClass.cohortId.
 model Enrollment {
   id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId String @map("user_id") @db.Uuid

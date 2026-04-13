@@ -39,7 +39,11 @@ export class ResourceService {
         });
     }
 
-    async getFoldersForLearner(userId: string, role?: string, classId?: string) {
+    /**
+     * @param deliveryScopeId Tuỳ chọn — UUID của **LiveClass** hoặc **VodPackage** (instance giao hàng).
+     * Không truyền **Cohort.id**: ghi danh/enrollment không trỏ cohort; cohort chỉ là nhóm các live class trong kỳ.
+     */
+    async getFoldersForLearner(userId: string, role?: string, deliveryScopeId?: string) {
         // Privileged roles can see all class folders
         const isPrivileged = role && ['admin', 'lecturer', 'staff-academic', 'staff-operations'].includes(role);
 
@@ -47,11 +51,11 @@ export class ResourceService {
         let vodPackageIds: string[] = [];
 
         if (isPrivileged) {
-            if (classId) {
-                liveClassIds = [classId];
-                vodPackageIds = [classId];
+            if (deliveryScopeId) {
+                liveClassIds = [deliveryScopeId];
+                vodPackageIds = [deliveryScopeId];
             } else {
-                // If no classId, privileged users see folders for all classes
+                // If no deliveryScopeId, privileged users see folders for all classes
                 const classes = await this.prisma.liveClass.findMany({ select: { id: true } });
                 liveClassIds = classes.map(c => c.id);
                 const vods = await this.prisma.vodPackage.findMany({ select: { id: true } });
@@ -67,8 +71,8 @@ export class ResourceService {
                 select: { liveClassId: true, vodPackageId: true },
             });
 
-            const filtered = classId 
-                ? enrollments.filter(e => e.liveClassId === classId || e.vodPackageId === classId)
+            const filtered = deliveryScopeId
+                ? enrollments.filter(e => e.liveClassId === deliveryScopeId || e.vodPackageId === deliveryScopeId)
                 : enrollments;
 
             liveClassIds = filtered.map((e) => e.liveClassId).filter(Boolean) as string[];
@@ -195,15 +199,16 @@ export class ResourceService {
     }
 
 
-    async getResourcesForLearner(data: { folderId?: string; classId?: string; userId: string; role?: string }) {
+    /** `deliveryScopeId` khi không có folderId: LiveClass.id hoặc VodPackage.id (không phải Cohort.id). */
+    async getResourcesForLearner(data: { folderId?: string; deliveryScopeId?: string; userId: string; role?: string }) {
         let folderId = data.folderId;
 
-        if (!folderId && data.classId) {
+        if (!folderId && data.deliveryScopeId) {
             const folder = await this.prisma.academyFolder.findFirst({
                 where: { 
                     OR: [
-                        { liveClassId: data.classId },
-                        { vodPackageId: data.classId }
+                        { liveClassId: data.deliveryScopeId },
+                        { vodPackageId: data.deliveryScopeId }
                     ]
                 },
             });
@@ -211,7 +216,7 @@ export class ResourceService {
             folderId = folder.id;
         }
 
-        if (!folderId) throw new BadRequestException('Folder or Class ID is required');
+        if (!folderId) throw new BadRequestException('Folder or deliveryScopeId is required');
 
         const folder = await this.getFolderById(folderId);
 
@@ -291,12 +296,13 @@ export class ResourceService {
     }
 
 
-    async getResourcesByClassId(classId: string, userId: string) {
+    /** LiveClass.id hoặc VodPackage.id (delivery scope), không phải Cohort.id. */
+    async getResourcesByDeliveryScopeId(deliveryScopeId: string, userId: string) {
         const folder = await this.prisma.academyFolder.findFirst({
             where: { 
                 OR: [
-                    { liveClassId: classId },
-                    { vodPackageId: classId }
+                    { liveClassId: deliveryScopeId },
+                    { vodPackageId: deliveryScopeId }
                 ]
             },
         });

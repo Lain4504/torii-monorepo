@@ -36,7 +36,8 @@ export const academyEnrollmentApi = {
     },
 
     /**
-     * Check if user is enrolled in a specific class
+     * Kiểm tra enrollment theo UUID của LiveClass hoặc VodPackage (không phải courseProfileId).
+     * Với trang marketing theo profile, dùng getMyEnrollments + lọc courseProfileId.
      */
     async checkEnrollment(deliveryTargetId: string): Promise<{ isEnrolled: boolean; enrollment?: AcademyEnrollmentModel }> {
         const response = await apiClient.get<StandardApiResponse<{ items: AcademyEnrollmentModel[] }>>(

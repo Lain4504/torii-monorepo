@@ -10,13 +10,13 @@ import { useParams, useRouter } from 'next/navigation'
 export default function TakeCourseQuizPage() {
     const params = useParams()
     const router = useRouter()
-    const classId = params.courseId as string
+    const courseId = params.courseId as string
     const quizId = params.quizId as string
 
     useEffect(() => {
         // Fallback: send learner back to quizzes list (which now links to /exams)
-        router.replace(`/courses/${classId}/quizzes`)
-    }, [router, classId, quizId])
+        router.replace(`/courses/${courseId}/quizzes`)
+    }, [router, courseId, quizId])
 
     return null
 }

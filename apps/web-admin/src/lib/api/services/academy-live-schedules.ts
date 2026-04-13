@@ -10,7 +10,7 @@ import type {
 
 export type AcademyLiveSchedule = {
   id: string
-  classId: string
+  liveClassId: string
   class?: {
     id: string
   }

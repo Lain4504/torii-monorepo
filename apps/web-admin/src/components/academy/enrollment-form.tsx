@@ -50,7 +50,7 @@ export function EnrollmentForm({
     onSubmit,
     onCancel,
     submitting,
-    defaultClassId,
+    defaultLiveClassId,
     defaultVodPackageId,
 }: {
     mode: "create" | "edit"
@@ -60,7 +60,7 @@ export function EnrollmentForm({
     ) => Promise<void>
     onCancel: () => void
     submitting?: boolean
-    defaultClassId?: string
+    defaultLiveClassId?: string
     defaultVodPackageId?: string
 }) {
     const isEdit = mode === "edit"
@@ -108,7 +108,7 @@ export function EnrollmentForm({
                 status: initial?.status ?? 'ACTIVE',
             }
             : {
-                liveClassId: defaultClassId || undefined,
+                liveClassId: defaultLiveClassId || undefined,
                 vodPackageId: defaultVodPackageId || undefined,
                 userId: "",
                 status: "ACTIVE",
@@ -123,7 +123,7 @@ export function EnrollmentForm({
                 <FieldGroup>
                     {!isEdit && (
                         <>
-                            {!defaultClassId && !defaultVodPackageId && (
+                            {!defaultLiveClassId && !defaultVodPackageId && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Controller
                                         name={"liveClassId" as any}

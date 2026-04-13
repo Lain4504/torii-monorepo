@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-/** cohortId -> liveClassId */
+/**
+ * LIVE: `cohortIds` = đợt/kỳ (Cohort), mỗi cohort có nhiều LiveClass; map chọn lớp cụ thể.
+ * VOD: chỉ `vodPackageIds`. Không lẫn cohort với vod.
+ */
+/** cohortId (Cohort) -> liveClassId (LiveClass) */
 const liveClassIdByCohortSchema = z
   .record(z.string().uuid(), z.string().uuid())
   .optional();

@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add feedback field to assignment submission DTOs and update grading logic">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: rename classId to liveClassId across multiple files for consistency">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/coupon.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +19,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1893" />
+    <option name="cachedIndexableFilesCount" value="1903" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -38,21 +38,37 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="redesign" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;history&quot;: [
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "history": [
     {
-      &quot;state&quot;: &quot;OPEN&quot;
+      "state": "OPEN"
     }
   ],
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;
-  }
-}</component>
+  "lastFilter": {}
+}]]></component>
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM7RxamC",
+        "number": 365
+      },
+      "lastSeen": 1776042538350
+    },
+    {
+      "id": {
+        "id": "PR_kwDOQmD9iM7R1rSy",
+        "number": 368
+      },
+      "lastSeen": 1776042543692
+    }
+  ]
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
@@ -98,7 +114,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;remove-leagacy-code-part2&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -413,30 +429,7 @@
       <workItem from="1775754644934" duration="2857000" />
       <workItem from="1775759401993" duration="2968000" />
       <workItem from="1775966402266" duration="3382000" />
-    </task>
-    <task id="LOCAL-01206" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775489949723</created>
-      <option name="number" value="01206" />
-      <option name="presentableId" value="LOCAL-01206" />
-      <option name="project" value="LOCAL" />
-      <updated>1775489949723</updated>
-    </task>
-    <task id="LOCAL-01207" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775490123830</created>
-      <option name="number" value="01207" />
-      <option name="presentableId" value="LOCAL-01207" />
-      <option name="project" value="LOCAL" />
-      <updated>1775490123830</updated>
-    </task>
-    <task id="LOCAL-01208" summary="fix: update UI web-leanre responsive for mobile device">
-      <option name="closed" value="true" />
-      <created>1775490958368</created>
-      <option name="number" value="01208" />
-      <option name="presentableId" value="LOCAL-01208" />
-      <option name="project" value="LOCAL" />
-      <updated>1775490958368</updated>
+      <workItem from="1776003909935" duration="3313000" />
     </task>
     <task id="LOCAL-01209" summary="fix: update UI web-leanre responsive for mobile device">
       <option name="closed" value="true" />
@@ -806,7 +799,31 @@
       <option name="project" value="LOCAL" />
       <updated>1775962080177</updated>
     </task>
-    <option name="localTasksCounter" value="1255" />
+    <task id="LOCAL-01255" summary="feat: add feedback field to assignment submission DTOs and update grading logic (#364)">
+      <option name="closed" value="true" />
+      <created>1776001403758</created>
+      <option name="number" value="01255" />
+      <option name="presentableId" value="LOCAL-01255" />
+      <option name="project" value="LOCAL" />
+      <updated>1776001403759</updated>
+    </task>
+    <task id="LOCAL-01256" summary="refactor: remove legacy course offering fields and update related logic">
+      <option name="closed" value="true" />
+      <created>1776004958284</created>
+      <option name="number" value="01256" />
+      <option name="presentableId" value="LOCAL-01256" />
+      <option name="project" value="LOCAL" />
+      <updated>1776004958285</updated>
+    </task>
+    <task id="LOCAL-01257" summary="refactor: rename classId to liveClassId across multiple files for consistency">
+      <option name="closed" value="true" />
+      <created>1776043611049</created>
+      <option name="number" value="01257" />
+      <option name="presentableId" value="LOCAL-01257" />
+      <option name="project" value="LOCAL" />
+      <updated>1776043611051</updated>
+    </task>
+    <option name="localTasksCounter" value="1258" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -841,9 +858,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="style: improve layout and spacing in dashboard components" />
-    <MESSAGE value="fix ui web-adin" />
-    <MESSAGE value="feat: add delete confirmation dialog for flashcard sets and improve UI components" />
     <MESSAGE value="feat(ui): enhance ticket management UI with improved layout and functionality" />
     <MESSAGE value="fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling" />
     <MESSAGE value="feat(ui): add live reschedule requests page and update navigation" />
@@ -866,7 +880,10 @@
     <MESSAGE value="refactor: refactor meet service (#356)&#10;&#10;* chore: update workspace configuration with job push notification details and new service paths&#10;&#10;* feat: implement NATS infrastructure services for room and user management&#10;&#10;* Add NATS Cache Service for in-memory caching of room and user data.&#10;* Introduce NATS Consumer Service for managing JetStream consumers.&#10;* Implement NATS Room Events Service for broadcasting room-related events.&#10;* Create NATS Room Service for handling room information and modifications.&#10;* Develop NATS Stream Service for managing JetStream streams.&#10;* Add NATS User Service for user information management.&#10;* Establish NATS Controller to bootstrap and manage NATS services.&#10;* Include necessary exports for NATS-related services." />
     <MESSAGE value="chore: update build config" />
     <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add feedback field to assignment submission DTOs and update grading logic" />
+    <MESSAGE value="feat: add feedback field to assignment submission DTOs and update grading logic (#364)" />
+    <MESSAGE value="refactor: remove legacy course offering fields and update related logic" />
+    <MESSAGE value="refactor: rename classId to liveClassId across multiple files for consistency" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: rename classId to liveClassId across multiple files for consistency" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -11,7 +11,7 @@ import { EnrollmentForm } from "@/components/academy/enrollment-form"
 interface ClassEnrollmentSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  classId?: string
+  liveClassId?: string
   vodPackageId?: string
   submitting?: boolean
   onSubmit: (data: any) => Promise<void>
@@ -20,7 +20,7 @@ interface ClassEnrollmentSheetProps {
 export function ClassEnrollmentSheet({
   open,
   onOpenChange,
-  classId,
+  liveClassId,
   vodPackageId,
   submitting,
   onSubmit,
@@ -39,7 +39,7 @@ export function ClassEnrollmentSheet({
           <div className="space-y-6 p-6">
             <EnrollmentForm
               mode="create"
-              defaultClassId={classId}
+              defaultLiveClassId={liveClassId}
               defaultVodPackageId={vodPackageId}
               onSubmit={onSubmit}
               onCancel={() => onOpenChange(false)}

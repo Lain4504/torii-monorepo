@@ -42,6 +42,7 @@ import { LessonDiscussion } from '@/components/courses/lesson-discussion';
 import { AcademyResourceList } from '@/components/courses/academy-resource-list';
 import { CourseCompletionModal } from '@/components/courses/course-completion-modal';
 import { MarkdownRenderer } from '@/components/common/markdown-renderer';
+import { isVodDeliveryFromEnrollment } from '@/lib/academy/is-vod-delivery';
 
 
 // ─── Constants & Utils ────────────────────────────────────────────────────────
@@ -377,22 +378,7 @@ export default function CourseLearnPage() {
     // Nguồn sự thật để quyết định LIVE vs VOD là Enrollment (vodPackageId/liveClassId/type/mode),
     // không suy đoán bằng 403/404 fallback.
     const enrollment = enrollmentData?.enrollment;
-    const enrollmentType = String(enrollment?.type ?? '').toLowerCase();
-    const enrollmentMode = String(enrollment?.mode ?? '').toUpperCase();
-
-    const isVodByEnrollment =
-        !!enrollment?.vodPackageId ||
-        enrollmentType === 'vod' ||
-        enrollmentMode === 'VOD';
-    const isLiveByEnrollment =
-        !!enrollment?.liveClassId ||
-        enrollmentType === 'live' ||
-        enrollmentMode === 'LIVE';
-
-    // Optional override via query string should only be used for debugging.
-    // If it's inconsistent with enrollment, we ignore it to avoid wrong data.
-    const isVodCandidate =
-        isVodByEnrollment ? true : (isLiveByEnrollment ? false : requestedMode === 'VOD');
+    const isVodCandidate = isVodDeliveryFromEnrollment(enrollment, requestedMode);
 
     const { data: liveClassData, isLoading: liveClassLoading, error: liveClassError } = useAcademyClass(deliveryTargetId, { enabled: !isVodCandidate });
     const { data: liveCurriculum, isLoading: liveCurriculumLoading, error: liveCurriculumError } = useCurriculum(deliveryTargetId, { enabled: !isVodCandidate });
@@ -683,7 +669,7 @@ export default function CourseLearnPage() {
                 await academyVodLearningProgressApi.trackProgress({ lessonId: currentLesson.id, packageId: deliveryTargetId! });
                 await queryClient.invalidateQueries({ queryKey: ['academy-vod-learning', 'completed-lessons', deliveryTargetId] });
             } else {
-                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, classId: deliveryTargetId! });
+                await academyLearningProgressApi.trackProgress({ lessonId: currentLesson.id, liveClassId: deliveryTargetId! });
                 await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', deliveryTargetId] });
             }
             toast.success('Bài học đã hoàn thành! 🎉');
@@ -916,14 +902,14 @@ export default function CourseLearnPage() {
 
                                     <TabsContent value="discussion" className="py-6">
                                         <LessonDiscussion
-                                            classId={deliveryTargetId as string}
+                                            deliveryScopeId={deliveryTargetId as string}
                                             lessonId={(currentLesson as any)?.id ?? ''}
                                             moduleId={(currentLesson as any)?.moduleId}
                                         />
                                     </TabsContent>
 
                                     <TabsContent value="resources" className="py-6">
-                                        <AcademyResourceList classId={deliveryTargetId as string} />
+                                        <AcademyResourceList deliveryScopeId={deliveryTargetId as string} />
                                     </TabsContent>
                                 </Tabs>
                             </section>

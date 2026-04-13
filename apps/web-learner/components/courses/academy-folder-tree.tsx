@@ -20,11 +20,11 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 
 interface AcademyFolderTreeProps {
-    classId: string
+    deliveryScopeId: string
 }
 
-export function AcademyFolderTree({ classId }: AcademyFolderTreeProps) {
-    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(classId)
+export function AcademyFolderTree({ deliveryScopeId }: AcademyFolderTreeProps) {
+    const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(deliveryScopeId)
     const [expandedFolders, setExpandedFolders] = React.useState<Record<string, boolean>>({})
 
     const toggleFolder = (folderId: string) => {

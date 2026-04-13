@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const academyLiveSessionQueryDTOSchema = z.object({
-  classId: z.string().uuid(),
+  liveClassId: z.string().uuid(),
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "from must be yyyy-MM-dd"),
   to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "to must be yyyy-MM-dd"),
 })
@@ -23,7 +23,7 @@ export type AcademyLiveSessionMyScheduleQueryDTO = z.infer<
 
 export const academyLiveScheduleSessionModelSchema = z.object({
   id: z.string().uuid(),
-  classId: z.string().uuid(),
+  liveClassId: z.string().uuid(),
   scheduleId: z.string().uuid().nullable(),
   sessionDate: z.string().or(z.date()),
   startTime: z.string(),

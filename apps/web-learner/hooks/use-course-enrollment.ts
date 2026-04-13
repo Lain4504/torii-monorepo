@@ -5,7 +5,8 @@ import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
 import { type AcademyEnrollmentModel as EnrollmentResponseDTO } from '@workspace/schemas'
 
-export function useCourseEnrollment(courseMasterId: string, courseSlug: string) {
+/** Trang marketing course profile: không tự POST ghi danh — học viên qua checkout / discovery. */
+export function useCourseEnrollment(courseProfileId: string, courseSlug: string) {
     const [isEnrolled, setIsEnrolled] = useState(false)
     const [isExpired, setIsExpired] = useState(false)
     const [enrollment, setEnrollment] = useState<EnrollmentResponseDTO | null>(null)
@@ -19,33 +20,54 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
     const router = useRouter()
 
     useEffect(() => {
-        if (isAuthenticated && user?.id && courseMasterId) {
+        if (isAuthenticated && user?.id && courseProfileId) {
             checkEnrollmentStatus()
         }
-    }, [isAuthenticated, user?.id, courseMasterId])
+    }, [isAuthenticated, user?.id, courseProfileId])
 
     const checkEnrollmentStatus = async () => {
         try {
             setIsLoadingEnrollment(true)
-            const result = await enrollmentApi.checkEnrollment(courseMasterId)
-            if (result.enrollment && result.enrollment.status === 'CANCELLED') {
+            const list = await enrollmentApi.getMyEnrollments({ page: 1, limit: 100 })
+            const rows = list.data ?? []
+            const match = rows.find(
+                (e) =>
+                    e.courseProfileId === courseProfileId &&
+                    (e.status === 'ACTIVE' || e.status === 'COMPLETED'),
+            )
+            const cancelled = rows.find(
+                (e) =>
+                    e.courseProfileId === courseProfileId &&
+                    e.status === 'CANCELLED',
+            )
+            const expiredOnly = rows.find(
+                (e) =>
+                    e.courseProfileId === courseProfileId &&
+                    e.status === 'EXPIRED',
+            )
+            if (cancelled && !match) {
                 setIsEnrolled(false)
                 setEnrollment(null)
                 setIsExpired(false)
-            } else {
-                setIsEnrolled(result.isEnrolled)
-                if (result.enrollment) {
-                    setEnrollment(result.enrollment)
-                    // Check if expired
-                    if (result.enrollment.expiresAt) {
-                        const expiresAt = new Date(result.enrollment.expiresAt)
-                        setIsExpired(expiresAt < new Date() || result.enrollment.status === 'EXPIRED')
-                    } else if (result.enrollment.status === 'EXPIRED') {
-                        setIsExpired(true)
-                    } else {
-                        setIsExpired(false)
-                    }
+            } else if (match) {
+                setIsEnrolled(true)
+                setEnrollment(match)
+                if (match.expiresAt) {
+                    const expiresAt = new Date(match.expiresAt)
+                    setIsExpired(expiresAt < new Date() || match.status === 'EXPIRED')
+                } else if (match.status === 'EXPIRED') {
+                    setIsExpired(true)
+                } else {
+                    setIsExpired(false)
                 }
+            } else if (expiredOnly) {
+                setIsEnrolled(false)
+                setEnrollment(expiredOnly)
+                setIsExpired(true)
+            } else {
+                setIsEnrolled(false)
+                setEnrollment(null)
+                setIsExpired(false)
             }
             // Mocking as hasNewerVersion is not yet in the refined schema
             // if (result.hasNewerVersion) {
@@ -68,14 +90,10 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
 
         try {
             setIsEnrolling(true)
-            // Mocking as createEnrollment is not yet in the refined schema
-            // const newEnrollment = await enrollmentApi.createEnrollment({ classId: courseMasterId })
-            const newEnrollment = { id: 'mock-id' } as any;
-            setIsEnrolled(true)
-            setIsExpired(false)
-            setEnrollment(newEnrollment)
-            toast.success('Đã đăng ký khóa học thành công!')
-            router.push(`/courses/${courseMasterId}/learn`)
+            toast.info('Vui lòng chọn gói VOD hoặc lớp LIVE và hoàn tất đăng ký qua thanh toán.', {
+                description: 'Trang khóa marketing không tự ghi danh — chuyển tới Khám phá hoặc checkout.',
+            })
+            router.push('/discovery')
         } catch (error: any) {
             console.error('Failed to enroll:', error)
             toast.error(error?.response?.data?.message || 'Không thể đăng ký khóa học')

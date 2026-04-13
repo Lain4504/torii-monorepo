@@ -16,7 +16,8 @@ export type AcademyAssignment = {
 
 export type AcademyClassAssignment = {
   id: string
-  classId: string
+  liveClassId: string | null
+  vodPackageId?: string | null
   assignmentId: string
   titleOverride?: string | null
   openAt?: string | null
@@ -35,17 +36,17 @@ export const academyClassAssignmentsApi = {
     return res.data.data!.item
   },
 
-  async findByClassId(classId: string) {
+  async findByLiveClassId(liveClassId: string) {
     const res = await apiClient.get<
       StandardApiResponse<{ items: AcademyClassAssignment[] }>
-    >(`/api/academy/live-classes/${classId}/assignments`)
+    >(`/api/academy/live-classes/${liveClassId}/assignments`)
     return res.data.data!.items
   },
 
-  async add(classId: string, input: Omit<AcademyLiveClassAssignmentCreateDTO, "classId">) {
+  async add(liveClassId: string, input: AcademyLiveClassAssignmentCreateDTO) {
     const res = await apiClient.post<
       StandardApiResponse<{ item: AcademyClassAssignment }>
-    >(`/api/academy/live-classes/${classId}/assignments`, { ...input, classId })
+    >(`/api/academy/live-classes/${liveClassId}/assignments`, input)
     return res.data.data!.item
   },
 
@@ -72,24 +73,25 @@ export function useAcademyClassAssignment(id: string | undefined) {
   })
 }
 
-export function useAcademyClassAssignments(classId: string) {
+export function useAcademyClassAssignments(liveClassId: string) {
   return useQuery({
-    enabled: !!classId,
-    queryKey: ["academy-class-assignments", classId],
-    queryFn: () => academyClassAssignmentsApi.findByClassId(classId),
+    enabled: !!liveClassId,
+    queryKey: ["academy-class-assignments", liveClassId],
+    queryFn: () => academyClassAssignmentsApi.findByLiveClassId(liveClassId),
   })
 }
 
-export function useAddAcademyClassAssignment(classId: string) {
+export function useAddAcademyClassAssignment(liveClassId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (input: Omit<AcademyLiveClassAssignmentCreateDTO, "classId">) =>
-      academyClassAssignmentsApi.add(classId, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-class-assignments", classId] }),
+    mutationFn: (input: AcademyLiveClassAssignmentCreateDTO) =>
+      academyClassAssignmentsApi.add(liveClassId, input),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["academy-class-assignments", liveClassId] }),
   })
 }
 
-export function useUpdateAcademyClassAssignment(classId: string) {
+export function useUpdateAcademyClassAssignment(liveClassId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({
@@ -99,14 +101,16 @@ export function useUpdateAcademyClassAssignment(classId: string) {
       id: string
       input: AcademyLiveClassAssignmentUpdateDTO
     }) => academyClassAssignmentsApi.update(id, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-class-assignments", classId] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["academy-class-assignments", liveClassId] }),
   })
 }
 
-export function useRemoveAcademyClassAssignment(classId: string) {
+export function useRemoveAcademyClassAssignment(liveClassId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => academyClassAssignmentsApi.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-class-assignments", classId] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["academy-class-assignments", liveClassId] }),
   })
 }

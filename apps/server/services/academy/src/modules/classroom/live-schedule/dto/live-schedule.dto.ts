@@ -9,7 +9,7 @@ import {
 
 export class LiveScheduleCreateDto {
   @IsUUID()
-  classId!: string;
+  liveClassId!: string;
 
   @IsInt()
   @Min(0)
@@ -44,5 +44,5 @@ export class LiveScheduleUpdateDto {
 export class LiveScheduleQueryDto {
   @IsOptional()
   @IsUUID()
-  classId?: string;
+  liveClassId?: string;
 }

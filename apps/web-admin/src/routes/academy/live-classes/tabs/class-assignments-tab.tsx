@@ -20,6 +20,7 @@ import {
   useRemoveAcademyClassAssignment,
   type AcademyClassAssignment,
 } from "@/lib/api/services/academy-class-assignments"
+import type { AcademyLiveClassAssignmentCreateDTO } from "@workspace/schemas"
 import { ClassAssignmentSheet } from "@/components/academy/class-assignment-sheet"
 import { formatDateTime } from "@/lib/format-utils"
 import {
@@ -32,14 +33,14 @@ import {
 } from "@workspace/ui/components/dialog"
 
 interface ClassAssignmentsTabProps {
-  classId?: string
+  liveClassId?: string
   vodPackageId?: string
 }
 
-export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsTabProps) {
+export function ClassAssignmentsTab({ liveClassId, vodPackageId }: ClassAssignmentsTabProps) {
   const navigate = useNavigate()
 
-  const id = (vodPackageId || classId) as string;
+  const id = (vodPackageId || liveClassId) as string;
   const {
     data: classAssignments = [],
     isLoading: isLoadingAssignments,
@@ -97,14 +98,14 @@ export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsT
         })
         toast.success("Đã cập nhật bài tập")
       } else {
-        await addMutation.mutateAsync({
-          liveClassId: classId || undefined,
-          vodPackageId: vodPackageId,
+        const createPayload: AcademyLiveClassAssignmentCreateDTO = {
+          ...(vodPackageId ? { vodPackageId } : {}),
           title: data.title,
           instructions: data.instructions,
           openAt: data.openAt ? new Date(data.openAt) : undefined,
           deadline: data.deadline ? new Date(data.deadline) : undefined,
-        } as any)
+        }
+        await addMutation.mutateAsync(createPayload)
         toast.success("Đã giao bài tập cho lớp")
       }
       setSheetOpen(false)
@@ -118,8 +119,8 @@ export function ClassAssignmentsTab({ classId, vodPackageId }: ClassAssignmentsT
 
   const handleGoToGrading = (ca: AcademyClassAssignment) => {
     if (vodPackageId) return
-    if (!classId) return
-    navigate(`/academy/live-classes/${classId}/assignments/${ca.id}/submissions`)
+    if (!liveClassId) return
+    navigate(`/academy/live-classes/${liveClassId}/assignments/${ca.id}/submissions`)
   }
 
   if (isLoadingAssignments) {
