@@ -289,10 +289,10 @@ export function ClassDiscussionTab({
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[140px]">Học viên</TableHead>
-                <TableHead className="w-[160px]">Bài học</TableHead>
+                <TableHead className="w-[min(28%,160px)] min-w-0">Học viên</TableHead>
+                <TableHead className="w-[min(22%,180px)] min-w-0">Bài học</TableHead>
                 <TableHead className="w-[120px]">Trạng thái</TableHead>
-                <TableHead className="w-auto">Nội dung</TableHead>
+                <TableHead className="min-w-0">Nội dung</TableHead>
                 <TableHead className="w-[120px]">Thời gian</TableHead>
                 <TableHead className="w-[100px] text-right">Thao tác</TableHead>
               </TableRow>
@@ -302,12 +302,23 @@ export function ClassDiscussionTab({
                 <TableRow
                   key={topic.id}
                 >
-                  <TableCell className="font-medium">
-                    {topic.author?.displayName || "Học viên"}
+                  <TableCell className="min-w-0 max-w-[160px] align-top font-medium">
+                    <span
+                      className="block truncate"
+                      title={topic.author?.displayName || "Học viên"}
+                    >
+                      {topic.author?.displayName || "Học viên"}
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-[10px]">
-                      {(topic as any).__lessonTitle || "Bài học"}
+                  <TableCell className="min-w-0 max-w-[180px] align-top">
+                    <Badge
+                      variant="outline"
+                      className="min-w-0 max-w-full shrink text-[10px]"
+                      title={(topic as any).__lessonTitle || "Bài học"}
+                    >
+                      <span className="min-w-0 truncate">
+                        {(topic as any).__lessonTitle || "Bài học"}
+                      </span>
                     </Badge>
                   </TableCell>
                   <TableCell>

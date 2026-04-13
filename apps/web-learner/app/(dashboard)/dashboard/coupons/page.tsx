@@ -5,8 +5,7 @@ import {
     History, 
     Gift, 
     Copy, 
-    Clock, 
-    ArrowRight
+    Clock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
@@ -26,6 +25,7 @@ import { cn } from '@workspace/ui/lib/utils';
 import Link from 'next/link';
 import { useCoupons } from './use-coupons';
 import { SmartPagination } from '@/components/common/smart-pagination';
+import { dataTableHeaderClass, dataTableShellClass } from '@/lib/ui-shell';
 
 export default function CouponsPage() {
     const { 
@@ -49,9 +49,9 @@ export default function CouponsPage() {
                 </p>
             </div>
 
-            <Tabs defaultValue="available" className="space-y-8">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <TabsList className="bg-muted/50 p-1 rounded-lg border border-border/40 h-10 w-full sm:w-auto overflow-x-auto justify-start">
+            <Tabs defaultValue="available" className="space-y-6">
+                <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:justify-between">
+                    <TabsList className="w-full overflow-x-auto whitespace-nowrap bg-muted/50 p-1 rounded-lg border border-border/40 h-10 md:w-auto">
                         <TabsTrigger value="available" className="px-6 h-full rounded-md text-xs font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm whitespace-nowrap gap-2">
                             <Ticket className="size-4" />
                             Ưu đãi hiện có
@@ -69,7 +69,7 @@ export default function CouponsPage() {
                 </div>
 
                 <TabsContent value="available" className="mt-0 space-y-4">
-                    <div className="flex justify-end">
+                    <div className="flex w-full justify-end">
                         <Link href="/dashboard/rewards">
                             <Button className="h-10 gap-2" variant="default">
                                 <Gift className="size-4" />
@@ -167,75 +167,74 @@ export default function CouponsPage() {
                 </TabsContent>
 
                 <TabsContent value="history" className="focus-visible:outline-none">
-                    <Card className="border-border/50 rounded-2xl overflow-hidden shadow-none">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-transparent border-b border-border/50 h-10">
-                                    <TableHead className="w-[60px] text-center pl-4 font-semibold text-[10px] text-muted-foreground/40">STT</TableHead>
-                                    <TableHead className="font-semibold text-[10px] text-muted-foreground/40">Nội dung</TableHead>
-                                    <TableHead className="hidden md:table-cell font-semibold text-[10px] text-muted-foreground/40">Thời gian</TableHead>
-                                    <TableHead className="hidden sm:table-cell font-semibold text-[10px] text-muted-foreground/40">Loại</TableHead>
-                                    <TableHead className="text-right pr-6 font-semibold text-[10px] text-muted-foreground/40">Biến động</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {historyLoading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-32 text-center">
-                                            <ComponentLoading />
-                                        </TableCell>
+                    <div className={cn(dataTableShellClass, "rounded-2xl p-0")}>
+                        <div className="relative overflow-x-auto">
+                            <Table className="min-w-[900px] border-collapse bg-transparent">
+                                <TableHeader className={dataTableHeaderClass}>
+                                    <TableRow className="hover:bg-transparent border-none">
+                                        <TableHead className="h-11 w-[64px] px-4 text-center text-xs font-semibold text-muted-foreground">STT</TableHead>
+                                        <TableHead className="h-11 px-4 text-xs font-semibold text-muted-foreground">Nội dung</TableHead>
+                                        <TableHead className="h-11 px-4 text-xs font-semibold text-muted-foreground">Thời gian</TableHead>
+                                        <TableHead className="h-11 w-[180px] px-4 text-xs font-semibold text-muted-foreground">Loại</TableHead>
+                                        <TableHead className="h-11 w-[160px] px-4 text-right text-xs font-semibold text-muted-foreground">Biến động</TableHead>
                                     </TableRow>
-                                ) : gamificationHistory.length > 0 ? (
-                                    gamificationHistory.map((item: any, index: number) => (
-                                        <TableRow key={item.id} className="hover:bg-muted/5 transition-colors border-border/30 group h-14 border-none">
-                                            <TableCell className="text-center font-semibold text-[10px] text-muted-foreground/40 pl-4">
-                                                {(historyMeta.page - 1) * historyMeta.limit + index + 1}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="font-bold text-sm text-foreground/80 group-hover:text-primary transition-colors">
-                                                    {item.description?.replace(/Received (points|XP) for LOGIN/i, 'Đăng nhập hằng ngày')
-                                                                     .replace(/Received (points|XP) for REVIEW/i, 'Đánh giá khóa học')
-                                                                     .replace(/Received (points|XP) for FLASHCARD_REVIEW/i, 'Ôn tập thẻ từ')
-                                                                     .replace('Redeemed', 'Đổi quà:') || item.description}
-                                                </div>
-                                                <div className="md:hidden text-[10px] font-semibold text-muted-foreground/40 mt-1">
-                                                    {formatDateTime(item.createdAt)}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="hidden md:table-cell font-semibold text-[10px] text-muted-foreground/50">
-                                                {formatDateTime(item.createdAt)}
-                                            </TableCell>
-                                            <TableCell className="hidden sm:table-cell">
-                                                <Badge variant="outline" className="text-[9px] font-semibold text-muted-foreground border-border/40 bg-muted/20 px-1.5 py-0.5 rounded shadow-none">
-                                                    {item.activityType || item.metadata?.itemName || 'Hệ thống'}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right pr-6">
-                                                <span className={cn(
-                                                    "font-bold text-sm tabular-nums tracking-tight",
-                                                    item.amount > 0 ? "text-emerald-500" : "text-destructive/80"
-                                                )}>
-                                                    {item.amount > 0 ? `+${item.amount}` : item.amount.toLocaleString()} 
-                                                    <span className="text-[10px] ml-1">
-                                                        {String(item.currency || '').toUpperCase() === 'XP' ? 'XP' : 'Điểm'}
-                                                    </span>
-                                                </span>
+                                </TableHeader>
+                                <TableBody>
+                                    {historyLoading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="h-32 text-center">
+                                                <ComponentLoading />
                                             </TableCell>
                                         </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-32 text-center">
-                                            <div className="flex flex-col items-center justify-center gap-1">
-                                                <History className="size-6 text-muted-foreground/20 mb-2" />
-                                                <p className="text-[11px] font-medium text-muted-foreground/40">Chưa có lịch sử điểm thưởng</p>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </Card>
+                                    ) : gamificationHistory.length > 0 ? (
+                                        gamificationHistory.map((item: any, index: number) => (
+                                            <TableRow key={item.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                                <TableCell className="py-3 px-4 text-center text-xs font-medium text-foreground/70">
+                                                    {(historyMeta.page - 1) * historyMeta.limit + index + 1}
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4">
+                                                    <div className="font-semibold text-sm text-foreground/90 group-hover:text-primary transition-colors">
+                                                        {item.description?.replace(/Received (points|XP) for LOGIN/i, 'Đăng nhập hằng ngày')
+                                                            .replace(/Received (points|XP) for REVIEW/i, 'Đánh giá khóa học')
+                                                            .replace(/Received (points|XP) for FLASHCARD_REVIEW/i, 'Ôn tập thẻ từ')
+                                                            .replace('Redeemed', 'Đổi quà:') || item.description}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4 whitespace-nowrap text-xs font-medium text-muted-foreground">
+                                                    {formatDateTime(item.createdAt)}
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4">
+                                                    <Badge variant="outline" className="text-[10px] font-semibold text-muted-foreground border-border/60 bg-muted/20">
+                                                        {item.activityType || item.metadata?.itemName || 'Hệ thống'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="py-3 px-4 text-right">
+                                                    <span className={cn(
+                                                        "font-bold text-sm tabular-nums tracking-tight whitespace-nowrap",
+                                                        item.amount > 0 ? "text-emerald-600" : "text-destructive/80"
+                                                    )}>
+                                                        {item.amount > 0 ? `+${item.amount}` : item.amount.toLocaleString()}
+                                                        <span className="ml-1 text-[10px]">
+                                                            {String(item.currency || '').toUpperCase() === 'XP' ? 'XP' : 'Điểm'}
+                                                        </span>
+                                                    </span>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow className="hover:bg-transparent">
+                                            <TableCell colSpan={5} className="h-32 text-center">
+                                                <div className="flex flex-col items-center justify-center gap-1">
+                                                    <History className="mb-2 size-6 text-muted-foreground/30" />
+                                                    <p className="text-sm font-medium text-muted-foreground">Chưa có lịch sử điểm thưởng</p>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
 
                     <div className="pt-4">
                         <SmartPagination

@@ -4,7 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group
 import { Label } from "@workspace/ui/components/label"
 import { Button } from "@workspace/ui/components/button"
 import { Flag, ArrowLeft, ArrowRight, Play, Pause } from "lucide-react"
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { MarkdownRenderer } from "@/components/common/markdown-renderer"
 
 export interface Question {
@@ -43,14 +43,24 @@ export function QuestionArea({
     const [isPlaying, setIsPlaying] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
-    const toggleAudio = () => {
-        if (!audioRef.current) return
+    useEffect(() => {
+        setIsPlaying(false)
+    }, [question.id])
+
+    const toggleAudio = async () => {
+        const el = audioRef.current
+        if (!el) return
         if (isPlaying) {
-            audioRef.current.pause()
-        } else {
-            audioRef.current.play()
+            el.pause()
+            setIsPlaying(false)
+            return
         }
-        setIsPlaying(!isPlaying)
+        try {
+            await el.play()
+            setIsPlaying(true)
+        } catch {
+            setIsPlaying(false)
+        }
     }
 
     return (
@@ -60,21 +70,25 @@ export function QuestionArea({
             {question.type === 'listening' && question.audioUrl && (
                 <div className="bg-muted p-4 rounded-lg flex items-center gap-4">
                     <Button
+                        type="button"
                         size="icon"
-                        className="h-12 w-12 rounded-full"
-                        onClick={toggleAudio}
+                        className="h-12 w-12 rounded-full shrink-0"
+                        onClick={() => void toggleAudio()}
                     >
                         {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-1" />}
                     </Button>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         <div className="h-1 bg-muted-foreground/20 rounded-full overflow-hidden">
                             <div className="h-full bg-primary w-1/3 animate-pulse" />
                         </div>
                     </div>
                     <audio
+                        key={`${question.id}-${question.audioUrl}`}
                         ref={audioRef}
                         src={question.audioUrl}
+                        preload="auto"
                         onEnded={() => setIsPlaying(false)}
+                        onPause={() => setIsPlaying(false)}
                         className="hidden"
                     />
                 </div>

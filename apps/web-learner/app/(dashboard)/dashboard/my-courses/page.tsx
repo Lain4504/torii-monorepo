@@ -16,13 +16,6 @@ import {
 } from 'lucide-react'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
-import {
-    Item,
-    ItemContent,
-    ItemGroup,
-    ItemMedia,
-    ItemTitle
-} from '@workspace/ui/components/item'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
@@ -123,41 +116,35 @@ export default function MyCoursesPage() {
                 const isLive = uiState === 'live' || uiState === 'joinable';
 
                 return (
-                    <Card>
-                        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                            <div className="flex items-start gap-3">
-                                <div className="rounded-md border p-2 text-primary">
+                    <Card className="border-border/50">
+                        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-5">
+                            <div className="flex min-w-0 items-start gap-3">
+                                <div className="rounded-md border p-2 text-primary shrink-0">
                                     <Video className="size-4" />
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Badge variant={isLive ? "destructive" : "secondary"}>
+                                <div className="min-w-0 space-y-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <Badge className="h-5 px-2 text-[10px] font-semibold" variant={isLive ? "destructive" : "secondary"}>
                                             {isLive ? "Đang diễn ra" : "Buổi học sắp tới"}
                                         </Badge>
-                                        <Badge variant="outline">{nextSession.courseTitle}</Badge>
                                     </div>
-                                    <p className="text-sm font-semibold">{nextSession.title}</p>
-                                    <ItemGroup className="gap-2">
-                                        <Item size="sm" className="border px-2 py-1 shadow-none">
-                                            <ItemMedia variant="icon"><Calendar /></ItemMedia>
-                                            <ItemContent>
-                                                <ItemTitle className="text-xs font-medium">
-                                                    {format(new Date(nextSession.scheduledAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
-                                                </ItemTitle>
-                                            </ItemContent>
-                                        </Item>
-                                        <Item size="sm" className="border px-2 py-1 shadow-none">
-                                            <ItemMedia variant="icon"><Clock /></ItemMedia>
-                                            <ItemContent>
-                                                <ItemTitle className="text-xs font-medium">{nextSession.duration} phút</ItemTitle>
-                                            </ItemContent>
-                                        </Item>
-                                    </ItemGroup>
+                                    <p className="truncate text-sm font-semibold text-foreground">{nextSession.title}</p>
+                                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <Calendar className="size-3.5" />
+                                            {format(new Date(nextSession.scheduledAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                        </span>
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <Clock className="size-3.5" />
+                                            {nextSession.duration} phút
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
                             {canJoin ? (
                                 <Button
+                                    className="h-9 px-4 text-xs font-semibold sm:h-10 sm:px-5"
                                     onClick={async () => {
                                         try {
                                             const joinData = await liveSessionApi.joinSession(nextSession.id);

@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { commentApi } from '@/lib/api/services/comment-api'
 import { CommentTargetType } from '@workspace/schemas'
 import { CommentSection } from '@/components/blog/comment-section'
-import { Plus, MessageCircle } from 'lucide-react'
+import { Plus, MessageCircle, MoreHorizontal } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Textarea } from '@workspace/ui/components/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
@@ -22,6 +22,12 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@workspace/ui/components/collapsible"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 
 interface LessonDiscussionProps {
     deliveryScopeId: string
@@ -97,6 +103,7 @@ export function LessonDiscussion({ deliveryScopeId, moduleId, lessonId }: Lesson
     const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null)
     const [editingTopicId, setEditingTopicId] = useState<string | null>(null)
     const [editContent, setEditContent] = useState('')
+    const EDIT_TIME_LIMIT_MS = 10 * 60 * 1000
 
     const handleCreateTopic = async () => {
         if (!content.trim() || !isAuthenticated) return;
@@ -195,6 +202,7 @@ export function LessonDiscussion({ deliveryScopeId, moduleId, lessonId }: Lesson
                     topics.map((topic, index) => {
                         const isExpanded = expandedTopicId === topic.id
                         const canEdit = user?.id === topic.author?.id
+                        const canEditWithinWindow = canEdit && !!topic.createdAt && (Date.now() - new Date(topic.createdAt).getTime() <= EDIT_TIME_LIMIT_MS)
                         const authorName = topic.author?.displayName || 'Người dùng'
                         const createdAtLabel = topic.createdAt
                             ? formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true, locale: vi })
@@ -226,35 +234,47 @@ export function LessonDiscussion({ deliveryScopeId, moduleId, lessonId }: Lesson
                                                         </Badge>
                                                     ) : null}
                                                     {canEdit ? (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="font-normal"
-                                                            onClick={() => {
-                                                                if (editingTopicId === topic.id) {
-                                                                    setEditingTopicId(null)
-                                                                    setEditContent('')
-                                                                    return
-                                                                }
-                                                                setEditingTopicId(topic.id)
-                                                                setEditContent(topic.content || '')
-                                                                setExpandedTopicId(topic.id)
-                                                            }}
-                                                        >
-                                                            Sửa
-                                                        </Button>
-                                                    ) : null}
-                                                    {canEdit ? (
-                                                        <Button
-                                                            variant="destructive"
-                                                            size="sm"
-                                                            className="font-normal"
-                                                            onClick={() => {
-                                                                if (confirm('Xác nhận xóa thảo luận này?')) handleDeleteTopic(topic.id)
-                                                            }}
-                                                        >
-                                                            Xóa
-                                                        </Button>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="size-8 rounded-full"
+                                                                    aria-label="Tùy chọn bình luận"
+                                                                >
+                                                                    <MoreHorizontal className="size-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-40">
+                                                                <DropdownMenuItem
+                                                                    disabled={!canEditWithinWindow}
+                                                                    onClick={() => {
+                                                                        if (!canEditWithinWindow) {
+                                                                            toast.error('Chỉ có thể sửa trong vòng 10 phút sau khi bình luận.')
+                                                                            return
+                                                                        }
+                                                                        if (editingTopicId === topic.id) {
+                                                                            setEditingTopicId(null)
+                                                                            setEditContent('')
+                                                                            return
+                                                                        }
+                                                                        setEditingTopicId(topic.id)
+                                                                        setEditContent(topic.content || '')
+                                                                        setExpandedTopicId(topic.id)
+                                                                    }}
+                                                                >
+                                                                    Sửa
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                                                                    onClick={() => {
+                                                                        if (confirm('Xác nhận xóa thảo luận này?')) handleDeleteTopic(topic.id)
+                                                                    }}
+                                                                >
+                                                                    Xóa
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
                                                     ) : null}
                                                 </div>
                                             </div>

@@ -87,8 +87,13 @@ function transformQuestion(apiQuestion: any): Question {
     })()
 
     const categoryType = String(apiQuestion.categoryType ?? apiQuestion.category ?? "").toUpperCase()
+    const mediaUrl = apiQuestion.mediaUrl as string | undefined
+    const looksLikeAudio =
+        !!mediaUrl && /\.(mp3|wav|m4a|aac|ogg)(\?|#|$)/i.test(mediaUrl)
+    const isListening =
+        categoryType === "LISTENING" || (!!mediaUrl && looksLikeAudio && categoryType !== "READING")
     const type: Question["type"] =
-        categoryType === "LISTENING"
+        isListening
             ? "listening"
             : categoryType === "READING"
               ? "reading"
@@ -98,8 +103,8 @@ function transformQuestion(apiQuestion: any): Question {
         id: apiQuestion.id,
         content: apiQuestion.stem ?? apiQuestion.content ?? "",
         type,
-        audioUrl: type === "listening" ? apiQuestion.mediaUrl : undefined,
-        imageUrl: type !== "listening" ? apiQuestion.mediaUrl : undefined,
+        audioUrl: type === "listening" ? mediaUrl : undefined,
+        imageUrl: type !== "listening" ? mediaUrl : undefined,
         readingPassage: apiQuestion.readingPassage,
         options,
     }
@@ -160,10 +165,15 @@ export default function TakeExamPage() {
                 const originalTimeLimit = (exam.totalTimeLimitMinutes || 0) * 60
                 setTimeLimit(originalTimeLimit)
 
-                // Transform questions from examQuestions (which now include question content)
-                const apiQuestions = exam.sections?.flatMap(s =>
-                    exam.examQuestions?.filter(eq => eq.sectionId === s.id).map(eq => eq.question) || []
-                ) || []
+                // Khớp Prisma: exam.questions + sections[].questions (không có exam.examQuestions ở API)
+                const ex: any = exam
+                const fromSections =
+                    ex.sections?.flatMap((s: any) => s.questions || s.examQuestions || []) ?? []
+                const topLevel = ex.questions ?? ex.examQuestions ?? []
+                const rows = fromSections.length > 0 ? fromSections : topLevel
+                const apiQuestions = rows
+                    .map((eq: any) => (eq?.question != null ? eq.question : eq))
+                    .filter(Boolean)
 
                 const transformedQuestions = apiQuestions.map(transformQuestion)
                 setQuestions(transformedQuestions)

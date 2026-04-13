@@ -163,11 +163,6 @@ export default function AssignmentGradingPage() {
                     </div>
                 }
                 subtitle={`Quản lý và chấm điểm bài nộp của sinh viên cho bài tập này.`}
-                actions={
-                    <Button variant="outline">
-                        <Download className="mr-2 h-4 w-4" /> Xuất bảng điểm (CSV)
-                    </Button>
-                }
             />
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
