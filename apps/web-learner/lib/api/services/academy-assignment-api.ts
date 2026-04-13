@@ -98,6 +98,7 @@ export function useSubmitAssignment(liveClassId: string) {
       classAssessmentId: string
       assignmentTemplateId: string
       content: any
+      fileUrls?: string[]
     }) => academyAssignmentApi.submitAssignment({ ...input, liveClassId }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["academy-my-submissions", liveClassId] })

@@ -14,15 +14,21 @@ export function useCoupons() {
         limit: historyLimit,
     });
 
-    const historyItems = (historyData as any)?.items ?? (historyData as any)?.data ?? [];
+    // Normalize API shapes:
+    // - New/paginated: { items, page, limit, total, totalPages }
+    // - Legacy: array of history entries
+    // - Some gateways: { data: array }
+    const historyItems = Array.isArray(historyData)
+        ? historyData
+        : (historyData as any)?.items ?? (historyData as any)?.data ?? [];
 
     // Server already paginates/sorts; keep stable order as received.
     const gamificationHistory = (historyItems || []) as any[];
     const historyMeta = {
-        page: (historyData as any)?.page ?? historyPage,
-        limit: (historyData as any)?.limit ?? historyLimit,
-        total: (historyData as any)?.total ?? 0,
-        totalPages: (historyData as any)?.totalPages ?? 0,
+        page: Array.isArray(historyData) ? historyPage : (historyData as any)?.page ?? historyPage,
+        limit: Array.isArray(historyData) ? historyLimit : (historyData as any)?.limit ?? historyLimit,
+        total: Array.isArray(historyData) ? gamificationHistory.length : (historyData as any)?.total ?? 0,
+        totalPages: Array.isArray(historyData) ? 1 : (historyData as any)?.totalPages ?? 0,
     };
 
     const handleCopyCode = (code: string) => {

@@ -774,33 +774,19 @@ export class AuthController {
   @UseGuards(GatewayAuthGuard)
   async getSessions(@Req() req: ReqWithRequester) {
     const requester = req.requester;
-    const refreshToken = req.cookies?.refresh_token;
 
     try {
       const sessions = await firstValueFrom(
         this.natsClient.send({ cmd: 'identity.session.list' }, requester.sub),
       );
 
-      // Hash current refresh token to identify it in the list
-      let currentSessionHash = null;
-      if (refreshToken) {
-        // We need to call identify.auth.hashToken (public) but better to just do it in the service or handler
-        // For now, let's just return the sessions, the frontend will see the hash.
-        // Wait, AuthHandler has access to sessionService.hashTokenPublic.
-        // Let's just return a "isCurrent" flag by comparing on the backend if possible, or just send the hash.
-        // Actually, let's add a helper to hash in the controller or use a dedicated nats call.
-        currentSessionHash = await firstValueFrom(
-          this.natsClient.send(
-            { cmd: 'identity.auth.hashToken' },
-            { token: refreshToken },
-          ),
-        ).catch(() => null);
-      }
+      // Identify current session via access token sid (works for both web & mobile).
+      const currentSessionId = (requester as any)?.sid || null;
 
       return successResponse({
         sessions: sessions.map((s: any) => ({
           ...s,
-          isCurrent: s.tokenHash === currentSessionHash,
+          isCurrent: currentSessionId ? s.id === currentSessionId : false,
           tokenHash: undefined, // Don't leak other hashes
         })),
       });

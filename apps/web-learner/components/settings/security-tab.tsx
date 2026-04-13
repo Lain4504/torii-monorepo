@@ -1,30 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Shield, RefreshCw, AlertTriangle, Link as LinkIcon, Unlink, Mail, Plus } from 'lucide-react';
+import { Link as LinkIcon, Unlink, Mail, Plus } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
-import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { toast } from 'sonner';
 
-import { use2FAStatus } from '@/lib/api/services/two-factor-auth-api';
 import { useLinkedProviders, useUnlinkProvider, useLinkGoogle, useLinkFacebook } from '@/lib/api/services/auth-api';
-import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
-import { BackupCodesDialog } from './backup-codes-dialog';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { createGoogleGsiLoadingGuard, shouldEndFlowFromPromptMoment } from '@/lib/google-gsi-loading-guard';
 
 
 export function SecurityTab() {
-    const { data: status, isLoading } = use2FAStatus();
     const { data: linkedProviders } = useLinkedProviders();
     const unlinkMutation = useUnlinkProvider();
     const linkGoogleMutation = useLinkGoogle();
     const linkFacebookMutation = useLinkFacebook();
-
-    const [showDisableDialog, setShowDisableDialog] = useState(false);
-    const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
 
     const [googleLoading, setGoogleLoading] = useState(false);
     const [facebookLoading, setFacebookLoading] = useState(false);
@@ -40,7 +32,7 @@ export function SecurityTab() {
         }
     }, []);
 
-    if (isLoading) {
+    if (!linkedProviders) {
         return (
             <div className="flex items-center justify-center py-20">
                 <Spinner className="size-8" />
@@ -48,7 +40,6 @@ export function SecurityTab() {
         );
     }
 
-    const isEnabled = status?.isEnabled || false;
     const providers = linkedProviders?.providers || [];
     const hasPassword = linkedProviders?.hasPassword || false;
     const hasGoogle = providers.includes('google');
@@ -146,15 +137,6 @@ export function SecurityTab() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
                                 <div className="flex items-center gap-3">
-                                    <Shield className={`size-4 ${isEnabled ? 'text-emerald-500' : 'text-muted-foreground'}`} />
-                                    <span className="text-xs font-bold">Xác thực 2FA</span>
-                                </div>
-                                <Badge variant={isEnabled ? 'default' : 'secondary'} className="text-[10px] font-bold">
-                                    {isEnabled ? 'Bật' : 'Tắt'}
-                                </Badge>
-                            </div>
-                            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
-                                <div className="flex items-center gap-3">
                                     <Mail className="size-4 text-primary" />
                                     <span className="text-xs font-bold">Mật khẩu gốc</span>
                                 </div>
@@ -163,68 +145,12 @@ export function SecurityTab() {
                                 </Badge>
                             </div>
                         </div>
-
-                        {isEnabled && (
-                            <Alert className="bg-emerald-500/5 border-emerald-500/20 py-3">
-                                <AlertDescription className="text-[11px] font-medium text-emerald-600 leading-relaxed text-center italic">
-                                    Tài khoản của bạn đang được bảo vệ bởi lớp xác thực cấp hai.
-                                </AlertDescription>
-                            </Alert>
-                        )}
                     </CardContent>
                 </Card>
             </div>
 
             {/* Main Security Actions */}
             <div className="lg:col-span-8 space-y-6">
-                {/* 2FA Section */}
-                <Card className="border-none shadow-sm">
-                    <CardHeader>
-                        <CardTitle>Xác thực hai yếu tố (2FA)</CardTitle>
-                        <CardDescription>Sử dụng mã OTP từ Authenticator App để đảm bảo chỉ bạn mới có thể truy cập.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {isEnabled ? (
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="rounded-xl border bg-muted/20 p-4 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground">Phương thức</p>
-                                    <p className="text-sm font-bold">Authenticator App</p>
-                                </div>
-                                <div className="rounded-xl border bg-muted/20 p-4 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground">Mã dự phòng còn lại</p>
-                                    <p className="text-sm font-bold text-emerald-600">{status?.backupCodesRemaining || 0} mã</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <Alert variant="default" className="bg-primary/5 border-primary/20">
-                                <AlertTriangle className="size-4 text-primary" />
-                                <AlertTitle className="text-xs font-bold">Khuyến khích kích hoạt</AlertTitle>
-                                <AlertDescription className="text-xs text-muted-foreground font-medium">
-                                    Lớp bảo mật bổ sung này sẽ ngăn chặn các truy cập trái phép ngay cả khi mật khẩu của bạn bị lộ.
-                                </AlertDescription>
-                            </Alert>
-                        )}
-
-                        <div className="flex items-center justify-end gap-3 pt-6 border-t border-border/50">
-                            {isEnabled ? (
-                                <>
-                                    <Button onClick={() => setShowBackupCodesDialog(true)} variant="outline">
-                                        <RefreshCw className="mr-2 h-4 w-4" />
-                                        Mã dự phòng
-                                    </Button>
-                                    <Button onClick={() => setShowDisableDialog(true)} variant="destructive">
-                                        Tắt 2FA
-                                    </Button>
-                                </>
-                            ) : (
-                                <p className="text-xs text-muted-foreground">
-                                    Kích hoạt 2FA hiện không khả dụng trên web-learner.
-                                </p>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-
                 {/* Social Accounts */}
                 <Card className="border-none shadow-sm">
                     <CardHeader>
@@ -262,10 +188,6 @@ export function SecurityTab() {
                     </CardContent>
                 </Card>
             </div>
-
-            {/* Dialogs */}
-            <DisableTwoFactorDialog open={showDisableDialog} onOpenChange={setShowDisableDialog} />
-            <BackupCodesDialog open={showBackupCodesDialog} onOpenChange={setShowBackupCodesDialog} />
         </div>
     );
 }

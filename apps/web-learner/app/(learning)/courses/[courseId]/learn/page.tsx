@@ -340,53 +340,17 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
                     </p>
                 )}
 
-                <footer className="mt-10">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base font-normal">
-                                Điều hướng bài đọc
-                            </CardTitle>
-                            <CardDescription className="font-normal">
-                                Chuyển bài trước/sau để tiếp tục học.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={onPrev}
-                                    disabled={navDisabledPrev}
-                                    className="h-10 w-full justify-center font-normal"
-                                >
-                                    <ChevronLeft className="size-4" />
-                                    Trước
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={onNext}
-                                    disabled={navDisabledNext}
-                                    className="h-10 w-full justify-center font-normal"
-                                >
-                                    Tiếp
-                                    <ChevronRight className="size-4" />
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <div className="mt-3 flex justify-end">
-                        <Button
-                            onClick={onComplete}
-                            variant="link"
-                            size="sm"
-                            className="h-auto px-0 text-sm font-medium"
-                            disabled={isCompleted}
-                        >
-                            {isCompleted ? "Đã hoàn thành" : "Xác nhận hoàn thành"}
-                        </Button>
-                    </div>
-                </footer>
+                <div className="mt-3 flex justify-end">
+                    <Button
+                        onClick={onComplete}
+                        variant="link"
+                        size="sm"
+                        className="h-auto px-0 text-sm font-medium"
+                        disabled={isCompleted}
+                    >
+                        {isCompleted ? "Đã hoàn thành" : "Xác nhận hoàn thành"}
+                    </Button>
+                </div>
             </div>
         </article>
     );
@@ -708,10 +672,53 @@ export default function CourseLearnPage() {
                 await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', deliveryTargetId] });
             }
             toast.success('Bài học đã hoàn thành! 🎉');
+
+            // Nếu có bài kiểm tra (milestone) gắn với lesson/module vừa hoàn thành, tự gợi ý ngay để user không bị "kẹt" (đặc biệt trên mobile).
+            const justCompletedId = currentLesson.id;
+            const justCompletedRef = (currentLesson as any)?.referenceId;
+            const completedNow = new Set(completedIds);
+            completedNow.add(justCompletedId);
+
+            const lessonTriggered = milestones.find((m: any) => {
+                const kind = normalizeItemKind(m.kind);
+                if (!m?.examId) return false;
+                if (m.status === 'PASSED') return false;
+                if (!m.triggerLessonId) return false;
+                if (kind !== 'LESSON_CHECKPOINT') return false;
+                return m.triggerLessonId === justCompletedId || (justCompletedRef && m.triggerLessonId === justCompletedRef);
+            }) as any | undefined;
+
+            const moduleMeta = lessonOrderMeta.get(justCompletedId) || (justCompletedRef ? lessonOrderMeta.get(justCompletedRef) : undefined);
+            const currentModuleId = moduleMeta?.moduleId;
+            const moduleLessons = currentModuleId ? (sortedModules.find((mod: any) => mod.id === currentModuleId)?.lessons || []) : [];
+            const moduleAllDone =
+                moduleLessons.length > 0 &&
+                moduleLessons.every((l: any) => {
+                    const id = lessonProgressId(l);
+                    return completedNow.has(id);
+                });
+
+            const moduleTriggered = moduleAllDone
+                ? (milestones.find((m: any) => {
+                    const kind = normalizeItemKind(m.kind);
+                    if (!m?.examId) return false;
+                    if (m.status === 'PASSED') return false;
+                    if (m.triggerLessonId) return false;
+                    if (!currentModuleId || m.moduleId !== currentModuleId) return false;
+                    return kind === 'MODULE_CHECKPOINT' || kind === 'MODULE_TEST' || kind === 'MODULE_EXAM';
+                }) as any | undefined)
+                : undefined;
+
+            const nextMilestone = lessonTriggered || moduleTriggered;
+            if (nextMilestone) {
+                if (currentModuleId) setExpandedModules(new Set([currentModuleId]));
+                setSidebarOpen(true);
+                setPendingMilestone(nextMilestone);
+            }
         } catch (e: any) {
             toast.error(e?.userMessage || 'Lỗi cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, queryClient, deliveryTargetId, isVodCandidate]);
+    }, [currentLesson, completedIds, queryClient, deliveryTargetId, isVodCandidate, milestones, lessonOrderMeta, sortedModules]);
 
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
@@ -728,7 +735,8 @@ export default function CourseLearnPage() {
             setCurrentLesson(lesson);
             updateLessonQuery(lesson.id);
             setSidebarOpen(false);
-            setActiveTab('content');
+            const k = normalizeItemKind(lesson.kind);
+            setActiveTab(k === 'READING' ? 'discussion' : 'content');
         }
     };
 
@@ -941,7 +949,7 @@ export default function CourseLearnPage() {
                                             variant="outline"
                                             size="sm"
                                             onClick={() => goTo(prevLesson)}
-                                            disabled={!prevLesson}
+                                            disabled={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
                                             className="h-10 w-full justify-center font-normal"
                                         >
                                             <ChevronLeft className="size-4" />
@@ -951,7 +959,7 @@ export default function CourseLearnPage() {
                                             variant="outline"
                                             size="sm"
                                             onClick={() => goTo(nextLesson)}
-                                            disabled={!nextLesson}
+                                            disabled={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
                                             className="h-10 w-full justify-center font-normal"
                                         >
                                             Tiếp
@@ -961,29 +969,31 @@ export default function CourseLearnPage() {
                                 </div>
                             </div>
 
-                            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-                                <TabsList>
-                                    <TabsTrigger value="content" className="font-normal">Tổng quan</TabsTrigger>
-                                    <TabsTrigger value="discussion" className="font-normal">Thảo luận</TabsTrigger>
-                                    <TabsTrigger value="resources" className="font-normal">Tài liệu</TabsTrigger>
-                                </TabsList>
+                            {isArticleLesson ? (
+                                <div className="pt-2">
+                                    {!lessonLoading && currentLesson ? (
+                                        <div className="animate-in fade-in duration-700">
+                                            <ArticleViewer
+                                                lesson={lessonDetail!}
+                                                onComplete={markLessonComplete}
+                                                onPrev={() => goTo(prevLesson)}
+                                                onNext={() => goTo(nextLesson)}
+                                                navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
+                                                navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
+                                                isCompleted={isCurrentDone}
+                                            />
+                                        </div>
+                                    ) : null}
+                                </div>
+                            ) : (
+                                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+                                    <TabsList>
+                                        <TabsTrigger value="content" className="font-normal">Tổng quan</TabsTrigger>
+                                        <TabsTrigger value="discussion" className="font-normal">Thảo luận</TabsTrigger>
+                                        <TabsTrigger value="resources" className="font-normal">Tài liệu</TabsTrigger>
+                                    </TabsList>
 
-                                <TabsContent value="content" className="py-6 space-y-4">
-                                    {isArticleLesson ? (
-                                        !lessonLoading && currentLesson ? (
-                                            <div className="animate-in fade-in duration-700">
-                                                <ArticleViewer
-                                                    lesson={lessonDetail!}
-                                                    onComplete={markLessonComplete}
-                                                    onPrev={() => goTo(prevLesson)}
-                                                    onNext={() => goTo(nextLesson)}
-                                                    navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
-                                                    navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
-                                                    isCompleted={isCurrentDone}
-                                                />
-                                            </div>
-                                        ) : null
-                                    ) : (
+                                    <TabsContent value="content" className="py-6 space-y-4">
                                         <>
                                             <h3 className="text-lg font-normal">Giới thiệu bài học</h3>
                                             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -995,21 +1005,42 @@ export default function CourseLearnPage() {
                                                 </Button>
                                             )}
                                         </>
-                                    )}
-                                </TabsContent>
+                                    </TabsContent>
 
-                                <TabsContent value="discussion" className="py-6">
-                                    <LessonDiscussion
-                                        deliveryScopeId={deliveryTargetId as string}
-                                        lessonId={(currentLesson as any)?.id ?? ''}
-                                        moduleId={(currentLesson as any)?.moduleId}
-                                    />
-                                </TabsContent>
+                                    <TabsContent value="discussion" className="py-6">
+                                        <LessonDiscussion
+                                            deliveryScopeId={deliveryTargetId as string}
+                                            lessonId={(currentLesson as any)?.id ?? ''}
+                                            moduleId={(currentLesson as any)?.moduleId}
+                                        />
+                                    </TabsContent>
 
-                                <TabsContent value="resources" className="py-6">
-                                    <AcademyResourceList deliveryScopeId={deliveryTargetId as string} />
-                                </TabsContent>
-                            </Tabs>
+                                    <TabsContent value="resources" className="py-6">
+                                        <AcademyResourceList deliveryScopeId={deliveryTargetId as string} />
+                                    </TabsContent>
+                                </Tabs>
+                            )}
+
+                            {isArticleLesson && (
+                                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+                                    <TabsList>
+                                        <TabsTrigger value="discussion" className="font-normal">Bình luận</TabsTrigger>
+                                        <TabsTrigger value="resources" className="font-normal">Tài nguyên</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="discussion" className="py-6">
+                                        <LessonDiscussion
+                                            deliveryScopeId={deliveryTargetId as string}
+                                            lessonId={(currentLesson as any)?.id ?? ''}
+                                            moduleId={(currentLesson as any)?.moduleId}
+                                        />
+                                    </TabsContent>
+
+                                    <TabsContent value="resources" className="py-6">
+                                        <AcademyResourceList deliveryScopeId={deliveryTargetId as string} />
+                                    </TabsContent>
+                                </Tabs>
+                            )}
                         </section>
 
                         {lessonLoading && (
@@ -1105,6 +1136,7 @@ export default function CourseLearnPage() {
                                 ))}
                             </div>
                         )}
+                        <div className="h-8 xl:h-0" />
                     </ScrollArea>
                 </aside>
 

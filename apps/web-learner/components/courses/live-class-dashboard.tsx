@@ -2,6 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import {
@@ -36,6 +37,25 @@ const MEET_URL =
 const DASHBOARD_TABS = ["curriculum", "assignments", "resources"] as const
 type DashboardTab = (typeof DASHBOARD_TABS)[number]
 
+function extractJoinErrorMessage(error: unknown): string {
+    const fallback = "Không thể vào lớp lúc này. Vui lòng thử lại sau."
+    if (!error || typeof error !== "object") return fallback
+
+    const maybeError = error as any
+    const responseData = maybeError?.response?.data
+
+    if (typeof responseData?.message === "string" && responseData.message.trim()) {
+        return responseData.message
+    }
+    if (typeof responseData?.error === "string" && responseData.error.trim()) {
+        return responseData.error
+    }
+    if (typeof maybeError?.message === "string" && maybeError.message.trim()) {
+        return maybeError.message
+    }
+    return fallback
+}
+
 export function LiveClassDashboard() {
     const params = useParams();
     const router = useRouter();
@@ -51,8 +71,6 @@ export function LiveClassDashboard() {
         return "curriculum"
     }, [searchParams])
 
-    const openClassAssignmentId = searchParams.get("assignmentId")
-
     const replaceDashboardQuery = useCallback(
         (mutate: (p: URLSearchParams) => void) => {
             const next = new URLSearchParams(searchParams.toString())
@@ -66,20 +84,6 @@ export function LiveClassDashboard() {
     const handleTabChange = (value: string) => {
         replaceDashboardQuery((p) => {
             p.set("tab", value)
-            if (value !== "assignments") {
-                p.delete("assignmentId")
-            }
-        })
-    }
-
-    const handleAssignmentDeepLinkChange = (classAssignmentId: string | null) => {
-        replaceDashboardQuery((p) => {
-            p.set("tab", "assignments")
-            if (classAssignmentId) {
-                p.set("assignmentId", classAssignmentId)
-            } else {
-                p.delete("assignmentId")
-            }
         })
     }
 
@@ -96,9 +100,9 @@ export function LiveClassDashboard() {
             const result = await liveSessionApi.joinSession(sessionId);
             window.open(`${MEET_URL}?access_token=${result.token}`, '_blank', 'noopener,noreferrer')
             toast.success("Đang kết nối tới phòng học...");
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Join session error:", error);
-            toast.error("Có lỗi xảy ra khi tham gia buổi học");
+            toast.error(extractJoinErrorMessage(error));
         }
     };
 
@@ -196,9 +200,11 @@ export function LiveClassDashboard() {
                     <div className="relative min-h-[220px] lg:min-h-full">
                         <Image src={thumbnail} alt={academyClass.name || "Class Thumbnail"} fill className="object-cover" />
                         <div className="absolute inset-x-4 bottom-4">
-                            <Button className="w-full" onClick={() => router.push(`/courses/${courseId}/learn?mode=VOD`)}>
-                                <PlayCircle className="mr-2 size-4" />
-                                Mở trang học VOD
+                            <Button className="w-full" asChild>
+                                <Link href={`/courses/${courseId}/learn?mode=VOD`}>
+                                    <PlayCircle className="mr-2 size-4" />
+                                    Mở trang học VOD
+                                </Link>
                             </Button>
                         </div>
                     </div>
@@ -224,25 +230,27 @@ export function LiveClassDashboard() {
 
             <div className="space-y-6">
                     <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
+                        <CardHeader className="space-y-3">
+                            <div className="flex flex-col gap-1">
                                 <CardTitle className="text-base">Lịch biểu trong tuần</CardTitle>
                                 <CardDescription>Theo dõi lịch để không bỏ lỡ buổi học.</CardDescription>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center justify-between gap-2">
                                 <Button
                                     variant="outline"
                                     size="icon"
+                                    className="h-8 w-8 shrink-0"
                                     onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}
                                 >
                                     <ChevronLeft className="size-4" />
                                 </Button>
-                                <Badge variant="outline">
+                                <Badge variant="outline" className="text-[11px] font-semibold px-2 py-1 text-center">
                                     {format(currentWeekStart, "dd/MM")} - {format(addDays(currentWeekStart, 6), "dd/MM")}
                                 </Badge>
                                 <Button
                                     variant="outline"
                                     size="icon"
+                                    className="h-8 w-8 shrink-0"
                                     onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}
                                 >
                                     <ChevronRight className="size-4" />
@@ -250,7 +258,7 @@ export function LiveClassDashboard() {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
+                            <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-7">
                                 {weekDays.map((day, idx) => {
                                     const isToday = isSameDay(day, new Date())
                                     const daySessions = sessions.filter((s) => isSameDay(new Date(s.scheduledAt), day))
@@ -258,29 +266,29 @@ export function LiveClassDashboard() {
                                         <div
                                             key={idx}
                                             className={cn(
-                                                "space-y-2 rounded-md border p-3",
+                                                "space-y-1.5 rounded-md border p-2.5 sm:p-3",
                                                 isToday && "border-primary bg-muted"
                                             )}
                                         >
-                                            <div className="space-y-0.5 border-b pb-2">
-                                                <p className="text-xs text-muted-foreground">
+                                            <div className="space-y-0 border-b pb-1.5">
+                                                <p className="text-[11px] text-muted-foreground leading-none">
                                                     {format(day, "eee", { locale: vi })}
                                                 </p>
-                                                <p className="text-base font-medium">{format(day, "dd")}</p>
+                                                <p className="text-sm sm:text-base font-semibold leading-tight">{format(day, "dd")}</p>
                                             </div>
-                                            <div className="space-y-2">
+                                            <div className="space-y-1.5">
                                                 {daySessions.length > 0 ? (
                                                     daySessions.map((session: any, sIdx: number) => (
-                                                        <div key={sIdx} className="rounded-md border p-2">
-                                                            <p className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
-                                                                <Clock className="size-3" />
+                                                        <div key={sIdx} className="rounded-md border p-2 bg-background/70">
+                                                            <p className="mb-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                                                                <Clock className="size-3 shrink-0" />
                                                                 {format(new Date(session.scheduledAt), "HH:mm")}
                                                             </p>
-                                                            <p className="line-clamp-2 text-xs font-medium">{session.title}</p>
+                                                            <p className="line-clamp-2 text-[11px] sm:text-xs font-medium leading-snug">{session.title}</p>
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <p className="text-xs text-muted-foreground">Không có buổi học</p>
+                                                    <p className="text-[11px] text-muted-foreground italic">Không có buổi học</p>
                                                 )}
                                             </div>
                                         </div>
@@ -308,27 +316,31 @@ export function LiveClassDashboard() {
                                             Tài liệu
                                         </TabsTrigger>
                                     </TabsList>
-                                    <Button variant="outline" size="sm" onClick={() => router.push(`/courses/${courseId}/learn`)}>
-                                        Mở trang học VOD
-                                        <ChevronRight className="size-4" />
-                                    </Button>
                                 </div>
 
                                 <TabsContent value="curriculum" className="mt-4">
-                                    {curriculum ? (
-                                        <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
-                                    ) : (
-                                        <div className="flex min-h-[160px] items-center justify-center">
-                                            <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+                                    <div className="space-y-3">
+                                        <div className="flex justify-end">
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link href={`/courses/${courseId}/learn`}>
+                                                    Mở trang học VOD
+                                                    <ChevronRight className="size-4" />
+                                                </Link>
+                                            </Button>
                                         </div>
-                                    )}
+                                        {curriculum ? (
+                                            <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
+                                        ) : (
+                                            <div className="flex min-h-[160px] items-center justify-center">
+                                                <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+                                            </div>
+                                        )}
+                                    </div>
                                 </TabsContent>
 
                                 <TabsContent value="assignments" className="mt-4">
                                     <AcademyAssignmentList
                                         liveClassId={courseId}
-                                        openClassAssignmentId={openClassAssignmentId}
-                                        onOpenAssignmentChange={handleAssignmentDeepLinkChange}
                                     />
                                 </TabsContent>
 
