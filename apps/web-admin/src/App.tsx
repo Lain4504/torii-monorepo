@@ -9,7 +9,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from './store'
 import { Toaster } from '@workspace/ui/components/sonner'
-import { AuthGuard } from './lib/guard/auth-guard.tsx'
+import { AuthGuard, ADMIN_PANEL_ENTRY_PERMISSIONS } from './lib/guard/auth-guard.tsx'
 import { RoutePermissionGuard } from './lib/guard/route-permission-guard.tsx'
 import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 import { TooltipProvider } from '@workspace/ui/components/tooltip';
@@ -108,7 +108,9 @@ function App() {
                     <DashboardLayout />
                   </AuthGuard>
                 }>
-                  <Route index element={<DashboardPage />} />
+                  <Route element={<RoutePermissionGuard anyPermission={ADMIN_PANEL_ENTRY_PERMISSIONS} />}>
+                    <Route index element={<DashboardPage />} />
+                  </Route>
 
 
                   <Route element={<RoutePermissionGuard anyPermission={["ops.user.manage", "ops.user.view"]} />}>

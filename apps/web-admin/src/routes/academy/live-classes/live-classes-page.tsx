@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
 import { Plus, Search, Eye, Pencil, Rocket, CalendarSync, Trash2 } from 'lucide-react';
@@ -58,6 +58,7 @@ import {
 
 export default function LiveClassesPage() {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const user = useAppSelector(selectUser);
     const { canAny, hasWildcard } = usePermissions();
     const [search, setSearch] = useState('');
@@ -96,6 +97,21 @@ export default function LiveClassesPage() {
 
     const publishMutation = usePublishClassDirectly();
     const deleteMutation = useDeleteAcademyLiveClass();
+
+    // Handle auto-create from redirect
+    useEffect(() => {
+        const action = searchParams.get('action');
+
+        if (action === 'create') {
+            setSelectedClass(null);
+            setSheetOpen(true);
+
+            // Clear params after opening so it doesn't re-open on refresh
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete('action');
+            setSearchParams(newParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const handlePublish = async (id: string) => {
         try {
@@ -396,6 +412,7 @@ export default function LiveClassesPage() {
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
                 academyClass={selectedClass}
+                defaultCohortId={searchParams.get('cohortId') || undefined}
             />
 
             {/* Dialog hiển thị luồng trạng thái */}

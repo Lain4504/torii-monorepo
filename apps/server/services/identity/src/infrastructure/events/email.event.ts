@@ -11,7 +11,8 @@ export type EmailType =
   | '2fa_code'
   | 'order_success'
   | 'course_enrollment'
-  | 'refund_status';
+  | 'refund_status'
+  | 'live_class_rescheduled';
 
 /**
  * Send Email Event
@@ -58,4 +59,16 @@ export interface RefundEmailData {
   ticketId: string;
   reason?: string;
   status: 'APPROVED' | 'REJECTED';
+}
+
+/**
+ * Live Class Rescheduled Email Data
+ */
+export interface LiveClassRescheduledEmailData {
+  displayName: string;
+  courseName: string;
+  oldDateTime: string;
+  newDateTime: string;
+  courseUrl: string;
+  reason?: string;
 }

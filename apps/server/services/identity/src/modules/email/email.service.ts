@@ -5,6 +5,7 @@ import {
   OrderSuccessEmailData,
   EnrollmentSuccessEmailData,
   RefundEmailData,
+  LiveClassRescheduledEmailData,
 } from '@server/identity/infrastructure/events/email.event';
 import * as pug from 'pug';
 import * as path from 'path';
@@ -129,6 +130,13 @@ export class EmailService {
 
         case 'refund_status':
           await this.sendRefundStatusEmail(to, data as RefundEmailData);
+          break;
+
+        case 'live_class_rescheduled':
+          await this.sendLiveClassRescheduledEmail(
+            to,
+            data as LiveClassRescheduledEmailData,
+          );
           break;
 
         default:
@@ -328,5 +336,23 @@ export class EmailService {
     });
 
     this.logger.log(`Refund status email (${data.status}) sent to: ${to}`);
+  }
+
+  /**
+   * Send live class rescheduled email
+   */
+  private async sendLiveClassRescheduledEmail(
+    to: string | string[],
+    data: LiveClassRescheduledEmailData,
+  ): Promise<void> {
+    const html = this.render('live-class-rescheduled', data);
+
+    await this.sharedEmailService.sendMail({
+      to,
+      subject: `📅 Thông báo dời lịch học: ${data.courseName}`,
+      html,
+    });
+
+    this.logger.log(`Live class rescheduled email sent to: ${to}`);
   }
 }

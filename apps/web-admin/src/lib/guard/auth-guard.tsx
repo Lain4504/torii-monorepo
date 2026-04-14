@@ -1,28 +1,26 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks.ts';
-import { selectIsAuthenticated, checkAuth, setError, logout } from '@/store/slices/auth-slice.ts';
+import { selectIsAuthenticated, checkAuth, setError, logout, selectAuthUser } from '@/store/slices/auth-slice.ts';
+import { store } from '@/store';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 
 interface AuthGuardProps {
     children: ReactNode;
 }
 
-const ADMIN_PANEL_ENTRY_PERMISSIONS = [
+export const ADMIN_PANEL_ENTRY_PERMISSIONS = [
     "ops.user.view",
     "ops.user.manage",
-    "lms.catalog.read",
     "lms.catalog.create",
     "lms.catalog.update",
     "lms.catalog.approve",
-    "lms.delivery.read",
     "lms.delivery.create",
     "lms.delivery.update",
     "lms.delivery.approve",
     "lms.delivery.request.create",
     "lms.delivery.request.read",
     "lms.delivery.request.cancel",
-    "lms.assessment.read",
     "lms.assessment.create",
     "lms.assessment.update",
     "lms.assessment.grade",
@@ -52,21 +50,26 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     useEffect(() => {
         const verifySession = async () => {
-            if (isAuthenticated) {
-                setHasVerified(true);
-                return;
-            }
-
             if (hasVerified) return;
 
             try {
-                // Dispatch checkAuth thunk
-                const user = await dispatch(checkAuth()).unwrap();
+                // If already authenticated in state, use that user, else check with server
+                let userToVerify = selectAuthUser(store.getState());
 
-                if (user) {
-                    const permissions = (user.permissions || []) as string[];
-                    const canEnter =
-                        permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
+                if (!isAuthenticated || !userToVerify) {
+                    userToVerify = await dispatch(checkAuth()).unwrap();
+                }
+
+                if (userToVerify) {
+                    const permissions = (userToVerify.permissions || []) as string[];
+                    const userRole = userToVerify.role;
+
+                    const ALLOWED_ROLES = ['admin', 'staff-academic', 'staff-operations', 'lecturer'];
+                    const isStaff = typeof userRole === 'string' && ALLOWED_ROLES.includes(userRole);
+
+                    const hasAdminPermission = permissions.some((p) => ADMIN_PANEL_ENTRY_PERMISSIONS.includes(p));
+                    const canEnter = isStaff && hasAdminPermission;
+
                     if (!canEnter) {
                         dispatch(setError('Bạn không có quyền truy cập trang quản trị.'));
                         dispatch(logout());
@@ -74,6 +77,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
                         return;
                     }
                     setHasVerified(true);
+                } else {
+                    navigate('/login', { replace: true });
                 }
             } catch (error) {
                 // Not authenticated
@@ -84,11 +89,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
         verifySession();
     }, [isAuthenticated, hasVerified, dispatch, navigate]);
 
-    if (!isAuthenticated && !hasVerified) {
+    if (!hasVerified) {
         return (
             <PageLoading className="h-screen" />
         );
     }
 
-    return isAuthenticated ? <>{children}</> : null;
+    return (isAuthenticated && hasVerified) ? <>{children}</> : null;
 }
