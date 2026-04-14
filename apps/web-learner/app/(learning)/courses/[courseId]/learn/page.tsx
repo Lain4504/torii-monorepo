@@ -19,6 +19,17 @@ import { Button } from '@workspace/ui/components/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Separator } from '@workspace/ui/components/separator';
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@workspace/ui/components/dropdown-menu';
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from '@workspace/ui/components/avatar';
+import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -35,7 +46,7 @@ import {
     ChevronLeft, CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
     MessageSquare, ChevronRight, Download, Send,
     AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
-    Paperclip, PenTool, MessageCircle, Menu, X, ChevronDown
+    Paperclip, PenTool, MessageCircle, Menu, X, ChevronDown, LogOut
 } from 'lucide-react';
 import type { AcademyLessonModel } from '@workspace/schemas';
 import { LessonDiscussion } from '@/components/courses/lesson-discussion';
@@ -43,6 +54,8 @@ import { AcademyResourceList } from '@/components/courses/academy-resource-list'
 import { CourseCompletionModal } from '@/components/courses/course-completion-modal';
 import { MarkdownRenderer } from '@/components/common/markdown-renderer';
 import { isVodDeliveryFromEnrollment } from '@/lib/academy/is-vod-delivery';
+import { useAppDispatch, useAppSelector } from '@/hooks/hooks';
+import { logout } from '@/store/slices/authSlice';
 
 
 // ─── Constants & Utils ────────────────────────────────────────────────────────
@@ -327,33 +340,17 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
                     </p>
                 )}
 
-                <footer className="mt-10">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base font-normal">
-                                Điều hướng và hoàn thành bài đọc
-                            </CardTitle>
-                            <CardDescription className="font-normal">
-                                Chuyển bài trước/sau hoặc xác nhận hoàn thành để lưu tiến độ.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm" onClick={onPrev} disabled={navDisabledPrev} className="font-normal">
-                                    <ChevronLeft className="size-4" />
-                                    Trước
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={onNext} disabled={navDisabledNext} className="font-normal">
-                                    Tiếp
-                                    <ChevronRight className="size-4" />
-                                </Button>
-                            </div>
-                            <Button onClick={onComplete} size="sm" className="font-normal" disabled={isCompleted}>
-                                {isCompleted ? "Đã hoàn thành" : "Xác nhận hoàn thành"}
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </footer>
+                <div className="mt-3 flex justify-end">
+                    <Button
+                        onClick={onComplete}
+                        variant="link"
+                        size="sm"
+                        className="h-auto px-0 text-sm font-medium"
+                        disabled={isCompleted}
+                    >
+                        {isCompleted ? "Đã hoàn thành" : "Xác nhận hoàn thành"}
+                    </Button>
+                </div>
             </div>
         </article>
     );
@@ -369,6 +366,8 @@ export default function CourseLearnPage() {
     const searchParams = useSearchParams();
     const requestedMode = searchParams.get('mode')?.toUpperCase();
     const queryClient = useQueryClient();
+    const dispatch = useAppDispatch();
+    const { user } = useAppSelector((state) => state.auth);
     const hasHandledForbiddenRef = useRef(false);
     const lessonQueryParam = searchParams.get('lesson');
 
@@ -673,10 +672,53 @@ export default function CourseLearnPage() {
                 await queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', deliveryTargetId] });
             }
             toast.success('Bài học đã hoàn thành! 🎉');
+
+            // Nếu có bài kiểm tra (milestone) gắn với lesson/module vừa hoàn thành, tự gợi ý ngay để user không bị "kẹt" (đặc biệt trên mobile).
+            const justCompletedId = currentLesson.id;
+            const justCompletedRef = (currentLesson as any)?.referenceId;
+            const completedNow = new Set(completedIds);
+            completedNow.add(justCompletedId);
+
+            const lessonTriggered = milestones.find((m: any) => {
+                const kind = normalizeItemKind(m.kind);
+                if (!m?.examId) return false;
+                if (m.status === 'PASSED') return false;
+                if (!m.triggerLessonId) return false;
+                if (kind !== 'LESSON_CHECKPOINT') return false;
+                return m.triggerLessonId === justCompletedId || (justCompletedRef && m.triggerLessonId === justCompletedRef);
+            }) as any | undefined;
+
+            const moduleMeta = lessonOrderMeta.get(justCompletedId) || (justCompletedRef ? lessonOrderMeta.get(justCompletedRef) : undefined);
+            const currentModuleId = moduleMeta?.moduleId;
+            const moduleLessons = currentModuleId ? (sortedModules.find((mod: any) => mod.id === currentModuleId)?.lessons || []) : [];
+            const moduleAllDone =
+                moduleLessons.length > 0 &&
+                moduleLessons.every((l: any) => {
+                    const id = lessonProgressId(l);
+                    return completedNow.has(id);
+                });
+
+            const moduleTriggered = moduleAllDone
+                ? (milestones.find((m: any) => {
+                    const kind = normalizeItemKind(m.kind);
+                    if (!m?.examId) return false;
+                    if (m.status === 'PASSED') return false;
+                    if (m.triggerLessonId) return false;
+                    if (!currentModuleId || m.moduleId !== currentModuleId) return false;
+                    return kind === 'MODULE_CHECKPOINT' || kind === 'MODULE_TEST' || kind === 'MODULE_EXAM';
+                }) as any | undefined)
+                : undefined;
+
+            const nextMilestone = lessonTriggered || moduleTriggered;
+            if (nextMilestone) {
+                if (currentModuleId) setExpandedModules(new Set([currentModuleId]));
+                setSidebarOpen(true);
+                setPendingMilestone(nextMilestone);
+            }
         } catch (e: any) {
             toast.error(e?.userMessage || 'Lỗi cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, queryClient, deliveryTargetId, isVodCandidate]);
+    }, [currentLesson, completedIds, queryClient, deliveryTargetId, isVodCandidate, milestones, lessonOrderMeta, sortedModules]);
 
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
@@ -693,7 +735,8 @@ export default function CourseLearnPage() {
             setCurrentLesson(lesson);
             updateLessonQuery(lesson.id);
             setSidebarOpen(false);
-            setActiveTab('content');
+            const k = normalizeItemKind(lesson.kind);
+            setActiveTab(k === 'READING' ? 'discussion' : 'content');
         }
     };
 
@@ -718,6 +761,17 @@ export default function CourseLearnPage() {
         const target = `/exams/${pendingMilestone.examId}${q ? `?${q}` : ''}`;
         setPendingMilestone(null);
         router.push(target);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await dispatch(logout()).unwrap();
+            toast.success('Đăng xuất thành công');
+        } catch {
+            toast.error('Có lỗi khi đăng xuất');
+        } finally {
+            router.push('/login');
+        }
     };
 
 
@@ -814,16 +868,39 @@ export default function CourseLearnPage() {
                 <div className="flex items-center gap-6">
                     <Separator orientation="vertical" className="h-6 bg-border/40 hidden md:block" />
 
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium text-sm shrink-0"
-                        onClick={() => router.push('/dashboard/profile')}
-                        aria-label="Mở hồ sơ cá nhân"
-                        title="Hồ sơ cá nhân"
-                    >
-                        {(classData?.name ?? 'T')[0] ?? 'T'}
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9 rounded-full p-0"
+                                aria-label="Mở menu tài khoản"
+                            >
+                                <Avatar className="h-9 w-9 border border-primary/20">
+                                    <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
+                                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                                        {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                                    </AvatarFallback>
+                                </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => router.push('/dashboard/my-courses')}
+                            >
+                                <BookOpen className="mr-2 size-4" />
+                                Quay về Khóa học của tôi
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="cursor-pointer text-destructive focus:bg-destructive focus:text-destructive-foreground"
+                                onClick={handleLogout}
+                            >
+                                <LogOut className="mr-2 size-4" />
+                                Đăng xuất
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </header>
 
@@ -857,30 +934,58 @@ export default function CourseLearnPage() {
                     </div>
 
                     <div className="flex-1 w-full max-w-5xl mx-auto py-10 px-4 sm:px-6">
-                        {!isArticleLesson && (
-                            <section className="space-y-8">
-                                <div className="space-y-4">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <Badge variant="outline">Bài học {currentIndex + 1}</Badge>
-                                        {isCurrentDone && <Badge className="bg-emerald-500 text-white border-none">Đã hoàn thành</Badge>}
-                                    </div>
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <h2 className="text-2xl sm:text-3xl font-normal tracking-tight">
-                                            {currentLesson?.title ?? 'Chọn bài học'}
-                                        </h2>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => goTo(prevLesson)} disabled={!prevLesson} className="font-normal">
-                                                <ChevronLeft className="size-4" />
-                                                Trước
-                                            </Button>
-                                            <Button variant="outline" size="sm" onClick={() => goTo(nextLesson)} disabled={!nextLesson} className="font-normal">
-                                                Tiếp
-                                                <ChevronRight className="size-4" />
-                                            </Button>
-                                        </div>
+                        <section className="space-y-8">
+                            <div className="space-y-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Badge variant="outline">Bài học {currentIndex + 1}</Badge>
+                                    {isCurrentDone && <Badge className="bg-emerald-500 text-white border-none">Đã hoàn thành</Badge>}
+                                </div>
+                                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                    <h2 className="text-2xl sm:text-3xl font-normal tracking-tight">
+                                        {currentLesson?.title ?? 'Chọn bài học'}
+                                    </h2>
+                                    <div className="grid w-full grid-cols-2 gap-2 md:w-auto">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => goTo(prevLesson)}
+                                            disabled={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
+                                            className="h-10 w-full justify-center font-normal"
+                                        >
+                                            <ChevronLeft className="size-4" />
+                                            Trước
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => goTo(nextLesson)}
+                                            disabled={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
+                                            className="h-10 w-full justify-center font-normal"
+                                        >
+                                            Tiếp
+                                            <ChevronRight className="size-4" />
+                                        </Button>
                                     </div>
                                 </div>
+                            </div>
 
+                            {isArticleLesson ? (
+                                <div className="pt-2">
+                                    {!lessonLoading && currentLesson ? (
+                                        <div className="animate-in fade-in duration-700">
+                                            <ArticleViewer
+                                                lesson={lessonDetail!}
+                                                onComplete={markLessonComplete}
+                                                onPrev={() => goTo(prevLesson)}
+                                                onNext={() => goTo(nextLesson)}
+                                                navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
+                                                navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
+                                                isCompleted={isCurrentDone}
+                                            />
+                                        </div>
+                                    ) : null}
+                                </div>
+                            ) : (
                                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
                                     <TabsList>
                                         <TabsTrigger value="content" className="font-normal">Tổng quan</TabsTrigger>
@@ -889,15 +994,17 @@ export default function CourseLearnPage() {
                                     </TabsList>
 
                                     <TabsContent value="content" className="py-6 space-y-4">
-                                        <h3 className="text-lg font-normal">Giới thiệu bài học</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            {(lessonDetail as any)?.description || "Nội dung đang được cập nhật."}
-                                        </p>
-                                        {!isCurrentDone && currentLesson && !isVideoLesson && (
-                                            <Button onClick={markLessonComplete} className="w-full sm:w-auto font-normal">
-                                                Đánh dấu hoàn thành
-                                            </Button>
-                                        )}
+                                        <>
+                                            <h3 className="text-lg font-normal">Giới thiệu bài học</h3>
+                                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                                {(lessonDetail as any)?.description || "Nội dung đang được cập nhật."}
+                                            </p>
+                                            {!isCurrentDone && currentLesson && !isVideoLesson && (
+                                                <Button onClick={markLessonComplete} className="w-full sm:w-auto font-normal">
+                                                    Đánh dấu hoàn thành
+                                                </Button>
+                                            )}
+                                        </>
                                     </TabsContent>
 
                                     <TabsContent value="discussion" className="py-6">
@@ -912,22 +1019,29 @@ export default function CourseLearnPage() {
                                         <AcademyResourceList deliveryScopeId={deliveryTargetId as string} />
                                     </TabsContent>
                                 </Tabs>
-                            </section>
-                        )}
+                            )}
 
-                        {isArticleLesson && currentLesson && !lessonLoading && (
-                            <div className="animate-in fade-in duration-700">
-                                <ArticleViewer
-                                    lesson={lessonDetail!}
-                                    onComplete={markLessonComplete}
-                                    onPrev={() => goTo(prevLesson)}
-                                    onNext={() => goTo(nextLesson)}
-                                    navDisabledPrev={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
-                                    navDisabledNext={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
-                                    isCompleted={isCurrentDone}
-                                />
-                            </div>
-                        )}
+                            {isArticleLesson && (
+                                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
+                                    <TabsList>
+                                        <TabsTrigger value="discussion" className="font-normal">Bình luận</TabsTrigger>
+                                        <TabsTrigger value="resources" className="font-normal">Tài nguyên</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="discussion" className="py-6">
+                                        <LessonDiscussion
+                                            deliveryScopeId={deliveryTargetId as string}
+                                            lessonId={(currentLesson as any)?.id ?? ''}
+                                            moduleId={(currentLesson as any)?.moduleId}
+                                        />
+                                    </TabsContent>
+
+                                    <TabsContent value="resources" className="py-6">
+                                        <AcademyResourceList deliveryScopeId={deliveryTargetId as string} />
+                                    </TabsContent>
+                                </Tabs>
+                            )}
+                        </section>
 
                         {lessonLoading && (
                             <div className="p-12 space-y-8 max-w-3xl mx-auto">
@@ -1022,6 +1136,7 @@ export default function CourseLearnPage() {
                                 ))}
                             </div>
                         )}
+                        <div className="h-8 xl:h-0" />
                     </ScrollArea>
                 </aside>
 

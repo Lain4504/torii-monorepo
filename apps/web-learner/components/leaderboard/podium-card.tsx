@@ -17,13 +17,14 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
     const isFirst = rank === 1
     const isSecond = rank === 2
     const isThird = rank === 3
+    const isTopThree = isFirst || isSecond || isThird
 
     return (
         <div
             className={cn(
                 'flex flex-col items-center gap-4 transition-all duration-300',
                 isFirst
-                    ? 'order-2 z-10 md:mb-10 px-2'
+                    ? 'order-2 z-10 md:mb-10 px-1 sm:px-2'
                     : isSecond
                       ? 'order-1'
                         : 'order-3',
@@ -102,8 +103,9 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
 
                 <div
                     className={cn(
-                        'flex items-center gap-2 rounded-lg border border-border/50 bg-card px-3 py-1.5',
-                        isFirst && 'border-primary/30',
+                        'flex items-center gap-1.5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5',
+                        !isTopThree && 'rounded-lg border border-border/50 bg-card',
+                        isFirst && !isTopThree && 'border-primary/30',
                     )}
                 >
                     {type === 'global' ? (
@@ -115,7 +117,7 @@ export function PodiumCard({ user, rank, isCurrentUser, type }: PodiumCardProps)
                     )}
                     <span className={cn(
                         "font-bold tabular-nums tracking-tight",
-                        isFirst ? "text-base text-primary/70" : "text-sm text-foreground/60"
+                        isFirst ? "text-sm sm:text-base text-primary/70" : "text-xs sm:text-sm text-foreground/60"
                     )}>
                         {type === 'global' 
                             ? formatNumber(user.xp) 

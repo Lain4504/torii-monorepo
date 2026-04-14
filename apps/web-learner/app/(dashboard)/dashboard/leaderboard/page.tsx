@@ -32,32 +32,34 @@ export default function LeaderboardPage() {
                 onTypeChange={setLeaderboardType}
             />
 
-            {/* Podium: Always 2 | 1 | 3 podium layout now on all screens */}
-            <div className="mb-6 grid grid-cols-3 items-end gap-1.5 sm:gap-3 md:mb-8 md:gap-4">
-                {topThree.length >= 2 && (
-                    <PodiumCard
-                        user={topThree[1]!}
-                        rank={2}
-                        isCurrentUser={topThree[1]!.id === currentUser?.id}
-                        type={leaderboardType as 'global' | 'streak' | 'active'}
-                    />
-                )}
-                {topThree.length >= 1 && (
-                    <PodiumCard
-                        user={topThree[0]!}
-                        rank={1}
-                        isCurrentUser={topThree[0]!.id === currentUser?.id}
-                        type={leaderboardType as 'global' | 'streak' | 'active'}
-                    />
-                )}
-                {topThree.length >= 3 && (
-                    <PodiumCard
-                        user={topThree[2]!}
-                        rank={3}
-                        isCurrentUser={topThree[2]!.id === currentUser?.id}
-                        type={leaderboardType as 'global' | 'streak' | 'active'}
-                    />
-                )}
+            {/* Podium: 2 | 1 | 3 */}
+            <div className="mb-6 overflow-x-auto md:mb-8">
+                <div className="grid min-w-[320px] grid-cols-3 items-end gap-1.5 sm:gap-3 md:gap-4">
+                    {topThree.length >= 2 && (
+                        <PodiumCard
+                            user={topThree[1]!}
+                            rank={2}
+                            isCurrentUser={topThree[1]!.id === currentUser?.id}
+                            type={leaderboardType as 'global' | 'streak' | 'active'}
+                        />
+                    )}
+                    {topThree.length >= 1 && (
+                        <PodiumCard
+                            user={topThree[0]!}
+                            rank={1}
+                            isCurrentUser={topThree[0]!.id === currentUser?.id}
+                            type={leaderboardType as 'global' | 'streak' | 'active'}
+                        />
+                    )}
+                    {topThree.length >= 3 && (
+                        <PodiumCard
+                            user={topThree[2]!}
+                            rank={3}
+                            isCurrentUser={topThree[2]!.id === currentUser?.id}
+                            type={leaderboardType as 'global' | 'streak' | 'active'}
+                        />
+                    )}
+                </div>
             </div>
 
             {/* Current User Summary Card */}

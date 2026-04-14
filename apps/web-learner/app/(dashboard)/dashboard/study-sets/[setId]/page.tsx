@@ -33,6 +33,11 @@ import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/com
 import { Input } from '@workspace/ui/components/input';
 import { Badge } from '@workspace/ui/components/badge';
 import { Separator } from '@workspace/ui/components/separator';
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+} from '@workspace/ui/components/pagination';
 
 export default function StudySetDetailPage() {
     const params = useParams<{ setId: string }>();
@@ -367,51 +372,71 @@ export default function StudySetDetailPage() {
                 </div>
 
                 {totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-1 pt-2 sm:gap-2 sm:pt-4">
-                        <Button 
-                            variant="outline" 
-                            disabled={currentPage === 1} 
-                            onClick={() => setPage(1)} 
-                            className="h-8 gap-1.5 px-2.5"
-                        >
-                            <ChevronsLeft className="h-4 w-4" />
-                            Đầu
-                        </Button>
-                        <Button 
-                            variant="outline" 
-                            disabled={currentPage === 1} 
-                            onClick={() => setPage(p => Math.max(1, p - 1))} 
-                            className="h-8 gap-1.5 px-2.5"
-                        >
-                            <ChevronLeft className="h-4 w-4" />
-                            Trước
-                        </Button>
-                        
-                        <div className="flex items-center gap-1 text-sm font-medium px-4">
-                             <span>{currentPage}</span>
-                             <span className="text-muted-foreground">/</span>
-                             <span>{totalPages}</span>
-                        </div>
-
-                        <Button 
-                            variant="outline" 
-                            disabled={currentPage === totalPages} 
-                            onClick={() => setPage(p => Math.min(totalPages, p + 1))} 
-                            className="h-8 gap-1.5 px-2.5"
-                        >
-                            <ChevronRight className="h-4 w-4" />
-                            Sau
-                        </Button>
-                        <Button 
-                            variant="outline" 
-                            disabled={currentPage === totalPages} 
-                            onClick={() => setPage(totalPages)} 
-                            className="h-8 gap-1.5 px-2.5"
-                        >
-                            <ChevronsRight className="h-4 w-4" />
-                            Cuối
-                        </Button>
-                    </div>
+                    <Pagination
+                        aria-label="Phân trang Thẻ trong bộ"
+                        className="mx-0 mt-3 flex w-full min-w-0 flex-col items-stretch gap-3 pt-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4 sm:pt-4"
+                    >
+                        <p className="flex w-full shrink-0 items-center justify-center gap-1 rounded-lg border border-border/80 bg-muted/40 px-3 py-2 text-sm font-medium tabular-nums text-muted-foreground sm:w-auto sm:border-0 sm:bg-transparent sm:py-0">
+                            <span className="sm:hidden">Trang</span>
+                            <span className="text-foreground">{currentPage}</span>
+                            <span>/</span>
+                            <span className="text-foreground">{totalPages}</span>
+                        </p>
+                        <PaginationContent className="grid w-full min-w-0 grid-cols-4 gap-1.5 sm:flex sm:w-auto sm:flex-nowrap sm:justify-center sm:gap-2">
+                            <PaginationItem className="min-w-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setPage(1)}
+                                    aria-label="Về trang đầu"
+                                    className="h-10 w-full min-w-0 justify-center gap-0 px-1 sm:h-8 sm:w-auto sm:gap-1.5 sm:px-2.5"
+                                >
+                                    <ChevronsLeft className="h-4 w-4 shrink-0" />
+                                    <span className="hidden truncate sm:inline">Đầu</span>
+                                </Button>
+                            </PaginationItem>
+                            <PaginationItem className="min-w-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    aria-label="Trang trước"
+                                    className="h-10 w-full min-w-0 justify-center gap-0 px-1 sm:h-8 sm:w-auto sm:gap-1.5 sm:px-2.5"
+                                >
+                                    <ChevronLeft className="h-4 w-4 shrink-0" />
+                                    <span className="hidden truncate sm:inline">Trước</span>
+                                </Button>
+                            </PaginationItem>
+                            <PaginationItem className="min-w-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                    aria-label="Trang sau"
+                                    className="h-10 w-full min-w-0 justify-center gap-0 px-1 sm:h-8 sm:w-auto sm:gap-1.5 sm:px-2.5"
+                                >
+                                    <ChevronRight className="h-4 w-4 shrink-0" />
+                                    <span className="hidden truncate sm:inline">Sau</span>
+                                </Button>
+                            </PaginationItem>
+                            <PaginationItem className="min-w-0">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setPage(totalPages)}
+                                    aria-label="Đến trang cuối"
+                                    className="h-10 w-full min-w-0 justify-center gap-0 px-1 sm:h-8 sm:w-auto sm:gap-1.5 sm:px-2.5"
+                                >
+                                    <ChevronsRight className="h-4 w-4 shrink-0" />
+                                    <span className="hidden truncate sm:inline">Cuối</span>
+                                </Button>
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 )}
             </div>
 

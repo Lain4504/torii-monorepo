@@ -7,26 +7,16 @@ import {
     Download,
     FileText,
     FileArchive,
-    FileCode,
     FileImage,
     Globe,
     Folder,
     ArrowLeft,
-    Search,
+    ChevronRight,
 } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Input } from '@workspace/ui/components/input'
 import { Skeleton } from '@workspace/ui/components/skeleton'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@workspace/ui/components/table'
 import { useAcademyFolders, useAcademyResources } from '@/lib/api/services/academy-resource-api'
 
 interface AcademyResourceListProps {
@@ -51,16 +41,11 @@ function fileIcon(resource: { resourceType: string; title: string }) {
 
 export function AcademyResourceList({ deliveryScopeId, className }: AcademyResourceListProps) {
     const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
-    const [searchQuery, setSearchQuery] = useState('')
 
     const { data: folders, isLoading: isLoadingFolders } = useAcademyFolders(deliveryScopeId)
     const { data: resources, isLoading: isLoadingResources } = useAcademyResources(activeFolderId || undefined)
 
     const activeFolder = folders?.find((f) => f.folderId === activeFolderId)
-
-    const filteredFolders = folders?.filter((f) =>
-        f.folderName.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
 
     const initialLoading = isLoadingFolders && !folders
 
@@ -101,39 +86,31 @@ export function AcademyResourceList({ deliveryScopeId, className }: AcademyResou
                     </div>
                 </div>
 
-                {!activeFolderId && folders && folders.length > 0 ? (
-                    <div className="relative w-full sm:max-w-xs">
-                        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            placeholder="Tìm thư mục…"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9"
-                        />
-                    </div>
-                ) : null}
             </div>
 
             {!activeFolderId ? (
-                filteredFolders && filteredFolders.length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {filteredFolders.map((f) => (
+                folders && folders.length > 0 ? (
+                    <div className="space-y-2">
+                        {folders.map((f) => (
                             <Card
                                 key={f.folderId}
                                 className="cursor-pointer transition-colors hover:bg-muted/50"
                                 onClick={() => setActiveFolderId(f.folderId)}
                             >
-                                <CardHeader className="p-4">
-                                    <div className="flex items-start gap-3">
-                                        <Folder className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                                        <div className="min-w-0 space-y-1">
-                                            <CardTitle className="text-base leading-snug">{f.folderName}</CardTitle>
-                                            <CardDescription>
+                                <CardContent className="p-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-9 rounded-lg border bg-muted/20 flex items-center justify-center">
+                                            <Folder className="size-4 shrink-0 text-muted-foreground" />
+                                        </div>
+                                        <div className="min-w-0 flex-1 space-y-0.5">
+                                            <CardTitle className="text-sm leading-snug truncate">{f.folderName}</CardTitle>
+                                            <CardDescription className="text-xs">
                                                 {f.resourceCount ?? 0} tài liệu
                                             </CardDescription>
                                         </div>
+                                        <ChevronRight className="size-4 text-muted-foreground/60 shrink-0" />
                                     </div>
-                                </CardHeader>
+                                </CardContent>
                             </Card>
                         ))}
                     </div>
@@ -153,66 +130,54 @@ export function AcademyResourceList({ deliveryScopeId, className }: AcademyResou
                     <Skeleton className="h-10 w-full" />
                 </div>
             ) : resources && resources.length > 0 ? (
-                <Card className="overflow-hidden">
-                    <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[50%]">Tên</TableHead>
-                                <TableHead>Loại</TableHead>
-                                <TableHead className="text-right w-[100px]">Thao tác</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {resources.map((resource) => (
-                                <TableRow
-                                    key={resource.id}
-                                    className="cursor-pointer"
-                                    onClick={() => handleOpenResource(resource)}
-                                >
-                                    <TableCell>
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            {fileIcon(resource)}
-                                            <div className="min-w-0">
-                                                <p className="text-sm font-medium truncate">{resource.title}</p>
-                                                {resource.description ? (
-                                                    <p className="text-sm text-muted-foreground line-clamp-1">{resource.description}</p>
-                                                ) : null}
-                                            </div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground">
-                                        {resource.resourceType === 'LINK' ? 'Liên kết' : 'Tệp'}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleOpenResource(resource)
-                                            }}
-                                        >
-                                            {resource.resourceType === 'LINK' ? (
-                                                <>
-                                                    <ExternalLink className="size-4" />
-                                                    <span className="sr-only">Mở liên kết</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Download className="size-4" />
-                                                    <span className="sr-only">Tải xuống</span>
-                                                </>
-                                            )}
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    </CardContent>
-                </Card>
+                <div className="space-y-2">
+                    {resources.map((resource) => (
+                        <Card
+                            key={resource.id}
+                            className="cursor-pointer hover:bg-muted/40 transition-colors"
+                            onClick={() => handleOpenResource(resource)}
+                        >
+                            <CardContent className="p-3 sm:p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="size-8 rounded-md border bg-muted/20 flex items-center justify-center shrink-0">
+                                        {fileIcon(resource)}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-semibold truncate">{resource.title}</p>
+                                        {resource.description ? (
+                                            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{resource.description}</p>
+                                        ) : null}
+                                        <p className="text-[11px] text-muted-foreground mt-1.5">
+                                            {resource.resourceType === 'LINK' ? 'Liên kết ngoài' : 'Tệp đính kèm'}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="shrink-0"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleOpenResource(resource)
+                                        }}
+                                    >
+                                        {resource.resourceType === 'LINK' ? (
+                                            <>
+                                                <ExternalLink className="size-4" />
+                                                <span className="sr-only">Mở liên kết</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download className="size-4" />
+                                                <span className="sr-only">Tải xuống</span>
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
             ) : (
                 <Card>
                     <CardContent className="flex flex-col items-center gap-2 py-12 text-center">
