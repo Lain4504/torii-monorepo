@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useParams } from "react-router-dom"
 import { useAcademyLiveClass } from "@/lib/api/services/academy-live-classes"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
@@ -12,7 +12,14 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
-import { Calendar, Clock, CheckCircle2, XCircle, AlertCircle, Bookmark, ChevronRight, Settings2, CalendarSync, Video, Plus } from "lucide-react"
+import { Calendar, Clock, CheckCircle2, XCircle, AlertCircle, Bookmark, ChevronRight, Settings2, CalendarSync, Video, Plus, User } from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@workspace/ui/components/dialog"
 import { format, isSameDay } from "date-fns"
 import { vi } from "date-fns/locale"
 import { cn } from "@workspace/ui/lib/utils"
@@ -113,6 +120,37 @@ export function ClassAttendanceTab({ liveClassId: propLiveClassId, academyClass:
     const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false)
     const [rescheduleSheetOpen, setRescheduleSheetOpen] = useState(false)
     const [selectedSessionForReschedule, setSelectedSessionForReschedule] = useState<AcademyLiveScheduleSessionModel | null>(null)
+    const [selectedLearner, setSelectedLearner] = useState<AcademyEnrollment | null>(null)
+
+    // Compute attendance summary for selected learner
+    const learnerSummary = useMemo(() => {
+        if (!selectedLearner) return null
+        const userId = selectedLearner.userId
+        const totalSessions = sessions.length
+        const completedSessions = sessions.filter((s: any) => s.status === "COMPLETED")
+        const userAttendances = attendances.filter((a: any) => a.userId === userId)
+
+        const presentCount = userAttendances.filter((a: any) => a.status === "PRESENT").length
+        const lateCount = userAttendances.filter((a: any) => a.status === "LATE").length
+        const absentCount = userAttendances.filter((a: any) => a.status === "ABSENT").length
+        const excusedCount = userAttendances.filter((a: any) => a.status === "EXCUSED").length
+        const recordedCount = presentCount + lateCount + absentCount + excusedCount
+        const notRecordedCount = completedSessions.length - recordedCount
+        const attendanceRate = completedSessions.length > 0
+            ? Math.round((presentCount + lateCount) / completedSessions.length * 100)
+            : 0
+
+        return {
+            totalSessions,
+            completedSessions: completedSessions.length,
+            presentCount,
+            lateCount,
+            absentCount,
+            excusedCount,
+            notRecordedCount: Math.max(0, notRecordedCount),
+            attendanceRate,
+        }
+    }, [selectedLearner, sessions, attendances])
 
     const activeEnrollments = enrollments.filter((en) => en.status === "ACTIVE")
     const hasSchedules = schedules && schedules.length > 0
@@ -189,6 +227,81 @@ export function ClassAttendanceTab({ liveClassId: propLiveClassId, academyClass:
 
     return (
         <div className="space-y-6">
+            {/* Learner Attendance Summary Dialog */}
+            <Dialog open={!!selectedLearner} onOpenChange={(open) => !open && setSelectedLearner(null)}>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 text-primary font-semibold text-sm">
+                                {(selectedLearner as any)?.user?.displayName?.charAt(0) || "H"}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-base font-semibold truncate">
+                                    {(selectedLearner as any)?.user?.displayName || "Học viên"}
+                                </span>
+                                <span className="text-xs text-muted-foreground font-normal">
+                                    Thống kê điểm danh trong lớp {academyClass?.code}
+                                </span>
+                            </div>
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    {learnerSummary && (
+                        <div className="space-y-5 pt-2">
+                            {/* Attendance rate bar */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-baseline">
+                                    <span className="text-sm font-medium text-muted-foreground">Tỷ lệ tham gia</span>
+                                    <span className="text-2xl font-bold tabular-nums text-primary">{learnerSummary.attendanceRate}%</span>
+                                </div>
+                                <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-500"
+                                        style={{ width: `${learnerSummary.attendanceRate}%` }}
+                                    />
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">
+                                    {learnerSummary.completedSessions} / {learnerSummary.totalSessions} buổi đã diễn ra
+                                </p>
+                            </div>
+
+                            {/* Stats grid */}
+                            <div className="grid grid-cols-3 gap-3">
+                                <div className="rounded-xl border bg-emerald-50/50 dark:bg-emerald-950/20 p-3 text-center space-y-1 border-emerald-200/50">
+                                    <CheckCircle2 className="h-5 w-5 mx-auto text-emerald-500" />
+                                    <p className="text-xl font-bold tabular-nums text-emerald-600">{learnerSummary.presentCount}</p>
+                                    <p className="text-[10px] font-medium text-emerald-600/80">Có mặt</p>
+                                </div>
+                                <div className="rounded-xl border bg-amber-50/50 dark:bg-amber-950/20 p-3 text-center space-y-1 border-amber-200/50">
+                                    <Clock className="h-5 w-5 mx-auto text-amber-500" />
+                                    <p className="text-xl font-bold tabular-nums text-amber-600">{learnerSummary.lateCount}</p>
+                                    <p className="text-[10px] font-medium text-amber-600/80">Đi muộn</p>
+                                </div>
+                                <div className="rounded-xl border bg-red-50/50 dark:bg-red-950/20 p-3 text-center space-y-1 border-red-200/50">
+                                    <XCircle className="h-5 w-5 mx-auto text-red-500" />
+                                    <p className="text-xl font-bold tabular-nums text-red-600">{learnerSummary.absentCount}</p>
+                                    <p className="text-[10px] font-medium text-red-600/80">Vắng mặt</p>
+                                </div>
+                                <div className="rounded-xl border bg-blue-50/50 dark:bg-blue-950/20 p-3 text-center space-y-1 border-blue-200/50">
+                                    <Bookmark className="h-5 w-5 mx-auto text-blue-500" />
+                                    <p className="text-xl font-bold tabular-nums text-blue-600">{learnerSummary.excusedCount}</p>
+                                    <p className="text-[10px] font-medium text-blue-600/80">Có phép</p>
+                                </div>
+                                <div className="rounded-xl border bg-muted/30 p-3 text-center space-y-1">
+                                    <AlertCircle className="h-5 w-5 mx-auto text-muted-foreground/60" />
+                                    <p className="text-xl font-bold tabular-nums text-muted-foreground">{learnerSummary.notRecordedCount}</p>
+                                    <p className="text-[10px] font-medium text-muted-foreground/80">Chưa điểm danh</p>
+                                </div>
+                                <div className="rounded-xl border bg-primary/5 p-3 text-center space-y-1 border-primary/20">
+                                    <Calendar className="h-5 w-5 mx-auto text-primary/60" />
+                                    <p className="text-xl font-bold tabular-nums text-primary">{learnerSummary.totalSessions}</p>
+                                    <p className="text-[10px] font-medium text-primary/80">Tổng buổi</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
             <AlertDialog open={!!joinTarget} onOpenChange={(open) => !open && setJoinTarget(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -408,12 +521,16 @@ export function ClassAttendanceTab({ liveClassId: propLiveClassId, academyClass:
                                                             return (
                                                                 <TableRow key={en.id} className="group hover:bg-muted/10 transition-colors border-b last:border-0">
                                                                     <TableCell className="pl-6 py-4">
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 overflow-hidden text-primary font-semibold shadow-sm text-sm">
+                                                                        <div
+                                                                            className="flex items-center gap-3 cursor-pointer group/learner rounded-lg -m-1 p-1 hover:bg-primary/5 transition-colors"
+                                                                            onClick={() => setSelectedLearner(en)}
+                                                                            title="Xem thống kê điểm danh"
+                                                                        >
+                                                                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0 overflow-hidden text-primary font-semibold shadow-sm text-sm group-hover/learner:ring-2 group-hover/learner:ring-primary/30 transition-all">
                                                                                 {en.user?.displayName?.charAt(0) || en.user?.username?.charAt(0) || "H"}
                                                                             </div>
                                                                             <div className="flex flex-col min-w-0">
-                                                                                <span className="font-medium text-sm text-foreground truncate">{en.user?.displayName || en.user?.username || "Học viên"}</span>
+                                                                                <span className="font-medium text-sm text-foreground truncate group-hover/learner:text-primary transition-colors">{en.user?.displayName || en.user?.username || "Học viên"}</span>
                                                                                 <span className="text-[10px] text-muted-foreground font-mono bg-muted/50 px-1 rounded w-fit">ID: {en.userId.substring(0, 8)}</span>
                                                                             </div>
                                                                         </div>
