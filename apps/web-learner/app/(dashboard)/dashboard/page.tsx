@@ -27,8 +27,8 @@ import {
 } from 'lucide-react';
 import { LiveSessionStatus } from '@workspace/schemas';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
-import { LearnerRoadmapSection } from '@/components/dashboard/learner-roadmap-section';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
+import { RecommendedCoursesSection } from '@/components/dashboard/recommended-courses-section';
 
 
 function formatDuration(seconds: number): string {
@@ -52,9 +52,6 @@ function AuthenticatedDashboardPage() {
     const { data: profile } = useGamificationProfile();
     const { data: achievements } = useAchievements();
     const { data: schedule } = useMySchedule();
-
-    const startDate = subDays(new Date(), 365);
-    const endDate = new Date();
 
     const mainCourse = courses?.[0];
 
@@ -123,10 +120,6 @@ function AuthenticatedDashboardPage() {
                     )}
                 </div>
             </header>
-
-            {(courses?.length ?? 0) > 0 && (
-                <LearnerRoadmapSection hasEnrollment />
-            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Main Content */}
@@ -197,13 +190,19 @@ function AuthenticatedDashboardPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-card rounded-2xl border border-border border-dashed p-12 text-center flex flex-col items-center">
-                                <BookOpen className="size-12 text-muted-foreground/30 mb-4" />
-                                <h3 className="text-xl font-bold mb-2">Bạn chưa bắt đầu khóa học nào</h3>
-                                <p className="text-muted-foreground mb-6">Khám phá kho khóa học để bắt đầu hành trình chinh phục tiếng Nhật.</p>
-                                <Link href="/dashboard/available-courses" className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors">
-                                    Khám phá khóa học
-                                </Link>
+                            <div className="space-y-6">
+                                <RecommendedCoursesSection jlptTarget={jlptTarget} />
+
+                                <div className="bg-card rounded-2xl border border-border border-dashed p-10 text-center flex flex-col items-center">
+                                    <BookOpen className="size-12 text-muted-foreground/30 mb-4" />
+                                    <h3 className="text-xl font-bold mb-2">Bạn chưa mua khóa học nào</h3>
+                                    <p className="text-muted-foreground mb-6">
+                                        Hãy chọn một khóa học phù hợp để bắt đầu. Sau khi ghi danh, hệ thống sẽ gợi ý học tập đơn giản cho bạn ngay trên dashboard.
+                                    </p>
+                                    <Link href="/dashboard/available-courses" className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors">
+                                        Khám phá khóa học
+                                    </Link>
+                                </div>
                             </div>
                         )}
                     </section>

@@ -32,7 +32,6 @@ import { AcademyExamController } from './controllers/academy-exam.controller';
 import { AcademyQuestionController } from './controllers/academy-question.controller';
 import { AcademyExamAttemptController } from './controllers/academy-exam-attempt.controller';
 import { AcademyAssessmentPlanController } from './controllers/academy-assessment-plan.controller';
-import { RoadmapController } from './controllers/roadmap.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -67,7 +66,6 @@ import { RoadmapController } from './controllers/roadmap.controller';
     AcademyQuestionController,
     AcademyExamAttemptController,
     AcademyAssessmentPlanController,
-    RoadmapController,
   ],
 })
-export class AcademyModule { }
+export class AcademyModule {}

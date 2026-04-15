@@ -20,7 +20,6 @@ import { LessonModule } from './modules/lesson/lesson.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { AnalyticsOverviewModule } from './modules/analytics/analytics-overview/analytics-overview.module';
-import { RoadmapModule } from './modules/roadmap/roadmap.module';
 
 @Module({
   imports: [
@@ -45,7 +44,6 @@ import { RoadmapModule } from './modules/roadmap/roadmap.module';
     WalletModule,
     ResourceModule,
     AnalyticsOverviewModule,
-    RoadmapModule,
   ],
   providers: [
     {
@@ -54,4 +52,4 @@ import { RoadmapModule } from './modules/roadmap/roadmap.module';
     },
   ],
 })
-export class AcademyModule { }
+export class AcademyModule {}

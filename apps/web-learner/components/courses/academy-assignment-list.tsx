@@ -9,16 +9,14 @@ import {
     ChevronRight,
     Trophy,
 } from 'lucide-react'
-import { Card, CardContent } from '@workspace/ui/components/card'
-import { Badge } from '@workspace/ui/components/badge'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { 
     useAcademyClassAssignments, 
     useMyAssignmentSubmissions, 
-    AcademyClassAssignment,
 } from '@/lib/api/services/academy-assignment-api'
 import { format } from 'date-fns'
 import { cn } from '@workspace/ui/lib/utils'
+import { Button } from '@workspace/ui/components/button'
 
 interface AcademyAssignmentListProps {
     liveClassId: string
@@ -59,58 +57,72 @@ export function AcademyAssignmentList({
     }
 
     return (
-        <div className={cn("space-y-6 animate-in fade-in duration-500", className)}>
-            <div className="grid grid-cols-1 gap-4">
-                {assignments && assignments.length > 0 ? (
-                    assignments.map((assignment) => {
-                        const status = getSubmissionStatus(assignment.assignmentId)
-                        const Icon = status.icon
-                        const isExpired = assignment.deadline && new Date(assignment.deadline) < new Date()
+        <div className={cn("space-y-4 animate-in fade-in duration-500", className)}>
+            {assignments && assignments.length > 0 ? (
+                <div className="overflow-x-auto rounded-xl border border-border">
+                    <table className="w-full min-w-[760px] border-collapse">
+                        <thead>
+                            <tr className="bg-muted/40">
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Bài tập</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Hạn nộp</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground">Trạng thái</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {assignments.map((assignment) => {
+                                const status = getSubmissionStatus(assignment.assignmentId)
+                                const Icon = status.icon
+                                const isExpired = assignment.deadline && new Date(assignment.deadline) < new Date()
+                                const title = assignment.titleOverride || assignment.assignment?.title || 'Bài tập'
 
-                        return (
-                            <Card 
-                                key={assignment.id} 
-                                className="group hover:border-primary/30 transition-all cursor-pointer rounded-2xl overflow-hidden border-zinc-100 shadow-sm"
-                                onClick={() => router.push(`/dashboard/my-courses/${liveClassId}/assignments/${assignment.id}`)}
-                            >
-                                <CardContent className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div className="flex items-start gap-4">
-                                        <div className="size-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:scale-110 transition-transform shrink-0">
-                                            <FileText className="size-6" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-bold text-base group-hover:text-primary transition-colors">
-                                                {assignment.titleOverride || assignment.assignment?.title}
-                                            </h4>
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground font-medium">
-                                                <span className={cn("flex items-center gap-1.5", isExpired && "text-red-500")}>
-                                                    <Clock className="size-3.5" />
-                                                    Hạn nộp: {assignment.deadline ? format(new Date(assignment.deadline), 'dd/MM/yyyy HH:mm') : 'Không có hạn'}
-                                                </span>
-                                                <span className="flex items-center gap-1.5">
-                                                    <Icon className="size-3.5" />
-                                                    {status.label}
-                                                </span>
+                                return (
+                                    <tr key={assignment.id} className="border-t border-border hover:bg-muted/20">
+                                        <td className="px-4 py-3 align-top">
+                                            <div className="flex items-start gap-2">
+                                                <FileText className="mt-0.5 size-4 shrink-0 text-primary" />
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-semibold">{title}</p>
+                                                    <p className="text-xs text-muted-foreground">Mã: {assignment.id.slice(0, 8)}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div className="inline-flex items-center text-sm font-semibold text-primary">
-                                        Chi tiết
-                                        <ChevronRight className="ml-1 size-4 opacity-70 group-hover:translate-x-0.5 transition-transform" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )
-                    })
-                ) : (
-                    <div className="text-center py-20 border border-dashed rounded-3xl bg-muted/20 space-y-3">
-                        <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto opacity-20">
-                            <FileText className="size-8" />
-                        </div>
-                        <p className="text-sm font-bold text-muted-foreground/60">Chưa có bài tập nào được giao cho lớp này.</p>
+                                        </td>
+                                        <td className="px-4 py-3 align-top">
+                                            <p className={cn("text-sm", isExpired && "text-destructive")}>
+                                                {assignment.deadline ? format(new Date(assignment.deadline), 'dd/MM/yyyy HH:mm') : 'Không có hạn'}
+                                            </p>
+                                        </td>
+                                        <td className="px-4 py-3 align-top">
+                                            <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium", status.color)}>
+                                                <Icon className="size-3.5" />
+                                                {status.label}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-right align-top">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={() => router.push(`/dashboard/my-courses/${liveClassId}/assignments/${assignment.id}`)}
+                                                className="h-8"
+                                            >
+                                                Chi tiết
+                                                <ChevronRight className="ml-1 size-4" />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="text-center py-20 border border-dashed rounded-3xl bg-muted/20 space-y-3">
+                    <div className="size-12 rounded-2xl bg-muted flex items-center justify-center mx-auto opacity-20">
+                        <FileText className="size-8" />
                     </div>
-                )}
-            </div>
+                    <p className="text-sm font-bold text-muted-foreground/60">Chưa có bài tập nào được giao cho lớp này.</p>
+                </div>
+            )}
         </div>
     )
 }
