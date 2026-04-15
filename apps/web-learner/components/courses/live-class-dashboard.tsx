@@ -22,7 +22,7 @@ import {
 import { format, isSameDay, startOfWeek, addDays } from "date-fns"
 import { vi } from "date-fns/locale"
 import { CourseCurriculum } from "@/components/courses/course-curriculum"
-import { AcademyResourceList } from "./academy-resource-list"
+import { AcademyFolderTree } from "./academy-folder-tree"
 import { AcademyAssignmentList } from "./academy-assignment-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useCurriculum } from "@/lib/api/services/academy-classes"
@@ -153,9 +153,9 @@ export function LiveClassDashboard() {
 
     return (
         <div className="space-y-6 pb-8">
-            <Card className="overflow-hidden">
+            <section className="overflow-hidden rounded-2xl bg-muted/20">
                 <div className="grid gap-0 lg:grid-cols-3">
-                    <CardContent className="space-y-4 p-6 lg:col-span-2">
+                    <div className="space-y-4 p-6 lg:col-span-2">
                         <div className="flex flex-wrap items-center gap-2">
                             <Badge>Lớp học trực tiếp</Badge>
                             {ongoingSession && <Badge variant="destructive">Đang diễn ra</Badge>}
@@ -167,49 +167,39 @@ export function LiveClassDashboard() {
                             <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
                         </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                            <div className="rounded-md border p-3">
-                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Calendar className="size-3.5" /> Ngày bắt đầu
-                                </p>
-                                <p className="text-sm font-medium">
-                                    {startDateValue ? format(new Date(startDateValue), "dd/MM/yyyy") : "Chưa xác định"}
-                                </p>
-                            </div>
-                            <div className="rounded-md border p-3">
-                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Users className="size-3.5" /> Giảng viên
-                                </p>
-                                <p className="text-sm font-medium">{instructorName}</p>
-                            </div>
-                            <div className="rounded-md border p-3">
-                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Video className="size-3.5" /> Số buổi học
-                                </p>
-                                <p className="text-sm font-medium">{sessions.length} buổi live</p>
-                            </div>
-                            <div className="rounded-md border p-3">
-                                <p className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Trophy className="size-3.5" /> Trình độ
-                                </p>
-                                <p className="text-sm font-medium">{level}</p>
-                            </div>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                            <p className="text-sm">
+                                <span className="text-muted-foreground">Ngày bắt đầu:</span>{" "}
+                                <span className="font-medium">{startDateValue ? format(new Date(startDateValue), "dd/MM/yyyy") : "Chưa xác định"}</span>
+                            </p>
+                            <p className="text-sm">
+                                <span className="text-muted-foreground">Giảng viên:</span>{" "}
+                                <span className="font-medium">{instructorName}</span>
+                            </p>
+                            <p className="text-sm">
+                                <span className="text-muted-foreground">Số buổi live:</span>{" "}
+                                <span className="font-medium">{sessions.length} buổi</span>
+                            </p>
+                            <p className="text-sm">
+                                <span className="text-muted-foreground">Trình độ:</span>{" "}
+                                <span className="font-medium">{level}</span>
+                            </p>
                         </div>
-                    </CardContent>
+                    </div>
 
                     <div className="relative min-h-[220px] lg:min-h-full">
                         <Image src={thumbnail} alt={academyClass.name || "Class Thumbnail"} fill className="object-cover" />
                         <div className="absolute inset-x-4 bottom-4">
-                            <Button className="w-full" asChild>
+                            <Button variant="secondary" className="w-full justify-start gap-2 bg-white/90 text-primary hover:bg-white" asChild>
                                 <Link href={`/courses/${courseId}/learn?mode=VOD`}>
-                                    <PlayCircle className="mr-2 size-4" />
+                                    <PlayCircle className="size-4" />
                                     Mở trang học VOD
                                 </Link>
                             </Button>
                         </div>
                     </div>
                 </div>
-            </Card>
+            </section>
 
             {ongoingSession && (
                 <Card>
@@ -298,66 +288,62 @@ export function LiveClassDashboard() {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="space-y-4 p-4 sm:p-6">
-                            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                    <TabsList className="grid w-full grid-cols-3">
-                                        <TabsTrigger value="curriculum" className="gap-2">
-                                            <BookOpen className="size-4" />
-                                            Chương trình
-                                        </TabsTrigger>
-                                        <TabsTrigger value="assignments" className="gap-2">
-                                            <FileText className="size-4" />
-                                            Bài tập
-                                        </TabsTrigger>
-                                        <TabsTrigger value="resources" className="gap-2">
-                                            <FileIcon className="size-4" />
-                                            Tài liệu
-                                        </TabsTrigger>
-                                    </TabsList>
+                    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <TabsList className="grid w-full grid-cols-3">
+                                <TabsTrigger value="curriculum" className="gap-2">
+                                    <BookOpen className="size-4" />
+                                    Chương trình
+                                </TabsTrigger>
+                                <TabsTrigger value="assignments" className="gap-2">
+                                    <FileText className="size-4" />
+                                    Bài tập
+                                </TabsTrigger>
+                                <TabsTrigger value="resources" className="gap-2">
+                                    <FileIcon className="size-4" />
+                                    Tài liệu
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
+
+                        <TabsContent value="curriculum" className="mt-4">
+                            <div className="space-y-3">
+                                <div className="flex justify-end">
+                                    <Button variant="link" size="sm" className="h-8 px-0 font-semibold" asChild>
+                                        <Link href={`/courses/${courseId}/learn`}>
+                                            Mở trang học VOD
+                                            <ChevronRight className="size-4" />
+                                        </Link>
+                                    </Button>
                                 </div>
-
-                                <TabsContent value="curriculum" className="mt-4">
-                                    <div className="space-y-3">
-                                        <div className="flex justify-end">
-                                            <Button variant="outline" size="sm" asChild>
-                                                <Link href={`/courses/${courseId}/learn`}>
-                                                    Mở trang học VOD
-                                                    <ChevronRight className="size-4" />
-                                                </Link>
-                                            </Button>
-                                        </div>
-                                        {curriculum ? (
-                                            <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
-                                        ) : (
-                                            <div className="flex min-h-[160px] items-center justify-center">
-                                                <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
-                                            </div>
-                                        )}
+                                {curriculum ? (
+                                    <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
+                                ) : (
+                                    <div className="flex min-h-[160px] items-center justify-center">
+                                        <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
                                     </div>
-                                </TabsContent>
+                                )}
+                            </div>
+                        </TabsContent>
 
-                                <TabsContent value="assignments" className="mt-4">
-                                    <AcademyAssignmentList
-                                        liveClassId={courseId}
-                                    />
-                                </TabsContent>
+                        <TabsContent value="assignments" className="mt-4">
+                            <AcademyAssignmentList
+                                liveClassId={courseId}
+                            />
+                        </TabsContent>
 
-                                <TabsContent value="resources" className="mt-4">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <h3 className="text-sm font-medium">Tài liệu lớp học</h3>
-                                            <p className="text-sm text-muted-foreground">
-                                                Tài liệu và liên kết do giảng viên đặt trong từng thư mục.
-                                            </p>
-                                        </div>
-                                        <AcademyResourceList deliveryScopeId={courseId} />
-                                    </div>
-                                </TabsContent>
-                            </Tabs>
-                        </CardContent>
-                    </Card>
+                        <TabsContent value="resources" className="mt-4">
+                            <div className="space-y-4">
+                                <div>
+                                    <h3 className="text-sm font-medium">Tài liệu lớp học</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Duyệt tài liệu theo cấu trúc thư mục dạng cây.
+                                    </p>
+                                </div>
+                                <AcademyFolderTree deliveryScopeId={courseId} />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
             </div>
         </div>
     )

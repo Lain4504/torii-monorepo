@@ -4,7 +4,6 @@ import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentService } from '../classroom/enrollment/enrollment.service';
 import { AuditLoggerService } from '../audit-logger.service';
 import { OrderService } from './order/order.service';
-import { RoadmapService } from '../roadmap/roadmap.service';
 
 @Controller()
 export class OrderListener {
@@ -13,8 +12,7 @@ export class OrderListener {
     private readonly enrollments: EnrollmentService,
     private readonly audit: AuditLoggerService,
     private readonly orderService: OrderService,
-    private readonly roadmapService: RoadmapService,
-  ) { }
+  ) {}
 
   @EventPattern('order.paid')
   async handleOrderPaid(@Payload() data: { orderId: string }) {
@@ -57,7 +55,9 @@ export class OrderListener {
       );
 
       if (!targetLiveClassId && !item.vodPackageId) {
-        console.warn(`[Academy] Skipping enrollment for item: No resolved liveClassId or vodPackageId found.`);
+        console.warn(
+          `[Academy] Skipping enrollment for item: No resolved liveClassId or vodPackageId found.`,
+        );
         continue;
       }
 
@@ -78,12 +78,6 @@ export class OrderListener {
         );
 
         enrolledCount++;
-        if (created?.id) {
-          await this.roadmapService.bootstrapRoadmapForEnrollment(
-            targetUserId,
-            created.id,
-          );
-        }
       } catch (err: any) {
         console.error(
           `[Academy] Failed to enroll user ${targetUserId}:`,
