@@ -1,8 +1,6 @@
 import { create, fromJsonString } from '@bufbuild/protobuf';
 import {
     ChatMessageSchema,
-    InsightsAITextChatStreamResult,
-    InsightsAITextChatStreamResultSchema,
     NatsMsgServerToClient,
     NatsMsgServerToClientEvents,
     NatsSystemNotificationSchema,
@@ -19,7 +17,6 @@ import { updateReceivedInvitationFor } from '@/store/slices/breakout-room-slice'
 import { breakoutRoomApi } from '@/store/services/breakout-room-api';
 import { addChatMessage } from '@/store/slices/chat-messages-slice';
 import { randomString } from '@/helpers/utils';
-import { updateAiTextChat } from '@/store/slices/insights-ai-text-chat-slice';
 
 export default class HandleSystemData {
     private readonly userId: string;
@@ -160,11 +157,6 @@ export default class HandleSystemData {
                 newInstance: true,
             }),
         );
-    };
-
-    public handleInsightsAITextData = (msg: string) => {
-        const data = fromJsonString(InsightsAITextChatStreamResultSchema, msg);
-        store.dispatch(updateAiTextChat(data as InsightsAITextChatStreamResult));
     };
 
     private playNotification() {

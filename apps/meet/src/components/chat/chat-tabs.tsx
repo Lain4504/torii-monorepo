@@ -20,7 +20,6 @@ import {
 } from '@/store/slices/roomSettingsSlice';
 import { X, MessageSquareDot } from 'lucide-react';
 import { setActiveSidePanel } from '@/store/slices/bottom-icons-activity-slice';
-import ChatTranslation from '@/components/chat/chat-translation';
 
 interface IChatOption {
   id: string;
@@ -118,7 +117,6 @@ const ChatTabs = () => {
               ? 'Trò chuyện công khai'
               : 'Trò chuyện riêng tư'}
           </p>
-          <ChatTranslation />
         </div>
         <Button
           variant="ghost"

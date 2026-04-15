@@ -10,8 +10,6 @@ import ExternalMediaPlayerModal from '@/components/external-media-player/modal';
 import DisplayExternalLinkModal from '@/components/display-external-link/modal';
 import AdminMenus from '@/components/footer/icons/menus/admin-menus';
 import IconsInMenu from '@/components/footer/icons/menus/icons-in-menu';
-import TranslationTranscriptionSettingModal from '@/components/translation-transcription/setting-modal';
-import InsightsAiSettingsModal from '@/components/insights-ai';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,12 +41,6 @@ const MenusIcon = ({ isAdmin }: MenusIconProps) => {
   );
   const showLockSettingsModal = useAppSelector(
     (state) => state.bottomIconsActivity.showLockSettingsModal,
-  );
-  const showSpeechSettingsModal = useAppSelector(
-    (state) => state.bottomIconsActivity.showSpeechSettingsModal,
-  );
-  const showInsightsAISettingsModal = useAppSelector(
-    (state) => state.bottomIconsActivity.showInsightsAISettingsModal,
   );
 
   return (
@@ -86,8 +78,6 @@ const MenusIcon = ({ isAdmin }: MenusIconProps) => {
       {showManageWaitingRoomModal && <ManageWaitingRoom />}
       {showManageBreakoutRoomModal && <BreakoutRoom />}
       {showDisplayExternalLinkModal && <DisplayExternalLinkModal />}
-      {showSpeechSettingsModal && <TranslationTranscriptionSettingModal />}
-      {showInsightsAISettingsModal && <InsightsAiSettingsModal />}
     </>
   );
 };

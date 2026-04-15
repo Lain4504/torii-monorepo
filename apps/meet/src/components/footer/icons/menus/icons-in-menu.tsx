@@ -4,10 +4,9 @@ import { store, useAppDispatch, useAppSelector } from '@/store';
 import FooterMenuItem from '@/components/footer/icons/menus/menu-item';
 import {
   setActiveSidePanel,
-  updateDisplaySpeechSettingOptionsModal,
   updateIsActiveWhiteboard,
 } from '@/store/slices/bottom-icons-activity-slice';
-import { BarChart2, PenTool, Captions } from 'lucide-react';
+import { BarChart2, PenTool } from 'lucide-react';
 
 const IconsInMenu = () => {
   const dispatch = useAppDispatch();
@@ -41,22 +40,6 @@ const IconsInMenu = () => {
     dispatch(setActiveSidePanel('POLLS'));
   }, [dispatch]);
 
-  const isActiveDisplaySpeechSettingOptionsModal = useAppSelector(
-    (state) => state.bottomIconsActivity.showSpeechSettingOptionsModal,
-  );
-  const isEnabledTranscription = useAppSelector(
-    (state) =>
-      !!state.session.currentRoom.metadata?.roomFeatures?.insightsFeatures
-        ?.transcriptionFeatures?.isEnabled,
-  );
-  const toggleSpeechSettingOptionsModal = useCallback(() => {
-    dispatch(
-      updateDisplaySpeechSettingOptionsModal(
-        !isActiveDisplaySpeechSettingOptionsModal,
-      ),
-    );
-  }, [dispatch, isActiveDisplaySpeechSettingOptionsModal]);
-
   return (
     <>
       {roomFeatures?.whiteboardFeatures?.isAllow && (
@@ -81,18 +64,6 @@ const IconsInMenu = () => {
             isActivePollsPanel
               ? 'Ẩn bảng bình chọn'
               : 'Hiển thị bảng bình chọn'
-          }
-        />
-      )}
-      {isEnabledTranscription && (
-        <FooterMenuItem
-          onClick={toggleSpeechSettingOptionsModal}
-          isActive={isActiveDisplaySpeechSettingOptionsModal}
-          icon={<Captions className="w-auto" />}
-          text={
-            isActiveDisplaySpeechSettingOptionsModal
-              ? 'Ẩn cài đặt dịch'
-              : 'Hiển thị cài đặt dịch'
           }
         />
       )}

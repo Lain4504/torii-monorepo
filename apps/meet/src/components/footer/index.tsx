@@ -12,8 +12,6 @@ import BreakoutRoomInvitation from '@/components/breakout-room/breakout-room-inv
 import EndMeetingButton from '@/components/footer/icons/end-meeting';
 import RecordingIcon from '@/components/footer/icons/recording';
 import PollsIcon from '@/components/footer/icons/polls';
-import Translation from '@/components/footer/icons/translation';
-import InsightsAiTextChatIcon from '@/components/footer/icons/insight-ai-text-chat';
 import MenusIcon from '@/components/footer/icons/menus';
 
 const Footer = () => {
@@ -49,8 +47,6 @@ const Footer = () => {
             {/* Tablet+: ít icon hơn trên mobile để footer gọn */}
             <div className="meet-footer-secondary hidden items-center gap-2 md:flex">
               <PollsIcon />
-              <Translation />
-              <InsightsAiTextChatIcon />
               <RecordingIcon />
             </div>
 

@@ -8,7 +8,6 @@ import {
   DataChannelMessageSchema,
   DataMsgBodyType,
   EndToEndEncryptionFeatures,
-  InsightsTranslateTextReqSchema,
   MediaServerConnInfoSchema,
   NatsInitialData,
   NatsInitialDataSchema,
@@ -74,19 +73,12 @@ import { destroyAudioManager } from '@/helpers/libs/audio-activity-manager';
 import {
   DB_STORE_NAMES,
   deleteRoomDB,
-  idbGet,
   idbGetAll,
   initIDB,
 } from '@/helpers/libs/idb';
 import { addAllChatMessages } from '@/store/slices/chat-messages-slice';
 import { UserNotification } from '@/store/slices/interfaces/room-settings';
-import {
-  SELECTED_SUBTITLE_LANG_KEY,
-  TextWithInfo,
-} from '@/store/slices/interfaces/speech-services';
-import { setSpeechToTextLastFinalTexts } from '@/store/slices/speech-services-slice';
 import { createLivekitConnection } from '@/helpers/livekit/utils';
-import { executeChatTranslation } from '@/components/translation-transcription/helpers/api-connections';
 
 const RENEW_TOKEN_FREQUENT = 3 * 60 * 1000;
 const PING_INTERVAL = 10 * 1000;
@@ -535,31 +527,6 @@ export default class ConnectNats {
       fromAdmin: this.isAdmin,
     });
 
-    // check translation settings
-    const state = store.getState();
-    const chatTranslationFeatures =
-      state.session.currentRoom?.metadata?.roomFeatures?.insightsFeatures
-        ?.chatTranslationFeatures;
-    if (chatTranslationFeatures && chatTranslationFeatures.isEnabled) {
-      // we'll get our selected lang
-      const selectedChatTransLang = state.roomSettings.selectedChatTransLang;
-      if (selectedChatTransLang !== '') {
-        // we'll need to send request to get translation of selected lang
-        const body = create(InsightsTranslateTextReqSchema, {
-          text: chatMessage.message,
-          sourceLang: selectedChatTransLang,
-          targetLangs: chatTranslationFeatures.allowedTransLangs,
-        });
-        const res = await executeChatTranslation(body);
-        if (res.status && res.result) {
-          chatMessage.sourceLang = selectedChatTransLang;
-          chatMessage.translations = res.result.translations;
-        } else {
-          console.error(res.msg);
-        }
-      }
-    }
-
     let payload: Uint8Array = toBinary(ChatMessageSchema, chatMessage);
 
     if (this._enableE2EEChat) {
@@ -785,10 +752,6 @@ export default class ConnectNats {
         this.handleSystemData.handleBreakoutRoom(p),
       [NatsMsgServerToClientEvents.SYSTEM_CHAT_MSG]: (p) =>
         this.handleSystemData.handleSysChatMsg(p.msg),
-      [NatsMsgServerToClientEvents.TRANSCRIPTION_OUTPUT_TEXT]: (p) =>
-        this.handleDataMsg.handleSpeechSubtitleText(p.msg),
-      [NatsMsgServerToClientEvents.RESP_INSIGHTS_AI_TEXT_CHAT]: (p) =>
-        this.handleSystemData.handleInsightsAITextData(p.msg),
       [NatsMsgServerToClientEvents.DELIVERY_PRIVATE_DATA]: (p) =>
         this.handlePrivateDataDelivery(p),
     };
@@ -955,19 +918,9 @@ export default class ConnectNats {
 
     // Restore user data from IndexedDB to maintain state across sessions.
     try {
-      const [
-        chatMsgs,
-        notifications,
-        lastSubtitleLang,
-        speechToTextFinalTexts,
-      ] = await Promise.all([
+      const [chatMsgs, notifications] = await Promise.all([
         idbGetAll<ChatMessage>(DB_STORE_NAMES.CHAT_MESSAGES),
         idbGetAll<UserNotification>(DB_STORE_NAMES.USER_NOTIFICATIONS),
-        idbGet<string>(
-          DB_STORE_NAMES.USER_SETTINGS,
-          SELECTED_SUBTITLE_LANG_KEY,
-        ),
-        idbGetAll<TextWithInfo>(DB_STORE_NAMES.SPEECH_TO_TEXT_FINAL_TEXTS),
       ]);
 
       if (chatMsgs.length) {
@@ -980,26 +933,6 @@ export default class ConnectNats {
       }
       if (notifications.length) {
         store.dispatch(setAllUserNotifications(notifications));
-      }
-      // Restore speech-to-text data if the feature is enabled.
-      const transcriptionFeatures =
-        this._currentRoomInfo?.metadata?.roomFeatures?.insightsFeatures
-          ?.transcriptionFeatures;
-      if (
-        transcriptionFeatures?.isEnabled &&
-        speechToTextFinalTexts &&
-        speechToTextFinalTexts.length
-      ) {
-        let subtitleLang = lastSubtitleLang;
-        if (!lastSubtitleLang) {
-          subtitleLang = transcriptionFeatures.defaultSubtitleLang;
-        }
-        store.dispatch(
-          setSpeechToTextLastFinalTexts({
-            selectedSubtitleLang: subtitleLang as string,
-            lastFinalTexts: speechToTextFinalTexts,
-          }),
-        );
       }
     } catch (e) {
       console.error('Failed to load data from IndexedDB on startup:', e);

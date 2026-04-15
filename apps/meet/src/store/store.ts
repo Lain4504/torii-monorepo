@@ -13,7 +13,6 @@ import { pollsApi } from '@/store/services/polls-api';
 import breakoutRoomSlice from '@/store/slices/breakout-room-slice';
 import { breakoutRoomApi } from '@/store/services/breakout-room-api';
 import speechServicesSlice from '@/store/slices/speech-services-slice';
-import insightsAiTextChatSlice from '@/store/slices/insights-ai-text-chat-slice';
 
 declare const IS_PRODUCTION: boolean;
 
@@ -31,7 +30,6 @@ export const store = configureStore({
     [pollsApi.reducerPath]: pollsApi.reducer,
     [breakoutRoomApi.reducerPath]: breakoutRoomApi.reducer,
     speechServices: speechServicesSlice,
-    insightsAiTextChat: insightsAiTextChatSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(

@@ -4,296 +4,49 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix bug missing audio">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/docs/MEET_WEBRTC_FLOW.md" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/docs/MEET_WEBRTC_FLOW.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/andrew-ridley-jR4Zf-riEjI-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_1.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/annie-spratt-OWq8w3BYMFY-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_2.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/dmytro-tolokonov-Jq3WI9IQgEs-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_3.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/evelyn-bertrand-GrIf347OtnY-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_4.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/jonny-caspari-KuudDjBHIlA-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_5.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/kenny-eliason-Wp7t4cWN-68-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_6.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/roman-bozhko-PypjzKTUqLo-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_7.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/steve-richey-6xqAK6oAeHA-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_8.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/vinicius-amnx-amano-17NCG_wOkMY-unsplash.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/assets/backgrounds/background_9.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/active-speakers/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/active-speakers/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/active-speakers/speaker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/active-speakers/speaker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/app/audioNotification.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/app/audio-notification.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/app/dummyAudio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/app/dummy-audio.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/app/helper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/app/helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/app/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/app/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/breakoutRoomInvitation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/breakout-room-invitation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/roomBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/room-box.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/roomNumberSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/room-number-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/userBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/form/user-box.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/broadcastMessageForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/broadcast-message-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/duration.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/duration.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/endBtn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/end-btn.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/extendDuration.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/extend-duration.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/joinBtn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room/join-btn.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/roomLists.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/breakout-room/manage-active-rooms/room-lists.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/chatTabs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-tabs.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/chatTranslation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-translation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/message/avatar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/message/avatar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/message/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/message/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/message/messageTypes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/messages/message/message-types.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/text-box/fileSend.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/text-box/file-send.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/text-box/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/text-box/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/text-box/useAutosizeTextArea.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/text-box/use-autosize-text-area.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/display-external-link/modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/display-external-link/modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/display-external-link/modal/savedLinkItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/display-external-link/modal/saved-link-item.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/display-external-link/modal/savedLinks.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/display-external-link/modal/saved-links.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/UploadFile.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/upload-file.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/UploadedFileList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/uploaded-file-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/directLink.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/direct-link.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/upload.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/modal/upload.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/reactPlayerComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/external-media-player/react-player-component.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/Error.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/error.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/Loading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/loading.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/Login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/extra-pages/login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/chat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/chat.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/endMeeting.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/end-meeting.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/insightAiTextChat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/insight-ai-text-chat.tsx" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update references from walearnconnect to Torii Nihongo">
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-tabs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-tabs.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-translation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/insight-ai-text-chat.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/adminMenus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/admin-menus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/useDisplayExternalLink.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/use-display-external-link.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/useExternalMediaPlayer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/use-external-media-player.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/useMuteAll.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/use-mute-all.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/usePolls.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/hooks/use-polls.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/iconsInMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/icons-in-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/menuItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/menu-item.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/mic-menu/items.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/mic-menu/items.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/microphone.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/microphone.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/participant.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/participant.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/polls.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/polls.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/IRecording.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/i-recording.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/recordingModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/recording-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/useCloudRecording.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/use-cloud-recording.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/useLocalRecording.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/recording/use-local-recording.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/screenshare.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/screenshare.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/translation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/translation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam/menu/items.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam/menu/items.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam/useVirtualBackground.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam/use-virtual-background.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam/useWebcamPublisher.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/webcam/use-webcam-publisher.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/whiteboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/whiteboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/admin-menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/admin-menus.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/icons-in-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/icons-in-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/translation.tsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/lockSettingsModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/lock-settings-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/microphoneModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/microphone-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/rtmpModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/rtmp-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/backgroundItems.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/background-items.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/previewWebcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/preview-webcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/videoBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/modals/webcam/video-box.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/darkThemeSwitcher.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/dark-theme-switcher.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/durationView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/duration-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/headerLogo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/header-logo.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/room-settings/dataSavings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/room-settings/data-savings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/room-settings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/room-settings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/genericNotification.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/generic-notification.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/newBreakoutRoom.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/new-breakout-room.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/newPoll.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/user-notifications/new-poll.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/header/volumeControl.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/header/volume-control.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/textBoxArea.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/text-box-area.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/usersSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/users-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/meeting-summarization/settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/meeting-summarization/settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/landing/hooks/useMediaDevices.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/landing/hooks/use-media-devices.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/landing/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/landing/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/landing/microphone.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/landing/microphone.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/landing/webcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/landing/webcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/landing/webcamPreview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/landing/webcam-preview.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useCloseSidePanelsOnShow.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-close-side-panels-on-show.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useDisplayExternalLink.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-display-external-link.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useExternalMediaPlayer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-external-media-player.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useInsightsAiTextChat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-insights-ai-text-chat.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useMainAreaCustomCSS.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-main-area-custom-css.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useMainAreaState.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-main-area-state.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useScreenShareElements.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-screen-share-elements.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useTranslationTranscription.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-translation-transcription.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useVideoLayout.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-video-layout.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useVideosComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-videos-component.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/useWhiteboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-whiteboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/layoutWrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/layout-wrapper.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/mainView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/main-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/sidePanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/side-panel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/audios/audio.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/audios/audio.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/screenshare/audioElm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/screenshare/audio-elm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/screenshare/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/screenshare/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/screenshare/videoElm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/screenshare/video-elm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/helpers/useDeviceInfo.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/helpers/use-device-info.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/helpers/utils.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/helpers/utils.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/layouts/defaultLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/layouts/default-layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/layouts/pinnedLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/layouts/pinned-layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/layouts/verticalLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/layouts/vertical-layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/connectionStatus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/connection-status.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/micStatus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/mic-status.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/participant.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/participant.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/pinWebcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/pin-webcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/raisedHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/raised-hand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/videoElm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video/video-elm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/videoLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video-layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/videoParticipant.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/media-elements/videos/video-participant.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/iconWrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/icon-wapper.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lock.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lock.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lowerHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/lower-hand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/mic.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/mic.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/privateChat.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/private-chat.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/removeUser.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/remove-user.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/switchPresenter.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/switch-presenter.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/webcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu-items/webcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/mic.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/mic.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/presenterIcon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/presenterIcon.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/raiseHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/raiseHand.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/screenShare.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/screenShare.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/visibility.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/visibility.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/webcam.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/webcam.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/waitingApproval.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/waiting-approval.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/removeParticipantAlertModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/remove-participant-alert-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/create/formView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/create/form-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/create/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/create/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/create/optionsView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/create/options-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/hooks/useEndPoll.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/hooks/use-end-poll.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/endPollBtn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/end-poll-btn.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/notRespondents.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/not-respondents.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/publishResultBtn.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/details/publish-result-btn.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/pollActionsMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/poll-actions-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/voteForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/pollItem/vote-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/polls/pollsList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/polls/polls-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/chat-translation-settings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/chat-translation-settings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/interimTextDisplay.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/interim-text-display.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/subtitleHistoryPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/subtitle-history-panel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/liveSubtitle.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/live-subtitle.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/SpeechSynthesisQueue.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/speech-synthesis-queue.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/apiConnections.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/api-connections.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/modalUtils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/modal-utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/supportedLangs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/supported-langs.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/useSubtitleSpeechSynthesis.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/use-subtitle-speech-synthesis.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/settingModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/setting-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/micSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/mic-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/speechInputSettings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/speech-input-settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitleFontSizeSlider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitle-font-size-slider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitleLangSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitle-lang-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/defaultSubtitleLangSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/default-subtitle-lang-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speechLangsSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speech-langs-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speechUsersSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speech-users-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/transLangsSelector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/trans-langs-selector.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/backgroundHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/background-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/postProcessingHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/post-processing-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/renderingPipelineHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/rendering-pipeline-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/segmentationHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/segmentation-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/sourceHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/source-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/timerHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/timer-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/helpers/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/hooks/useRenderingPipeline.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/hooks/use-rendering-pipeline.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/hooks/useTFLite.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/hooks/use-TFLite.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/outputViewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/output-viewer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/canvas2d/canvas2dPipeline.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/canvas2d/canvas2d-pipeline.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/helpers/webglHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/helpers/webgl-helper.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/backgroundBlurStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/background-blur-stage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/backgroundImageStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/background-image-stage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/jointBilateralFilterStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/joint-bilateral-filter-stage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/loadSegmentationStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/load-segmentation-stage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/resizingStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/resizing-stage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/softmaxStage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/softmax-stage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/webgl2Pipeline.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/pipelines/webgl2/webgl2-pipeline.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/virtualBackground.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/virtual-background/virtual-background.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/bulkAction.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/bulk-action.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/participantsList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/participants-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/updateRoomMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/update-room-message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/waitingParticipantItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/waiting-room/waiting-participant-item.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/footerUI.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/footer-UI.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/handleFiles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/handle-files.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/handleRequests.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/handle-requests.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/useOfficePageSyncer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/use-office-page-syncer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/usePrevious.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/use-previous.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/useWhiteboardAppStateSync.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/use-whiteboard-app-state-sync.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/useWhiteboardDataSharer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/use-whiteboard-data-sharer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/useWhiteboardSetup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/hooks/use-whiteboard-setup.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/helpers/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/manage-office-files/fileUploadProgress.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/manage-office-files/file-upload-progress.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/manage-office-files/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/manage-office-files/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/manage-office-files/uploadedFilesList.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/whiteboard/manage-office-files/uploaded-files-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/fileUpload.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/file-upload.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useClientCustomization.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-client-customization.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useKeyboardShortcuts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-keyboard-shortcuts.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useLogo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-logo.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useResumableFilesUpload.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-resumable-files-upload.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useRoomDurationCountdown.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-room-duration-countdown.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useStorePreviousInt.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-store-previous-int.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useThemeSettings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-theme-settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useWatchVisibilityChange.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-watch-visibility-change.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/useWatchWindowSize.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/hooks/use-watch-window-size.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/libs/AudioActivityManager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/libs/audio-activity-manager.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/libs/cryptoMessages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/libs/crypto-messages.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/livekit/ConnectLivekit.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/livekit/connect-livekit.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/livekit/HandleMediaTracks.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/livekit/handle-media-tracks.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/livekit/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/livekit/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/ConnectNats.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/connect-nats.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleChat.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-chat.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleDataMessage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-data-message.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleParticipants.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-participants.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleRoomData.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-room-data.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleSystemData.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-system-data.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/HandleWhiteboard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-whiteboard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/MessageQueue.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/message-queue.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/roomConfig.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/room-config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/ui/actionButton.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/ui/action-button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/ui/confirmationModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/ui/confirmation-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/ui/formattedInputField.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/ui/formatted-input-field.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/ui/radioOptions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/ui/radio-options.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/ui/rangeSlider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/ui/range-slider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/ui/settingsSwitch.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/ui/settings-switch.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/utils.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/services/breakoutRoomApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/services/breakout-room-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/services/pollsApi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/services/polls-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/activeSpeakersSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/active-speakers-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/bottomIconsActivitySlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/bottom-icons-activity-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/breakoutRoomSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/breakout-room-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/chatMessagesSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/chat-messages-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/externalMediaPlayer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/external-media-player.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/insightsAiTextChatSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/insights-ai-text-chat-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/activeSpeakers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/active-speakers.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/bottomIcons.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/bottom-icons.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/breakoutRoom.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/breakout-room.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/roomSettings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/room-settings.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/speechServices.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/interfaces/speech-services.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/participantSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/participant-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/roomSettingsSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/roomSettingsSlice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/sessionSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/session-slice.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/speechServicesSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/slices/speech-services-slice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/text-box-area.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/settings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/users-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/meeting-summarization/settings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-insights-ai-text-chat.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-translation-transcription.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/main-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/main-view.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/chat-translation-settings/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/interim-text-display.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/subtitle-history-panel.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/live-subtitle.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/api-connections.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/modal-utils.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/speech-synthesis-queue.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/supported-langs.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/use-subtitle-speech-synthesis.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/setting-modal.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/mic-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/speech-input-settings.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitle-font-size-slider.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitle-lang-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/default-subtitle-lang-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speech-langs-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speech-users-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/trans-langs-selector.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/connect-nats.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/connect-nats.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-system-data.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-system-data.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/insights-ai-text-chat-slice.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/meet/src/store/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/store.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -389,41 +142,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
-    "Jest.CourseRunService.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "remove-unsued-flow",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;remove-unsued-flow&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\projectdev\demo\team-source\torii-monorepo\docs\spec" />
@@ -718,14 +471,6 @@
       <workItem from="1775759401993" duration="2968000" />
       <workItem from="1775966402266" duration="3382000" />
       <workItem from="1776003909935" duration="3313000" />
-    </task>
-    <task id="LOCAL-01212" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
-      <option name="closed" value="true" />
-      <created>1775525295543</created>
-      <option name="number" value="01212" />
-      <option name="presentableId" value="LOCAL-01212" />
-      <option name="project" value="LOCAL" />
-      <updated>1775525295544</updated>
     </task>
     <task id="LOCAL-01213" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
       <option name="closed" value="true" />
@@ -1111,7 +856,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776052251758</updated>
     </task>
-    <option name="localTasksCounter" value="1261" />
+    <task id="LOCAL-01261" summary="refactor: update references from walearnconnect to Torii Nihongo">
+      <option name="closed" value="true" />
+      <created>1776224660513</created>
+      <option name="number" value="01261" />
+      <option name="presentableId" value="LOCAL-01261" />
+      <option name="project" value="LOCAL" />
+      <updated>1776224660513</updated>
+    </task>
+    <option name="localTasksCounter" value="1262" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1146,7 +899,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: enhance class discussion UI with lesson filtering and improved layout" />
@@ -1171,7 +923,8 @@
     <MESSAGE value="feat: enhance unit test coverage for agents and academy services (#369)" />
     <MESSAGE value="refactor: rename classId to liveClassId across multiple files for consistency" />
     <MESSAGE value="fix bug missing audio" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug missing audio" />
+    <MESSAGE value="refactor: update references from walearnconnect to Torii Nihongo" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: update references from walearnconnect to Torii Nihongo" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
