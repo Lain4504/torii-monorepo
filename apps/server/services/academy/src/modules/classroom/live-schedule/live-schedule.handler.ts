@@ -17,7 +17,7 @@ import { LiveSessionJoinDto } from './dto/live-session.dto';
 
 @Controller()
 export class LiveScheduleHandler {
-  constructor(private readonly schedules: LiveScheduleService) {}
+  constructor(private readonly schedules: LiveScheduleService) { }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.findAll' })
   findAll(@Payload() query: LiveScheduleBaseQueryDto) {
@@ -106,6 +106,8 @@ export class LiveScheduleHandler {
 
   @MessagePattern({ cmd: 'academy.liveSessionRequest.findAll' })
   findAllRequests(@Payload() query: LiveScheduleRequestQueryDto) {
+    const fs = require('fs');
+    fs.appendFileSync('/tmp/debug-requests.log', `[NATS] Received academy.liveSessionRequest.findAll with query: ${JSON.stringify(query)}\n`);
     return this.schedules.findAllRequests(query);
   }
 

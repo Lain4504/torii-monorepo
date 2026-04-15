@@ -70,6 +70,8 @@ export default function LiveRescheduleRequestsPage() {
     status: statusFilter === "all" ? undefined : (statusFilter as any)
   })
 
+  console.log('[DEBUG] allRequests from API:', allRequests);
+
   // To show class details, we fetch classes. Since requests only have liveClassId.
   const { data: classes = [], isLoading: isLoadingClasses } = useAcademyLiveClasses({})
 
@@ -140,6 +142,8 @@ export default function LiveRescheduleRequestsPage() {
       )
     })
   }, [allRequests, search, classMap])
+
+  console.log('[DEBUG] filteredRequests:', filteredRequests);
 
   const isLoading = isLoadingRequests || isLoadingClasses
 

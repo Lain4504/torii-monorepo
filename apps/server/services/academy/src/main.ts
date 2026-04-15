@@ -20,6 +20,8 @@ async function bootstrap() {
   );
 
   await app.listen();
+  const fs = require('fs');
+  fs.appendFileSync('/tmp/debug-requests.log', `[STARTUP] Academy Service NATS microservice listening at ${new Date().toISOString()}\n`);
   console.log('📡 Academy Service NATS microservice listening');
 }
 

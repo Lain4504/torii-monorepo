@@ -922,9 +922,13 @@ export class LiveScheduleService {
   }
 
   async findAllRequests(query: LiveScheduleRequestQueryDto) {
+    const fs = require('fs');
+    const logMsg = `\n[${new Date().toISOString()}] findAllRequests query: ${JSON.stringify(query)}\n`;
+    fs.appendFileSync('/tmp/debug-requests.log', logMsg);
+
     const fromDate = query.fromDate ? new Date(query.fromDate) : undefined;
     const toDate = query.toDate ? new Date(query.toDate) : undefined;
-    return this.prisma.liveScheduleRequest.findMany({
+    const results = await this.prisma.liveScheduleRequest.findMany({
       where: {
         liveClassId: query.liveClassId,
         sessionId: query.sessionId,
@@ -971,6 +975,12 @@ export class LiveScheduleService {
       },
       orderBy: [{ createdAt: 'desc' }],
     });
+
+    fs.appendFileSync('/tmp/debug-requests.log', `[DEBUG] findAllRequests found ${results.length} results\n`);
+    if (results.length > 0) {
+      fs.appendFileSync('/tmp/debug-requests.log', `[DEBUG] First result ID: ${results[0].id}\n`);
+    }
+    return results;
   }
 
   async createRequest(
@@ -1214,7 +1224,86 @@ export class LiveScheduleService {
           reviewNote: input.reviewNote,
         },
       });
+
+      // 4. Notify Students
+      // We run this after the transaction implicitly in the service logic (or here if we want absolute consistency)
+      // For performance and reliability, we'll fetch details and emit events AFTER transaction success.
     });
+
+    // Fetch details for notification
+    const fullRequest = (await this.prisma.liveScheduleRequest.findUnique({
+      where: { id },
+      include: {
+        session: {
+          include: {
+            liveClass: {
+              include: {
+                enrollments: {
+                  where: { status: 'ACTIVE' },
+                  include: { user: { select: { id: true, email: true, displayName: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })) as any;
+
+    if (fullRequest?.session?.liveClass) {
+      const { liveClass, session } = fullRequest.session;
+      const oldVnDate = this.formatDateInTimeZone(session.sessionDate, 'Asia/Ho_Chi_Minh');
+      const newVnDate = this.formatDateInTimeZone(fullRequest.proposedDate!, 'Asia/Ho_Chi_Minh');
+
+      const oldDisplay = `${oldVnDate} ${session.startTime}`;
+      const newDisplay = `${newVnDate} ${fullRequest.proposedStartTime}`;
+
+      const courseUrl = `${this.appConfig.server.webUrl}/academy/live-classes/${liveClass.id}`;
+
+      for (const enrollment of liveClass.enrollments) {
+        if (!enrollment.user.email) continue;
+
+        // 1. Send Email
+        this.nats.emit(
+          { cmd: 'send_email' },
+          {
+            type: 'live_class_rescheduled',
+            to: enrollment.user.email,
+            data: {
+              displayName: enrollment.user.displayName || 'Học viên',
+              courseName: liveClass.name,
+              oldDateTime: oldDisplay,
+              newDateTime: newDisplay,
+              courseUrl,
+              reason: fullRequest.reason,
+            },
+          },
+        );
+
+        // 2. Send In-app Notification
+        this.nats.emit(
+          { cmd: 'send_notification' },
+          {
+            recipientId: enrollment.user.id,
+            type: 'system',
+            payload: {
+              title: 'Lịch học đã được thay đổi',
+              body: `Buổi học lớp "${liveClass.name}" đã dời từ ${oldDisplay} sang ${newDisplay}.`,
+              metadata: {
+                entityType: 'LIVE_SCHEDULE_SESSION',
+                entityId: session.id,
+                liveClassId: liveClass.id,
+                oldDateTime: oldDisplay,
+                newDateTime: newDisplay,
+              },
+            },
+          },
+        );
+      }
+
+      this.logger.log(
+        `Sent reschedule notifications to ${liveClass.enrollments.length} students for class ${liveClass.id}`,
+      );
+    }
 
     await this.audit.log({
       userId: reviewerId,

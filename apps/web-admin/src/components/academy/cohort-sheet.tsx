@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -91,6 +92,7 @@ interface CohortSheetProps {
 
 export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
   const isEditing = !!cohort
+  const navigate = useNavigate()
   const createMutation = useCreateAcademyCohort()
   const updateMutation = useUpdateAcademyCohort()
 
@@ -170,8 +172,11 @@ export function CohortSheet({ open, onOpenChange, cohort }: CohortSheetProps) {
         })
         toast.success("Cập nhật Đợt khai giảng thành công")
       } else {
-        await createMutation.mutateAsync(input)
+        const result = await createMutation.mutateAsync(input)
         toast.success("Tạo Đợt khai giảng thành công")
+
+        // Auto-redirect to live class creation
+        navigate(`/academy/live-classes?action=create&cohortId=${result.id}`)
       }
       onOpenChange(false)
     } catch (error: any) {

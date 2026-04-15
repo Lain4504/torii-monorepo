@@ -9,8 +9,12 @@ interface RoutePermissionGuardProps {
 }
 
 export function RoutePermissionGuard({ permission, anyPermission, children, redirectTo = '/access-denied' }: RoutePermissionGuardProps) {
-    const { can, canAny } = usePermissions();
+    const { can, canAny, role } = usePermissions();
     let hasAccess = true;
+
+    if (role === 'learner') {
+        hasAccess = false;
+    }
 
     if (permission && !can(permission)) {
         hasAccess = false;
