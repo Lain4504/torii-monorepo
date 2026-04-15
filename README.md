@@ -31,7 +31,7 @@ graph TB
     subgraph Clients ["🌐 Kênh Giao diện (Frontends)"]
         Learner["Learner Web (Next.js)"]
         Admin["Admin Web (Vite)"]
-        Mobile["Mobile App (Coming Soon)"]
+        Mobile["Mobile App (Flutter - torri-mobile)"]
     end
 
     Clients -->|HTTPS/REST/WS| Gateway
