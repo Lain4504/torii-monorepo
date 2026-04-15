@@ -7,8 +7,8 @@ import {
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { updateIsActiveScreenshare } from '@/store/slices/bottomIconsActivitySlice';
-import { updateScreenSharing } from '@/store/slices/sessionSlice';
+import { updateIsActiveScreenshare } from '@/store/slices/bottom-icons-activity-slice';
+import { updateScreenSharing } from '@/store/slices/session-slice';
 import { getScreenShareResolution } from '@/helpers/utils';
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { MonitorUp, Lock as LockIcon } from 'lucide-react';

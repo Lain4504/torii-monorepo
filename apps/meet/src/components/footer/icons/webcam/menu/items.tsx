@@ -7,7 +7,7 @@ import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
 import {
   updateIsActiveWebcam,
   updateVirtualBackground,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 import { Check, Video, VideoOff, LogOut } from 'lucide-react';
 
 interface IWebcamMenuItemsProps {

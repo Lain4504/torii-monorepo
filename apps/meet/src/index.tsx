@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@/styles/index.css';
 import { store } from '@/store';
 import App from '@/components/app';
-import Loading from '@/components/extra-pages/Loading';
+import Loading from '@/components/extra-pages/loading';
 
 const container = document.getElementById('torii-meet-app');
 

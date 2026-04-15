@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { useRoomDurationCountdown } from '@/helpers/hooks/useRoomDurationCountdown';
+import { useRoomDurationCountdown } from '@/helpers/hooks/use-room-duration-countdown';
 
 interface IDurationProps {
   duration: bigint;

@@ -14,12 +14,12 @@ import {
 } from '@headlessui/react';
 import clsx from 'clsx';
 
-import NewPoll from '@/components/header/user-notifications/newPoll';
-import NewBreakoutRoom from '@/components/header/user-notifications/newBreakoutRoom';
-import GenericNotification from '@/components/header/user-notifications/genericNotification';
+import NewPoll from '@/components/header/user-notifications/new-poll';
+import NewBreakoutRoom from '@/components/header/user-notifications/new-breakout-room';
+import GenericNotification from '@/components/header/user-notifications/generic-notification';
 
 import { store, useAppSelector } from '@/store';
-import { UserNotification } from '@/store/slices/interfaces/roomSettings';
+import { UserNotification } from '@/store/slices/interfaces/room-settings';
 import { X, Bell } from 'lucide-react';
 
 const UserNotifications = () => {
@@ -265,9 +265,9 @@ const UserNotifications = () => {
                           <strong>Noah Benjamin</strong> shared a link:{' '}
                           <a
                             className="underline"
-                            href="https://walearnconnect.cloud/file/3216"
+                            href="https://torii-nihongo.example/file/3216"
                           >
-                            https://walearnconnect.cloud/file/3216
+                            https://torii-nihongo.example/file/3216
                           </a>
                         </p>
                         <span className="text-foreground text-xs">12:04 AM</span>

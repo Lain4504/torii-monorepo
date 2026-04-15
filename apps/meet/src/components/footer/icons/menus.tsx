@@ -1,17 +1,15 @@
 import React from 'react';
 
 import { useAppSelector } from '@/store';
-import LockSettingsModal from '@/components/footer/modals/lockSettingsModal';
-import RtmpModal from '@/components/footer/modals/rtmpModal';
+import LockSettingsModal from '@/components/footer/modals/lock-settings-modal';
+import RtmpModal from '@/components/footer/modals/rtmp-modal';
 import ManageWaitingRoom from '@/components/waiting-room';
 import BreakoutRoom from '@/components/breakout-room';
 import { MoreHorizontal } from 'lucide-react';
 import ExternalMediaPlayerModal from '@/components/external-media-player/modal';
 import DisplayExternalLinkModal from '@/components/display-external-link/modal';
-import AdminMenus from '@/components/footer/icons/menus/adminMenus';
-import IconsInMenu from '@/components/footer/icons/menus/iconsInMenu';
-import TranslationTranscriptionSettingModal from '@/components/translation-transcription/settingModal';
-import InsightsAiSettingsModal from '@/components/insights-ai';
+import AdminMenus from '@/components/footer/icons/menus/admin-menus';
+import IconsInMenu from '@/components/footer/icons/menus/icons-in-menu';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,12 +41,6 @@ const MenusIcon = ({ isAdmin }: MenusIconProps) => {
   );
   const showLockSettingsModal = useAppSelector(
     (state) => state.bottomIconsActivity.showLockSettingsModal,
-  );
-  const showSpeechSettingsModal = useAppSelector(
-    (state) => state.bottomIconsActivity.showSpeechSettingsModal,
-  );
-  const showInsightsAISettingsModal = useAppSelector(
-    (state) => state.bottomIconsActivity.showInsightsAISettingsModal,
   );
 
   return (
@@ -86,8 +78,6 @@ const MenusIcon = ({ isAdmin }: MenusIconProps) => {
       {showManageWaitingRoomModal && <ManageWaitingRoom />}
       {showManageBreakoutRoomModal && <BreakoutRoom />}
       {showDisplayExternalLinkModal && <DisplayExternalLinkModal />}
-      {showSpeechSettingsModal && <TranslationTranscriptionSettingModal />}
-      {showInsightsAISettingsModal && <InsightsAiSettingsModal />}
     </>
   );
 };

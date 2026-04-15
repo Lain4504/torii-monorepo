@@ -7,11 +7,11 @@ import { Input } from '@workspace/ui/components/input';
 import ParticipantComponent from '@/components/participants/participant';
 import RemoveParticipantAlertModal, {
   IRemoveParticipantAlertModalData,
-} from '@/components/participants/removeParticipantAlertModal';
+} from '@/components/participants/remove-participant-alert-modal';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { selectVisibleParticipants } from '@/store/slices/participantSlice';
-import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import { selectVisibleParticipants } from '@/store/slices/participant-slice';
+import { setActiveSidePanel } from '@/store/slices/bottom-icons-activity-slice';
 
 const ParticipantsComponent = () => {
   const dispatch = useAppDispatch();

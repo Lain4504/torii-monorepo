@@ -38,7 +38,7 @@ export default function JlptAttemptHistoryPage() {
   return (
       <div className="space-y-6 animate-in fade-in duration-500 md:space-y-8 max-w-6xl mx-auto px-4 sm:px-6">
         <div className="space-y-4 border-b border-border pb-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-3 min-w-0">
               <Button
                 variant="ghost"
@@ -53,19 +53,21 @@ export default function JlptAttemptHistoryPage() {
 
               <div className="min-w-0 space-y-1.5">
                 <h1 className="text-2xl font-bold tracking-tight text-foreground">Lịch sử làm bài</h1>
-                <p className="text-sm font-medium text-muted-foreground/40">
+                <p className="text-sm font-medium text-muted-foreground">
                   Xem lại kết quả luyện thi JLPT của bạn
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-xs font-medium text-muted-foreground/40 leading-none">Tổng số lượt thi</p>
-                <p className="text-xl font-bold text-foreground tabular-nums leading-none">{items.length}</p>
+            <div className="flex flex-col gap-3 sm:items-end">
+              <div className="flex items-baseline justify-between gap-6 sm:justify-end">
+                <div className="text-left sm:text-right">
+                  <p className="text-xs font-medium text-muted-foreground leading-none">Tổng số lượt thi</p>
+                  <p className="text-xl font-bold text-foreground tabular-nums leading-none">{items.length}</p>
+                </div>
               </div>
 
-              <Button asChild variant="outline" className="h-10 px-6 rounded-lg">
+              <Button asChild variant="outline" className="h-10 w-full sm:w-auto px-6 rounded-lg">
                 <Link href="/dashboard/jlpt-list-exam">Thi thử mới</Link>
               </Button>
             </div>

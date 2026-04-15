@@ -5,19 +5,19 @@ import { store, useAppDispatch } from '@/store';
 import {
   setActiveSidePanel,
   updateIsEnabledExtendedVerticalCamView,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 
-import { useMainAreaState } from '@/components/main-area/hooks/useMainAreaState';
-import { useMainAreaCustomCSS } from '@/components/main-area/hooks/useMainAreaCustomCSS';
+import { useMainAreaState } from '@/components/main-area/hooks/use-main-area-state';
+import { useMainAreaCustomCSS } from '@/components/main-area/hooks/use-main-area-custom-css';
 import { triggerRefreshWhiteboard } from '@/store/slices/whiteboard';
 import { updateIsSidePanelOpened } from '@/store/slices/roomSettingsSlice';
 
 import ActiveSpeakers from '@/components/active-speakers';
-import MainView from '@/components/main-area/mainView';
+import MainView from '@/components/main-area/main-view';
 import PollsComponent from '@/components/polls';
 import ChatComponent from '@/components/chat';
 import ParticipantsComponent from '@/components/participants';
-import SidePanel from '@/components/main-area/sidePanel';
+import SidePanel from '@/components/main-area/side-panel';
 
 const MainArea = () => {
   const dispatch = useAppDispatch();

@@ -7,16 +7,16 @@ import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
   updateVirtualBackground,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 import ShareWebcamModal from '@/components/footer/modals/webcam';
 import WebcamMenu from '@/components/footer/icons/webcam/menu';
 import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
-import VirtualBackground from '@/components/virtual-background/virtualBackground';
+import VirtualBackground from '@/components/virtual-background/virtual-background';
 import { createEmptyVideoStreamTrack } from '@/helpers/utils';
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { Video, VideoOff, Plus } from 'lucide-react';
-import useWebcamPublisher from '@/components/footer/icons/webcam/useWebcamPublisher';
-import useVirtualBackground from '@/components/footer/icons/webcam/useVirtualBackground';
+import useWebcamPublisher from '@/components/footer/icons/webcam/use-webcam-publisher';
+import useVirtualBackground from '@/components/footer/icons/webcam/use-virtual-background';
 
 const WebcamIcon = () => {
   const dispatch = useAppDispatch();

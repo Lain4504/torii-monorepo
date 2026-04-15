@@ -5,7 +5,7 @@ import { once } from 'es-toolkit';
 import {
   getTFLiteModelFileName,
   SegmentationConfig,
-} from '@/components/virtual-background/helpers/segmentationHelper';
+} from '@/components/virtual-background/helpers/segmentation-helper';
 import { STATIC_ASSETS_PATH } from '@/config';
 
 declare const IS_PRODUCTION: boolean;

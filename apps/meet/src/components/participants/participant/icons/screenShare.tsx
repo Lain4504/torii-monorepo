@@ -2,8 +2,8 @@ import React from 'react';
 import { Monitor } from 'lucide-react';
 
 import { useAppSelector } from '@/store';
-import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import IconWrapper from '@/components/participants/participant/icons/icon-wapper';
+import { participantsSelector } from '@/store/slices/participant-slice';
 
 interface IScreenShareIconProps {
   userId: string;

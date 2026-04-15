@@ -2,9 +2,9 @@ import React, { useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import { Users } from 'lucide-react';
-import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottom-icons-activity-slice';
 import { Button } from '@workspace/ui/components/button';
 
 const ParticipantIcon = () => {

@@ -11,7 +11,7 @@ import {
   UnreadMsgFromPayload,
   UserNotification,
   VideoObjectFit,
-} from '@/store/slices/interfaces/roomSettings';
+} from '@/store/slices/interfaces/room-settings';
 import { DB_STORE_NAMES, idbStore } from '@/helpers/libs/idb';
 
 const initialState: IRoomSettings = {

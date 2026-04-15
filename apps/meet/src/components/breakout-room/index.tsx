@@ -7,8 +7,8 @@ import ManageActiveRooms from '@/components/breakout-room/manage-active-rooms';
 import Modal from '@/helpers/ui/modal';
 
 import { useAppDispatch, useAppSelector } from '@/store';
-import { updateShowManageBreakoutRoomModal } from '@/store/slices/bottomIconsActivitySlice';
-import { useCreateBreakoutRoomsMutation } from '@/store/services/breakoutRoomApi';
+import { updateShowManageBreakoutRoomModal } from '@/store/slices/bottom-icons-activity-slice';
+import { useCreateBreakoutRoomsMutation } from '@/store/services/breakout-room-api';
 
 export interface BreakoutRoomMessage {
   text: string;

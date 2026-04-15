@@ -1,12 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit';
 
 import { useAppDispatch, useAppSelector } from '@/store';
-import { updateShowManageWaitingRoomModal } from '@/store/slices/bottomIconsActivitySlice';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { updateShowManageWaitingRoomModal } from '@/store/slices/bottom-icons-activity-slice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import Modal from '@/helpers/ui/modal';
-import UpdateRoomMessage from '@/components/waiting-room/updateRoomMessage';
-import BulkAction from '@/components/waiting-room/bulkAction';
-import ParticipantsList from '@/components/waiting-room/participantsList';
+import UpdateRoomMessage from '@/components/waiting-room/update-room-message';
+import BulkAction from '@/components/waiting-room/bulk-action';
+import ParticipantsList from '@/components/waiting-room/participants-list';
 
 const selectWaitingParticipants = createSelector(
   [participantsSelector.selectAll],

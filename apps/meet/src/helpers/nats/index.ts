@@ -2,8 +2,8 @@ import { Dispatch } from 'react';
 import { NatsSubjects } from '@workspace/protocol';
 import { once } from 'es-toolkit';
 
-import ConnectNats from '@/helpers/nats/ConnectNats';
-import { IErrorPageProps } from '@/components/extra-pages/Error';
+import ConnectNats from '@/helpers/nats/connect-nats';
+import { IErrorPageProps } from '@/components/extra-pages/error';
 import { IConnectLivekit } from '@/helpers/livekit/types';
 import { roomConnectionStatus } from '@/components/app/helper';
 

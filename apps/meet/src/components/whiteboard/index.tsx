@@ -33,7 +33,7 @@ import '@excalidraw/excalidraw/index.css';
 import '@/components/whiteboard/style.css';
 
 import ManageOfficeFilesModal from '@/components/whiteboard/manage-office-files';
-import FooterUI from '@/components/whiteboard/footerUI';
+import FooterUI from '@/components/whiteboard/footer-UI';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
@@ -42,12 +42,12 @@ import {
   broadcastMousePointerUpdate,
   broadcastSceneOnChange,
   sendClearWhiteboardSignal,
-} from '@/components/whiteboard/helpers/handleRequests';
-import usePrevious from '@/components/whiteboard/helpers/hooks/usePrevious';
-import useWhiteboardSetup from '@/components/whiteboard/helpers/hooks/useWhiteboardSetup';
-import useWhiteboardDataSharer from '@/components/whiteboard/helpers/hooks/useWhiteboardDataSharer';
-import useWhiteboardAppStateSync from '@/components/whiteboard/helpers/hooks/useWhiteboardAppStateSync';
-import useOfficePageSyncer from '@/components/whiteboard/helpers/hooks/useOfficePageSyncer';
+} from '@/components/whiteboard/helpers/handle-requests';
+import usePrevious from '@/components/whiteboard/helpers/hooks/use-previous';
+import useWhiteboardSetup from '@/components/whiteboard/helpers/hooks/use-whiteboard-setup';
+import useWhiteboardDataSharer from '@/components/whiteboard/helpers/hooks/use-whiteboard-data-sharer';
+import useWhiteboardAppStateSync from '@/components/whiteboard/helpers/hooks/use-whiteboard-app-state-sync';
+import useOfficePageSyncer from '@/components/whiteboard/helpers/hooks/use-office-page-syncer';
 import {
   addAllExcalidrawElements,
   updateExcalidrawElements,
@@ -59,7 +59,7 @@ import {
   savePageData,
 } from '@/components/whiteboard/helpers/utils';
 import { sleep } from '@/helpers/utils';
-import { cleanProcessedImageElementsMap } from '@/components/whiteboard/helpers/handleFiles';
+import { cleanProcessedImageElementsMap } from '@/components/whiteboard/helpers/handle-files';
 
 interface WhiteboardProps {
   onReadyExcalidrawAPI: (excalidrawAPI: ExcalidrawImperativeAPI) => void;
@@ -608,7 +608,7 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
         viewModeEnabled={viewModeEnabled}
         isCollaborating={true}
         theme={theme}
-        name="walearnconnect whiteboard"
+        name="Torii Nihongo whiteboard"
         UIOptions={{
           canvasActions: {
             loadScene: false,

@@ -76,7 +76,7 @@ export default function JlptLevelExamPage() {
   if (isLoading) return <PageLoading className="h-screen" />
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 sm:max-w-none sm:space-y-8">
+    <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 space-y-6 sm:max-w-none sm:space-y-8">
       <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="flex min-w-0 items-start gap-3 sm:gap-4">
           <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 rounded-lg border" asChild>

@@ -34,6 +34,10 @@ const getJsonEnv = <T>(key: string, defaultValue: T): T => {
 export const SERVER_URL: string = getEnv('VITE_API_URL', 'http://localhost:8080');
 export const STATIC_ASSETS_PATH: string = getEnv('VITE_STATIC_ASSETS_PATH', './assets');
 
+/** Dùng cho màn login dev: khớp với `security.wajlc` trên gateway meet (không hardcode secret trong repo). */
+export const MEET_LOGIN_API_KEY: string = getEnv('VITE_MEET_LOGIN_API_KEY', '');
+export const MEET_LOGIN_API_SECRET: string = getEnv('VITE_MEET_LOGIN_API_SECRET', '');
+
 export const ENABLE_DYNACAST: boolean = getBoolEnv('VITE_ENABLE_DYNACAST', true);
 export const ENABLE_SIMULCAST: boolean = getBoolEnv('VITE_ENABLE_SIMULCAST', true);
 export const VIDEO_CODEC: any = getEnv('VITE_VIDEO_CODEC', 'vp8');

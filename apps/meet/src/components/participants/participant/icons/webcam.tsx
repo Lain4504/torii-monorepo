@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { useAppSelector } from '@/store';
-import { participantsSelector } from '@/store/slices/participantSlice';
-import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
+import { participantsSelector } from '@/store/slices/participant-slice';
+import IconWrapper from '@/components/participants/participant/icons/icon-wapper';
 import { Video } from 'lucide-react';
 
 interface WebcamIconProps {

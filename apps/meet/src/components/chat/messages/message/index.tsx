@@ -2,7 +2,7 @@ import React, { memo, ReactElement } from 'react';
 import { ChatMessage } from '@workspace/protocol';
 
 import { ICurrentUser } from '@/store/slices/interfaces/session';
-import { MyMessage, OtherUserMessage, SystemMessage } from '@/components/chat/messages/message/messageTypes';
+import { MyMessage, OtherUserMessage, SystemMessage } from '@/components/chat/messages/message/message-types';
 
 interface IMessageProps {
   body: ChatMessage;

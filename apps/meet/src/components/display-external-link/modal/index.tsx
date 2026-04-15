@@ -11,12 +11,12 @@ import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
   updateDisplayExternalLinkRoomModal,
   updateIsActiveWhiteboard,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 import sendAPIRequest from '@/helpers/api/api-client';
 import Modal from '@/helpers/ui/modal';
-import ActionButton from '@/helpers/ui/actionButton';
+import ActionButton from '@/helpers/ui/action-button';
 import Checkbox from '@/helpers/ui/checkbox';
-import SavedLinks from '@/components/display-external-link/modal/savedLinks';
+import SavedLinks from '@/components/display-external-link/modal/saved-links';
 
 const DisplayExternalLinkModal = () => {
   const dispatch = useAppDispatch();

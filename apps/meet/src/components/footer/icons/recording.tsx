@@ -3,9 +3,9 @@ import clsx from 'clsx';
 
 import { store } from '@/store';
 import { IRoomMetadata } from '@/store/slices/interfaces/session';
-import RecordingModal from '@/components/footer/icons/recording/recordingModal';
-import { RecordingEvent, RecordingType } from '@/components/footer/icons/recording/IRecording';
-import useLocalRecording from '@/components/footer/icons/recording/useLocalRecording';
+import RecordingModal from '@/components/footer/icons/recording/recording-modal';
+import { RecordingEvent, RecordingType } from '@/components/footer/icons/recording/i-recording';
+import useLocalRecording from '@/components/footer/icons/recording/use-local-recording';
 import { CircleDot } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 

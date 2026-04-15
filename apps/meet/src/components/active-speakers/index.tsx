@@ -2,11 +2,11 @@ import React, { useEffect, useMemo } from 'react';
 import { throttle } from 'es-toolkit';
 
 import { useAppSelector } from '@/store';
-import { selectSpeakingParticipants } from '@/store/slices/activeSpeakersSlice';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { selectSpeakingParticipants } from '@/store/slices/active-speakers-slice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import SpeakerComponent from '@/components/active-speakers/speaker';
 import { getMediaServerConn } from '@/helpers/livekit/utils';
-import { IActiveSpeaker } from '@/store/slices/interfaces/activeSpeakers';
+import { IActiveSpeaker } from '@/store/slices/interfaces/active-speakers';
 
 const ACTIVE_SPEAKER_VIDEO_REARRANGE_DURATION = 8000;
 

@@ -3,12 +3,12 @@ import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
 
 import MicMenuItem from '@/components/participants/participant/icons/menu-items/mic';
 import WebcamMenuItem from '@/components/participants/participant/icons/menu-items/webcam';
-import SwitchPresenterMenuItem from '@/components/participants/participant/icons/menu-items/switchPresenter';
-import LowerHandMenuItem from '@/components/participants/participant/icons/menu-items/lowerHand';
+import SwitchPresenterMenuItem from '@/components/participants/participant/icons/menu-items/switch-presenter';
+import LowerHandMenuItem from '@/components/participants/participant/icons/menu-items/lower-hand';
 import LockSettingMenuItem from '@/components/participants/participant/icons/menu-items/lock';
-import RemoveUserMenuItem from '@/components/participants/participant/icons/menu-items/removeUser';
-import PrivateChatMenuItem from '@/components/participants/participant/icons/menu-items/privateChat';
-import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
+import RemoveUserMenuItem from '@/components/participants/participant/icons/menu-items/remove-user';
+import PrivateChatMenuItem from '@/components/participants/participant/icons/menu-items/private-chat';
+import IconWrapper from '@/components/participants/participant/icons/icon-wapper';
 
 import { useAppSelector } from '@/store';
 import { MoreHorizontal } from 'lucide-react';

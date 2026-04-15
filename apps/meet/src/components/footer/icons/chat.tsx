@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import { MessageSquare } from 'lucide-react';
-import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottom-icons-activity-slice';
 import { Button } from '@workspace/ui/components/button';
 
 const ChatIcon = () => {

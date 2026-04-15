@@ -6,8 +6,8 @@ import {
   Track,
 } from 'livekit-client';
 
-import VideoElm from '@/components/media-elements/screenshare/videoElm';
-import AudioElm from '@/components/media-elements/screenshare/audioElm';
+import VideoElm from '@/components/media-elements/screenshare/video-elm';
+import AudioElm from '@/components/media-elements/screenshare/audio-elm';
 import { CurrentConnectionEvents } from '@/helpers/livekit/types';
 import { getMediaServerConn } from '@/helpers/livekit/utils';
 

@@ -13,7 +13,7 @@ import {
   Transition,
 } from '@headlessui/react';
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { toggleStartup } from '@/store/slices/sessionSlice';
+import { toggleStartup } from '@/store/slices/session-slice';
 import {
   addAudioDevices,
   addVideoDevices,
@@ -33,9 +33,9 @@ import {
 } from 'lucide-react';
 import { roomConnectionStatus } from '@/components/app/helper';
 import { getNatsConn } from '@/helpers/nats';
-import { useMediaDevices } from '@/components/landing/hooks/useMediaDevices';
+import { useMediaDevices } from '@/components/landing/hooks/use-media-devices';
 
-import WebcamPreview from '@/components/landing/webcamPreview';
+import WebcamPreview from '@/components/landing/webcam-preview';
 import { Button } from '@workspace/ui/components/button';
 
 const pillBtn =

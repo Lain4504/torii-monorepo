@@ -142,7 +142,7 @@ export default function JlptAttemptHistoryDetailPage() {
   if (loading) return <PageLoading className="h-screen" />
   if (!data) {
     return (
-      <div className="space-y-6 animate-in fade-in duration-700 max-w-2xl mx-auto py-10 px-4">
+      <div className="space-y-6 animate-in fade-in duration-700 max-w-2xl mx-auto py-10 px-4 sm:px-6">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/40 hover:bg-muted" asChild>
             <Link href="/jlpt/attempt/history">
@@ -172,7 +172,7 @@ export default function JlptAttemptHistoryDetailPage() {
   ]
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 max-w-5xl mx-auto py-10 px-4">
+    <div className="space-y-10 md:space-y-12 animate-in fade-in duration-700 max-w-5xl mx-auto py-8 md:py-10 px-4 sm:px-6">
       {/* Minimal Header */}
       <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-border/30 pb-8">
         <div className="flex items-center gap-5">
@@ -183,12 +183,12 @@ export default function JlptAttemptHistoryDetailPage() {
           </Button>
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
-              <Badge variant="outline" className="px-2 py-0 rounded-md font-bold text-[10px] uppercase tracking-wider border-border/50 text-muted-foreground/40 leading-none">
-                Mock Result
+              <Badge variant="outline" className="px-2 py-0 rounded-md font-semibold text-[11px] border-border/50 text-muted-foreground leading-none">
+                Kết quả
               </Badge>
-              <span className="text-[10px] font-bold text-muted-foreground/20 uppercase tracking-[0.2em]">JLPT {attempt.level}</span>
+              <span className="text-[11px] font-semibold text-muted-foreground">JLPT {attempt.level}</span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               Chi tiết kết quả
             </h1>
           </div>
@@ -257,13 +257,13 @@ export default function JlptAttemptHistoryDetailPage() {
                   <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary/60">
                     <Trophy className="size-5" />
                   </div>
-                  <span className="text-lg font-bold text-foreground uppercase tracking-tight">Tổng điểm (Scaled)</span>
+                  <span className="text-lg font-bold text-foreground tracking-tight">Tổng điểm (Scaled)</span>
                 </div>
                 <div className="text-right flex flex-col items-end">
                   <span className="text-4xl font-bold text-primary tabular-nums tracking-tighter leading-none mb-1">
                     {scoreOrNna(scores.totalScaled)}
                   </span>
-                  <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest italic lowercase">/ 180 điểm tối đa</p>
+                  <p className="text-xs font-medium text-primary/50">/ 180 điểm tối đa</p>
                 </div>
               </div>
             )}
@@ -291,7 +291,7 @@ export default function JlptAttemptHistoryDetailPage() {
                       <TabsTrigger
                         key={sec.id}
                         value={sec.id}
-                        className="rounded-lg px-4 py-2 text-[11px] font-bold uppercase tracking-wider data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all shrink-0"
+                        className="rounded-lg px-4 py-2 text-[11px] font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all shrink-0"
                       >
                         {sec.code === 'LANGUAGE_VOCAB'
                           ? 'Từ vựng/Kanji'
@@ -470,7 +470,7 @@ export default function JlptAttemptHistoryDetailPage() {
                     <ChevronRight className="size-3.5 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </Button>
-                <Button variant="ghost" className="w-full h-10 rounded-xl font-bold text-muted-foreground/60 transition-colors hover:text-foreground text-xs uppercase tracking-tight" asChild>
+                <Button variant="ghost" className="w-full h-10 rounded-xl font-bold text-muted-foreground/60 transition-colors hover:text-foreground text-xs tracking-tight" asChild>
                   <Link href="/jlpt/attempt/history">
                     Xem lại lịch sử
                   </Link>
@@ -484,7 +484,7 @@ export default function JlptAttemptHistoryDetailPage() {
               <Info className="size-3.5" />
               <span>Lưu ý về điểm số</span>
             </div>
-            <p className="text-[11px] text-muted-foreground/60 leading-relaxed font-medium italic">
+            <p className="text-sm text-muted-foreground/70 leading-relaxed font-medium">
               Kết quả đã được chuẩn hóa (Scaled Score) theo hình thức thi JLPT thật. Hãy sử dụng đây như mốc tham khảo cho kỳ thi chính thức.
             </p>
           </div>

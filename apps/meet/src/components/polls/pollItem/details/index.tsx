@@ -6,9 +6,9 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 
-import EndPollBtn from '@/components/polls/pollItem/details/endPollBtn';
-import PublishResultBtn from '@/components/polls/pollItem/details/publishResultBtn';
-import NotRespondents from '@/components/polls/pollItem/details/notRespondents';
+import EndPollBtn from '@/components/polls/pollItem/details/end-poll-btn';
+import PublishResultBtn from '@/components/polls/pollItem/details/publish-result-btn';
+import NotRespondents from '@/components/polls/pollItem/details/not-respondents';
 import Respondents from '@/components/polls/pollItem/details/respondents';
 import { PollDataWithOption } from '@/components/polls/utils';
 import { X } from 'lucide-react';

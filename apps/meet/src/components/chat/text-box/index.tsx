@@ -11,10 +11,10 @@ import { isEmpty } from 'es-toolkit/compat';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import FileSend from '@/components/chat/text-box/fileSend';
+import FileSend from '@/components/chat/text-box/file-send';
 import { getNatsConn } from '@/helpers/nats';
-import { useAutosizeTextArea } from '@/components/chat/text-box/useAutosizeTextArea';
-import { uploadResumableFile } from '@/helpers/fileUpload';
+import { useAutosizeTextArea } from '@/components/chat/text-box/use-autosize-text-area';
+import { uploadResumableFile } from '@/helpers/file-upload';
 import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { Send } from 'lucide-react';
 import { Textarea } from '@workspace/ui/components/textarea';

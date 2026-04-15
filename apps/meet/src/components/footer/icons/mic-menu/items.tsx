@@ -7,7 +7,7 @@ import { updateSelectedAudioDevice } from '@/store/slices/roomSettingsSlice';
 import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 import { Check, Mic, MicOff, LogOut } from 'lucide-react';
 
 interface IMicMenuItemsProps {

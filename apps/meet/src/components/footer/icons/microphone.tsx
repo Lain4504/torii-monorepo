@@ -28,10 +28,10 @@ import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
   updateShowMicrophoneModal,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 import MicMenu from '@/components/footer/icons/mic-menu';
-import MicrophoneModal from '@/components/footer/modals/microphoneModal';
-import { updateMuteOnStart } from '@/store/slices/sessionSlice';
+import MicrophoneModal from '@/components/footer/modals/microphone-modal';
+import { updateMuteOnStart } from '@/store/slices/session-slice';
 import {
   addAudioDevices,
   updateSelectedAudioDevice,

@@ -139,7 +139,7 @@ class IDBManager {
   }
 
   /**
-   * Scans for and deletes any old walearnconnect databases that don't match the current session.
+   * Scans for and deletes any old Torii Nihongo databases that don't match the current session.
    * This handles cases where the browser was closed without proper cleanup.
    */
   private async cleanupStaleDBs() {

@@ -8,12 +8,10 @@ import ParticipantIcon from '@/components/footer/icons/participant';
 import RaiseHandIcon from '@/components/footer/icons/raisehand';
 import ScreenshareIcon from '@/components/footer/icons/screenshare';
 import WhiteboardIcon from '@/components/footer/icons/whiteboard';
-import BreakoutRoomInvitation from '@/components/breakout-room/breakoutRoomInvitation';
-import EndMeetingButton from '@/components/footer/icons/endMeeting';
+import BreakoutRoomInvitation from '@/components/breakout-room/breakout-room-invitation';
+import EndMeetingButton from '@/components/footer/icons/end-meeting';
 import RecordingIcon from '@/components/footer/icons/recording';
 import PollsIcon from '@/components/footer/icons/polls';
-import Translation from '@/components/footer/icons/translation';
-import InsightsAiTextChatIcon from '@/components/footer/icons/insightAiTextChat';
 import MenusIcon from '@/components/footer/icons/menus';
 
 const Footer = () => {
@@ -49,8 +47,6 @@ const Footer = () => {
             {/* Tablet+: ít icon hơn trên mobile để footer gọn */}
             <div className="meet-footer-secondary hidden items-center gap-2 md:flex">
               <PollsIcon />
-              <Translation />
-              <InsightsAiTextChatIcon />
               <RecordingIcon />
             </div>
 

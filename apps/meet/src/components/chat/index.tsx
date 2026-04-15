@@ -2,11 +2,11 @@ import React, { useMemo } from 'react';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
 import TextBoxArea from '@/components/chat/text-box';
-import ChatTabs from '@/components/chat/chatTabs';
+import ChatTabs from '@/components/chat/chat-tabs';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import { addUserNotification } from '@/store/slices/roomSettingsSlice';
-import { uploadResumableFile } from '@/helpers/fileUpload';
+import { uploadResumableFile } from '@/helpers/file-upload';
 
 const ChatComponent = () => {
   const dispatch = useAppDispatch();

@@ -2,6 +2,8 @@
 
 interface ImportMetaEnv {
     readonly VITE_API_URL: string;
+    readonly VITE_MEET_LOGIN_API_KEY: string;
+    readonly VITE_MEET_LOGIN_API_SECRET: string;
     readonly VITE_ENABLE_DYNACAST: string;
     readonly VITE_ENABLE_SIMULCAST: string;
     readonly VITE_VIDEO_CODEC: string;

@@ -3,12 +3,12 @@ import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { store, useAppSelector } from '@/store';
 import HeaderMenus from '@/components/header/menus';
 import RoomSettings from '@/components/header/room-settings';
-import VolumeControl from '@/components/header/volumeControl';
-import DurationView from '@/components/header/durationView';
+import VolumeControl from '@/components/header/volume-control';
+import DurationView from '@/components/header/duration-view';
 import { getNatsConn } from '@/helpers/nats';
 import { Menu as MenuIcon } from 'lucide-react';
 import UserNotifications from '@/components/header/user-notifications';
-import ConfirmationModal from '@/helpers/ui/confirmationModal';
+import ConfirmationModal from '@/helpers/ui/confirmation-modal';
 
 const Header = () => {
   const roomTitle = useAppSelector(

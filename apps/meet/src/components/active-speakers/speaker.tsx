@@ -1,5 +1,5 @@
 import { Mic } from 'lucide-react';
-import { IActiveSpeaker } from '@/store/slices/interfaces/activeSpeakers';
+import { IActiveSpeaker } from '@/store/slices/interfaces/active-speakers';
 
 interface ISpeakerProps {
   speaker: IActiveSpeaker;

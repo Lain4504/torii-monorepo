@@ -59,8 +59,8 @@ export default function JlptAttemptPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="max-w-6xl mx-auto">
-        <nav className="flex items-center gap-2 mb-6">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <nav className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
           <Link
             href="/dashboard/jlpt-list-exam"
             className="text-sm text-muted-foreground flex items-center gap-1 hover:underline"
@@ -75,7 +75,7 @@ export default function JlptAttemptPage() {
             Lịch sử
           </Link>
           <span
-            className={`${LEVEL_BADGE_COLOR} text-[12px] font-bold px-3 py-0.5 rounded-full ml-2`}
+            className={`${LEVEL_BADGE_COLOR} text-[12px] font-bold px-3 py-0.5 rounded-full`}
           >
             {level}
           </span>
@@ -91,7 +91,7 @@ export default function JlptAttemptPage() {
           {loading && <p className="text-sm text-muted-foreground mt-2">Đang tải thông tin đề thi...</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3 md:gap-8">
           {([1, 2, 3] as const).map((orderIndex) => {
             const sec = template?.sections.find((s) => s.orderIndex === orderIndex)
             if (!sec) return <div key={orderIndex} className="hidden" />
@@ -160,14 +160,14 @@ function ExamCard({ icon, iconBg, title, subtitle, duration, questions, onClick 
   return (
     <Wrapper
       {...(wrapperProps as any)}
-      className="bg-card rounded-2xl p-8 shadow-sm border border-border flex flex-col gap-6 hover:shadow-md transition-shadow text-left"
+      className="bg-card rounded-2xl p-5 sm:p-6 lg:p-8 shadow-sm border border-border flex flex-col gap-5 sm:gap-6 hover:shadow-md transition-shadow text-left"
     >
       <div className={`${iconBg} size-10 rounded-lg flex items-center justify-center`}>{icon}</div>
       <div>
         <h3 className="font-bold text-foreground text-lg">{title}</h3>
         <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
       </div>
-      <div className="flex items-center gap-6 text-[13px] text-muted-foreground mt-2">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-muted-foreground mt-2">
         <div className="flex items-center gap-1.5">
           <Timer className="w-4 h-4" />
           {duration}

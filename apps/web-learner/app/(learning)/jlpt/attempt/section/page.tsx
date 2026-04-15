@@ -465,11 +465,12 @@ export default function JlptMockSectionPage() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-background overflow-hidden">
-      <header className="h-16 shrink-0 bg-background border-b px-4 flex items-center justify-between z-50">
-        <div className="flex items-center gap-3">
+      <header className="shrink-0 bg-background border-b px-3 py-2 sm:px-4 sm:py-3 z-50">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden size-10">
+              <Button variant="outline" size="icon" className="md:hidden size-9 sm:size-10">
                 <List className="size-5" />
               </Button>
             </SheetTrigger>
@@ -477,39 +478,34 @@ export default function JlptMockSectionPage() {
               <SheetHeader className="p-6 border-b">
                 <SheetTitle className="text-xl font-bold flex items-center gap-2">
                     <Trophy className="size-5 text-primary" />
-                    <span>JLPT MOCK TEST</span>
+                    <span>JLPT Mock Test</span>
                 </SheetTitle>
               </SheetHeader>
               <SidebarContent />
             </SheetContent>
           </Sheet>
 
-          <Badge variant="secondary" className="h-7 px-2 text-[10px] font-bold uppercase tracking-wider">
+          <Badge variant="secondary" className="h-7 px-2 text-[10px] font-bold">
             {level}
           </Badge>
           
-          <div className="hidden lg:flex flex-col">
-            <h1 className="font-bold text-sm leading-none text-foreground">
+          <div className="hidden lg:flex min-w-0 flex-col">
+            <h1 className="truncate font-semibold text-sm leading-none text-foreground">
               {currentSection?.code === "LANGUAGE_VOCAB" && "Kiến thức (Từ vựng/Kanji)"}
               {currentSection?.code === "LANGUAGE_GRAMMAR_READING" && "Ngữ pháp/Đọc hiểu"}
               {currentSection?.code === "LISTENING" && "Nghe hiểu"}
               {!currentSection && "Phần thi JLPT"}
             </h1>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
-                Phần thi {PART_NUMBER} của {PART_TOTAL}
+            <p className="mt-1 text-[11px] font-medium text-muted-foreground">
+              Phần {PART_NUMBER}/{PART_TOTAL}
             </p>
           </div>
-        </div>
+          </div>
 
-        <div className="flex items-center gap-2 bg-muted px-3 py-1 rounded-md border">
-          <Clock className="size-3.5 text-primary" />
-          <span className="text-base font-bold tabular-nums text-foreground">{countdown}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
           <Button
             size="sm"
-            className="h-9 px-4 font-bold"
+            className="h-9 px-3 sm:px-4 font-bold"
             onClick={() => setShowConfirmSubmit(true)}
             disabled={loading || sectionQuestionsSorted.length === 0}
           >
@@ -525,6 +521,26 @@ export default function JlptMockSectionPage() {
           >
             <Maximize2 className="size-4" />
           </Button>
+          </div>
+        </div>
+
+        <div className="mt-2 flex items-center justify-between gap-2 sm:hidden">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold text-foreground">
+              {currentSection?.code === "LANGUAGE_VOCAB" && "Kiến thức (Từ vựng/Kanji)"}
+              {currentSection?.code === "LANGUAGE_GRAMMAR_READING" && "Ngữ pháp/Đọc hiểu"}
+              {currentSection?.code === "LISTENING" && "Nghe hiểu"}
+              {!currentSection && "Phần thi JLPT"}
+            </div>
+            <div className="text-xs font-medium text-muted-foreground">
+              Phần {PART_NUMBER}/{PART_TOTAL}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 bg-muted px-2.5 py-1 rounded-md border shrink-0">
+            <Clock className="size-3.5 text-primary" />
+            <span className="text-sm font-bold tabular-nums text-foreground">{countdown}</span>
+          </div>
         </div>
       </header>
 
@@ -534,10 +550,10 @@ export default function JlptMockSectionPage() {
         </aside>
 
         <main className="flex-1 overflow-y-auto bg-background">
-          <div className="max-w-3xl mx-auto p-4 sm:p-8 space-y-8 pb-24">
+          <div className="mx-auto w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-8 space-y-8 pb-24">
             
             <div className="space-y-3">
-                <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground px-1">
                     <span>Tiến độ</span>
                     <span>{ANSWERED_COUNT}/{QUESTION_COUNT} câu</span>
                 </div>
@@ -560,7 +576,7 @@ export default function JlptMockSectionPage() {
 
             <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-5 text-muted-foreground">Hướng dẫn</Badge>
+                    <Badge variant="outline" className="text-[11px] font-semibold py-0 px-2 h-6 text-muted-foreground">Hướng dẫn</Badge>
                 </div>
                 <p className="text-base leading-relaxed text-foreground">
                     {`問題${activeMondaiIndex + 1} ＿＿＿ ${activeProblemInstruction}`}

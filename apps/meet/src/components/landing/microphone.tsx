@@ -1,7 +1,7 @@
 import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { Check, Plus, ChevronUp, Mic } from 'lucide-react';
-import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import { IMediaDevice } from '@/store/slices/interfaces/room-settings';
 import { inputMediaDeviceKind } from '@/helpers/utils';
 import { cn } from '@workspace/ui/lib/utils';
 

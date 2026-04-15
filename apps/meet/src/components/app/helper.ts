@@ -8,10 +8,10 @@ import {
 } from '@workspace/protocol';
 
 import sendAPIRequest from '@/helpers/api/api-client';
-import { IErrorPageProps } from '@/components/extra-pages/Error';
+import { IErrorPageProps } from '@/components/extra-pages/error';
 import { getAccessToken } from '@/helpers/utils';
 import { store } from '@/store';
-import { updateIsCloud } from '@/store/slices/sessionSlice';
+import { updateIsCloud } from '@/store/slices/session-slice';
 
 declare const IS_PRODUCTION: boolean;
 

@@ -8,12 +8,12 @@ import {
 } from '@headlessui/react';
 
 import { store } from '@/store';
-import PollActionsMenu from '@/components/polls/pollItem/pollActionsMenu';
-import PollForm from '@/components/polls/pollItem/voteForm';
+import PollActionsMenu from '@/components/polls/pollItem/poll-actions-menu';
+import PollForm from '@/components/polls/pollItem/vote-form';
 import {
   useGetPollResponsesDetailsQuery,
   useGetPollResponsesResultQuery,
-} from '@/store/services/pollsApi';
+} from '@/store/services/polls-api';
 import { PollDataWithOption } from '@/components/polls/utils';
 import DetailsModal from '@/components/polls/pollItem/details';
 

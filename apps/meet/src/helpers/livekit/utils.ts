@@ -2,8 +2,8 @@ import { Dispatch } from 'react';
 import { once } from 'es-toolkit';
 
 import { IConnectLivekit } from '@/helpers/livekit/types';
-import { IErrorPageProps } from '@/components/extra-pages/Error';
-import ConnectLivekit from '@/helpers/livekit/ConnectLivekit';
+import { IErrorPageProps } from '@/components/extra-pages/error';
+import ConnectLivekit from '@/helpers/livekit/connect-livekit';
 import { roomConnectionStatus } from '@/components/app/helper';
 
 let currentConnect: IConnectLivekit;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@workspace/ui/components/button';
 
-import FormView from '@/components/polls/create/formView';
+import FormView from '@/components/polls/create/form-view';
 import Modal from '@/helpers/ui/modal';
 
 export interface CreatePollOptions {
