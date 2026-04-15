@@ -9,7 +9,7 @@ import ScreenShareIcon from '@/components/participants/participant/icons/screenS
 import MenuIcon from '@/components/participants/participant/icons/menu';
 import VisibilityIcon from '@/components/participants/participant/icons/visibility';
 import PresenterIcon from '@/components/participants/participant/icons/presenterIcon';
-import WaitingApproval from '@/components/participants/participant/waitingApproval';
+import WaitingApproval from '@/components/participants/participant/waiting-approval';
 
 import { ICurrentUser } from '@/store/slices/interfaces/session';
 import { IVisibleParticipantInfo } from '@/store/slices/interfaces/participant';

@@ -7,19 +7,19 @@ import { toast } from 'react-toastify';
 import { Button } from '@workspace/ui/components/button';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottomIconsActivitySlice';
+import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottom-icons-activity-slice';
 
 import Modal from '@/helpers/ui/modal';
-import SpeechInputSettings from '@/components/translation-transcription/speech-settings-modal/speechInputSettings';
-import SubtitleFontSizeSlider from '@/components/translation-transcription/speech-settings-modal/subtitleFontSizeSlider';
-import SubtitleLangSelector from '@/components/translation-transcription/speech-settings-modal/subtitleLangSelector';
+import SpeechInputSettings from '@/components/translation-transcription/speech-settings-modal/speech-input-settings';
+import SubtitleFontSizeSlider from '@/components/translation-transcription/speech-settings-modal/subtitle-font-size-slider';
+import SubtitleLangSelector from '@/components/translation-transcription/speech-settings-modal/subtitle-lang-selector';
 import {
   getUserTaskStatus,
   startOrStopUserSession,
-} from '@/components/translation-transcription/helpers/apiConnections';
+} from '@/components/translation-transcription/helpers/api-connections';
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
-import { updateSelectedSubtitleLang } from '@/store/slices/speechServicesSlice';
-import SettingsSwitch from '@/helpers/ui/settingsSwitch';
+import { updateSelectedSubtitleLang } from '@/store/slices/speech-services-slice';
+import SettingsSwitch from '@/helpers/ui/settings-switch';
 
 interface SpeechSettingsModalProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

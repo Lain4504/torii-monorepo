@@ -1,26 +1,26 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import ErrorPage, { IErrorPageProps } from '@/components/extra-pages/Error';
-import Loading from '@/components/extra-pages/Loading';
+import ErrorPage, { IErrorPageProps } from '@/components/extra-pages/error';
+import Loading from '@/components/extra-pages/loading';
 import Footer from '@/components/footer';
 import Header from '@/components/header';
 import MainArea from '@/components/main-area';
 import Landing from '@/components/landing';
-import DummyAudio from '@/components/app/dummyAudio';
-import Login from '@/components/extra-pages/Login'
+import DummyAudio from '@/components/app/dummy-audio';
+import Login from '@/components/extra-pages/login'
 import { store, useAppDispatch } from '@/store';
-import { addServerVersion, addToken } from '@/store/slices/sessionSlice';
-import AudioNotification from '@/components/app/audioNotification';
-import useKeyboardShortcuts from '@/helpers/hooks/useKeyboardShortcuts';
-import useClientCustomization from '@/helpers/hooks/useClientCustomization';
-import useWatchWindowSize from '@/helpers/hooks/useWatchWindowSize';
-import useWatchVisibilityChange from '@/helpers/hooks/useWatchVisibilityChange';
-import useThemeSettings from '@/helpers/hooks/useThemeSettings';
+import { addServerVersion, addToken } from '@/store/slices/session-slice';
+import AudioNotification from '@/components/app/audio-notification';
+import useKeyboardShortcuts from '@/helpers/hooks/use-keyboard-shortcuts';
+import useClientCustomization from '@/helpers/hooks/use-client-customization';
+import useWatchWindowSize from '@/helpers/hooks/use-watch-window-size';
+import useWatchVisibilityChange from '@/helpers/hooks/use-watch-visibility-change';
+import useThemeSettings from '@/helpers/hooks/use-theme-settings';
 import { IConnectLivekit } from '@/helpers/livekit/types';
 import { isUserRecorder } from '@/helpers/utils';
 import { startNatsConn } from '@/helpers/nats';
 import { InfoToOpenConn, roomConnectionStatus, verifyToken } from '@/components/app/helper';
 import { loadBodyPix } from '@/components/virtual-background/helpers/utils';
-import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottom-icons-activity-slice';
 
 const App = () => {
   const dispatch = useAppDispatch();

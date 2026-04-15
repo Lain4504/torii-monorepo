@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { MessageSquareQuote } from 'lucide-react';
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottomIconsActivitySlice';
+import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottom-icons-activity-slice';
 import { Button } from '@workspace/ui/components/button';
 
 const Translation = () => {

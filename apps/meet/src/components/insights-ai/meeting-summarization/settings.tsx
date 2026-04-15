@@ -7,7 +7,7 @@ import {
 } from '@workspace/protocol';
 
 import { useAppSelector } from '@/store';
-import SettingsSwitch from '@/helpers/ui/settingsSwitch';
+import SettingsSwitch from '@/helpers/ui/settings-switch';
 import sendAPIRequest from '@/helpers/api/api-client';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';

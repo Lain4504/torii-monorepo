@@ -1,9 +1,9 @@
 import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { Video, Check, Plus, ChevronUp } from 'lucide-react';
-import { updateShowVideoShareModal } from '@/store/slices/bottomIconsActivitySlice';
+import { updateShowVideoShareModal } from '@/store/slices/bottom-icons-activity-slice';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import { IMediaDevice } from '@/store/slices/interfaces/room-settings';
 import ShareWebcamModal from '@/components/footer/modals/webcam';
 import { inputMediaDeviceKind } from '@/helpers/utils';
 import { cn } from '@workspace/ui/lib/utils';

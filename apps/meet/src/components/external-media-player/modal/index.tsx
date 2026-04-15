@@ -10,12 +10,12 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveWhiteboard,
   updateShowExternalMediaPlayerModal,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 
-import DirectLink from '@/components/external-media-player/modal/directLink';
+import DirectLink from '@/components/external-media-player/modal/direct-link';
 import Upload from '@/components/external-media-player/modal/upload';
 import Modal from '@/helpers/ui/modal';
-import ActionButton from '@/helpers/ui/actionButton';
+import ActionButton from '@/helpers/ui/action-button';
 import sendAPIRequest from '@/helpers/api/api-client';
 import {
   Tabs,

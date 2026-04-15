@@ -3,10 +3,10 @@ import { Maximize, PictureInPicture } from 'lucide-react';
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 import { Button } from '@workspace/ui/components/button';
 
-import VideoElm from '@/components/media-elements/videos/video/videoElm';
-import PinWebcam from '@/components/media-elements/videos/video/pinWebcam';
-import MicStatus from '@/components/media-elements/videos/video/micStatus';
-import ConnectionStatus from '@/components/media-elements/videos/video/connectionStatus';
+import VideoElm from '@/components/media-elements/videos/video/video-elm';
+import PinWebcam from '@/components/media-elements/videos/video/pin-webcam';
+import MicStatus from '@/components/media-elements/videos/video/mic-status';
+import ConnectionStatus from '@/components/media-elements/videos/video/connection-status';
 import { sleep } from '@/helpers/utils';
 import Participant from '@/components/media-elements/videos/video/participant';
 

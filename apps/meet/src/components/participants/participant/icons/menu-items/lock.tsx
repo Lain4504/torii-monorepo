@@ -8,7 +8,7 @@ import {
 } from '@workspace/protocol';
 
 import { store, useAppSelector } from '@/store';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import { ICurrentUserMetadata } from '@/store/slices/interfaces/session';
 import sendAPIRequest from '@/helpers/api/api-client';
 

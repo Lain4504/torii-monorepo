@@ -3,15 +3,15 @@ import { isEmpty } from 'es-toolkit/compat';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import SpeechSettingsModal from '@/components/translation-transcription/speech-settings-modal';
-import { updateSelectedSubtitleLang } from '@/store/slices/speechServicesSlice';
+import { updateSelectedSubtitleLang } from '@/store/slices/speech-services-slice';
 
 import SubtitleTextsHistory from '@/components/translation-transcription/displays/history';
-import LiveSubtitle from '@/components/translation-transcription/displays/liveSubtitle';
-import { useSubtitleSpeechSynthesis } from '@/components/translation-transcription/helpers/useSubtitleSpeechSynthesis';
+import LiveSubtitle from '@/components/translation-transcription/displays/live-subtitle';
+import { useSubtitleSpeechSynthesis } from '@/components/translation-transcription/helpers/use-subtitle-speech-synthesis';
 import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
-} from '@/components/translation-transcription/helpers/supportedLangs';
+} from '@/components/translation-transcription/helpers/supported-langs';
 
 const TranslationTranscription = () => {
   const dispatch = useAppDispatch();

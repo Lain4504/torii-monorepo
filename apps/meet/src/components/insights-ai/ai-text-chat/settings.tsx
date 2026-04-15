@@ -8,8 +8,8 @@ import {
 import { Button } from '@workspace/ui/components/button';
 
 import { useAppSelector } from '@/store';
-import SettingsSwitch from '@/helpers/ui/settingsSwitch';
-import UsersSelector from '@/components/insights-ai/ai-text-chat/usersSelector';
+import SettingsSwitch from '@/helpers/ui/settings-switch';
+import UsersSelector from '@/components/insights-ai/ai-text-chat/users-selector';
 import sendAPIRequest from '@/helpers/api/api-client';
 
 interface AiTextChatSettingsProps {

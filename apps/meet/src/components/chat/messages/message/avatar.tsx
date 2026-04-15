@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import { generateAvatarInitial } from '@/helpers/utils';
 import { store } from '@/store';
 

@@ -6,11 +6,11 @@ import {
   OrderedExcalidrawElement,
 } from '@excalidraw/excalidraw/element/types';
 
-import { broadcastSceneOnChange } from '@/components/whiteboard/helpers/handleRequests';
+import { broadcastSceneOnChange } from '@/components/whiteboard/helpers/handle-requests';
 import { store } from '@/store';
 import { sleep } from '@/helpers/utils';
 import { WHITEBOARD_PRELOADED_LIBRARY_ITEMS } from '@/config';
-import { ensureImageDataIsLoaded, ImageCustomData } from '@/components/whiteboard/helpers/handleFiles';
+import { ensureImageDataIsLoaded, ImageCustomData } from '@/components/whiteboard/helpers/handle-files';
 import { DB_STORE_NAMES, idbGet, idbStore } from '@/helpers/libs/idb';
 
 // A simple in-memory cache for preloaded library items.

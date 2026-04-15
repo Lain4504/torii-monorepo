@@ -3,7 +3,7 @@ import { RemoteAudioTrack } from 'livekit-client';
 import { throttle } from 'es-toolkit';
 
 import { useAppSelector } from '@/store';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 
 interface IAudioElmProps {
   audioTrack: RemoteAudioTrack;

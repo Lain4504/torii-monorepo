@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
-import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottom-icons-activity-slice';
 import { BarChart2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 

@@ -4,7 +4,7 @@ import { Popover } from '@headlessui/react';
 import { store } from '@/store';
 import { History } from 'lucide-react';
 
-import SubtitleHistoryPanel from '@/components/translation-transcription/displays/history/subtitleHistoryPanel';
+import SubtitleHistoryPanel from '@/components/translation-transcription/displays/history/subtitle-history-panel';
 
 interface SubtitleTextsHistoryProps {
   isOpenPopover: (open: boolean) => void;

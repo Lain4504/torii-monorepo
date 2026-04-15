@@ -61,7 +61,7 @@ Meet trong dự án **không** chỉ là “một WebRTC peer-to-peer”. Thực
 ### 4.2 Kết nối NATS
 
 3. Khi có `openConnInfo`, gọi **`startNatsConn`** (`helpers/nats/index.ts`).
-4. **`ConnectNats.openConn()`** (`helpers/nats/ConnectNats.ts`):
+4. **`ConnectNats.openConn()`** (`helpers/nats/connect-nats.ts`):
    - `wsconnect({ servers: natsWsUrls, authenticator: tokenAuthenticator(() => token) })` — JWT dùng làm **NATS auth**.
    - JetStream, message queue, subscribe:
      - **Room events** (consumer per user trên stream phòng),
@@ -89,7 +89,7 @@ Meet trong dự án **không** chỉ là “một WebRTC peer-to-peer”. Thực
 
 ### 4.4 LiveKit — WebRTC thực sự
 
-10. **`ConnectLivekit.initializeConnection`** (`helpers/livekit/ConnectLivekit.ts`):
+10. **`ConnectLivekit.initializeConnection`** (`helpers/livekit/connect-livekit.ts`):
     - `await this._room.connect(url, token)` — **đây là bước WebRTC handshake với LiveKit server**.
     - Sau khi connected: `initiateParticipants`, cập nhật trạng thái `media-server-conn-established`.
 
@@ -194,9 +194,9 @@ sequenceDiagram
 | Chủ đề | File gợi ý |
 |--------|------------|
 | Boot Meet | `apps/meet/src/components/app/index.tsx`, `helper.ts` |
-| NATS + thứ tự media | `apps/meet/src/helpers/nats/ConnectNats.ts` |
-| LiveKit connect | `apps/meet/src/helpers/livekit/ConnectLivekit.ts` |
-| Track events | `apps/meet/src/helpers/livekit/HandleMediaTracks.ts` |
+| NATS + thứ tự media | `apps/meet/src/helpers/nats/connect-nats.ts` |
+| LiveKit connect | `apps/meet/src/helpers/livekit/connect-livekit.ts` |
+| Track events | `apps/meet/src/helpers/livekit/handle-media-tracks.ts` |
 | Singleton Room | `apps/meet/src/helpers/livekit/utils.ts` |
 | Tạo phòng / join Academy | `apps/server/services/academy/.../live-schedule.service.ts` |
 | Verify token HTTP | `apps/server/services/gateway/.../user-room-setting.controller.ts` |

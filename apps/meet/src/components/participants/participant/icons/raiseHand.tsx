@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAppSelector } from '@/store';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import { Hand } from 'lucide-react';
-import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
+import IconWrapper from '@/components/participants/participant/icons/icon-wapper';
 
 interface IRaiseHandIconProps {
   userId: string;

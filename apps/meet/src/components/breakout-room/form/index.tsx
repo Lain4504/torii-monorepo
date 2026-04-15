@@ -7,14 +7,14 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import RoomNumberSelector from '@/components/breakout-room/form/roomNumberSelector';
-import RoomBox from '@/components/breakout-room/form/roomBox';
+import RoomNumberSelector from '@/components/breakout-room/form/room-number-selector';
+import RoomBox from '@/components/breakout-room/form/room-box';
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import { RoomType, UserType } from '@/components/breakout-room/form/types';
 import { BreakoutRoomMessage } from '..';
-import { selectBasicParticipants } from '@/store/slices/participantSlice';
-import useStorePreviousInt from '@/helpers/hooks/useStorePreviousInt';
-import { updateBreakoutRoomDroppedUser } from '@/store/slices/breakoutRoomSlice';
+import { selectBasicParticipants } from '@/store/slices/participant-slice';
+import useStorePreviousInt from '@/helpers/hooks/use-store-previous-int';
+import { updateBreakoutRoomDroppedUser } from '@/store/slices/breakout-room-slice';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';

@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/componen
 import { Separator } from '@workspace/ui/components/separator';
 import { cn } from '@workspace/ui/lib/utils';
 import ApplicationSettings from '@/components/header/room-settings/application';
-import DataSavings from '@/components/header/room-settings/dataSavings';
+import DataSavings from '@/components/header/room-settings/data-savings';
 
 declare const WAJLC_VERSION: string;
 

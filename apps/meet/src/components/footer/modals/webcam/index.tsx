@@ -3,15 +3,15 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
-} from '@/store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottom-icons-activity-slice';
 import { getInputMediaDevices } from '@/helpers/utils';
-import PreviewWebcam from '@/components/footer/modals/webcam/previewWebcam';
+import PreviewWebcam from '@/components/footer/modals/webcam/preview-webcam';
 import { addVideoDevices } from '@/store/slices/roomSettingsSlice';
 import Modal from '@/helpers/ui/modal';
 import Dropdown from '@/helpers/ui/dropdown';
-import ActionButton from '@/helpers/ui/actionButton';
+import ActionButton from '@/helpers/ui/action-button';
 import { Button } from '@workspace/ui/components/button';
-import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import { IMediaDevice } from '@/store/slices/interfaces/room-settings';
 
 interface IShareWebcamModal {
   onSelectedDevice: (deviceId: string) => void;

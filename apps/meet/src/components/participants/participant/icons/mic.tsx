@@ -8,9 +8,9 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import {
   participantsSelector,
   updateParticipant,
-} from '@/store/slices/participantSlice';
-import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
-import RangeSlider from '@/helpers/ui/rangeSlider';
+} from '@/store/slices/participant-slice';
+import IconWrapper from '@/components/participants/participant/icons/icon-wapper';
+import RangeSlider from '@/helpers/ui/range-slider';
 
 interface MicIconProps {
   userId: string;

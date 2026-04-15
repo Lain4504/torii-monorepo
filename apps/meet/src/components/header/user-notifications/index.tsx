@@ -14,12 +14,12 @@ import {
 } from '@headlessui/react';
 import clsx from 'clsx';
 
-import NewPoll from '@/components/header/user-notifications/newPoll';
-import NewBreakoutRoom from '@/components/header/user-notifications/newBreakoutRoom';
-import GenericNotification from '@/components/header/user-notifications/genericNotification';
+import NewPoll from '@/components/header/user-notifications/new-poll';
+import NewBreakoutRoom from '@/components/header/user-notifications/new-breakout-room';
+import GenericNotification from '@/components/header/user-notifications/generic-notification';
 
 import { store, useAppSelector } from '@/store';
-import { UserNotification } from '@/store/slices/interfaces/roomSettings';
+import { UserNotification } from '@/store/slices/interfaces/room-settings';
 import { X, Bell } from 'lucide-react';
 
 const UserNotifications = () => {

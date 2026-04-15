@@ -2,9 +2,9 @@ import { AudioPresets, ScreenSharePresets, VideoPresets } from 'livekit-client';
 import { errors } from '@nats-io/nats-core';
 
 import { store } from '@/store';
-import { participantsSelector } from '@/store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participant-slice';
 import { IParticipant } from '@/store/slices/interfaces/participant';
-import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import { IMediaDevice } from '@/store/slices/interfaces/room-settings';
 import { DEFAULT_AUDIO_PRESET, DEFAULT_SCREEN_SHARE_RESOLUTION, DEFAULT_WEBCAM_RESOLUTION } from "@/config";
 
 export type inputMediaDeviceKind = 'audio' | 'video' | 'both';

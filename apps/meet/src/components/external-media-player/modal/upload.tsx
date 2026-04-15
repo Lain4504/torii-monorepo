@@ -6,8 +6,8 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import UploadFile from '@/components/external-media-player/modal/UploadFile';
-import UploadedFileList from '@/components/external-media-player/modal/UploadedFileList';
+import UploadFile from '@/components/external-media-player/modal/upload-file';
+import UploadedFileList from '@/components/external-media-player/modal/uploaded-file-list';
 import { SERVER_URL } from '@/config';
 
 interface UploadProps {

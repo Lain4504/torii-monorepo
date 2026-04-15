@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 
 import { useAppDispatch, useAppSelector } from '@/store';
-import { resetExternalMediaPlayer } from '@/store/slices/externalMediaPlayer';
-import ReactPlayerComponent from '@/components/external-media-player/reactPlayerComponent';
+import { resetExternalMediaPlayer } from '@/store/slices/external-media-player';
+import ReactPlayerComponent from '@/components/external-media-player/react-player-component';
 
 const ExternalMediaPlayer = () => {
   const playBackUrl = useAppSelector(

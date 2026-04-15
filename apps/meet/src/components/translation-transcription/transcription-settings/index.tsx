@@ -4,19 +4,19 @@ import { InsightsTranscriptionConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { Button } from '@workspace/ui/components/button';
 
-import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottomIconsActivitySlice';
+import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottom-icons-activity-slice';
 import { useAppDispatch, useAppSelector } from '@/store';
 import {
   enableOrUpdateTranscription,
   endTranscription,
-} from '@/components/translation-transcription/helpers/apiConnections';
-import { validateSettings } from '@/components/translation-transcription/helpers/modalUtils';
-import SpeechLangsSelector from '@/components/translation-transcription/transcription-settings/speechLangsSelector';
-import SpeechUsersSelector from '@/components/translation-transcription/transcription-settings/speechUsersSelector';
-import TransLangsSelector from '@/components/translation-transcription/transcription-settings/transLangsSelector';
-import DefaultSubtitleLangSelector from '@/components/translation-transcription/transcription-settings/defaultSubtitleLangSelector';
-import SettingsSwitch from '@/helpers/ui/settingsSwitch';
-import { speechLangsMap } from '@/components/translation-transcription/helpers/supportedLangs';
+} from '@/components/translation-transcription/helpers/api-connections';
+import { validateSettings } from '@/components/translation-transcription/helpers/modal-utils';
+import SpeechLangsSelector from '@/components/translation-transcription/transcription-settings/speech-langs-selector';
+import SpeechUsersSelector from '@/components/translation-transcription/transcription-settings/speech-users-selector';
+import TransLangsSelector from '@/components/translation-transcription/transcription-settings/trans-langs-selector';
+import DefaultSubtitleLangSelector from '@/components/translation-transcription/transcription-settings/default-subtitle-lang-selector';
+import SettingsSwitch from '@/helpers/ui/settings-switch';
+import { speechLangsMap } from '@/components/translation-transcription/helpers/supported-langs';
 
 interface TranscriptionSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

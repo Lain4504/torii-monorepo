@@ -4,14 +4,14 @@ import { InsightsChatTranslationConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { Button } from '@workspace/ui/components/button';
 
-import TransLangsSelector from '@/components/translation-transcription/transcription-settings/transLangsSelector';
+import TransLangsSelector from '@/components/translation-transcription/transcription-settings/trans-langs-selector';
 import { useAppDispatch, useAppSelector } from '@/store';
-import DefaultSubtitleLangSelector from '@/components/translation-transcription/transcription-settings/defaultSubtitleLangSelector';
+import DefaultSubtitleLangSelector from '@/components/translation-transcription/transcription-settings/default-subtitle-lang-selector';
 import {
   enableOrUpdateChatTranslation,
   endChatTranslation,
-} from '@/components/translation-transcription/helpers/apiConnections';
-import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottomIconsActivitySlice';
+} from '@/components/translation-transcription/helpers/api-connections';
+import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottom-icons-activity-slice';
 
 interface ChatTranslationSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

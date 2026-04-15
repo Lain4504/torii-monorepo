@@ -7,11 +7,11 @@ import { Button } from '@workspace/ui/components/button';
 
 import { updateCurrentWhiteboardOfficeFileId } from '@/store/slices/whiteboard';
 import { store, useAppDispatch } from '@/store';
-import FileUploadProgress from '@/components/whiteboard/manage-office-files/fileUploadProgress';
-import UploadedFilesList from '@/components/whiteboard/manage-office-files/uploadedFilesList';
+import FileUploadProgress from '@/components/whiteboard/manage-office-files/file-upload-progress';
+import UploadedFilesList from '@/components/whiteboard/manage-office-files/uploaded-files-list';
 import { IWhiteboardOfficeFile } from '@/store/slices/interfaces/whiteboard';
 import { savePageData } from '@/components/whiteboard/helpers/utils';
-import { broadcastCurrentFileId } from '@/components/whiteboard/helpers/handleRequests';
+import { broadcastCurrentFileId } from '@/components/whiteboard/helpers/handle-requests';
 import { sleep } from '@/helpers/utils';
 
 interface ManageOfficeFilesModalProps {
