@@ -9,8 +9,8 @@
 | # | Function/Screen | Feature | Level* | Function/Screen Details | Planned | Status |
 |---:|---|---|---|---|---|---|
 | 0 | Home Page | Common | Simple | Learner web: `/` redirect sang `/dashboard` | Iteration 1 (Tiên) | Pending |
-| 1 | User Login | Common | Simple | Learner web: `/login`; Admin web: `/login` | Iteration 1 (Tiên) | Pending |
-| 2 | User Register | Common | Simple | Learner web: `/register` | Iteration 1 (Tiên) | Pending |
+| 1 | User Login | Common | Simple | Learner web: `/login` (có flow 2FA: `/verify-2fa`); Admin web: `/login` (2FA: `/auth/verify-2fa`) | Iteration 1 (Tiên) | Pending |
+| 2 | User Register | Common | Simple | Learner web: `/register` (sau đăng ký/active có các trang: `/verify-request`, `/verify`, `/resend-verification`) | Iteration 1 (Tiên) | Pending |
 | 3 | Reset Password | Common | Medium | Learner web: `/forgot-password`, `/reset-password`; Admin web: `/forgot-password`, `/reset-password` | Iteration 1 (Tiên) | Pending |
 | 4 | User Authorization | Common | Complex | Admin web có `AuthGuard` + `RoutePermissionGuard` (RBAC) theo permission | Iteration 1 (Khang) | Pending |
 | 5 | User Profile | Common | Simple | Learner: `/dashboard/profile`; Admin: `/profile` | Iteration 2 (Tiên) | Pending |
@@ -30,7 +30,7 @@
 | 19 | Learn Course (Lesson player) | Learner | Complex | Learner: `/courses/[courseId]/learn` | Iteration 2 (Hiếu) | Pending |
 | 20 | Quizzes List | Learner | Medium | Learner: `/courses/[courseId]/quizzes` | Iteration 2 (Hiếu) | Pending |
 | 21 | Quiz Details/Take | Learner | Medium | Learner: `/courses/[courseId]/quizzes/[quizId]` | Iteration 2 (Hiếu) | Pending |
-| 22 | Course Certificate | Learner | Simple | Learner: `/courses/[courseId]/certificate`; list: `/dashboard/certificates` | Iteration 3 (Hiếu) | Pending |
+| 22 | Course Certificate | Learner | Simple | Learner: `/courses/[courseId]/certificate`; list: `/dashboard/certificates`; verify public: `/verify/[code]` | Iteration 3 (Hiếu) | Pending |
 | 23 | Assignments (Learner view) | Learner | Medium | Learner: `/dashboard/my-courses/[courseId]/assignments/[classAssignmentId]` | Iteration 3 (Hiếu) | Pending |
 | 24 | Schedule (Calendar) | Learner | Complex | Learner: `/dashboard/schedule` (đọc “session instances” theo spec live sessions) | Iteration 2 (Luân) | Pending |
 | 25 | Notifications | Common | Simple | Learner: `/dashboard/notifications`; Admin: `/notifications` (ops) | Iteration 2 (Tiên) | Pending |
@@ -54,7 +54,7 @@
 | 43 | Exam History | Learner | Medium | Learner: `/exams/[examId]/history` | Iteration 3 (Phương) | Pending |
 | 44 | Study Sets List | Learner | Medium | Learner: `/dashboard/study-sets` | Iteration 2 (Hiếu) | Pending |
 | 45 | Study Set Detail | Learner | Medium | Learner: `/dashboard/study-sets/[setId]` | Iteration 2 (Hiếu) | Pending |
-| 46 | Study Set Review/Test/Match | Learner | Complex | Learner: `/review`, `/test`, `/match` | Iteration 3 (Hiếu) | Pending |
+| 46 | Study Set Review/Test/Match | Learner | Complex | Learner: `/dashboard/study-sets/[setId]/review`, `/dashboard/study-sets/[setId]/test`, `/dashboard/study-sets/[setId]/match` | Iteration 3 (Hiếu) | Pending |
 | 47 | Share Study Set | Public | Simple | Learner: `/share/study-sets/[token]` | Iteration 3 (Hiếu) | Pending |
 | 48 | AI Sensei Hub | AI | Medium | Learner: `/ai-sensei` | Iteration 4 (Luân) | Pending |
 | 49 | AI Sensei Chat | AI | Medium | Learner: `/ai-sensei/chat` | Iteration 4 (Luân) | Pending |
@@ -82,8 +82,9 @@
 | 71 | Admin Revenue Analytics | Admin | Medium | Admin: `/finance/revenue-analytics` | Iteration 4 (Khang) | Pending |
 | 72 | Admin Audit Logs | Admin | Medium | Admin: `/audit-logs` | Iteration 4 (Khang) | Pending |
 | 73 | Admin Settings | Admin | Simple | Admin: `/settings` | Iteration 2 (Tiên) | Pending |
-| 74 | Meet App (Live classroom UI) | Meet | Complex | Web meet: phòng học LiveKit + chat/polls/whiteboard/translation… | Iteration 2 (Luân) | Pending |
-| 75 | Mobile App (Learner) | Mobile | Complex | Theo yêu cầu: Mobile có **đầy đủ tính năng Learner** | Iteration 4 (cả team) | Pending |
+| 74 | Meet App (Live classroom UI) | Meet | Complex | Web meet: phòng học LiveKit (client UI) + các module: Chat (NATS/data message), Polls (API `/api/polls`), Whiteboard (sync scene/pointer/page/file qua data channel), Waiting room (phê duyệt vào lớp), Translation/Transcription (live subtitles + history + speech settings), Breakout rooms (quản lý phòng nhóm), Virtual background | Iteration 2 (Luân) | Pending |
+| 75 | Mobile App (Learner) | Mobile | Complex | Có project Flutter trong workspace: `torri-mobile` (GoRouter + Riverpod). Screens chính đã thấy: Auth (`/welcome`, `/login`, `/register`, `/forgot-password`, `/reset-password`, `/verify-email`), Onboarding survey (`/onboarding-survey`), Home (`/`), Discovery/Course (`/discovery`, `/course-detail/:id`, `/checkout/:productId`, `/payment`, `/payment-result/:orderCode`, `/curriculum/:deliveryTargetId`, `/enrolled-live/:liveClassId`, `/lesson`), Blog (`/blog`, `/blog-detail/:slug`), My courses (`/my-courses`), Orders (`/orders`, `/order-detail/:id`), Live schedule (`/live-schedule`), Practice (`/practice`, `/study-sets`, `/study-sets/:id/*`, `/jlpt-mock/*`), Profile/Settings (`/profile`, `/profile/edit`, `/settings`, `/linked-accounts`, `/security-2fa`, `/notifications`, `/leaderboard`, `/achievements`, `/rewards-store`, `/my-coupons`, `/support`), Academy folders (`/academy/folders`, `/academy/folders/:id`), Meet (`/meet` + meeting room flow) | Iteration 4 (cả team) | Pending |
+| 76 | My Folders | Learner | Medium | Learner: `/dashboard/my-folders` + `/dashboard/my-folders/[deliveryScopeId]` | Iteration 2 (Hiếu) | Pending |
 
 ## Level* (quy ước)
 

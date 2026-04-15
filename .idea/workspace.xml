@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused Roadmap module and related components">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FUNCTION_REPORT.md" beforeDir="false" afterPath="$PROJECT_DIR$/FUNCTION_REPORT.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -431,15 +432,7 @@
       <workItem from="1776003909935" duration="3313000" />
       <workItem from="1776092731333" duration="1290000" />
       <workItem from="1776148174723" duration="5787000" />
-      <workItem from="1776265652786" duration="1142000" />
-    </task>
-    <task id="LOCAL-01212" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
-      <option name="closed" value="true" />
-      <created>1775525295543</created>
-      <option name="number" value="01212" />
-      <option name="presentableId" value="LOCAL-01212" />
-      <option name="project" value="LOCAL" />
-      <updated>1775525295544</updated>
+      <workItem from="1776265652786" duration="2320000" />
     </task>
     <task id="LOCAL-01213" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
       <option name="closed" value="true" />
@@ -825,7 +818,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776052251758</updated>
     </task>
-    <option name="localTasksCounter" value="1261" />
+    <task id="LOCAL-01261" summary="refactor: remove unused Roadmap module and related components">
+      <option name="closed" value="true" />
+      <created>1776267230726</created>
+      <option name="number" value="01261" />
+      <option name="presentableId" value="LOCAL-01261" />
+      <option name="project" value="LOCAL" />
+      <updated>1776267230726</updated>
+    </task>
+    <option name="localTasksCounter" value="1262" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -860,7 +861,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: enhance class discussion UI with lesson filtering and improved layout" />
@@ -885,7 +885,8 @@
     <MESSAGE value="feat: enhance unit test coverage for agents and academy services (#369)" />
     <MESSAGE value="refactor: rename classId to liveClassId across multiple files for consistency" />
     <MESSAGE value="fix bug missing audio" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug missing audio" />
+    <MESSAGE value="refactor: remove unused Roadmap module and related components" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove unused Roadmap module and related components" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
