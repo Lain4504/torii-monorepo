@@ -63,7 +63,7 @@ export class FileService {
   async resumableFileUpload(
     req: ResumableUploadReq,
     method: string,
-    file?: Express.Multer.File,
+    file?: { buffer: Buffer },
   ): Promise<any> {
     this.logger.debug(
       `ResumableFileUpload: ${method} for room ${req.roomId}, chunk ${req.resumableChunkNumber}`,

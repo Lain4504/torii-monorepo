@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "cd ../../packages/protocol && npm run build && cd ../../packages/schemas && pnpm run build && cd ../../apps/server && rm -rf dist && npx prisma generate && nest build gateway && nest build identity && nest build meet && nest build academy && nest build agents",
+    "build": "cd ../../packages/protocol && npm run build && cd ../../packages/schemas && pnpm run build && cd ../../apps/server && rimraf dist && npx prisma generate && nest build gateway && nest build identity && nest build meet && nest build academy && nest build agents",
     "format": "prettier --write \"{modules,services,libs}/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

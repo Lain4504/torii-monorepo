@@ -123,7 +123,7 @@ export class FileController {
   async handleChunkUpload(
     @Query() query: any,
     @Body() body: any,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: { buffer: Buffer },
     @Res() res: Response,
   ) {
     if (!file) {
