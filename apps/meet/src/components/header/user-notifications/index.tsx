@@ -265,9 +265,9 @@ const UserNotifications = () => {
                           <strong>Noah Benjamin</strong> shared a link:{' '}
                           <a
                             className="underline"
-                            href="https://walearnconnect.cloud/file/3216"
+                            href="https://torii-nihongo.example/file/3216"
                           >
-                            https://walearnconnect.cloud/file/3216
+                            https://torii-nihongo.example/file/3216
                           </a>
                         </p>
                         <span className="text-foreground text-xs">12:04 AM</span>

@@ -608,7 +608,7 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
         viewModeEnabled={viewModeEnabled}
         isCollaborating={true}
         theme={theme}
-        name="walearnconnect whiteboard"
+        name="Torii Nihongo whiteboard"
         UIOptions={{
           canvasActions: {
             loadScene: false,

@@ -30,8 +30,8 @@ const initialState: ISession = {
     sid: '',
     roomId: '',
     metadata: create(RoomMetadataSchema, {
-      roomTitle: 'walearnconnect',
-      welcomeMessage: 'Welcome to walearnconnect!',
+      roomTitle: 'Torii Nihongo',
+      welcomeMessage: 'Welcome to Torii Nihongo!',
       isRecording: false,
       isActiveRtmp: false,
       parentRoomId: '',
@@ -107,7 +107,7 @@ const initialState: ISession = {
       },
       copyrightConf: {
         display: true,
-        text: 'Powered by <a href="https://www.walearnconnect.org" target="_blank">walearnconnect</a>',
+        text: 'Powered by <a href="https://torii-nihongo.example" target="_blank">Torii Nihongo</a>',
       },
     }),
   },

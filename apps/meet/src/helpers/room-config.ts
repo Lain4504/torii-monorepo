@@ -6,7 +6,7 @@ export const getDefaultRoomInfo = (roomId: string) => ({
     emptyTimeout: 60 * 60 * 2,
     metadata: create(RoomMetadataSchema, {
         roomTitle: 'Demo room',
-        welcomeMessage: 'Welcome to walearnconnect!<br /> To share microphone click mic icon from bottom left side.',
+        welcomeMessage: 'Welcome to Torii Nihongo!<br /> To share microphone click mic icon from bottom left side.',
         roomFeatures: create(RoomCreateFeaturesSchema, {
             allowWebcams: true,
             muteOnStart: false,

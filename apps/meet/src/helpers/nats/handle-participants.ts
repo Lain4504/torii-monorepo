@@ -458,8 +458,10 @@ export default class HandleParticipants {
         (userId) => !isUserRecorder(userId),
       );
       if (!validUsers.length) {
-        console.log('NO_USER_ONLINE');
-        await this.connectNats.endSession('NO_USER_ONLINE');
+        console.log('Phòng không còn người tham gia');
+        await this.connectNats.endSession(
+          'Phòng đã kết thúc vì không còn người tham gia.',
+        );
       }
     }, EMPTY_ROOM_CHECK_INTERVAL);
   }

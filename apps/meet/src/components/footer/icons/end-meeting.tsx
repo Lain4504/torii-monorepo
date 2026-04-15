@@ -41,7 +41,7 @@ const EndMeetingButton = () => {
     setIsBusy(true);
 
     if (!isAdmin) {
-      await conn.endSession('notifications.user-logged-out');
+      await conn.endSession('Bạn đã rời khỏi cuộc họp.');
     } else {
       const id = toast.loading('Đang kết thúc phiên họp...', {
         type: 'info',

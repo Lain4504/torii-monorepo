@@ -48,7 +48,7 @@ const DummyAudio = () => {
       return;
     }
 
-    const audioId = 'walearnconnect-dummy-audio-el';
+    const audioId = 'torii-nihongo-dummy-audio-el';
     let dummyAudioEl = document.getElementById(
       audioId,
     ) as HTMLAudioElement | null;

@@ -227,7 +227,7 @@ const useClientCustomization = () => {
 
     if (css !== '') {
       style = document.createElement('style');
-      style.id = 'walearnconnectCustomization';
+      style.id = 'toriiNihongoCustomization';
       style.textContent = css;
       head.appendChild(style);
     }
