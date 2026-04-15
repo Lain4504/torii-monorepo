@@ -27,9 +27,10 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { StudyModeSelection } from '@/components/study/study-mode-selection';
-import { Pencil, Trash2, Plus, ArrowLeft, Share2, Globe, Lock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, FileText } from 'lucide-react';
+import { Pencil, Trash2, Plus, ArrowLeft, Share2, Globe, Lock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, FileText, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog';
+import { FlashcardAIBulkDialog } from '@workspace/ui/components/custom/flashcard-ai-bulk-dialog';
 import { Input } from '@workspace/ui/components/input';
 import { Badge } from '@workspace/ui/components/badge';
 import { Separator } from '@workspace/ui/components/separator';
@@ -68,6 +69,8 @@ export default function StudySetDetailPage() {
     const autoFillCard = useMutation({
         mutationFn: (term: string) => agentApi.sensei.autofillFlashcard(term),
     });
+    const [openAIDialog, setOpenAIDialog] = React.useState(false);
+    const [isCreatingWithAI, setIsCreatingWithAI] = React.useState(false);
     
     const [page, setPage] = React.useState(1);
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -136,18 +139,50 @@ export default function StudySetDetailPage() {
         }
     };
 
-    const handleAutoFillCard = async (term: string): Promise<Partial<FlashcardFormValues>> => {
-        try {
-            const generated = await autoFillCard.mutateAsync(term);
-            return {
-                term: generated.term,
-                phonetic: generated.phonetic,
-                definition: generated.definition,
-                note: generated.note,
-                type: generated.type,
-            };
-        } catch (e: any) {
-            throw new Error(e?.message || 'AI không thể điền thẻ lúc này');
+
+    const handleCreateWithAI = async (values: { terms: string }) => {
+        if (!canCreateCard || !setId) return;
+        const raw = values.terms || "";
+        const list = raw
+            .split(/\r?\n|,/) // newline or comma separated
+            .map((t) => t.trim())
+            .filter(Boolean);
+        if (list.length === 0) {
+            toast.error('Nhập ít nhất một từ hợp lệ');
+            return;
+        }
+
+        setIsCreatingWithAI(true);
+        let success = 0;
+        let failed = 0;
+        for (const term of list) {
+            try {
+                const generated = await autoFillCard.mutateAsync(term);
+                await createCard.mutateAsync({
+                    setId,
+                    payload: {
+                        term: (generated.term || term).trim(),
+                        definition: (generated.definition || '').trim(),
+                        hint: (generated.note || '').trim() || undefined,
+                        languageDetails: {
+                            phonetic: (generated.phonetic || '').trim(),
+                            type: (generated.type as string) || 'Từ vựng',
+                        },
+                    },
+                });
+                success++;
+            } catch (e: any) {
+                failed++;
+            }
+        }
+
+        setIsCreatingWithAI(false);
+        setOpenAIDialog(false);
+        setPage(1);
+        if (success > 0) {
+            toast.success(`Đã tạo ${success} thẻ${failed > 0 ? `, ${failed} thất bại` : ''}`);
+        } else {
+            toast.error('Không tạo được thẻ nào.');
         }
     };
 
@@ -299,15 +334,26 @@ export default function StudySetDetailPage() {
                             />
                         </div>
                         {canCreateCard && (
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-9 w-full shrink-0 sm:w-auto"
-                                onClick={() => setOpenCreateDialog(true)}
-                            >
-                                <Plus className="mr-1.5 h-4 w-4" />
-                                Tạo thẻ
-                            </Button>
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-9 w-full shrink-0 sm:w-auto"
+                                    onClick={() => setOpenCreateDialog(true)}
+                                >
+                                    <Plus className="mr-1.5 h-4 w-4" />
+                                    Tạo thẻ
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-9 w-full shrink-0 sm:w-auto"
+                                    onClick={() => setOpenAIDialog(true)}
+                                >
+                                    <Sparkles className="mr-1.5 h-4 w-4" />
+                                    Tạo thẻ với AI
+                                </Button>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -445,8 +491,6 @@ export default function StudySetDetailPage() {
                 open={openCreateDialog}
                 onOpenChange={setOpenCreateDialog}
                 onSave={handleCreateCard}
-                onAutoFill={handleAutoFillCard}
-                isAutoFillPending={autoFillCard.isPending}
                 isPending={createCard.isPending}
                 title="Tạo thẻ mới"
             />
@@ -464,6 +508,13 @@ export default function StudySetDetailPage() {
                 onSave={handleSaveEdit}
                 isPending={updateCard.isPending}
                 title="Chỉnh sửa thẻ"
+            />
+
+            <FlashcardAIBulkDialog
+                open={openAIDialog}
+                onOpenChange={setOpenAIDialog}
+                onCreate={handleCreateWithAI}
+                isPending={isCreatingWithAI}
             />
 
             <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>

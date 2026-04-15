@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { Field, FieldLabel } from "@workspace/ui/components/field"
-import { Loader2, Sparkles } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 export interface FlashcardFormValues {
   term: string
@@ -35,8 +35,6 @@ interface FlashcardFormDialogProps {
   onOpenChange: (open: boolean) => void
   initialValues?: Partial<FlashcardFormValues>
   onSave: (values: FlashcardFormValues) => Promise<void>
-  onAutoFill?: (term: string) => Promise<Partial<FlashcardFormValues>>
-  isAutoFillPending?: boolean
   isPending?: boolean
   title?: string
 }
@@ -46,8 +44,6 @@ export function FlashcardFormDialog({
   onOpenChange,
   initialValues,
   onSave,
-  onAutoFill,
-  isAutoFillPending = false,
   isPending = false,
   title = "Thêm từ mới",
 }: FlashcardFormDialogProps) {
@@ -58,8 +54,6 @@ export function FlashcardFormDialog({
     note: "",
     type: "Từ vựng",
   })
-  const [autoFillError, setAutoFillError] = React.useState<string | null>(null)
-
   React.useEffect(() => {
     if (open) {
       setValues({
@@ -69,29 +63,8 @@ export function FlashcardFormDialog({
         note: initialValues?.note || "",
         type: initialValues?.type || "Từ vựng",
       })
-      setAutoFillError(null)
     }
   }, [open, initialValues])
-
-  const handleAutoFill = async () => {
-    const term = values.term.trim()
-    if (!onAutoFill || !term || isAutoFillPending) return
-
-    setAutoFillError(null)
-    try {
-      const generated = await onAutoFill(term)
-      setValues((prev) => ({
-        ...prev,
-        term: (generated.term ?? prev.term).trim() || prev.term,
-        phonetic: (generated.phonetic ?? prev.phonetic).trim(),
-        definition: (generated.definition ?? prev.definition).trim(),
-        note: (generated.note ?? prev.note).trim(),
-        type: (generated.type as string) || prev.type,
-      }))
-    } catch (err: any) {
-      setAutoFillError(err?.message || "AI chưa thể điền thông tin lúc này")
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -124,28 +97,7 @@ export function FlashcardFormDialog({
                 onChange={(e) => setValues({ ...values, term: e.target.value })}
                 autoComplete="off"
               />
-              {onAutoFill && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAutoFill}
-                  disabled={isAutoFillPending || !values.term.trim()}
-                  className="shrink-0"
-                >
-                  {isAutoFillPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Gợi ý AI
-                    </>
-                  )}
-                </Button>
-              )}
             </div>
-            {autoFillError && (
-              <p className="text-xs text-destructive">{autoFillError}</p>
-            )}
           </Field>
 
           <Field>
