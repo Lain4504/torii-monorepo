@@ -4,51 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update references from walearnconnect to Torii Nihongo">
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-tabs.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-tabs.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/chat/chat-translation.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/insight-ai-text-chat.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/admin-menus.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/admin-menus.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/icons-in-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/menus/icons-in-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/icons/translation.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/footer/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/display/text-box-area.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/settings.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/ai-text-chat/users-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/insights-ai/meeting-summarization/settings.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-insights-ai-text-chat.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/hooks/use-translation-transcription.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/main-area/main-view.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/main-area/main-view.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/chat-translation-settings/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/interim-text-display.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/history/subtitle-history-panel.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/displays/live-subtitle.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/api-connections.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/modal-utils.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/speech-synthesis-queue.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/supported-langs.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/helpers/use-subtitle-speech-synthesis.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/setting-modal.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/mic-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/speech-input-settings.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitle-font-size-slider.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/speech-settings-modal/subtitle-lang-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/default-subtitle-lang-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speech-langs-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/speech-users-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/translation-transcription/transcription-settings/trans-langs-selector.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/connect-nats.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/connect-nats.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-system-data.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/helpers/nats/handle-system-data.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/slices/insights-ai-text-chat-slice.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/store/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/store/store.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused Insights AI text chat components and related logic" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -472,14 +428,6 @@
       <workItem from="1775966402266" duration="3382000" />
       <workItem from="1776003909935" duration="3313000" />
     </task>
-    <task id="LOCAL-01213" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
-      <option name="closed" value="true" />
-      <created>1775526673850</created>
-      <option name="number" value="01213" />
-      <option name="presentableId" value="LOCAL-01213" />
-      <option name="project" value="LOCAL" />
-      <updated>1775526673850</updated>
-    </task>
     <task id="LOCAL-01214" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
       <option name="closed" value="true" />
       <created>1775527309474</created>
@@ -864,7 +812,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776224660513</updated>
     </task>
-    <option name="localTasksCounter" value="1262" />
+    <task id="LOCAL-01262" summary="refactor: remove unused Insights AI text chat components and related logic">
+      <option name="closed" value="true" />
+      <created>1776225334564</created>
+      <option name="number" value="01262" />
+      <option name="presentableId" value="LOCAL-01262" />
+      <option name="project" value="LOCAL" />
+      <updated>1776225334565</updated>
+    </task>
+    <option name="localTasksCounter" value="1263" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -899,7 +855,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation" />
     <MESSAGE value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: enhance class discussion UI with lesson filtering and improved layout" />
     <MESSAGE value="fix: update UI web-leanre responsive for mobile device" />
@@ -924,7 +879,8 @@
     <MESSAGE value="refactor: rename classId to liveClassId across multiple files for consistency" />
     <MESSAGE value="fix bug missing audio" />
     <MESSAGE value="refactor: update references from walearnconnect to Torii Nihongo" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update references from walearnconnect to Torii Nihongo" />
+    <MESSAGE value="refactor: remove unused Insights AI text chat components and related logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: remove unused Insights AI text chat components and related logic" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

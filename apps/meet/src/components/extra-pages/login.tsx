@@ -1,215 +1,288 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Copy, RefreshCw } from 'lucide-react';
+
 import { getDefaultRoomInfo } from '@/helpers/room-config';
-import { SERVER_URL } from '@/config';
+import {
+  MEET_LOGIN_API_KEY,
+  MEET_LOGIN_API_SECRET,
+  SERVER_URL,
+  STATIC_ASSETS_PATH,
+} from '@/config';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
-import { NativeSelect, NativeSelectOption } from '@workspace/ui/components/native-select';
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from '@workspace/ui/components/field';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@workspace/ui/components/select';
+
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
+
+function generateMeetStyleRoomId(): string {
+  const pick = (n: number) => {
+    const buf = new Uint8Array(n);
+    crypto.getRandomValues(buf);
+    let s = '';
+    for (let i = 0; i < n; i++) {
+      s += ALPHABET[buf[i]! % ALPHABET.length];
+    }
+    return s;
+  };
+  return `${pick(3)}-${pick(4)}-${pick(3)}`;
+}
 
 const Login = () => {
-    const [apiKey, setApiKey] = useState('');
-    const [apiSecret, setApiSecret] = useState('');
-    const [roomId, setRoomId] = useState('room01');
-    const [userType, setUserType] = useState('participant');
-    const [name, setName] = useState('');
-    const [userId, setUserId] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+  const [roomId, setRoomId] = useState(() => generateMeetStyleRoomId());
+  const [userType, setUserType] = useState('participant');
+  const [name, setName] = useState('');
+  const [userId, setUserId] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-    useEffect(() => {
-        setUserId(Date.now().toString());
-        setName('user-' + Math.floor(Math.random() * 100));
-    }, []);
+  const hasApiCredentials =
+    MEET_LOGIN_API_KEY.length > 0 && MEET_LOGIN_API_SECRET.length > 0;
 
-    const getHashSignature = async (
-        secretKey: string,
-        message: string,
-        algorithm = 'SHA-256',
-    ) => {
-        const encoder = new TextEncoder();
-        const messageUint8Array = encoder.encode(message);
-        const keyUint8Array = encoder.encode(secretKey);
+  useEffect(() => {
+    setUserId(Date.now().toString());
+    setName('user-' + Math.floor(Math.random() * 100));
+  }, []);
 
-        const cryptoKey = await window.crypto.subtle.importKey(
-            'raw',
-            keyUint8Array,
-            { name: 'HMAC', hash: algorithm },
-            false,
-            ['sign'],
-        );
+  const regenerateRoom = useCallback(() => {
+    setRoomId(generateMeetStyleRoomId());
+    setFormError(null);
+  }, []);
 
-        const signature = await window.crypto.subtle.sign(
-            'HMAC',
-            cryptoKey,
-            messageUint8Array,
-        );
+  const copyRoomId = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(roomId);
+    } catch {
+      // ignore
+    }
+  }, [roomId]);
 
-        const hashArray = Array.from(new Uint8Array(signature));
-        return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  const getHashSignature = async (
+    secretKey: string,
+    message: string,
+    algorithm = 'SHA-256',
+  ) => {
+    const encoder = new TextEncoder();
+    const messageUint8Array = encoder.encode(message);
+    const keyUint8Array = encoder.encode(secretKey);
+
+    const cryptoKey = await window.crypto.subtle.importKey(
+      'raw',
+      keyUint8Array,
+      { name: 'HMAC', hash: algorithm },
+      false,
+      ['sign'],
+    );
+
+    const signature = await window.crypto.subtle.sign(
+      'HMAC',
+      cryptoKey,
+      messageUint8Array,
+    );
+
+    const hashArray = Array.from(new Uint8Array(signature));
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const sendRequest = async (body: unknown, method: string) => {
+    const jsonBody = JSON.stringify(body);
+    const signature = await getHashSignature(MEET_LOGIN_API_SECRET, jsonBody);
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'API-KEY': MEET_LOGIN_API_KEY,
+      'HASH-SIGNATURE': signature,
     };
 
-    const sendRequest = async (body: any, method: string) => {
-        const jsonBody = JSON.stringify(body);
-        const signature = await getHashSignature(apiSecret, jsonBody);
+    const response = await fetch(`${SERVER_URL}/auth/${method}`, {
+      method: 'POST',
+      headers,
+      body: jsonBody,
+    });
 
-        const headers = {
-            'Content-Type': 'application/json',
-            'API-KEY': apiKey,
-            'HASH-SIGNATURE': signature,
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        (errorData as { msg?: string }).msg || response.statusText,
+      );
+    }
+
+    return await response.json();
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    setIsLoading(true);
+
+    if (!hasApiCredentials) {
+      setFormError(
+        'Thiếu VITE_MEET_LOGIN_API_KEY / VITE_MEET_LOGIN_API_SECRET trong .env (trùng cấu hình WAJLC trên server).',
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const isRoomActiveRes = await sendRequest({ room_id: roomId }, 'room/isRoomActive');
+      let isRoomActive = isRoomActiveRes.is_active;
+
+      if (!isRoomActive) {
+        const roomInfo = getDefaultRoomInfo(roomId);
+        const roomCreateRes = await sendRequest(roomInfo, 'room/create');
+        isRoomActive = roomCreateRes.status;
+      }
+
+      if (isRoomActive) {
+        const userInfo = {
+          is_admin: userType === 'admin',
+          name: name,
+          user_id: userId,
         };
 
-        const serverUrl = SERVER_URL;
+        const roomJoinRes = await sendRequest(
+          {
+            room_id: roomId,
+            user_info: userInfo,
+          },
+          'room/getJoinToken',
+        );
 
-        const response = await fetch(`${serverUrl}/auth/${method}`, {
-            method: 'POST',
-            headers: headers,
-            body: jsonBody,
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.msg || response.statusText);
+        if (roomJoinRes.status) {
+          const toUrl = window.location.href.split('?')[0];
+          window.location.href = `${toUrl}?access_token=${roomJoinRes.token}`;
+        } else {
+          alert(roomJoinRes.msg);
         }
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Đã có lỗi xảy ra';
+      alert(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        return await response.json();
-    };
+  const logoSrc = `${STATIC_ASSETS_PATH}/imgs/main-logo-light.png`;
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-
-        try {
-            // 1. Check if room is active
-            const isRoomActiveRes = await sendRequest({ room_id: roomId }, 'room/isRoomActive');
-            let isRoomActive = isRoomActiveRes.is_active;
-
-            // 2. If not active, create room
-            if (!isRoomActive) {
-                const roomInfo = getDefaultRoomInfo(roomId);
-                const roomCreateRes = await sendRequest(roomInfo, 'room/create');
-                isRoomActive = roomCreateRes.status;
-            }
-
-            // 3. If room active, join
-            if (isRoomActive) {
-                const userInfo = {
-                    is_admin: userType === 'admin',
-                    name: name,
-                    user_id: userId,
-                };
-
-                const roomJoinRes = await sendRequest({
-                    room_id: roomId,
-                    user_info: userInfo,
-                }, 'room/getJoinToken');
-
-                if (roomJoinRes.status) {
-                    const toUrl = window.location.href.split('?')[0];
-                    window.location.href = `${toUrl}?access_token=${roomJoinRes.token}`;
-                } else {
-                    alert(roomJoinRes.msg);
-                }
-            }
-        } catch (error: any) {
-            alert(error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-[#f0f6fc] dark:bg-[#01102b] p-4 font-inter">
-            <div className="w-full max-w-2xl bg-white dark:bg-[#001222] rounded-[24px] shadow-lg border border-[#c2daf2] dark:border-[#4d6680] p-10">
-                <div className="flex justify-center mb-8">
-                    <img src="/assets/imgs/main-logo-light.png" alt="Logo" className="h-14" />
-                </div>
-
-                <h2 className="text-2xl font-medium text-center text-[#233240] dark:text-white mb-8">Welcome Back</h2>
-
-                <form onSubmit={handleLogin} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <Label>API Key</Label>
-                            <Input
-                                type="text"
-                                value={apiKey}
-                                onChange={(e) => setApiKey(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>API Secret</Label>
-                            <Input
-                                type="password"
-                                value={apiSecret}
-                                onChange={(e) => setApiSecret(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Room</Label>
-                            <NativeSelect
-                                value={roomId}
-                                onChange={(e) => setRoomId(e.target.value)}
-                            >
-                                {[...Array(15)].map((_, i) => (
-                                    <NativeSelectOption key={i} value={`room${(i + 1).toString().padStart(2, '0')}`}>Room {i + 1}</NativeSelectOption>
-                                ))}
-                            </NativeSelect>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>User Type</Label>
-                            <NativeSelect
-                                value={userType}
-                                onChange={(e) => setUserType(e.target.value)}
-                            >
-                                <NativeSelectOption value="admin">Admin</NativeSelectOption>
-                                <NativeSelectOption value="participant">Participant</NativeSelectOption>
-                            </NativeSelect>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Name</Label>
-                            <Input
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>User ID</Label>
-                            <Input
-                                type="text"
-                                value={userId}
-                                onChange={(e) => setUserId(e.target.value)}
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end gap-4 mt-8">
-                        <Button
-                            type="reset"
-                            onClick={() => {
-                                setApiKey('');
-                                setApiSecret('');
-                                setUserId(Date.now().toString());
-                                setName('user-' + Math.floor(Math.random() * 100));
-                            }}
-                            variant="destructive"
-                        >
-                            Reset
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Processing...' : 'Submit'}
-                        </Button>
-                    </div>
-                </form>
-            </div>
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+      <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+        <div className="mb-6 flex justify-center">
+          <img src={logoSrc} alt="Logo" className="h-12" />
         </div>
-    );
+
+        <h1 className="mb-6 text-center text-xl font-semibold text-foreground">
+          Tham gia cuộc họp
+        </h1>
+
+        <form onSubmit={handleLogin}>
+          <FieldGroup>
+            <FieldSet>
+              <FieldLegend>Mã phòng</FieldLegend>
+              <FieldDescription>
+                Mã được tạo ngẫu nhiên (dạng giống Meet). Chia sẻ cùng mã để vào
+                cùng phòng.
+              </FieldDescription>
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                <code className="min-w-0 flex-1 rounded-md border border-border bg-muted px-3 py-2 text-center text-sm font-medium tracking-wide text-foreground">
+                  {roomId}
+                </code>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  onClick={copyRoomId}
+                  aria-label="Sao chép mã phòng"
+                >
+                  <Copy className="size-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0"
+                  onClick={regenerateRoom}
+                  aria-label="Tạo mã phòng mới"
+                >
+                  <RefreshCw className="size-4" />
+                </Button>
+              </div>
+            </FieldSet>
+
+            <Field>
+              <FieldLabel htmlFor="meet-display-name">Tên hiển thị</FieldLabel>
+              <Input
+                id="meet-display-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoComplete="name"
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel>Vai trò</FieldLabel>
+              <Select value={userType} onValueChange={setUserType}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn vai trò" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="participant">Người tham gia</SelectItem>
+                  <SelectItem value="admin">Quản trị phòng</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+
+            {!hasApiCredentials && (
+              <p className="text-sm text-destructive">
+                Thiếu cấu hình API trong .env: đặt{' '}
+                <span className="font-mono">VITE_MEET_LOGIN_API_KEY</span> và{' '}
+                <span className="font-mono">VITE_MEET_LOGIN_API_SECRET</span>{' '}
+                (trùng server).
+              </p>
+            )}
+
+            {formError && (
+              <p className="text-sm text-destructive">{formError}</p>
+            )}
+
+            <Field orientation="horizontal" className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setUserId(Date.now().toString());
+                  setName('user-' + Math.floor(Math.random() * 100));
+                  setFormError(null);
+                }}
+              >
+                Tên ngẫu nhiên
+              </Button>
+              <Button type="submit" disabled={isLoading || !hasApiCredentials}>
+                {isLoading ? 'Đang xử lý…' : 'Vào phòng'}
+              </Button>
+            </Field>
+          </FieldGroup>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default Login;
