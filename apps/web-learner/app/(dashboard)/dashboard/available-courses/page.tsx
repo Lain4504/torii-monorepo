@@ -12,6 +12,11 @@ import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock, BookOpen, User
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
+import {
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+} from '@workspace/ui/components/avatar'
 import { useAcademyClassCatalog } from '@/lib/api/services/academy-course-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatNumber } from '@/utils/format-utils'
@@ -34,15 +39,15 @@ function HorizontalScrollCarousel({ children, cardCount, scrollRef }: { children
     )
 }
 
-function SectionHeader({ 
-    title, 
-    description, 
-    scrollRef, 
-    cardCount 
-}: { 
-    title: string; 
-    description: string; 
-    scrollRef: React.RefObject<HTMLDivElement | null>; 
+function SectionHeader({
+    title,
+    description,
+    scrollRef,
+    cardCount
+}: {
+    title: string;
+    description: string;
+    scrollRef: React.RefObject<HTMLDivElement | null>;
     cardCount: number;
 }) {
     const scroll = (direction: 'left' | 'right') => {
@@ -61,22 +66,22 @@ function SectionHeader({
                     {description}
                 </p>
             </div>
-            
+
             {cardCount > 0 && (
                 <div className="flex items-center gap-2 shrink-0">
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-9 w-9 rounded-xl border-border/50 hover:bg-muted hover:text-primary transition-all shadow-none" 
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 rounded-xl border-border/50 hover:bg-muted hover:text-primary transition-all shadow-none"
                         onClick={() => scroll('left')}
                         aria-label="Previous"
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-9 w-9 rounded-xl border-border/50 hover:bg-muted hover:text-primary transition-all shadow-none" 
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 rounded-xl border-border/50 hover:bg-muted hover:text-primary transition-all shadow-none"
                         onClick={() => scroll('right')}
                         aria-label="Next"
                     >
@@ -117,7 +122,7 @@ type CatalogListItem = {
         name?: string
         code?: string
     } | null
-    instructor?: { id: string; displayName: string }
+    instructor?: { id: string; displayName: string; avatarUrl?: string }
     liveSchedules?: Array<{
         id: string
         weekday: number
@@ -211,10 +216,10 @@ export default function DashboardCoursesPage() {
             <div className="min-w-0 max-w-full space-y-20 overflow-x-hidden">
                 {showLive && (
                     <section className="min-w-0 space-y-8">
-                        <SectionHeader 
-                            title="Lớp Live đang tuyển sinh" 
-                            description={`Các lớp học trực tuyến sắp khai giảng trong tháng ${monthLabel}`} 
-                            scrollRef={liveScrollRef} 
+                        <SectionHeader
+                            title="Lớp Live đang tuyển sinh"
+                            description={`Các lớp học trực tuyến sắp khai giảng trong tháng ${monthLabel}`}
+                            scrollRef={liveScrollRef}
                             cardCount={liveItems.length}
                         />
                         {liveQuery.isLoading ? (
@@ -237,10 +242,10 @@ export default function DashboardCoursesPage() {
 
                 {showVod && (
                     <section className="min-w-0 space-y-8">
-                        <SectionHeader 
-                            title="Khóa học VOD" 
-                            description="Học tập chủ động với hệ thống video bài giảng chuyên sâu" 
-                            scrollRef={vodScrollRef} 
+                        <SectionHeader
+                            title="Khóa học VOD"
+                            description="Học tập chủ động với hệ thống video bài giảng chuyên sâu"
+                            scrollRef={vodScrollRef}
                             cardCount={vodItems.length}
                         />
                         {vodQuery.isLoading ? (
@@ -306,7 +311,17 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                         <p className="truncate text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
                     </div>
 
-                    <div className="space-y-2 pt-3 border-t border-border/20">
+                    <div className="space-y-4 pt-3 border-t border-border/20">
+                        {klass.instructor?.id && (
+                            <Link
+                                href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
+                                className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group/instructor"
+                            >
+                                <User className="size-4 text-primary/60 group-hover/instructor:text-primary transition-colors" />
+                                <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
+                            </Link>
+                        )}
+
                         <div className="flex min-w-0 items-center justify-between gap-3 pt-1">
                             <div className="flex flex-col">
                                 <span className={cn(
@@ -319,7 +334,7 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                                     <span className="text-[11px] text-muted-foreground/50 line-through tabular-nums font-bold">{formatNumber(basePrice)} đ</span>
                                 )}
                             </div>
-                            <Button size="sm" className="h-9 shrink-0 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+                            <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
                                 <Link href={`/dashboard/available-courses/class/${klass.id}?mode=VOD`}>Chi tiết</Link>
                             </Button>
                         </div>
@@ -371,11 +386,14 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                     </div>
 
                     <div className="space-y-3 pt-3 border-t border-border/20">
-                        {klass.instructor?.displayName && (
-                            <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-                                <User className="size-4 text-primary/60" />
+                        {klass.instructor?.id && (
+                            <Link
+                                href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
+                                className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group/instructor"
+                            >
+                                <User className="size-4 text-primary/60 group-hover/instructor:text-primary transition-colors" />
                                 <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
-                            </div>
+                            </Link>
                         )}
 
                         {term?.openingDate && (
@@ -408,7 +426,7 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                                 ) : (
                                     <p className="text-sm text-muted-foreground">Chưa cập nhật lịch</p>
                                 )}
-                                
+
                                 {liveEnrollment && (
                                     <div className="flex min-w-0 items-center gap-2 text-sm">
                                         <Users className="size-4 shrink-0 text-primary/60" />

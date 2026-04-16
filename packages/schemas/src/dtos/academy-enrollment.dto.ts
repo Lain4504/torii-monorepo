@@ -61,6 +61,11 @@ export const academyEnrollmentModelSchema = z.object({
   thumbnailUrl: z.string().nullable().optional(),
   instructorName: z.string().optional(),
   instructorAvatar: z.string().nullable().optional(),
+  instructor: z.object({
+    id: z.string().uuid(),
+    displayName: z.string(),
+    avatarUrl: z.string().nullable().optional(),
+  }).nullable().optional(),
   progress: z.number().optional(),
   completedLessons: z.number().optional(),
   totalLessons: z.number().optional(),

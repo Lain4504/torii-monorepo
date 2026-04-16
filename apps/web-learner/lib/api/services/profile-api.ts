@@ -49,4 +49,15 @@ export const profileApi = {
         }
         throw new Error(response.data.message || 'Failed to update avatar');
     },
+
+    /**
+     * Get public profile by user ID (instructor/lecturer)
+     */
+    async getPublicProfile(id: string): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<{ user: any }>>(`/api/profiles/${id}`);
+        if (response.data.success && response.data.data) {
+            return response.data.data.user;
+        }
+        throw new Error(response.data.message || 'Failed to fetch public profile');
+    },
 };

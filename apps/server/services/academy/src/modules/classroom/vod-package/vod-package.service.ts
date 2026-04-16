@@ -95,7 +95,7 @@ export class VodPackageService {
             select: { id: true, title: true, thumbnailUrl: true, level: true },
           },
           instructor: {
-            select: { id: true, displayName: true },
+            select: { id: true, displayName: true, avatarUrl: true },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -110,7 +110,7 @@ export class VodPackageService {
       where: { id },
       include: {
         courseProfile: { include: { modules: { include: { lessons: true } } } },
-        instructor: { select: { id: true, displayName: true, email: true } },
+        instructor: { select: { id: true, displayName: true, email: true, avatarUrl: true } },
       },
     });
     if (!item) throw new NotFoundException('VOD Package not found');

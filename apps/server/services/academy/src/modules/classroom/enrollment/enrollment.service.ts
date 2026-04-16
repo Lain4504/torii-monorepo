@@ -162,6 +162,7 @@ export class EnrollmentService {
             code: true,
             thumbnailUrl: true,
             courseProfileId: true,
+            instructor: { select: { id: true, displayName: true, avatarUrl: true } },
             courseProfile: {
               select: { id: true, title: true, code: true, thumbnailUrl: true },
             },
@@ -279,7 +280,7 @@ export class EnrollmentService {
             }
           }
 
-          const instructor = e.liveClass?.instructor;
+          const instructor = e.liveClass?.instructor || e.vodPackage?.instructor;
           const courseProfile =
             e.liveClass?.cohort?.courseProfile ?? e.vodPackage?.courseProfile;
 
@@ -302,7 +303,13 @@ export class EnrollmentService {
             courseTitle,
             courseCode: courseProfile?.code,
             thumbnailUrl,
-            instructor,
+            instructor: instructor ? {
+              id: (instructor as any).id,
+              displayName: instructor.displayName,
+              avatarUrl: instructor.avatarUrl,
+            } : null,
+            instructorName: instructor?.displayName,
+            instructorAvatar: instructor?.avatarUrl,
             progress: progressPercent,
             progressPercent,
             completedLessons,
@@ -335,6 +342,7 @@ export class EnrollmentService {
             title: true,
             code: true,
             thumbnailUrl: true,
+            instructor: { select: { id: true, displayName: true, avatarUrl: true } },
             courseProfile: { select: { title: true, code: true, thumbnailUrl: true } },
           },
         },
@@ -465,7 +473,7 @@ export class EnrollmentService {
       },
       select: { id: true, status: true },
     });
-    
+
     if (existing && existing.status !== 'CANCELLED') {
       throw new BadRequestException('User is already enrolled');
     }
@@ -497,7 +505,7 @@ export class EnrollmentService {
             ...(input.sourceOrderId ? { sourceOrderId: input.sourceOrderId } : {}),
           },
         });
-        
+
         // Clear previous progress so the user starts fresh
         await tx.userLessonProgress.deleteMany({
           where: { enrollmentId: existing.id },
