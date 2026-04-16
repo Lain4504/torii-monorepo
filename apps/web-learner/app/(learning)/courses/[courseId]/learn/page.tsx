@@ -514,17 +514,23 @@ export default function CourseLearnPage() {
 
     const isSequentialUnlocked = useCallback(
         (lesson: CurriculumLesson) => {
+            // Live classes don't require sequential learning
+            if (!isVodCandidate) return true;
+
             if (!isTrackableLessonKind(lesson.kind)) return true;
             const idx = trackableOrdered.findIndex((l) => l.id === lesson.id);
             if (idx <= 0) return true;
             const prev = trackableOrdered[idx - 1];
             return prev ? completedIds.has(lessonProgressId(prev)) : true;
         },
-        [trackableOrdered, completedIds],
+        [isVodCandidate, trackableOrdered, completedIds],
     );
 
     const hasBlockingRequiredMilestoneBeforeLesson = useCallback(
         (lesson: CurriculumLesson) => {
+            // Live classes don't have blocking milestones for lesson access
+            if (!isVodCandidate) return false;
+
             const lessonMeta = lessonOrderMeta.get(lesson.id);
             if (!lessonMeta) return false;
 

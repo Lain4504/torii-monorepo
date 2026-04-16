@@ -56,6 +56,10 @@ export class OrderCheckoutDto {
   @IsObject()
   liveClassIdByCohort?: Record<string, string>;
 
+  @IsOptional()
+  @IsBoolean()
+  useWalletBalance?: boolean;
+
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
 
@@ -109,4 +113,8 @@ export class OrderPreviewDto {
   @IsOptional()
   @IsObject()
   liveClassIdByCohort?: Record<string, string>;
+
+  @IsOptional()
+  @IsBoolean()
+  useWalletBalance?: boolean;
 }

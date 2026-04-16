@@ -20,6 +20,7 @@ export interface OrderPreviewDTO {
     giftMessage?: string;
     metadata?: Record<string, unknown>;
     liveClassIdByCohort?: Record<string, string>;
+    useWalletBalance?: boolean;
 }
 
 export interface OrderCheckoutDTO {
@@ -35,6 +36,7 @@ export interface OrderCheckoutDTO {
     giftMessage?: string;
     metadata?: Record<string, unknown>;
     liveClassIdByCohort?: Record<string, string>;
+    useWalletBalance?: boolean;
 }
 
 export interface OrderPreviewResponse {

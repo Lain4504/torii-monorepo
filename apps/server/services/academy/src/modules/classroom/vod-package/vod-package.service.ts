@@ -22,7 +22,7 @@ export class VodPackageService {
     private prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private async resolveRejectRecipient(
     packageId: string,
@@ -118,6 +118,10 @@ export class VodPackageService {
   }
 
   async create(data: AcademyVodPackageCreateDTO) {
+    if (data.status === 'PUBLISHED') {
+      await this.assertNoOtherPublishedPackages(data.courseProfileId);
+    }
+
     return this.prisma.vodPackage.create({
       data: {
         courseProfileId: data.courseProfileId,
@@ -160,6 +164,10 @@ export class VodPackageService {
           'Gói VOD đã được xuất bản, không thể hạ về bản nháp. Vui lòng dùng Lưu trữ nếu muốn ngừng bán.',
         );
       }
+    }
+
+    if (data.status === 'PUBLISHED') {
+      await this.assertNoOtherPublishedPackages(before.courseProfileId, id);
     }
 
     if (data.status === 'PUBLISHED' || data.status === 'PENDING_APPROVAL') {
@@ -248,5 +256,25 @@ export class VodPackageService {
   async delete(id: string) {
     await this.prisma.vodPackage.delete({ where: { id } });
     return { ok: true };
+  }
+
+  private async assertNoOtherPublishedPackages(
+    courseProfileId: string,
+    currentPackageId?: string,
+  ) {
+    const existing = await this.prisma.vodPackage.findFirst({
+      where: {
+        courseProfileId,
+        status: 'PUBLISHED' as any,
+        id: currentPackageId ? { not: currentPackageId } : undefined,
+      },
+      select: { id: true, code: true },
+    });
+
+    if (existing) {
+      throw new BadRequestException(
+        `Hồ sơ khóa học này đã có gói VOD được xuất bản (mã: ${existing.code}). Vui lòng gỡ xuất bản gói cũ trước khi xuất bản gói mới.`,
+      );
+    }
   }
 }
