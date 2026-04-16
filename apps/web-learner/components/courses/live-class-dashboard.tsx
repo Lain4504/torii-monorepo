@@ -14,8 +14,8 @@ import { useAcademyEnrollmentCheck } from "@/lib/api/services/academy-enrollment
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { 
-    Calendar, Clock, Video, BookOpen, Users,
+import {
+    Calendar, Clock, Video, BookOpen, Users, User,
     ChevronLeft, ChevronRight, Trophy, FileText,
     PlayCircle, ShieldCheck, ArrowRight, FileIcon
 } from "lucide-react"
@@ -26,6 +26,7 @@ import { AcademyFolderTree } from "./academy-folder-tree"
 import { AcademyAssignmentList } from "./academy-assignment-list"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useCurriculum } from "@/lib/api/services/academy-classes"
+import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { toast } from "sonner"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -145,8 +146,9 @@ export function LiveClassDashboard() {
         "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
     const startDateValue =
         (academyClass as any).cohort?.startDate || academyClass.startDate
+    const instructor = (academyClass as any).instructor;
     const instructorName =
-        (academyClass as any).instructor?.displayName ||
+        instructor?.displayName ||
         (academyClass as any).courseProfile?.instructorName ||
         "Torii Instructor"
     const level = (academyClass as any).courseProfile?.level || "JLPT Standard"
@@ -172,10 +174,20 @@ export function LiveClassDashboard() {
                                 <span className="text-muted-foreground">Ngày bắt đầu:</span>{" "}
                                 <span className="font-medium">{startDateValue ? format(new Date(startDateValue), "dd/MM/yyyy") : "Chưa xác định"}</span>
                             </p>
-                            <p className="text-sm">
-                                <span className="text-muted-foreground">Giảng viên:</span>{" "}
-                                <span className="font-medium">{instructorName}</span>
-                            </p>
+                            <div className="text-sm flex items-center gap-2">
+                                <span className="text-muted-foreground">Giảng viên:</span>
+                                {instructor?.id ? (
+                                    <Link
+                                        href={`/dashboard/instructors/${instructor.id}?name=${encodeURIComponent(instructorName)}`}
+                                        className="inline-flex items-center gap-1.5 hover:text-primary transition-colors group/instructor"
+                                    >
+                                        <User className="size-4 text-primary/60 group-hover/instructor:text-primary transition-colors" />
+                                        <span className="font-medium">{instructorName}</span>
+                                    </Link>
+                                ) : (
+                                    <span className="font-medium">{instructorName}</span>
+                                )}
+                            </div>
                             <p className="text-sm">
                                 <span className="text-muted-foreground">Số buổi live:</span>{" "}
                                 <span className="font-medium">{sessions.length} buổi</span>
@@ -219,131 +231,131 @@ export function LiveClassDashboard() {
             )}
 
             <div className="space-y-6">
-                    <Card>
-                        <CardHeader className="space-y-3">
-                            <div className="flex flex-col gap-1">
-                                <CardTitle className="text-base">Lịch biểu trong tuần</CardTitle>
-                                <CardDescription>Theo dõi lịch để không bỏ lỡ buổi học.</CardDescription>
-                            </div>
-                            <div className="flex items-center justify-between gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 shrink-0"
-                                    onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}
-                                >
-                                    <ChevronLeft className="size-4" />
-                                </Button>
-                                <Badge variant="outline" className="text-[11px] font-semibold px-2 py-1 text-center">
-                                    {format(currentWeekStart, "dd/MM")} - {format(addDays(currentWeekStart, 6), "dd/MM")}
-                                </Badge>
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-8 w-8 shrink-0"
-                                    onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}
-                                >
-                                    <ChevronRight className="size-4" />
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-7">
-                                {weekDays.map((day, idx) => {
-                                    const isToday = isSameDay(day, new Date())
-                                    const daySessions = sessions.filter((s) => isSameDay(new Date(s.scheduledAt), day))
-                                    return (
-                                        <div
-                                            key={idx}
-                                            className={cn(
-                                                "space-y-1.5 rounded-md border p-2.5 sm:p-3",
-                                                isToday && "border-primary bg-muted"
-                                            )}
-                                        >
-                                            <div className="space-y-0 border-b pb-1.5">
-                                                <p className="text-[11px] text-muted-foreground leading-none">
-                                                    {format(day, "eee", { locale: vi })}
-                                                </p>
-                                                <p className="text-sm sm:text-base font-semibold leading-tight">{format(day, "dd")}</p>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                {daySessions.length > 0 ? (
-                                                    daySessions.map((session: any, sIdx: number) => (
-                                                        <div key={sIdx} className="rounded-md border p-2 bg-background/70">
-                                                            <p className="mb-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
-                                                                <Clock className="size-3 shrink-0" />
-                                                                {format(new Date(session.scheduledAt), "HH:mm")}
-                                                            </p>
-                                                            <p className="line-clamp-2 text-[11px] sm:text-xs font-medium leading-snug">{session.title}</p>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <p className="text-[11px] text-muted-foreground italic">Không có buổi học</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <TabsList className="grid w-full grid-cols-3">
-                                <TabsTrigger value="curriculum" className="gap-2">
-                                    <BookOpen className="size-4" />
-                                    Chương trình
-                                </TabsTrigger>
-                                <TabsTrigger value="assignments" className="gap-2">
-                                    <FileText className="size-4" />
-                                    Bài tập
-                                </TabsTrigger>
-                                <TabsTrigger value="resources" className="gap-2">
-                                    <FileIcon className="size-4" />
-                                    Tài liệu
-                                </TabsTrigger>
-                            </TabsList>
+                <Card>
+                    <CardHeader className="space-y-3">
+                        <div className="flex flex-col gap-1">
+                            <CardTitle className="text-base">Lịch biểu trong tuần</CardTitle>
+                            <CardDescription>Theo dõi lịch để không bỏ lỡ buổi học.</CardDescription>
                         </div>
-
-                        <TabsContent value="curriculum" className="mt-4">
-                            <div className="space-y-3">
-                                <div className="flex justify-end">
-                                    <Button variant="link" size="sm" className="h-8 px-0 font-semibold" asChild>
-                                        <Link href={`/courses/${courseId}/learn`}>
-                                            Mở trang học VOD
-                                            <ChevronRight className="size-4" />
-                                        </Link>
-                                    </Button>
-                                </div>
-                                {curriculum ? (
-                                    <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
-                                ) : (
-                                    <div className="flex min-h-[160px] items-center justify-center">
-                                        <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
+                        <div className="flex items-center justify-between gap-2">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}
+                            >
+                                <ChevronLeft className="size-4" />
+                            </Button>
+                            <Badge variant="outline" className="text-[11px] font-semibold px-2 py-1 text-center">
+                                {format(currentWeekStart, "dd/MM")} - {format(addDays(currentWeekStart, 6), "dd/MM")}
+                            </Badge>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}
+                            >
+                                <ChevronRight className="size-4" />
+                            </Button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid gap-2 sm:gap-3 sm:grid-cols-2 lg:grid-cols-7">
+                            {weekDays.map((day, idx) => {
+                                const isToday = isSameDay(day, new Date())
+                                const daySessions = sessions.filter((s) => isSameDay(new Date(s.scheduledAt), day))
+                                return (
+                                    <div
+                                        key={idx}
+                                        className={cn(
+                                            "space-y-1.5 rounded-md border p-2.5 sm:p-3",
+                                            isToday && "border-primary bg-muted"
+                                        )}
+                                    >
+                                        <div className="space-y-0 border-b pb-1.5">
+                                            <p className="text-[11px] text-muted-foreground leading-none">
+                                                {format(day, "eee", { locale: vi })}
+                                            </p>
+                                            <p className="text-sm sm:text-base font-semibold leading-tight">{format(day, "dd")}</p>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            {daySessions.length > 0 ? (
+                                                daySessions.map((session: any, sIdx: number) => (
+                                                    <div key={sIdx} className="rounded-md border p-2 bg-background/70">
+                                                        <p className="mb-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+                                                            <Clock className="size-3 shrink-0" />
+                                                            {format(new Date(session.scheduledAt), "HH:mm")}
+                                                        </p>
+                                                        <p className="line-clamp-2 text-[11px] sm:text-xs font-medium leading-snug">{session.title}</p>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-[11px] text-muted-foreground italic">Không có buổi học</p>
+                                            )}
+                                        </div>
                                     </div>
-                                )}
+                                )
+                            })}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="curriculum" className="gap-2">
+                                <BookOpen className="size-4" />
+                                Chương trình
+                            </TabsTrigger>
+                            <TabsTrigger value="assignments" className="gap-2">
+                                <FileText className="size-4" />
+                                Bài tập
+                            </TabsTrigger>
+                            <TabsTrigger value="resources" className="gap-2">
+                                <FileIcon className="size-4" />
+                                Tài liệu
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
+
+                    <TabsContent value="curriculum" className="mt-4">
+                        <div className="space-y-3">
+                            <div className="flex justify-end">
+                                <Button variant="link" size="sm" className="h-8 px-0 font-semibold" asChild>
+                                    <Link href={`/courses/${courseId}/learn`}>
+                                        Mở trang học VOD
+                                        <ChevronRight className="size-4" />
+                                    </Link>
+                                </Button>
                             </div>
-                        </TabsContent>
-
-                        <TabsContent value="assignments" className="mt-4">
-                            <AcademyAssignmentList
-                                liveClassId={courseId}
-                            />
-                        </TabsContent>
-
-                        <TabsContent value="resources" className="mt-4">
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="text-sm font-medium">Tài liệu lớp học</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Duyệt tài liệu theo cấu trúc thư mục dạng cây.
-                                    </p>
+                            {curriculum ? (
+                                <CourseCurriculum curriculum={{ modules: curriculum.modules }} courseSlug={courseId} />
+                            ) : (
+                                <div className="flex min-h-[160px] items-center justify-center">
+                                    <div className="size-8 animate-spin rounded-full border-2 border-muted border-t-primary" />
                                 </div>
-                                <AcademyFolderTree deliveryScopeId={courseId} />
+                            )}
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="assignments" className="mt-4">
+                        <AcademyAssignmentList
+                            liveClassId={courseId}
+                        />
+                    </TabsContent>
+
+                    <TabsContent value="resources" className="mt-4">
+                        <div className="space-y-4">
+                            <div>
+                                <h3 className="text-sm font-medium">Tài liệu lớp học</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Duyệt tài liệu theo cấu trúc thư mục dạng cây.
+                                </p>
                             </div>
-                        </TabsContent>
-                    </Tabs>
+                            <AcademyFolderTree deliveryScopeId={courseId} />
+                        </div>
+                    </TabsContent>
+                </Tabs>
             </div>
         </div>
     )

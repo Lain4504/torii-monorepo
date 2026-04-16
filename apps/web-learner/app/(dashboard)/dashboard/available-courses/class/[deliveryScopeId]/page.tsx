@@ -40,6 +40,7 @@ import { useAppSelector } from '@/hooks/hooks'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Separator } from '@workspace/ui/components/separator'
 import { cn } from '@workspace/ui/lib/utils'
+import { CourseInstructor } from '@/components/courses/course-instructor'
 
 const WEEKDAY_VI = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
@@ -48,7 +49,7 @@ export default function ClassCatalogDetailPage() {
   const searchParams = useSearchParams()
   const deliveryScopeId = typeof params?.deliveryScopeId === 'string' ? params.deliveryScopeId : ''
   const modeParam = (searchParams.get('mode') || '').toUpperCase()
-  
+
   const mode = modeParam === 'LIVE' || modeParam === 'VOD' ? (modeParam as 'LIVE' | 'VOD') : undefined
   const { data: klass, isLoading } = useAcademyClassCatalogById(deliveryScopeId || undefined, mode)
   const { isAuthenticated } = useAppSelector((state) => state.auth)
@@ -62,29 +63,29 @@ export default function ClassCatalogDetailPage() {
   const { data: liveReviewsResponse } = academyClassReviewHooks.useListByLiveClass(deliveryScopeId, { limit: 10, offset: 0 })
   const { data: vodReviewsResponse } = academyClassReviewHooks.useListByVodPackage(deliveryScopeId, { limit: 10, offset: 0 })
 
-  const reviews = isLIVE 
-    ? (liveReviewsResponse?.data?.data?.items ?? [] as any[]) 
+  const reviews = isLIVE
+    ? (liveReviewsResponse?.data?.data?.items ?? [] as any[])
     : (vodReviewsResponse?.data?.data?.items ?? [] as any[])
-    
-  const totalReviews = isLIVE 
-    ? (liveReviewsResponse?.data?.data?.total ?? 0) 
+
+  const totalReviews = isLIVE
+    ? (liveReviewsResponse?.data?.data?.total ?? 0)
     : (vodReviewsResponse?.data?.data?.total ?? 0)
-  
-  const avgRating = reviews && reviews.length > 0 
-    ? (reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1) 
+
+  const avgRating = reviews && reviews.length > 0
+    ? (reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1)
     : "5.0"
 
   const profile = klass?.courseProfile
   const chapters = Array.isArray(profile?.modules)
     ? profile.modules.map((mod: any) => ({
-        id: mod.id,
-        title: mod.title,
-        items: (mod.lessons ?? []).map((lesson: any) => ({
-          id: lesson.id,
-          title: lesson.title,
-          kind: lesson.type || 'VIDEO',
-        })),
-      }))
+      id: mod.id,
+      title: mod.title,
+      items: (mod.lessons ?? []).map((lesson: any) => ({
+        id: lesson.id,
+        title: lesson.title,
+        kind: lesson.type || 'VIDEO',
+      })),
+    }))
     : []
 
   const lessonCount = chapters.reduce((acc: number, chapter: any) => {
@@ -199,7 +200,7 @@ export default function ClassCatalogDetailPage() {
         asChild
       >
         <Link href={checkoutHref}>
-          {isLIVE ? "Đăng ký học ngay" : "Mua khóa học"} 
+          {isLIVE ? "Đăng ký học ngay" : "Mua khóa học"}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>
@@ -252,7 +253,16 @@ export default function ClassCatalogDetailPage() {
                   </div>
                   <div className="space-y-0">
                     <p className="text-[8px] font-bold text-muted-foreground/40 leading-none uppercase tracking-tight">Giảng viên</p>
-                    <p className="text-xs font-bold text-foreground/80">{instructorName}</p>
+                    {klass.instructor?.id ? (
+                      <Link
+                        href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(instructorName)}`}
+                        className="text-xs font-bold text-foreground/80 hover:text-primary transition-colors"
+                      >
+                        {instructorName}
+                      </Link>
+                    ) : (
+                      <p className="text-xs font-bold text-foreground/80">{instructorName}</p>
+                    )}
                   </div>
                 </div>
 
@@ -310,6 +320,15 @@ export default function ClassCatalogDetailPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
         <div className="xl:col-span-2 space-y-10">
 
+          {/* Section: Instructor */}
+          <section className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-1 rounded-full bg-primary/40" />
+              <h2 className="text-sm font-bold uppercase tracking-widest text-foreground/80">Thông tin giảng viên</h2>
+            </div>
+            <CourseInstructor course={{ ...profile, lecturer: klass.instructor } as any} />
+          </section>
+
           {/* Section: Curriculum */}
           <section className="space-y-6">
             <div className="flex items-center justify-between">
@@ -322,8 +341,8 @@ export default function ClassCatalogDetailPage() {
 
             <Accordion type="single" collapsible className="w-full space-y-3">
               {chapters.map((chapter: any, index: number) => (
-                <AccordionItem 
-                  key={chapter.id || index} 
+                <AccordionItem
+                  key={chapter.id || index}
                   value={`item-${index}`}
                   className="border-border/40 rounded-xl bg-card/50 overflow-hidden shadow-none px-4"
                 >
@@ -392,6 +411,7 @@ export default function ClassCatalogDetailPage() {
               ))}
             </div>
           </section>
+
         </div>
 
         {/* 3. Sidebar */}
@@ -461,6 +481,6 @@ export default function ClassCatalogDetailPage() {
           </Card>
         </aside>
       </div>
-    </div>
+    </div >
   )
 }

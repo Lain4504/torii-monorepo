@@ -16,16 +16,17 @@ import {
 } from 'lucide-react'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar";
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
-import { 
-    useAcademyMyCourses, 
-    useAcademyLearningStats 
+import {
+    useAcademyMyCourses,
+    useAcademyLearningStats
 } from '@/lib/api/services/academy-learning-progress-api'
-import { 
-    useMySchedule, 
-    getLiveSessionUiState, 
+import {
+    useMySchedule,
+    getLiveSessionUiState,
     canJoinLiveSessionNow,
     liveSessionApi
 } from '@/lib/api/services/academy-live-session-api'
@@ -69,7 +70,7 @@ export default function MyCoursesPage() {
             filter === 'all' ||
             (filter === 'in-progress' && !isCompleted) ||
             (filter === 'completed' && isCompleted)
-        
+
         return matchesFilter
     })
 
@@ -151,7 +152,7 @@ export default function MyCoursesPage() {
                                             const MEET_URL = (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com');
                                             const url = `${MEET_URL}?access_token=${joinData.token}`;
                                             window.open(url, '_blank', 'noopener,noreferrer');
-                                        } catch (err) {}
+                                        } catch (err) { }
                                     }}
                                 >
                                     Vào lớp ngay
@@ -185,17 +186,17 @@ export default function MyCoursesPage() {
                             {/* Course Image */}
                             <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                                 {course.thumbnailUrl ? (
-                                    <img 
-                                        src={course.thumbnailUrl} 
-                                        alt={course.courseTitle} 
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                                    <img
+                                        src={course.thumbnailUrl}
+                                        alt={course.courseTitle}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-primary/5">
                                         <BookOpen className="size-12 text-primary/20" />
                                     </div>
                                 )}
-                                
+
                                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                                     {course.type?.toLowerCase() === 'live' && (
                                         <Badge className="bg-red-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm">
@@ -231,10 +232,20 @@ export default function MyCoursesPage() {
                                             {course.courseTitle}
                                         </h3>
                                         <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground/60">
-                                            <div className="flex items-center gap-1.5">
-                                                <User className="size-3 text-primary" />
-                                                <span className="truncate">{course.instructorName || 'Torii Academy'}</span>
-                                            </div>
+                                            {course.instructor ? (
+                                                <Link
+                                                    href={`/dashboard/instructors/${course.instructor.id}?name=${encodeURIComponent(course.instructor.displayName || '')}`}
+                                                    className="flex min-w-0 items-center gap-1.5 hover:text-primary transition-colors group/instructor"
+                                                >
+                                                    <User className="size-3 text-primary/60 group-hover/instructor:text-primary transition-colors" />
+                                                    <span className="truncate">Giảng viên: {course.instructor.displayName}</span>
+                                                </Link>
+                                            ) : (
+                                                <div className="flex items-center gap-1.5">
+                                                    <User className="size-3 text-primary" />
+                                                    <span className="truncate">Giảng viên: {course.instructorName || 'Torii Academy'}</span>
+                                                </div>
+                                            )}
                                             <div className="flex items-center gap-1.5 tabular-nums">
                                                 <Clock className="size-3 text-primary" />
                                                 {course.lastAccessed ? format(new Date(course.lastAccessed), 'dd/MM/yyyy') : 'Mới'}
@@ -299,7 +310,7 @@ export default function MyCoursesPage() {
                                                 className="flex-1"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
-                                                <Button 
+                                                <Button
                                                     className="w-full h-11 rounded-2xl text-[11px] font-bold shadow-md shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
                                                     variant={isLive ? 'default' : course.progress >= 100 ? "outline" : "default"}
                                                 >
@@ -309,7 +320,7 @@ export default function MyCoursesPage() {
                                             </Link>
                                         );
                                     })()}
-                                    
+
                                     {String(course.status || 'ACTIVE').toUpperCase() === 'COMPLETED' && (() => {
                                         const existingReview = myReviews.find(
                                             (r: any) => r.enrollmentId && r.enrollmentId === course.id,

@@ -1,8 +1,9 @@
-import { Users } from 'lucide-react'
+import { Users, User } from 'lucide-react'
 import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface CourseInstructorProps {
     course: AcademyCourseProfileCreateDTO & { lecturer?: any }
@@ -20,9 +21,6 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                 </h3>
 
                 <div className="bg-muted/30 p-8 rounded-2xl flex flex-col md:flex-row gap-8 items-start">
-                    <Avatar className="size-32 rounded-2xl shadow-lg">
-                        <AvatarFallback className="bg-primary/10 text-4xl font-bold text-primary rounded-2xl">T</AvatarFallback>
-                    </Avatar>
 
                     <div className="space-y-4">
                         <div>
@@ -35,18 +33,17 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                         </p>
 
                         <div className="flex gap-4">
-                            <button className="text-sm font-bold text-primary hover:underline">
+                            <Link href="/dashboard/available-courses" className="text-sm font-bold text-primary hover:underline">
                                 Các khóa học khác
-                            </button>
-                            <button className="text-sm font-bold text-primary hover:underline">
-                                Xem hồ sơ đầy đủ
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
             </div>
         )
     }
+
+    const instructorHref = `/dashboard/instructors/${lecturer.id}?name=${encodeURIComponent(lecturer.displayName || '')}`
 
     return (
         <div className="space-y-6">
@@ -56,28 +53,26 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
             </h3>
 
             <div className="bg-muted/30 p-8 rounded-2xl flex flex-col md:flex-row gap-8 items-start">
-                <div className="shrink-0">
-                    {lecturer.avatarUrl ? (
-                        <div className="relative size-32 rounded-2xl overflow-hidden shadow-lg">
-                            <Image
-                                src={lecturer.avatarUrl}
-                                alt={lecturer.displayName || 'Instructor'}
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
-                    ) : (
-                        <Avatar className="size-32 rounded-2xl shadow-lg">
-                            <AvatarFallback className="bg-primary/10 text-4xl font-bold text-primary rounded-2xl">
-                                {lecturer.displayName?.[0]?.toUpperCase() || 'U'}
-                            </AvatarFallback>
-                        </Avatar>
-                    )}
-                </div>
+                {lecturer.avatarUrl && (
+                    <div className="shrink-0">
+                        <Link href={instructorHref} className="block group">
+                            <div className="relative size-32 rounded-2xl overflow-hidden shadow-lg group-hover:ring-2 group-hover:ring-primary transition-all">
+                                <Image
+                                    src={lecturer.avatarUrl}
+                                    alt={lecturer.displayName || 'Instructor'}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                        </Link>
+                    </div>
+                )}
 
                 <div className="space-y-4 flex-1">
                     <div>
-                        <h3 className="text-2xl font-bold">{lecturer.displayName}</h3>
+                        <Link href={instructorHref} className="hover:text-primary transition-colors">
+                            <h3 className="text-2xl font-bold">{lecturer.displayName}</h3>
+                        </Link>
                         <p className="text-primary font-medium">Giảng viên tại Torii Nihongo</p>
                     </div>
 
@@ -86,12 +81,12 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
                     </p>
 
                     <div className="flex gap-4">
-                        <button className="text-sm font-bold text-primary hover:underline">
-                            Các khóa học khác
-                        </button>
-                        <button className="text-sm font-bold text-primary hover:underline">
+                        <Link href={instructorHref} className="text-sm font-bold text-primary hover:underline">
+                            Các khóa học cùng giảng viên
+                        </Link>
+                        <Link href={instructorHref} className="text-sm font-bold text-primary hover:underline">
                             Xem hồ sơ đầy đủ
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
