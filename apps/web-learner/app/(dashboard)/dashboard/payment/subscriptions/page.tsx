@@ -15,15 +15,15 @@ import { useAppSelector } from "@/hooks/hooks"
 import { useQuery } from "@tanstack/react-query"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { Separator } from "@workspace/ui/components/separator"
-import { 
-    AlertDialog, 
-    AlertDialogAction, 
-    AlertDialogCancel, 
-    AlertDialogContent, 
-    AlertDialogDescription, 
-    AlertDialogFooter, 
-    AlertDialogHeader, 
-    AlertDialogTitle 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
 } from "@workspace/ui/components/alert-dialog"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
@@ -43,7 +43,7 @@ interface Tier {
 export default function SubscriptionsPage() {
     const router = useRouter()
     const [loadingTier, setLoadingTier] = React.useState<string | null>(null)
-    const [selectedTier, setSelectedTier] = React.useState<{ tier: Tier, method: PaymentMethod } | null>(null)
+    const [selectedTier, setSelectedTier] = React.useState<{ tier: Tier, method: PaymentMethod, useWallet?: boolean } | null>(null)
     const [confirmOpen, setConfirmOpen] = React.useState(false)
 
     const { data: quota } = useQuery({
@@ -101,7 +101,7 @@ export default function SubscriptionsPage() {
 
     const user = useAppSelector(state => state.auth.user)
 
-    const handleConfirmSubscribe = (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS) => {
+    const handleConfirmSubscribe = (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS, useWallet: boolean = false) => {
         const targetTierIndex = tiers.findIndex(t => t.id === tier.id)
 
         if (targetTierIndex < currentTierIndex && currentTier !== 'free') {
@@ -119,23 +119,24 @@ export default function SubscriptionsPage() {
             return
         }
 
-        setSelectedTier({ tier, method })
+        setSelectedTier({ tier, method, useWallet })
         setConfirmOpen(true)
     }
 
     const processSubscription = async () => {
         if (!selectedTier) return
-        
+
         const { tier, method } = selectedTier
         setConfirmOpen(false)
         setLoadingTier(tier.id)
-        
+
         try {
             const response = await orderApi.createOrder({
                 subscriptionPlanIds: [tier.id],
                 description: `Đăng ký gói ${tier.name} - Torii AI Sensei`,
                 couponCode: "",
-                paymentMethod: method
+                paymentMethod: method,
+                useWalletBalance: selectedTier.useWallet
             })
 
             if (response.paymentUrl) {
@@ -197,13 +198,13 @@ export default function SubscriptionsPage() {
                 {tiers.map((tier, index) => {
                     const isCurrent = tier.code === currentTier
                     const isDowngrade = index < currentTierIndex && currentTier !== 'free'
-                    
+
                     return (
                         <Card key={tier.id} className={cn(
                             "relative flex flex-col h-full border-border/40 bg-card hover:bg-muted/5 transition-all duration-300 rounded-2xl overflow-hidden shadow-none group",
                             isCurrent && "border-primary/50 bg-primary/[0.02]"
                         )}>
-                            
+
                             {tier.popular && (
                                 <div className="absolute top-4 right-4">
                                     <Badge className="bg-amber-500 text-white border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
@@ -239,7 +240,7 @@ export default function SubscriptionsPage() {
                                         </span>
                                         {tier.price > 0 && <span className="text-[10px] font-semibold text-muted-foreground/40 leading-none ml-0.5">/tháng</span>}
                                     </div>
-                                    
+
                                     <Badge variant="secondary" className="bg-primary/5 text-primary border-none font-bold text-[10px] h-6 px-2.5 rounded-lg flex items-center gap-1.5 w-fit">
                                         <Zap className="size-3 fill-primary shrink-0" />
                                         <span className="translate-y-[0.5px]">{tier.quota}</span>
@@ -275,20 +276,25 @@ export default function SubscriptionsPage() {
                                     ) : isCurrent ? (
                                         <BadgeCheck className="size-3.5 mr-1.5" />
                                     ) : null}
-                                    
+
                                     {isCurrent ? "Đang sử dụng" : isDowngrade ? "Đã vượt gói" : tier.price === 0 ? "Bắt đầu ngay" : "Nâng cấp gói"}
                                 </Button>
 
-                                {user?.walletBalance !== undefined && user.walletBalance >= tier.price && tier.price > 0 && !isCurrent && !isDowngrade && (
+                                {user?.walletBalance !== undefined && user.walletBalance > 0 && tier.price > 0 && !isCurrent && !isDowngrade && (
                                     <Button
-                                        variant="ghost"
+                                        variant="outline"
                                         size="sm"
-                                        className="w-full text-[10px] font-bold text-muted-foreground/50 hover:text-primary transition-colors px-0 flex items-center justify-center gap-1.5 h-auto py-1.5"
-                                        onClick={() => handleConfirmSubscribe(tier, PaymentMethod.COIN)}
+                                        className="w-full text-[10px] font-bold text-amber-600 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all flex items-center justify-center gap-1.5 h-9 rounded-xl shadow-sm mt-1"
+                                        onClick={() => {
+                                            const isFull = user.walletBalance >= tier.price
+                                            handleConfirmSubscribe(tier, isFull ? PaymentMethod.COIN : PaymentMethod.PAYOS, true)
+                                        }}
                                         disabled={loadingTier === tier.id}
                                     >
-                                        <Coins className="size-3" />
-                                        Dùng {tier.price.toLocaleString()} Xu
+                                        <Coins className="size-3.5" />
+                                        {user.walletBalance >= tier.price
+                                            ? `Thanh toán bằng ${tier.price.toLocaleString()} Xu`
+                                            : `Dùng ${user.walletBalance.toLocaleString()} Xu để giảm giá`}
                                     </Button>
                                 )}
                             </CardFooter>
@@ -328,7 +334,7 @@ export default function SubscriptionsPage() {
                         </div>
                         <AlertDialogTitle className="text-xl font-bold">Xác nhận nâng cấp gói</AlertDialogTitle>
                         <AlertDialogDescription className="text-sm font-medium leading-relaxed">
-                            Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span> với mức phí <span className="text-primary font-bold">{selectedTier?.tier.price ? formatCurrency(selectedTier.tier.price) : "0đ"}</span> / tháng. 
+                            Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span> với mức phí <span className="text-primary font-bold">{selectedTier?.tier.price ? formatCurrency(selectedTier.tier.price) : "0đ"}</span> / tháng.
                             <br /><br />
                             Bạn có đồng ý tiến hành thanh toán và kích hoạt gói ngay bây giờ không?
                         </AlertDialogDescription>
@@ -337,7 +343,7 @@ export default function SubscriptionsPage() {
                         <AlertDialogCancel className="rounded-xl font-bold border-none bg-muted text-muted-foreground hover:bg-muted/80 h-10 sm:flex-1">
                             Hủy bỏ
                         </AlertDialogCancel>
-                        <AlertDialogAction 
+                        <AlertDialogAction
                             onClick={(e) => {
                                 e.preventDefault()
                                 processSubscription()

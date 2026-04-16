@@ -270,11 +270,24 @@ export class OrderService {
       couponId = coupon.id;
     }
 
-    const grandTotal = Math.max(0, subTotal - discountTotal);
+    const grandTotalBeforeWallet = Math.max(0, subTotal - discountTotal);
+    let walletDiscount = 0;
+
+    if (input.useWalletBalance && subscriptionPlans.length > 0) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { walletBalance: true },
+      });
+      const balance = Number(user?.walletBalance || 0);
+      walletDiscount = Math.min(balance, grandTotalBeforeWallet);
+    }
+
+    const grandTotal = grandTotalBeforeWallet - walletDiscount;
 
     return {
       subTotal,
       discountTotal,
+      walletDiscount,
       grandTotal,
       vodPackages,
       cohorts,
@@ -345,30 +358,70 @@ export class OrderService {
       })),
     ];
 
-    const order = await this.prisma.order.create({
-      data: {
+    const order = await this.prisma.$transaction(async (tx) => {
+      // 1. Atomic Wallet Deduction
+      if (preview.walletDiscount > 0) {
+        const updatedUser = await tx.user.updateMany({
+          where: { id: userId, walletBalance: { gte: preview.walletDiscount } },
+          data: { walletBalance: { decrement: preview.walletDiscount } },
+        });
+
+        if (updatedUser.count === 0) {
+          throw new BadRequestException('Số dư ví không đủ hoặc đã thay đổi. Vui lòng thử lại.');
+        }
+
+        await tx.walletTransaction.create({
+          data: {
+            userId,
+            amount: preview.walletDiscount,
+            type: 'PURCHASE',
+            description: `Sử dụng xu cho đơn hàng ${orderCode} (Mua Subscription AI)`,
+          },
+        });
+      }
+
+      // 2. Create Order
+      const finalGrandTotal = preview.grandTotal;
+      const isPartiallyPaid = preview.walletDiscount > 0;
+      const isFullyPaid = finalGrandTotal === 0;
+
+      const orderData: any = {
         code: orderCode,
         userId,
-        status: OrderStatus.PENDING,
+        status: isFullyPaid ? OrderStatus.PAID : OrderStatus.PENDING,
+        paidAt: isFullyPaid ? new Date() : undefined,
         subTotal: new Prisma.Decimal(preview.subTotal),
         discountTotal: new Prisma.Decimal(preview.discountTotal),
-        grandTotal: new Prisma.Decimal(preview.grandTotal),
-        currency: 'VND', // Default
+        grandTotal: new Prisma.Decimal(finalGrandTotal),
+        currency: 'VND',
         couponCode: input.couponCode,
         couponId: preview.couponId,
-        paymentMethod: input.paymentMethod,
-        metadata:
-          input.isGift === true
-            ? {
-                isGift: true,
-                recipientEmail: input.recipientEmail,
-                ...(input.giftMessage ? { giftMessage: input.giftMessage } : {}),
-              }
-            : {},
+        paymentMethod: isFullyPaid ? PaymentMethod.COIN : input.paymentMethod,
+        metadata: {
+          isGift: input.isGift === true,
+          recipientEmail: input.recipientEmail,
+          giftMessage: input.giftMessage,
+          walletDiscount: preview.walletDiscount,
+          isPartiallyPaid,
+        },
         items: { create: orderItemsData },
-      },
-      include: { items: true },
+      };
+
+      return tx.order.create({
+        data: orderData,
+        include: { items: true },
+      });
     });
+
+    if (order.status === OrderStatus.PAID) {
+      // Fulfillment for fully paid order
+      for (const item of order.items) {
+        if (item.subscriptionPlanId) {
+          await this.fulfillAiSubscription(this.prisma, userId, item);
+        }
+      }
+      this.natsClient.emit('order.paid', { orderId: order.id });
+    }
 
     await this.audit.log({
       userId,
@@ -376,7 +429,7 @@ export class OrderService {
       entity: 'Order',
       entityId: order.id,
       description: 'User created order',
-      metadata: { orderCode: order.code, grandTotal: preview.grandTotal },
+      metadata: { orderCode: order.code, grandTotal: preview.grandTotal, walletDiscount: preview.walletDiscount },
     });
 
     return this.handlePaymentRedirect(order, preview, input);
