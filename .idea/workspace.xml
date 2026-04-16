@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add PROJECT_DEFECTS, PROJECT_ISSUES, and PROJECT_QA documentation files">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update Mobile App description and add Software Design Document">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,7 +18,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1944" />
+    <option name="cachedIndexableFilesCount" value="1951" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -432,15 +431,9 @@
       <workItem from="1776003909935" duration="3313000" />
       <workItem from="1776092731333" duration="1290000" />
       <workItem from="1776148174723" duration="5787000" />
-      <workItem from="1776265652786" duration="4110000" />
-    </task>
-    <task id="LOCAL-01214" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
-      <option name="closed" value="true" />
-      <created>1775527309474</created>
-      <option name="number" value="01214" />
-      <option name="presentableId" value="LOCAL-01214" />
-      <option name="project" value="LOCAL" />
-      <updated>1775527309474</updated>
+      <workItem from="1776265652786" duration="4540000" />
+      <workItem from="1776312821276" duration="635000" />
+      <workItem from="1776322637707" duration="149000" />
     </task>
     <task id="LOCAL-01215" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
       <option name="closed" value="true" />
@@ -826,7 +819,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776268887742</updated>
     </task>
-    <option name="localTasksCounter" value="1263" />
+    <task id="LOCAL-01263" summary="feat: update Mobile App description and add Software Design Document">
+      <option name="closed" value="true" />
+      <created>1776272078693</created>
+      <option name="number" value="01263" />
+      <option name="presentableId" value="LOCAL-01263" />
+      <option name="project" value="LOCAL" />
+      <updated>1776272078694</updated>
+    </task>
+    <option name="localTasksCounter" value="1264" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -861,7 +862,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: update gift course for learner (#347)&#10;&#10;* style: update web learner UI (#346)&#10;&#10;* feat(ui): enhance ticket management UI with improved layout and functionality&#10;&#10;* fix(ui): clean up lecturer dashboard by removing unused imports and optimizing session handling&#10;&#10;* feat(ui): add live reschedule requests page and update navigation&#10;&#10;* feat: implement gift purchase&#10;&#10;---------&#10;&#10;Co-authored-by: Lamp &lt;134944634+lain4504@users.noreply.github.com&gt;" />
     <MESSAGE value="feat: enhance class discussion UI with lesson filtering and improved layout" />
     <MESSAGE value="fix: update UI web-leanre responsive for mobile device" />
     <MESSAGE value="feat: introduce AcademyQuestionCategoryType enum and refactor question handling" />
@@ -886,7 +886,8 @@
     <MESSAGE value="fix bug missing audio" />
     <MESSAGE value="refactor: remove unused Roadmap module and related components" />
     <MESSAGE value="feat: add PROJECT_DEFECTS, PROJECT_ISSUES, and PROJECT_QA documentation files" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add PROJECT_DEFECTS, PROJECT_ISSUES, and PROJECT_QA documentation files" />
+    <MESSAGE value="feat: update Mobile App description and add Software Design Document" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update Mobile App description and add Software Design Document" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
