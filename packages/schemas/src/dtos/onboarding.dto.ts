@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
 export const onboardingSurveyDTOSchema = z.object({
-  targetCompletionTime: z.string().optional(),
-  purpose: z.string().optional(),
-  jlptTargetDate: z.string().datetime().optional().nullable(),
-  studyFrequency: z.string().optional(),
-  studyTimePerSession: z.string().optional(),
+  /// Mục tiêu JLPT dùng để gợi ý khoá học (N5..N1).
+  /// Được mirror sang `user.userMetadata.jlptTarget` để dashboard lọc catalog.
+  jlptTarget: z
+    .string()
+    .regex(/^N[1-5]$/i, 'jlptTarget phải là N1..N5')
+    .optional(),
+
+  /// Trình độ hiện tại (tuỳ chọn) — để hiển thị / mở rộng sau.
   currentLevel: z.string().optional(),
 });
 

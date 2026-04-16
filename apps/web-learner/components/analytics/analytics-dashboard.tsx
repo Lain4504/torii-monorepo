@@ -214,20 +214,11 @@ export function AnalyticsDashboard() {
     const { user } = useAppSelector((state) => state.auth);
 
     const onboardingData = useMemo(() => {
-        if (!user?.onboardingSurvey) return null;
-        
-        const currentLevel = user.onboardingSurvey.currentLevel || 'NEVER';
-        
-        // Match logic in dashboard/profile/page.tsx
-        const targetMap: Record<string, string> = {
-            'NEVER': 'N5',
-            'N5': 'N5+',
-            'N4': 'N3',
-            'N3': 'N2',
-            'N2': 'N1',
-            'N1': 'N1+',
-        };
-        
+        if (!user) return null;
+
+        const currentLevel = (user as any).currentLevel || 'NEVER';
+        const jlptTarget = (user as any).jlptTarget || (user.userMetadata as any)?.jlptTarget;
+
         const startLevelMap: Record<string, string> = {
             'NEVER': 'Chưa biết gì',
             'N5': 'Cơ bản (N5)',
@@ -237,21 +228,10 @@ export function AnalyticsDashboard() {
             'N1': 'Thượng cấp (N1)',
         };
 
-        // Parse studyTimePerSession (e.g. "60 minutes" -> 3)
-        let dailyGoal = 3;
-        const minutesMatch = (user.onboardingSurvey as any).studyTimePerSession?.match(/(\d+)/);
-        if (minutesMatch) {
-            const mins = parseInt(minutesMatch[1], 10);
-            if (mins <= 10) dailyGoal = 1;
-            else if (mins <= 30) dailyGoal = 2;
-            else if (mins <= 60) dailyGoal = 3;
-            else dailyGoal = 5;
-        }
-
         return {
-            targetLevel: targetMap[currentLevel] || 'N5',
+            targetLevel: jlptTarget || 'N5',
             currentLevel: startLevelMap[currentLevel] || 'N/A',
-            dailyGoal
+            dailyGoal: 3
         };
     }, [user]);
 

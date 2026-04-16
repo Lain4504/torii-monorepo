@@ -99,9 +99,4 @@ export class UsersHandler {
   ) {
     return this.usersService.saveOnboardingSurvey(data.userId, data.dto);
   }
-
-  @MessagePattern({ cmd: 'identity.users.getOnboardingSurvey' })
-  async getOnboardingSurvey(@Payload() data: { userId: string }) {
-    return this.usersService.getOnboardingSurvey(data.userId);
-  }
 }

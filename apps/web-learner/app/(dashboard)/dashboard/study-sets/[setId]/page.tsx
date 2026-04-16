@@ -8,6 +8,8 @@ import { useAppSelector } from '@/hooks/hooks';
 import {
     useAcademyStudySet,
     usePublicCatalogStudySet,
+    useUpdateAcademyStudySet,
+    useDeleteAcademyStudySet,
     useCreateAcademySetCard,
     useUpdateAcademySetCard,
     useDeleteAcademySetCard,
@@ -26,12 +28,21 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@workspace/ui/components/dialog';
 import { StudyModeSelection } from '@/components/study/study-mode-selection';
 import { Pencil, Trash2, Plus, ArrowLeft, Share2, Globe, Lock, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search, FileText, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { FlashcardFormDialog, type FlashcardFormValues } from '@workspace/ui/components/custom/flashcard-form-dialog';
 import { FlashcardAIBulkDialog } from '@workspace/ui/components/custom/flashcard-ai-bulk-dialog';
 import { Input } from '@workspace/ui/components/input';
+import { Textarea } from '@workspace/ui/components/textarea';
 import { Badge } from '@workspace/ui/components/badge';
 import { Separator } from '@workspace/ui/components/separator';
 import {
@@ -62,6 +73,8 @@ export default function StudySetDetailPage() {
     const isOwner = set?.userId === currentUser?.id;
 
     const canCreateCard = isAuthenticated && !isCatalogView && isOwner;
+    const updateSet = useUpdateAcademyStudySet();
+    const deleteSet = useDeleteAcademyStudySet();
     const createCard = useCreateAcademySetCard();
     const updateCard = useUpdateAcademySetCard();
     const deleteCard = useDeleteAcademySetCard();
@@ -80,11 +93,23 @@ export default function StudySetDetailPage() {
     const [editingCard, setEditingCard] = React.useState<any | null>(null);
     const [deletingCard, setDeletingCard] = React.useState<any | null>(null);
 
+    const canManageSet = isAuthenticated && isOwner && !isCatalogView;
+    const [openEditSetDialog, setOpenEditSetDialog] = React.useState(false);
+    const [openDeleteSetDialog, setOpenDeleteSetDialog] = React.useState(false);
+    const [editSetTitle, setEditSetTitle] = React.useState('');
+    const [editSetDescription, setEditSetDescription] = React.useState('');
+
     // Filter and Paginate
     const [cards, setCards] = React.useState<any[]>([]);
     React.useEffect(() => {
         if (set?.setCards) setCards(set.setCards);
     }, [set?.setCards]);
+
+    React.useEffect(() => {
+        if (!set) return;
+        setEditSetTitle(set.title || '');
+        setEditSetDescription(set.description || '');
+    }, [set?.id, set?.title, set?.description]);
 
     const filteredCards = cards.filter(c => 
         c.term.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -245,6 +270,42 @@ export default function StudySetDetailPage() {
         }
     };
 
+    const handleSaveSetMeta = async () => {
+        if (!setId) return;
+        const title = editSetTitle.trim();
+        const description = editSetDescription.trim();
+        if (!title) {
+            toast.error('Tên bộ thẻ không được để trống');
+            return;
+        }
+        try {
+            await updateSet.mutateAsync({
+                id: setId,
+                payload: {
+                    title,
+                    description: description || undefined,
+                },
+            });
+            toast.success('Đã cập nhật bộ thẻ');
+            setOpenEditSetDialog(false);
+        } catch (e: any) {
+            toast.error(e?.message || 'Lỗi cập nhật bộ thẻ');
+        }
+    };
+
+    const handleDeleteSet = async () => {
+        if (!setId) return;
+        try {
+            await deleteSet.mutateAsync(setId);
+            toast.success('Đã xóa bộ thẻ');
+            router.push('/dashboard/study-sets');
+        } catch (e: any) {
+            toast.error(e?.message || 'Lỗi xóa bộ thẻ');
+        } finally {
+            setOpenDeleteSetDialog(false);
+        }
+    };
+
     return (
             <div className="container mx-auto max-w-5xl space-y-4 px-3 py-4 animate-in fade-in sm:space-y-5 sm:px-4 sm:py-6">
             <header className="space-y-3">
@@ -262,7 +323,7 @@ export default function StudySetDetailPage() {
                     <div className="min-w-0 space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
                             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">{set.title}</h1>
-                            {isAuthenticated && isOwner && !isCatalogView && (
+                            {canManageSet && (
                                 <Badge variant={set.isPublic ? 'default' : 'secondary'} className="shrink-0 text-xs">
                                     {set.isPublic ? 'Công khai' : 'Riêng tư'}
                                 </Badge>
@@ -274,8 +335,26 @@ export default function StudySetDetailPage() {
                         </p>
                     </div>
 
-                    {isAuthenticated && isOwner && !isCatalogView && (
+                    {canManageSet && (
                         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-9 w-full sm:w-auto"
+                                onClick={() => setOpenEditSetDialog(true)}
+                            >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Sửa bộ thẻ
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-9 w-full sm:w-auto border-destructive/30 text-destructive hover:bg-destructive/5"
+                                onClick={() => setOpenDeleteSetDialog(true)}
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Xóa bộ thẻ
+                            </Button>
                             <Button
                                 size="sm"
                                 variant="outline"
@@ -533,6 +612,72 @@ export default function StudySetDetailPage() {
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                             {deleteCard.isPending ? 'Đang xóa...' : 'Xóa ngay'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <Dialog open={openEditSetDialog} onOpenChange={setOpenEditSetDialog}>
+                <DialogContent className="sm:max-w-[520px]">
+                    <DialogHeader>
+                        <DialogTitle>Chỉnh sửa bộ thẻ</DialogTitle>
+                        <DialogDescription>
+                            Cập nhật tên và mô tả. Chỉ bạn (chủ sở hữu) mới có quyền chỉnh sửa.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-3">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Tên bộ thẻ</label>
+                            <Input
+                                value={editSetTitle}
+                                onChange={(e) => setEditSetTitle(e.target.value)}
+                                placeholder="VD: Từ vựng N3 bài 1"
+                                className="h-10"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-foreground">Mô tả (tuỳ chọn)</label>
+                            <Textarea
+                                value={editSetDescription}
+                                onChange={(e) => setEditSetDescription(e.target.value)}
+                                placeholder="Mục tiêu / ghi chú cho bộ thẻ..."
+                                className="min-h-24"
+                            />
+                        </div>
+                    </div>
+
+                    <DialogFooter className="gap-2 sm:gap-2">
+                        <Button variant="ghost" onClick={() => setOpenEditSetDialog(false)} className="h-9">
+                            Hủy
+                        </Button>
+                        <Button
+                            onClick={handleSaveSetMeta}
+                            disabled={updateSet.isPending || !editSetTitle.trim()}
+                            className="h-9"
+                        >
+                            {updateSet.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={openDeleteSetDialog} onOpenChange={setOpenDeleteSetDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa bộ thẻ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Bạn có chắc muốn xóa bộ thẻ <span className="font-semibold text-foreground">"{set.title}"</span>?
+                            Hành động này sẽ xóa toàn bộ thẻ bên trong và không thể hoàn tác.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteSet}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {deleteSet.isPending ? 'Đang xóa...' : 'Xóa bộ thẻ'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

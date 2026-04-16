@@ -57,9 +57,6 @@ describe('EnrollmentService', () => {
     vodPackage: {
       findUnique: jest.fn(),
     },
-    learningRoadmap: {
-      deleteMany: jest.fn(),
-    },
     courseProfile: {
       findMany: jest.fn(),
     },

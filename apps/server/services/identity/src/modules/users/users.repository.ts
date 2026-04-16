@@ -187,6 +187,8 @@ export class UsersRepository implements IUsersRepository {
     walletBalance: number;
     isOnboarded: boolean;
     avatarUrl: string | null;
+    jlptTarget: string | null;
+    currentLevel: string | null;
     userMetadata: Record<string, unknown> | null;
     verifiedAt: Date | null;
     createdAt: Date;
@@ -201,12 +203,13 @@ export class UsersRepository implements IUsersRepository {
         role: true,
         isOnboarded: true,
         avatarUrl: true,
+        jlptTarget: true,
+        currentLevel: true,
         userMetadata: true,
         verifiedAt: true,
         createdAt: true,
         updatedAt: true,
         walletBalance: true,
-        onboardingSurvey: true,
         gamification: {
           select: {
             totalXp: true,
@@ -270,32 +273,43 @@ export class UsersRepository implements IUsersRepository {
   }
 
   /**
-   * Find onboarding survey by user ID
+   * Save user's target for course recommendation (no separate survey table).
+   * Also mirrors jlptTarget to userMetadata for backward-compat consumers.
    */
-  async findOnboardingSurvey(userId: string): Promise<any> {
-    return this.prisma.onboardingSurvey.findUnique({
-      where: { userId },
-    });
-  }
+  async saveOnboardingSurvey(userId: string, data: any): Promise<User> {
+    const jlptTarget =
+      typeof data?.jlptTarget === 'string'
+        ? String(data.jlptTarget).toUpperCase()
+        : null;
+    const currentLevel =
+      typeof data?.currentLevel === 'string' ? String(data.currentLevel) : null;
 
-  /**
-   * Create or update onboarding survey
-   */
-  async createOnboardingSurvey(userId: string, data: any): Promise<any> {
-    const { userId: _, ...surveyData } = data;
-    return this.prisma.$transaction([
-      this.prisma.onboardingSurvey.upsert({
-        where: { userId },
-        create: {
-          ...surveyData,
-          user: { connect: { id: userId } },
-        },
-        update: surveyData,
-      }),
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { isOnboarded: true },
-      }),
-    ]);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { userMetadata: true },
+    });
+
+    const rawMeta = user?.userMetadata;
+    const metaObj =
+      rawMeta &&
+      typeof rawMeta === 'object' &&
+      rawMeta !== null &&
+      !Array.isArray(rawMeta)
+        ? (rawMeta as Record<string, unknown>)
+        : {};
+
+    const mergedMeta =
+      jlptTarget != null ? { ...metaObj, jlptTarget } : metaObj;
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        isOnboarded: true,
+        jlptTarget,
+        currentLevel,
+        userMetadata: mergedMeta as any,
+      },
+      include: { gamification: true },
+    });
   }
 }

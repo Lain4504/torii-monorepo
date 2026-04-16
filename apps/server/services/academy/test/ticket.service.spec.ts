@@ -46,7 +46,6 @@ describe('TicketService', () => {
       walletTransaction: { create: jest.fn() },
       userLessonProgress: { deleteMany: jest.fn() },
       academyExamAttempt: { deleteMany: jest.fn() },
-      learningRoadmap: { deleteMany: jest.fn() },
       $transaction: jest.fn().mockImplementation((cb) => cb(mockPrisma)),
     };
 

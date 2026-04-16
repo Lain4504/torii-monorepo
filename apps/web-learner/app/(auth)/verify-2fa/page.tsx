@@ -99,15 +99,7 @@ export default function TwoFactorVerifyPage() {
 
                 // Get redirect URL from 'from' param or default to dashboard
                 const redirectTo = searchParams.get('from') || '/dashboard';
-                const nextRoute =
-                  authAction.meta.requestStatus === 'fulfilled' &&
-                  authAction.payload &&
-                  'isOnboarded' in authAction.payload &&
-                  authAction.payload.isOnboarded === false
-                    ? '/onboarding'
-                    : redirectTo;
-
-                router.push(nextRoute);
+                router.push(redirectTo);
                 router.refresh();
             } else {
                 toast.error('Xác thực thất bại');

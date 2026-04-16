@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   Inject,
@@ -47,24 +46,6 @@ export class OnboardingController {
     } catch (error: unknown) {
       return errorResponse(
         error instanceof Error ? error.message : 'Failed to save survey',
-      );
-    }
-  }
-
-  @Get('me')
-  async getMySurvey(@Req() req: ReqWithRequester) {
-    try {
-      const survey = await firstValueFrom(
-        this.natsClient.send(
-          { cmd: 'identity.users.getOnboardingSurvey' },
-          { userId: req.requester.sub },
-        ),
-      );
-
-      return successResponse({ survey });
-    } catch (error: unknown) {
-      return errorResponse(
-        error instanceof Error ? error.message : 'Failed to fetch survey',
       );
     }
   }

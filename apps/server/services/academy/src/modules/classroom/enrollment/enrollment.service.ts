@@ -514,10 +514,6 @@ export class EnrollmentService {
         await tx.academyExamAttempt.deleteMany({
           where: { enrollmentId: existing.id },
         });
-
-        await tx.learningRoadmap.deleteMany({
-          where: { enrollmentId: existing.id },
-        });
       } else {
         enrollment = await tx.enrollment.create({
           data: {

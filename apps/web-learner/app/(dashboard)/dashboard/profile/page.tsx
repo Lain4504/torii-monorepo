@@ -196,26 +196,20 @@ export default function ProfilePage() {
                             <CardDescription>Các thông số mục tiêu bạn đã thiết lập</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {user?.onboardingSurvey ? (
+                            {(user?.jlptTarget || user?.currentLevel || (user?.userMetadata as any)?.jlptTarget) ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {[
-                                        { label: 'Thời gian mục tiêu', value: user?.onboardingSurvey?.targetCompletionTime || 'Linh hoạt', icon: <Clock className="size-4" /> },
                                         { 
-                                            label: 'Mục đích chính', 
-                                            value: (() => {
-                                                const p = user?.onboardingSurvey?.purpose;
-                                                const map: any = { 'JLPT': 'Lấy bằng JLPT', 'Work': 'Việc làm / Sự nghiệp', 'Study': 'Học thuật / Du học', 'Travel': 'Du lịch / Sở thích', 'Communicate': 'Giao tiếp', 'Others': 'Khác' };
-                                                return map[p || ''] || p || 'Khám phá';
-                                            })(),
-                                            icon: <Flag className="size-4" />
+                                            label: 'Mục tiêu JLPT', 
+                                            value: (user as any)?.jlptTarget || ((user?.userMetadata as any)?.jlptTarget ?? 'Chưa đặt'),
+                                            icon: <Target className="size-4" />
                                         },
-                                        { label: 'Dự kiến thi', value: user?.onboardingSurvey?.jlptTargetDate ? formatDate(user.onboardingSurvey.jlptTargetDate) : 'Chưa đặt', icon: <Calendar className="size-4" /> },
-                                        { 
-                                            label: 'Trình độ nền', 
+                                        {
+                                            label: 'Trình độ hiện tại',
                                             value: (() => {
-                                                const cl = user?.onboardingSurvey?.currentLevel;
+                                                const cl = (user as any)?.currentLevel;
                                                 const map: any = { 'NEVER': 'Mới bắt đầu', 'N5': 'Cơ bản (N5)', 'N4': 'Sơ cấp (N4)', 'N3': 'Trung cấp (N3)', 'N2': 'Cao cấp (N2)', 'N1': 'Nâng cao (N1)' };
-                                                return map[cl || ''] || cl || 'Khởi đầu';
+                                                return map[cl || ''] || cl || 'Chưa đặt';
                                             })(),
                                             icon: <GraduationCap className="size-4" />
                                         }
@@ -238,10 +232,12 @@ export default function ProfilePage() {
                                     </div>
                                     <div className="space-y-2">
                                         <p className="text-sm font-medium">Chưa thiết lập lộ trình</p>
-                                        <p className="text-xs text-muted-foreground max-w-[200px]">Hoàn thành khảo sát để Torii đề xuất lộ trình phù hợp với bạn.</p>
+                                        <p className="text-xs text-muted-foreground max-w-[240px]">
+                                            Bạn có thể đặt mục tiêu JLPT ngay trên dashboard bằng nút 🎯 ở header.
+                                        </p>
                                     </div>
                                     <Button asChild variant="default" size="sm">
-                                        <Link href="/onboarding">Bắt đầu ngay</Link>
+                                        <Link href="/dashboard">Về dashboard</Link>
                                     </Button>
                                 </div>
                             )}

@@ -471,10 +471,6 @@ export class TicketService implements ITicketService {
             where: { enrollmentId: enrollment.id },
           });
 
-          await tx.learningRoadmap.deleteMany({
-            where: { enrollmentId: enrollment.id },
-          });
-
           this.logger.log(
             `Enrollment ${enrollment.id} (${liveClassId ? 'Live' : 'VOD'}) cancelled and progress cleared for refund ticket ${ticket.id}`,
           );

@@ -41,13 +41,7 @@ export function LoginForm() {
             if (login.fulfilled.match(resultAction)) {
                 const authAction = await dispatch(checkAuth())
                 const from = searchParams.get('from')
-                const redirectTo =
-                    authAction.meta.requestStatus === 'fulfilled' &&
-                    authAction.payload &&
-                    'isOnboarded' in authAction.payload &&
-                    authAction.payload.isOnboarded === false
-                        ? '/onboarding'
-                        : from || '/dashboard'
+                const redirectTo = from || '/dashboard'
                 toast.success('Đăng nhập thành công', {
                     description: 'Chào mừng quay trở lại Torii Nihongo!',
                 })
@@ -114,13 +108,7 @@ export function LoginForm() {
                     const result = await googleAuthMutation.mutateAsync(response.credential)
                     const authAction = await dispatch(checkAuth())
                     const from = searchParams.get('from')
-                    const redirectTo =
-                        authAction.meta.requestStatus === 'fulfilled' &&
-                        authAction.payload &&
-                        'isOnboarded' in authAction.payload &&
-                        authAction.payload.isOnboarded === false
-                            ? '/onboarding'
-                            : from || '/dashboard'
+                    const redirectTo = from || '/dashboard'
                     toast.success(`Chào mừng, ${result.user.displayName || 'Người dùng'}!`)
                     router.push(redirectTo)
                 } catch (error: any) {
@@ -176,13 +164,7 @@ export function LoginForm() {
                         .then(async (result) => {
                             const authAction = await dispatch(checkAuth())
                             const from = searchParams.get('from')
-                            const redirectTo =
-                                authAction.meta.requestStatus === 'fulfilled' &&
-                                authAction.payload &&
-                                'isOnboarded' in authAction.payload &&
-                                authAction.payload.isOnboarded === false
-                                    ? '/onboarding'
-                                    : from || '/dashboard'
+                            const redirectTo = from || '/dashboard'
                             toast.success(`Chào mừng, ${result.user.displayName || 'Người dùng'}!`)
                             router.push(redirectTo)
                         })

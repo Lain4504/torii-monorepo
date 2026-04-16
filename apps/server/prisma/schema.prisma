@@ -477,29 +477,14 @@ model User {
 
   // Onboarding
   isOnboarded      Boolean           @default(false) @map("is_onboarded")
-  onboardingSurvey OnboardingSurvey?
-  learningRoadmaps LearningRoadmap[]
+  /// Mục tiêu JLPT để gợi ý khoá học (N1..N5)
+  jlptTarget   String? @map("jlpt_target") @db.VarChar(4)
+  /// Trình độ hiện tại (tuỳ chọn)
+  currentLevel String? @map("current_level") @db.VarChar(20)
 
   @@index([email])
   @@index([role])
   @@map("users")
-}
-
-model OnboardingSurvey {
-  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId               String    @unique @map("user_id") @db.Uuid
-  targetCompletionTime String?   @map("target_completion_time") // e.g. "4 months", "8 months"
-  purpose              String?   @map("purpose") // JLPT, WORK, STUDY, OTHER
-  jlptTargetDate       DateTime? @map("jlpt_target_date")
-  studyFrequency       String?   @map("study_frequency") // e.g. "Daily", "Weekly"
-  studyTimePerSession  String?   @map("study_time_per_session") // e.g. "1 hour"
-  currentLevel         String?   @map("current_level") // N5.1, N5.2, ..., NEVER
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("onboarding_surveys")
 }
 
 model UserIdentity {
@@ -1529,7 +1514,6 @@ model Enrollment {
   certificate    Certificate?
   review         CourseReview?
   lessonProgress UserLessonProgress[]
-  learningRoadmaps LearningRoadmap[]
   academyExamAttempts AcademyExamAttempt[]
 
   @@unique([userId, vodPackageId])
@@ -1538,66 +1522,6 @@ model Enrollment {
   @@index([vodPackageId])
   @@index([liveClassId])
   @@map("academy_enrollments")
-}
-
-model LearningRoadmap {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  enrollmentId String   @map("enrollment_id") @db.Uuid
-  status       String   @default("ACTIVE") @db.VarChar(20) // ACTIVE, ARCHIVED
-  currentWeek  Int      @default(1) @map("current_week")
-  version      Int      @default(1)
-  startedAt    DateTime @default(now()) @map("started_at")
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
-
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  tasks      LearningRoadmapTask[]
-  replans    LearningRoadmapReplan[]
-
-  @@index([userId, status])
-  @@index([enrollmentId])
-  @@map("learning_roadmaps")
-}
-
-model LearningRoadmapTask {
-  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roadmapId        String    @map("roadmap_id") @db.Uuid
-  weekIndex        Int       @default(1) @map("week_index")
-  taskType         String    @map("task_type") @db.VarChar(30) // LESSON, LIVE_SESSION, REVIEW, PRACTICE
-  title            String    @db.VarChar(255)
-  description      String?   @db.Text
-  priority         Int       @default(3)
-  estimatedMinutes Int       @default(0) @map("estimated_minutes")
-  actualMinutes    Int?      @map("actual_minutes")
-  status           String    @default("PENDING") @db.VarChar(20) // PENDING, IN_PROGRESS, COMPLETED, SKIPPED
-  sourceRef        String?   @map("source_ref") @db.VarChar(255)
-  dueAt            DateTime? @map("due_at")
-  completedAt      DateTime? @map("completed_at")
-  metadata         Json?     @default("{}") @db.JsonB
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
-
-  roadmap LearningRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
-
-  @@index([roadmapId, status])
-  @@index([roadmapId, weekIndex])
-  @@map("learning_roadmap_tasks")
-}
-
-model LearningRoadmapReplan {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  roadmapId    String   @map("roadmap_id") @db.Uuid
-  fromVersion  Int      @map("from_version")
-  toVersion    Int      @map("to_version")
-  triggerType  String   @map("trigger_type") @db.VarChar(50) // SYSTEM_WEEKLY, USER_REQUEST, ORDER_PAID
-  reasonContext Json?   @default("{}") @map("reason_context") @db.JsonB
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  roadmap LearningRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
-
-  @@index([roadmapId])
-  @@map("learning_roadmap_replans")
 }
 
 // ==================================================

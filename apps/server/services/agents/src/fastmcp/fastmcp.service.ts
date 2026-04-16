@@ -16,11 +16,7 @@ export interface ToolContext {
   recentVocabulary?: any[];
   stats?: { level: number; streak: number; totalXp: number } | null;
   onboarding?: {
-    targetCompletionTime?: string;
-    purpose?: string;
-    jlptTargetDate?: string;
-    studyFrequency?: string;
-    studyTimePerSession?: string;
+    jlptTarget?: string;
     currentLevel?: string;
   } | null;
 }
@@ -410,9 +406,14 @@ export class FastMcpService {
         where: { userId },
       });
 
-      // 4. Onboarding Survey
-      const onboarding = await this.prisma.onboardingSurvey.findUnique({
-        where: { userId },
+      // 4. User onboarding preferences (stored directly on User)
+      const onboardingUser = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          jlptTarget: true,
+          currentLevel: true,
+          userMetadata: true,
+        },
       });
 
       return {
@@ -429,15 +430,13 @@ export class FastMcpService {
               totalXp: gamification.totalXp,
             }
           : null,
-        onboarding: onboarding
+        onboarding: onboardingUser
           ? {
-              targetCompletionTime:
-                onboarding.targetCompletionTime ?? undefined,
-              purpose: onboarding.purpose ?? undefined,
-              jlptTargetDate: onboarding.jlptTargetDate?.toISOString(),
-              studyFrequency: onboarding.studyFrequency ?? undefined,
-              studyTimePerSession: onboarding.studyTimePerSession ?? undefined,
-              currentLevel: onboarding.currentLevel ?? undefined,
+              jlptTarget:
+                onboardingUser.jlptTarget ??
+                ((onboardingUser.userMetadata as any)?.jlptTarget ??
+                  undefined),
+              currentLevel: onboardingUser.currentLevel ?? undefined,
             }
           : null,
       };

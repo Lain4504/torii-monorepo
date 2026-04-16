@@ -1,4 +1,5 @@
 import type { User, Prisma } from '@prisma/generated';
+import type { OnboardingSurveyDTO } from '@workspace/schemas';
 
 /**
  * Users Repository Interface
@@ -93,6 +94,8 @@ export interface IUsersRepository {
     role: string;
     isOnboarded: boolean;
     avatarUrl: string | null;
+    jlptTarget: string | null;
+    currentLevel: string | null;
     userMetadata: Record<string, unknown> | null;
     verifiedAt: Date | null;
     createdAt: Date;
@@ -121,12 +124,7 @@ export interface IUsersRepository {
   countByRole(role: string): Promise<number>;
 
   /**
-   * Find onboarding survey by user ID
+   * Save onboarding preferences (stored on User)
    */
-  findOnboardingSurvey(userId: string): Promise<any>;
-
-  /**
-   * Create or update onboarding survey
-   */
-  createOnboardingSurvey(userId: string, data: any): Promise<any>;
+  saveOnboardingSurvey(userId: string, dto: OnboardingSurveyDTO): Promise<User>;
 }

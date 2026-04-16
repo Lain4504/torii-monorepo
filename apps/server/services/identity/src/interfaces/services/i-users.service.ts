@@ -135,9 +135,4 @@ export interface IUsersService {
     userId: string,
     dto: OnboardingSurveyDTO,
   ): Promise<{ success: boolean }>;
-
-  /**
-   * Get user onboarding survey
-   */
-  getOnboardingSurvey(userId: string): Promise<any>;
 }

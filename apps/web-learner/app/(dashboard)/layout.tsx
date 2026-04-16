@@ -25,12 +25,6 @@ export default function DashboardLayout({
         setMounted(true)
     }, [])
 
-    useEffect(() => {
-        if (mounted && status === 'succeeded' && isAuthenticated && user && !user.isOnboarded) {
-            router.push('/onboarding')
-        }
-    }, [isAuthenticated, status, user, router, mounted])
-
     /** Khách không còn xem dashboard: chuyển thẳng tới đăng nhập. */
     useEffect(() => {
         if (!mounted || status === 'loading') return

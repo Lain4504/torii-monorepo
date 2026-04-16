@@ -544,14 +544,9 @@ export class UsersService implements IUsersService {
     userId: string,
     dto: OnboardingSurveyDTO,
   ): Promise<{ success: boolean }> {
-    await this.usersRepository.createOnboardingSurvey(userId, dto);
+    await this.usersRepository.saveOnboardingSurvey(userId, dto);
     return { success: true };
   }
 
-  /**
-   * Get user onboarding survey
-   */
-  async getOnboardingSurvey(userId: string): Promise<any> {
-    return this.usersRepository.findOnboardingSurvey(userId);
-  }
+  // No separate onboarding survey table anymore.
 }
