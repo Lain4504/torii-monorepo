@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import { Field, FieldLabel } from "@workspace/ui/components/field";
 import { PageHeader } from "@/components/common/page-header";
@@ -107,10 +106,6 @@ export default function JlptMondaiMasterPage() {
             </SelectContent>
           </Select>
         </Field>
-        <Button type="button" variant="outline" className="w-full gap-2 md:ml-auto md:w-auto" onClick={() => void load()} disabled={loading}>
-          {loading ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-          Làm mới
-        </Button>
       </div>
 
       <div className={dataTableShellClass}>

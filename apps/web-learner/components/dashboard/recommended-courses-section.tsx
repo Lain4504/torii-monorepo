@@ -21,6 +21,7 @@ type CatalogItem = {
   price?: number
   discountPrice?: number | null
   thumbnailUrl?: string | null
+  instructor?: { id: string; displayName: string; avatarUrl?: string }
   courseProfile?: { title?: string; level?: string | null; thumbnailUrl?: string | null } | null
   cohort?: { courseProfile?: CatalogItem['courseProfile'] | null } | null
 }
@@ -36,12 +37,13 @@ function CourseCard({ item, mode }: { item: CatalogItem; mode: 'LIVE' | 'VOD' })
   const title = item.name || item.title || profile?.title || 'Khóa học'
   const level = profile?.level || '—'
   const thumb = item.thumbnailUrl || profile?.thumbnailUrl || '/course-placeholder.jpg'
-  const displayPrice = item.discountPrice && item.discountPrice > 0 ? item.discountPrice : (item.price ?? 0)
-  const hasDiscount = !!(item.discountPrice && item.discountPrice > 0 && item.price && item.discountPrice < item.price)
+  const basePrice = item.price ?? 0
+  const hasDiscount = !!(item.discountPrice && item.discountPrice > 0 && item.discountPrice < basePrice)
+  const displayPrice = hasDiscount ? (item.discountPrice ?? basePrice) : basePrice
 
   return (
-    <Card className="group overflow-hidden rounded-2xl border-border/50 bg-card shadow-none transition-all hover:border-primary/20 hover:bg-muted/5">
-      <CardContent className="p-0">
+    <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full min-w-0 max-w-full flex flex-col p-0">
+      <CardContent className="p-0 flex h-full min-w-0 max-w-full flex-col">
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted/10">
           <Image
             src={thumb}
@@ -57,16 +59,16 @@ function CourseCard({ item, mode }: { item: CatalogItem; mode: 'LIVE' | 'VOD' })
             <Badge
               className={cn(
                 'border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm text-white',
-                mode === 'LIVE' ? 'bg-red-500' : 'bg-primary',
+                mode === 'LIVE' ? 'bg-red-500' : 'bg-primary'
               )}
             >
-              {mode}
+              {mode === 'LIVE' ? 'Tuyển sinh' : 'VOD'}
             </Badge>
           </div>
         </div>
-        <div className="p-5 space-y-3">
-          <div className="min-w-0 space-y-1">
-            <p className="line-clamp-2 text-sm font-bold tracking-tight text-foreground/90 group-hover:text-primary transition-colors">
+        <div className="p-5 flex flex-col min-w-0 space-y-4">
+          <div className="space-y-1 min-w-0">
+            <p className="line-clamp-2 text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors">
               {title}
             </p>
             {item.code ? (
@@ -76,20 +78,31 @@ function CourseCard({ item, mode }: { item: CatalogItem; mode: 'LIVE' | 'VOD' })
             ) : null}
           </div>
 
-          <div className="flex items-end justify-between gap-3 border-t border-border/20 pt-3">
-            <div className="min-w-0">
-              <div className="text-base font-bold tabular-nums tracking-tighter text-primary">
+          <div className="space-y-3 pt-3 border-t border-border/20">
+            {item.instructor?.id ? (
+              <Link
+                href={`/dashboard/instructors/${item.instructor.id}?name=${encodeURIComponent(item.instructor.displayName || '')}`}
+                className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                <span className="truncate">Giảng viên: {item.instructor.displayName}</span>
+              </Link>
+            ) : null}
+
+            <div className="flex min-w-0 items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className={cn("text-lg font-bold tabular-nums tracking-tighter", hasDiscount ? "text-destructive" : "text-primary")}>
                 {formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span>
-              </div>
-              {hasDiscount ? (
-                <div className="text-[11px] font-bold tabular-nums text-muted-foreground/50 line-through">
-                  {formatNumber(item.price ?? 0)} đ
                 </div>
-              ) : null}
+                {hasDiscount ? (
+                  <div className="text-[11px] font-bold tabular-nums text-muted-foreground/50 line-through">
+                    {formatNumber(basePrice)} đ
+                  </div>
+                ) : null}
+              </div>
+              <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+                <Link href={`/dashboard/available-courses/class/${item.id}?mode=${mode}`}>Chi tiết</Link>
+              </Button>
             </div>
-            <Button size="sm" className="h-9 shrink-0 rounded-xl font-bold text-[10px] uppercase tracking-wider" asChild>
-              <Link href={`/dashboard/available-courses/class/${item.id}?mode=${mode}`}>Chi tiết</Link>
-            </Button>
           </div>
         </div>
       </CardContent>
@@ -121,7 +134,7 @@ export function RecommendedCoursesSection({ jlptTarget }: { jlptTarget: string }
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Khóa học đề xuất theo mục tiêu của bạn</CardTitle>
         <CardDescription>
-          {level ? `Ưu tiên lộ trình ${level}.` : 'Chọn một khóa học phù hợp để bắt đầu.'} Bạn chỉ cần mua khóa học — phần “gợi ý học” sẽ xuất hiện sau khi ghi danh.
+          {level ? `Ưu tiên lộ trình ${level}.` : 'Chọn một khóa học phù hợp để bắt đầu.'} Ghi danh khóa học để mở đầy đủ gợi ý học tập cá nhân hóa.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

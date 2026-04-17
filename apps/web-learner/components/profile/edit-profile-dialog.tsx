@@ -89,14 +89,14 @@ export function EditProfileDialog({
                                         )}
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div className="grid gap-2">
                                             <FieldLabel>Số điện thoại</FieldLabel>
                                             <Input {...form.register("phone")} />
                                         </div>
                                         <div className="grid gap-2">
                                             <FieldLabel>Ngày sinh</FieldLabel>
-                                            <Input type="date" {...form.register("dateOfBirth")} />
+                                            <Input type="date" className="w-full min-w-0 appearance-none h-10" {...form.register("dateOfBirth")} />
                                         </div>
                                     </div>
 

@@ -8,19 +8,18 @@ import { useQuery } from '@tanstack/react-query'
 import { profileApi } from '@/lib/api/services/profile-api'
 import { useAcademyClassCatalog } from '@/lib/api/services/academy-course-api'
 import { Button } from '@workspace/ui/components/button'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
+import { Separator } from '@workspace/ui/components/separator'
 import {
   ArrowLeft,
   BookOpen,
   Calendar,
-  Users,
   Star,
   GraduationCap,
-  Clock,
-  User
+  User,
 } from 'lucide-react'
 import { formatNumber } from '@/utils/format-utils'
 import { cn } from '@workspace/ui/lib/utils'
@@ -54,7 +53,6 @@ export default function InstructorPublicPage() {
   const name = profile?.displayName || fallbackName || 'Giảng viên'
   const bio = profile?.userMetadata?.bio || 'Giảng viên giàu kinh nghiệm tại Torii Academy.'
   const avatarUrl = profile?.avatarUrl
-  const stats = profile?.stats || { totalCourses: 0, totalLearningHours: 0 }
 
   if (isLoading) {
     return (
@@ -67,93 +65,65 @@ export default function InstructorPublicPage() {
 
   const liveItems = liveCourses?.items || []
   const vodItems = vodCourses?.items || []
+  const totalCourses = liveItems.length + vodItems.length
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-700">
-      {/* Header / Breadcrumb */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" className="-ml-2 text-muted-foreground/60 hover:text-foreground text-[10px] font-bold uppercase tracking-wider h-8" asChild>
+    <div className="mx-auto w-full max-w-7xl space-y-8 px-4 pb-10 animate-in fade-in duration-500">
+      <div>
+        <Button variant="ghost" size="sm" className="-ml-2" asChild>
           <Link href="/dashboard/available-courses">
-            <ArrowLeft className="mr-2 h-3 w-3" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Quay lại khám phá
           </Link>
         </Button>
       </div>
 
-      {/* Profile Section - Premium Design */}
-      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-primary/5 via-background to-primary/5 border border-primary/10 p-8 md:p-12">
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 size-96 bg-primary/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 size-96 bg-primary/10 rounded-full blur-[100px]" />
+      <Card>
+        <CardHeader className="space-y-5">
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+            <Avatar className="size-24 border self-center">
+              <AvatarImage src={avatarUrl ?? undefined} className="object-cover" />
+              <AvatarFallback className="text-xl font-semibold">
+                {name[0]}
+              </AvatarFallback>
+            </Avatar>
 
-        <div className="relative flex flex-col md:flex-row items-center md:items-start gap-10">
-          {avatarUrl && (
-            <div className="relative shrink-0">
-              <div className="absolute inset-0 bg-primary/20 rounded-[2rem] blur-2xl -rotate-6 scale-95" />
-              <Avatar className="size-40 md:size-48 rounded-[2rem] border-4 border-white dark:border-zinc-900 shadow-2xl relative">
-                <AvatarImage src={avatarUrl} className="object-cover" />
-                <AvatarFallback className="text-4xl font-black bg-primary/10 text-primary">
-                  {name[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-2 -right-2 size-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/20 border-4 border-white dark:border-zinc-900">
-                <GraduationCap className="size-6" />
-              </div>
-            </div>
-          )}
-
-          <div className="flex-1 space-y-6 text-center md:text-left">
-            <div className="space-y-2">
-              <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary text-[10px] uppercase font-black tracking-widest px-3 py-1">
-                Expert Instructor
+            <div className="min-w-0 flex-1 space-y-2">
+              <Badge variant="secondary" className="w-fit">
+                Giảng viên
               </Badge>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground leading-tight">
+              <CardTitle className="text-2xl md:text-3xl">
                 {name}
-              </h1>
-            </div>
-
-            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl font-medium">
-              {bio}
-            </p>
-
-            <div className="flex flex-wrap justify-center md:justify-start gap-8 pt-4">
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">Khóa học</p>
-                <p className="text-2xl font-bold flex items-center gap-2">
-                  <BookOpen className="size-5 text-primary/60" />
-                  {liveItems.length + vodItems.length}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">Đánh giá</p>
-                <p className="text-2xl font-bold flex items-center gap-2">
-                  <Star className="size-5 text-yellow-500/60" />
-                  4.9
-                </p>
-              </div>
-              {stats.totalLearningHours > 0 && (
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">Thời gian dạy</p>
-                  <p className="text-2xl font-bold flex items-center gap-2">
-                    <Clock className="size-5 text-primary/60" />
-                    {stats.totalLearningHours}h
-                  </p>
-                </div>
-              )}
+              </CardTitle>
+              <CardDescription className="text-sm md:text-base leading-relaxed text-muted-foreground">
+                {bio}
+              </CardDescription>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Courses Section */}
-      <div className="grid grid-cols-1 space-y-20 pt-10">
-        {/* Live Classes */}
-        {liveItems.length > 0 && (
-          <section className="space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="h-8 w-1.5 rounded-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]" />
-              <h2 className="text-2xl font-black tracking-tight uppercase italic">Lớp Live đang mở</h2>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <BookOpen className="size-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Khóa học:</span>
+              <span className="font-medium">{totalCourses}</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="flex items-center gap-2 text-sm">
+              <Star className="size-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Đánh giá:</span>
+              <span className="font-medium">4.9</span>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <div className="space-y-8">
+        {liveItems.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Lớp Live đang mở</h2>
+              <Badge variant="outline">{liveItems.length} lớp</Badge>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {liveItems.map((klass: any) => (
                 <CourseCard key={klass.id} klass={klass} mode="LIVE" />
               ))}
@@ -161,14 +131,13 @@ export default function InstructorPublicPage() {
           </section>
         )}
 
-        {/* VOD Courses */}
         {vodItems.length > 0 && (
-          <section className="space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="h-8 w-1.5 rounded-full bg-primary/40" />
-              <h2 className="text-2xl font-black tracking-tight uppercase italic">Khóa học VOD</h2>
+          <section className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Khóa học VOD</h2>
+              <Badge variant="outline">{vodItems.length} khóa</Badge>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {vodItems.map((klass: any) => (
                 <CourseCard key={klass.id} klass={klass} mode="VOD" />
               ))}
@@ -177,12 +146,12 @@ export default function InstructorPublicPage() {
         )}
 
         {liveItems.length === 0 && vodItems.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-            <div className="size-20 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground/20">
-              <BookOpen className="size-10" />
-            </div>
-            <p className="text-lg font-bold text-muted-foreground">Giảng viên hiện chưa có khóa học nào được đăng tải.</p>
-          </div>
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+              <BookOpen className="size-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Giảng viên hiện chưa có khóa học nào được đăng tải.</p>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
@@ -202,49 +171,61 @@ function CourseCard({ klass, mode }: { klass: any; mode: 'LIVE' | 'VOD' }) {
   const displayPrice = hasDiscount ? discountPrice : basePrice
 
   return (
-    <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-3xl overflow-hidden shadow-none h-full flex flex-col p-0">
+    <Card className="group border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-300 rounded-2xl overflow-hidden shadow-none h-full flex flex-col p-0">
       <CardContent className="p-0 flex h-full flex-col">
         <div className="relative aspect-[16/10] w-full bg-muted/10 overflow-hidden">
           <Image src={thumb} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px" />
           <div className="absolute top-4 left-4 flex gap-2">
-            <Badge className="bg-white/90 backdrop-blur-md text-primary border-none px-2.5 py-1 rounded-xl font-black text-[9px] shadow-sm uppercase">
+            <Badge className="bg-white text-primary border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
               {level}
             </Badge>
             <Badge className={cn(
-              "text-white border-none px-2.5 py-1 rounded-xl font-black text-[9px] shadow-sm uppercase",
-              mode === 'LIVE' ? "bg-red-500" : "bg-primary"
+              "border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm text-white",
+              mode === 'LIVE' ? 'bg-red-500' : 'bg-primary'
             )}>
-              {mode}
+              {mode === 'LIVE' ? 'Tuyển sinh' : 'VOD'}
             </Badge>
           </div>
         </div>
-        <div className="p-6 flex flex-col flex-1 space-y-4">
+        <div className="p-5 flex flex-col min-w-0 space-y-4">
           <div className="space-y-1">
-            <h3 className="text-md font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2 min-h-[2.5rem]">{title}</h3>
+            <h3 className="text-lg font-bold tracking-tight text-foreground/90 leading-tight group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem]">{title}</h3>
             <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em]">{klass.code}</p>
           </div>
 
-          {mode === 'LIVE' && klass.term?.openingDate && (
-            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/60">
-              <Calendar className="size-3.5" />
+          {klass.instructor?.id ? (
+            <Link
+              href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
+              className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              <User className="size-4 text-primary/60" />
+              <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
+            </Link>
+          ) : null}
+
+          {mode === 'LIVE' && klass.term?.openingDate ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="size-4 text-primary/60" />
               <span>Khai giảng: {new Date(klass.term.openingDate).toLocaleDateString('vi-VN')}</span>
             </div>
-          )}
+          ) : null}
 
-          <div className="mt-auto pt-4 border-t border-border/20 flex items-center justify-between gap-3">
+          <Separator />
+
+          <div className="mt-auto flex items-center justify-between gap-3">
             <div className="flex flex-col">
               <span className={cn(
-                "text-md font-black tabular-nums tracking-tighter",
-                hasDiscount ? "text-red-500" : "text-primary",
+                'text-lg font-bold tabular-nums tracking-tighter',
+                hasDiscount ? 'text-destructive' : 'text-primary'
               )}>
-                {formatNumber(displayPrice)} <span className="text-[9px] uppercase ml-0.5">đ</span>
+                {formatNumber(displayPrice)} <span className="text-[10px] uppercase ml-0.5">đ</span>
               </span>
               {hasDiscount && (
-                <span className="text-[10px] text-muted-foreground/40 line-through font-bold">{formatNumber(basePrice)} đ</span>
+                <span className="text-[11px] text-muted-foreground/50 line-through font-bold">{formatNumber(basePrice)} đ</span>
               )}
             </div>
-            <Button size="sm" className="h-8 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg shadow-primary/10 group-hover:scale-[1.05] transition-all" asChild>
-              <Link href={`/dashboard/available-courses/class/${klass.id}?mode=${mode}`}>Xem chi tiết</Link>
+            <Button size="sm" className="h-9 px-5 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-none group-hover:scale-[1.02] transition-transform" asChild>
+              <Link href={`/dashboard/available-courses/class/${klass.id}?mode=${mode}`}>Chi tiết</Link>
             </Button>
           </div>
         </div>

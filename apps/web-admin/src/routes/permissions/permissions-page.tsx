@@ -344,7 +344,7 @@ export function PermissionsPage() {
                                             {PERMISSION_DESCRIPTION_VI[perm.code] || perm.description}
                                         </span>
                                         <span className="text-[10px] font-mono text-muted-foreground">
-                                            {perm.code.split('.').pop()}
+                                            {perm.code}
                                         </span>
                                     </div>
                                 </TableHead>

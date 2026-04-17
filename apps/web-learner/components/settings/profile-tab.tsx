@@ -192,6 +192,7 @@ export function ProfileTab() {
                                 <Input
                                     id="dateOfBirth"
                                     type="date"
+                                    className="w-full min-w-0 appearance-none h-10"
                                     value={formData.dateOfBirth}
                                     onChange={(e) =>
                                         setFormData({ ...formData, dateOfBirth: e.target.value })

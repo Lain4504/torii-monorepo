@@ -126,7 +126,7 @@ function App() {
                     <Route path="blogs/:id/edit" element={<EditBlogPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["lms.catalog.read", "lms.catalog.update"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["lms.catalog.read", "lms.catalog.update", "lms.assessment.grade"]} />}>
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
                     <Route path="academy/course-profiles/:profileId/detail" element={<CourseProfileDetailPage />} />
                   </Route>
@@ -208,7 +208,7 @@ function App() {
                     <Route path="audit-logs" element={<AuditLogsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard permission="ops.user.manage" />}>
+                  <Route element={<RoutePermissionGuard anyPermission={[...ADMIN_PANEL_ENTRY_PERMISSIONS]} />}>
                     <Route path="notifications" element={<NotificationsPage />} />
                   </Route>
 

@@ -17,7 +17,6 @@ import {
     Hand,
     Medal,
     Award,
-    BarChart3,
     Shield,
     Star,
     Trophy,
@@ -346,7 +345,6 @@ function AuthenticatedDashboardPage() {
                             { href: '/dashboard/achievements', Icon: Medal, label: 'Thành tựu' },
                             { href: '/dashboard/certificates', Icon: Award, label: 'Chứng chỉ' },
                             { href: '/dashboard/schedule', Icon: CalendarDays, label: 'Lịch học' },
-                            { href: '/dashboard/analytics', Icon: BarChart3, label: 'Thống kê' },
                         ].map(({ href, Icon, label }) => (
                             <Link
                                 key={href}

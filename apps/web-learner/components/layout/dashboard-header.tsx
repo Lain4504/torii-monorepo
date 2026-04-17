@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Zap, Gem, Coins, Target } from 'lucide-react'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
@@ -30,19 +30,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { useGamificationProfile, useStreak } from '@/lib/api/services/gamification-api'
 import { useWalletBalance } from '@/lib/api/services/wallet-api'
 import { Progress } from '@workspace/ui/components/progress'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@workspace/ui/components/dialog'
-import { Label } from '@workspace/ui/components/label'
-import { RadioGroup, RadioGroupItem } from '@workspace/ui/components/radio-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select'
-import { apiClient } from '@/lib/api/api-client'
-import { fetchProfile } from '@/store/slices/authSlice'
+import { JlptGoalDialog } from '@/components/onboarding/jlpt-goal-dialog'
 import {
     Tooltip,
     TooltipContent,
@@ -64,15 +52,6 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const [goalOpen, setGoalOpen] = useState(false)
-    const [jlptTarget, setJlptTarget] = useState<string>((user as any)?.jlptTarget || (user?.userMetadata as any)?.jlptTarget || 'N3')
-    const [currentLevel, setCurrentLevel] = useState<string>((user as any)?.currentLevel || 'NEVER')
-    const [savingGoal, setSavingGoal] = useState(false)
-
-    // Keep dialog defaults in sync when user changes (profile refresh)
-    useEffect(() => {
-        setJlptTarget((user as any)?.jlptTarget || (user?.userMetadata as any)?.jlptTarget || 'N3')
-        setCurrentLevel((user as any)?.currentLevel || 'NEVER')
-    }, [user])
 
     const handleLogout = async () => {
         try {
@@ -85,27 +64,7 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
         }
     }
 
-    const saveGoal = async () => {
-        if (savingGoal) return
-        setSavingGoal(true)
-        try {
-            const res = await apiClient.post('/api/onboarding/survey', {
-                jlptTarget,
-                currentLevel,
-            })
-            if (res.data?.success) {
-                toast.success('Đã cập nhật mục tiêu JLPT.')
-                await dispatch(fetchProfile())
-                setGoalOpen(false)
-            } else {
-                toast.error(res.data?.message || 'Không thể lưu mục tiêu.')
-            }
-        } catch (e: any) {
-            toast.error(e?.response?.data?.message || 'Không thể lưu mục tiêu.')
-        } finally {
-            setSavingGoal(false)
-        }
-    }
+    // Modal set mục tiêu JLPT được dùng chung qua component JlptGoalDialog
 
     // Level & XP Progress logic (align with gamification profile UI)
     // Non-linear: L1->2=200, L2->3=300, L3->4=400, ...
@@ -251,64 +210,7 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
                 </div>
             </div>
 
-            <Dialog open={goalOpen} onOpenChange={setGoalOpen}>
-                <DialogContent className="sm:max-w-[520px]">
-                    <DialogHeader>
-                        <DialogTitle>Mục tiêu JLPT</DialogTitle>
-                        <DialogDescription>
-                            Dùng để gợi ý khóa học phù hợp trên dashboard. Bạn có thể thay đổi bất cứ lúc nào.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="space-y-6">
-                        <div className="space-y-3">
-                            <Label>Mục tiêu JLPT</Label>
-                            <RadioGroup
-                                value={jlptTarget}
-                                onValueChange={setJlptTarget}
-                                className="grid grid-cols-2 gap-3 sm:grid-cols-5"
-                            >
-                                {['N5', 'N4', 'N3', 'N2', 'N1'].map((lvl) => (
-                                    <Label
-                                        key={lvl}
-                                        htmlFor={`goal-${lvl}`}
-                                        className="flex items-center gap-2 rounded-md border bg-card px-3 py-2 text-sm font-medium hover:bg-muted/40"
-                                    >
-                                        <RadioGroupItem id={`goal-${lvl}`} value={lvl} />
-                                        {lvl}
-                                    </Label>
-                                ))}
-                            </RadioGroup>
-                        </div>
-
-                        <div className="space-y-3">
-                            <Label>Trình độ hiện tại (tuỳ chọn)</Label>
-                            <Select value={currentLevel} onValueChange={setCurrentLevel}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Chọn trình độ" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="NEVER">Mới bắt đầu</SelectItem>
-                                    <SelectItem value="N5">N5</SelectItem>
-                                    <SelectItem value="N4">N4</SelectItem>
-                                    <SelectItem value="N3">N3</SelectItem>
-                                    <SelectItem value="N2">N2</SelectItem>
-                                    <SelectItem value="N1">N1</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setGoalOpen(false)} disabled={savingGoal}>
-                            Hủy
-                        </Button>
-                        <Button onClick={saveGoal} disabled={savingGoal} className="font-bold">
-                            {savingGoal ? 'Đang lưu...' : 'Lưu'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <JlptGoalDialog open={goalOpen} onOpenChange={setGoalOpen} />
         </header >
     )
 }

@@ -42,6 +42,8 @@ function navSubVisible(
 ): boolean {
     if (!parentOk) return false;
     if (sub.url === "/academy/vod-packages/my" && !isTeachingOnly) return false;
+    // Giảng viên không quản lý Course Profile trong admin sidebar.
+    if (sub.url === "/academy/course-profiles" && isTeachingOnly) return false;
     if (sub.permission) return can(sub.permission);
     if (sub.anyPermission?.length) return canAny(sub.anyPermission);
     return true;

@@ -229,8 +229,6 @@ export default function JlptQuestionsPage() {
           onLevelChange={handleLevelChange}
           section={section}
           onSectionChange={handleSectionChange}
-          onRefresh={() => fetchQuestions()}
-          loading={loading}
         />
 
         <div className={dataTableShellClass}>

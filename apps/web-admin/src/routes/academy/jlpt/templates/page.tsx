@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   Search,
   LayoutTemplate,
-  RefreshCw,
   Loader2,
   Plus,
   Edit2,
@@ -216,10 +215,6 @@ export default function JlptTemplatesPage() {
               </SelectContent>
             </Select>
             </div>
-            <Button type="button" variant="outline" className="w-full gap-2 md:ml-auto md:w-auto" onClick={fetchTemplates} disabled={loading}>
-              {loading ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-              Làm mới
-            </Button>
           </div>
         </div>
 

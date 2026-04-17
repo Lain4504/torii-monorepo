@@ -1,5 +1,4 @@
-import { Filter, Layers, Loader2, RefreshCw, Search } from 'lucide-react';
-import { Button } from '@workspace/ui/components/button';
+import { Filter, Layers, Search } from 'lucide-react';
 import { Input } from '@workspace/ui/components/input';
 import {
     Select,
@@ -82,8 +81,6 @@ export interface JlptQuestionsToolbarProps {
     onLevelChange: (value: string) => void;
     section: string;
     onSectionChange: (value: string) => void;
-    onRefresh: () => void;
-    loading?: boolean;
 }
 
 export function JlptQuestionsToolbar({
@@ -94,8 +91,6 @@ export function JlptQuestionsToolbar({
     onLevelChange,
     section,
     onSectionChange,
-    onRefresh,
-    loading,
 }: JlptQuestionsToolbarProps) {
     return (
         <div className={listPageToolbarRootClass}>
@@ -147,21 +142,6 @@ export function JlptQuestionsToolbar({
                         </SelectContent>
                     </Select>
                 </div>
-
-                <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full shrink-0 gap-2 md:ml-auto md:w-auto"
-                    onClick={onRefresh}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                        <RefreshCw className="size-4" />
-                    )}
-                    Làm mới
-                </Button>
             </div>
         </div>
     );

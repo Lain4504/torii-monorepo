@@ -10,7 +10,16 @@ import { Progress } from '@workspace/ui/components/progress'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { ScrollArea } from '@workspace/ui/components/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@workspace/ui/components/dialog'
+import { Separator } from '@workspace/ui/components/separator'
 import Link from 'next/link'
+import { JlptGoalDialog } from '@/components/onboarding/jlpt-goal-dialog'
 import {
     Award,
     Trophy,
@@ -47,6 +56,8 @@ export default function ProfilePage() {
     const { data: gamification } = useGamificationProfile()
     const { data: streak } = useStreak()
     const { data: achievementsData } = useAchievements()
+    const [goalOpen, setGoalOpen] = React.useState(false)
+    const [selectedAchievement, setSelectedAchievement] = React.useState<any | null>(null)
 
     const currentXpProgress = React.useMemo(() => {
         if (!gamification) return 0
@@ -55,6 +66,7 @@ export default function ProfilePage() {
     }, [gamification])
 
     return (
+        <>
         <div className="container mx-auto max-w-5xl py-8 space-y-6 animate-in fade-in duration-500">
             {/* Standard Profile Header */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 pb-6 border-b">
@@ -165,14 +177,20 @@ export default function ProfilePage() {
                                     achievementsData?.filter(a => a.isUnlocked).map((achievement: any) => {
                                         const icon = achievement.achievement.icon || 'Award';
                                         return (
-                                            <div key={achievement.id} className="aspect-square bg-muted/20 rounded-md flex items-center justify-center border group relative cursor-help transition-all hover:bg-primary/5 hover:border-primary/20 overflow-hidden" title={achievement.achievement.title}>
+                                            <button
+                                                key={achievement.id}
+                                                type="button"
+                                                onClick={() => setSelectedAchievement(achievement)}
+                                                className="aspect-square bg-muted/20 rounded-md flex items-center justify-center border group relative cursor-pointer transition-all hover:bg-primary/5 hover:border-primary/20 overflow-hidden focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                                title={achievement.achievement.title}
+                                            >
                                                 {icon.startsWith('http') ? (
                                                     <img src={icon} alt={achievement.achievement.title} className="size-full object-contain p-2 group-hover:scale-110 transition-all duration-300" />
                                                 ) : (() => {
                                                     const Icon = achievementIconMap[icon] || Award;
                                                     return <Icon className="size-7 text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all duration-300" />;
                                                 })()}
-                                            </div>
+                                            </button>
                                         );
                                     })
                                 ) : (
@@ -192,8 +210,22 @@ export default function ProfilePage() {
                     <ScrollArea className="max-h-[65vh] pr-3">
                     <Card className="shadow-none">
                         <CardHeader>
-                            <CardTitle className="text-base font-medium">Lộ trình học cá nhân</CardTitle>
-                            <CardDescription>Các thông số mục tiêu bạn đã thiết lập</CardDescription>
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                    <CardTitle className="text-base font-medium">Lộ trình học cá nhân</CardTitle>
+                                    <CardDescription>Các thông số mục tiêu bạn đã thiết lập</CardDescription>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="shrink-0"
+                                    onClick={() => setGoalOpen(true)}
+                                >
+                                    <Target className="mr-2 size-4" />
+                                    Thiết lập lại mục tiêu
+                                </Button>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             {(user?.jlptTarget || user?.currentLevel || (user?.userMetadata as any)?.jlptTarget) ? (
@@ -247,5 +279,68 @@ export default function ProfilePage() {
                 </TabsContent>
             </Tabs>
         </div>
+
+        <JlptGoalDialog open={goalOpen} onOpenChange={setGoalOpen} />
+
+        <Dialog
+            open={!!selectedAchievement}
+            onOpenChange={(open) => {
+                if (!open) setSelectedAchievement(null)
+            }}
+        >
+            <DialogContent className="sm:max-w-[560px]">
+                {selectedAchievement ? (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>{selectedAchievement.achievement?.title ?? 'Huy hiệu'}</DialogTitle>
+                            <DialogDescription>{selectedAchievement.achievement?.description ?? ''}</DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <div className="rounded-md border bg-card p-3">
+                                    <p className="text-[11px] text-muted-foreground">Thời gian đạt được</p>
+                                    <p className="mt-1 text-sm font-medium">
+                                        {selectedAchievement.unlockedAt ? formatDate(selectedAchievement.unlockedAt) : '—'}
+                                    </p>
+                                </div>
+                                <div className="rounded-md border bg-card p-3">
+                                    <p className="text-[11px] text-muted-foreground">Danh mục</p>
+                                    <p className="mt-1 text-sm font-medium">
+                                        {selectedAchievement.achievement?.category ?? '—'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            <div className="space-y-2">
+                                <p className="text-sm font-medium">Điều kiện để đạt</p>
+                                {selectedAchievement.achievement?.requirements &&
+                                Object.keys(selectedAchievement.achievement.requirements).length > 0 ? (
+                                    <div className="rounded-md border bg-muted/20 p-3">
+                                        <ul className="space-y-2">
+                                            {Object.entries(selectedAchievement.achievement.requirements).map(([k, v]) => (
+                                                <li key={k} className="flex items-start justify-between gap-3">
+                                                    <span className="text-xs font-mono text-muted-foreground">{k}</span>
+                                                    <span className="text-xs text-foreground/80 text-right break-words">
+                                                        {typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
+                                                            ? String(v)
+                                                            : JSON.stringify(v)}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">Chưa có dữ liệu điều kiện.</p>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                ) : null}
+            </DialogContent>
+        </Dialog>
+        </>
     )
 }
