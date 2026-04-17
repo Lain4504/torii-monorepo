@@ -38,7 +38,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
     const handlePurchase = async () => {
         if (!isAuthenticated) {
-            toast.error('Vui lòng đăng nhập để mua khóa học')
+            toast.error('Vui lòng đăng nhập để đăng ký học ngay')
             router.push('/login')
             return
         }
@@ -130,7 +130,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                     onClick={handlePurchase}
                                     disabled={isEnrolling || isLoadingEnrollment}
                                 >
-                                    {isEnrolling ? 'Đang xử lý...' : isFree ? 'Bắt đầu ngay' : 'Đăng ký ngay'}
+                                    {isEnrolling ? 'Đang xử lý...' : isFree ? 'Bắt đầu ngay' : 'Đăng ký học ngay'}
                                 </Button>
                             </>
                         )}

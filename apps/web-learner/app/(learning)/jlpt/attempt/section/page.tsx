@@ -379,87 +379,85 @@ export default function JlptMockSectionPage() {
     }
   }
 
-  const SidebarContent = () => (
-    <div className="flex flex-col flex-1 min-h-0">
-      <ScrollArea className="flex-1">
-        <div className="p-5 space-y-8">
-            <section className="space-y-4">
-                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
-                    <BookOpen className="size-4" />
-                    <span>Cấu trúc phần thi</span>
+  const renderSidebarContent = () => (
+    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-background">
+      <div className="p-5 space-y-8 pb-32">
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+            <BookOpen className="size-4" />
+            <span>Cấu trúc phần thi</span>
+          </div>
+          <div className="space-y-1">
+            {MONDAI_SECTIONS.map((m, index) => (
+              <Button
+                key={`${m.mondaiId ?? "null"}-${index}`}
+                variant={(m.mondaiId ?? null) === activeMondaiId ? "default" : "ghost"}
+                className={cn(
+                  "w-full justify-start text-left h-auto py-3 px-4 rounded-xl",
+                  (m.mondaiId ?? null) === activeMondaiId && "shadow-sm"
+                )}
+                onClick={() => {
+                  setActiveMondaiId(m.mondaiId)
+                  setActiveMondaiIndex(index)
+                  setActiveMondaiCode(m.mondaiCode ?? null)
+                  setIsSidebarOpen(false)
+                }}
+              >
+                <div className="flex flex-col items-start gap-0.5">
+                  <span className="font-bold text-sm">{m.title}</span>
+                  <span className={cn(
+                    "text-[10px] font-medium",
+                    (m.mondaiId ?? null) === activeMondaiId ? "opacity-90" : "text-muted-foreground"
+                  )}>
+                    {m.description}
+                  </span>
                 </div>
-                <div className="space-y-1">
-                    {MONDAI_SECTIONS.map((m, index) => (
-                    <Button
-                        key={`${m.mondaiId ?? "null"}-${index}`}
-                        variant={(m.mondaiId ?? null) === activeMondaiId ? "default" : "ghost"}
-                        className={cn(
-                            "w-full justify-start text-left h-auto py-3 px-4 rounded-xl",
-                            (m.mondaiId ?? null) === activeMondaiId && "shadow-sm"
-                        )}
-                        onClick={() => {
-                            setActiveMondaiId(m.mondaiId)
-                            setActiveMondaiIndex(index)
-                            setActiveMondaiCode(m.mondaiCode ?? null)
-                            setIsSidebarOpen(false)
-                        }}
-                    >
-                        <div className="flex flex-col items-start gap-0.5">
-                            <span className="font-bold text-sm">{m.title}</span>
-                            <span className={cn(
-                                "text-[10px] font-medium",
-                                (m.mondaiId ?? null) === activeMondaiId ? "opacity-90" : "text-muted-foreground"
-                            )}>
-                                {m.description}
-                            </span>
-                        </div>
-                    </Button>
-                    ))}
-                </div>
-            </section>
+              </Button>
+            ))}
+          </div>
+        </section>
 
-            <section className="space-y-4">
-                <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                        <List className="size-4" />
-                        <span>Câu hỏi</span>
-                    </div>
-                    <Badge variant="secondary" className="font-bold text-[10px]">{ANSWERED_COUNT}/{QUESTION_COUNT}</Badge>
-                </div>
-                <div className="grid grid-cols-5 gap-1.5 px-1">
-                    {sectionQuestionsSorted.map((q, idx) => {
-                    const num = idx + 1
-                    const isActive = q.id === activeQuestionTemplateId
-                    const isAnswered = selectedOptionByTemplateQuestionId[q.id] != null
-                    return (
-                        <Button
-                            key={q.id}
-                            variant={isActive ? "default" : "outline"}
-                            size="icon"
-                            className={cn(
-                                "size-9 rounded-lg text-xs font-bold transition-all",
-                                isActive ? "shadow-md ring-2 ring-primary ring-offset-2" : isAnswered ? "bg-primary/5 border-primary/20 text-primary" : "text-muted-foreground border-border/50"
-                            )}
-                            onClick={() => {
-                                setActiveQuestionTemplateId(q.id)
-                                const targetMondaiCode = q.mondai?.code ?? null
-                                const mondaiItem = MONDAI_SECTIONS.find((m) => (m.mondaiCode ?? null) === targetMondaiCode)
-                                if (mondaiItem) {
-                                    setActiveMondaiId(mondaiItem.mondaiId)
-                                    setActiveMondaiIndex(mondaiItem.orderIndex)
-                                    setActiveMondaiCode(mondaiItem.mondaiCode ?? null)
-                                }
-                                setIsSidebarOpen(false)
-                            }}
-                        >
-                        {num}
-                        </Button>
-                    )
-                    })}
-                </div>
-            </section>
-        </div>
-      </ScrollArea>
+        <section className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+              <List className="size-4" />
+              <span>Câu hỏi</span>
+            </div>
+            <Badge variant="secondary" className="font-bold text-[10px]">{ANSWERED_COUNT}/{QUESTION_COUNT}</Badge>
+          </div>
+          <div className="grid grid-cols-5 gap-1.5 px-1">
+            {sectionQuestionsSorted.map((q, idx) => {
+              const num = idx + 1
+              const isActive = q.id === activeQuestionTemplateId
+              const isAnswered = selectedOptionByTemplateQuestionId[q.id] != null
+              return (
+                <Button
+                  key={q.id}
+                  variant={isActive ? "default" : "outline"}
+                  size="icon"
+                  className={cn(
+                    "size-9 rounded-lg text-xs font-bold transition-all",
+                    isActive ? "shadow-md ring-2 ring-primary ring-offset-2" : isAnswered ? "bg-primary/5 border-primary/20 text-primary" : "text-muted-foreground border-border/50"
+                  )}
+                  onClick={() => {
+                    setActiveQuestionTemplateId(q.id)
+                    const targetMondaiCode = q.mondai?.code ?? null
+                    const mondaiItem = MONDAI_SECTIONS.find((m) => (m.mondaiCode ?? null) === targetMondaiCode)
+                    if (mondaiItem) {
+                      setActiveMondaiId(mondaiItem.mondaiId)
+                      setActiveMondaiIndex(mondaiItem.orderIndex)
+                      setActiveMondaiCode(mondaiItem.mondaiCode ?? null)
+                    }
+                    setIsSidebarOpen(false)
+                  }}
+                >
+                  {num}
+                </Button>
+              )
+            })}
+          </div>
+        </section>
+      </div>
     </div>
   )
 
@@ -468,59 +466,59 @@ export default function JlptMockSectionPage() {
       <header className="shrink-0 bg-background border-b px-3 py-2 sm:px-4 sm:py-3 z-50">
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden size-9 sm:size-10">
-                <List className="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80">
-              <SheetHeader className="p-6 border-b">
-                <SheetTitle className="text-xl font-bold flex items-center gap-2">
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="md:hidden size-9 sm:size-10">
+                  <List className="size-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-80 gap-0">
+                <SheetHeader className="p-6 border-b">
+                  <SheetTitle className="text-xl font-bold flex items-center gap-2">
                     <Trophy className="size-5 text-primary" />
                     <span>JLPT Mock Test</span>
-                </SheetTitle>
-              </SheetHeader>
-              <SidebarContent />
-            </SheetContent>
-          </Sheet>
+                  </SheetTitle>
+                </SheetHeader>
+                {renderSidebarContent()}
+              </SheetContent>
+            </Sheet>
 
-          <Badge variant="secondary" className="h-7 px-2 text-[10px] font-bold">
-            {level}
-          </Badge>
-          
-          <div className="hidden lg:flex min-w-0 flex-col">
-            <h1 className="truncate font-semibold text-sm leading-none text-foreground">
-              {currentSection?.code === "LANGUAGE_VOCAB" && "Kiến thức (Từ vựng/Kanji)"}
-              {currentSection?.code === "LANGUAGE_GRAMMAR_READING" && "Ngữ pháp/Đọc hiểu"}
-              {currentSection?.code === "LISTENING" && "Nghe hiểu"}
-              {!currentSection && "Phần thi JLPT"}
-            </h1>
-            <p className="mt-1 text-[11px] font-medium text-muted-foreground">
-              Phần {PART_NUMBER}/{PART_TOTAL}
-            </p>
-          </div>
+            <Badge variant="secondary" className="h-7 px-2 text-[10px] font-bold">
+              {level}
+            </Badge>
+
+            <div className="hidden lg:flex min-w-0 flex-col">
+              <h1 className="truncate font-semibold text-sm leading-none text-foreground">
+                {currentSection?.code === "LANGUAGE_VOCAB" && "Kiến thức (Từ vựng/Kanji)"}
+                {currentSection?.code === "LANGUAGE_GRAMMAR_READING" && "Ngữ pháp/Đọc hiểu"}
+                {currentSection?.code === "LISTENING" && "Nghe hiểu"}
+                {!currentSection && "Phần thi JLPT"}
+              </h1>
+              <p className="mt-1 text-[11px] font-medium text-muted-foreground">
+                Phần {PART_NUMBER}/{PART_TOTAL}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-          <Button
-            size="sm"
-            className="h-9 px-3 sm:px-4 font-bold"
-            onClick={() => setShowConfirmSubmit(true)}
-            disabled={loading || sectionQuestionsSorted.length === 0}
-          >
-            <Send className="size-3.5 mr-2 hidden sm:inline" />
-            <span>{isLastSection ? "Nộp bài" : "Tiếp theo"}</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 text-muted-foreground"
-            onClick={() => setShowConfirmExit(true)}
-            disabled={loading}
-          >
-            <Maximize2 className="size-4" />
-          </Button>
+            <Button
+              size="sm"
+              className="h-9 px-3 sm:px-4 font-bold"
+              onClick={() => setShowConfirmSubmit(true)}
+              disabled={loading || sectionQuestionsSorted.length === 0}
+            >
+              <Send className="size-3.5 mr-2 hidden sm:inline" />
+              <span>{isLastSection ? "Nộp bài" : "Tiếp theo"}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-muted-foreground"
+              onClick={() => setShowConfirmExit(true)}
+              disabled={loading}
+            >
+              <Maximize2 className="size-4" />
+            </Button>
           </div>
         </div>
 
@@ -546,95 +544,95 @@ export default function JlptMockSectionPage() {
 
       <div className="flex-1 flex overflow-hidden">
         <aside className="hidden md:flex w-72 lg:w-80 border-r bg-background flex-col shrink-0 min-h-0">
-          <SidebarContent />
+          {renderSidebarContent()}
         </aside>
 
         <main className="flex-1 overflow-y-auto bg-background">
           <div className="mx-auto w-full max-w-3xl px-4 py-4 sm:px-6 sm:py-8 space-y-8 pb-24">
-            
+
             <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground px-1">
-                    <span>Tiến độ</span>
-                    <span>{ANSWERED_COUNT}/{QUESTION_COUNT} câu</span>
-                </div>
-                <Progress value={PROGRESS_VALUE} className="h-2" />
+              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground px-1">
+                <span>Tiến độ</span>
+                <span>{ANSWERED_COUNT}/{QUESTION_COUNT} câu</span>
+              </div>
+              <Progress value={PROGRESS_VALUE} className="h-2" />
             </div>
 
             {currentSection?.isListening && (
-                <Card className="mb-4">
-                    <CardContent className="p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="size-8 rounded-full bg-muted flex items-center justify-center text-primary">
-                                <Volume2 className="size-4" />
-                            </div>
-                            <h3 className="font-bold text-base">Nghe hiểu</h3>
-                        </div>
-                        <ListeningPlayer audioUrl={audioUrl} autoPlay />
-                    </CardContent>
-                </Card>
+              <Card className="mb-4">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="size-8 rounded-full bg-muted flex items-center justify-center text-primary">
+                      <Volume2 className="size-4" />
+                    </div>
+                    <h3 className="font-bold text-base">Nghe hiểu</h3>
+                  </div>
+                  <ListeningPlayer audioUrl={audioUrl} autoPlay />
+                </CardContent>
+              </Card>
             )}
 
             <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-[11px] font-semibold py-0 px-2 h-6 text-muted-foreground">Hướng dẫn</Badge>
-                </div>
-                <p className="text-base leading-relaxed text-foreground">
-                    {`問題${activeMondaiIndex + 1} ＿＿＿ ${activeProblemInstruction}`}
-                </p>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-[11px] font-semibold py-0 px-2 h-6 text-muted-foreground">Hướng dẫn</Badge>
+              </div>
+              <p className="text-base leading-relaxed text-foreground">
+                {`問題${activeMondaiIndex + 1} ＿＿＿ ${activeProblemInstruction}`}
+              </p>
             </div>
 
             <div className="space-y-8">
-            {QUESTION_BLOCKS.map((q) => (
-              <div key={q.id} className="space-y-6">
-                <div className="flex items-start gap-4">
+              {QUESTION_BLOCKS.map((q) => (
+                <div key={q.id} className="space-y-6">
+                  <div className="flex items-start gap-4">
                     <div className="shrink-0 size-8 rounded-md bg-muted text-foreground flex items-center justify-center font-semibold text-sm">
-                        {q.id}
+                      {q.id}
                     </div>
                     <div className="flex-1 pt-0.5">
-                        {q.sentence}
+                      {q.sentence}
                     </div>
-                </div>
+                  </div>
 
-                {activeMondaiQuestions.find(amq => amq.id === q.templateQuestionId)?.question.imageAssetId && (
+                  {activeMondaiQuestions.find(amq => amq.id === q.templateQuestionId)?.question.imageAssetId && (
                     <div className="sm:ml-12 rounded-xl overflow-hidden border border-border bg-white p-1">
-                        <img
-                            src={questionImageUrls[q.templateQuestionId]}
-                            alt="Question context"
-                            className="max-w-full h-auto object-contain mx-auto rounded-lg"
-                        />
+                      <img
+                        src={questionImageUrls[q.templateQuestionId]}
+                        alt="Question context"
+                        className="max-w-full h-auto object-contain mx-auto rounded-lg"
+                      />
                     </div>
-                )}
+                  )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:ml-12">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:ml-12">
                     {q.options.map((opt, index) => (
-                        <button
-                            key={opt.id}
-                            type="button"
-                            className={cn(
-                                "flex items-center gap-4 w-full h-auto py-4 px-5 rounded-md border text-left transition-colors",
-                                selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id 
-                                    ? "border-primary bg-primary/5" 
-                                    : "border-border bg-background hover:bg-muted"
-                            )}
-                            onClick={() => handleSelectOption(q.templateQuestionId, opt.id)}
-                        >
-                            <span className={cn(
-                                "shrink-0 size-6 rounded-md flex items-center justify-center font-bold text-[11px] border",
-                                selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id 
-                                    ? "bg-primary text-white border-primary" 
-                                    : "bg-muted text-muted-foreground border-transparent"
-                            )}>
-                                {index + 1}
-                            </span>
-                            <span className="text-base flex-1">
-                                <MarkdownRenderer content={opt.label} inline />
-                            </span>
-                        </button>
+                      <button
+                        key={opt.id}
+                        type="button"
+                        className={cn(
+                          "flex items-center gap-4 w-full h-auto py-4 px-5 rounded-md border text-left transition-colors",
+                          selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
+                            ? "border-primary bg-primary/5"
+                            : "border-border bg-background hover:bg-muted"
+                        )}
+                        onClick={() => handleSelectOption(q.templateQuestionId, opt.id)}
+                      >
+                        <span className={cn(
+                          "shrink-0 size-6 rounded-md flex items-center justify-center font-bold text-[11px] border",
+                          selectedOptionByTemplateQuestionId[q.templateQuestionId] === opt.id
+                            ? "bg-primary text-white border-primary"
+                            : "bg-muted text-muted-foreground border-transparent"
+                        )}>
+                          {index + 1}
+                        </span>
+                        <span className="text-base flex-1">
+                          <MarkdownRenderer content={opt.label} inline />
+                        </span>
+                      </button>
                     ))}
+                  </div>
+                  <Separator className="sm:ml-12 opacity-50" />
                 </div>
-                <Separator className="sm:ml-12 opacity-50" />
-              </div>
-            ))}
+              ))}
             </div>
           </div>
         </main>
@@ -644,13 +642,13 @@ export default function JlptMockSectionPage() {
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
-                <Send className="size-8 text-primary" />
+              <Send className="size-8 text-primary" />
             </div>
             <AlertDialogTitle className="text-center text-xl font-bold">
-                {isLastSection ? "Xác nhận nộp bài toàn bộ?" : `Nộp phần thi ${PART_NUMBER}?`}
+              {isLastSection ? "Xác nhận nộp bài toàn bộ?" : `Nộp phần thi ${PART_NUMBER}?`}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-sm font-medium">
-                Bạn đã hoàn thành các câu hỏi trong phần này. {isLastSection ? "Toàn bộ bài thi sẽ được gửi đi để chấm điểm." : "Bạn sẽ được chuyển sang phần thi tiếp theo."}
+              Bạn đã hoàn thành các câu hỏi trong phần này. {isLastSection ? "Toàn bộ bài thi sẽ được gửi đi để chấm điểm." : "Bạn sẽ được chuyển sang phần thi tiếp theo."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 pt-4">
@@ -670,35 +668,35 @@ export default function JlptMockSectionPage() {
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <div className="mx-auto size-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
-                <Activity className="size-8 text-primary" />
+              <Activity className="size-8 text-primary" />
             </div>
             <AlertDialogTitle className="text-center text-xl font-bold">Chuyển sang phần thi mới</AlertDialogTitle>
             <AlertDialogDescription className="text-center text-sm font-medium">
-                Bạn đã nộp thành công phần thi vừa rồi. Bạn sẵn sàng chuyển sang phần thi tiếp theo ngay bây giờ chứ?
+              Bạn đã nộp thành công phần thi vừa rồi. Bạn sẵn sàng chuyển sang phần thi tiếp theo ngay bây giờ chứ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="grid grid-cols-2 gap-3 pt-4 px-6 pb-6">
             <Button
-                variant="outline"
-                className="h-12 font-bold"
-                onClick={() => {
+              variant="outline"
+              className="h-12 font-bold"
+              onClick={() => {
                 setShowConfirmNextSection(false)
                 goBackToLevel()
-                }}
+              }}
             >
-                Để sau
+              Để sau
             </Button>
             <Button
-                onClick={() => {
+              onClick={() => {
                 setShowConfirmNextSection(false)
                 if (pendingNextSectionOrder == null) return
                 setCurrentSectionOrder(pendingNextSectionOrder)
                 setEndsAtIsoState(pendingNextEndsAtIso)
-                }}
-                disabled={loading || pendingNextSectionOrder == null}
-                className="h-12 font-bold"
+              }}
+              disabled={loading || pendingNextSectionOrder == null}
+              className="h-12 font-bold"
             >
-                Bắt đầu
+              Bắt đầu
             </Button>
           </div>
         </AlertDialogContent>
@@ -708,11 +706,11 @@ export default function JlptMockSectionPage() {
         <AlertDialogContent className="max-w-sm">
           <AlertDialogHeader>
             <div className="mx-auto size-16 bg-destructive/10 rounded-2xl flex items-center justify-center mb-4 text-destructive">
-                <AlertCircle className="size-8" />
+              <AlertCircle className="size-8" />
             </div>
             <AlertDialogTitle className="text-center text-xl font-bold">Thoát bài thi này?</AlertDialogTitle>
             <AlertDialogDescription className="text-center text-sm font-medium">
-                Tiến trình làm bài của bạn sẽ được lưu lại (nhưng thời gian dự kiến vẫn có thể tiếp tục trôi tùy theo thiết lập đề thi).
+              Tiến trình làm bài của bạn sẽ được lưu lại (nhưng thời gian dự kiến vẫn có thể tiếp tục trôi tùy theo thiết lập đề thi).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 pt-4">

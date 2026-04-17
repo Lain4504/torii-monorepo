@@ -80,13 +80,23 @@ function normalizeProductForLearner(item: any) {
   const parsedDiscountPrice = rawDiscountPrice ? Number(rawDiscountPrice) : null;
 
   const normalizedClasses = classes.map((cls: any) => {
+    let liveEnrollment = cls.liveEnrollment;
+    if (!liveEnrollment && cls._count?.enrollments !== undefined) {
+      liveEnrollment = {
+        activeEnrollmentCount: cls._count.enrollments,
+        maxStudents: cls.maxStudents ?? null,
+        isFull: cls.maxStudents != null ? cls._count.enrollments >= cls.maxStudents : false,
+        spotsLeft: cls.maxStudents != null ? Math.max(0, cls.maxStudents - cls._count.enrollments) : null,
+      };
+    }
+
     if (curriculum && !Array.isArray(cls.curriculum?.chapters)) {
-      return { ...cls, curriculum };
+      return { ...cls, curriculum, liveEnrollment };
     }
     if (cls === primaryClass && curriculum) {
-      return { ...cls, curriculum };
+      return { ...cls, curriculum, liveEnrollment };
     }
-    return cls;
+    return { ...cls, liveEnrollment };
   });
 
   const display = computeLearnerProductDisplay(item, {
@@ -307,10 +317,10 @@ export function useAcademyClassCatalog(
 }
 
 export function useAcademyClassCatalogById(catalogItemId?: string, mode?: 'LIVE' | 'VOD') {
-    return useQuery({
-        queryKey: ['academy-class-catalog', 'id', catalogItemId, mode],
-        queryFn: () => academyClassCatalogApi.getPublicById(catalogItemId!, mode),
-        enabled: !!catalogItemId,
+  return useQuery({
+    queryKey: ['academy-class-catalog', 'id', catalogItemId, mode],
+    queryFn: () => academyClassCatalogApi.getPublicById(catalogItemId!, mode),
+    enabled: !!catalogItemId,
     retry: false,
   });
 }

@@ -200,7 +200,7 @@ export default function ClassCatalogDetailPage() {
         asChild
       >
         <Link href={checkoutHref}>
-          {isLIVE ? "Đăng ký học ngay" : "Mua khóa học"}
+          Đăng ký học ngay
           <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>
