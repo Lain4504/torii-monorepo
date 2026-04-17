@@ -179,8 +179,8 @@ function AuthenticatedDashboardPage() {
                                             </div>
                                         </div>
                                         <Link
-                                            href={(mainCourse as any).liveClassId 
-                                                ? `/dashboard/my-courses/${(mainCourse as any).liveClassId}` 
+                                            href={(mainCourse as any).liveClassId
+                                                ? `/dashboard/my-courses/${(mainCourse as any).liveClassId}`
                                                 : `/courses/${(mainCourse as any).liveClassId ?? (mainCourse as any).vodPackageId ?? (mainCourse as any).courseProfileId ?? mainCourse.id}/learn`}
                                             className="mt-6 w-full md:max-w-max px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] text-center text-sm"
                                         >
@@ -195,7 +195,7 @@ function AuthenticatedDashboardPage() {
 
                                 <div className="bg-card rounded-2xl border border-border border-dashed p-10 text-center flex flex-col items-center">
                                     <BookOpen className="size-12 text-muted-foreground/30 mb-4" />
-                                    <h3 className="text-xl font-bold mb-2">Bạn chưa mua khóa học nào</h3>
+                                    <h3 className="text-xl font-bold mb-2">Bạn chưa đăng ký học khóa nào</h3>
                                     <p className="text-muted-foreground mb-6">
                                         Hãy chọn một khóa học phù hợp để bắt đầu. Sau khi ghi danh, hệ thống sẽ gợi ý học tập đơn giản cho bạn ngay trên dashboard.
                                     </p>

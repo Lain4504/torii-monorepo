@@ -46,14 +46,16 @@ function isLiveClassFull(cls: { liveEnrollment?: { isFull?: boolean } } | null |
     return !!cls?.liveEnrollment?.isFull
 }
 
-function liveCapacityLabel(cls: { liveEnrollment?: { activeEnrollmentCount?: number; maxStudents?: number | null; spotsLeft?: number | null; isFull?: boolean } } | null | undefined): string | null {
-    const le = cls?.liveEnrollment
-    if (!le) return null
-    const max = le.maxStudents
-    const cur = le.activeEnrollmentCount ?? 0
-    if (max == null) return `${cur} học viên (không giới hạn)`
-    const tail = le.isFull ? ' — Đã đầy' : le.spotsLeft != null ? ` — Còn ${le.spotsLeft} chỗ` : ''
-    return `${cur}/${max} học viên${tail}`
+function liveCapacityLabel(cls: any): string | null {
+    if (!cls) return null
+    const le = cls.liveEnrollment
+    const count = le?.activeEnrollmentCount ?? cls._count?.enrollments ?? 0
+
+    // For VOD or classes without max students
+    const max = le?.maxStudents ?? cls.maxStudents
+    if (max == null) return `${formatNumber(count)} học viên`
+
+    return `${count}/${max} học viên`
 }
 
 export default function CheckoutPage() {
@@ -364,7 +366,7 @@ export default function CheckoutPage() {
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
                                                 <ItemContent>
                                                     <ItemTitle className="text-sm">
-                                                        {liveCapacityLabel(selectedClass) ?? '—'}
+                                                        {liveCapacityLabel(selectedClass || product) || '0 học viên'}
                                                     </ItemTitle>
                                                 </ItemContent>
                                             </Item>
@@ -470,12 +472,12 @@ export default function CheckoutPage() {
                                             <CardContent className="pt-6 flex items-center justify-between gap-3">
                                                 <div className="flex items-center gap-3">
                                                     <Coins className="size-5 text-amber-600" />
-                                                <div>
-                                                    <p className="text-sm font-medium">Ví Xu Torii</p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Bạn có {formatNumber(user.walletBalance)} xu
-                                                    </p>
-                                                </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium">Ví Xu Torii</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Bạn có {formatNumber(user.walletBalance)} xu
+                                                        </p>
+                                                    </div>
                                                 </div>
                                                 {user.walletBalance >= displayTotal && (
                                                     <Button
