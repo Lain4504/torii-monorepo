@@ -175,6 +175,17 @@ export class LiveClassService {
   }
 
   async create(data: AcademyLiveClassCreateDTO) {
+    if (data.price != null && Number(data.price) <= 0) {
+      throw new BadRequestException('Giá lớp LIVE phải lớn hơn 0.');
+    }
+    if (
+      data.price != null &&
+      data.discountPrice != null &&
+      Number(data.discountPrice) >= Number(data.price)
+    ) {
+      throw new BadRequestException('Giá giảm phải nhỏ hơn giá gốc.');
+    }
+
     const cohort = await this.prisma.cohort.findUnique({
       where: { id: data.cohortId },
       select: { id: true, status: true },
@@ -233,6 +244,25 @@ export class LiveClassService {
   async update(id: string, data: AcademyLiveClassUpdateDTO) {
     const before = await this.prisma.liveClass.findUnique({ where: { id } });
     if (!before) throw new NotFoundException('Live Class not found');
+
+    const nextPrice =
+      data.price !== undefined ? Number(data.price) : Number(before.price ?? 0);
+    const nextDiscountPrice =
+      data.discountPrice !== undefined
+        ? (data.discountPrice == null ? null : Number(data.discountPrice))
+        : (before.discountPrice == null ? null : Number(before.discountPrice));
+
+    if (data.price !== undefined && data.price != null && nextPrice <= 0) {
+      throw new BadRequestException('Giá lớp LIVE phải lớn hơn 0.');
+    }
+    if (
+      nextDiscountPrice != null &&
+      Number.isFinite(nextPrice) &&
+      nextPrice > 0 &&
+      nextDiscountPrice >= nextPrice
+    ) {
+      throw new BadRequestException('Giá giảm phải nhỏ hơn giá gốc.');
+    }
 
     // State-machine tối thiểu cho LiveClass:
     // - ARCHIVED là trạng thái cuối (immutable)

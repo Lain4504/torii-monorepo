@@ -63,7 +63,7 @@ const liveClassSchema = z.object({
   instructorId: z.string().uuid("Vui lòng chọn giảng viên phụ trách"),
   status: z.string().optional(),
   maxStudents: z.number().int().min(1, "Ít nhất 1 học viên").max(30, "Số học viên tối đa là 30").optional().nullable(),
-  price: z.number().min(0, "Giá phải lớn hơn hoặc bằng 0").optional().nullable(),
+  price: z.number().positive("Giá phải lớn hơn 0").optional().nullable(),
   discountPrice: z.number().min(0, "Giá giảm phải lớn hơn hoặc bằng 0").optional().nullable(),
   thumbnailUrl: z.string().url().optional().nullable(),
   schedules: z.array(scheduleItemSchema).optional(),
@@ -110,7 +110,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
       instructorId: "",
       status: "DRAFT",
       maxStudents: null,
-      price: 0,
+      price: null,
       discountPrice: null,
       thumbnailUrl: "",
       schedules: [],
@@ -151,7 +151,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         instructorId: academyClass.instructorId ?? "",
         status: academyClass.status ?? "DRAFT",
         maxStudents: academyClass.maxStudents ?? null,
-        price: (academyClass as any).price ? Number((academyClass as any).price) : 0,
+        price: (academyClass as any).price ? Number((academyClass as any).price) : null,
         discountPrice: (academyClass as any).discountPrice ? Number((academyClass as any).discountPrice) : null,
         thumbnailUrl: academyClass.thumbnailUrl || "",
         schedules: [],
@@ -164,7 +164,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
         instructorId: "",
         status: "DRAFT",
         maxStudents: null,
-        price: 0,
+        price: null,
         discountPrice: null,
         thumbnailUrl: "",
         schedules: [],
@@ -246,7 +246,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                   <FieldLegend>Liên kết cấu trúc</FieldLegend>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>Đợt khai giảng (Session Group)</FieldLabel>
+                      <FieldLabel>Đợt khai giảng</FieldLabel>
                       <Controller
                         name="cohortId"
                         control={control}
@@ -357,9 +357,14 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                             render={({ field }) => (
                               <Input
                                 type="number"
-                                min={0}
-                                value={field.value ?? 0}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                min={1}
+                                placeholder="Nhập giá > 0"
+                                value={field.value ?? ""}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === "" ? null : Number(e.target.value),
+                                  )
+                                }
                               />
                             )}
                           />

@@ -194,17 +194,15 @@ export default function JlptConfigPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Cấu hình JLPT"
-        subtitle="Xem cấu hình JLPT + hồ sơ chấm điểm (seed) - chỉ đọc"
+        subtitle="Xem nhanh cấp độ, phần thi và ngưỡng chấm điểm hiện tại"
       />
 
       <div className="flex flex-col gap-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border">
                 <CardHeader>
-                  <CardTitle>JlptLevel (danh sách cấu hình)</CardTitle>
-                  <CardDescription>
-                    Đây là cấu hình chuẩn JLPT dùng cho các phần thi + mondai + scoring.
-                  </CardDescription>
+                  <CardTitle>Cấp độ JLPT</CardTitle>
+                  <CardDescription>Chọn cấp độ để xem thông tin tương ứng.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {loading ? (
@@ -213,7 +211,7 @@ export default function JlptConfigPage() {
                     </div>
                   ) : levels.length === 0 ? (
                     <div className="h-24 text-center text-muted-foreground text-sm">
-                      Chưa có JLPT Level trong DB. Vui lòng kiểm tra seed/config JLPT ở backend.
+                      Chưa có dữ liệu cấp độ JLPT.
                     </div>
                   ) : (
                     <Table>
@@ -221,8 +219,8 @@ export default function JlptConfigPage() {
                         <TableRow>
                           <TableHead className="w-[80px]">Code</TableHead>
                           <TableHead>Tên</TableHead>
-                          <TableHead className="w-[160px]">Tổng thời gian</TableHead>
-                          <TableHead className="w-[120px]">Đang hoạt động</TableHead>
+                          <TableHead className="w-[160px]">Tổng thời lượng</TableHead>
+                          <TableHead className="w-[120px]">Đang chọn</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -250,7 +248,7 @@ export default function JlptConfigPage() {
               <Card className="border">
                 <CardHeader>
                   <CardTitle>Các phần theo cấp độ</CardTitle>
-                  <CardDescription>Hiển thị các phần theo chuẩn N5/N4/... (thời lượng/thứ tự/thuộc nghe) từ dữ liệu seed/cấu hình.</CardDescription>
+                  <CardDescription>Danh sách phần thi và thời lượng theo cấp độ đang chọn.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {loading ? (
@@ -259,7 +257,7 @@ export default function JlptConfigPage() {
                     </div>
                   ) : sections.length === 0 ? (
                     <div className="h-24 text-center text-muted-foreground text-sm">
-                      Chưa có sections cho level này.
+                      Chưa có phần thi cho cấp độ này.
                     </div>
                   ) : (
                     <Table>
@@ -289,7 +287,7 @@ export default function JlptConfigPage() {
 
         <div className={listPageFiltersRowClass}>
               <Field className="w-full md:min-w-[220px] md:max-w-sm">
-                <FieldLabel>Cấp độ (Level)</FieldLabel>
+                <FieldLabel>Cấp độ</FieldLabel>
                 <Select value={selectedLevel} onValueChange={setSelectedLevel}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -308,10 +306,8 @@ export default function JlptConfigPage() {
         <div className="grid grid-cols-1 gap-6">
             <Card className="border">
                 <CardHeader>
-                  <CardTitle>Hồ sơ chấm điểm đang hoạt động</CardTitle>
-                  <CardDescription>
-                    Hồ sơ chấm điểm đang `isActive=true` cho level này (dữ liệu seed/cấu hình đã có).
-                  </CardDescription>
+                  <CardTitle>Ngưỡng chấm điểm</CardTitle>
+                  <CardDescription>Thông tin ngưỡng tối thiểu của cấp độ đang chọn.</CardDescription>
                 </CardHeader>
               <CardContent>
                 {loading ? (
@@ -324,25 +320,25 @@ export default function JlptConfigPage() {
                       <span className="font-medium">Tên:</span> {activeProfile.name}
                     </div>
                     <div>
-                      <span className="font-medium">Ngưỡng minLanguageScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng phần Ngôn ngữ:</span>{" "}
                       {activeProfile.minLanguageScaled ?? 0}
                     </div>
                     <div>
-                      <span className="font-medium">Ngưỡng minReadingScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng phần Đọc hiểu:</span>{" "}
                       {activeProfile.minReadingScaled ?? 0}
                     </div>
                     <div>
-                      <span className="font-medium">Ngưỡng minListeningScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng phần Nghe hiểu:</span>{" "}
                       {activeProfile.minListeningScaled ?? 0}
                     </div>
                     <div>
-                      <span className="font-medium">Ngưỡng minTotalScaled:</span>{" "}
+                      <span className="font-medium">Ngưỡng tổng điểm:</span>{" "}
                       {activeProfile.minTotalScaled ?? 0}
                     </div>
                   </div>
                 ) : (
                   <div className="h-24 flex items-center justify-center text-muted-foreground text-sm">
-                    Chưa có hồ sơ chấm điểm đang hoạt động cho level này. Vui lòng kiểm tra dữ liệu seed/hồ sơ chấm điểm ở backend.
+                    Chưa có dữ liệu ngưỡng chấm điểm cho cấp độ này.
                   </div>
                 )}
               </CardContent>

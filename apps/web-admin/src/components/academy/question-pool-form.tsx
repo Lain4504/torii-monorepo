@@ -102,8 +102,8 @@ export function QuestionPoolForm({
         >
             <Card className="border-none shadow-md overflow-hidden">
                 <CardHeader className="bg-muted/50 pb-6">
-                    <CardTitle className="text-xl">Thông tin Question Pool</CardTitle>
-                    <CardDescription>Pool giúp nhóm các câu hỏi theo trình độ, danh mục hoặc course profile.</CardDescription>
+                    <CardTitle className="text-xl">Thông tin nhóm câu hỏi</CardTitle>
+                    <CardDescription>Nhóm câu hỏi theo trình độ, danh mục hoặc hồ sơ khóa học.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
                     <FieldGroup>
@@ -116,7 +116,7 @@ export function QuestionPoolForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Mã định danh (Code)</FieldLabel>
+                                                <FieldLabel>Mã định danh</FieldLabel>
                                                 <Input placeholder="Ví dụ: POOL_VOCAB_N5" {...field} className="font-mono uppercase h-10" />
                                                 <FieldDescription>Mã duy nhất để phân biệt các pool.</FieldDescription>
                                                 <FieldError>{fieldState.error?.message}</FieldError>
@@ -128,7 +128,7 @@ export function QuestionPoolForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Tên Pool</FieldLabel>
+                                                <FieldLabel>Tên nhóm câu hỏi</FieldLabel>
                                                 <Input placeholder="Ví dụ: Pool Từ vựng N5" {...field} className="h-10" />
                                                 <FieldError>{fieldState.error?.message}</FieldError>
                                             </Field>
@@ -153,7 +153,7 @@ export function QuestionPoolForm({
                         <FieldSeparator />
 
                         <FieldSet>
-                            <FieldLegend>Phân loại & Trạng thái</FieldLegend>
+                            <FieldLegend>Phân loại và trạng thái</FieldLegend>
                             <FieldGroup>
                                 <div className="grid gap-6 md:grid-cols-3">
                                     <Controller
@@ -161,10 +161,10 @@ export function QuestionPoolForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Cấp độ (Level)</FieldLabel>
+                                                <FieldLabel>Cấp độ</FieldLabel>
                                                 <Select value={field.value || "NONE"} onValueChange={(val) => field.onChange(val === "NONE" ? "" : val)}>
                                                     <SelectTrigger className="h-10">
-                                                        <SelectValue placeholder="Chọn Level..." />
+                                                        <SelectValue placeholder="Chọn cấp độ..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="NONE">Không chọn</SelectItem>
@@ -184,10 +184,10 @@ export function QuestionPoolForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Danh mục (Category)</FieldLabel>
+                                                <FieldLabel>Danh mục</FieldLabel>
                                                 <Select value={field.value || "NONE"} onValueChange={(val) => field.onChange(val === "NONE" ? "" : val)}>
                                                     <SelectTrigger className="h-10">
-                                                        <SelectValue placeholder="Chọn Danh mục..." />
+                                                        <SelectValue placeholder="Chọn danh mục..." />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="NONE">Không chọn</SelectItem>
@@ -266,7 +266,7 @@ export function QuestionPoolForm({
                 </Button>
                 <Button type="submit" disabled={submitting} className="px-8 h-10 shadow-sm">
                     {submitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
-                    {isEdit ? "Cập nhật Pool" : "Tạo Pool"}
+                    {isEdit ? "Cập nhật nhóm câu hỏi" : "Tạo nhóm câu hỏi"}
                 </Button>
             </div>
         </form>

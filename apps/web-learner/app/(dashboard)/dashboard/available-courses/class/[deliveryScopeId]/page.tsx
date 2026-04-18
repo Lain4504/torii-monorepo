@@ -223,7 +223,7 @@ export default function ClassCatalogDetailPage() {
             <div className="flex-1 space-y-5">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={isLIVE ? "destructive" : "default"} className="rounded-md font-bold text-[9px] uppercase tracking-tighter px-2 py-0.5">
-                  {isLIVE ? 'Lớp học Live' : 'Khóa học VOD'}
+                  {isLIVE ? 'Lớp học trực tiếp' : 'Khóa học tự học'}
                 </Badge>
                 {jlptLevel && (
                   <Badge variant="secondary" className="rounded-md font-bold text-[9px] uppercase tracking-tighter px-2 py-0.5">
@@ -453,7 +453,7 @@ export default function ClassCatalogDetailPage() {
               <div className="space-y-3">
                 {ctaButton}
                 <div className="flex items-center justify-center gap-1.5 text-[9px] font-bold text-muted-foreground/30 uppercase tracking-widest">
-                  <ShieldCheck className="size-3" /> Certifed Course
+                  <ShieldCheck className="size-3" /> Khóa học đã xác thực
                 </div>
               </div>
 

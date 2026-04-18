@@ -19,7 +19,7 @@ export default function MyVodDiscussionPage() {
   }
 
   if (!pkg) {
-    return <div className="p-8 text-center text-muted-foreground">Không tìm thấy gói VOD được phân công.</div>
+    return <div className="p-8 text-center text-muted-foreground">Không tìm thấy gói tự học được phân công.</div>
   }
 
   return (
@@ -28,7 +28,7 @@ export default function MyVodDiscussionPage() {
         title={
           <div className="flex items-center gap-2">
             <Link to="/academy/vod-packages/my" className="text-muted-foreground hover:underline">
-              Khóa học VOD tôi phụ trách
+              Gói tự học tôi phụ trách
             </Link>
             <ChevronRight className="size-4" />
             <span>Thảo luận</span>

@@ -28,20 +28,20 @@ export default function ClassSchedulePage() {
             <span>Lịch học &amp; Điểm danh</span>
           </div>
         }
-        subtitle="Quản lý buổi học trực tiếp (LIVE) và thực hiện điểm danh cho từng buổi."
+        subtitle="Quản lý buổi học trực tiếp và thực hiện điểm danh cho từng buổi."
         stats={
           isLoading || !academyClass
             ? undefined
             : [
                 { label: "Mã lớp", value: academyClass.code },
-                { label: "Loại hình", value: "Lớp trực tiếp (LIVE)" },
+                { label: "Loại hình", value: "Lớp trực tiếp" },
               ]
         }
         actions={
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="size-4" />
             <span>
-              Buổi học được lấy từ lịch LIVE và hiển thị 14 ngày quanh thời điểm hiện tại.
+              Buổi học được lấy từ lịch lớp trực tiếp và hiển thị 14 ngày quanh thời điểm hiện tại.
             </span>
           </div>
         }

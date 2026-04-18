@@ -102,7 +102,7 @@ export default function VodPackageDetailPage() {
     const handlePublishDirectly = async () => {
         try {
             await publishDirectlyMutation.mutateAsync(id)
-            toast.success("Đã xuất bản gói VOD thành công! 🚀")
+            toast.success("Đã xuất bản gói tự học thành công! 🚀")
         } catch (err: any) {
             toast.error(err?.response?.data?.message || "Không thể xuất bản trực tiếp")
         }
@@ -130,16 +130,16 @@ export default function VodPackageDetailPage() {
     }
 
     if (!pkg) {
-        return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin Gói VOD.</div>
+        return <div className="p-8 text-center text-muted-foreground">Không tìm thấy thông tin gói tự học.</div>
     }
 
     const statusDialogTitle =
         statusConfirmDialog.newStatus === "PENDING_APPROVAL"
-            ? "Gửi duyệt gói VOD?"
+            ? "Gửi duyệt gói tự học?"
             : statusConfirmDialog.newStatus === "PUBLISHED"
-                ? "Phê duyệt & mở bán gói VOD?"
+                ? "Phê duyệt & mở bán gói tự học?"
                     : statusConfirmDialog.newStatus === "ARCHIVED"
-                        ? "Lưu trữ gói VOD?"
+                        ? "Lưu trữ gói tự học?"
                         : "Xác nhận thay đổi trạng thái"
 
     return (
@@ -151,7 +151,7 @@ export default function VodPackageDetailPage() {
                             to="/academy/vod-packages"
                             className="hover:underline text-muted-foreground transition-colors"
                         >
-                            Gói VOD
+                            Gói tự học
                         </Link>
                         <ChevronRight className="size-4" />
                         <span>Chi tiết gói</span>
@@ -260,9 +260,9 @@ export default function VodPackageDetailPage() {
             >
                 <AlertDialogContent className="sm:max-w-[520px]">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Xuất bản gói VOD ngay?</AlertDialogTitle>
+                        <AlertDialogTitle>Xuất bản gói tự học ngay?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Bạn xác nhận xuất bản gói VOD <span className="font-semibold">{pkg.code}</span> trực tiếp lên sàn
+                            Bạn xác nhận xuất bản gói tự học <span className="font-semibold">{pkg.code}</span> trực tiếp lên hệ thống
                             (không qua duyệt). Hành động này sẽ thay đổi trạng thái của gói.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -292,7 +292,7 @@ export default function VodPackageDetailPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>{statusDialogTitle}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Bạn đang chuyển trạng thái gói VOD <span className="font-semibold">{pkg.code}</span> sang{" "}
+                            Bạn đang chuyển trạng thái gói tự học <span className="font-semibold">{pkg.code}</span> sang{" "}
                             <span className="font-semibold">{statusConfirmDialog.newStatus}</span>.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

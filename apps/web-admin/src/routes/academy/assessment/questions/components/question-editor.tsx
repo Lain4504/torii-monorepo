@@ -155,7 +155,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:!max-w-[1000px] xl:!max-w-[1200px] p-0 flex flex-col overflow-hidden">
+      <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-6 py-4 border-b shrink-0">
           <SheetTitle>
             {questionId ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
@@ -168,7 +168,7 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
         </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0">
-          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 overflow-x-hidden">
+          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 min-w-0">
 
             {/* Nội dung câu hỏi */}
             <div className="space-y-2">

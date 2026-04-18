@@ -105,11 +105,11 @@ export default function ModernDashboard() {
                                         <div className="flex justify-between items-start">
                                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{mainCourse.courseTitle}</h3>
                                             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold uppercase tracking-widest text-[10px]">
-                                                Active Course
+                                                Đang học
                                             </Badge>
                                         </div>
                                         <p className="text-slate-500 dark:text-slate-400 font-medium line-clamp-2">
-                                            Instructor: {mainCourse.instructorName} • Keep going to finish this module!
+                                            Giảng viên: {mainCourse.instructorName} • Tiếp tục để hoàn thành học phần này.
                                         </p>
                                     </div>
 
@@ -129,11 +129,11 @@ export default function ModernDashboard() {
                                                 <Link
                                                     href={`/courses/${mainCourse.liveClassId ?? mainCourse.vodPackageId ?? mainCourse.courseProfileId ?? mainCourse.id}/learn${mainCourse.vodPackageId ? '?mode=VOD' : ''}`}
                                                 >
-                                                    Continue Lesson
+                                                    Tiếp tục học
                                                 </Link>
                                             </Button>
                                             <Button variant="outline" className="rounded-xl font-bold px-8" asChild>
-                                                <Link href={`/courses/${mainCourse.slug}`}>Course Details</Link>
+                                                <Link href={`/courses/${mainCourse.slug}`}>Xem chi tiết</Link>
                                             </Button>
                                         </div>
                                     </div>
@@ -146,7 +146,7 @@ export default function ModernDashboard() {
                             <h3 className="text-xl font-bold mb-2">Bạn chưa bắt đầu khóa học nào</h3>
                             <p className="text-slate-500 mb-6">Khám phá kho khóa học để bắt đầu hành trình chinh phục tiếng Nhật.</p>
                             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold px-10" asChild>
-                                <Link href="/dashboard/available-courses">Browse Courses</Link>
+                                <Link href="/dashboard/available-courses">Khám phá khóa học</Link>
                             </Button>
                         </Card>
                     )}
@@ -170,7 +170,7 @@ export default function ModernDashboard() {
 
                     {/* Achievement Mini Cards */}
                     <Card className="p-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl">
-                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Achievements</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Thành tích</h4>
                         <div className="grid grid-cols-3 gap-4">
                             <div className="flex flex-col items-center gap-2 group">
                                 <div className={cn(
@@ -179,7 +179,7 @@ export default function ModernDashboard() {
                                 )}>
                                     <Flame className="size-7 fill-current" />
                                 </div>
-                                <span className="text-[10px] font-bold text-center leading-tight">{streak?.currentStreak || 0} Day Streak</span>
+                                <span className="text-[10px] font-bold text-center leading-tight">{streak?.currentStreak || 0} ngày liên tiếp</span>
                             </div>
                             <div className="flex flex-col items-center gap-2 group">
                                 <div className={cn(
@@ -188,7 +188,7 @@ export default function ModernDashboard() {
                                 )}>
                                     <Star className="size-7 fill-current" />
                                 </div>
-                                <span className="text-[10px] font-bold text-center leading-tight">Level {profile?.level || 1}</span>
+                                <span className="text-[10px] font-bold text-center leading-tight">Cấp độ {profile?.level || 1}</span>
                             </div>
                             <div className="flex flex-col items-center gap-2 group">
                                 <div className={cn(
@@ -210,16 +210,16 @@ export default function ModernDashboard() {
                 <div className="xl:col-span-2 space-y-8">
                     <Card className="p-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
                         <div className="flex justify-between items-center mb-10">
-                            <h3 className="text-xl font-bold">Progress Summary</h3>
+                            <h3 className="text-xl font-bold">Tổng quan tiến độ</h3>
                             <Button variant="ghost" className="text-xs font-bold text-primary hover:bg-primary/10" asChild>
-                                <Link href="/analytics">View Detailed Report <ChevronRight className="ml-1 size-3" /></Link>
+                                <Link href="/analytics">Xem báo cáo chi tiết <ChevronRight className="ml-1 size-3" /></Link>
                             </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
                             {/* Radial Progress */}
                             <div className="md:col-span-4 flex flex-col items-center space-y-4">
-                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">JLPT Overall</p>
+                                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Tổng thể JLPT</p>
                                 <div className="relative size-40">
                                     <svg className="size-full transform -rotate-90">
                                         <circle className="text-slate-100 dark:text-slate-800" cx="80" cy="80" r="74" stroke="currentColor" strokeWidth="12" fill="transparent" />
@@ -244,21 +244,21 @@ export default function ModernDashboard() {
                             <div className="md:col-span-5 space-y-6">
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold">
-                                        <span className="text-slate-500">Vocabulary</span>
+                                        <span className="text-slate-500">Từ vựng</span>
                                         <span>{formatNumber(statsData?.averageProgress || 0)} / 100</span>
                                     </div>
                                     <Progress value={statsData?.averageProgress || 0} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold">
-                                        <span className="text-slate-500">Grammar</span>
+                                        <span className="text-slate-500">Ngữ pháp</span>
                                         <span>{formatNumber(statsData?.averageProgress || 0)} / 100</span>
                                     </div>
                                     <Progress value={Math.min(100, (statsData?.averageProgress || 0) + 5)} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold">
-                                        <span className="text-slate-500">Kanji Mastery</span>
+                                        <span className="text-slate-500">Kanji</span>
                                         <span>{formatNumber(statsData?.averageProgress || 0)} / 100</span>
                                     </div>
                                     <Progress value={Math.max(0, (statsData?.averageProgress || 0) - 10)} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
@@ -268,11 +268,11 @@ export default function ModernDashboard() {
                             {/* Quick Stats Column */}
                             <div className="md:col-span-3 flex flex-col justify-center gap-4">
                                 <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/10 border border-primary/10">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Study Time</p>
-                                    <p className="text-2xl font-bold text-primary">{statsData?.totalLearningHours || 0} <span className="text-sm font-bold opacity-70">hrs</span></p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Thời gian học</p>
+                                    <p className="text-2xl font-bold text-primary">{statsData?.totalLearningHours || 0} <span className="text-sm font-bold opacity-70">giờ</span></p>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Points</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Điểm</p>
                                     <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{formatNumber(profile?.points || 0)}</p>
                                 </div>
                             </div>
@@ -286,7 +286,7 @@ export default function ModernDashboard() {
                                 <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 rounded-lg">
                                     <Video className="size-4" />
                                 </div>
-                                <h3 className="font-bold">Upcoming Live Sessions</h3>
+                                <h3 className="font-bold">Buổi học trực tiếp sắp tới</h3>
                             </div>
                             <Button variant="ghost" size="icon" className="hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-full" asChild>
                                 <Link href="/dashboard/schedule"><Calendar className="size-4" /></Link>
@@ -297,10 +297,10 @@ export default function ModernDashboard() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/30">
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Topic</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Sensei</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Time</th>
-                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-right">Action</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Chủ đề</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Giảng viên</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Thời gian</th>
+                                        <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -322,7 +322,7 @@ export default function ModernDashboard() {
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">{session.time}</span>
                                             </td>
                                             <td className="px-6 py-5 text-right">
-                                                <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg text-xs px-4">Join Room</Button>
+                                                <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg text-xs px-4">Vào phòng</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -335,7 +335,7 @@ export default function ModernDashboard() {
                 {/* Recent Activity Column */}
                 <div className="space-y-8">
                     <Card className="p-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm h-full">
-                        <h3 className="text-xl font-bold mb-8">Recent Activities</h3>
+                        <h3 className="text-xl font-bold mb-8">Hoạt động gần đây</h3>
                         <div className="space-y-8 relative">
                             <div className="absolute left-[11px] top-2 bottom-4 w-[2px] bg-slate-100 dark:bg-slate-800" />
 
@@ -344,8 +344,8 @@ export default function ModernDashboard() {
                                     <Check className="size-3.5 stroke-[3]" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Completed Quiz: N2 Kanji</p>
-                                    <p className="text-xs text-slate-500 font-medium">Score: 94% • 2 hours ago</p>
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Đã hoàn thành bài kiểm tra: Kanji N2</p>
+                                    <p className="text-xs text-slate-500 font-medium">Điểm: 94% • 2 giờ trước</p>
                                 </div>
                             </div>
 
@@ -354,8 +354,8 @@ export default function ModernDashboard() {
                                     <PlayCircle className="size-3.5" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Started 'Honorifics in Business'</p>
-                                    <p className="text-xs text-slate-500 font-medium">Module 4 • 4 hours ago</p>
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Bắt đầu bài học "Kính ngữ trong công việc"</p>
+                                    <p className="text-xs text-slate-500 font-medium">Học phần 4 • 4 giờ trước</p>
                                 </div>
                             </div>
 
@@ -364,8 +364,8 @@ export default function ModernDashboard() {
                                     <MessageSquare className="size-3.5" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Chat with AI Sensei</p>
-                                    <p className="text-xs text-slate-500 font-medium">Particle 'wa' vs 'ga' • Yesterday</p>
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Trao đổi với AI Sensei</p>
+                                    <p className="text-xs text-slate-500 font-medium">Trợ từ "wa" và "ga" • Hôm qua</p>
                                 </div>
                             </div>
 
@@ -374,8 +374,8 @@ export default function ModernDashboard() {
                                     <Award className="size-3.5" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Unlocked: Kanji Master</p>
-                                    <p className="text-xs text-slate-500 font-medium">+500 XP Gained • 2 days ago</p>
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Mở khóa thành tích: Kanji Master</p>
+                                    <p className="text-xs text-slate-500 font-medium">+500 XP • 2 ngày trước</p>
                                 </div>
                             </div>
 
@@ -384,8 +384,8 @@ export default function ModernDashboard() {
                                     <History className="size-3.5" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Review Flashcards</p>
-                                    <p className="text-xs text-slate-500 font-medium">50 cards reviewed • 3 days ago</p>
+                                    <p className="text-sm font-bold text-slate-900 dark:text-white">Ôn tập thẻ ghi nhớ</p>
+                                    <p className="text-xs text-slate-500 font-medium">Đã ôn 50 thẻ • 3 ngày trước</p>
                                 </div>
                             </div>
                         </div>

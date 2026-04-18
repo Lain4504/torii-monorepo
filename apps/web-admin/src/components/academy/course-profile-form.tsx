@@ -97,7 +97,7 @@ export function CourseProfileForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Mã (code)</FieldLabel>
+                    <FieldLabel>Mã</FieldLabel>
                     <Input placeholder="JLPT_N5" {...field} />
                     <FieldDescription>
                       Mã duy nhất không thể thay đổi sau khi tạo (vd: JLPT_N5).
@@ -196,8 +196,8 @@ export function CourseProfileForm({
                 <LessonMediaUploader
                   value={field.value || null}
                   onChange={field.onChange}
-                  label="Ảnh đại diện (Thumbnail)"
-                  description="Chọn ảnh đại diện cho course profile này. Hỗ trợ JPG, PNG, WebP."
+                  label="Ảnh đại diện"
+                  description="Chọn ảnh đại diện cho hồ sơ khóa học. Hỗ trợ JPG, PNG, WebP."
                   accept="image/*"
                   errorMessage={fieldState.error?.message}
                 />
@@ -224,7 +224,7 @@ export function CourseProfileForm({
             variant="outline"
           >
             {submitting ? <Spinner className="h-4 w-4" /> : <Save className="size-4" />}
-            {isEdit ? "Cập nhật Profile" : "Tạo Profile"}
+            {isEdit ? "Cập nhật hồ sơ" : "Tạo hồ sơ"}
           </Button>
         </Field>
       </FieldGroup>

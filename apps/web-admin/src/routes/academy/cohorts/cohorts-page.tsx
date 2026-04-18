@@ -116,7 +116,7 @@ export default function CohortsPage() {
         <div className="flex flex-col gap-8">
             <PageHeader
                 title="Đợt khai giảng"
-                subtitle="Quản lý các đợt khai giảng và ngày khai giảng cho các lớp LIVE."
+                subtitle="Quản lý các đợt khai giảng và ngày khai giảng cho các lớp trực tiếp."
                 actions={
                     <Button size="lg" className="h-10 gap-2 shadow-sm" onClick={handleCreate}>
                         <Plus className="h-4 w-4" /> Tạo Đợt khai giảng mới
@@ -241,7 +241,7 @@ export default function CohortsPage() {
                                                             })
                                                         }
                                                         disabled={submitForApprovalMutation.isPending || !cohort._count?.liveClasses}
-                                                        title={!cohort._count?.liveClasses ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
+                                                        title={!cohort._count?.liveClasses ? "Cần ít nhất 1 lớp học trực tiếp để gửi duyệt" : ""}
                                                     >
                                                         <Send className="h-4 w-4" /> Gửi duyệt
                                                     </Button>

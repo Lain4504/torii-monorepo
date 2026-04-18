@@ -33,6 +33,13 @@ import {
 } from "@/lib/api/services/academy-vod-packages"
 import { formatCurrency, formatDateTime } from "@/lib/format-utils"
 
+const vodStatusLabelMap: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PENDING_APPROVAL: "Chờ duyệt",
+  PUBLISHED: "Đang hoạt động",
+  ARCHIVED: "Đã lưu trữ",
+}
+
 export default function VodPackageApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -60,7 +67,7 @@ export default function VodPackageApprovalPreviewPage() {
   if (!pkg) {
     return (
       <div className="p-8 text-center text-muted-foreground">
-        Không tìm thấy gói VOD.
+        Không tìm thấy gói tự học.
       </div>
     )
   }
@@ -80,12 +87,12 @@ export default function VodPackageApprovalPreviewPage() {
               Trung tâm phê duyệt
             </Link>
             <ChevronRight className="size-4" />
-            <span>Xem trước gói VOD</span>
+            <span>Xem trước gói tự học</span>
           </div>
         }
         subtitle={`Phê duyệt gói học liệu #${pkg.code}`}
         stats={[
-          { label: "Trạng thái", value: pkg.status ?? "—" },
+          { label: "Trạng thái", value: vodStatusLabelMap[pkg.status] ?? pkg.status ?? "—" },
           { label: "Ngày gửi duyệt", value: formatDateTime(pkg.submittedForApprovalAt || pkg.createdAt, "HH:mm dd/MM/yyyy") },
         ]}
         actions={
@@ -135,7 +142,7 @@ export default function VodPackageApprovalPreviewPage() {
                 <p className="font-bold text-lg text-primary">{formatCurrency(pkg.price)}</p>
               </div>
               <div className="sm:col-span-2 space-y-1">
-                <p className="text-xs text-muted-foreground">Tên gói (Tab hiển thị)</p>
+                <p className="text-xs text-muted-foreground">Tên gói hiển thị</p>
                 <p className="font-semibold text-xl">{pkg.title}</p>
               </div>
               {pkg.description && (
@@ -160,11 +167,10 @@ export default function VodPackageApprovalPreviewPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">{pkg.courseProfile?.title || "—"}</p>
-                  <p className="text-xs text-muted-foreground">ID: {pkg.courseProfileId}</p>
                 </div>
               </div>
               <Button variant="outline" className="w-full" asChild>
-                <Link to={`/academy/live-classes`}>Quay lại quản lý Academy</Link>
+                <Link to={`/academy/live-classes`}>Quay lại trang quản lý học vụ</Link>
               </Button>
             </div>
           </CardContent>
@@ -227,8 +233,8 @@ export default function VodPackageApprovalPreviewPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận phê duyệt</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn phê duyệt gói VOD "{pkg.title}"? 
-              Sau khi duyệt, gói sẽ được xuất bản công khai (PUBLISHED).
+              Bạn có chắc chắn muốn phê duyệt gói tự học "{pkg.title}"?
+              Sau khi duyệt, gói sẽ được xuất bản công khai.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

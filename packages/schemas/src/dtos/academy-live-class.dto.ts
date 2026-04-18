@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-export const academyLiveClassCreateDTOSchema = z.object({
+const liveClassBaseSchema = z.object({
   cohortId: z.string().uuid(),
   code: z.string().min(1).max(150),
   name: z.string().min(1).max(255),
   instructorId: z.string().uuid().optional(),
   maxStudents: z.coerce.number().int().min(1, "Ít nhất 1 học viên").max(30, "Số học viên tối đa là 30").optional().nullable(),
   status: z.enum(['DRAFT', 'OPENING', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
-  price: z.coerce.number().min(0).optional().nullable(),
+  price: z.coerce.number().positive("Giá lớp phải lớn hơn 0").optional().nullable(),
   discountPrice: z.coerce.number().min(0).optional().nullable(),
   thumbnailUrl: z.string().url().optional().nullable(),
   schedules: z.array(z.object({
@@ -16,9 +16,21 @@ export const academyLiveClassCreateDTOSchema = z.object({
     endTime: z.string(),
   })).optional(),
 });
+
+const validateDiscountPrice = (data: { price?: number | null; discountPrice?: number | null }, ctx: z.RefinementCtx) => {
+  if (data.price != null && data.discountPrice != null && data.discountPrice >= data.price) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['discountPrice'],
+      message: 'Giá giảm phải nhỏ hơn giá gốc',
+    });
+  }
+};
+
+export const academyLiveClassCreateDTOSchema = liveClassBaseSchema.superRefine(validateDiscountPrice);
 export type AcademyLiveClassCreateDTO = z.infer<typeof academyLiveClassCreateDTOSchema>;
 
-export const academyLiveClassUpdateDTOSchema = academyLiveClassCreateDTOSchema.partial();
+export const academyLiveClassUpdateDTOSchema = liveClassBaseSchema.partial().superRefine(validateDiscountPrice);
 export type AcademyLiveClassUpdateDTO = z.infer<typeof academyLiveClassUpdateDTOSchema>;
 
 export const academyLiveClassQueryDTOSchema = z.object({

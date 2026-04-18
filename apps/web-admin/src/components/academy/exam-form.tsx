@@ -225,7 +225,7 @@ export function ExamForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Cấp độ (Level)</FieldLabel>
+                    <FieldLabel>Cấp độ</FieldLabel>
                     <Input placeholder="Ví dụ: N5, N4, Sơ cấp..." {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -292,7 +292,7 @@ export function ExamForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Cấu hình nâng cao (Key-Value)</FieldLabel>
+                  <FieldLabel>Cấu hình nâng cao</FieldLabel>
                   <KeyValueEditor
                     value={field.value || {}}
                     onChange={field.onChange}
@@ -316,7 +316,7 @@ export function ExamForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Cấu trúc đề thi (Sections)</FieldLabel>
+                    <FieldLabel>Cấu trúc đề thi</FieldLabel>
                     <SectionListEditor
                       value={field.value || []}
                       onChange={field.onChange}

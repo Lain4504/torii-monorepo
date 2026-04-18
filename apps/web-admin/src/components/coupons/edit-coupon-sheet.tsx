@@ -101,6 +101,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                 id: coupon.id,
                 data: {
                     ...data,
+                    code: data.code ? String(data.code).trim().toUpperCase() : data.code,
                     discountValue: Number(data.discountValue),
                     maxDiscountAmount: (data.maxDiscountAmount && !Number.isNaN(data.maxDiscountAmount)) ? Number(data.maxDiscountAmount) : null,
                     minOrderValue: (data.minOrderValue !== undefined && data.minOrderValue !== null && !Number.isNaN(data.minOrderValue)) ? Number(data.minOrderValue) : null,
@@ -116,8 +117,12 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
             });
             handleClose();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Cập nhật thất bại', {
-                description: 'Đã xảy ra lỗi khi cập nhật coupon. Vui lòng thử lại.',
+            const details = error?.response?.data?.errors
+                ?.map((e: any) => e?.message)
+                ?.filter(Boolean)
+                ?.join(', ');
+            toast.error(error?.userMessage || error?.response?.data?.message || 'Cập nhật thất bại', {
+                description: details || 'Đã xảy ra lỗi khi cập nhật coupon. Vui lòng thử lại.',
             });
         }
     };

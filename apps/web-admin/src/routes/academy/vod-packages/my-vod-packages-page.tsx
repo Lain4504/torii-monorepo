@@ -25,6 +25,13 @@ import {
   listPageToolbarRootClass,
 } from "@/lib/ui-shell"
 
+const statusLabelMap: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PENDING_APPROVAL: "Chờ duyệt",
+  PUBLISHED: "Đang hoạt động",
+  ARCHIVED: "Đã lưu trữ",
+}
+
 export default function MyVodPackagesPage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState("")
@@ -37,8 +44,8 @@ export default function MyVodPackagesPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Khóa học VOD tôi phụ trách"
-        subtitle="Giảng viên chỉ xử lý thảo luận và phản hồi cho các gói VOD được phân công."
+        title="Gói tự học tôi phụ trách"
+        subtitle="Giảng viên chỉ xử lý thảo luận và phản hồi cho các gói tự học được phân công."
       />
 
       <div className="space-y-4">
@@ -46,7 +53,7 @@ export default function MyVodPackagesPage() {
           <div className={listPageSearchWrapClass}>
             <Search className={listPageSearchIconClass} />
             <Input
-              placeholder="Tìm theo mã hoặc tên gói VOD..."
+              placeholder="Tìm theo mã hoặc tên gói tự học..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={listPageSearchInputClass}
@@ -60,7 +67,7 @@ export default function MyVodPackagesPage() {
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-12 text-center">#</TableHead>
                 <TableHead className="w-[160px]">Mã gói</TableHead>
-                <TableHead>Tên gói VOD</TableHead>
+                <TableHead>Tên gói tự học</TableHead>
                 <TableHead className="w-[220px]">Hồ sơ khóa học</TableHead>
                 <TableHead className="w-[140px]">Trạng thái</TableHead>
                 <TableHead className="text-right pr-6 w-[180px]">Thao tác</TableHead>
@@ -81,7 +88,7 @@ export default function MyVodPackagesPage() {
               ) : !items?.length ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-28 text-center text-muted-foreground">
-                    Bạn chưa được phân công gói VOD nào.
+                    Bạn chưa được phân công gói tự học nào.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -92,7 +99,7 @@ export default function MyVodPackagesPage() {
                     <TableCell className="font-medium">{item.title}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">{item.courseProfile?.title || "—"}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{item.status}</Badge>
+                      <Badge variant="outline">{statusLabelMap[item.status] ?? item.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right pr-6">
                       <Button

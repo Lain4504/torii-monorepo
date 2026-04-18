@@ -41,8 +41,8 @@ export function Footer() {
                     <div className="space-y-8">
                         <h4 className="text-foreground font-bold text-xs uppercase tracking-[0.2em]">Học tập</h4>
                         <ul className="space-y-4">
-                            <li><Link href="/dashboard/available-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Thư viện VOD JLPT</Link></li>
-                            <li><Link href="/live-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Lịch khai giảng Live</Link></li>
+                            <li><Link href="/dashboard/available-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Thư viện khóa tự học JLPT</Link></li>
+                            <li><Link href="/live-courses" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Lịch khai giảng lớp trực tiếp</Link></li>
                             <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Lộ trình học tập</Link></li>
                             <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold">Tài liệu miễn phí</Link></li>
                         </ul>
@@ -79,7 +79,7 @@ export function Footer() {
                 </div>
 
                 <div className="pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                    <p>© {new Date().getFullYear()} Torii Nihongo Platform. Built for Excellence.</p>
+                    <p>© {new Date().getFullYear()} Torii Nihongo. Nền tảng học tiếng Nhật.</p>
                     <div className="flex gap-8">
                         <Link href="#" className="hover:text-primary transition-colors">Điều khoản</Link>
                         <Link href="/privacy-policy" className="hover:text-primary transition-colors">Bản mật</Link>

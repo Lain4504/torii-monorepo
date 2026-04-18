@@ -8,7 +8,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from '@workspace/ui/components/collapsible'
-import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock, BookOpen, User, Users } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Clock, BookOpen, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -177,7 +177,7 @@ export default function DashboardCoursesPage() {
                 <div className="min-w-0 space-y-4">
                     <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Khám phá lộ trình</h1>
                     <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
-                        Lựa chọn hình thức học tập tối ưu: Lớp Live tương tác trực tuyến hoặc khóa VOD chủ động thời gian.
+                        Lựa chọn hình thức học tập tối ưu: lớp trực tiếp tương tác hoặc khóa tự học chủ động thời gian.
                     </p>
                 </div>
 
@@ -217,7 +217,7 @@ export default function DashboardCoursesPage() {
                 {showLive && (
                     <section className="min-w-0 space-y-8">
                         <SectionHeader
-                            title="Lớp Live đang tuyển sinh"
+                            title="Lớp trực tiếp đang tuyển sinh"
                             description={`Các lớp học trực tuyến sắp khai giảng trong tháng ${monthLabel}`}
                             scrollRef={liveScrollRef}
                             cardCount={liveItems.length}
@@ -227,7 +227,7 @@ export default function DashboardCoursesPage() {
                                 <Spinner className="size-6 text-primary/40" />
                             </div>
                         ) : liveItems.length === 0 ? (
-                            <NoItemsFound text="Chưa có lớp Live phù hợp với tiêu chí tìm kiếm." />
+                            <NoItemsFound text="Chưa có lớp trực tiếp phù hợp với tiêu chí tìm kiếm." />
                         ) : (
                             <HorizontalScrollCarousel cardCount={liveItems.length} scrollRef={liveScrollRef}>
                                 {liveItems.map((klass: CatalogListItem) => (
@@ -243,7 +243,7 @@ export default function DashboardCoursesPage() {
                 {showVod && (
                     <section className="min-w-0 space-y-8">
                         <SectionHeader
-                            title="Khóa học VOD"
+                            title="Khóa học tự học"
                             description="Học tập chủ động với hệ thống video bài giảng chuyên sâu"
                             scrollRef={vodScrollRef}
                             cardCount={vodItems.length}
@@ -253,7 +253,7 @@ export default function DashboardCoursesPage() {
                                 <Spinner className="size-6 text-primary/40" />
                             </div>
                         ) : vodItems.length === 0 ? (
-                            <NoItemsFound text="Chưa có khóa học VOD phù hợp với tiêu chí tìm kiếm." />
+                            <NoItemsFound text="Chưa có khóa học tự học phù hợp với tiêu chí tìm kiếm." />
                         ) : (
                             <HorizontalScrollCarousel cardCount={vodItems.length} scrollRef={vodScrollRef}>
                                 {vodItems.map((klass: CatalogListItem) => (
@@ -301,7 +301,7 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                             {level}
                         </Badge>
                         <Badge className="bg-primary text-white border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm">
-                            VOD
+                            Tự học
                         </Badge>
                     </div>
                 </div>
@@ -317,7 +317,12 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                                 href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
                                 className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group/instructor"
                             >
-                                <User className="size-4 text-primary/60 group-hover/instructor:text-primary transition-colors" />
+                                <Avatar className="size-5 border border-border/40">
+                                    <AvatarImage src={klass.instructor.avatarUrl} alt={klass.instructor.displayName || 'Instructor'} />
+                                    <AvatarFallback className="text-[9px] font-bold">
+                                        {(klass.instructor.displayName || 'I').slice(0, 1).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
                                 <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
                             </Link>
                         )}
@@ -348,7 +353,7 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
 function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
     const profile = klass.cohort?.courseProfile ?? klass.courseProfile
     const thumb = klass.thumbnailUrl || profile?.thumbnailUrl || '/course-placeholder.jpg'
-    const title = klass.name || profile?.title || 'Lớp học Live'
+    const title = klass.name || profile?.title || 'Lớp học trực tiếp'
     const level = profile?.level || '—'
     const { basePrice, displayPrice, hasDiscount } = catalogPriceParts(klass)
     const term = klass.term ?? (klass.cohort ? {
@@ -391,7 +396,12 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                                 href={`/dashboard/instructors/${klass.instructor.id}?name=${encodeURIComponent(klass.instructor.displayName || '')}`}
                                 className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group/instructor"
                             >
-                                <User className="size-4 text-primary/60 group-hover/instructor:text-primary transition-colors" />
+                                <Avatar className="size-5 border border-border/40">
+                                    <AvatarImage src={klass.instructor.avatarUrl} alt={klass.instructor.displayName || 'Instructor'} />
+                                    <AvatarFallback className="text-[9px] font-bold">
+                                        {(klass.instructor.displayName || 'I').slice(0, 1).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
                                 <span className="truncate">Giảng viên: {klass.instructor.displayName}</span>
                             </Link>
                         )}

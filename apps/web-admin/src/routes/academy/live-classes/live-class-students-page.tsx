@@ -112,7 +112,7 @@ export default function ClassStudentsPage() {
           academyClass
             ? [
               { label: "Mã lớp", value: academyClass.code },
-              { label: "Loại hình", value: "LIVE" },
+              { label: "Loại hình", value: "Lớp trực tiếp" },
             ]
             : undefined
         }

@@ -138,7 +138,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                         <SelectValue placeholder="Chọn loại yêu cầu" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={TicketType.SUPPORT}>Hỗ trợ kỹ thuật</SelectItem>
+                                        <SelectItem value={TicketType.SUPPORT}>Hỗ trợ hệ thống</SelectItem>
                                         <SelectItem value={TicketType.REFUND}>Yêu cầu hoàn tiền</SelectItem>
                                         <SelectItem value={TicketType.ERROR_REPORT}>Báo lỗi ứng dụng</SelectItem>
                                     </SelectContent>

@@ -56,11 +56,11 @@ export const getReviewsColumns = ({
           <div className="flex flex-wrap items-center gap-1.5">
             {r.liveClassId ? (
               <Badge variant="outline" className="text-[10px] font-semibold px-1.5 py-0">
-                Live
+                Trực tiếp
               </Badge>
             ) : r.vodPackageId ? (
               <Badge variant="outline" className="text-[10px] font-semibold px-1.5 py-0">
-                VOD
+                Tự học
               </Badge>
             ) : null}
             {r.class?.name && r.class.name !== title ? (

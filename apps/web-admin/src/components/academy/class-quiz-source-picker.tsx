@@ -40,19 +40,19 @@ export function ClassQuizSourcePicker({
     return (
         <div className="space-y-4">
             <Field>
-                <FieldLabel>Đề thi liên kết (Exam)</FieldLabel>
+                <FieldLabel>Đề thi liên kết</FieldLabel>
                 <Select
                     value={examId || ""}
                     onValueChange={onExamChange}
                     disabled={isLoading}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder={isLoading ? "Đang tải danh sách đề thi..." : "Chọn một Exam đã PUBLISHED..."} />
+                        <SelectValue placeholder={isLoading ? "Đang tải danh sách đề thi..." : "Chọn một đề thi đã công khai..."} />
                     </SelectTrigger>
                     <SelectContent>
                         {exams.length === 0 && !isLoading ? (
                             <div className="p-2 text-sm text-muted-foreground text-center">
-                                Không tìm thấy đề thi đã publish cho khóa học này.
+                                Không tìm thấy đề thi đã công khai cho khóa học này.
                             </div>
                         ) : (
                             exams.map((exam) => (
@@ -64,7 +64,7 @@ export function ClassQuizSourcePicker({
                     </SelectContent>
                 </Select>
                 <FieldDescription>
-                    Mọi thiết lập về Pool và Câu hỏi được quản lý tập trung tại module Exam.
+                    Mọi thiết lập về nhóm câu hỏi và câu hỏi được quản lý tập trung tại trang đề thi.
                 </FieldDescription>
                 <FieldError>{error}</FieldError>
             </Field>
@@ -77,7 +77,7 @@ export function ClassQuizSourcePicker({
                         target="_blank"
                     >
                         <ExternalLink className="size-3" />
-                        Mở Exam để chỉnh sửa Pool/Câu hỏi
+                        Mở đề thi để chỉnh sửa nhóm câu hỏi/câu hỏi
                     </Link>
                 ) : (
                     <Link
@@ -86,7 +86,7 @@ export function ClassQuizSourcePicker({
                         target="_blank"
                     >
                         <PlusCircle className="size-3" />
-                        Tạo Exam mới cho khóa học
+                        Tạo đề thi mới cho khóa học
                     </Link>
                 )}
             </div>
@@ -95,7 +95,7 @@ export function ClassQuizSourcePicker({
                 <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/5 text-destructive border border-destructive/10 text-xs">
                     <AlertCircle className="size-4 shrink-0 mt-0.5" />
                     <p>
-                        <strong>Cảnh báo:</strong> Quiz assessment này chưa liên kết với Exam nào.
+                        <strong>Cảnh báo:</strong> Bài kiểm tra này chưa liên kết với đề thi nào.
                         Học viên sẽ không thấy câu hỏi cho tới khi bạn chọn một đề thi hợp lệ.
                     </p>
                 </div>

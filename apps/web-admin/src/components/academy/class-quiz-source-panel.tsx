@@ -78,10 +78,10 @@ export function ClassQuizSourcePanel({
                             control={control}
                             render={({ field: examField, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Đề thi override (Exam)</FieldLabel>
+                                    <FieldLabel>Đề thi thay thế</FieldLabel>
                                     <Select value={examField.value} onValueChange={examField.onChange}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Chọn exam PUBLISHED..." />
+                                            <SelectValue placeholder="Chọn đề thi đã công khai..." />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {publishedExams.map((exam) => (
@@ -123,10 +123,10 @@ export function ClassQuizSourcePanel({
                                 control={control}
                                 render={({ field: poolField, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Question Pool cho lớp LIVE</FieldLabel>
+                                    <FieldLabel>Nhóm câu hỏi cho lớp LIVE</FieldLabel>
                                         <Select value={poolField.value} onValueChange={poolField.onChange}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Chọn question pool..." />
+                                                <SelectValue placeholder="Chọn nhóm câu hỏi..." />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {pools.map((pool) => (
@@ -187,10 +187,10 @@ export function ClassQuizSourcePanel({
                                 />
                             </div>
                             <FieldDescription>
-                                Khi lưu, hệ thống sẽ tự sinh một Exam mới từ pool này và gắn vào assessment của lớp LIVE.
+                                Khi lưu, hệ thống sẽ tự tạo một đề thi mới từ nhóm câu hỏi này và gắn vào bài kiểm tra của lớp LIVE.
                             </FieldDescription>
                             <FieldDescription>
-                                Cách này phù hợp khi giảng viên cần thao tác nhanh và không muốn tự build exam thủ công.
+                                Cách này phù hợp khi giảng viên cần thao tác nhanh và không muốn tự tạo đề thi thủ công.
                             </FieldDescription>
                         </>
                         ) : null}
@@ -200,9 +200,9 @@ export function ClassQuizSourcePanel({
 
             {!isEdit ? (
                 <FieldDescription>
-                    Chưa có exam? Bạn có thể tạo nhanh tại{" "}
+                    Chưa có đề thi? Bạn có thể tạo nhanh tại{" "}
                     <Link to="/academy/exams/new" className="text-primary hover:underline">
-                        màn hình Exam
+                        màn hình Đề thi
                     </Link>
                     .
                 </FieldDescription>

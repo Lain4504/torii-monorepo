@@ -106,7 +106,7 @@ export function CommandMenu() {
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/roleplay/voice"))}>
                             <MonitorPlay className="mr-2 h-4 w-4" />
-                            <span>Live Voice Roleplay</span>
+                            <span>Luyện hội thoại giọng nói trực tiếp</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => router.push("/ai-sensei/translate"))}>
                             <Languages className="mr-2 h-4 w-4" />

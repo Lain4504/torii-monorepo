@@ -108,7 +108,7 @@ function CompactSessionCard({
                 <div className="flex flex-wrap items-center gap-1.5">
                     {isLive && (
                         <Badge variant="destructive" className="h-5 px-1.5 text-[9px] font-bold">
-                            LIVE
+                            Đang học
                         </Badge>
                     )}
                     {!isEnded && !isLive && isFuture(start) && (
@@ -281,7 +281,7 @@ export default function SchedulePage() {
                     <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:items-end sm:gap-6">
                         <div className="flex w-full flex-col gap-1 sm:w-auto sm:min-w-[120px]">
                             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                YEAR
+                                Năm
                             </div>
                             <Select
                                 value={String(selectedYear)}
@@ -308,7 +308,7 @@ export default function SchedulePage() {
 
                         <div className="flex w-full flex-col gap-1 sm:w-auto sm:min-w-[220px]">
                             <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                WEEK
+                                Tuần
                             </div>
                             <Select
                                 value={String(weekOffset)}
@@ -346,7 +346,7 @@ export default function SchedulePage() {
                         <EmptyContent>
                             <EmptyTitle>Chưa có lịch học</EmptyTitle>
                             <EmptyDescription className="mx-auto max-w-sm">
-                                Bạn chưa đăng ký khóa Live hoặc chưa có buổi được lên lịch.
+                                Bạn chưa đăng ký lớp trực tiếp hoặc chưa có buổi học được lên lịch.
                             </EmptyDescription>
                         </EmptyContent>
                     </Empty>

@@ -183,8 +183,8 @@ export default function LiveClassesPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title={isLecturer ? "Lớp của tôi" : "Quản lý Lớp học LIVE"}
-                subtitle={isLecturer ? "Quản lý bài giảng, điểm danh và bài tập cho các lớp bạn phụ trách." : "Giám sát và vận hành toàn bộ các lớp học trực tiếp (LIVE)."}
+                title={isLecturer ? "Lớp của tôi" : "Quản lý lớp học trực tiếp"}
+                subtitle={isLecturer ? "Quản lý bài giảng, điểm danh và bài tập cho các lớp bạn phụ trách." : "Giám sát và vận hành toàn bộ các lớp học trực tiếp."}
                 stats={stats}
                 actions={isStaff && (
                     <div className="flex gap-4">
@@ -251,7 +251,7 @@ export default function LiveClassesPage() {
                                 <TableHead className="w-[100px]">Banner</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>
                                 <TableHead>Tên Lớp học</TableHead>
-                                <TableHead className="w-[180px]">Đợt học (Cohort)</TableHead>
+                                <TableHead className="w-[180px]">Đợt học</TableHead>
                                 <TableHead className="w-[150px]">Trạng thái</TableHead>
                                 <TableHead className="w-[100px]">Học viên</TableHead>
                                 <TableHead className="text-right pr-6">Thao tác</TableHead>
@@ -328,7 +328,7 @@ export default function LiveClassesPage() {
                                                     className="inline-flex transition-transform hover:scale-105 active:scale-95"
                                                 >
                                                     {isCohortPending && cls.status === 'DRAFT' ? (
-                                                        <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-none animate-pulse">Chờ duyệt (Cohort)</Badge>
+                                                        <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 border-none animate-pulse">Chờ duyệt đợt học</Badge>
                                                     ) : cls.status === 'ARCHIVED' ? (
                                                         <Badge variant="destructive" className="bg-orange-500/10 text-orange-600 border-none">Đã lưu trữ</Badge>
                                                     ) : cls.status === 'IN_PROGRESS' ? (
@@ -420,10 +420,10 @@ export default function LiveClassesPage() {
                 <DialogContent className="sm:max-w-[420px]">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
-                            Luồng trạng thái lớp học LIVE
+                            Luồng trạng thái lớp học trực tiếp
                         </DialogTitle>
                         <DialogDescription>
-                            Lớp LIVE (trực tiếp): trạng thái phản ánh giai đoạn vận hành của lớp.
+                            Lớp học trực tiếp: trạng thái phản ánh giai đoạn vận hành của lớp.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
@@ -472,7 +472,7 @@ export default function LiveClassesPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Xác nhận xóa lớp nháp</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Bạn chắc chắn muốn xóa lớp LIVE bản nháp{" "}
+                            Bạn chắc chắn muốn xóa lớp trực tiếp bản nháp{" "}
                             <span className="font-semibold">{deleteDialogClass?.code}</span>? Hành động này không thể hoàn tác.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -497,7 +497,7 @@ export default function LiveClassesPage() {
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Xuất bản lớp LIVE?</AlertDialogTitle>
+                        <AlertDialogTitle>Xuất bản lớp trực tiếp?</AlertDialogTitle>
                         <AlertDialogDescription>
                             Lớp <span className="font-semibold">{publishDialogClass?.code}</span> sẽ được chuyển sang trạng thái công khai để học viên có thể tham gia.
                         </AlertDialogDescription>

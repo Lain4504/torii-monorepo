@@ -140,7 +140,7 @@ export default function ApprovalsPage() {
           {showCourseProfileApprovals ? (
             <TabsTrigger value="courseProfiles" className="gap-2">
               <BookOpen className="size-4" />
-              Hồ sơ course
+              Hồ sơ khóa học
               <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
             </TabsTrigger>
           ) : null}
@@ -299,7 +299,7 @@ export default function ApprovalsPage() {
             <div className={listPageSearchWrapClass}>
               <Search className={listPageSearchIconClass} />
               <Input
-                placeholder="Tìm hồ sơ course theo mã hoặc tên..."
+                placeholder="Tìm hồ sơ khóa học theo mã hoặc tên..."
                 className={listPageSearchInputClass}
                 value={profileSearch}
                 onChange={(e) => setProfileSearch(e.target.value)}
@@ -333,7 +333,7 @@ export default function ApprovalsPage() {
                   ) : pendingCourseProfiles.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                        Không có hồ sơ course nào đang chờ duyệt.
+                        Không có hồ sơ khóa học nào đang chờ duyệt.
                       </TableCell>
                     </TableRow>
                   ) : (

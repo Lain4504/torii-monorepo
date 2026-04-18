@@ -211,7 +211,7 @@ export default function JlptQuestionsPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Ngân hàng Câu hỏi JLPT"
-        subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe."
+        subtitle="Quản lý câu hỏi theo từng phần thi JLPT."
         actions={
           <Button onClick={() => handleOpenSheet()}>
             <Plus className="mr-2 h-4 w-4" />
@@ -278,9 +278,7 @@ export default function JlptQuestionsPage() {
                       <TableRow className="bg-muted/40 hover:bg-muted/40">
                         <TableCell colSpan={7} className="py-2.5 text-sm font-semibold">
                           <span>{label}</span>
-                          <span className="ml-2 font-normal text-muted-foreground">
-                            ({items.length} câu) · <span className="font-mono text-xs">{sectionCode}</span>
-                          </span>
+                          <span className="ml-2 font-normal text-muted-foreground">({items.length} câu)</span>
                         </TableCell>
                       </TableRow>
                       {items.map((q) => (
@@ -406,7 +404,7 @@ export default function JlptQuestionsPage() {
       </AlertDialog>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="flex h-full w-full flex-col p-0 sm:max-w-[1100px] data-[side=right]:sm:max-w-[1100px] data-[side=left]:sm:max-w-[1100px]">
+        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="shrink-0 border-b p-6">
             <SheetTitle>
               {currentQuestion ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}

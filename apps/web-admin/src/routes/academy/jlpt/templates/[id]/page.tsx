@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Save,
@@ -69,6 +69,8 @@ export default function JlptTemplateBuilderPage() {
   const [pickerLoading, setPickerLoading] = useState(false);
   const [selectedBankIds, setSelectedBankIds] = useState<Set<string>>(new Set());
   const [targetSectionId, setTargetSectionId] = useState<string | null>(null);
+  const [pickerSearch, setPickerSearch] = useState("");
+  const [pickerTypeFilter, setPickerTypeFilter] = useState<string>("all");
   const [assembling, setAssembling] = useState(false);
 
   // Quick Create Question
@@ -183,6 +185,8 @@ export default function JlptTemplateBuilderPage() {
   const handleOpenPicker = (sectionId: string) => {
     setTargetSectionId(sectionId);
     setSelectedBankIds(new Set());
+    setPickerSearch("");
+    setPickerTypeFilter("all");
     setIsPickerOpen(true);
     void fetchBankQuestionsForSection(sectionId);
   };
@@ -292,7 +296,7 @@ export default function JlptTemplateBuilderPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Mã đề (Unique Code)</label>
+              <label className="text-sm font-medium">Mã đề</label>
               <Input 
                 placeholder="Ví dụ: N1-2024-12-A" 
                 value={newTemplateData.code}
@@ -300,7 +304,7 @@ export default function JlptTemplateBuilderPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Cấp độ (Level)</label>
+              <label className="text-sm font-medium">Cấp độ</label>
               <Select 
                 value={newTemplateData.levelCode} 
                 onValueChange={(v) => setNewTemplateData({...newTemplateData, levelCode: v})}
@@ -328,19 +332,46 @@ export default function JlptTemplateBuilderPage() {
 
   if (!template) return null;
 
+  const existingQuestionIdsInTargetSection = useMemo(() => {
+    const ids = new Set<string>();
+    if (!targetSectionId) return ids;
+    for (const q of template.questions ?? []) {
+      if (q.sectionId === targetSectionId && q.question?.id) {
+        ids.add(q.question.id);
+      }
+    }
+    return ids;
+  }, [targetSectionId, template.questions]);
+
+  const filteredPickerQuestions = useMemo(() => {
+    const keyword = pickerSearch.trim().toLowerCase();
+    return pickerQuestions.filter((q) => {
+      const plainStem = q.stemText.replace(/<[^>]+>/g, " ").toLowerCase();
+      const mondaiCode = q.mondai?.code?.toLowerCase() ?? "";
+      const type = (q.questionType ?? "").toLowerCase();
+      const matchKeyword =
+        keyword.length === 0 ||
+        plainStem.includes(keyword) ||
+        mondaiCode.includes(keyword) ||
+        type.includes(keyword);
+      const matchType =
+        pickerTypeFilter === "all" ||
+        (q.questionType ?? "").toUpperCase() === pickerTypeFilter;
+      return matchKeyword && matchType;
+    });
+  }, [pickerQuestions, pickerSearch, pickerTypeFilter]);
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-background/50 backdrop-blur-sm p-4 rounded-2xl border shadow-sm sticky top-0 z-10">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2">
         <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 shrink-0 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
-            onClick={() => navigate("/academy/jlpt/templates")}
+          <Link
+            to="/academy/jlpt/templates"
+            className="inline-flex items-center gap-1.5 shrink-0 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Quay lại</span>
-          </Button>
+            <ArrowLeft className="w-4 h-4" />
+            <span>Quay lại</span>
+          </Link>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate py-1" title={template.title}>
@@ -348,8 +379,8 @@ export default function JlptTemplateBuilderPage() {
               </h1>
               <Badge variant="outline" className="font-bold border-2 shrink-0">{template.levelCode}</Badge>
             </div>
-            <p className="text-muted-foreground text-[10px] sm:text-xs uppercase font-mono tracking-tighter truncate">
-              ID: {template.id} · CODE: {template.code}
+            <p className="text-muted-foreground text-xs truncate">
+              Mã đề: {template.code}
             </p>
           </div>
         </div>
@@ -366,7 +397,7 @@ export default function JlptTemplateBuilderPage() {
           </Button>
           <Button size="sm" className="gap-2 shadow-sm" onClick={handleUpdateSettings} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
-            <span className="hidden sm:inline">Lưu cấu hình</span>
+            <span className="hidden sm:inline">Lưu thay đổi</span>
             <span className="sm:hidden">Lưu</span>
           </Button>
         </div>
@@ -378,46 +409,43 @@ export default function JlptTemplateBuilderPage() {
             <Layers className="w-4 h-4" /> Cấu trúc & Câu hỏi
           </TabsTrigger>
           <TabsTrigger value="scoring" className="gap-2 rounded-lg px-6">
-            <CheckCircle2 className="w-4 h-4" /> Thang điểm (Scoring)
+            <CheckCircle2 className="w-4 h-4" /> Thang điểm
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="structure" className="space-y-6">
           {template.sections.map((section: any) => (
-            <Card key={section.id} className="border-2 overflow-hidden shadow-sm">
-              <CardHeader className="bg-muted/30 border-b py-4">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                  <div className="flex items-center gap-3 flex-1 min-w-0 w-full">
-                    <div className="bg-primary/10 p-2 rounded-xl shrink-0">
-                      {section.isListening ? <ListMusic className="w-5 h-5 text-primary" /> : <Languages className="w-5 h-5 text-primary" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg font-bold truncate" title={`${section.title} (${section.code})`}>
-                        {section.title} <span className="text-muted-foreground font-normal text-sm">({section.code})</span>
-                      </CardTitle>
-                      <CardDescription className="truncate">{section.durationMinutes} phút làm bài dành cho phần này</CardDescription>
-                    </div>
+            <section key={section.id} className="space-y-3">
+              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0 w-full">
+                  <div className="bg-primary/10 p-2 rounded-xl shrink-0">
+                    {section.isListening ? <ListMusic className="w-5 h-5 text-primary" /> : <Languages className="w-5 h-5 text-primary" />}
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 lg:shrink-0 w-full lg:w-auto justify-end">
-                    <Button variant="outline" size="sm" className="gap-2 h-9" onClick={() => handleOpenPicker(section.id)}>
-                      <Plus className="w-4 h-4" /> 
-                      <span className="hidden sm:inline">Chọn từ Ngân hàng</span>
-                      <span className="sm:hidden">Chọn từ Bank</span>
-                    </Button>
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="gap-2 h-9 bg-emerald-600 hover:bg-emerald-700 shadow-sm border-none"
-                      onClick={() => handleOpenQuickCreate(section.id)}
-                    >
-                      <PlusCircle className="w-4 h-4" /> 
-                      <span>Tạo mới & Gắn</span>
-                    </Button>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold truncate" title={`${section.title} (${section.code})`}>
+                      {section.title} <span className="text-muted-foreground font-normal text-sm">({section.code})</span>
+                    </h3>
+                    <p className="text-sm text-muted-foreground truncate">{section.durationMinutes} phút làm bài dành cho phần này</p>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y overflow-hidden max-h-[800px] overflow-y-auto">
+                <div className="flex flex-wrap items-center gap-2 lg:shrink-0 w-full lg:w-auto justify-end">
+                  <Button variant="outline" size="sm" className="gap-2 h-9" onClick={() => handleOpenPicker(section.id)}>
+                    <Plus className="w-4 h-4" /> 
+                    <span className="hidden sm:inline">Chọn từ Ngân hàng</span>
+                    <span className="sm:hidden">Chọn từ Bank</span>
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="gap-2 h-9 bg-emerald-600 hover:bg-emerald-700 shadow-sm border-none"
+                    onClick={() => handleOpenQuickCreate(section.id)}
+                  >
+                    <PlusCircle className="w-4 h-4" /> 
+                    <span>Tạo mới & Gắn</span>
+                  </Button>
+                </div>
+              </div>
+              <div className="divide-y overflow-hidden max-h-[800px] overflow-y-auto rounded-xl border bg-card">
                    {template.questions?.filter((q: any) => q.sectionId === section.id).length === 0 ? (
                       <div className="p-12 text-center text-muted-foreground text-sm flex flex-col items-center gap-3">
                          <div className="p-3 bg-muted/50 rounded-full">
@@ -464,8 +492,7 @@ export default function JlptTemplateBuilderPage() {
                         ))
                    )}
                 </div>
-              </CardContent>
-            </Card>
+            </section>
           ))}
         </TabsContent>
 
@@ -473,7 +500,7 @@ export default function JlptTemplateBuilderPage() {
           <Card>
             <CardHeader>
               <CardTitle>Cấu hình Thang điểm JLPT</CardTitle>
-              <CardDescription>Thiết lập cách quy đổi điểm mộc (raw score) sang điểm JLPT (scaled score).</CardDescription>
+              <CardDescription>Thiết lập quy đổi điểm cho bài thi JLPT.</CardDescription>
             </CardHeader>
             <CardContent className="h-64 flex items-center justify-center text-muted-foreground italic border-2 border-dashed rounded-lg m-6">
               Sẽ được hoàn thiện trong giai đoạn 2: Advanced Scoring Profiles.
@@ -498,10 +525,31 @@ export default function JlptTemplateBuilderPage() {
             <SheetDescription>
               Chọn câu hỏi từ ngân hàng để gắn vào phần thi hiện tại.
             </SheetDescription>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div className="sm:col-span-2">
+                <Input
+                  value={pickerSearch}
+                  onChange={(e) => setPickerSearch(e.target.value)}
+                  placeholder="Tìm câu hỏi..."
+                />
+              </div>
+              <Select value={pickerTypeFilter} onValueChange={setPickerTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Lọc loại câu hỏi" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả loại</SelectItem>
+                  <SelectItem value="VOCAB">VOCAB</SelectItem>
+                  <SelectItem value="GRAMMAR">GRAMMAR</SelectItem>
+                  <SelectItem value="READING">READING</SelectItem>
+                  <SelectItem value="LISTENING">LISTENING</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </SheetHeader>
 
           <ScrollArea className="flex-1 min-h-0">
-            <div className="space-y-2 p-6 bg-muted/10">
+            <div className="space-y-2 p-6 bg-muted/10 min-w-0 overflow-x-hidden">
               {pickerLoading ? (
                 <div className="p-12 text-center flex flex-col items-center gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -509,37 +557,52 @@ export default function JlptTemplateBuilderPage() {
                     Đang tải ngân hàng...
                   </p>
                 </div>
+              ) : filteredPickerQuestions.length === 0 ? (
+                <div className="p-12 text-center flex flex-col items-center gap-3">
+                  <Search className="w-7 h-7 text-muted-foreground/60" />
+                  <p className="text-sm text-muted-foreground">Không có câu hỏi phù hợp bộ lọc hiện tại.</p>
+                </div>
               ) : (
-                pickerQuestions.map((q) => (
-                  <div
-                    key={q.id}
-                    className="flex items-center gap-4 p-4 border bg-background rounded-xl hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => {
-                      const next = new Set(selectedBankIds);
-                      if (next.has(q.id)) next.delete(q.id);
-                      else next.add(q.id);
-                      setSelectedBankIds(next);
-                    }}
-                  >
-                    <Checkbox
-                      checked={selectedBankIds.has(q.id)}
-                      onCheckedChange={() => {}}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className="text-sm font-semibold line-clamp-1"
-                        dangerouslySetInnerHTML={{ __html: q.stemText }}
+                filteredPickerQuestions.map((q) => {
+                  const alreadyInSection = existingQuestionIdsInTargetSection.has(q.id);
+                  return (
+                    <div
+                      key={q.id}
+                      className={`flex items-center gap-4 p-4 border rounded-xl transition-shadow ${
+                        alreadyInSection
+                          ? "bg-muted/30 border-dashed opacity-70"
+                          : "bg-background hover:shadow-md cursor-pointer"
+                      }`}
+                      onClick={() => {
+                        if (alreadyInSection) return;
+                        const next = new Set(selectedBankIds);
+                        if (next.has(q.id)) next.delete(q.id);
+                        else next.add(q.id);
+                        setSelectedBankIds(next);
+                      }}
+                    >
+                      <Checkbox
+                        checked={selectedBankIds.has(q.id) || alreadyInSection}
+                        disabled={alreadyInSection}
+                        onCheckedChange={() => {}}
                       />
-                      <div className="text-[11px] text-muted-foreground mt-1 flex gap-2">
-                        <span className="font-bold">{q.questionType}</span>
-                        {q.mondai?.code && <span>· {q.mondai.code}</span>}
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className="text-sm font-semibold line-clamp-1"
+                          dangerouslySetInnerHTML={{ __html: q.stemText }}
+                        />
+                        <div className="text-[11px] text-muted-foreground mt-1 flex gap-2">
+                          <span className="font-bold">{q.questionType}</span>
+                          {q.mondai?.code && <span>· {q.mondai.code}</span>}
+                          {alreadyInSection && <span className="text-amber-700">· Đã có trong phần thi</span>}
+                        </div>
                       </div>
+                      <Badge variant="outline" className="font-bold shrink-0">
+                        {q.levelCode}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="font-bold shrink-0">
-                      {q.levelCode}
-                    </Badge>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </ScrollArea>
@@ -564,7 +627,7 @@ export default function JlptTemplateBuilderPage() {
 
       {/* Quick Create Dialog */}
       <Sheet open={isQuickCreateOpen} onOpenChange={setIsQuickCreateOpen}>
-        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetContent className="w-full sm:!w-[800px] sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="p-6 border-b shrink-0">
             <SheetTitle>Tạo câu hỏi mới và gắn vào đề thi</SheetTitle>
             <SheetDescription>
@@ -572,7 +635,7 @@ export default function JlptTemplateBuilderPage() {
             </SheetDescription>
           </SheetHeader>
           <ScrollArea className="flex-1 min-h-0">
-            <div className="space-y-6 p-6">
+            <div className="space-y-6 p-6 min-w-0">
               <JlptQuestionForm
                 presetLevelCode={template.levelCode}
                 presetSectionCode={template.sections.find((s: any) => s.id === targetSectionId)?.code}
@@ -594,7 +657,7 @@ export default function JlptTemplateBuilderPage() {
             </SheetDescription>
           </SheetHeader>
           <ScrollArea className="flex-1 min-h-0">
-            <div className="space-y-6 p-6">
+            <div className="space-y-6 p-6 min-w-0 overflow-x-hidden">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tiêu đề đề thi</label>
                 <Input
@@ -605,7 +668,7 @@ export default function JlptTemplateBuilderPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Mã đề (Code)</label>
+                <label className="text-sm font-medium">Mã đề</label>
                 <Input
                   value={settingsData.code}
                   onChange={(e) =>
@@ -614,7 +677,7 @@ export default function JlptTemplateBuilderPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Trạng thái (Status)</label>
+                <label className="text-sm font-medium">Trạng thái</label>
                 <Select
                   value={settingsData.status}
                   onValueChange={(v) =>
@@ -625,10 +688,10 @@ export default function JlptTemplateBuilderPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Bản nháp (DRAFT)</SelectItem>
-                    <SelectItem value="READY">Sẵn sàng (READY)</SelectItem>
-                    <SelectItem value="PUBLISHED">Công bố (PUBLISHED)</SelectItem>
-                    <SelectItem value="ARCHIVED">Lưu trữ (ARCHIVED)</SelectItem>
+                    <SelectItem value="DRAFT">Bản nháp</SelectItem>
+                    <SelectItem value="READY">Sẵn sàng</SelectItem>
+                    <SelectItem value="PUBLISHED">Đang dùng</SelectItem>
+                    <SelectItem value="ARCHIVED">Lưu trữ</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

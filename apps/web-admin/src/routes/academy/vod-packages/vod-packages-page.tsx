@@ -130,18 +130,18 @@ export default function VodPackagesPage() {
             toast.success(`Đã xóa gói ${deleteDialogPackage.code}`)
             setDeleteDialogPackage(null)
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || err?.message || "Không thể xóa gói VOD")
+            toast.error(err?.response?.data?.message || err?.message || "Không thể xóa gói tự học")
         }
     }
 
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Gói VOD & Học liệu"
+                title="Gói tự học & Học liệu"
                 subtitle="Quản lý các gói video bài giảng, lộ trình tự học và giá bán."
                 actions={
                     <Button size="lg" onClick={handleCreate}>
-                        <Plus className="mr-2 h-4 w-4" /> Tạo Gói VOD mới
+                        <Plus className="mr-2 h-4 w-4" /> Tạo gói tự học mới
                     </Button>
                 }
             />
@@ -179,11 +179,11 @@ export default function VodPackagesPage() {
                         <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
-                                <TableHead className="w-[100px]">Thumbnail</TableHead>
+                                <TableHead className="w-[100px]">Ảnh bìa</TableHead>
                                 <TableHead className="w-[150px]">Mã Gói</TableHead>
-                                <TableHead>Tên gói VOD</TableHead>
+                                <TableHead>Tên gói tự học</TableHead>
                                 <TableHead>Giảng viên</TableHead>
-                                <TableHead>Giá (VND)</TableHead>
+                                <TableHead>Giá (VNĐ)</TableHead>
                                 <TableHead>Trạng thái</TableHead>
                                 <TableHead className="text-right pr-6">Thao tác</TableHead>
                             </TableRow>
@@ -206,7 +206,7 @@ export default function VodPackagesPage() {
                             ) : packages?.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
-                                        Không tìm thấy Gói VOD nào.
+                                        Không tìm thấy gói tự học nào.
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -369,7 +369,7 @@ export default function VodPackagesPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Xác nhận xóa gói nháp</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Bạn chắc chắn muốn xóa gói VOD bản nháp{" "}
+                            Bạn chắc chắn muốn xóa gói tự học bản nháp{" "}
                             <span className="font-semibold">{deleteDialogPackage?.code}</span>? Hành động này không thể hoàn tác.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

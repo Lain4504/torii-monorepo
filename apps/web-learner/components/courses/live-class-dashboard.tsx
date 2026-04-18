@@ -15,7 +15,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import {
-    Calendar, Clock, Video, BookOpen, Users, User,
+    Calendar, Clock, Video, BookOpen, Users,
     ChevronLeft, ChevronRight, Trophy, FileText,
     PlayCircle, ShieldCheck, ArrowRight, FileIcon
 } from "lucide-react"
@@ -181,7 +181,12 @@ export function LiveClassDashboard() {
                                         href={`/dashboard/instructors/${instructor.id}?name=${encodeURIComponent(instructorName)}`}
                                         className="inline-flex items-center gap-1.5 hover:text-primary transition-colors group/instructor"
                                     >
-                                        <User className="size-4 text-primary/60 group-hover/instructor:text-primary transition-colors" />
+                                        <Avatar className="size-5 border border-border/40">
+                                            <AvatarImage src={instructor?.avatarUrl} alt={instructorName} />
+                                            <AvatarFallback className="text-[9px] font-bold">
+                                                {(instructorName || 'I').slice(0, 1).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
                                         <span className="font-medium">{instructorName}</span>
                                     </Link>
                                 ) : (
@@ -189,7 +194,7 @@ export function LiveClassDashboard() {
                                 )}
                             </div>
                             <p className="text-sm">
-                                <span className="text-muted-foreground">Số buổi live:</span>{" "}
+                                <span className="text-muted-foreground">Số buổi trực tiếp:</span>{" "}
                                 <span className="font-medium">{sessions.length} buổi</span>
                             </p>
                             <p className="text-sm">
@@ -205,7 +210,7 @@ export function LiveClassDashboard() {
                             <Button variant="secondary" className="w-full justify-start gap-2 bg-white/90 text-primary hover:bg-white" asChild>
                                 <Link href={`/courses/${courseId}/learn?mode=VOD`}>
                                     <PlayCircle className="size-4" />
-                                    Mở trang học VOD
+                                    Mở trang học tự học
                                 </Link>
                             </Button>
                         </div>
@@ -323,7 +328,7 @@ export function LiveClassDashboard() {
                             <div className="flex justify-end">
                                 <Button variant="link" size="sm" className="h-8 px-0 font-semibold" asChild>
                                     <Link href={`/courses/${courseId}/learn`}>
-                                        Mở trang học VOD
+                                        Mở trang học tự học
                                         <ChevronRight className="size-4" />
                                     </Link>
                                 </Button>

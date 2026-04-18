@@ -68,6 +68,11 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const LEVELS = ["N1", "N2", "N3", "N4", "N5"];
+const templateStatusLabelMap: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PUBLISHED: "Đang dùng",
+  ARCHIVED: "Lưu trữ",
+};
 
 type CreateJlptTemplateForm = {
   title: string;
@@ -178,8 +183,8 @@ export default function JlptTemplatesPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Quản lý Đề thi JLPT (Mẫu đề)"
-        subtitle="Danh sách các bản mẫu đề thi JLPT."
+        title="Đề thi JLPT"
+        subtitle="Danh sách đề thi hiện có."
         actions={
           <Button onClick={() => setCreateOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
@@ -277,7 +282,7 @@ export default function JlptTemplatesPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={tpl.status === "PUBLISHED" ? "default" : "secondary"} className="text-[10px]">
-                          {tpl.status}
+                          {templateStatusLabelMap[tpl.status] ?? tpl.status}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -345,9 +350,9 @@ export default function JlptTemplatesPage() {
       <Sheet open={createOpen} onOpenChange={handleCloseCreate}>
         <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="p-6 border-b shrink-0">
-            <SheetTitle>Tạo đề thi JLPT (mẫu đề)</SheetTitle>
+            <SheetTitle>Tạo đề thi JLPT</SheetTitle>
             <SheetDescription>
-              Tạo nhanh một mẫu đề, sau đó chuyển sang trang builder để cấu hình sections và câu hỏi.
+              Tạo đề mới để bắt đầu thêm phần thi và câu hỏi.
             </SheetDescription>
           </SheetHeader>
           <form
@@ -360,7 +365,7 @@ export default function JlptTemplatesPage() {
                 <Field>
                   <FieldLabel>Tiêu đề đề thi</FieldLabel>
                   <Input
-                    placeholder="Ví dụ: JLPT N3 Mock Exam #1"
+                    placeholder="Ví dụ: JLPT N3 Đề thi thử #1"
                     {...register("title", { required: "Vui lòng nhập tiêu đề" })}
                   />
                   {errors.title?.message && (
@@ -369,9 +374,9 @@ export default function JlptTemplatesPage() {
                 </Field>
 
                 <Field>
-                  <FieldLabel>Mã đề (Code)</FieldLabel>
+                  <FieldLabel>Mã đề</FieldLabel>
                   <Input
-                    placeholder="Ví dụ: JLPT-N3-MOCK-001"
+                    placeholder="Ví dụ: JLPT-N3-001"
                     {...register("code", { required: "Vui lòng nhập mã đề" })}
                   />
                   {errors.code?.message && (

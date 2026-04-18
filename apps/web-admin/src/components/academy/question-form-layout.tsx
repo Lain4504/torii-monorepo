@@ -64,7 +64,7 @@ export function QuestionFormLayout({
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Thuộc đoạn văn (Parent)</FieldLabel>
+                                    <FieldLabel>Thuộc đoạn văn cha</FieldLabel>
                                     <QuestionPicker
                                         value={field.value}
                                         onSelect={(id) => field.onChange(id || undefined)}
@@ -104,7 +104,7 @@ export function QuestionFormLayout({
                                                 <SelectItem value={AcademyQuestionType.MULTIPLE_CHOICE}>Nhiều đáp án</SelectItem>
                                                 <SelectItem value={AcademyQuestionType.SHORT_ANSWER}>Trả lời ngắn</SelectItem>
                                                 <SelectItem value={AcademyQuestionType.TRUE_FALSE}>Đúng/Sai</SelectItem>
-                                                <SelectItem value={AcademyQuestionType.GROUP_PARENT}>Đoạn văn (Group Parent)</SelectItem>
+                                                <SelectItem value={AcademyQuestionType.GROUP_PARENT}>Đoạn văn (Câu cha)</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FieldError>{fieldState.error?.message}</FieldError>
@@ -119,7 +119,7 @@ export function QuestionFormLayout({
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <LessonMediaUploader
-                                        label="Media (Ảnh/Audio/Video)"
+                                        label="Tệp đính kèm (Ảnh/Audio/Video)"
                                         value={field.value || null}
                                         onChange={(url) => field.onChange(url ?? undefined)}
                                         errorMessage={fieldState.error?.message}
@@ -139,7 +139,7 @@ export function QuestionFormLayout({
                                         <FieldLabel>Trình độ</FieldLabel>
                                         <Select value={field.value} onValueChange={field.onChange} disabled={lockLevel}>
                                             <SelectTrigger className="h-11 shadow-sm">
-                                                <SelectValue placeholder="Chọn level..." />
+                                                <SelectValue placeholder="Chọn trình độ..." />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {["N1", "N2", "N3", "N4", "N5", "OTHER"].map((l) => (

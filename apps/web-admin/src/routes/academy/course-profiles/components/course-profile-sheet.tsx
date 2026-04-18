@@ -156,7 +156,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreat
                   <FieldGroup>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel>Mã Profile (Code)</FieldLabel>
+                        <FieldLabel>Mã hồ sơ</FieldLabel>
                         <Controller
                           name="code"
                           control={control}
@@ -164,11 +164,11 @@ export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreat
                             <Input placeholder="VD: N5-PRO" {...field} disabled={isEditing} />
                           )}
                         />
-                        <FieldDescription>Mã duy nhất định danh profile.</FieldDescription>
+                        <FieldDescription>Mã định danh duy nhất của hồ sơ.</FieldDescription>
                         <FieldError errors={[errors.code]} />
                       </Field>
                       <Field>
-                        <FieldLabel>Cấp độ (Level)</FieldLabel>
+                        <FieldLabel>Cấp độ</FieldLabel>
                         <Controller
                           name="level"
                           control={control}
@@ -237,8 +237,8 @@ export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreat
                       <LessonMediaUploader
                         value={field.value || null}
                         onChange={(url) => field.onChange(url ?? "")}
-                        label="Ảnh đại diện (Thumbnail)"
-                        description="Chọn hoặc tải lên ảnh đại diện cho course profile."
+                        label="Ảnh đại diện"
+                        description="Chọn hoặc tải lên ảnh đại diện cho hồ sơ khóa học."
                         accept="image/*"
                         errorMessage={fieldState.error?.message}
                       />
@@ -272,7 +272,7 @@ export function CourseProfileSheet({ open, onOpenChange, profile, onSuccessCreat
             ) : (
               <Save className="size-4" />
             )}
-            {isEditing ? "Lưu thay đổi" : "Tạo Profile"}
+            {isEditing ? "Lưu thay đổi" : "Tạo hồ sơ"}
           </Button>
         </div>
       </SheetContent>

@@ -9,7 +9,7 @@ export default function VoiceRoleplayPage() {
     return (
         <div className="flex h-full min-h-0 flex-col px-2 py-2 sm:px-4 sm:py-2 lg:px-6">
             <SenseiPageHeader
-                title="Live Voice Roleplay"
+                title="Luyện hội thoại giọng nói trực tiếp"
                 description="Luyện tập hội thoại trực tiếp cùng AI Sensei"
                 icon={Sparkles}
             />

@@ -120,7 +120,7 @@ export default function InstructorPublicPage() {
         {liveItems.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">Lớp Live đang mở</h2>
+              <h2 className="text-lg font-semibold">Lớp trực tiếp đang mở</h2>
               <Badge variant="outline">{liveItems.length} lớp</Badge>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -134,7 +134,7 @@ export default function InstructorPublicPage() {
         {vodItems.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">Khóa học VOD</h2>
+              <h2 className="text-lg font-semibold">Khóa học tự học</h2>
               <Badge variant="outline">{vodItems.length} khóa</Badge>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -183,7 +183,7 @@ function CourseCard({ klass, mode }: { klass: any; mode: 'LIVE' | 'VOD' }) {
               "border-none px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm text-white",
               mode === 'LIVE' ? 'bg-red-500' : 'bg-primary'
             )}>
-              {mode === 'LIVE' ? 'Tuyển sinh' : 'VOD'}
+              {mode === 'LIVE' ? 'Tuyển sinh' : 'Tự học'}
             </Badge>
           </div>
         </div>

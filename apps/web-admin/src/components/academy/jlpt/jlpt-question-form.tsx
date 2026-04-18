@@ -329,14 +329,14 @@ export function JlptQuestionForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-4 sm:space-y-6 pb-10">
+    <form onSubmit={handleSubmit(onSubmitForm)} className="w-full min-w-0 space-y-4 sm:space-y-6 pb-10">
       <Alert>
         <Info className="size-4" />
         <AlertTitle>Cấu trúc JLPT trong ngân hàng</AlertTitle>
         <AlertDescription className="text-xs leading-relaxed">
-          Chọn <strong>Cấp độ → Phần thi → Mondai (問題)</strong> theo đề chính thức (vd: 漢字読み, 文の文 pháp, 内容 lý giải, 課題 lý giải…).
-          Mỗi câu gắn một mondai để lọc và ghép đề đúng format. Nếu danh sách trống, nghĩa là hệ thống chưa có dữ liệu mondai
-          cho cấp độ/phần thi đó và cần được nạp dữ liệu ở backend.
+          Chọn <strong>Cấp độ → Phần thi → Mondai (問題)</strong> theo đề chính thức (vd: 漢字読み, 文脈規定, 内容理解, 課題理解…).
+          Mỗi câu gắn một mondai để lọc và ghép đề đúng cấu trúc. Nếu danh sách trống, nghĩa là chưa có mondai
+          phù hợp cho cấp độ/phần thi đã chọn.
         </AlertDescription>
       </Alert>
 
@@ -356,7 +356,7 @@ export function JlptQuestionForm({
               control={control}
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Cấp độ (Level)</FieldLabel>
+                  <FieldLabel>Cấp độ</FieldLabel>
                   <Select
                     value={field.value}
                     disabled={availableLevels.length === 0}
@@ -377,7 +377,7 @@ export function JlptQuestionForm({
                         ))
                       ) : (
                         <SelectItem value={field.value} disabled>
-                          Chưa có dữ liệu Level trong DB
+                          Chưa có dữ liệu cấp độ
                         </SelectItem>
                       )}
                     </SelectContent>
@@ -390,7 +390,7 @@ export function JlptQuestionForm({
               control={control}
               render={({ field }) => (
                 <Field>
-                  <FieldLabel>Phần thi (Section)</FieldLabel>
+                  <FieldLabel>Phần thi</FieldLabel>
                   <Select
                     value={field.value}
                     disabled={sectionsLoading || sectionsForLevel.length === 0}
@@ -456,7 +456,7 @@ export function JlptQuestionForm({
                 </Select>
                 {!mondaiLoading && mondaiList.length === 0 && (
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">
-                    Chưa có mondai cho cấp độ + phần thi này trong database.
+                    Chưa có mondai cho cấp độ và phần thi này.
                   </p>
                 )}
               </Field>
@@ -470,7 +470,7 @@ export function JlptQuestionForm({
             control={control}
             render={({ field }) => (
               <Field>
-                <FieldLabel>Ngữ cảnh (Context)</FieldLabel>
+                <FieldLabel>Ngữ cảnh</FieldLabel>
                 <RichTextEditor
                   value={field.value ?? ""}
                   onChange={field.onChange}
@@ -486,7 +486,7 @@ export function JlptQuestionForm({
             control={control}
             render={({ field }) => (
               <Field>
-                <FieldLabel>Nội dung câu hỏi (Stem)</FieldLabel>
+                <FieldLabel>Nội dung câu hỏi</FieldLabel>
                 <RichTextEditor
                   value={field.value ?? ""}
                   onChange={field.onChange}

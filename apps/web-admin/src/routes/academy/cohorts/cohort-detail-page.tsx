@@ -34,6 +34,14 @@ import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profi
 import { useApproveCohort } from "@/lib/api/services/academy-cohorts"
 import { toast } from "sonner"
 
+const cohortStatusLabelMap: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PENDING_APPROVAL: "Chờ duyệt",
+  OPENING: "Đang tuyển sinh",
+  COMPLETED: "Đã kết thúc",
+  ARCHIVED: "Đã lưu trữ",
+}
+
 export default function CohortDetailPage() {
   const { cohortId: id = "" } = useParams<{ cohortId: string }>()
   const [page, setPage] = useState(1)
@@ -62,7 +70,7 @@ export default function CohortDetailPage() {
       } else {
         throw new Error("Unsupported status transition")
       }
-      toast.success(`Đã chuyển trạng thái sang ${status}`)
+      toast.success(`Đã chuyển trạng thái sang ${cohortStatusLabelMap[status] ?? status}`)
     } catch (err: any) {
       toast.error(err?.userMessage || err?.message || "Không thể cập nhật trạng thái")
     }
@@ -125,7 +133,7 @@ export default function CohortDetailPage() {
                   <Button
                     className="w-full gap-2 bg-primary shadow-none hover:bg-primary/90 sm:w-auto"
                     disabled={!liveClasses?.length || submitForApprovalMutation.isPending}
-                    title={!liveClasses?.length ? "Cần ít nhất 1 Lớp học LIVE để gửi duyệt" : ""}
+                    title={!liveClasses?.length ? "Cần ít nhất 1 lớp học trực tiếp để gửi duyệt" : ""}
                   >
                     <Send className="size-4" /> Gửi duyệt
                   </Button>
@@ -181,7 +189,7 @@ export default function CohortDetailPage() {
         }
         stats={[
           { label: "Mã đợt học", value: cohort.code },
-          { label: "Trạng thái", value: cohort.status },
+          { label: "Trạng thái", value: cohortStatusLabelMap[cohort.status] ?? cohort.status },
           { label: "Ngày tạo", value: formatDateTime(cohort.createdAt, "dd/MM/yyyy") },
         ]}
       />
@@ -216,7 +224,7 @@ export default function CohortDetailPage() {
         <Card className="bg-blue-500/5 border-blue-500/20">
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-2 text-blue-600 font-medium">
-              <Package className="size-4" /> Số lớp LIVE liên kết
+              <Package className="size-4" /> Số lớp trực tiếp liên kết
             </CardDescription>
             <CardTitle className="text-2xl font-bold text-blue-700">
               {isLoadingClasses ? "..." : liveClasses?.length || 0}
@@ -290,7 +298,9 @@ export default function CohortDetailPage() {
                     </div>
                     <div className="space-y-1 sm:col-span-2 lg:col-span-1">
                       <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trạng thái</p>
-                      <Badge variant="outline" className="font-bold">{cohort.status}</Badge>
+                      <Badge variant="outline" className="font-bold">
+                        {cohortStatusLabelMap[cohort.status] ?? cohort.status}
+                      </Badge>
                     </div>
                   </div>
 
@@ -334,7 +344,7 @@ export default function CohortDetailPage() {
               <Card>
                 <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <CardTitle>Lớp học vận hành (Live Classes)</CardTitle>
+                    <CardTitle>Lớp học vận hành</CardTitle>
                     <CardDescription>Các lớp học được kích hoạt và gán cho đợt này.</CardDescription>
                   </div>
                   <Button
@@ -343,7 +353,7 @@ export default function CohortDetailPage() {
                     className="w-full border-primary/40 text-primary shadow-none hover:bg-primary/5 sm:w-auto"
                     onClick={() => setSheetOpen(true)}
                     disabled={!canAddLiveClass}
-                    title={!canAddLiveClass ? 'Cohort đã kết thúc/lưu trữ nên không thể thêm lớp LIVE.' : undefined}
+                    title={!canAddLiveClass ? 'Đợt học đã kết thúc/lưu trữ nên không thể thêm lớp trực tiếp.' : undefined}
                   >
                     <Plus className="size-4 mr-2" /> Tạo lớp mới
                   </Button>
@@ -367,7 +377,7 @@ export default function CohortDetailPage() {
                                 <div className="size-4 rounded-full bg-primary/10 flex items-center justify-center">
                                   <User className="size-2.5" />
                                 </div>
-                                <span className="font-medium">Giảng viên ID: {cls.instructorId.slice(0, 8)}...</span>
+                                <span className="font-medium">Đã phân công giảng viên</span>
                               </div>
                             )}
                             <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
@@ -386,7 +396,7 @@ export default function CohortDetailPage() {
                                 : ''
                               }`}
                           >
-                            {cls.status}
+                            {cohortStatusLabelMap[cls.status] ?? cls.status}
                           </Badge>
                           <Button asChild size="sm" variant="outline" className="h-8 px-3">
                             <Link to={`/academy/live-classes/${cls.id}/detail`}>
@@ -403,13 +413,13 @@ export default function CohortDetailPage() {
                         <Package className="size-6 text-muted-foreground/30" />
                       </div>
                       <p className="text-sm text-muted-foreground font-medium mb-1">Chưa có lớp học nào</p>
-                      <p className="text-xs text-muted-foreground/60 max-w-[200px] mb-4">Hãy tạo lớp LIVE đầu tiên cho đợt khai giảng này.</p>
+                      <p className="text-xs text-muted-foreground/60 max-w-[200px] mb-4">Hãy tạo lớp trực tiếp đầu tiên cho đợt khai giảng này.</p>
                       <Button
                         size="sm"
                         onClick={() => setSheetOpen(true)}
                         className="rounded-full px-6"
                         disabled={!canAddLiveClass}
-                        title={!canAddLiveClass ? 'Cohort đã kết thúc/lưu trữ nên không thể thêm lớp LIVE.' : undefined}
+                        title={!canAddLiveClass ? 'Đợt học đã kết thúc/lưu trữ nên không thể thêm lớp trực tiếp.' : undefined}
                       >
                         <Plus className="size-4 mr-2" /> Tạo lớp ngay
                       </Button>

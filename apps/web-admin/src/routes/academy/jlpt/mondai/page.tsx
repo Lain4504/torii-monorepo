@@ -71,8 +71,8 @@ export default function JlptMondaiMasterPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="Quản lý Mondai (JLPT)"
-        subtitle="Định nghĩa dạng bài theo cấp độ và phần thi; trang đang ở chế độ chỉ xem (chỉ đọc)."
+        title="Danh mục dạng bài JLPT"
+        subtitle="Xem các dạng bài theo cấp độ và phần thi."
       />
 
       <div className={listPageFiltersRowClass}>
@@ -114,10 +114,10 @@ export default function JlptMondaiMasterPage() {
             <TableHeader className={dataTableHeaderClass}>
             <TableRow>
               <TableHead className="w-[60px] text-center">#</TableHead>
-              <TableHead className="w-[120px]">Mã (code)</TableHead>
-              <TableHead>Tiêu đề (VI)</TableHead>
-              <TableHead className="w-[140px]">Tiêu đề (JA)</TableHead>
-              <TableHead className="w-[100px] text-right">Trạng thái</TableHead>
+              <TableHead className="w-[120px]">Mã</TableHead>
+              <TableHead>Tên hiển thị</TableHead>
+              <TableHead className="w-[140px]">Tên tiếng Nhật</TableHead>
+              <TableHead className="w-[100px] text-right">Ghi chú</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -130,7 +130,7 @@ export default function JlptMondaiMasterPage() {
             ) : items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  Chưa có mondai cho bộ lọc này. Nếu DB chưa có `JlptLevel/Section`, bạn hãy tạo cấu hình trước tại trang{" "}
+                  Chưa có dữ liệu cho bộ lọc này. Bạn có thể kiểm tra lại tại trang{" "}
                   <Button
                     type="button"
                     variant="link"
@@ -152,7 +152,7 @@ export default function JlptMondaiMasterPage() {
                   <TableCell className="max-w-[140px] truncate text-sm text-muted-foreground">
                     {row.titleJa ?? "—"}
                   </TableCell>
-                  <TableCell className="text-right text-xs text-muted-foreground">Read-only</TableCell>
+                  <TableCell className="text-right text-xs text-muted-foreground">—</TableCell>
                 </TableRow>
               ))
             )}

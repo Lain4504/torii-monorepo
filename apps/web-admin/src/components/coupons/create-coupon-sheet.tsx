@@ -79,6 +79,7 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
         try {
             await createMutation.mutateAsync({
                 ...data,
+                code: String(data.code || '').trim().toUpperCase(),
                 discountValue: Number(data.discountValue),
                 maxDiscountAmount: (data.maxDiscountAmount && !Number.isNaN(data.maxDiscountAmount)) ? Number(data.maxDiscountAmount) : undefined,
                 minOrderValue: (data.minOrderValue !== undefined && data.minOrderValue !== null && !Number.isNaN(data.minOrderValue)) ? Number(data.minOrderValue) : undefined,
@@ -93,8 +94,12 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
             });
             handleClose();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Tạo thất bại', {
-                description: 'Đã xảy ra lỗi khi tạo coupon. Vui lòng thử lại.',
+            const details = error?.response?.data?.errors
+                ?.map((e: any) => e?.message)
+                ?.filter(Boolean)
+                ?.join(', ');
+            toast.error(error?.userMessage || error?.response?.data?.message || 'Tạo thất bại', {
+                description: details || 'Đã xảy ra lỗi khi tạo coupon. Vui lòng thử lại.',
             });
         }
     };

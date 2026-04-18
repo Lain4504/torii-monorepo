@@ -23,7 +23,7 @@ import { dataTableHeaderClass, dataTableShellClass } from '@/lib/ui-shell'
 function statusBadge(status: string) {
   if (status === 'SUBMITTED') return { text: 'Đã nộp', variant: 'default' as const, className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' }
   if (status === 'IN_PROGRESS') return { text: 'Đang làm', variant: 'secondary' as const, className: 'bg-amber-500/10 text-amber-600 border-amber-500/20' }
-  return { text: status, variant: 'outline' as const, className: '' }
+  return { text: 'Chưa xác định', variant: 'outline' as const, className: '' }
 }
 
 export default function JlptAttemptHistoryPage() {

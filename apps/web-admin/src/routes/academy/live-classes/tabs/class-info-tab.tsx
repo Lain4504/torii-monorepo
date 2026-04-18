@@ -73,7 +73,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
               <div>
                 <p className="text-xs text-muted-foreground">Loại hình</p>
                 <Badge variant="secondary" className="mt-0.5">
-                  {isLive ? "Lớp trực tiếp (LIVE)" : "Lớp tự học (VOD)"}
+                  {isLive ? "Lớp trực tiếp" : "Lớp tự học"}
                 </Badge>
               </div>
             </div>
@@ -188,7 +188,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
 
             <div className="space-y-2 text-sm">
               <p className="text-xs font-semibold text-muted-foreground uppercase">
-                Lịch học tuần (Lý thuyết)
+                Lịch học tuần
               </p>
               {academyClass.liveSchedules && academyClass.liveSchedules.length > 0 ? (
                 <div className="divide-y rounded-md border bg-muted/40">

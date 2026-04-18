@@ -62,7 +62,7 @@ function CourseCard({ item, mode }: { item: CatalogItem; mode: 'LIVE' | 'VOD' })
                 mode === 'LIVE' ? 'bg-red-500' : 'bg-primary'
               )}
             >
-              {mode === 'LIVE' ? 'Tuyển sinh' : 'VOD'}
+              {mode === 'LIVE' ? 'Tuyển sinh' : 'Tự học'}
             </Badge>
           </div>
         </div>
@@ -153,7 +153,7 @@ export function RecommendedCoursesSection({ jlptTarget }: { jlptTarget: string }
         {liveItems.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-sm font-semibold">Lớp Live đang tuyển sinh</div>
+              <div className="text-sm font-semibold">Lớp trực tiếp đang tuyển sinh</div>
               <Button variant="ghost" size="sm" className="h-8 px-2 text-xs font-bold" asChild>
                 <Link href={level ? `/dashboard/available-courses?level=${level}` : '/dashboard/available-courses'}>Xem tất cả</Link>
               </Button>
@@ -169,7 +169,7 @@ export function RecommendedCoursesSection({ jlptTarget }: { jlptTarget: string }
         {vodItems.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <div className="text-sm font-semibold">Khóa học VOD</div>
+              <div className="text-sm font-semibold">Khóa học tự học</div>
               <Button variant="ghost" size="sm" className="h-8 px-2 text-xs font-bold" asChild>
                 <Link href={level ? `/dashboard/available-courses?type=vod&level=${level}` : '/dashboard/available-courses?type=vod'}>Xem tất cả</Link>
               </Button>

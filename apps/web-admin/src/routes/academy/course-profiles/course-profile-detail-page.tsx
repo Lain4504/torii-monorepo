@@ -64,6 +64,16 @@ import { CourseProfileSheet } from "./components/course-profile-sheet"
 import { AssessmentPlanTab } from "./components/assessment-plan-tab"
 import { Trophy } from "lucide-react"
 
+const statusLabelMap: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PENDING_APPROVAL: "Chờ duyệt",
+  OPENING: "Đang tuyển sinh",
+  PUBLISHED: "Đang hoạt động",
+  ONGOING: "Đang diễn ra",
+  COMPLETED: "Đã hoàn thành",
+  ARCHIVED: "Đã lưu trữ",
+}
+
 interface SortableItemProps {
   id: string;
   children: (props: {
@@ -258,7 +268,7 @@ export default function CourseProfileDetailPage() {
           { label: "Mã khóa", value: profile.code },
           { label: "Trình độ", value: profile.level || 'JLPT' },
           { label: "Lớp Live", value: classes?.length || 0 },
-          { label: "Gói VOD", value: vodPackages?.length || 0 },
+          { label: "Gói tự học", value: vodPackages?.length || 0 },
         ]}
         actions={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
@@ -268,7 +278,7 @@ export default function CourseProfileDetailPage() {
                   className="w-full sm:w-auto"
                   onClick={() => setProfileSheetOpen(true)}
                 >
-                  Chỉnh sửa Profile
+                  Chỉnh sửa hồ sơ
                 </Button>
             )}
 
@@ -292,7 +302,7 @@ export default function CourseProfileDetailPage() {
             <BookOpen className="size-4" /> Thông tin chi tiết
           </TabsTrigger>
           <TabsTrigger value="curriculum" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
-            <Layers className="size-4" /> Chương trình học (Modules)
+            <Layers className="size-4" /> Chương trình học
           </TabsTrigger>
           <TabsTrigger value="classes" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
             <Users className="size-4" /> Danh sách lớp học
@@ -605,7 +615,7 @@ export default function CourseProfileDetailPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Các lớp học trực tiếp (Live)</CardTitle>
+                    <CardTitle className="text-lg">Các lớp học trực tiếp</CardTitle>
                     <CardDescription>Danh sách các lớp học đang diễn ra hoặc sắp mở thuộc hồ sơ này.</CardDescription>
                   </div>
                   <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
@@ -635,7 +645,7 @@ export default function CourseProfileDetailPage() {
                             variant={(cls.status === 'PUBLISHED' || cls.status === 'OPENING' || cls.status === 'ONGOING') ? 'default' : cls.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
                             className="text-[10px]"
                           >
-                            {cls.status}
+                            {statusLabelMap[cls.status] ?? cls.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right px-6">
@@ -670,8 +680,8 @@ export default function CourseProfileDetailPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-lg">Các gói bài giảng tự học (VOD)</CardTitle>
-                    <CardDescription>Danh sách các gói VOD đang bán hoặc đang soạn thảo dựa trên hồ sơ này.</CardDescription>
+                    <CardTitle className="text-lg">Các gói bài giảng tự học</CardTitle>
+                    <CardDescription>Danh sách các gói tự học đang bán hoặc đang soạn thảo dựa trên hồ sơ này.</CardDescription>
                   </div>
                   <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
                     {vodPackages?.length || 0} Gói
@@ -684,7 +694,7 @@ export default function CourseProfileDetailPage() {
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-12 px-6">STT</TableHead>
                       <TableHead>Mã gói</TableHead>
-                      <TableHead>Tên gói VOD</TableHead>
+                      <TableHead>Tên gói tự học</TableHead>
                       <TableHead>Trạng thái</TableHead>
                       <TableHead className="text-right px-6">Thao tác</TableHead>
                     </TableRow>
@@ -700,7 +710,7 @@ export default function CourseProfileDetailPage() {
                             variant={pkg.status === 'PUBLISHED' ? 'default' : pkg.status === 'ARCHIVED' ? 'destructive' : 'secondary'}
                             className={`text-[10px] ${pkg.status === 'PUBLISHED' ? 'bg-emerald-500/10 text-emerald-600 border-none' : ''}`}
                           >
-                            {pkg.status}
+                            {statusLabelMap[pkg.status] ?? pkg.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right px-6">
@@ -722,7 +732,7 @@ export default function CourseProfileDetailPage() {
                     {(!vodPackages || vodPackages.length === 0) && (
                       <TableRow>
                         <TableCell colSpan={5} className="h-24 text-center text-muted-foreground italic">
-                          Chưa có gói VOD nào.
+                          Chưa có gói tự học nào.
                         </TableCell>
                       </TableRow>
                     )}
@@ -751,7 +761,7 @@ export default function CourseProfileDetailPage() {
                     <p className="text-sm font-semibold">{profile.title}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã hồ sơ (Code)</p>
+                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mã hồ sơ</p>
                     <p className="text-sm font-mono font-bold text-primary">{profile.code}</p>
                   </div>
                   <div className="space-y-1">
@@ -761,7 +771,7 @@ export default function CourseProfileDetailPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả học thuật</p>
+                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả khóa học</p>
                   <p className="text-sm text-balance leading-relaxed">
                     {profile.description || 'Chưa có thông tin mô tả chi tiết cho hồ sơ khóa học này.'}
                   </p>

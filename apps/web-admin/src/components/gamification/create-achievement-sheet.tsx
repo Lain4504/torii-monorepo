@@ -190,7 +190,7 @@ export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, 
                                             {errors.title && <FieldDescription className="text-destructive">{errors.title.message}</FieldDescription>}
                                         </Field>
                                         <Field>
-                                            <FieldLabel>Mã (Code)</FieldLabel>
+                                            <FieldLabel>Mã</FieldLabel>
                                             <Input placeholder="Ví dụ: STREAK_7" {...register("code")} />
                                             <FieldDescription>Mã duy nhất không dấu.</FieldDescription>
                                             {errors.code && <FieldDescription className="text-destructive">{errors.code.message}</FieldDescription>}
@@ -299,7 +299,7 @@ export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, 
                                 </FieldSet>
 
                                 <FieldSet className="rounded-lg border p-4 bg-muted/30">
-                                    <FieldLegend>Điều kiện đạt được (Requirements)</FieldLegend>
+                                    <FieldLegend>Điều kiện đạt được</FieldLegend>
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
                                             <FieldLabel>Loại chỉ số</FieldLabel>

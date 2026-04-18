@@ -196,7 +196,7 @@ export function VodClassForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Mã lớp (code)</FieldLabel>
+                                                <FieldLabel>Mã lớp</FieldLabel>
                                                 <Input placeholder="VOD_N5_2026_01" {...field} />
                                                 <FieldDescription>Duy nhất toàn hệ thống, dùng để định danh lớp.</FieldDescription>
                                                 <FieldError>{fieldState.error?.message}</FieldError>
@@ -266,7 +266,7 @@ export function VodClassForm({
                         </FieldSet>
 
                         <FieldSet>
-                            <FieldLegend>Thông tin bổ sung (Settings)</FieldLegend>
+                            <FieldLegend>Thông tin bổ sung</FieldLegend>
                             <FieldDescription>Các cấu hình hiển thị và yêu cầu đầu vào.</FieldDescription>
                             <FieldGroup>
                                 <Controller

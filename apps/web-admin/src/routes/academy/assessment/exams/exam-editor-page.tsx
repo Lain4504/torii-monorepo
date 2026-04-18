@@ -368,8 +368,8 @@ export default function AcademyExamEditorPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="DRAFT">Bản nháp</SelectItem>
-                    <SelectItem value="PUBLISHED">Hoạt động (Published)</SelectItem>
-                    <SelectItem value="ARCHIVED">Lưu trữ (Archived)</SelectItem>
+                    <SelectItem value="PUBLISHED">Hoạt động</SelectItem>
+                    <SelectItem value="ARCHIVED">Lưu trữ</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

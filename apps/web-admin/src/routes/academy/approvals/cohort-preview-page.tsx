@@ -33,6 +33,14 @@ import {
 } from "@/lib/api/services/academy-cohorts"
 import { formatDateTime } from "@/lib/format-utils"
 
+const cohortStatusLabelMap: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PENDING_APPROVAL: "Chờ duyệt",
+  OPENING: "Đang tuyển sinh",
+  COMPLETED: "Đã kết thúc",
+  ARCHIVED: "Đã lưu trữ",
+}
+
 export default function CohortApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -85,7 +93,7 @@ export default function CohortApprovalPreviewPage() {
         }
         subtitle={`Phê duyệt đợt khai giảng #${cohort.code}`}
         stats={[
-          { label: "Trạng thái", value: cohort.status ?? "—" },
+          { label: "Trạng thái", value: cohortStatusLabelMap[cohort.status] ?? cohort.status ?? "—" },
           { label: "Ngày gửi duyệt", value: formatDateTime(cohort.createdAt, "HH:mm dd/MM/yyyy") },
         ]}
         actions={

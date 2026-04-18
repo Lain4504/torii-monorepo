@@ -31,7 +31,7 @@ export function VodInfoTab({ pkg, profile }: VodInfoTabProps) {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <BookOpen className="size-5" />
-                        Thông tin gói VOD
+                        Thông tin gói tự học
                     </CardTitle>
                     <CardDescription>Mã gói, tên gói và trạng thái niêm yết</CardDescription>
                 </CardHeader>

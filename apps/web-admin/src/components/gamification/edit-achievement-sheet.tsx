@@ -220,7 +220,7 @@ export function EditAchievementSheet({
                                             {errors.title && <FieldDescription className="text-destructive">{errors.title.message}</FieldDescription>}
                                         </Field>
                                         <Field>
-                                            <FieldLabel>Mã (Code)</FieldLabel>
+                                            <FieldLabel>Mã</FieldLabel>
                                             <Input {...register("code")} />
                                             {errors.code && <FieldDescription className="text-destructive">{errors.code.message}</FieldDescription>}
                                         </Field>
@@ -328,7 +328,7 @@ export function EditAchievementSheet({
                                 </FieldSet>
 
                                 <FieldSet className="rounded-lg border p-4 bg-muted/30">
-                                    <FieldLegend>Điều kiện đạt được (Requirements)</FieldLegend>
+                                    <FieldLegend>Điều kiện đạt được</FieldLegend>
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
                                             <FieldLabel>Loại chỉ số</FieldLabel>

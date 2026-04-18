@@ -327,9 +327,9 @@ export default function CheckoutPage() {
                                                 {product.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}
                                             </Badge>
                                             {isLIVE ? (
-                                                <Badge variant="outline">LIVE</Badge>
+                                                <Badge variant="outline">Trực tiếp</Badge>
                                             ) : (
-                                                <Badge variant="outline">VOD</Badge>
+                                                <Badge variant="outline">Tự học</Badge>
                                             )}
                                         </div>
 
@@ -379,7 +379,7 @@ export default function CheckoutPage() {
                         {isLIVE && product.classes && product.classes.length === 1 && isLiveClassFull(product.classes[0]) && (
                             <Card className="border-destructive/50">
                                 <CardContent className="pt-6 text-sm text-destructive">
-                                    Lớp LIVE hiện tại đã đủ học viên. Bạn không thể thanh toán gói này cho đến khi có chỗ trống.
+                                    Lớp trực tiếp hiện tại đã đủ học viên. Bạn chưa thể thanh toán cho đến khi có chỗ trống.
                                 </CardContent>
                             </Card>
                         )}

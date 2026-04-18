@@ -74,11 +74,11 @@ export function ReviewDetailDialog({ open, onOpenChange, review, onRequestRemove
             </div>
             {review.liveClassId ? (
               <Badge variant="outline" className="text-[10px] font-semibold">
-                Học Live
+                Học trực tiếp
               </Badge>
             ) : review.vodPackageId ? (
               <Badge variant="outline" className="text-[10px] font-semibold">
-                VOD
+                Tự học
               </Badge>
             ) : null}
           </div>

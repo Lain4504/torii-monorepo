@@ -14,15 +14,15 @@ const faqs = [
     },
     {
         question: 'Tôi có thể học thử trước khi đăng ký không?',
-        answer: 'Có, bạn có thể xem danh mục khóa học và các thông tin giới thiệu. Một số bài học đầu tiên của các khóa VOD thường được mở miễn phí để bạn trải nghiệm chất lượng giảng dạy trước khi quyết định đăng ký.',
+        answer: 'Có, bạn có thể xem danh mục khóa học và các thông tin giới thiệu. Một số bài học đầu tiên của các khóa tự học thường được mở miễn phí để bạn trải nghiệm chất lượng giảng dạy trước khi quyết định đăng ký.',
     },
     {
         question: 'Làm thế nào để theo dõi tiến độ học tập?',
-        answer: 'Sau khi đăng nhập, Dashboard sẽ hiển thị chi tiết tiến độ hoàn thành bài học, số lượng điểm XP bạn đã tích lũy và các huy chương đạt được. Bạn cũng có thể xem lại lịch sử các buổi học Live đã tham gia.',
+        answer: 'Sau khi đăng nhập, Dashboard sẽ hiển thị chi tiết tiến độ hoàn thành bài học, số lượng điểm XP bạn đã tích lũy và các huy chương đạt được. Bạn cũng có thể xem lại lịch sử các buổi học trực tiếp đã tham gia.',
     },
     {
-        question: 'Đăng ký lớp Live và khóa VOD khác nhau như thế nào?',
-        answer: 'Lớp Live là hình thức học trực tuyến tương tác trực tiếp với giảng viên qua Google Meet theo lịch cố định. Khóa VOD là các bài giảng được quay sẵn, giúp bạn linh động học tập mọi lúc mọi nơi theo thời gian biểu cá nhân.',
+        question: 'Đăng ký lớp trực tiếp và khóa tự học khác nhau như thế nào?',
+        answer: 'Lớp trực tiếp là hình thức học trực tuyến tương tác với giảng viên theo lịch cố định. Khóa tự học là các bài giảng quay sẵn, giúp bạn linh hoạt học mọi lúc theo thời gian biểu cá nhân.',
     },
 ]
 

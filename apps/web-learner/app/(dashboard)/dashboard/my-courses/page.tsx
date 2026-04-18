@@ -200,7 +200,7 @@ export default function MyCoursesPage() {
                                 <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                                     {course.type?.toLowerCase() === 'live' && (
                                         <Badge className="bg-red-500 text-white border-none px-2 py-0.5 rounded-lg text-[9px] font-bold shadow-sm">
-                                            LIVE
+                                            TRỰC TIẾP
                                         </Badge>
                                     )}
                                     {String(course.status || 'ACTIVE').toUpperCase() === 'COMPLETED' && (

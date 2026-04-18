@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
 import { JlptQuestionForm } from "@/components/academy/jlpt/jlpt-question-form";
 import { toast } from "sonner";
@@ -47,15 +46,13 @@ export default function JlptQuestionDetailPage() {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
-          onClick={() => navigate("/academy/jlpt/questions")}
+        <Link
+          to="/academy/jlpt/questions"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4" />
           Quay lại danh sách
-        </Button>
+        </Link>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
           {isNew ? "Thêm câu hỏi mới" : "Chỉnh sửa câu hỏi"}
         </h1>

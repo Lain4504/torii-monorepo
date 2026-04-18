@@ -130,7 +130,7 @@ export function EnrollmentForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Lớp học (Live)</FieldLabel>
+                                                <FieldLabel>Lớp học trực tiếp</FieldLabel>
                                                 <Popover open={openClassPopover} onOpenChange={setOpenClassPopover}>
                                                     <PopoverTrigger asChild>
                                                         <Button
@@ -346,10 +346,10 @@ export function EnrollmentForm({
                                             <SelectValue placeholder="Chọn trạng thái..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="ACTIVE">Hoạt động (ACTIVE)</SelectItem>
-                                            <SelectItem value="COMPLETED">Hoàn thành (COMPLETED)</SelectItem>
-                                            <SelectItem value="CANCELLED">Đã huỷ (CANCELLED)</SelectItem>
-                                            <SelectItem value="EXPIRED">Hết hạn (EXPIRED)</SelectItem>
+                                            <SelectItem value="ACTIVE">Hoạt động</SelectItem>
+                                            <SelectItem value="COMPLETED">Hoàn thành</SelectItem>
+                                            <SelectItem value="CANCELLED">Đã huỷ</SelectItem>
+                                            <SelectItem value="EXPIRED">Hết hạn</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FieldError>{fieldState.error?.message}</FieldError>
