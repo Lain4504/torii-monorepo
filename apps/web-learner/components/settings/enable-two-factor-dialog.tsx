@@ -145,7 +145,7 @@ export function EnableTwoFactorDialog({
             Bật xác thực hai yếu tố
           </DialogTitle>
           <DialogDescription className="text-sm">
-            {step === "generate" && "Thiết lập 2FA để bảo mật tài khoản của bạn"}
+            {step === "generate" && "Thiết lập xác thực hai yếu tố để bảo mật tài khoản của bạn"}
             {step === "verify" &&
               "Quét mã QR bằng ứng dụng xác thực của bạn"}
             {step === "backup" && "Lưu mã dự phòng của bạn ở nơi an toàn"}

@@ -17,14 +17,14 @@ import { Input } from '@workspace/ui/components/input';
 import { AuthLayout } from '@/components/auth/auth-layout';
 
 const verifyCodeSchema = z.object({
-    code: z.string().min(1, 'Code is required'),
+    code: z.string().min(1, 'Vui lòng nhập mã xác thực'),
     isBackup: z.boolean(),
 }).superRefine((data, ctx) => {
     if (data.isBackup) {
         if (data.code.length !== 8) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Backup code must be 8 characters',
+                message: 'Mã dự phòng phải có 8 ký tự',
                 path: ['code'],
             });
         }
@@ -32,13 +32,13 @@ const verifyCodeSchema = z.object({
         if (data.code.length !== 6) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Verification code must be 6 digits',
+                message: 'Mã xác thực phải có 6 chữ số',
                 path: ['code'],
             });
         } else if (!/^\d+$/.test(data.code)) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Code must contain only numbers',
+                message: 'Mã xác thực chỉ được chứa số',
                 path: ['code'],
             });
         }
@@ -60,7 +60,7 @@ export default function TwoFactorVerifyPage() {
         // Get tempToken from URL params or sessionStorage (in case of navigation)
         const token = searchParams.get('token') || sessionStorage.getItem('2fa_tempToken');
         if (!token) {
-            toast.error('Invalid session. Please login again.');
+            toast.error('Phiên xác thực không hợp lệ. Vui lòng đăng nhập lại.');
             router.push('/login');
             return;
         }

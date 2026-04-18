@@ -138,10 +138,10 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
           id: vodPackage.id,
           input,
         })
-        toast.success("Cập nhật Gói VOD thành công")
+        toast.success("Cập nhật gói tự học thành công")
       } else {
         await createMutation.mutateAsync(input)
-        toast.success("Tạo Gói VOD thành công")
+        toast.success("Tạo gói tự học thành công")
       }
       onOpenChange(false)
     } catch (error: any) {
@@ -155,11 +155,11 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="!w-full sm:!max-w-[600px] max-h-screen p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-6 py-4 border-b shrink-0">
-          <SheetTitle>{isEditing ? "Chỉnh sửa Gói VOD" : "Tạo Gói VOD mới"}</SheetTitle>
+          <SheetTitle>{isEditing ? "Chỉnh sửa gói tự học" : "Tạo gói tự học mới"}</SheetTitle>
           <SheetDescription>
             {isEditing
-              ? "Cập nhật thông tin quản lý cho gói VOD này."
-              : "Khởi tạo một gói VOD mới dựa trên chương trình."}
+              ? "Cập nhật thông tin quản lý cho gói tự học này."
+              : "Khởi tạo một gói tự học mới dựa trên chương trình."}
           </SheetDescription>
         </SheetHeader>
 
@@ -168,10 +168,10 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
             <form id="vod-package-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <FieldGroup>
                 <FieldSet>
-                  <FieldLegend>Syllabus & Định danh</FieldLegend>
+                  <FieldLegend>Chương trình và định danh</FieldLegend>
                   <FieldGroup>
                     <Field>
-                      <FieldLabel>Hồ sơ khóa học (Gốc)</FieldLabel>
+                      <FieldLabel>Hồ sơ khóa học gốc</FieldLabel>
                       <Controller
                         name="courseProfileId"
                         control={control}
@@ -198,7 +198,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                     </Field>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel>Mã Gói (VD: VOD-N4-ALL)</FieldLabel>
+                        <FieldLabel>Mã gói (VD: VOD-N4-ALL)</FieldLabel>
                         <Controller
                           name="code"
                           control={control}
@@ -209,7 +209,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                         <FieldError errors={[errors.code]} />
                       </Field>
                       <Field>
-                        <FieldLabel>Tên Gói (VD: Trọn bộ N4 VOD)</FieldLabel>
+                        <FieldLabel>Tên gói (VD: Trọn bộ N4 tự học)</FieldLabel>
                         <Controller
                           name="title"
                           control={control}
@@ -282,7 +282,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                 <FieldSet>
                   <FieldLegend>Hình ảnh</FieldLegend>
                   <FieldDescription>
-                    Ảnh đại diện (banner) cho gói VOD này. Nếu để trống, hệ thống sẽ dùng ảnh của hồ sơ khóa học.
+                    Ảnh banner cho gói tự học này. Nếu để trống, hệ thống sẽ dùng ảnh của hồ sơ khóa học.
                   </FieldDescription>
                   <Controller
                     name="thumbnailUrl"
@@ -291,7 +291,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
                       <LessonMediaUploader
                         value={field.value || null}
                         onChange={(url) => field.onChange(url ?? "")}
-                        label="Ảnh banner gói VOD"
+                        label="Ảnh banner gói tự học"
                         description="Kích thước gợi ý: 1200x630px. Hỗ trợ JPG, PNG, WebP."
                         accept="image/*"
                         errorMessage={fieldState.error?.message}
@@ -310,7 +310,7 @@ export function VodPackageSheet({ open, onOpenChange, vodPackage }: VodPackageSh
           </Button>
           <Button type="submit" form="vod-package-form" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Lưu thay đổi" : "Tạo Gói VOD"}
+            {isEditing ? "Lưu thay đổi" : "Tạo gói tự học"}
           </Button>
         </div>
       </SheetContent>

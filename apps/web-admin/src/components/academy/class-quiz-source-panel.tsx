@@ -29,7 +29,7 @@ export function ClassQuizSourcePanel({
             <FieldGroup>
                 <Field>
                     <FieldLabel>Nguồn đề thi</FieldLabel>
-                    <Input disabled value="VOD: dùng đề mặc định của Quiz Template (không override)" />
+                    <Input disabled value="Tự học: dùng đề mặc định của mẫu bài kiểm tra (không ghi đè)" />
                     <FieldDescription>
                         Lớp VOD không cho phép giảng viên ghi đè đề thi, hệ thống luôn dùng đề mặc định của chương trình học.
                     </FieldDescription>
@@ -56,7 +56,7 @@ export function ClassQuizSourcePanel({
                             <SelectContent>
                                 <SelectItem value="USE_TEMPLATE_DEFAULT">Nhanh nhất: dùng đề mặc định từ template</SelectItem>
                                 <SelectItem value="USE_EXISTING_EXAM">Chủ động: chọn đề đã tạo sẵn</SelectItem>
-                                <SelectItem value="GENERATE_FROM_POOL">Tạo nhanh: tự sinh đề mới từ pool</SelectItem>
+                                <SelectItem value="GENERATE_FROM_POOL">Tạo nhanh: tự sinh đề mới từ nhóm câu hỏi</SelectItem>
                             </SelectContent>
                         </Select>
                         <FieldDescription>
@@ -92,7 +92,7 @@ export function ClassQuizSourcePanel({
                                         </SelectContent>
                                     </Select>
                                     <FieldDescription>
-                                        Dùng đề này thay cho đề mặc định của Quiz Template.
+                                        Dùng đề này thay cho đề mặc định của mẫu bài kiểm tra.
                                     </FieldDescription>
                                     <div className="flex items-center gap-2">
                                         <Button variant="outline" size="sm" asChild>
@@ -177,8 +177,8 @@ export function ClassQuizSourcePanel({
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="true">Có trộn (Shuffle)</SelectItem>
-                                                    <SelectItem value="false">Giữ thứ tự pool</SelectItem>
+                                                    <SelectItem value="true">Có trộn</SelectItem>
+                                                    <SelectItem value="false">Giữ thứ tự nhóm câu hỏi</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FieldError>{fieldState.error?.message}</FieldError>

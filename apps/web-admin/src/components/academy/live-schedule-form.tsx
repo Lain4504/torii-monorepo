@@ -91,8 +91,8 @@ export function LiveScheduleForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Live class ID</FieldLabel>
-                    <Input placeholder="UUID lớp LIVE" disabled {...field} />
+                    <FieldLabel>ID lớp trực tiếp</FieldLabel>
+                    <Input placeholder="UUID lớp trực tiếp" disabled {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}

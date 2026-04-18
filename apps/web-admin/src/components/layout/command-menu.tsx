@@ -100,15 +100,15 @@ export function CommandMenu() {
                     <CommandGroup heading="Công cụ & Tiện ích">
                         <CommandItem onSelect={() => runCommand(() => navigate("/academy/live-classes"))}>
                             <Video className="mr-2 h-4 w-4" />
-                            <span>Quản lý lớp học (Live Classes)</span>
+                            <span>Quản lý lớp trực tiếp</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/blogs"))}>
                             <FileEdit className="mr-2 h-4 w-4" />
-                            <span>Bài viết Blog</span>
+                            <span>Bài viết</span>
                         </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/academy/ai-subscriptions"))}>
                             <Bot className="mr-2 h-4 w-4" />
-                            <span>Dịch vụ AI Subscriptions</span>
+                            <span>Gói dịch vụ AI</span>
                         </CommandItem>
                     </CommandGroup>
 

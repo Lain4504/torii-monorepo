@@ -197,7 +197,7 @@ export default function TakeExamPage() {
                 }
 
             } catch (err: any) {
-                setError(err.message || 'Failed to load exam')
+                setError(err.message || 'Không thể tải bài kiểm tra')
                 console.error('Error loading exam:', err)
             } finally {
                 setLoading(false)
@@ -333,7 +333,7 @@ export default function TakeExamPage() {
             router.push(`/dashboard/exams/${examId}/review/${sessionId}`)
         } catch (err: any) {
             setIsSubmitting(false)
-            toast.error('Lỗi khi nộp bài: ' + (err.message || 'Unknown error'), { id: "submit-exam" })
+            toast.error('Lỗi khi nộp bài: ' + (err.message || 'Không rõ nguyên nhân'), { id: "submit-exam" })
             console.error('Error submitting exam:', err)
         }
     }
@@ -422,7 +422,7 @@ export default function TakeExamPage() {
                     </Link>
                     <div className="flex flex-col">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            Bài kiểm tra / Quiz
+                            Bài kiểm tra
                         </p>
                         <p className="text-sm md:text-base font-bold text-foreground line-clamp-1">
                             {examTitle}
@@ -523,7 +523,7 @@ export default function TakeExamPage() {
 
                             <div className="space-y-3">
                                 <AlertDialogTitle className="text-3xl font-black tracking-tight text-foreground">
-                                    Nộp bài quiz
+                                    Nộp bài kiểm tra
                                 </AlertDialogTitle>
                                 <AlertDialogDescription className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[280px] mx-auto uppercase tracking-widest text-[10px]">
                                     Hành động này không thể hoàn tác. Bạn có chắc chắn muốn kết thúc bài thi?
