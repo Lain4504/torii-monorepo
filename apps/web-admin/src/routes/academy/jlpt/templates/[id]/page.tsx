@@ -470,7 +470,7 @@ export default function JlptTemplateBuilderPage() {
                                       {q.mondai.code}
                                     </Badge>
                                   )}
-                                  {q.question.audioAssetId && <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-blue-500 font-normal">Audio</Badge>}
+                                  {q.question.audioAssetId && <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-blue-500 font-normal">Âm thanh</Badge>}
                                   {q.question.imageAssetId && <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-emerald-500 font-normal">Image</Badge>}
                                </div>
                             </div>

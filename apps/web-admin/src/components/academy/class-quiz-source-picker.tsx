@@ -112,7 +112,7 @@ export function ClassQuizSourcePicker({
 
                     <div className="grid grid-cols-2 gap-4 text-xs">
                         <div>
-                            <p className="text-muted-foreground">Số Section</p>
+                            <p className="text-muted-foreground">Số phần thi</p>
                             <p className="font-medium">{selectedExamDetail.sections?.length || 0}</p>
                         </div>
                         <div>
@@ -123,7 +123,7 @@ export function ClassQuizSourcePicker({
 
                     {Array.isArray(selectedExamDetail.sections) && selectedExamDetail.sections.length > 0 && (
                         <div className="space-y-1.5 pt-1">
-                            <p className="text-[10px] uppercase font-bold text-muted-foreground">Chi tiết các phần:</p>
+                            <p className="text-[10px] uppercase font-bold text-muted-foreground">Chi tiết từng phần:</p>
                             {selectedExamDetail.sections.map((section: any) => {
                                 const count = Array.isArray(selectedExamDetail.examQuestions)
                                     ? selectedExamDetail.examQuestions.filter((q: any) => q.sectionId === section.id).length

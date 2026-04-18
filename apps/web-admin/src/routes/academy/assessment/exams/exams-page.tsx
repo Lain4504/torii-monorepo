@@ -112,7 +112,7 @@ export default function ExamsPage() {
               <SelectContent>
                 <SelectItem value="ALL">Tất cả loại</SelectItem>
                 <SelectItem value="QUIZ">Bài kiểm tra ngắn</SelectItem>
-                <SelectItem value="MODULE_TEST">Kiểm tra Module</SelectItem>
+                <SelectItem value="MODULE_TEST">Kiểm tra mô-đun</SelectItem>
                 <SelectItem value="FINAL_EXAM">Thi cuối kỳ</SelectItem>
               </SelectContent>
             </Select>

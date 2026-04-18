@@ -158,7 +158,7 @@ export function HomeLanding() {
             </div>
             <div className="leading-none">
               <p className="text-sm font-bold">Torii Nihongo</p>
-              <p className="text-[10px] text-muted-foreground">E-Learning Platform</p>
+              <p className="text-[10px] text-muted-foreground">Nền tảng học trực tuyến</p>
             </div>
           </Link>
 
@@ -189,7 +189,7 @@ export function HomeLanding() {
               <div className="mx-auto max-w-3xl space-y-5 text-center">
                 <Badge variant="outline" className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs text-muted-foreground">
                   <Sparkles className="size-3.5" />
-                  Torii Nihongo E-Learning
+                  Torii Nihongo trực tuyến
                 </Badge>
                 <h1 className="text-3xl font-bold tracking-tight md:text-5xl">
                   Học tiếng Nhật bài bản,

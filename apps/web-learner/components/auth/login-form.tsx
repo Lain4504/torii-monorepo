@@ -303,7 +303,7 @@ export function LoginForm() {
                                     >
                                         {showPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
                                         <span className="sr-only">
-                                            {showPassword ? 'Hide password' : 'Show password'}
+                                            {showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                                         </span>
                                     </Button>
                                 </div>

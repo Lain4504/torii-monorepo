@@ -192,7 +192,7 @@ export default function DashboardCoursesPage() {
                                 : "bg-muted/30 border-transparent text-muted-foreground/50 hover:bg-primary/5 hover:text-primary hover:border-primary/20"
                         )}
                     >
-                        <span className="text-[9px] font-bold uppercase tracking-tighter opacity-50 group-hover:opacity-100">Course</span>
+                        <span className="text-[9px] font-bold uppercase tracking-tighter opacity-50 group-hover:opacity-100">Lộ trình</span>
                         <span className="text-sm font-bold tracking-tight">Tất cả</span>
                     </button>
                     {LEVELS.map((lv) => (
@@ -318,7 +318,7 @@ function ClassVodCard({ klass }: { klass: CatalogListItem }) {
                                 className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group/instructor"
                             >
                                 <Avatar className="size-5 border border-border/40">
-                                    <AvatarImage src={klass.instructor.avatarUrl} alt={klass.instructor.displayName || 'Instructor'} />
+                                    <AvatarImage src={klass.instructor.avatarUrl} alt={klass.instructor.displayName || 'Giảng viên'} />
                                     <AvatarFallback className="text-[9px] font-bold">
                                         {(klass.instructor.displayName || 'I').slice(0, 1).toUpperCase()}
                                     </AvatarFallback>
@@ -397,7 +397,7 @@ function ClassLiveCard({ klass }: { klass: CatalogListItem }) {
                                 className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors group/instructor"
                             >
                                 <Avatar className="size-5 border border-border/40">
-                                    <AvatarImage src={klass.instructor.avatarUrl} alt={klass.instructor.displayName || 'Instructor'} />
+                                    <AvatarImage src={klass.instructor.avatarUrl} alt={klass.instructor.displayName || 'Giảng viên'} />
                                     <AvatarFallback className="text-[9px] font-bold">
                                         {(klass.instructor.displayName || 'I').slice(0, 1).toUpperCase()}
                                     </AvatarFallback>

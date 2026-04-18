@@ -52,7 +52,7 @@ function pendingApprovalHref(row: StaffAcademicPendingApprovalItemDTO): string {
 function pendingApprovalKindLabel(kind: StaffAcademicPendingApprovalItemDTO["kind"]): string {
   if (kind === "COURSE_PROFILE") return "Hồ sơ khóa học";
   if (kind === "COHORT") return "Đợt khai giảng";
-  return "Gói VOD";
+  return "Gói tự học";
 }
 
 function formatUpdatedAt(iso: string): string {
@@ -96,13 +96,13 @@ export default function StaffAcademicDashboard() {
         <StatsCard
           title="Chờ phê duyệt"
           value={formatNumber(pending)}
-          sub="Khóa học / Đợt khai giảng / VOD"
+          sub="Hồ sơ khóa học / Đợt khai giảng / Gói tự học"
           icon={ClipboardCheck}
           tone="warning"
           highlight={pending > 0}
         />
         <StatsCard
-          title="Lớp LIVE hôm nay"
+          title="Lớp trực tiếp hôm nay"
           value={formatNumber(data?.stats.activeRooms ?? 0)}
           sub="Buổi có phòng, SCHEDULED/RESCHEDULED"
           icon={School}

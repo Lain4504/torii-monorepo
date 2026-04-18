@@ -29,9 +29,9 @@ export function ClassQuizSourcePanel({
             <FieldGroup>
                 <Field>
                     <FieldLabel>Nguồn đề thi</FieldLabel>
-                    <Input disabled value="Tự học: dùng đề mặc định của mẫu bài kiểm tra (không ghi đè)" />
+                    <Input disabled value="Tự học: dùng đề mặc định của mẫu bài kiểm tra, không cho ghi đè" />
                     <FieldDescription>
-                        Lớp VOD không cho phép giảng viên ghi đè đề thi, hệ thống luôn dùng đề mặc định của chương trình học.
+                        Lớp tự học không cho phép giảng viên ghi đè đề thi. Hệ thống luôn dùng đề mặc định của chương trình học.
                     </FieldDescription>
                 </Field>
             </FieldGroup>
@@ -41,26 +41,26 @@ export function ClassQuizSourcePanel({
     return (
         <FieldGroup>
             <FieldDescription>
-                Luồng thao tác LIVE: Chọn Template, sau đó chọn nguồn đề, rồi lưu assessment.
+                Luồng thiết lập cho lớp trực tiếp: chọn mẫu bài kiểm tra, sau đó chọn nguồn đề rồi lưu cấu hình.
             </FieldDescription>
             <Controller
                 name={"settings.liveOverrideMode" as any}
                 control={control}
                 render={({ field, fieldState }) => (
                     <Field>
-                        <FieldLabel>Chế độ đề thi cho lớp LIVE</FieldLabel>
+                        <FieldLabel>Chế độ đề thi cho lớp trực tiếp</FieldLabel>
                         <Select value={field.value ?? "USE_TEMPLATE_DEFAULT"} onValueChange={field.onChange}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Chọn chế độ..." />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="USE_TEMPLATE_DEFAULT">Nhanh nhất: dùng đề mặc định từ template</SelectItem>
+                                <SelectItem value="USE_TEMPLATE_DEFAULT">Nhanh nhất: dùng đề mặc định từ mẫu bài kiểm tra</SelectItem>
                                 <SelectItem value="USE_EXISTING_EXAM">Chủ động: chọn đề đã tạo sẵn</SelectItem>
                                 <SelectItem value="GENERATE_FROM_POOL">Tạo nhanh: tự sinh đề mới từ nhóm câu hỏi</SelectItem>
                             </SelectContent>
                         </Select>
                         <FieldDescription>
-                            Gợi ý: nếu chưa có yêu cầu đặc biệt cho từng lớp LIVE, hãy chọn chế độ nhanh nhất.
+                            Gợi ý: nếu chưa có yêu cầu đặc biệt cho từng lớp trực tiếp, hãy chọn chế độ nhanh nhất.
                         </FieldDescription>
                         <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
@@ -123,7 +123,7 @@ export function ClassQuizSourcePanel({
                                 control={control}
                                 render={({ field: poolField, fieldState }) => (
                                     <Field>
-                                    <FieldLabel>Nhóm câu hỏi cho lớp LIVE</FieldLabel>
+                                    <FieldLabel>Nhóm câu hỏi cho lớp trực tiếp</FieldLabel>
                                         <Select value={poolField.value} onValueChange={poolField.onChange}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Chọn nhóm câu hỏi..." />
@@ -187,7 +187,7 @@ export function ClassQuizSourcePanel({
                                 />
                             </div>
                             <FieldDescription>
-                                Khi lưu, hệ thống sẽ tự tạo một đề thi mới từ nhóm câu hỏi này và gắn vào bài kiểm tra của lớp LIVE.
+                                Khi lưu, hệ thống sẽ tự tạo một đề thi mới từ nhóm câu hỏi này và gắn vào bài kiểm tra của lớp trực tiếp.
                             </FieldDescription>
                             <FieldDescription>
                                 Cách này phù hợp khi giảng viên cần thao tác nhanh và không muốn tự tạo đề thi thủ công.

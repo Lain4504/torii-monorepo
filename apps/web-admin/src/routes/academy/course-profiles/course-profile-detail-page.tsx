@@ -179,9 +179,9 @@ export default function CourseProfileDetailPage() {
 
     try {
       await reorderModulesMutation.mutateAsync({ courseProfileId: profileId, moduleIds });
-      toast.success("Đã thay đổi thứ tự module");
+                  toast.success("Đã thay đổi thứ tự mô-đun");
     } catch (err: any) {
-      toast.error(err.message || "Không thể thay đổi thứ tự module");
+                  toast.error(err.message || "Không thể thay đổi thứ tự mô-đun");
     }
   };
 
@@ -267,7 +267,7 @@ export default function CourseProfileDetailPage() {
         stats={[
           { label: "Mã khóa", value: profile.code },
           { label: "Trình độ", value: profile.level || 'JLPT' },
-          { label: "Lớp Live", value: classes?.length || 0 },
+          { label: "Lớp trực tiếp", value: classes?.length || 0 },
           { label: "Gói tự học", value: vodPackages?.length || 0 },
         ]}
         actions={
@@ -317,7 +317,7 @@ export default function CourseProfileDetailPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-bold">Quản lý chương trình</h3>
-                <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các Module và Bài giảng (Lessons).</p>
+                <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các mô-đun và bài học.</p>
               </div>
               <div className="flex w-full gap-2 sm:w-auto">
                 {!isLocked && (
@@ -327,7 +327,7 @@ export default function CourseProfileDetailPage() {
                       className="w-full gap-2 border-primary/20 text-primary font-medium hover:bg-primary/5 sm:w-auto"
                       onClick={() => setCreateModuleOpen(true)}
                     >
-                      <Plus className="size-4" /> Thêm Module mới
+                      <Plus className="size-4" /> Thêm mô-đun mới
                     </Button>
                 )}
               </div>
@@ -345,7 +345,7 @@ export default function CourseProfileDetailPage() {
                         className="mt-4"
                         onClick={() => setCreateModuleOpen(true)}
                       >
-                        Khởi tạo Module đầu tiên
+                        Khởi tạo mô-đun đầu tiên
                       </Button>
                   )}
                 </CardContent>
@@ -879,9 +879,9 @@ export default function CourseProfileDetailPage() {
       >
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
-            <DialogTitle>Xác nhận xóa Module</DialogTitle>
+            <DialogTitle>Xác nhận xóa mô-đun</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn xóa Module <strong>{deleteModuleConfirm.moduleTitle}</strong>? Tất cả các bài học bên trong module này cũng sẽ bị xóa.
+              Bạn có chắc chắn muốn xóa mô-đun <strong>{deleteModuleConfirm.moduleTitle}</strong>? Tất cả bài học bên trong mô-đun này cũng sẽ bị xóa.
               Hành động này không thể hoàn tác.
             </DialogDescription>
           </DialogHeader>
@@ -904,14 +904,14 @@ export default function CourseProfileDetailPage() {
                   })
                   setExpandedModules({})
                   setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })
-                  toast.success("Đã xóa Module")
+                  toast.success("Đã xóa mô-đun")
                 } catch (err: any) {
-                  toast.error(err?.response?.data?.message || err.message || "Không thể xóa Module")
+                  toast.error(err?.response?.data?.message || err.message || "Không thể xóa mô-đun")
                 }
               }}
               disabled={deleteModuleMutation.isPending}
             >
-              Xóa Module
+              Xóa mô-đun
             </Button>
           </DialogFooter>
         </DialogContent>

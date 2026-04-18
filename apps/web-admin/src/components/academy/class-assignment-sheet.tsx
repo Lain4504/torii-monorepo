@@ -180,7 +180,7 @@ export function ClassAssignmentSheet({
           <SheetDescription>
             {isEdit
               ? "Chỉnh sửa tiêu đề, hướng dẫn và thời gian mở / hạn nộp."
-              : "Tạo bài tập mới dành riêng cho lớp LIVE này."}
+              : "Tạo bài tập mới dành riêng cho lớp trực tiếp này."}
           </SheetDescription>
         </SheetHeader>
         <ScrollArea className="flex-1 min-h-0">

@@ -201,7 +201,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
             thumbnailUrl: values.thumbnailUrl?.trim() ? values.thumbnailUrl : undefined,
           },
         })
-        toast.success("Cập nhật Lớp học LIVE thành công")
+        toast.success("Cập nhật lớp trực tiếp thành công")
       } else {
         await createMutation.mutateAsync({
           cohortId: values.cohortId,
@@ -216,7 +216,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           schedules: values.schedules,
         } as any)
 
-        toast.success("Tạo Lớp học LIVE và thiết lập lịch học thành công")
+        toast.success("Tạo lớp trực tiếp và thiết lập lịch học thành công")
       }
       onOpenChange(false)
     } catch (error: any) {
@@ -230,11 +230,11 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="!w-full sm:!max-w-[600px] max-h-screen p-0 flex flex-col overflow-hidden">
         <SheetHeader className="px-6 py-4 border-b shrink-0">
-          <SheetTitle>{isEditing ? "Chỉnh sửa Lớp học LIVE" : "Tạo Lớp học LIVE mới"}</SheetTitle>
+          <SheetTitle>{isEditing ? "Chỉnh sửa lớp trực tiếp" : "Tạo lớp trực tiếp mới"}</SheetTitle>
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin vận hành cho lớp học này."
-              : "Khởi tạo một lớp học LIVE mới thuộc về một Đợt khai giảng."}
+              : "Khởi tạo một lớp trực tiếp mới thuộc về một đợt khai giảng."}
           </SheetDescription>
         </SheetHeader>
 
@@ -295,7 +295,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
                           name="name"
                           control={control}
                           render={({ field }) => (
-                            <Input placeholder="VD: Lớp LIVE 1 - Tối 2/4/6" {...field} />
+                            <Input placeholder="VD: Lớp trực tiếp 1 - Tối 2/4/6" {...field} />
                           )}
                         />
                         <FieldError errors={[errors.name]} />
@@ -557,7 +557,7 @@ export function LiveClassSheet({ open, onOpenChange, academyClass, defaultCohort
           </Button>
           <Button type="submit" form="live-class-form" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isEditing ? "Lưu thay đổi" : "Tạo Lớp LIVE"}
+            {isEditing ? "Lưu thay đổi" : "Tạo lớp trực tiếp"}
           </Button>
         </div>
       </SheetContent>

@@ -389,7 +389,7 @@ export default function LecturerDashboard() {
                     <CardHeader className="pb-3">
                         <CardTitle className="text-base">Bài nộp cần chấm</CardTitle>
                         <CardDescription className="text-xs">
-                            Bài tập LIVE/VOD do bạn phụ trách — mở trang chấm điểm
+                            Bài tập lớp trực tiếp/tự học do bạn phụ trách — mở trang chấm điểm
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-2">
@@ -418,7 +418,7 @@ export default function LecturerDashboard() {
                                     </Button>
                                 ) : (
                                     <Button variant="outline" size="sm" className="shrink-0" asChild>
-                                        <Link to="/academy/live-classes">Mở lớp / VOD</Link>
+                                        <Link to="/academy/live-classes">Mở lớp / gói tự học</Link>
                                     </Button>
                                 )}
                             </div>

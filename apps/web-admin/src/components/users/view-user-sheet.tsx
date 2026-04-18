@@ -168,7 +168,7 @@ function UserLearningTab({ userId }: { userId: string }) {
             <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-lg">
                 <BookOpen className="size-8 text-muted-foreground/40 mb-3" />
                 <h4 className="font-medium text-muted-foreground">Chưa có thông tin học tập</h4>
-                <p className="text-sm text-muted-foreground/60 max-w-xs">Người dùng này chưa đăng ký khóa học hoặc gói VOD nào.</p>
+                <p className="text-sm text-muted-foreground/60 max-w-xs">Người dùng này chưa đăng ký khóa học hoặc gói tự học nào.</p>
             </div>
         );
     }
@@ -178,7 +178,7 @@ function UserLearningTab({ userId }: { userId: string }) {
             <Table>
                 <TableHeader className="bg-muted/50">
                     <TableRow>
-                        <TableHead>Khóa học / Gói VOD</TableHead>
+                        <TableHead>Khóa học / Gói tự học</TableHead>
                         <TableHead>Ngày đăng ký</TableHead>
                         <TableHead>Hết hạn</TableHead>
                         <TableHead className="text-right">Trạng thái</TableHead>

@@ -66,7 +66,7 @@ export default function CourseProfileApprovalPreviewPage() {
   }
 
   if (!profile) {
-    return <div className="p-8 text-center text-muted-foreground">Không tìm thấy CourseProfile.</div>
+    return <div className="p-8 text-center text-muted-foreground">Không tìm thấy hồ sơ khóa học.</div>
   }
 
   const canApprove =
@@ -84,7 +84,7 @@ export default function CourseProfileApprovalPreviewPage() {
                   Trung tâm phê duyệt
             </Link>
             <ChevronRight className="size-4" />
-                <span>Xem trước CourseProfile</span>
+                <span>Xem trước hồ sơ khóa học</span>
           </div>
         }
         subtitle={`Xem trước và duyệt hồ sơ ${profile.code}`}
@@ -122,7 +122,7 @@ export default function CourseProfileApprovalPreviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Thông tin CourseProfile</CardTitle>
+            <CardTitle>Thông tin hồ sơ khóa học</CardTitle>
           <CardDescription>Trang này chỉ phục vụ flow duyệt. Việc duyệt thực hiện ở đây.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

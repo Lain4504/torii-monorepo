@@ -130,7 +130,7 @@ export function VodInfoTab({ pkg, profile }: VodInfoTabProps) {
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <p className="text-xs text-muted-foreground">Số lượng Module</p>
+                                <p className="text-xs text-muted-foreground">Số lượng mô-đun</p>
                                 <p className="text-2xl font-bold">{profile?.modules?.length || 0}</p>
                             </div>
                             <div>

@@ -104,7 +104,7 @@ export function ProfileTab() {
                         <div className="relative group cursor-pointer" onClick={() => !uploadAvatarMutation.isPending && fileInputRef.current?.click()}>
                             <div className="h-36 w-36 rounded-full bg-muted overflow-hidden border-4 border-background shadow-lg transition-all group-hover:opacity-80">
                                 <img
-                                    alt="Profile"
+                                    alt="Ảnh hồ sơ"
                                     className="h-full w-full object-cover"
                                     src={
                                         avatarSrc ||

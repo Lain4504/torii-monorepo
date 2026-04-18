@@ -88,13 +88,13 @@ export function SectionListEditor({ value, onChange }: SectionListEditorProps) {
                   <SelectValue placeholder="Chọn loại..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="VOCABULARY">Từ vựng (Vocabulary)</SelectItem>
-                  <SelectItem value="GRAMMAR">Ngữ pháp (Grammar)</SelectItem>
-                  <SelectItem value="KANJI">Hán tự (Kanji)</SelectItem>
-                  <SelectItem value="READING">Đọc hiểu (Reading)</SelectItem>
-                  <SelectItem value="LISTENING">Nghe hiểu (Listening)</SelectItem>
-                  <SelectItem value="WRITING">Viết (Writing)</SelectItem>
-                  <SelectItem value="SPEAKING">Nói (Speaking)</SelectItem>
+                  <SelectItem value="VOCABULARY">Từ vựng</SelectItem>
+                  <SelectItem value="GRAMMAR">Ngữ pháp</SelectItem>
+                  <SelectItem value="KANJI">Hán tự</SelectItem>
+                  <SelectItem value="READING">Đọc hiểu</SelectItem>
+                  <SelectItem value="LISTENING">Nghe hiểu</SelectItem>
+                  <SelectItem value="WRITING">Viết</SelectItem>
+                  <SelectItem value="SPEAKING">Nói</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -107,7 +107,7 @@ export function SectionListEditor({ value, onChange }: SectionListEditorProps) {
               />
             </div>
             <div className="space-y-2">
-               <Label>Mô tả (Optional)</Label>
+               <Label>Mô tả (Tùy chọn)</Label>
                <Input
                 placeholder="Mô tả ngắn..."
                 value={item.description || ""}
@@ -132,7 +132,7 @@ export function SectionListEditor({ value, onChange }: SectionListEditorProps) {
         onClick={addItem}
         className="w-full border-dashed"
       >
-        <Plus className="mr-2 size-4" /> Thêm phần thi (Section)
+        <Plus className="mr-2 size-4" /> Thêm phần thi
       </Button>
     </div>
   )
