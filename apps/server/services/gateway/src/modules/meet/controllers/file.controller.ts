@@ -29,6 +29,7 @@ import {
   UploadBase64EncodedDataReqSchema,
   UploadBase64EncodedDataResSchema,
   GetClientFilesResSchema,
+  RoomUploadedFileType,
 } from '@workspace/protocol';
 import {
   sendProtoJsonResponse,
@@ -242,6 +243,7 @@ export class FileController {
     @Body() body: any,
     @Res() res: Response,
   ) {
+    let savedFilePath: string | null = null;
     try {
       let protoReq: any;
       if (Buffer.isBuffer(body)) {
@@ -249,13 +251,47 @@ export class FileController {
       } else {
         protoReq = create(UploadBase64EncodedDataReqSchema, body);
       }
-      protoReq.roomId = (req as any).roomId;
+      const roomId = (req as any).roomId;
+      const roomInfo = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'room.getRoomInfoByRoomId' },
+          { roomId, isRunning: true },
+        ),
+      );
+      if (!roomInfo?.sid) {
+        throw new Error('Không tìm thấy phòng');
+      }
 
+      const buffer = Buffer.from(protoReq.data, 'base64');
+      const maxSizeMb = this.appConfig.upload.maxSizeMb;
+      if (buffer.length > maxSizeMb * 1024 * 1024) {
+        throw new Error(`Tệp quá lớn: tối đa cho phép là ${maxSizeMb}MB`);
+      }
+
+      const safeFilename = path.basename(protoReq.fileName);
+      this.validateFileNameAgainstAllowedTypes(safeFilename);
+
+      const uploadDir = path.join(this.uploadPath, roomInfo.sid);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      savedFilePath = path.join(uploadDir, safeFilename);
+      fs.writeFileSync(savedFilePath, buffer);
+
+      const relativePath = path.join(roomInfo.sid, safeFilename);
+      const mimeType = this.getMimeType(safeFilename);
+      const fileId = safeFilename.replace(/\.[^/.]+$/, '');
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'file.uploadBase64' },
+          { cmd: 'file.registerUploadedMeta' },
           {
-            ...protoReq,
+            roomId,
+            fileId,
+            fileName: safeFilename,
+            filePath: relativePath,
+            fileType: protoReq.fileType as RoomUploadedFileType,
+            mimeType,
             requestedUserId: (req as any).requestedUserId,
             requestedUserName: (req as any).requestedUserName,
           },
@@ -265,6 +301,15 @@ export class FileController {
       res.status(HttpStatus.OK);
       sendProtobufResponse(res, UploadBase64EncodedDataResSchema, result);
     } catch (error) {
+      if (savedFilePath && fs.existsSync(savedFilePath)) {
+        try {
+          fs.unlinkSync(savedFilePath);
+        } catch (cleanupError) {
+          this.logger.error(
+            `Failed to cleanup uploaded file after metadata registration failure: ${cleanupError.message}`,
+          );
+        }
+      }
       sendCommonProtoJsonResponse(res, false, error.message);
     }
   }
@@ -279,8 +324,14 @@ export class FileController {
   ) {
     const pathStr = Array.isArray(filePath) ? filePath.join('/') : filePath;
     const fullPath = path.join(this.uploadPath, pathStr);
+    const exists = fs.existsSync(fullPath);
+    const isDirectory = exists ? fs.lstatSync(fullPath).isDirectory() : false;
 
-    if (!fs.existsSync(fullPath) || fs.lstatSync(fullPath).isDirectory()) {
+    this.logger.debug(
+      `[download.uploadedFile] requestPath="${pathStr}" fullPath="${fullPath}" exists=${exists} isDirectory=${isDirectory}`,
+    );
+
+    if (!exists || isDirectory) {
       return res.status(HttpStatus.NOT_FOUND).send('Không tìm thấy tệp');
     }
 
@@ -376,8 +427,14 @@ export class FileController {
   ) {
     const pathStr = Array.isArray(filePath) ? filePath.join('/') : filePath;
     const fullPath = path.join(this.uploadPath, pathStr);
+    const exists = fs.existsSync(fullPath);
+    const isDirectory = exists ? fs.lstatSync(fullPath).isDirectory() : false;
 
-    if (!fs.existsSync(fullPath) || fs.lstatSync(fullPath).isDirectory()) {
+    this.logger.debug(
+      `[whiteboard.listOfficeFiles] requestPath="${pathStr}" fullPath="${fullPath}" exists=${exists} isDirectory=${isDirectory}`,
+    );
+
+    if (!exists || isDirectory) {
       return res.status(HttpStatus.NOT_FOUND).send('Không tìm thấy tệp');
     }
 
@@ -408,6 +465,14 @@ export class FileController {
       '.webp': 'image/webp',
     };
     return mimes[ext] || 'application/octet-stream';
+  }
+
+  private validateFileNameAgainstAllowedTypes(filename: string) {
+    const ext = path.extname(filename).toLowerCase().replace('.', '');
+    const allowedTypes = this.appConfig.upload.allowedTypes;
+    if (!ext || !allowedTypes.includes(ext)) {
+      throw new Error('Loại tệp không được phép');
+    }
   }
 
   private mapResumableQuery(query: any) {

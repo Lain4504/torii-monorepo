@@ -34,6 +34,17 @@ export interface ResumableUploadReq {
   resumableCurrentChunkSize: number;
 }
 
+export interface RegisterUploadedFileMetaReq {
+  roomId: string;
+  fileId: string;
+  fileName: string;
+  filePath: string;
+  fileType: RoomUploadedFileType;
+  mimeType: string;
+  requestedUserId?: string;
+  requestedUserName?: string;
+}
+
 @Injectable()
 export class FileService {
   private readonly logger = new Logger(FileService.name);
@@ -160,25 +171,16 @@ export class FileService {
     const fileId = safeFilename.replace(/\.[^/.]+$/, '');
     const relativePath = path.join(roomSid, safeFilename);
     const mimeType = this.getMimeType(safeFilename);
-
-    const meta = create(RoomUploadedFileMetadataSchema, {
+    await this.registerUploadedFileMetadata({
+      roomId,
       fileId,
       fileName: safeFilename,
       filePath: relativePath,
       fileType: req.fileType,
       mimeType,
+      requestedUserId: req.requestedUserId,
+      requestedUserName: req.requestedUserName,
     });
-    await this.natsRoom.addRoomFile(roomId, meta);
-
-    if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
-      await this.publishChatMsgForFile(
-        roomId,
-        req.requestedUserId || 'system',
-        req.requestedUserName || 'System',
-        relativePath,
-        safeFilename,
-      );
-    }
 
     return create(UploadBase64EncodedDataResSchema, {
       status: true,
@@ -187,6 +189,38 @@ export class FileService {
       fileName: safeFilename,
       fileMimeType: mimeType,
       fileExtension: path.extname(safeFilename).replace('.', ''),
+    });
+  }
+
+  async registerUploadedFileMetadata(
+    req: RegisterUploadedFileMetaReq,
+  ): Promise<any> {
+    const meta = create(RoomUploadedFileMetadataSchema, {
+      fileId: req.fileId,
+      fileName: req.fileName,
+      filePath: req.filePath,
+      fileType: req.fileType,
+      mimeType: req.mimeType,
+    });
+    await this.natsRoom.addRoomFile(req.roomId, meta);
+
+    if (req.fileType === RoomUploadedFileType.CHAT_FILE) {
+      await this.publishChatMsgForFile(
+        req.roomId,
+        req.requestedUserId || 'system',
+        req.requestedUserName || 'System',
+        req.filePath,
+        req.fileName,
+      );
+    }
+
+    return create(UploadBase64EncodedDataResSchema, {
+      status: true,
+      msg: 'file uploaded successfully',
+      filePath: req.filePath,
+      fileName: req.fileName,
+      fileMimeType: req.mimeType,
+      fileExtension: path.extname(req.fileName).replace('.', ''),
     });
   }
 

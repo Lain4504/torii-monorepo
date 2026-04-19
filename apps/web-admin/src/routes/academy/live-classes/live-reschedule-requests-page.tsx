@@ -368,10 +368,10 @@ export default function LiveRescheduleRequestsPage() {
                   <div className="rounded-lg border p-3">
                     <p className="text-xs font-semibold text-muted-foreground">Buổi học gốc</p>
                     <p className="mt-1 text-sm font-bold">
-                      {req.session ? formatDateLabel(req.session.sessionDate) : "—"}
+                      {req.session?.sessionDate ? formatDateLabel(req.session.sessionDate) : "—"}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {req.session?.startTime} - {req.session?.endTime}
+                      {req.session?.startTime && req.session?.endTime ? `${req.session.startTime} - ${req.session.endTime}` : "—"}
                     </p>
                   </div>
                   <div className="rounded-lg border p-3">
