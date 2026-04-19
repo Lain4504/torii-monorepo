@@ -60,8 +60,15 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Install Runtime Dependencies (openssl for Prisma + python3 for edge-tts Neural TTS)
-RUN apt-get update -y && apt-get install -y openssl python3 python3-pip python3-venv && rm -rf /var/lib/apt/lists/*
+# Install Runtime Dependencies:
+# - openssl: Prisma
+# - python3 / venv: edge-tts
+# - mupdf-tools: `mutool` for PDF→PNG whiteboard office conversion (FileService.convertWhiteboardFile)
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    openssl \
+    python3 python3-pip python3-venv \
+    mupdf-tools \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create Python venv with edge-tts at the path expected by tts.service.ts
 # tts.service.ts resolves: path.join(process.cwd(), '.venv/bin/edge-tts')
