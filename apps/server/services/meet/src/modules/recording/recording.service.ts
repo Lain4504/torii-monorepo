@@ -276,7 +276,7 @@ export class RecordingService {
 
     await this.natsSystemEventsService.notifyInfoMsg(
       r.roomId,
-      'notifications.recording-started',
+      'Đã bắt đầu ghi hình.',
       false,
     );
     await this.webhookService.sendRoomRecordingNotification(
@@ -312,13 +312,13 @@ export class RecordingService {
     if (r.status) {
       await this.natsSystemEventsService.notifyInfoMsg(
         r.roomId,
-        'notifications.recording-ended',
+        'Đã kết thúc ghi hình.',
         false,
       );
     } else {
       await this.natsSystemEventsService.notifyErrorMsg(
         r.roomId,
-        'notifications.recording-ended-with-error',
+        'Kết thúc ghi hình có lỗi.',
       );
     }
 
@@ -358,7 +358,7 @@ export class RecordingService {
 
     await this.natsSystemEventsService.notifyInfoMsg(
       r.roomId,
-      'notifications.rtmp-started',
+      'Đã bắt đầu phát RTMP.',
       false,
     );
     await this.webhookService.sendRoomRecordingNotification(r, 'rtmp_started');
@@ -391,13 +391,13 @@ export class RecordingService {
     if (r.status) {
       await this.natsSystemEventsService.notifyInfoMsg(
         r.roomId,
-        'notifications.rtmp-ended',
+        'Đã kết thúc phát RTMP.',
         false,
       );
     } else {
       await this.natsSystemEventsService.notifyErrorMsg(
         r.roomId,
-        'notifications.rtmp-ended-with-error',
+        'Kết thúc phát RTMP có lỗi.',
       );
     }
 

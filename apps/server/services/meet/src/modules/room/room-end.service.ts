@@ -142,7 +142,7 @@ export class RoomEndService {
       }
       return {
         status: true,
-        msg: 'room ended (NATS info was missing, cleanup initiated)',
+        msg: 'Phòng đã kết thúc (thiếu trạng thái NATS, đã bắt đầu dọn dẹp).',
       };
     }
 
@@ -159,7 +159,7 @@ export class RoomEndService {
       await this.natsSystemEvents.broadcastSystemEventToRoom(
         NatsMsgServerToClientEvents.SESSION_ENDED,
         roomId,
-        'notifications.room-disconnected-room-ended',
+        'Cuộc họp đã kết thúc.',
       );
     } catch (error) {
       this.logger.error(
@@ -178,7 +178,7 @@ export class RoomEndService {
       );
     });
 
-    return { status: true, msg: 'success' };
+    return { status: true, msg: 'thành công' };
   }
 
   /**

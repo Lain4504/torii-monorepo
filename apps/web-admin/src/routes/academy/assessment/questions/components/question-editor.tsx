@@ -19,7 +19,6 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@workspace/ui/components/sheet"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
@@ -155,8 +154,8 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
-        <SheetHeader className="px-6 py-4 border-b shrink-0">
+      <SheetContent className="flex h-full max-h-[100dvh] w-full min-w-0 max-w-[100vw] flex-col gap-0 overflow-hidden p-0 sm:!max-w-[800px]">
+        <SheetHeader className="p-6 border-b shrink-0">
           <SheetTitle>
             {questionId ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
           </SheetTitle>
@@ -167,11 +166,13 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 min-w-0">
+        {/* Cuộn native + overflow-x-hidden — chỉ sheet ngân hàng câu hỏi; tránh khối media/ảnh làm tràn ngang */}
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+          <div className="min-w-0 max-w-full space-y-6 p-6">
+          <form id="question-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="min-w-0 max-w-full space-y-6">
 
             {/* Nội dung câu hỏi */}
-            <div className="space-y-2">
+            <div className="min-w-0 max-w-full space-y-2">
               <Label className="text-sm font-semibold">
                 Nội dung câu hỏi <span className="text-destructive">*</span>
               </Label>
@@ -226,35 +227,36 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
               </div>
             </div>
 
-            {/* Media theo nhóm câu hỏi */}
+            {/* Media — tách khối scroll; không lồng control tương tác trong <button> (ô đáp án) */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold">{mediaLabel}</Label>
-              <div className="rounded-lg border bg-muted/20 p-3 space-y-3">
+              <div className="isolate min-w-0 max-w-full space-y-3 overflow-hidden rounded-lg border bg-muted/20 p-3">
                 <p className="text-xs text-muted-foreground">{mediaHint}</p>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex min-w-0 flex-wrap items-center gap-2">
                   <Input
                     type="file"
                     accept={mediaAccept}
                     onChange={handleMediaUpload}
                     disabled={uploadingMedia || isPending}
-                    className="max-w-sm"
+                    className="max-w-full sm:max-w-sm"
                   />
                   {uploadingMedia && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                 </div>
                 {mediaUrl ? (
-                  <div className="rounded-md border bg-background p-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0 flex items-center gap-2">
+                  <div className="min-w-0 max-w-full overflow-hidden rounded-md border bg-background p-2.5">
+                    <div className="flex min-w-0 max-w-full items-center justify-between gap-2">
+                      <div className="flex min-w-0 max-w-full flex-1 items-center gap-2 overflow-hidden">
                         {isListening ? (
-                          <FileAudio className="h-4 w-4 text-muted-foreground" />
+                          <FileAudio className="h-4 w-4 shrink-0 text-muted-foreground" />
                         ) : (
-                          <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                          <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
                         )}
                         <a
                           href={mediaUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="truncate text-xs text-primary hover:underline"
+                          className="min-w-0 truncate break-all text-xs text-primary hover:underline"
+                          title={mediaUrl}
                         >
                           {mediaUrl}
                         </a>
@@ -270,9 +272,18 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                       </Button>
                     </div>
                     {isListening ? (
-                      <audio controls className="mt-2 w-full" src={mediaUrl} />
+                      <div className="mt-2 max-w-full overflow-hidden rounded-md border bg-muted/20 p-2">
+                        <audio controls className="w-full max-w-full" src={mediaUrl} />
+                      </div>
                     ) : (
-                      <img src={mediaUrl} alt="Xem trước media" className="mt-2 max-h-44 rounded-md border object-contain" />
+                      <div className="mt-2 w-full min-w-0 max-w-full overflow-hidden rounded-md border bg-muted/20 p-2">
+                        <img
+                          src={mediaUrl}
+                          alt="Xem trước media"
+                          decoding="async"
+                          className="mx-auto block h-auto max-h-44 w-full min-w-0 max-w-full rounded-md object-contain"
+                        />
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -298,14 +309,13 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                 {fields.map((field, index) => {
                   const isCorrect = form.watch(`options.${index}.isCorrect`)
                   return (
-                    <button
+                    <div
                       key={field.id}
-                      type="button"
                       onClick={() => {
                         fields.forEach((_, i) => form.setValue(`options.${i}.isCorrect`, i === index))
                       }}
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
+                        "flex min-w-0 cursor-pointer items-center gap-3 rounded-lg border p-3 text-left transition-all",
                         isCorrect
                           ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20"
                           : "border-border bg-card hover:border-muted-foreground/30"
@@ -320,12 +330,12 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
                         {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : field.optionKey}
                       </div>
                       <Input
-                        className="flex-1 border-none shadow-none px-0 h-8 bg-transparent focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/40"
+                        className="min-h-0 flex-1 border-none bg-transparent px-0 text-sm font-medium shadow-none h-8 placeholder:text-muted-foreground/40 focus-visible:ring-0"
                         placeholder={`Nhập đáp án ${field.optionKey}...`}
                         {...form.register(`options.${index}.content`)}
                         onClick={(e) => e.stopPropagation()}
                       />
-                    </button>
+                    </div>
                   )
                 })}
               </div>
@@ -346,10 +356,11 @@ export function QuestionEditor({ open, onOpenChange, questionId, initialData }: 
             </div>
 
           </form>
-        </ScrollArea>
+          </div>
+        </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t bg-muted/20 flex items-center justify-between shrink-0">
+        <div className="p-6 border-t bg-muted/30 shrink-0 flex items-center justify-between">
           <p className="text-xs text-muted-foreground"></p>
           <div className="flex gap-2">
             <Button

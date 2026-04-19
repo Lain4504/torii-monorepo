@@ -81,7 +81,11 @@ export class RecordingApiController {
       const rInfo = roomData.rInfo;
 
       if (!rr || !rr.isActive || !rInfo) {
-        sendCommonProtobufResponse(res, false, 'notifications.room-not-active');
+        sendCommonProtobufResponse(
+          res,
+          false,
+          'Phòng không hoạt động hoặc đã kết thúc.',
+        );
         return;
       }
 
@@ -97,7 +101,7 @@ export class RecordingApiController {
             sendCommonProtobufResponse(
               res,
               false,
-              'notifications.recording-already-running',
+              'Đang ghi hình rồi.',
             );
             return;
           }
@@ -107,7 +111,7 @@ export class RecordingApiController {
             sendCommonProtobufResponse(
               res,
               false,
-              'notifications.recording-not-running',
+              'Hiện không có ghi hình đang chạy.',
             );
             return;
           }
@@ -121,7 +125,7 @@ export class RecordingApiController {
             sendCommonProtobufResponse(
               res,
               false,
-              'notifications.rtmp-already-running',
+              'Đang phát RTMP rồi.',
             );
             return;
           }
@@ -131,7 +135,7 @@ export class RecordingApiController {
             sendCommonProtobufResponse(
               res,
               false,
-              'notifications.rtmp-not-running',
+              'Hiện không có phát RTMP đang chạy.',
             );
             return;
           }
@@ -147,7 +151,7 @@ export class RecordingApiController {
         this.natsClient.send({ cmd: 'recording.dispatch' }, request),
       );
 
-      sendCommonProtobufResponse(res, result.status, result.msg || 'success');
+      sendCommonProtobufResponse(res, result.status, result.msg || 'thành công');
     } catch (error) {
       sendCommonProtobufResponse(
         res,

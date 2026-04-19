@@ -89,6 +89,8 @@ services:
   # NOTE: Using pre-built image from Docker Hub to save VPS disk space
   # Image name is configured via DOCKER_USERNAME in .env
 
+  # Uploads: meet service ghi file; gateway phục vụ GET /download/uploadedFile/...
+  # Bắt buộc cùng volume — nếu không, user khác không fetch được ảnh whiteboard (chỉ người upload thấy).
   gateway:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:gateway
@@ -106,6 +108,7 @@ services:
       - "8080:8080"
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
+      - uploads_data:/app/apps/server/uploads
     depends_on:
       - nats
       - postgres
@@ -169,6 +172,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
+      - uploads_data:/app/apps/server/uploads
       - ./storage/trash:/app/trash # Mount trash for janitor
       - ./recording_files/del_backup:/app/recording_backup
     depends_on:
@@ -253,6 +257,8 @@ volumes:
   redisdata:
   natsdata:
   livekitdata:
+  # Dùng chung giữa gateway + meet (uploadPath ./uploads → /app/apps/server/uploads)
+  uploads_data:
 
 
 networks:

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
+  AlertTriangle,
   ArrowLeft,
   Save,
   Plus,
@@ -37,6 +38,16 @@ import {
   SelectValue 
 } from "@workspace/ui/components/select";
 import { Checkbox } from "@workspace/ui/components/checkbox";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
 import { JlptQuestionForm } from "@/components/academy/jlpt/jlpt-question-form";
 import { toast } from "sonner";
@@ -55,6 +66,7 @@ export default function JlptTemplateBuilderPage() {
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [targetDeleteId, setTargetDeleteId] = useState<string | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsData, setSettingsData] = useState({
     title: "",
@@ -253,16 +265,47 @@ export default function JlptTemplateBuilderPage() {
   const confirmDeleteQuestion = async () => {
     if (!targetDeleteId) return;
     try {
+      setDeleteSubmitting(true);
       await academyJlptMockApi.deleteTemplateQuestion(targetDeleteId);
       toast.success("Đã xóa câu hỏi khỏi đề thi");
       fetchTemplate();
     } catch {
       toast.error("Xóa câu hỏi thất bại");
     } finally {
+      setDeleteSubmitting(false);
       setIsDeleteConfirmOpen(false);
       setTargetDeleteId(null);
     }
   };
+
+  const existingQuestionIdsInTargetSection = useMemo(() => {
+    const ids = new Set<string>();
+    if (!targetSectionId) return ids;
+    for (const q of template?.questions ?? []) {
+      if (q.sectionId === targetSectionId && q.question?.id) {
+        ids.add(q.question.id);
+      }
+    }
+    return ids;
+  }, [targetSectionId, template?.questions]);
+
+  const filteredPickerQuestions = useMemo(() => {
+    const keyword = pickerSearch.trim().toLowerCase();
+    return pickerQuestions.filter((q) => {
+      const plainStem = q.stemText.replace(/<[^>]+>/g, " ").toLowerCase();
+      const mondaiCode = q.mondai?.code?.toLowerCase() ?? "";
+      const type = (q.questionType ?? "").toLowerCase();
+      const matchKeyword =
+        keyword.length === 0 ||
+        plainStem.includes(keyword) ||
+        mondaiCode.includes(keyword) ||
+        type.includes(keyword);
+      const matchType =
+        pickerTypeFilter === "all" ||
+        (q.questionType ?? "").toUpperCase() === pickerTypeFilter;
+      return matchKeyword && matchType;
+    });
+  }, [pickerQuestions, pickerSearch, pickerTypeFilter]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -274,7 +317,7 @@ export default function JlptTemplateBuilderPage() {
   // Creation Form for New Template
   if (isNew && !template) {
     return (
-      <div className="p-6 max-w-2xl mx-auto space-y-6">
+      <div className="mx-auto flex max-w-2xl flex-col gap-8 p-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="sm" onClick={() => navigate("/academy/jlpt/templates")}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại
@@ -332,39 +375,10 @@ export default function JlptTemplateBuilderPage() {
 
   if (!template) return null;
 
-  const existingQuestionIdsInTargetSection = useMemo(() => {
-    const ids = new Set<string>();
-    if (!targetSectionId) return ids;
-    for (const q of template.questions ?? []) {
-      if (q.sectionId === targetSectionId && q.question?.id) {
-        ids.add(q.question.id);
-      }
-    }
-    return ids;
-  }, [targetSectionId, template.questions]);
-
-  const filteredPickerQuestions = useMemo(() => {
-    const keyword = pickerSearch.trim().toLowerCase();
-    return pickerQuestions.filter((q) => {
-      const plainStem = q.stemText.replace(/<[^>]+>/g, " ").toLowerCase();
-      const mondaiCode = q.mondai?.code?.toLowerCase() ?? "";
-      const type = (q.questionType ?? "").toLowerCase();
-      const matchKeyword =
-        keyword.length === 0 ||
-        plainStem.includes(keyword) ||
-        mondaiCode.includes(keyword) ||
-        type.includes(keyword);
-      const matchType =
-        pickerTypeFilter === "all" ||
-        (q.questionType ?? "").toUpperCase() === pickerTypeFilter;
-      return matchKeyword && matchType;
-    });
-  }, [pickerQuestions, pickerSearch, pickerTypeFilter]);
-
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2">
-        <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-4">
+        <div className="flex min-w-0 w-full items-start gap-4">
           <Link
             to="/academy/jlpt/templates"
             className="inline-flex items-center gap-1.5 shrink-0 text-sm font-medium text-muted-foreground hover:text-foreground"
@@ -372,19 +386,19 @@ export default function JlptTemplateBuilderPage() {
             <ArrowLeft className="w-4 h-4" />
             <span>Quay lại</span>
           </Link>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate py-1" title={template.title}>
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground" title={template.title}>
                 {template.title}
               </h1>
               <Badge variant="outline" className="font-bold border-2 shrink-0">{template.levelCode}</Badge>
             </div>
-            <p className="text-muted-foreground text-xs truncate">
+            <p className="truncate text-sm text-muted-foreground">
               Mã đề: {template.code}
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0 w-full lg:w-auto justify-end">
+        <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:shrink-0">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => void handleAssembleRandom()} disabled={assembling}>
             {assembling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} 
             <span className="hidden sm:inline">Random gắn câu</span>
@@ -511,7 +525,7 @@ export default function JlptTemplateBuilderPage() {
 
       {/* Question Picker Sheet */}
       <Sheet open={isPickerOpen} onOpenChange={setIsPickerOpen}>
-        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="p-6 border-b shrink-0">
             <SheetTitle className="flex items-center justify-between gap-4">
               <span className="min-w-0 truncate">
@@ -649,7 +663,7 @@ export default function JlptTemplateBuilderPage() {
 
       {/* General Settings Sheet */}
       <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="p-6 border-b shrink-0">
             <SheetTitle>Cài đặt chung đề thi</SheetTitle>
             <SheetDescription>
@@ -726,32 +740,44 @@ export default function JlptTemplateBuilderPage() {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Confirmation Sheet */}
-      <Sheet open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
-          <SheetHeader className="p-6 border-b shrink-0">
-            <SheetTitle className="flex items-center gap-2 text-destructive">
-              <Trash2 className="w-5 h-5" /> Xác nhận xóa câu hỏi
-            </SheetTitle>
-            <SheetDescription>
-              Bạn có chắc chắn muốn xóa câu hỏi này khỏi đề thi không? Hành động này sẽ gỡ bỏ liên kết giữa câu hỏi và đề thi hiện tại.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="p-6">
-            <div className="rounded-lg border border-destructive/25 bg-destructive/5 p-4 text-sm text-foreground">
-              Thao tác này không thể hoàn tác.
-            </div>
-          </div>
-          <div className="p-6 border-t bg-muted/30 shrink-0 flex items-center justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
-              Hủy bỏ
+      <AlertDialog
+        open={isDeleteConfirmOpen}
+        onOpenChange={(open) => {
+          setIsDeleteConfirmOpen(open);
+          if (!open) setTargetDeleteId(null);
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
+              <AlertTriangle />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xác nhận xóa câu hỏi</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn gỡ câu hỏi này khỏi đề thi? Chỉ xóa liên kết trong đề; câu hỏi trong ngân hàng không bị xóa.
+              Thao tác này không thể hoàn tác trên đề thi hiện tại.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" disabled={deleteSubmitting}>
+                Hủy bỏ
+              </Button>
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={() => void confirmDeleteQuestion()}
+              disabled={deleteSubmitting}
+            >
+              {deleteSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Xác nhận xóa"
+              )}
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteQuestion}>
-              Xác nhận xóa
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

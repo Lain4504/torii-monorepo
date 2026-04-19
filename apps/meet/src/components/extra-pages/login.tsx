@@ -42,7 +42,7 @@ function generateMeetStyleRoomId(): string {
 }
 
 const Login = () => {
-  const [roomId, setRoomId] = useState(() => generateMeetStyleRoomId());
+  const [roomId, setRoomId] = useState('');
   const [userType, setUserType] = useState('participant');
   const [name, setName] = useState('');
   const [userId, setUserId] = useState('');
@@ -64,7 +64,7 @@ const Login = () => {
 
   const copyRoomId = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(roomId);
+      await navigator.clipboard.writeText(roomId.trim());
     } catch {
       // ignore
     }
@@ -123,9 +123,17 @@ const Login = () => {
     return await response.json();
   };
 
+  const normalizedRoomId = roomId.trim();
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    if (!normalizedRoomId) {
+      setFormError('Vui lòng nhập mã phòng hoặc bấm tạo mã ngẫu nhiên.');
+      return;
+    }
+
     setIsLoading(true);
 
     if (!hasApiCredentials) {
@@ -137,11 +145,14 @@ const Login = () => {
     }
 
     try {
-      const isRoomActiveRes = await sendRequest({ room_id: roomId }, 'room/isRoomActive');
+      const isRoomActiveRes = await sendRequest(
+        { room_id: normalizedRoomId },
+        'room/isRoomActive',
+      );
       let isRoomActive = isRoomActiveRes.is_active;
 
       if (!isRoomActive) {
-        const roomInfo = getDefaultRoomInfo(roomId);
+        const roomInfo = getDefaultRoomInfo(normalizedRoomId);
         const roomCreateRes = await sendRequest(roomInfo, 'room/create');
         isRoomActive = roomCreateRes.status;
       }
@@ -155,7 +166,7 @@ const Login = () => {
 
         const roomJoinRes = await sendRequest(
           {
-            room_id: roomId,
+            room_id: normalizedRoomId,
             user_info: userInfo,
           },
           'room/getJoinToken',
@@ -194,13 +205,24 @@ const Login = () => {
             <FieldSet>
               <FieldLegend>Mã phòng</FieldLegend>
               <FieldDescription>
-                Mã được tạo ngẫu nhiên (dạng giống Meet). Chia sẻ cùng mã để vào
-                cùng phòng.
+                Nhập mã phòng để vào hoặc tạo phòng mới; hoặc bấm biểu tượng làm
+                mới để tạo mã ngẫu nhiên (dạng giống Meet). Cùng mã thì vào cùng
+                phòng.
               </FieldDescription>
               <div className="flex flex-wrap items-center gap-2 pt-2">
-                <code className="min-w-0 flex-1 rounded-md border border-border bg-muted px-3 py-2 text-center text-sm font-medium tracking-wide text-foreground">
-                  {roomId}
-                </code>
+                <Input
+                  id="meet-room-id"
+                  type="text"
+                  value={roomId}
+                  onChange={(e) => {
+                    setRoomId(e.target.value);
+                    setFormError(null);
+                  }}
+                  placeholder="vd: abc-defg-hij hoặc tên phòng của bạn"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="min-w-0 flex-1 font-mono text-sm tracking-wide"
+                />
                 <Button
                   type="button"
                   variant="outline"
@@ -217,7 +239,7 @@ const Login = () => {
                   size="icon"
                   className="shrink-0"
                   onClick={regenerateRoom}
-                  aria-label="Tạo mã phòng mới"
+                  aria-label="Tạo mã phòng ngẫu nhiên"
                 >
                   <RefreshCw className="size-4" />
                 </Button>

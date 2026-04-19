@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
-import { Plus, FileText, Calendar, CheckCircle2 } from "lucide-react"
+import { AlertTriangle, Plus, FileText, Calendar, CheckCircle2 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 import {
   useAcademyClassAssignments,
@@ -24,13 +24,15 @@ import type { AcademyLiveClassAssignmentCreateDTO } from "@workspace/schemas"
 import { ClassAssignmentSheet } from "@/components/academy/class-assignment-sheet"
 import { formatDateTime } from "@/lib/format-utils"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@workspace/ui/components/dialog"
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 
 interface ClassAssignmentsTabProps {
   liveClassId?: string
@@ -263,28 +265,37 @@ export function ClassAssignmentsTab({ liveClassId, vodPackageId }: ClassAssignme
         onSubmit={handleSubmit}
       />
 
-      {/* Dialog: Xác nhận gỡ bài tập */}
-      <Dialog open={removeConfirmOpen} onOpenChange={setRemoveConfirmOpen}>
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Xác nhận gỡ bài tập</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn gỡ bài tập <strong>{selectedForRemove?.assignment?.title || selectedForRemove?.titleOverride}</strong> khỏi lớp học này?
-              Dữ liệu về các bài nộp của học viên cho bài tập này (nếu có) cũng có thể bị ảnh hưởng.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRemoveConfirmOpen(false)}>Hủy</Button>
+      <AlertDialog open={removeConfirmOpen} onOpenChange={setRemoveConfirmOpen}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xác nhận gỡ bài tập</AlertDialogTitle>
+            <AlertDialogDescription>
+              Gỡ bài tập{" "}
+              <span className="font-semibold text-foreground">
+                {selectedForRemove?.assignment?.title || selectedForRemove?.titleOverride}
+              </span>{" "}
+              khỏi lớp? Dữ liệu bài nộp của học viên (nếu có) có thể bị ảnh hưởng.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" disabled={removeMutation.isPending}>
+                Hủy
+              </Button>
+            </AlertDialogCancel>
             <Button
               variant="destructive"
-              onClick={handleConfirmRemove}
+              onClick={() => void handleConfirmRemove()}
               disabled={removeMutation.isPending}
             >
-              Xác nhận gỡ
+              {removeMutation.isPending ? "Đang gỡ..." : "Xác nhận gỡ"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
