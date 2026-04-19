@@ -133,7 +133,7 @@ export default function ApprovalsPage() {
           {showCatalogCommerceApprovals ? (
             <TabsTrigger value="vodPackages" className="gap-2">
               <Package className="size-4" />
-              Gói học liệu VOD
+              Gói học liệu tự học
               <Badge variant="secondary">{pendingVodPackages.length}</Badge>
             </TabsTrigger>
           ) : null}

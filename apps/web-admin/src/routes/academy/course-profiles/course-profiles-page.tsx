@@ -122,8 +122,8 @@ export default function CourseProfilesPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Hồ sơ khóa học (Products)"
-                subtitle="Định nghĩa chương trình học gốc. Tại đây bạn quản lý Modules, Lessons và nhân bản khóa học cho năm học mới."
+                title="Hồ sơ khóa học"
+                subtitle="Định nghĩa chương trình học gốc. Tại đây bạn quản lý mô-đun, bài học và nhân bản khóa học cho năm học mới."
                 actions={
                     <Button size="lg" onClick={handleCreate}>
                         <Plus className="mr-2 h-4 w-4" />
@@ -165,8 +165,8 @@ export default function CourseProfilesPage() {
                         <TableHeader className={dataTableHeaderClass}>
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12 text-center">#</TableHead>
-                                <TableHead className="w-[120px]">Mã Code</TableHead>
-                                <TableHead>Tên khóa học (Gốc)</TableHead>
+                                <TableHead className="w-[120px]">Mã</TableHead>
+                                <TableHead>Tên khóa học gốc</TableHead>
                                 <TableHead>Cấp độ</TableHead>
                                 <TableHead>Trạng thái</TableHead>
                             <TableHead>Cập nhật</TableHead>

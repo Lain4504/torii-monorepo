@@ -118,7 +118,7 @@ export function QuestionPoolForm({
                                             <Field>
                                                 <FieldLabel>Mã định danh</FieldLabel>
                                                 <Input placeholder="Ví dụ: POOL_VOCAB_N5" {...field} className="font-mono uppercase h-10" />
-                                                <FieldDescription>Mã duy nhất để phân biệt các pool.</FieldDescription>
+                                                <FieldDescription>Mã duy nhất để phân biệt các nhóm câu hỏi.</FieldDescription>
                                                 <FieldError>{fieldState.error?.message}</FieldError>
                                             </Field>
                                         )}
@@ -129,7 +129,7 @@ export function QuestionPoolForm({
                                         render={({ field, fieldState }) => (
                                             <Field>
                                                 <FieldLabel>Tên nhóm câu hỏi</FieldLabel>
-                                                <Input placeholder="Ví dụ: Pool Từ vựng N5" {...field} className="h-10" />
+                                                <Input placeholder="Ví dụ: Nhóm từ vựng N5" {...field} className="h-10" />
                                                 <FieldError>{fieldState.error?.message}</FieldError>
                                             </Field>
                                         )}
@@ -142,7 +142,7 @@ export function QuestionPoolForm({
                                     render={({ field, fieldState }) => (
                                         <Field>
                                             <FieldLabel>Mô tả chi tiết</FieldLabel>
-                                            <Textarea placeholder="Mô tả mục đích của pool này..." {...field} rows={3} className="resize-none" />
+                                            <Textarea placeholder="Mô tả mục đích của nhóm câu hỏi này..." {...field} rows={3} className="resize-none" />
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
                                     )}
@@ -243,7 +243,7 @@ export function QuestionPoolForm({
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            <FieldDescription>Nếu chọn, pool này chỉ hiển thị cho khóa học đó.</FieldDescription>
+                                            <FieldDescription>Nếu chọn, nhóm câu hỏi này chỉ hiển thị cho khóa học đó.</FieldDescription>
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
                                     )}

@@ -187,7 +187,7 @@ export function VodClassForm({
                         </FieldSet>
 
                         <FieldSet>
-                            <FieldLegend>Thông tin lớp VOD</FieldLegend>
+                            <FieldLegend>Thông tin lớp tự học</FieldLegend>
                             <FieldDescription>Thiết lập tên và định danh cho lớp học.</FieldDescription>
                             <FieldGroup>
                                 {!isEdit && (
@@ -210,7 +210,7 @@ export function VodClassForm({
                                     render={({ field, fieldState }) => (
                                         <Field>
                                             <FieldLabel>Tên lớp</FieldLabel>
-                                            <Input placeholder="JLPT N5 - Tự học qua Video" {...field} />
+                                            <Input placeholder="JLPT N5 - Tự học qua video" {...field} />
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
                                     )}
@@ -293,7 +293,7 @@ export function VodClassForm({
                 <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>Hủy</Button>
                 <Button type="submit" size="lg" disabled={submitting}>
                     {submitting && <Spinner className="mr-2" />}
-                    {isEdit ? "Lưu thay đổi" : "Tạo Lớp VOD"}
+                    {isEdit ? "Lưu thay đổi" : "Tạo lớp tự học"}
                 </Button>
             </div>
         </form>

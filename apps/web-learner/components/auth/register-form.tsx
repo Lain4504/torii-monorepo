@@ -224,7 +224,7 @@ export function RegisterForm() {
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
                                 <FieldLabel htmlFor={field.name} className="text-sm font-semibold">
-                                    Họ và tên (full name)
+                                    Họ và tên
                                 </FieldLabel>
                                 <Input
                                     {...field}
@@ -279,7 +279,7 @@ export function RegisterForm() {
                                     >
                                         {showPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
                                         <span className="sr-only">
-                                            {showPassword ? 'Toggle password visibility' : 'Toggle password visibility'}
+                                            {showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                                         </span>
                                     </Button>
                                 </div>
@@ -327,7 +327,7 @@ export function RegisterForm() {
                                     >
                                         {showConfirmPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
                                         <span className="sr-only">
-                                            {showConfirmPassword ? 'Toggle password visibility' : 'Toggle password visibility'}
+                                            {showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                                         </span>
                                     </Button>
                                 </div>

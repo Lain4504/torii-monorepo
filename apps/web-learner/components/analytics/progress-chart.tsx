@@ -16,11 +16,11 @@ const defaultData = [
 
 const chartConfig = {
     score: {
-        label: "Proficiency",
+        label: "Năng lực",
         color: "#10b981", // Emerald-500: Bright green for score
     },
     lessons: {
-        label: "Lessons",
+        label: "Bài học",
         color: "#8b5cf6", // Violet-500: Bright purple for lessons
     },
 }
@@ -33,8 +33,8 @@ export function ProgressChart({ data = defaultData }: ProgressChartProps) {
     return (
         <Card className="col-span-2">
             <CardHeader>
-                <CardTitle>Learning Trajectory</CardTitle>
-                <CardDescription>Proficiency score vs. Lessons completed</CardDescription>
+                <CardTitle>Tiến trình học tập</CardTitle>
+                <CardDescription>So sánh năng lực với số bài học đã hoàn thành</CardDescription>
             </CardHeader>
             <CardContent className="pl-0">
                 <ChartContainer config={chartConfig} className="h-[350px] w-full">

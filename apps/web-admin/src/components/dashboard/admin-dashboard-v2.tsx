@@ -170,7 +170,7 @@ export default function AdminDashboardV2() {
           <StatsCard
             title="Duyệt nội dung"
             value={formatNumber(pendingApprovals)}
-            sub="Khóa học / Đợt khai giảng / VOD"
+            sub="Hồ sơ khóa học / Đợt khai giảng / Gói tự học"
             icon={ClipboardCheck}
             tone="warning"
             highlight={pendingApprovals > 0}

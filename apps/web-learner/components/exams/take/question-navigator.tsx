@@ -22,19 +22,19 @@ export function QuestionNavigator({
     return (
         <div className="h-full flex flex-col bg-background/50 border-r border-border">
             <div className="p-6 border-b border-border">
-                <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground/50 mb-4">Navigation Matrix</h3>
+                <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground/50 mb-4">Bảng điều hướng</h3>
                 <div className="flex gap-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 flex-wrap">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]" />
-                        <span>Completed</span>
+                        <span>Đã trả lời</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-primary/40" />
-                        <span>Flagged</span>
+                        <span>Đã đánh dấu</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full border border-border" />
-                        <span>Pending</span>
+                        <span>Chưa trả lời</span>
                     </div>
                 </div>
             </div>

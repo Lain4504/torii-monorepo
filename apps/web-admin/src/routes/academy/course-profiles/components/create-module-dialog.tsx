@@ -18,7 +18,7 @@ import { toast } from "sonner"
 import { useCreateAcademyCourseModule } from "@/lib/api/services/academy-course-modules"
 
 const createModuleSchema = z.object({
-  title: z.string().min(2, "Tiêu đề module phải có ít nhất 2 ký tự"),
+  title: z.string().min(2, "Tiêu đề mô-đun phải có ít nhất 2 ký tự"),
 })
 
 type CreateModuleFormValues = z.infer<typeof createModuleSchema>
@@ -50,10 +50,10 @@ export function CreateCourseModuleDialog({
         courseProfileId,
         input: { title: values.title },
       })
-      toast.success("Tạo module thành công")
+      toast.success("Tạo mô-đun thành công")
       onOpenChange(false)
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err.message || "Không thể tạo module")
+      toast.error(err?.response?.data?.message || err.message || "Không thể tạo mô-đun")
     }
   }
 
@@ -62,9 +62,9 @@ export function CreateCourseModuleDialog({
       <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-6 pb-0 shrink-0">
           <DialogHeader>
-            <DialogTitle>Tạo Module mới</DialogTitle>
+            <DialogTitle>Tạo mô-đun mới</DialogTitle>
             <DialogDescription>
-              Module sẽ được tự động gán thứ tự tiếp theo trong chương trình học của khóa.
+              Mô-đun sẽ được tự động gán thứ tự tiếp theo trong chương trình học của khóa.
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -73,9 +73,9 @@ export function CreateCourseModuleDialog({
           <form id="create-module-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FieldGroup>
               <Field>
-                <FieldLabel>Tiêu đề module</FieldLabel>
+                <FieldLabel>Tiêu đề mô-đun</FieldLabel>
                 <Input
-                  placeholder="VD: Module 1 - JLPT N5"
+                  placeholder="VD: Mô-đun 1 - JLPT N5"
                   {...form.register("title")}
                   disabled={createMutation.isPending}
                 />
@@ -97,7 +97,7 @@ export function CreateCourseModuleDialog({
             </Button>
             <Button type="submit" form="create-module-form" disabled={createMutation.isPending} className="gap-2">
               <Plus className="size-4" />
-              {createMutation.isPending ? "Đang tạo..." : "Tạo module"}
+              {createMutation.isPending ? "Đang tạo..." : "Tạo mô-đun"}
             </Button>
           </DialogFooter>
         </div>

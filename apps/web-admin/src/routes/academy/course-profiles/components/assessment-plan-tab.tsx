@@ -168,7 +168,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value={AcademyAssessmentKind.LESSON_CHECKPOINT}>Sau bài học</SelectItem>
-                          <SelectItem value={AcademyAssessmentKind.MODULE_CHECKPOINT}>Sau Module</SelectItem>
+                          <SelectItem value={AcademyAssessmentKind.MODULE_CHECKPOINT}>Sau mô-đun</SelectItem>
                           <SelectItem value={AcademyAssessmentKind.FINAL_EXAM}>Cuối khóa</SelectItem>
                         </SelectContent>
                       </Select>
@@ -283,7 +283,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={AcademyAssessmentKind.LESSON_CHECKPOINT}>Sau bài học</SelectItem>
-                        <SelectItem value={AcademyAssessmentKind.MODULE_CHECKPOINT}>Sau Module</SelectItem>
+                        <SelectItem value={AcademyAssessmentKind.MODULE_CHECKPOINT}>Sau mô-đun</SelectItem>
                         <SelectItem value={AcademyAssessmentKind.FINAL_EXAM}>Cuối khóa</SelectItem>
                       </SelectContent>
                     </Select>
@@ -349,7 +349,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
           <div className="mt-6 flex flex-col gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
               <AlertTriangle className="w-4 h-4" />
-              <span>Các mốc "Bắt buộc" sẽ chặn tiến độ học tập của luồng VOD Package cho đến khi hoàn thành.</span>
+              <span>Các mốc "Bắt buộc" sẽ chặn tiến độ học tập của luồng gói tự học cho đến khi hoàn thành.</span>
             </div>
             <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full sm:w-auto">
               Lưu kế hoạch đánh giá

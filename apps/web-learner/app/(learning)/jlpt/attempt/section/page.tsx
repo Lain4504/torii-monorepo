@@ -476,7 +476,7 @@ export default function JlptMockSectionPage() {
                 <SheetHeader className="p-6 border-b">
                   <SheetTitle className="text-xl font-bold flex items-center gap-2">
                     <Trophy className="size-5 text-primary" />
-                    <span>JLPT Mock Test</span>
+                    <span>Đề thi thử JLPT</span>
                   </SheetTitle>
                 </SheetHeader>
                 {renderSidebarContent()}

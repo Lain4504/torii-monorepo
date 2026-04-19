@@ -77,7 +77,7 @@ export function DuplicateCourseDialog({ open, onOpenChange, profile }: Duplicate
                     </div>
                     <DialogTitle>Nhân bản hồ sơ khóa học</DialogTitle>
                     <DialogDescription>
-                        Tạo ra một bản sao toàn bộ Modules và Lessons của khóa "{profile?.title}". Hữu ích cho việc tạo chương trình năm học mới.
+                        Tạo ra một bản sao toàn bộ mô-đun và bài học của khóa "{profile?.title}". Hữu ích cho việc tạo chương trình năm học mới.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -93,7 +93,7 @@ export function DuplicateCourseDialog({ open, onOpenChange, profile }: Duplicate
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Mã khóa học mới (Unique Code)</FieldLabel>
+                                    <FieldLabel>Mã khóa học mới</FieldLabel>
                                     <Input placeholder="VD: N5-2025" {...field} className="font-mono uppercase" />
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>

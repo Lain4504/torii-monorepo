@@ -64,11 +64,11 @@ function paymentMethodFill(name: string, index: number) {
 function productTypeLabelVi(type: string) {
   switch (type) {
     case "COHORT":
-      return "Lớp LIVE (Cohort)";
+      return "Lớp trực tiếp (đợt khai giảng)";
     case "VOD_PACKAGE":
-      return "Khoá VOD";
+      return "Khóa tự học";
     case "LIVE_CLASS":
-      return "Lớp LIVE";
+      return "Lớp trực tiếp";
     case "AI_SUBSCRIPTION":
       return "Gói AI";
     default:

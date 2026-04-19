@@ -47,25 +47,25 @@ export default function ModernDashboard() {
     const jlptLevel = (user?.userMetadata as any)?.jlptTarget || 'N3'
 
     const stats = [
-        { label: 'Courses', value: statsData?.totalCourses || 0, icon: BookOpen, color: 'text-blue-500' },
-        { label: 'Study Hours', value: `${statsData?.totalLearningHours || 0}h`, icon: Clock, color: 'text-emerald-500' },
-        { label: 'Achievements', value: achievements?.length || 0, icon: Award, color: 'text-amber-500' },
-        { label: 'Progress', value: `${statsData?.averageProgress || 0}%`, icon: TrendingUp, color: 'text-purple-500' },
+        { label: 'Khóa học', value: statsData?.totalCourses || 0, icon: BookOpen, color: 'text-blue-500' },
+        { label: 'Giờ học', value: `${statsData?.totalLearningHours || 0}h`, icon: Clock, color: 'text-emerald-500' },
+        { label: 'Thành tích', value: achievements?.length || 0, icon: Award, color: 'text-amber-500' },
+        { label: 'Tiến độ', value: `${statsData?.averageProgress || 0}%`, icon: TrendingUp, color: 'text-purple-500' },
     ]
 
     const upcomingClasses = [
         {
             id: 1,
-            title: 'Honorifics (Keigo) Mastery',
+            title: 'Thành thạo kính ngữ Keigo',
             instructor: 'Sato Sensei',
-            time: 'Today, 14:00',
+            time: 'Hôm nay, 14:00',
             avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop'
         },
         {
             id: 2,
-            title: 'N2 Listening Practice',
+            title: 'Luyện nghe N2',
             instructor: 'Tanaka Sensei',
-            time: 'Tomorrow, 10:30',
+            time: 'Ngày mai, 10:30',
             avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100&auto=format&fit=crop'
         }
     ]
@@ -117,7 +117,7 @@ export default function ModernDashboard() {
                                         <div className="flex items-center gap-4">
                                             <div className="flex-1 overflow-hidden">
                                                 <div className="flex justify-between text-xs font-bold mb-1.5">
-                                                    <span className="text-slate-400">COURSE PROGRESS</span>
+                                                    <span className="text-slate-400">TIẾN ĐỘ KHÓA HỌC</span>
                                                     <span className="text-primary">{mainCourse.progress}%</span>
                                                 </div>
                                                 <Progress value={mainCourse.progress} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
@@ -197,7 +197,7 @@ export default function ModernDashboard() {
                                 )}>
                                     <Award className="size-7" />
                                 </div>
-                                <span className="text-[10px] font-bold text-center leading-tight">Polyglot</span>
+                                <span className="text-[10px] font-bold text-center leading-tight">Thành tựu</span>
                             </div>
                         </div>
                     </Card>

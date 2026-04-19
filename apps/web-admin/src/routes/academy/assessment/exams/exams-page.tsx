@@ -111,8 +111,8 @@ export default function ExamsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">Tất cả loại</SelectItem>
-                <SelectItem value="QUIZ">Quiz ngắn</SelectItem>
-                <SelectItem value="MODULE_TEST">Kiểm tra Module</SelectItem>
+                <SelectItem value="QUIZ">Bài kiểm tra ngắn</SelectItem>
+                <SelectItem value="MODULE_TEST">Kiểm tra mô-đun</SelectItem>
                 <SelectItem value="FINAL_EXAM">Thi cuối kỳ</SelectItem>
               </SelectContent>
             </Select>

@@ -39,8 +39,8 @@ import { Spinner } from "@workspace/ui/components/spinner";
 const verifyCodeSchema = z.object({
   code: z
     .string()
-    .length(6, "Code must be 6 digits")
-    .regex(/^\d+$/, "Code must contain only numbers"),
+    .length(6, "Mã phải có 6 chữ số")
+    .regex(/^\d+$/, "Mã chỉ được chứa số"),
 });
 
 type VerifyCodeForm = z.infer<typeof verifyCodeSchema>;
@@ -92,7 +92,7 @@ export function EnableTwoFactorDialog({
       setStep("verify");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to generate QR code",
+        error instanceof Error ? error.message : "Không thể tạo mã QR",
       );
     }
   };
@@ -105,10 +105,10 @@ export function EnableTwoFactorDialog({
       });
       setBackupCodes(result.backupCodes);
       setStep("backup");
-      toast.success("Two-factor authentication enabled successfully!");
+      toast.success("Đã bật xác thực hai yếu tố thành công.");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Invalid verification code",
+        error instanceof Error ? error.message : "Mã xác thực không hợp lệ",
       );
     }
   };
@@ -117,14 +117,14 @@ export function EnableTwoFactorDialog({
     navigator.clipboard.writeText(secret);
     setCopiedSecret(true);
     setTimeout(() => setCopiedSecret(false), 2000);
-    toast.success("Secret key copied to clipboard");
+    toast.success("Đã sao chép khóa bí mật");
   };
 
   const copyBackupCodes = () => {
     navigator.clipboard.writeText(backupCodes.join("\n"));
     setCopiedCodes(true);
     setTimeout(() => setCopiedCodes(false), 2000);
-    toast.success("Backup codes copied to clipboard");
+    toast.success("Đã sao chép mã dự phòng");
   };
 
   const downloadBackupCodes = () => {
@@ -137,7 +137,7 @@ export function EnableTwoFactorDialog({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success("Backup codes downloaded");
+    toast.success("Đã tải xuống mã dự phòng");
   };
 
   const handleFinish = () => {
@@ -150,13 +150,13 @@ export function EnableTwoFactorDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <Smartphone className="size-5 text-primary" />
-            Enable Two-Factor Authentication
+            Bật xác thực hai yếu tố
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground/60">
-            {step === "generate" && "Set up 2FA to secure your account"}
+            {step === "generate" && "Thiết lập 2FA để bảo vệ tài khoản của bạn"}
             {step === "verify" &&
-              "Scan the QR code with your authenticator app"}
-            {step === "backup" && "Save your backup codes in a safe place"}
+              "Quét mã QR bằng ứng dụng xác thực của bạn"}
+            {step === "backup" && "Lưu mã dự phòng ở nơi an toàn"}
           </DialogDescription>
         </DialogHeader>
 

@@ -41,7 +41,7 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                     <TableRow>
                         <TableHead className="w-[80px] text-center">STT</TableHead>
                         <TableHead className="w-[80px]">Icon</TableHead>
-                        <TableHead>Tên & Code</TableHead>
+                        <TableHead>Tên & mã</TableHead>
                         <TableHead>Mô tả</TableHead>
                         <TableHead>Phân loại</TableHead>
                         <TableHead>Điều kiện</TableHead>

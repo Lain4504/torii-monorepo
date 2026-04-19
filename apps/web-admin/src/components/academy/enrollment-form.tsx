@@ -197,7 +197,7 @@ export function EnrollmentForm({
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
-                                                <FieldLabel>Gói VOD</FieldLabel>
+                                                <FieldLabel>Gói tự học</FieldLabel>
                                                 <Popover open={openVodPopover} onOpenChange={setOpenVodPopover}>
                                                     <PopoverTrigger asChild>
                                                         <Button
@@ -207,14 +207,14 @@ export function EnrollmentForm({
                                                         >
                                                             {field.value
                                                                 ? vodPackages.find((p: any) => p.id === field.value)?.title || "Đã chọn gói"
-                                                                : "Chọn gói VOD..."}
+                                                                : "Chọn gói tự học..."}
                                                             <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                         </Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-[400px] p-0" align="start">
                                                         <Command shouldFilter={false}>
                                                             <CommandInput
-                                                                placeholder="Tìm gói VOD..."
+                                                                placeholder="Tìm gói tự học..."
                                                                 value={vodSearch}
                                                                 onValueChange={setVodSearch}
                                                             />

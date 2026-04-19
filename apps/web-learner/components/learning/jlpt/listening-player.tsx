@@ -77,7 +77,7 @@ export function ListeningPlayer({ audioUrl, autoPlay, onEnded }: ListeningPlayer
               <Waves className="size-5 text-primary animate-pulse" />
             </div>
             <div>
-              <h4 className="font-bold text-sm">Audio Track - Listening Section</h4>
+              <h4 className="font-bold text-sm">Bản ghi âm phần nghe</h4>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
                 {isPlaying ? 'Đang phát...' : 'Đã tạm dừng'}
               </p>
@@ -111,8 +111,8 @@ export function ListeningPlayer({ audioUrl, autoPlay, onEnded }: ListeningPlayer
           <div className="flex-1 space-y-1">
              <Progress value={progress} className="h-2 rounded-full" />
              <div className="flex justify-between px-1">
-                 <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-50 italic">JLPT Mock Exam</span>
-                 <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-50 italic text-right">Listening Section ONLY</span>
+                 <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-50 italic">Đề thi thử JLPT</span>
+                 <span className="text-[9px] font-bold text-muted-foreground uppercase opacity-50 italic text-right">Chỉ dành cho phần nghe</span>
              </div>
           </div>
         </div>

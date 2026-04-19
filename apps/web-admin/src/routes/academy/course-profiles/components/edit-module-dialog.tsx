@@ -19,7 +19,7 @@ import { useUpdateAcademyCourseModule } from "@/lib/api/services/academy-course-
 import { type AcademyCourseModuleUpdateDTO } from "@/lib/api/services/academy-course-modules"
 
 const editModuleSchema = z.object({
-  title: z.string().min(2, "Tiêu đề module phải có ít nhất 2 ký tự"),
+  title: z.string().min(2, "Tiêu đề mô-đun phải có ít nhất 2 ký tự"),
 })
 
 type EditModuleFormValues = z.infer<typeof editModuleSchema>
@@ -58,10 +58,10 @@ export function EditCourseModuleDialog({
         moduleId: module.id,
         input: payload,
       })
-      toast.success("Cập nhật module thành công")
+      toast.success("Cập nhật mô-đun thành công")
       onOpenChange(false)
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || err.message || "Không thể cập nhật module")
+      toast.error(err?.response?.data?.message || err.message || "Không thể cập nhật mô-đun")
     }
   }
 
@@ -70,8 +70,8 @@ export function EditCourseModuleDialog({
       <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-6 pb-0 shrink-0">
           <DialogHeader>
-            <DialogTitle>Chỉnh sửa Module</DialogTitle>
-            <DialogDescription>Thay đổi tiêu đề module.</DialogDescription>
+            <DialogTitle>Chỉnh sửa mô-đun</DialogTitle>
+            <DialogDescription>Thay đổi tiêu đề mô-đun.</DialogDescription>
           </DialogHeader>
         </div>
 
@@ -79,9 +79,9 @@ export function EditCourseModuleDialog({
           <form id="edit-module-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FieldGroup>
               <Field>
-                <FieldLabel>Tiêu đề module</FieldLabel>
+                <FieldLabel>Tiêu đề mô-đun</FieldLabel>
                 <Input
-                  placeholder="VD: Module 1"
+                  placeholder="VD: Mô-đun 1"
                   {...form.register("title")}
                   disabled={updateMutation.isPending}
                 />

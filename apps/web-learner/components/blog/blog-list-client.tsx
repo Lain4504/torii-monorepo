@@ -99,7 +99,7 @@ export function BlogListClient() {
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-muted flex items-center justify-center">
-                                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Preview</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Không có xem trước</span>
                                             </div>
                                         )}
                                         {blog.tags && blog.tags.length > 0 && (

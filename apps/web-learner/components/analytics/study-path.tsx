@@ -17,11 +17,11 @@ interface StudyPathProps {
 
 export function StudyPath({ roadmap }: StudyPathProps) {
     const defaultRoadmap: StudyPathNode[] = [
-        { title: "Hiragana & Katakana", status: "completed", description: "Master basics of writing" },
-        { title: "N5 Vocabulary", status: "completed", description: "Essential 800 words" },
-        { title: "N5 Grammar", status: "in-progress", description: "Basic particles and verb conjugations" },
-        { title: "Kanji Basics", status: "locked", description: "First 100 characters" },
-        { title: "Reading Comprehension", status: "locked", description: "Simple texts and dialogues" },
+        { title: "Hiragana và Katakana", status: "completed", description: "Nắm vững hệ chữ viết cơ bản" },
+        { title: "Từ vựng N5", status: "completed", description: "800 từ vựng cốt lõi" },
+        { title: "Ngữ pháp N5", status: "in-progress", description: "Trợ từ cơ bản và chia động từ" },
+        { title: "Hán tự nhập môn", status: "locked", description: "100 chữ đầu tiên" },
+        { title: "Đọc hiểu cơ bản", status: "locked", description: "Đoạn văn và hội thoại ngắn" },
     ]
 
     const displayRoadmap = roadmap || defaultRoadmap
@@ -29,8 +29,8 @@ export function StudyPath({ roadmap }: StudyPathProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>JLPT N5 Roadmap</CardTitle>
-                <CardDescription>Your personalized path to certification</CardDescription>
+                <CardTitle>Lộ trình JLPT N5</CardTitle>
+                <CardDescription>Lộ trình cá nhân hóa để chinh phục chứng chỉ</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="relative pl-6 border-l-2 border-muted space-y-8">
@@ -53,7 +53,7 @@ export function StudyPath({ roadmap }: StudyPathProps) {
 
                             {step.status === "in-progress" && (
                                 <Badge variant="secondary" className="mt-2">
-                                    Current Focus
+                                    Trọng tâm hiện tại
                                 </Badge>
                             )}
                         </div>

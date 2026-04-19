@@ -90,8 +90,8 @@ export function useCourseEnrollment(courseProfileId: string, courseSlug: string)
 
         try {
             setIsEnrolling(true)
-            toast.info('Vui lòng chọn gói VOD hoặc lớp LIVE và hoàn tất đăng ký qua thanh toán.', {
-                description: 'Trang khóa marketing không tự ghi danh — chuyển tới Khám phá hoặc checkout.',
+            toast.info('Vui lòng chọn gói tự học hoặc lớp trực tiếp và hoàn tất đăng ký qua thanh toán.', {
+                description: 'Trang giới thiệu khóa học không tự ghi danh. Hệ thống sẽ chuyển bạn tới Khám phá hoặc trang thanh toán.',
             })
             router.push('/discovery')
         } catch (error: any) {

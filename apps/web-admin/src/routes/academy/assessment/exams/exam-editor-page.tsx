@@ -348,8 +348,8 @@ export default function AcademyExamEditorPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="QUIZ">Quiz ngắn</SelectItem>
-                    <SelectItem value="MODULE_TEST">Kiểm tra Module</SelectItem>
+                    <SelectItem value="QUIZ">Bài kiểm tra ngắn</SelectItem>
+                    <SelectItem value="MODULE_TEST">Kiểm tra mô-đun</SelectItem>
                     <SelectItem value="FINAL_EXAM">Thi cuối kỳ</SelectItem>
                   </SelectContent>
                 </Select>
