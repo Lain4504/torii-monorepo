@@ -1,28 +1,30 @@
 'use client'
 
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
-import { format } from 'date-fns'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@workspace/ui/components/card'
+import { MarkdownRenderer } from '@/components/common/markdown-renderer'
+import { jlptMockApi } from '@/lib/api/services/jlpt-mock-api'
 import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@workspace/ui/components/table'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { ArrowLeft, BookOpen, Trophy, ClipboardCheck, Calendar, Info, ChevronRight, Target, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import { Separator } from '@workspace/ui/components/separator'
 import { toast } from '@workspace/ui/components/sonner'
-import { cn } from "@workspace/ui/lib/utils"
-import { Separator } from "@workspace/ui/components/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
-import { MarkdownRenderer } from "@/components/common/markdown-renderer"
-import { jlptMockApi } from '@/lib/api/services/jlpt-mock-api'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import { cn } from '@workspace/ui/lib/utils'
+import { format } from 'date-fns'
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  ClipboardCheck,
+  Info,
+  Trophy,
+  XCircle,
+} from 'lucide-react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
 
 type JlptAttemptAnswerItem = {
   templateQuestionId: string
@@ -82,9 +84,20 @@ const SECTION_LABELS: Record<string, string> = {
   listeningScaled: 'Nghe hiểu',
 }
 
+function formatDateTime(value: string | null) {
+  if (!value) return '—'
+  return format(new Date(value), 'dd/MM/yyyy HH:mm')
+}
+
+function sectionTabLabel(code: string) {
+  if (code === 'LANGUAGE_VOCAB') return 'Từ vựng/Kanji'
+  if (code === 'LANGUAGE_GRAMMAR_READING') return 'Ngữ pháp/Đọc hiểu'
+  if (code === 'LISTENING') return 'Nghe hiểu'
+  return code
+}
+
 export default function JlptAttemptHistoryDetailPage() {
   const { attemptId } = useParams<{ attemptId: string }>()
-  const router = useRouter()
 
   const [data, setData] = useState<JlptAttemptDetail | null>(null)
   const [loading, setLoading] = useState(false)
@@ -92,46 +105,52 @@ export default function JlptAttemptHistoryDetailPage() {
   const [expandedAnswers, setExpandedAnswers] = useState<Record<string, boolean>>({})
 
   const toggleExpand = (id: string) => {
-    setExpandedAnswers(prev => ({ ...prev, [id]: !prev[id] }))
+    setExpandedAnswers((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
   useEffect(() => {
     if (!attemptId) return
-      ; (async () => {
-        try {
-          setErrorMessage(null)
-          setLoading(true)
-          const res = await jlptMockApi.getAttemptById(attemptId)
-          setData(res as unknown as JlptAttemptDetail)
-        } catch (e: any) {
-          console.error(e)
-          setErrorMessage(e?.message ?? 'Không tải được kết quả bài thi')
-          toast.error(e?.message ?? 'Không tải được kết quả bài thi')
-        } finally {
-          setLoading(false)
-        }
-      })()
+
+    ;(async () => {
+      try {
+        setErrorMessage(null)
+        setLoading(true)
+        const res = await jlptMockApi.getAttemptById(attemptId)
+        setData(res as unknown as JlptAttemptDetail)
+      } catch (e: any) {
+        console.error(e)
+        setErrorMessage(e?.message ?? 'Không tải được kết quả bài thi')
+        toast.error(e?.message ?? 'Không tải được kết quả bài thi')
+      } finally {
+        setLoading(false)
+      }
+    })()
   }, [attemptId])
 
   const groupedSections = useMemo(() => {
     if (!data?.answers) return []
-    const grouped: Record<string, {
-      id: string;
-      code: string;
-      orderIndex: number;
-      answers: JlptAttemptAnswerItem[];
-    }> = {}
 
-    data.answers.forEach(ans => {
+    const grouped: Record<
+      string,
+      {
+        id: string
+        code: string
+        orderIndex: number
+        answers: JlptAttemptAnswerItem[]
+      }
+    > = {}
+
+    data.answers.forEach((ans) => {
       const sectionId = ans.section?.id
       if (!sectionId) return
 
       if (!grouped[sectionId]) {
         grouped[sectionId] = {
           ...ans.section,
-          answers: []
+          answers: [],
         }
       }
+
       grouped[sectionId]!.answers.push(ans)
     })
 
@@ -140,21 +159,21 @@ export default function JlptAttemptHistoryDetailPage() {
 
   if (!attemptId) return null
   if (loading) return <PageLoading className="h-screen" />
+
   if (!data) {
     return (
-      <div className="space-y-6 animate-in fade-in duration-700 max-w-2xl mx-auto py-10 px-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/40 hover:bg-muted" asChild>
+      <div className="mx-auto max-w-3xl space-y-5 px-4 py-8 sm:max-w-none sm:space-y-6 sm:px-6">
+        <div className="space-y-3">
+          <Button variant="ghost" className="h-9 w-full justify-start gap-2 rounded-lg border px-3 sm:w-fit" asChild>
             <Link href="/jlpt/attempt/history">
               <ArrowLeft className="size-4" />
+              Quay lại lịch sử
             </Link>
           </Button>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">
-            Không tải được kết quả
-          </h1>
+          <h1 className="text-xl font-semibold">Không tải được kết quả</h1>
         </div>
         <p className="text-sm text-muted-foreground">{errorMessage ?? 'Không có dữ liệu.'}</p>
-        <Button asChild variant="outline" className="w-full h-10 rounded-xl text-sm">
+        <Button asChild variant="outline" className="w-full sm:w-fit">
           <Link href="/jlpt/attempt/history">Quay lại lịch sử</Link>
         </Button>
       </div>
@@ -162,334 +181,318 @@ export default function JlptAttemptHistoryDetailPage() {
   }
 
   const { attempt, scores } = data
-  const scoreOrNna = (v: number | undefined | null) =>
-    v === 0 ? 0 : v != null ? v : '—'
 
   const sectionRows = [
-    { key: 'languageScaled', label: SECTION_LABELS.languageScaled, value: scores?.languageScaled, icon: <BookOpen className="size-4 text-primary" /> },
-    { key: 'readingScaled', label: SECTION_LABELS.readingScaled, value: scores?.readingScaled, icon: <Target className="size-4 text-primary" /> },
-    { key: 'listeningScaled', label: SECTION_LABELS.listeningScaled, value: scores?.listeningScaled, icon: <Trophy className="size-4 text-primary" /> },
+    { key: 'languageScaled', label: SECTION_LABELS.languageScaled, value: scores?.languageScaled },
+    { key: 'readingScaled', label: SECTION_LABELS.readingScaled, value: scores?.readingScaled },
+    { key: 'listeningScaled', label: SECTION_LABELS.listeningScaled, value: scores?.listeningScaled },
   ]
 
+  const totalScaled = scores?.totalScaled ?? '—'
+
   return (
-    <div className="space-y-10 md:space-y-12 animate-in fade-in duration-700 max-w-5xl mx-auto py-8 md:py-10 px-4 sm:px-6">
-      {/* Minimal Header */}
-      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-border/30 pb-8">
-        <div className="flex items-center gap-5">
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full border border-border/40 hover:bg-muted" asChild>
-            <Link href="/jlpt/attempt/history">
-              <ArrowLeft className="size-4" />
-            </Link>
-          </Button>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2.5">
-              <Badge variant="outline" className="px-2 py-0 rounded-md font-semibold text-[11px] border-border/50 text-muted-foreground leading-none">
-                Kết quả
-              </Badge>
-              <span className="text-[11px] font-semibold text-muted-foreground">JLPT {attempt.level}</span>
+    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:max-w-none sm:space-y-8 sm:px-6">
+      <header className="space-y-4 border-b border-border pb-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-3">
+            <Button variant="ghost" className="h-9 w-full justify-start gap-2 rounded-lg border px-3 sm:w-fit" asChild>
+              <Link href="/jlpt/attempt/history">
+                <ArrowLeft className="size-4" />
+                Quay lại lịch sử
+              </Link>
+            </Button>
+
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="rounded-md text-[11px] font-medium">
+                  Kết quả JLPT
+                </Badge>
+                <span className="text-sm text-muted-foreground">Cấp độ {attempt.level}</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Chi tiết bài làm</h1>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Bố cục được tinh gọn lại để cùng nhịp spacing với các trang danh sách trong dashboard.
+                </p>
+              </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Chi tiết kết quả
-            </h1>
+          </div>
+
+          <div className="flex flex-col gap-2 sm:items-end">
+            {typeof scores?.passMock === 'boolean' && (
+              <Badge
+                className={cn(
+                  'rounded-md border-none px-3 py-1 text-[11px] font-semibold',
+                  scores.passMock
+                    ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-destructive/10 text-destructive',
+                )}
+              >
+                {scores.passMock ? 'Đạt' : 'Chưa đạt'}
+              </Badge>
+            )}
+            <p className="text-sm text-muted-foreground">Nộp bài lúc {formatDateTime(attempt.submittedAt)}</p>
           </div>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-8 space-y-8">
-          <Card className="rounded-xl border-border/50 shadow-sm overflow-hidden bg-card">
-            <div className="p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-muted/10 border-b border-border/20">
-              <div className="space-y-1">
-                <h2 className="text-xl font-bold text-foreground flex items-center gap-2.5">
-                  <ClipboardCheck className="size-5 text-primary/60" />
-                  Tổng quan điểm số
-                </h2>
-                <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none">Hệ thống tính điểm scaled score</p>
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_300px]">
+        <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm sm:p-6">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <ClipboardCheck className="size-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">Tổng quan điểm số</h2>
+              <p className="text-sm text-muted-foreground">Điểm đã được quy đổi theo scaled score.</p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {sectionRows.map((row) => (
+              <div key={row.key} className="rounded-2xl bg-muted/20 px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{row.label}</p>
+                <div className="mt-2 text-3xl font-semibold tracking-tight">{row.value ?? '—'}</div>
+                <p className="mt-1 text-xs text-muted-foreground">Tối đa 60 điểm</p>
               </div>
-              {typeof scores?.passMock === 'boolean' && (
-                <Badge
-                  className={cn(
-                    "px-5 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider shadow-none border-none",
-                    scores.passMock
-                      ? "bg-emerald-500/10 text-emerald-600"
-                      : "bg-destructive/10 text-destructive"
-                  )}
-                >
-                  {scores.passMock ? 'Đạt (PASS)' : 'Chưa đạt (FAIL)'}
-                </Badge>
-              )}
-            </div>
+            ))}
+          </div>
 
-            <div className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/5 hover:bg-muted/5 border-b border-border/30">
-                    <TableHead className="pl-8 py-3.5 font-bold text-[10px] uppercase text-muted-foreground/40 tracking-wider">Phần thi</TableHead>
-                    <TableHead className="pr-8 py-3.5 text-right font-bold text-[10px] uppercase text-muted-foreground/40 tracking-wider">Điểm đạt được</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sectionRows.map((row) => (
-                    <TableRow key={row.key} className="hover:bg-muted/30 transition-colors border-b border-border/20 last:border-0">
-                      <TableCell className="pl-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="size-8 rounded-lg bg-muted/40 flex items-center justify-center text-muted-foreground/40 shrink-0">
-                            {row.icon}
-                          </div>
-                          <span className="font-bold text-sm text-foreground tracking-tight">{row.label}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="pr-8 py-6 text-right">
-                        <div className="space-y-1">
-                          <div className="font-bold text-xl text-foreground tabular-nums leading-none tracking-tight">{scoreOrNna(row.value)}</div>
-                          <div className="text-[9px] font-bold text-muted-foreground/20 uppercase tracking-tighter">Tối đa: 60</div>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            {scores?.totalScaled != null && (
-              <div className="p-8 bg-primary/[0.02] border-t border-primary/5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary/60">
-                    <Trophy className="size-5" />
-                  </div>
-                  <span className="text-lg font-bold text-foreground tracking-tight">Tổng điểm (Scaled)</span>
+          <div className="mt-4 rounded-2xl bg-primary/5 px-4 py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Trophy className="size-5" />
                 </div>
-                <div className="text-right flex flex-col items-end">
-                  <span className="text-4xl font-bold text-primary tabular-nums tracking-tighter leading-none mb-1">
-                    {scoreOrNna(scores.totalScaled)}
-                  </span>
-                  <p className="text-xs font-medium text-primary/50">/ 180 điểm tối đa</p>
+                <div>
+                  <p className="text-sm font-medium">Tổng điểm</p>
+                  <p className="text-xs text-muted-foreground">Thang điểm chuẩn JLPT mock</p>
                 </div>
               </div>
-            )}
-          </Card>
+              <div className="text-right">
+                <div className="text-4xl font-semibold tracking-tight text-primary">{totalScaled}</div>
+                <p className="text-xs text-muted-foreground">/ 180 điểm</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {/* Detailed Answers Section */}
-          {groupedSections.length > 0 && (
-            <div className="space-y-8">
-              <div className="flex items-center gap-3 px-1">
-                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  <ClipboardCheck className="size-5" />
+        <aside className="space-y-4">
+          <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="flex size-9 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                  <Calendar className="size-4" />
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-foreground">Chi tiết bài làm</h2>
-                  <p className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none mt-1">
-                    Xem lại từng phần thi và đáp án
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Ngày nộp bài</p>
+                  <p className="mt-1 text-sm font-medium">{formatDateTime(attempt.submittedAt)}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="flex size-9 items-center justify-center rounded-2xl bg-muted text-[10px] font-semibold text-muted-foreground">
+                  ID
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Mã lần thi</p>
+                  <p className="mt-1 truncate font-mono text-sm text-foreground/80">
+                    {attemptId.toString().toUpperCase()}
                   </p>
                 </div>
               </div>
+            </div>
 
-              <Tabs defaultValue={groupedSections[0]?.id ?? ''} className="w-full space-y-8">
-                <div className="px-1 overflow-x-auto pb-2 scrollbar-none">
-                  <TabsList className="bg-muted/30 p-1 rounded-xl h-auto flex flex-wrap sm:flex-nowrap justify-start sm:w-fit gap-1 border border-border/20">
-                    {groupedSections.map((sec) => (
-                      <TabsTrigger
-                        key={sec.id}
-                        value={sec.id}
-                        className="rounded-lg px-4 py-2 text-[11px] font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary transition-all shrink-0"
-                      >
-                        {sec.code === 'LANGUAGE_VOCAB'
-                          ? 'Từ vựng/Kanji'
-                          : sec.code === 'LANGUAGE_GRAMMAR_READING'
-                            ? 'Ngữ pháp/Đọc hiểu'
-                            : sec.code === 'LISTENING'
-                              ? 'Nghe hiểu'
-                              : sec.code}
-                        <Badge variant="outline" className="ml-2 px-1.5 h-4 text-[9px] border-primary/20 bg-primary/5 text-primary/60 font-bold">
-                          {sec.answers.length}
-                        </Badge>
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </div>
+            <Separator className="my-5" />
 
+            <div className="space-y-3">
+              <Button className="w-full rounded-xl font-semibold" asChild>
+                <Link href="/dashboard/jlpt-list-exam">
+                  Thi thử đề mới
+                  <ChevronRight className="ml-1 size-4" />
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full rounded-xl" asChild>
+                <Link href="/jlpt/attempt/history">Xem lại lịch sử</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-primary/5 px-5 py-5">
+            <div className="flex items-center gap-2 text-primary">
+              <Info className="size-4" />
+              <p className="text-sm font-medium">Lưu ý về điểm số</p>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Kết quả đã được chuẩn hóa theo hình thức thi JLPT thật. Hãy dùng đây như mốc tham khảo cho kỳ thi chính thức.
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      {groupedSections.length > 0 && (
+        <section className="space-y-5">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold">Chi tiết bài làm</h2>
+            <p className="text-sm text-muted-foreground">
+              Xem lại từng phần thi và đáp án theo một bố cục gọn hơn.
+            </p>
+          </div>
+
+          <Tabs defaultValue={groupedSections[0]?.id ?? ''} className="space-y-5">
+            <div className="overflow-x-auto pb-1">
+              <TabsList className="h-auto w-max gap-1 rounded-2xl border border-border/50 bg-muted/30 p-1">
                 {groupedSections.map((sec) => (
-                  <TabsContent key={sec.id} value={sec.id} className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500 outline-none">
-                    {sec.answers.map((ans, idx) => {
-                      if (!ans.review) return null
-                      const isCorrect = ans.isCorrect
-                      const isExpanded = !!expandedAnswers[ans.templateQuestionId]
+                  <TabsTrigger
+                    key={sec.id}
+                    value={sec.id}
+                    className="rounded-xl px-4 py-2 text-xs font-medium data-[state=active]:bg-background data-[state=active]:text-primary"
+                  >
+                    {sectionTabLabel(sec.code)}
+                    <Badge variant="outline" className="ml-2 h-5 rounded-md px-1.5 text-[10px]">
+                      {sec.answers.length}
+                    </Badge>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
 
-                      return (
+            {groupedSections.map((sec) => (
+              <TabsContent key={sec.id} value={sec.id} className="space-y-3 outline-none">
+                {sec.answers.map((ans, idx) => {
+                  if (!ans.review) return null
+
+                  const isCorrect = ans.isCorrect
+                  const isExpanded = !!expandedAnswers[ans.templateQuestionId]
+
+                  return (
+                    <div
+                      key={ans.templateQuestionId}
+                      className={cn(
+                        'overflow-hidden rounded-2xl border bg-card transition-colors',
+                        isCorrect ? 'border-emerald-500/20' : 'border-destructive/20',
+                      )}
+                    >
+                      <button
+                        className="flex w-full items-start gap-4 px-4 py-4 text-left transition-colors hover:bg-muted/30 sm:px-5"
+                        onClick={() => toggleExpand(ans.templateQuestionId)}
+                      >
                         <div
-                          key={ans.templateQuestionId}
                           className={cn(
-                            "rounded-xl border transition-all overflow-hidden",
-                            isCorrect ? "border-emerald-500/20 bg-emerald-500/[0.02]" : "border-destructive/20 bg-destructive/[0.02]"
+                            'mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-semibold',
+                            isCorrect
+                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                              : 'bg-destructive/10 text-destructive',
                           )}
                         >
-                          <button
-                            className="w-full text-left p-4 sm:p-5 flex items-start gap-4 hover:bg-muted/50 transition-colors"
-                            onClick={() => toggleExpand(ans.templateQuestionId)}
-                          >
-                            <div className={cn(
-                              "size-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs",
-                              isCorrect ? "bg-emerald-500/10 text-emerald-600" : "bg-destructive/10 text-destructive"
-                            )}>
-                              {idx + 1}
-                            </div>
+                          {idx + 1}
+                        </div>
 
-                            <div className="flex-1 min-w-0 pt-0.5">
-                              <div className="flex items-center gap-2 mb-2">
-                                {ans.mondai && (
-                                  <Badge variant="outline" className="text-[9px] font-bold uppercase py-0 px-2 h-5 text-muted-foreground border-muted-foreground/20">
-                                    {ans.mondai.code}
-                                  </Badge>
-                                )}
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {ans.mondai && (
+                              <Badge variant="outline" className="rounded-md text-[10px]">
+                                {ans.mondai.code}
+                              </Badge>
+                            )}
+                            {isCorrect ? (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                                <CheckCircle2 className="size-3.5" />
+                                Đúng
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
+                                <XCircle className="size-3.5" />
+                                Sai
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="line-clamp-2 text-sm font-medium leading-6 text-foreground">
+                            <MarkdownRenderer content={ans.review.stemText} inline />
+                          </div>
+                        </div>
+
+                        {isExpanded ? (
+                          <ChevronUp className="mt-1 size-4 shrink-0 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="mt-1 size-4 shrink-0 text-muted-foreground" />
+                        )}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="space-y-5 px-4 pb-5 sm:px-5">
+                          <Separator />
+
+                          {ans.review.contextText && (
+                            <div className="space-y-2">
+                              <p className="text-xs font-medium text-muted-foreground">Ngữ cảnh</p>
+                              <div className="rounded-xl bg-muted/30 px-4 py-3 text-sm leading-6 text-foreground">
+                                <MarkdownRenderer content={ans.review.contextText} />
                               </div>
-                              <div className="text-sm font-bold text-foreground leading-relaxed line-clamp-2">
-                                <MarkdownRenderer content={ans.review.stemText} inline />
-                              </div>
                             </div>
+                          )}
 
-                            <div className="flex items-center gap-3 shrink-0 self-center">
-                              {isCorrect ? (
-                                <CheckCircle2 className="size-5 text-emerald-500" />
-                              ) : (
-                                <XCircle className="size-5 text-destructive" />
-                              )}
-                              {isExpanded ? <ChevronUp className="size-4 text-muted-foreground/40" /> : <ChevronDown className="size-4 text-muted-foreground/40" />}
-                            </div>
-                          </button>
+                          <div className="space-y-3">
+                            <p className="text-xs font-medium text-muted-foreground">Lựa chọn</p>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              {ans.review.options.map((opt, oIdx) => {
+                                const isSelected = ans.selectedOptionId === opt.id
+                                const isCorrectOption = opt.isCorrect === true || ans.review?.correctOptionId === opt.id
 
-                          {isExpanded && (
-                            <div className="px-5 pb-6 sm:px-12 pt-0 space-y-6 animate-in slide-in-from-top-2 duration-300">
-                              <Separator className="opacity-50" />
-
-                              {ans.review.contextText && (
-                                <div className="space-y-2">
-                                  <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">Ngữ cảnh</p>
-                                  <div className="text-sm text-foreground bg-muted/20 p-4 rounded-lg italic font-japanese">
-                                    <MarkdownRenderer content={ans.review.contextText} />
+                                return (
+                                  <div
+                                    key={opt.id}
+                                    className={cn(
+                                      'flex items-center gap-3 rounded-xl border px-3 py-3 text-sm',
+                                      isSelected && isCorrectOption && 'border-emerald-500 bg-emerald-500/5',
+                                      isSelected && !isCorrectOption && 'border-destructive bg-destructive/5',
+                                      !isSelected && isCorrectOption && 'border-emerald-500 bg-emerald-500/5',
+                                      !isSelected && !isCorrectOption && 'border-border bg-background',
+                                    )}
+                                  >
+                                    <div
+                                      className={cn(
+                                        'flex size-6 shrink-0 items-center justify-center rounded-md text-[10px] font-semibold',
+                                        isSelected && isCorrectOption && 'bg-emerald-500 text-white',
+                                        isSelected && !isCorrectOption && 'bg-destructive text-white',
+                                        !isSelected && isCorrectOption && 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+                                        !isSelected && !isCorrectOption && 'bg-muted text-muted-foreground',
+                                      )}
+                                    >
+                                      {oIdx + 1}
+                                    </div>
+                                    <div className="flex-1">
+                                      <MarkdownRenderer content={opt.contentText} inline />
+                                    </div>
+                                    {isSelected && <span className="text-[10px] text-muted-foreground">Bạn chọn</span>}
                                   </div>
-                                </div>
-                              )}
+                                )
+                              })}
+                            </div>
+                          </div>
 
-                              <div className="space-y-4">
-                                <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">Lựa chọn</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                  {ans.review.options.map((opt, oIdx) => {
-                                    const isSelected = ans.selectedOptionId === opt.id
-                                    const isCorrectOption = opt.isCorrect === true || ans.review?.correctOptionId === opt.id
-
-                                    return (
-                                      <div
-                                        key={opt.id}
-                                        className={cn(
-                                          "flex items-center gap-3 p-3 rounded-lg border text-sm transition-all",
-                                          isSelected && isCorrectOption && "border-emerald-500 bg-emerald-500/5",
-                                          isSelected && !isCorrectOption && "border-destructive bg-destructive/5",
-                                          !isSelected && isCorrectOption && "border-emerald-500 bg-emerald-500/5",
-                                          !isSelected && !isCorrectOption && "border-border bg-background"
-                                        )}
-                                      >
-                                        <div className={cn(
-                                          "size-6 rounded-md flex items-center justify-center font-bold text-[10px] border shrink-0",
-                                          isSelected && isCorrectOption && "bg-emerald-500 text-white border-emerald-500",
-                                          isSelected && !isCorrectOption && "bg-destructive text-white border-destructive",
-                                          !isSelected && isCorrectOption && "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-                                          !isSelected && !isCorrectOption && "bg-muted text-muted-foreground border-transparent"
-                                        )}>
-                                          {oIdx + 1}
-                                        </div>
-                                        <div className="flex-1 font-medium font-japanese">
-                                          <MarkdownRenderer content={opt.contentText} inline />
-                                        </div>
-                                        {isSelected && (
-                                          <span className="text-[9px] font-bold uppercase tracking-tighter opacity-40">Bạn chọn</span>
-                                        )}
-                                      </div>
-                                    )
-                                  })}
-                                </div>
+                          {ans.review.explanation && (
+                            <div className="space-y-2">
+                              <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                <Info className="size-3.5" />
+                                Giải thích
+                              </p>
+                              <div className="rounded-xl bg-primary/5 px-4 py-3 text-sm leading-6 text-foreground">
+                                <MarkdownRenderer content={ans.review.explanation} />
                               </div>
-
-                              {ans.review.explanation && (
-                                <div className="space-y-2">
-                                  <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest flex items-center gap-1.5">
-                                    <Info className="size-3" />
-                                    <span>Giải thích</span>
-                                  </p>
-                                  <div className="text-sm text-foreground bg-primary/[0.03] border border-primary/5 p-4 rounded-lg leading-relaxed">
-                                    <MarkdownRenderer content={ans.review.explanation} />
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           )}
                         </div>
-                      )
-                    })}
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-4 space-y-8">
-          <Card className="rounded-xl border-border/50 p-6 shadow-sm bg-muted/5">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="size-9 rounded-lg bg-white border border-border/50 flex items-center justify-center text-muted-foreground/30 shrink-0">
-                    <Calendar className="size-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none mb-1.5">Ngày nộp bài</p>
-                    <p className="text-sm font-bold text-foreground">
-                      {attempt.submittedAt ? format(new Date(attempt.submittedAt), 'dd/MM/yyyy HH:mm') : '—'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="size-9 rounded-lg bg-white border border-border/50 flex items-center justify-center text-muted-foreground/30 shrink-0 font-mono text-[10px] font-bold">
-                    ID
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest leading-none mb-1.5">Mã lần thi</p>
-                    <p className="text-sm font-bold text-foreground font-mono truncate opacity-60">
-                      {attemptId.toString().toUpperCase()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Separator className="bg-border/30" />
-
-              <div className="space-y-3">
-                <Button className="w-full h-10 rounded-xl font-bold bg-primary text-white hover:bg-primary/90 text-xs uppercase tracking-tight group" asChild>
-                  <Link href="/dashboard/jlpt-list-exam">
-                    Thi thử đề mới
-                    <ChevronRight className="size-3.5 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </Button>
-                <Button variant="ghost" className="w-full h-10 rounded-xl font-bold text-muted-foreground/60 transition-colors hover:text-foreground text-xs tracking-tight" asChild>
-                  <Link href="/jlpt/attempt/history">
-                    Xem lại lịch sử
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </Card>
-
-          <div className="p-6 rounded-xl border border-primary/10 bg-primary/[0.02] space-y-2.5">
-            <div className="flex items-center gap-2 text-primary/40 font-bold text-[10px] uppercase tracking-widest leading-none">
-              <Info className="size-3.5" />
-              <span>Lưu ý về điểm số</span>
-            </div>
-            <p className="text-sm text-muted-foreground/70 leading-relaxed font-medium">
-              Kết quả đã được chuẩn hóa (Scaled Score) theo hình thức thi JLPT thật. Hãy sử dụng đây như mốc tham khảo cho kỳ thi chính thức.
-            </p>
-          </div>
-        </div>
-      </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </TabsContent>
+            ))}
+          </Tabs>
+        </section>
+      )}
     </div>
   )
 }

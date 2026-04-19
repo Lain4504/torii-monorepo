@@ -404,7 +404,7 @@ export default function JlptQuestionsPage() {
       </AlertDialog>
 
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="shrink-0 border-b p-6">
             <SheetTitle>
               {currentQuestion ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}

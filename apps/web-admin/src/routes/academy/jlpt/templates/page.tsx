@@ -348,7 +348,7 @@ export default function JlptTemplatesPage() {
       </AlertDialog>
 
       <Sheet open={createOpen} onOpenChange={handleCloseCreate}>
-        <SheetContent className="w-full sm:max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
           <SheetHeader className="p-6 border-b shrink-0">
             <SheetTitle>Tạo đề thi JLPT</SheetTitle>
             <SheetDescription>

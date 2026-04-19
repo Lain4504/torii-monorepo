@@ -44,7 +44,7 @@ export default function JlptQuestionDetailPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto flex max-w-5xl flex-col gap-8 p-4 sm:p-6">
       <div className="flex items-center gap-4">
         <Link
           to="/academy/jlpt/questions"
@@ -53,7 +53,7 @@ export default function JlptQuestionDetailPage() {
           <ChevronLeft className="w-4 h-4" />
           Quay lại danh sách
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {isNew ? "Thêm câu hỏi mới" : "Chỉnh sửa câu hỏi"}
         </h1>
       </div>

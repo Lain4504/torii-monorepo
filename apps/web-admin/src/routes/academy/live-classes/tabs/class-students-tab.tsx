@@ -10,7 +10,7 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Plus, User, Users, Trash2 } from "lucide-react"
+import { AlertTriangle, Ban, Plus, User, Users, Trash2 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
 import { formatDate } from "@/lib/format-utils"
 import {
@@ -22,13 +22,15 @@ import {
 } from "@/lib/api/services/academy-enrollments"
 import { ClassEnrollmentSheet } from "@/components/academy/class-enrollment-sheet"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@workspace/ui/components/dialog"
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 
 interface ClassStudentsTabProps {
   liveClassId?: string
@@ -268,50 +270,68 @@ export function ClassStudentsTab({
         onSubmit={handleCreateEnrollment}
       />
 
-      {/* Dialog: Xác nhận hủy kích hoạt */}
-      <Dialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Xác nhận hủy kích hoạt</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn hủy kích hoạt ghi danh của học viên <strong>{selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}</strong>?
-              Hành động này sẽ thay đổi trạng thái thành CANCELLED.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmCancelOpen(false)}>Hủy</Button>
+      <AlertDialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-amber-500/10 text-amber-700 dark:text-amber-500">
+              <Ban className="size-5" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xác nhận hủy kích hoạt</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn hủy kích hoạt ghi danh của học viên{" "}
+              <span className="font-semibold text-foreground">
+                {selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}
+              </span>
+              ? Trạng thái sẽ chuyển thành CANCELLED.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" disabled={cancelEnrollment.isPending}>
+                Đóng
+              </Button>
+            </AlertDialogCancel>
             <Button
-              onClick={handleConfirmCancel}
+              onClick={() => void handleConfirmCancel()}
               disabled={cancelEnrollment.isPending}
             >
-              Xác nhận hủy
+              {cancelEnrollment.isPending ? "Đang xử lý..." : "Xác nhận hủy"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {/* Dialog: Xác nhận xóa ghi danh */}
-      <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa ghi danh</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa ghi danh của học viên <strong>{selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}</strong> khỏi lớp học này?
-              Hành động này <strong>không thể hoàn tác</strong>.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Hủy</Button>
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xác nhận xóa ghi danh</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn xóa ghi danh của học viên{" "}
+              <span className="font-semibold text-foreground">
+                {selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}
+              </span>{" "}
+              khỏi lớp? Thao tác này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" disabled={deleteEnrollment.isPending}>
+                Hủy
+              </Button>
+            </AlertDialogCancel>
             <Button
               variant="destructive"
-              onClick={handleConfirmDelete}
+              onClick={() => void handleConfirmDelete()}
               disabled={deleteEnrollment.isPending}
             >
-              Xác nhận xóa
+              {deleteEnrollment.isPending ? "Đang xóa..." : "Xác nhận xóa"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

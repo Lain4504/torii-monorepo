@@ -64,7 +64,7 @@ export type JlptMockAttemptHistoryItem = {
   id: string
   templateId: string
   status: string
-  level: string
+  levelCode: string
   startedAt: string | null
   submittedAt: string | null
   template: {
@@ -172,4 +172,3 @@ export function useJlptMockTemplates(levelCode?: string) {
     queryFn: () => jlptMockApi.findTemplates({ levelCode }),
   })
 }
-

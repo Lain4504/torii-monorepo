@@ -5,7 +5,7 @@ import { useAcademyCourseProfile, useSubmitAcademyCourseProfileForApproval } fro
 import { useAcademyLiveClasses } from "@/lib/api/services/academy-live-classes"
 import { useAcademyVodPackages } from "@/lib/api/services/academy-vod-packages"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical, Eye } from "lucide-react"
+import { AlertTriangle, ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText, Send, GripVertical, Eye } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -33,6 +33,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import {
   Card,
   CardContent,
@@ -871,28 +881,33 @@ export default function CourseProfileDetailPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
+      <AlertDialog
         open={deleteModuleConfirm.open}
         onOpenChange={(open) => {
           if (!open) setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })
         }}
       >
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa mô-đun</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa mô-đun <strong>{deleteModuleConfirm.moduleTitle}</strong>? Tất cả bài học bên trong mô-đun này cũng sẽ bị xóa.
-              Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })}
-              disabled={deleteModuleMutation.isPending}
-            >
-              Hủy
-            </Button>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xác nhận xóa mô-đun</AlertDialogTitle>
+            <AlertDialogDescription>
+              Xóa mô-đun{" "}
+              <span className="font-semibold text-foreground">{deleteModuleConfirm.moduleTitle}</span>
+              ? Toàn bộ bài học trong mô-đun cũng bị xóa. Không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button
+                variant="outline"
+                disabled={deleteModuleMutation.isPending}
+              >
+                Hủy
+              </Button>
+            </AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={async () => {
@@ -911,33 +926,39 @@ export default function CourseProfileDetailPage() {
               }}
               disabled={deleteModuleMutation.isPending}
             >
-              Xóa mô-đun
+              {deleteModuleMutation.isPending ? "Đang xóa..." : "Xóa mô-đun"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <Dialog
+      <AlertDialog
         open={deleteLessonConfirm.open}
         onOpenChange={(open) => {
           if (!open) setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })
         }}
       >
-        <DialogContent className="sm:max-w-[480px]">
-          <DialogHeader>
-            <DialogTitle>Xác nhận xóa bài học</DialogTitle>
-            <DialogDescription>
-              Bạn có chắc chắn muốn xóa bài học <strong>{deleteLessonConfirm.lessonTitle}</strong>? Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })}
-              disabled={deleteLessonMutation.isPending}
-            >
-              Hủy
-            </Button>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xác nhận xóa bài học</AlertDialogTitle>
+            <AlertDialogDescription>
+              Xóa bài học{" "}
+              <span className="font-semibold text-foreground">{deleteLessonConfirm.lessonTitle}</span>
+              ? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button
+                variant="outline"
+                disabled={deleteLessonMutation.isPending}
+              >
+                Hủy
+              </Button>
+            </AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={async () => {
@@ -953,11 +974,11 @@ export default function CourseProfileDetailPage() {
               }}
               disabled={deleteLessonMutation.isPending}
             >
-              Xóa bài học
+              {deleteLessonMutation.isPending ? "Đang xóa..." : "Xóa bài học"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

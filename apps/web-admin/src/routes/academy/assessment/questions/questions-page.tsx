@@ -26,6 +26,7 @@ import {
   listPageSearchWrapClass,
   listPageToolbarRootClass,
 } from "@/lib/ui-shell"
+import { cn } from "@workspace/ui/lib/utils"
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("")
@@ -121,6 +122,13 @@ export default function QuestionsPage() {
     [AcademyQuestionCategoryType.LISTENING]: "Nghe hiểu",
   }
 
+  /** Bảng chỉ cần preview: bỏ thẻ HTML/Markdown để text xuống dòng đúng (TableCell mặc định nowrap). */
+  const stemPreviewPlain = (stem: string | null | undefined) => {
+    if (!stem?.trim()) return "—"
+    const plain = stem.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+    return plain || "—"
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -184,24 +192,35 @@ export default function QuestionsPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className={dataTableShellClass}>
-        <Table>
+      {/* Table — mobile: cuộn ngang, cột câu hỏi min-width rộng để giảm đoạn dọc */}
+      <div className={cn(dataTableShellClass, "overflow-x-auto")}>
+        <Table className="w-full min-w-[44rem] table-fixed">
+          <colgroup>
+            <col className="w-[52px]" />
+            <col className="w-[42%]" />
+            <col className="w-24" />
+            <col className="w-28" />
+            <col className="w-24" />
+            <col className="w-28" />
+            <col className="w-[220px]" />
+          </colgroup>
           <TableHeader className={dataTableHeaderClass}>
             <TableRow>
-              <TableHead className="w-[60px] text-center">#</TableHead>
-              <TableHead className="w-[420px] pl-4">Câu hỏi</TableHead>
-              <TableHead>Cấp độ</TableHead>
-              <TableHead>Nhóm</TableHead>
-              <TableHead className="w-[90px] text-center">Media</TableHead>
-              <TableHead>Ngày tạo</TableHead>
-              <TableHead className="text-right pr-4 w-[100px]">Thao tác</TableHead>
+              <TableHead className="w-[52px] shrink-0 text-center">#</TableHead>
+              <TableHead className="pl-4 text-left whitespace-normal">
+                Câu hỏi
+              </TableHead>
+              <TableHead className="whitespace-nowrap">Cấp độ</TableHead>
+              <TableHead className="whitespace-nowrap">Nhóm</TableHead>
+              <TableHead className="w-[90px] shrink-0 text-center">Media</TableHead>
+              <TableHead className="whitespace-nowrap">Ngày tạo</TableHead>
+              <TableHead className="w-[200px] shrink-0 text-right pr-4">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                    <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
                   Đang tải dữ liệu...
                 </TableCell>
               </TableRow>
@@ -217,8 +236,10 @@ export default function QuestionsPage() {
                   <TableCell className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">
                     {idx + 1}
                   </TableCell>
-                  <TableCell className="pl-4 font-medium max-w-[420px]">
-                    <div className="whitespace-normal break-words text-sm">{q.stem}</div>
+                  <TableCell className="py-3 pl-4 align-top font-medium whitespace-normal [word-break:break-word]">
+                    <div className="text-left text-sm leading-relaxed text-foreground">
+                      {stemPreviewPlain(q.stem)}
+                    </div>
                   </TableCell>
                   <TableCell>{levelBadge(q.level)}</TableCell>
                   <TableCell>
