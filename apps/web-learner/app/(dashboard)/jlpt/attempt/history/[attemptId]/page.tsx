@@ -111,20 +111,20 @@ export default function JlptAttemptHistoryDetailPage() {
   useEffect(() => {
     if (!attemptId) return
 
-    ;(async () => {
-      try {
-        setErrorMessage(null)
-        setLoading(true)
-        const res = await jlptMockApi.getAttemptById(attemptId)
-        setData(res as unknown as JlptAttemptDetail)
-      } catch (e: any) {
-        console.error(e)
-        setErrorMessage(e?.message ?? 'Không tải được kết quả bài thi')
-        toast.error(e?.message ?? 'Không tải được kết quả bài thi')
-      } finally {
-        setLoading(false)
-      }
-    })()
+      ; (async () => {
+        try {
+          setErrorMessage(null)
+          setLoading(true)
+          const res = await jlptMockApi.getAttemptById(attemptId)
+          setData(res as unknown as JlptAttemptDetail)
+        } catch (e: any) {
+          console.error(e)
+          setErrorMessage(e?.message ?? 'Không tải được kết quả bài thi')
+          toast.error(e?.message ?? 'Không tải được kết quả bài thi')
+        } finally {
+          setLoading(false)
+        }
+      })()
   }, [attemptId])
 
   const groupedSections = useMemo(() => {
@@ -191,7 +191,7 @@ export default function JlptAttemptHistoryDetailPage() {
   const totalScaled = scores?.totalScaled ?? '—'
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:max-w-none sm:space-y-8 sm:px-6">
+    <div className="w-full space-y-6 px-0 py-8 sm:mx-auto sm:max-w-6xl sm:px-6">
       <header className="space-y-4 border-b border-border pb-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 space-y-3">
@@ -236,8 +236,8 @@ export default function JlptAttemptHistoryDetailPage() {
         </div>
       </header>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_300px]">
-        <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm sm:p-6">
+      <section className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1.45fr)_300px]">
+        <div className="overflow-hidden rounded-2xl border border-border/50 bg-card p-4 shadow-sm sm:p-6">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <ClipboardCheck className="size-5" />
@@ -248,30 +248,34 @@ export default function JlptAttemptHistoryDetailPage() {
             </div>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
             {sectionRows.map((row) => (
-              <div key={row.key} className="rounded-2xl bg-muted/20 px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{row.label}</p>
-                <div className="mt-2 text-3xl font-semibold tracking-tight">{row.value ?? '—'}</div>
-                <p className="mt-1 text-xs text-muted-foreground">Tối đa 60 điểm</p>
+              <div key={row.key} className="flex min-w-0 flex-col rounded-2xl bg-muted/20 px-2.5 py-3 sm:px-5 sm:py-4">
+                <p className="truncate text-[9.5px] font-bold uppercase tracking-tight text-muted-foreground sm:text-[11px] sm:tracking-[0.18em]">
+                  {row.label}
+                </p>
+                <div className="mt-1 flex-1 text-xl font-bold tracking-tight sm:mt-2 sm:text-3xl">{row.value ?? '—'}</div>
+                <p className="mt-1 text-[9.5px] text-muted-foreground sm:text-xs">Tối đa 60</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 rounded-2xl bg-primary/5 px-4 py-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Trophy className="size-5" />
+          <div className="mt-4 rounded-2xl bg-primary/5 px-3 py-3 sm:px-4 sm:py-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Trophy className="size-4" />
                 </div>
-                <div>
-                  <p className="text-sm font-medium">Tổng điểm</p>
-                  <p className="text-xs text-muted-foreground">Thang điểm chuẩn JLPT mock</p>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold sm:text-base">Tổng điểm</p>
+                  <p className="truncate text-[10px] text-muted-foreground">Chuẩn JLPT mock</p>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-4xl font-semibold tracking-tight text-primary">{totalScaled}</div>
-                <p className="text-xs text-muted-foreground">/ 180 điểm</p>
+              <div className="shrink-0 text-right">
+                <div className="text-2xl font-bold tracking-tight text-primary sm:text-4xl">
+                  {totalScaled}
+                </div>
+                <p className="text-[9px] text-muted-foreground sm:text-xs">/ 180 điểm</p>
               </div>
             </div>
           </div>
@@ -291,12 +295,12 @@ export default function JlptAttemptHistoryDetailPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex size-9 items-center justify-center rounded-2xl bg-muted text-[10px] font-semibold text-muted-foreground">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-muted text-[10px] font-semibold text-muted-foreground">
                   ID
                 </div>
-                <div className="min-w-0">
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Mã lần thi</p>
-                  <p className="mt-1 truncate font-mono text-sm text-foreground/80">
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <p className="truncate text-[11px] uppercase tracking-[0.16em] text-muted-foreground sm:tracking-[0.18em]">Mã lần thi</p>
+                  <p className="mt-1 truncate font-mono text-xs text-foreground/80 sm:text-sm">
                     {attemptId.toString().toUpperCase()}
                   </p>
                 </div>
