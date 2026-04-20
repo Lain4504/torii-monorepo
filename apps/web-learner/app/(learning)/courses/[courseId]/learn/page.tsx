@@ -188,7 +188,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                     </span>
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-6 space-y-1 relative overflow-visible">
+            <AccordionContent className="pt-1 pb-3 space-y-1 relative overflow-visible">
                 {mod.lessons?.map((lesson: any) => {
                     const isActive = lesson.id === currentLessonId;
                     const isDone = completedIds.has(lessonProgressId(lesson));
@@ -244,7 +244,8 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                 })}
 
                 {moduleMilestones.length > 0 && (
-                    <div className="px-1 mt-2 space-y-1.5">
+                    <div className="mx-2 mt-3 rounded-lg border border-dashed border-primary/20 bg-primary/5 p-2.5 space-y-1.5">
+                        <p className="text-[10px] font-bold text-primary/70 uppercase tracking-wider px-1">Bài kiểm tra</p>
                         {moduleMilestones.map((m) => {
                             const moduleLessons = mod.lessons || [];
                             const canOpenModuleMilestone =
@@ -253,14 +254,13 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                                     completedIds.has(lessonProgressId(lesson))
                                 );
                             return (
-                                <div key={m.assessmentId} className="pl-6 border-l-2 border-primary/10 ml-5 relative z-10">
-                                    <MilestoneItem
-                                        milestone={m}
-                                        forceLocked={!canOpenModuleMilestone}
-                                        compact
-                                        onClick={() => onSelectMilestone(m)}
-                                    />
-                                </div>
+                                <MilestoneItem
+                                    key={m.assessmentId}
+                                    milestone={m}
+                                    forceLocked={!canOpenModuleMilestone}
+                                    compact
+                                    onClick={() => onSelectMilestone(m)}
+                                />
                             );
                         })}
                     </div>
@@ -317,17 +317,6 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
     return (
         <article className="animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-in-out">
             <div className="max-w-3xl mx-auto space-y-12">
-                <header className="space-y-8">
-                    <div className="flex flex-col items-center sm:items-start gap-4">
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                            Tài liệu học tập
-                        </Badge>
-                        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight text-center sm:text-left [text-wrap:balance]">
-                            {lesson?.title}
-                        </h1>
-                    </div>
-
-                </header>
 
                 {lesson?.content ? (
                     <MarkdownRenderer
@@ -939,7 +928,7 @@ export default function CourseLearnPage() {
                         )}
                     </div>
 
-                    <div className="flex-1 w-full max-w-5xl mx-auto py-10 px-4 sm:px-6">
+                    <div className={cn("flex-1 w-full mx-auto py-10 px-4 sm:px-6", isArticleLesson ? "max-w-3xl" : "max-w-5xl")}>
                         <section className="space-y-8">
                             <div className="space-y-4">
                                 <div className="flex flex-wrap items-center gap-2">
@@ -947,7 +936,7 @@ export default function CourseLearnPage() {
                                     {isCurrentDone && <Badge className="bg-emerald-500 text-white border-none">Đã hoàn thành</Badge>}
                                 </div>
                                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                                    <h2 className="text-2xl sm:text-3xl font-normal tracking-tight">
+                                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
                                         {currentLesson?.title ?? 'Chọn bài học'}
                                     </h2>
                                     <div className="grid w-full grid-cols-2 gap-2 md:w-auto">
