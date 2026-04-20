@@ -2,13 +2,13 @@ import React, { memo } from 'react';
 
 import Avatar from '@/components/participants/participant/avatar';
 import ParticipantName from '@/components/participants/participant/name';
-import RaiseHandIcon from '@/components/participants/participant/icons/raiseHand';
+import RaiseHandIcon from '@/components/participants/participant/icons/raise-hand';
 import MicIcon from '@/components/participants/participant/icons/mic';
 import WebcamIcon from '@/components/participants/participant/icons/webcam';
-import ScreenShareIcon from '@/components/participants/participant/icons/screenShare';
+import ScreenShareIcon from '@/components/participants/participant/icons/screen-share';
 import MenuIcon from '@/components/participants/participant/icons/menu';
 import VisibilityIcon from '@/components/participants/participant/icons/visibility';
-import PresenterIcon from '@/components/participants/participant/icons/presenterIcon';
+import PresenterIcon from '@/components/participants/participant/icons/presenter-icon';
 import WaitingApproval from '@/components/participants/participant/waiting-approval';
 
 import { ICurrentUser } from '@/store/slices/interfaces/session';

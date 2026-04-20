@@ -6,13 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: remove unused Roadmap module and related components">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-class/live-class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-class/live-class.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/live-class-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/live-class-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/create-coupon-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/coupons/edit-coupon-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/available-courses/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/available-courses/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/courses/live-class-dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/courses/live-class-dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-class.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/presenterIcon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/presenter-icon.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/raiseHand.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/raise-hand.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/screenShare.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/icons/screen-share.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/components/participants/participant/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/mobile/instructor_profile_integration.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/mobile/mobile_integration_v3.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/spec/JLPT_MOCK_EXAM_SPEC.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +25,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1909" />
+    <option name="cachedIndexableFilesCount" value="1037347" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -120,7 +120,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix-w-12-capstone&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -437,6 +437,9 @@
       <workItem from="1775966402266" duration="3382000" />
       <workItem from="1776003909935" duration="3313000" />
       <workItem from="1776356244598" duration="349000" />
+      <workItem from="1776616750780" duration="18000" />
+      <workItem from="1776652207110" duration="2079000" />
+      <workItem from="1776658581546" duration="444000" />
     </task>
     <task id="LOCAL-01216" summary="feat: introduce AcademyQuestionCategoryType enum and refactor question handling">
       <option name="closed" value="true" />
