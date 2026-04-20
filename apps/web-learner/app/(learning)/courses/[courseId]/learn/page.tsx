@@ -188,7 +188,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                     </span>
                 </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-1 pb-6 space-y-1 relative overflow-visible">
+            <AccordionContent className="pt-1 pb-3 space-y-1 relative overflow-visible">
                 {mod.lessons?.map((lesson: any) => {
                     const isActive = lesson.id === currentLessonId;
                     const isDone = completedIds.has(lessonProgressId(lesson));
@@ -244,7 +244,8 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                 })}
 
                 {moduleMilestones.length > 0 && (
-                    <div className="px-1 mt-2 space-y-1.5">
+                    <div className="mx-2 mt-3 rounded-lg border border-dashed border-primary/20 bg-primary/5 p-2.5 space-y-1.5">
+                        <p className="text-[10px] font-bold text-primary/70 uppercase tracking-wider px-1">Bài kiểm tra</p>
                         {moduleMilestones.map((m) => {
                             const moduleLessons = mod.lessons || [];
                             const canOpenModuleMilestone =
@@ -253,14 +254,13 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
                                     completedIds.has(lessonProgressId(lesson))
                                 );
                             return (
-                                <div key={m.assessmentId} className="pl-6 border-l-2 border-primary/10 ml-5 relative z-10">
-                                    <MilestoneItem
-                                        milestone={m}
-                                        forceLocked={!canOpenModuleMilestone}
-                                        compact
-                                        onClick={() => onSelectMilestone(m)}
-                                    />
-                                </div>
+                                <MilestoneItem
+                                    key={m.assessmentId}
+                                    milestone={m}
+                                    forceLocked={!canOpenModuleMilestone}
+                                    compact
+                                    onClick={() => onSelectMilestone(m)}
+                                />
                             );
                         })}
                     </div>
@@ -939,7 +939,7 @@ export default function CourseLearnPage() {
                         )}
                     </div>
 
-                    <div className="flex-1 w-full max-w-5xl mx-auto py-10 px-4 sm:px-6">
+                    <div className={cn("flex-1 w-full mx-auto py-10 px-4 sm:px-6", isArticleLesson ? "max-w-3xl" : "max-w-5xl")}>
                         <section className="space-y-8">
                             <div className="space-y-4">
                                 <div className="flex flex-wrap items-center gap-2">
