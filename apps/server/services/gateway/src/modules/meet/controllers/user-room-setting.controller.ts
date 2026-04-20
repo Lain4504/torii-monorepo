@@ -99,14 +99,14 @@ export class UserRoomSettingController {
         sendCommonProtobufResponse(
           res,
           false,
-          'notifications.user-info-not-found',
+          'Không tìm thấy thông tin người dùng trong phòng.',
         );
         return;
       } else if (userStatus === 'online') {
         sendCommonProtobufResponse(
           res,
           false,
-          'notifications.room-disconnected-duplicate-entry',
+          'Cùng tài khoản đã tham gia phòng từ thiết bị khác; không thể xác minh lúc này.',
         );
         return;
       }
@@ -129,7 +129,11 @@ export class UserRoomSettingController {
       );
 
       if (isBlocked) {
-        sendCommonProtobufResponse(res, false, 'notifications.you-are-blocked');
+        sendCommonProtobufResponse(
+          res,
+          false,
+          'Bạn đã bị chặn tham gia phòng này.',
+        );
         return;
       }
     } catch (error) {
@@ -164,7 +168,11 @@ export class UserRoomSettingController {
       const meta = roomData.meta ?? roomData.metadata;
 
       if (!rr?.isActive) {
-        sendCommonProtobufResponse(res, false, 'notifications.room-not-active');
+        sendCommonProtobufResponse(
+          res,
+          false,
+          'Phòng không hoạt động hoặc đã kết thúc.',
+        );
         return;
       }
 
@@ -177,7 +185,7 @@ export class UserRoomSettingController {
           sendCommonProtobufResponse(
             res,
             false,
-            'notifications.max-num-participates-exceeded',
+            'Đã đạt số người tham gia tối đa cho phòng.',
           );
           return;
         }
@@ -208,7 +216,7 @@ export class UserRoomSettingController {
 
       const response = create(VerifyTokenResSchema, {
         status: true,
-        msg: 'token is valid',
+        msg: 'Token hợp lệ.',
         natsWsUrls: natsWsUrls,
         serverVersion: version,
         roomId: roomId,
@@ -307,7 +315,7 @@ export class UserRoomSettingController {
         this.natsClient.send({ cmd: 'user.updateLockSettings' }, request),
       );
 
-      sendCommonProtobufResponse(res, true, 'success');
+      sendCommonProtobufResponse(res, true, 'thành công');
     } catch (error) {
       sendCommonProtobufResponse(
         res,
@@ -394,7 +402,7 @@ export class UserRoomSettingController {
         this.natsClient.send({ cmd: 'user.muteUnMuteTrack' }, request),
       );
 
-      sendCommonProtobufResponse(res, true, 'success');
+      sendCommonProtobufResponse(res, true, 'thành công');
     } catch (error) {
       sendCommonProtobufResponse(
         res,
@@ -484,7 +492,7 @@ export class UserRoomSettingController {
         this.natsClient.send({ cmd: 'user.removeParticipant' }, request),
       );
 
-      sendCommonProtobufResponse(res, true, 'success');
+      sendCommonProtobufResponse(res, true, 'thành công');
     } catch (error) {
       sendCommonProtobufResponse(
         res,
@@ -544,7 +552,7 @@ export class UserRoomSettingController {
         this.natsClient.send({ cmd: 'user.switchPresenter' }, request),
       );
 
-      sendCommonProtobufResponse(res, true, 'success');
+      sendCommonProtobufResponse(res, true, 'thành công');
     } catch (error) {
       sendCommonProtobufResponse(
         res,

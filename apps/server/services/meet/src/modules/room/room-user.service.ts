@@ -179,7 +179,7 @@ export class RoomUserService {
             sid: roomId,
             roomId: roomId,
             userId: req.userInfo.userId,
-            msg: 'notifications.room-disconnected-duplicate-entry',
+            msg: 'Phiên cũ bị ngắt vì cùng tài khoản đã tham gia từ nơi khác.',
           });
 
           // Wait for user to be fully offline
@@ -369,7 +369,7 @@ export class RoomUserService {
       if (data.userId === 'all') {
         // Handle batch update for entire room
         await this.handleUpdateAllUsersLockSettings(data);
-        return { status: true, msg: 'All users lock settings updated' };
+        return { status: true, msg: 'Đã cập nhật khóa cho tất cả người tham gia.' };
       } else {
         // For a single user, perform the update and broadcast immediately
         this.logger.log('Request to update single user lock settings');
@@ -379,7 +379,7 @@ export class RoomUserService {
           data.service,
           data.direction,
         );
-        return { status: true, msg: 'User lock settings updated' };
+        return { status: true, msg: 'Đã cập nhật khóa cho người tham gia.' };
       }
     } catch (error) {
       this.logger.error(
@@ -555,7 +555,7 @@ export class RoomUserService {
       // Handle "all" users case
       if (data.userId === 'all') {
         await this.muteUnmuteAllMic(data);
-        return { status: true, msg: 'All microphones muted/unmuted' };
+        return { status: true, msg: 'Đã tắt/bật mic cho tất cả người tham gia.' };
       }
 
       // Step 1: Load participant info from LiveKit
@@ -599,7 +599,7 @@ export class RoomUserService {
       );
 
       this.logger.log('Successfully muted/unmuted track');
-      return { status: true, msg: 'Track mute status updated' };
+      return { status: true, msg: 'Đã cập nhật trạng thái tắt/bật tiếng.' };
     } catch (error) {
       this.logger.error(`Failed to mute/unmute track: ${error.message}`);
       return { status: false, msg: error.message };
@@ -715,7 +715,7 @@ export class RoomUserService {
         await this.natsSystemEvents.broadcastSystemEventToRoom(
           NatsMsgServerToClientEvents.SESSION_ENDED,
           data.roomId,
-          'notifications.room-disconnected-participant-removed',
+          'Bạn đã bị đưa ra khỏi phòng.',
           data.userId,
         );
       } catch (error) {
@@ -746,7 +746,7 @@ export class RoomUserService {
       }
 
       this.logger.log('Participant removed successfully');
-      return { status: true, msg: 'Participant removed successfully' };
+      return { status: true, msg: 'Đã đưa người tham gia ra khỏi phòng thành công.' };
     } catch (error) {
       this.logger.error(`Error removing participant: ${error.message}`);
       return { status: false, msg: error.message };
@@ -769,7 +769,7 @@ export class RoomUserService {
 
     try {
       await this.switchPresenter(data);
-      return { status: true, msg: 'Presenter switched successfully' };
+      return { status: true, msg: 'Đã chuyển người trình bày thành công.' };
     } catch (error) {
       this.logger.error(`Failed to switch presenter: ${error.message}`);
       return { status: false, msg: error.message };

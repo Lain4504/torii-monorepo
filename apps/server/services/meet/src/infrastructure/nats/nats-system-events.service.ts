@@ -436,7 +436,7 @@ export class NatsSystemEventsService {
     const rInfo = await this.natsRoomService.getRoomInfo(roomId);
     if (!rInfo) {
       this.logger.error(`Room info not found for ${roomId}`);
-      await this.notifyErrorMsg(roomId, 'room information not found', userId);
+      await this.notifyErrorMsg(roomId, 'Không tìm thấy thông tin phòng.', userId);
       return;
     }
 
@@ -444,7 +444,7 @@ export class NatsSystemEventsService {
     const userInfo = await this.natsUserInfo.getUserInfo(roomId, userId);
     if (!userInfo) {
       this.logger.error(`User info not found for ${userId} in room ${roomId}`);
-      await this.notifyErrorMsg(roomId, 'no user found', userId);
+      await this.notifyErrorMsg(roomId, 'Không tìm thấy người dùng.', userId);
       return;
     }
 
@@ -503,7 +503,7 @@ export class NatsSystemEventsService {
         this.logger.error(
           `User info not found for ${userId} in room ${roomId}`,
         );
-        await this.notifyErrorMsg(roomId, 'no user found', userId);
+        await this.notifyErrorMsg(roomId, 'Không tìm thấy người dùng.', userId);
         return undefined;
       }
       userInfo = info;

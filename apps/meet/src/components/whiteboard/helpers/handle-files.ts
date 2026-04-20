@@ -433,8 +433,10 @@ export const preloadOfficeFilePages = (
       return;
     }
 
-    const url = SERVER_URL + '/api/whiteboard/listOfficeFiles' +
-      fileToPreload.filePath;
+    const cleanPath = fileToPreload.filePath.startsWith('/')
+      ? fileToPreload.filePath
+      : `/${fileToPreload.filePath}`;
+    const url = SERVER_URL + '/api/whiteboard/listOfficeFiles' + cleanPath;
 
     // Use the shared helper to fetch and cache the image. It will automatically handle existing entries.
     await fetchAndCacheImage(url);

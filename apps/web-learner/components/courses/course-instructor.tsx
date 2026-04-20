@@ -82,10 +82,7 @@ export function CourseInstructor({ course }: CourseInstructorProps) {
 
                     <div className="flex gap-4">
                         <Link href={instructorHref} className="text-sm font-bold text-primary hover:underline">
-                            Các khóa học cùng giảng viên
-                        </Link>
-                        <Link href={instructorHref} className="text-sm font-bold text-primary hover:underline">
-                            Xem hồ sơ đầy đủ
+                            Xem hồ sơ đầy đủ & các khóa học
                         </Link>
                     </div>
                 </div>

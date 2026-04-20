@@ -193,27 +193,31 @@ function AuthenticatedDashboardPage() {
                                                     {mainCourse.instructorName || 'Đang cập nhật'}
                                                 </p>
                                             </div>
-                                            <div className="rounded-2xl border border-border/70 bg-card px-4 py-4">
-                                                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/80">
-                                                    Bài học
-                                                </p>
-                                                <p className="mt-2 font-semibold text-foreground">
-                                                    {completedLessons}/{totalLessons} đã hoàn thành
-                                                </p>
-                                            </div>
+                                            {!mainCourse.liveClassId && (
+                                                <div className="rounded-2xl border border-border/70 bg-card px-4 py-4">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground/80">
+                                                        Bài học
+                                                    </p>
+                                                    <p className="mt-2 font-semibold text-foreground">
+                                                        {completedLessons}/{totalLessons} đã hoàn thành
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
 
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between text-sm font-semibold">
-                                                <span>Tiến độ khóa học</span>
-                                                <span className="text-primary">{mainCourse.progress}%</span>
+                                        {!mainCourse.liveClassId && (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between text-sm font-semibold">
+                                                    <span>Tiến độ khóa học</span>
+                                                    <span className="text-primary">{mainCourse.progress}%</span>
+                                                </div>
+                                                <Progress value={mainCourse.progress} className="h-2.5 rounded-full" />
+                                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                                    <span>Tiếp tục từ bài gần nhất</span>
+                                                    <span>{remainingLessons} bài còn lại</span>
+                                                </div>
                                             </div>
-                                            <Progress value={mainCourse.progress} className="h-2.5 rounded-full" />
-                                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                                <span>Tiếp tục từ bài gần nhất</span>
-                                                <span>{remainingLessons} bài còn lại</span>
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-col gap-3 sm:flex-row">

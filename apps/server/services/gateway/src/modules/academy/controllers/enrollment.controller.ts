@@ -33,14 +33,15 @@ import {
 @Controller('api/academy/enrollments')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class EnrollmentController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   private isAcademicManager(req: ReqWithRequester): boolean {
     const permissions = req.requester?.permissions || [];
     return (
       permissions.includes('lms.delivery.approve') ||
       permissions.includes('lms.approval.manage') ||
-      permissions.includes('ops.user.manage')
+      permissions.includes('ops.user.manage') ||
+      permissions.includes('ops.user.view')
     );
   }
 

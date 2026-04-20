@@ -84,7 +84,7 @@ export default function StudySetDetailPage() {
     });
     const [openAIDialog, setOpenAIDialog] = React.useState(false);
     const [isCreatingWithAI, setIsCreatingWithAI] = React.useState(false);
-    
+
     const [page, setPage] = React.useState(1);
     const [searchQuery, setSearchQuery] = React.useState('');
     const [openCreateDialog, setOpenCreateDialog] = React.useState(false);
@@ -111,8 +111,8 @@ export default function StudySetDetailPage() {
         setEditSetDescription(set.description || '');
     }, [set?.id, set?.title, set?.description]);
 
-    const filteredCards = cards.filter(c => 
-        c.term.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filteredCards = cards.filter(c =>
+        c.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.definition.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -307,7 +307,7 @@ export default function StudySetDetailPage() {
     };
 
     return (
-            <div className="container mx-auto max-w-5xl space-y-4 px-3 py-4 animate-in fade-in sm:space-y-5 sm:px-4 sm:py-6">
+        <div className="container mx-auto max-w-5xl space-y-4 px-3 py-4 animate-in fade-in sm:space-y-5 sm:px-4 sm:py-6">
             <header className="space-y-3">
                 <Button
                     variant="ghost"
@@ -413,7 +413,7 @@ export default function StudySetDetailPage() {
                             />
                         </div>
                         {canCreateCard && (
-                            <div className="flex gap-2 w-full sm:w-auto">
+                            <div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row">
                                 <Button
                                     size="sm"
                                     variant="outline"

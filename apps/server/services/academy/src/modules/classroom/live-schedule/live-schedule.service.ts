@@ -1250,7 +1250,8 @@ export class LiveScheduleService {
     })) as any;
 
     if (fullRequest?.session?.liveClass) {
-      const { liveClass, session } = fullRequest.session;
+      const session = fullRequest.session;
+      const liveClass = session.liveClass;
       const oldVnDate = this.formatDateInTimeZone(session.sessionDate, 'Asia/Ho_Chi_Minh');
       const newVnDate = this.formatDateInTimeZone(fullRequest.proposedDate!, 'Asia/Ho_Chi_Minh');
 

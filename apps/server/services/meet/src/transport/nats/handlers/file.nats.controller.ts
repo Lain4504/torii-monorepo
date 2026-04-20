@@ -5,7 +5,9 @@ import {
   UploadedFileMergeReq,
   GetRoomUploadedFilesReq,
   UploadBase64EncodedDataReq,
+  RoomUploadedFileType,
 } from '@workspace/protocol';
+import { RegisterUploadedFileMetaReq } from '@server/meet/modules/file/file.service';
 
 @Controller()
 export class FileNatsController {
@@ -21,6 +23,14 @@ export class FileNatsController {
     @Payload() req: UploadBase64EncodedDataReq,
   ): Promise<any> {
     return this.fileService.uploadBase64EncodedData(req);
+  }
+
+  @MessagePattern({ cmd: 'file.registerUploadedMeta' })
+  async handleRegisterUploadedMeta(
+    @Payload()
+    req: RegisterUploadedFileMetaReq & { fileType: RoomUploadedFileType },
+  ): Promise<any> {
+    return this.fileService.registerUploadedFileMetadata(req);
   }
 
   @MessagePattern({ cmd: 'file.convertWhiteboard' })
