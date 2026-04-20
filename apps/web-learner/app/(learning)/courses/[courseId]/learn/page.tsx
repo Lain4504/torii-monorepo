@@ -317,17 +317,6 @@ function ArticleViewer({ lesson, onComplete, onPrev, onNext, navDisabledPrev, na
     return (
         <article className="animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-in-out">
             <div className="max-w-3xl mx-auto space-y-12">
-                <header className="space-y-8">
-                    <div className="flex flex-col items-center sm:items-start gap-4">
-                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                            Tài liệu học tập
-                        </Badge>
-                        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-tight text-center sm:text-left [text-wrap:balance]">
-                            {lesson?.title}
-                        </h1>
-                    </div>
-
-                </header>
 
                 {lesson?.content ? (
                     <MarkdownRenderer
@@ -947,7 +936,7 @@ export default function CourseLearnPage() {
                                     {isCurrentDone && <Badge className="bg-emerald-500 text-white border-none">Đã hoàn thành</Badge>}
                                 </div>
                                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                                    <h2 className="text-2xl sm:text-3xl font-normal tracking-tight">
+                                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
                                         {currentLesson?.title ?? 'Chọn bài học'}
                                     </h2>
                                     <div className="grid w-full grid-cols-2 gap-2 md:w-auto">
