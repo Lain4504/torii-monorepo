@@ -348,7 +348,7 @@ function AuthenticatedDashboardPage() {
                         <h3 className="mt-1 text-2xl font-bold">Những khu vực bạn dùng thường xuyên</h3>
                     </div>
                     <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                        Tôi đưa các link này xuống một section riêng để tránh sidebar quá đặc và để vùng hero có nhiều khoảng thở hơn.
+                        Truy cập nhanh vào các tính năng quan trọng để tối ưu hóa quá trình học tập của bạn.
                     </p>
                 </div>
 

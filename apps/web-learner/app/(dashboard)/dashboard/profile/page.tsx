@@ -50,6 +50,33 @@ const achievementIconMap: Record<string, any> = {
     Zap,
 }
 
+const categoryLabels: Record<string, string> = {
+    STREAK: 'Chuỗi học tập',
+    CONSISTENCY: 'Kiên trì',
+    LEARNING_PROGRESS: 'Tiến bộ học tập',
+    RECOVERY: 'Phục hồi',
+    SOCIAL: 'Xã hội',
+    MASTERY: 'Thành thạo',
+}
+
+const requirementTypeLabels: Record<string, string> = {
+    type: 'Loại điều kiện',
+    value: 'Giá trị mục tiêu',
+    days: 'Số ngày',
+    lessons: 'Số bài học',
+    points: 'Điểm thưởng',
+    xp: 'Kinh nghiệm (XP)',
+    status: 'Trạng thái',
+}
+
+const requirementValueLabels: Record<string, string> = {
+    LONGEST_STREAK: 'Chuỗi ngày dài nhất',
+    CURRENT_STREAK: 'Chuỗi ngày hiện tại',
+    TOTAL_XP: 'Tổng kinh nghiệm',
+    COMPLETED_LESSONS: 'Bài học đã hoàn thành',
+    STREAK_PROTECTION: 'Bảo vệ chuỗi',
+}
+
 export default function ProfilePage() {
     const { user } = useAppSelector((state) => state.auth)
     const { data: gamification } = useGamificationProfile()
@@ -345,7 +372,7 @@ export default function ProfilePage() {
                                     <div className="space-y-1">
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Danh mục</p>
                                         <p className="text-sm font-medium">
-                                            {selectedAchievement.achievement?.category ?? '—'}
+                                            {categoryLabels[selectedAchievement.achievement?.category] || selectedAchievement.achievement?.category || '—'}
                                         </p>
                                     </div>
                                 </div>
@@ -353,15 +380,17 @@ export default function ProfilePage() {
                                 <div className="space-y-2">
                                     <p className="text-sm font-medium">Điều kiện để đạt</p>
                                     {selectedAchievement.achievement?.requirements &&
-                                    Object.keys(selectedAchievement.achievement.requirements).length > 0 ? (
+                                        Object.keys(selectedAchievement.achievement.requirements).length > 0 ? (
                                         <div className="space-y-3">
                                             {Object.entries(selectedAchievement.achievement.requirements).map(([k, v]) => (
                                                 <div key={k} className="flex items-start justify-between gap-4 pb-3 last:pb-0">
-                                                    <span className="text-xs font-mono text-muted-foreground">{k}</span>
-                                                    <span className="max-w-[60%] break-words text-right text-sm text-foreground/85">
-                                                        {typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
-                                                            ? String(v)
-                                                            : JSON.stringify(v)}
+                                                    <span className="text-xs font-medium text-muted-foreground">{requirementTypeLabels[k] || k}</span>
+                                                    <span className="max-w-[60%] break-words text-right text-sm text-foreground/85 font-semibold">
+                                                        {typeof v === 'string'
+                                                            ? (requirementValueLabels[v] || v)
+                                                            : typeof v === 'number' || typeof v === 'boolean'
+                                                                ? String(v)
+                                                                : JSON.stringify(v)}
                                                     </span>
                                                 </div>
                                             ))}

@@ -89,7 +89,8 @@ export default function CheckoutPage() {
     const [giftMessage, setGiftMessage] = useState('')
 
     // Preview State
-    const [couponCode, setCouponCode] = useState('')
+    const [couponInput, setCouponInput] = useState('')
+    const [appliedCoupon, setAppliedCoupon] = useState('')
     const [preview, setPreview] = useState<OrderPreviewResponse | null>(null)
     const [isPreviewing, setIsPreviewing] = useState(false)
 
@@ -162,12 +163,11 @@ export default function CheckoutPage() {
         return () => clearTimeout(timer)
     }, [isGift, recipientEmail, courseId])
 
-    // Update Preview whenever product, selected class (LIVE) or coupon changes
     useEffect(() => {
         if (product?.id) {
             handlePreview()
         }
-    }, [product?.id, couponCode, selectedLiveClassId, isGift])
+    }, [product?.id, appliedCoupon, selectedLiveClassId, isGift])
 
     const handlePreview = async () => {
         if (!product?.id) return
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
                 }
             const result = await orderApi.previewOrder({
                 ...checkoutPayload,
-                couponCode: couponCode.trim() || undefined,
+                couponCode: appliedCoupon.trim() || undefined,
                 isGift,
                 recipientEmail: isGift && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail) ? recipientEmail : undefined,
             })
@@ -250,7 +250,7 @@ export default function CheckoutPage() {
             const result = await orderApi.createOrder({
                 ...checkoutPayload,
                 paymentMethod: method,
-                couponCode: couponCode.trim() || undefined,
+                couponCode: appliedCoupon.trim() || undefined,
                 isGift,
                 recipientEmail: isGift ? recipientEmail : undefined,
                 giftMessage: isGift ? giftMessage : undefined,
@@ -431,11 +431,39 @@ export default function CheckoutPage() {
                                     <span>{formatNumber(displaySubtotal)} đ</span>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <div className="relative">
-                                        <TicketPercent className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input className="pl-9" placeholder="Mã giảm giá" value={couponCode} onChange={(e) => setCouponCode(e.target.value)} />
+                                <div className="space-y-3">
+                                    <div className="flex gap-2">
+                                        <div className="relative flex-1">
+                                            <TicketPercent className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                className="pl-9"
+                                                placeholder="Mã giảm giá"
+                                                value={couponInput}
+                                                onChange={(e) => {
+                                                    const val = e.target.value
+                                                    setCouponInput(val)
+                                                    if (!val) setAppliedCoupon('')
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault()
+                                                        setAppliedCoupon(couponInput)
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <Button
+                                            variant="secondary"
+                                            type="button"
+                                            disabled={isPreviewing || !couponInput.trim() || couponInput === appliedCoupon}
+                                            onClick={() => setAppliedCoupon(couponInput)}
+                                        >
+                                            Áp dụng
+                                        </Button>
                                     </div>
+                                    {appliedCoupon && !isPreviewing && !preview?.discount && (
+                                        <p className="text-xs text-destructive">Mã giảm giá không hợp lệ hoặc đã hết hạn.</p>
+                                    )}
                                     {preview?.discount ? (
                                         <div className="flex justify-between text-green-600 font-medium">
                                             <span>Giảm giá</span>

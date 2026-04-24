@@ -180,8 +180,8 @@ export const agentApi = {
             }
             return response.data.data;
         },
-        getQuotaStatus: async (): Promise<{ limit: number; used: number; remaining: number; tier: string; resetAt: string }> => {
-            const response = await apiClient.get<{ success: boolean; data: { limit: number; used: number; remaining: number; tier: string; resetAt: string } }>('/api/agents/sensei/quota-status');
+        getQuotaStatus: async (): Promise<{ limit: number; used: number; remaining: number; tier: string; resetAt: string; expiresAt?: string }> => {
+            const response = await apiClient.get<{ success: boolean; data: { limit: number; used: number; remaining: number; tier: string; resetAt: string; expiresAt?: string } }>('/api/agents/sensei/quota-status');
             return response.data.data;
         },
     },

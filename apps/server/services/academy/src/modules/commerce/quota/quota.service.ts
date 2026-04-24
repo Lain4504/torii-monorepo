@@ -10,6 +10,7 @@ export interface QuotaStatus {
   used: number;
   remaining: number;
   resetAt: string;
+  expiresAt?: string;
 }
 
 @Injectable()
@@ -27,7 +28,7 @@ export class QuotaService {
     private readonly prisma: PrismaService,
     private readonly aiSubscriptionService: AiSubscriptionService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
-  ) {}
+  ) { }
 
   async checkAndConsume(
     userId: string,
@@ -79,12 +80,13 @@ export class QuotaService {
       used,
       remaining: limit === -1 ? -1 : Math.max(0, limit - used),
       resetAt: tomorrow.toISOString(),
+      expiresAt: tierInfo.expiresAt,
     };
   }
 
   private async getUserTier(
     userId: string,
-  ): Promise<{ tier: string; quotas: object }> {
+  ): Promise<{ tier: string; quotas: object; expiresAt?: string }> {
     const activeSub =
       await this.aiSubscriptionService.getActiveSubscription(userId);
 
@@ -98,6 +100,7 @@ export class QuotaService {
     return {
       tier: activeSub.planCode,
       quotas: (activeSub.plan.quotas as object) ?? {},
+      expiresAt: activeSub.expiresAt.toISOString(),
     };
   }
 

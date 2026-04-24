@@ -21,9 +21,11 @@ import {
   Trophy,
   Users,
 } from "lucide-react"
+import Image from "next/image"
 import { useAppDispatch, useAppSelector } from "@/hooks/hooks"
 import { logout } from "@/store/slices/authSlice"
 import { useGamificationProfile } from "@/lib/api/services/gamification-api"
+import { useLogo } from "@/hooks/useLogo"
 import { toast } from "@workspace/ui/components/sonner"
 import {
   Avatar,
@@ -266,6 +268,7 @@ function HomeLandingAuthActions() {
 }
 
 export function HomeLanding() {
+  const logo = useLogo()
   return (
     <main className="relative min-h-screen bg-background">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -277,9 +280,13 @@ export function HomeLanding() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4">
           <Link href="/" className="inline-flex min-w-0 items-center gap-2">
-            <div className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/20">
-              <Languages className="size-4" />
-            </div>
+            <Image
+              src={logo}
+              alt="Torii Nihongo"
+              width={40}
+              height={40}
+              className="size-9 object-contain"
+            />
             <div className="min-w-0 leading-none">
               <p className="truncate text-sm font-bold tracking-tight">Torii Nihongo</p>
               <p className="truncate text-[10px] text-muted-foreground">Nền tảng học trực tuyến</p>

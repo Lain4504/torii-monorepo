@@ -2,10 +2,12 @@
 
 import React, { useState, useCallback, useRef, useEffect } from "react"
 import { Mic, PhoneOff, Loader2, Wifi, Zap, Sparkles } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
     useConnectionState,
     useRoomContext,
     useVoiceAssistant,
+    useLocalParticipant,
 } from "@livekit/components-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
@@ -492,8 +494,10 @@ function RuntimeSessionConfigUpdater({
 function AgentStatus() {
     const connState = useConnectionState()
     const { agent } = useVoiceAssistant()
+    const { localParticipant } = useLocalParticipant()
 
-    const isSpeaking = agent?.isSpeaking ?? false
+    const isAgentSpeaking = agent?.isSpeaking ?? false
+    const isUserSpeaking = localParticipant.isSpeaking
 
     // Multi-phase status logic
     let statusLabel = ""
@@ -508,10 +512,16 @@ function AgentStatus() {
         subLabel = "Sensei đang chuẩn bị giáo án, đợi một xíu nhé!"
     } else {
         isConnected = true
-        statusLabel = isSpeaking ? "Sensei đang nói..." : "Sensei đang lắng nghe"
-        subLabel = isSpeaking
-            ? "Hãy chú ý lắng nghe Sensei nhé!"
-            : "Sẵn sàng nhé! Hãy gửi lời chào đến Sensei nào!"
+        if (isAgentSpeaking) {
+            statusLabel = "Sensei đang nói..."
+            subLabel = "Hãy chú ý lắng nghe Sensei nhé!"
+        } else if (isUserSpeaking) {
+            statusLabel = "Bạn đang nói..."
+            subLabel = "Sensei đang lắng nghe bạn đấy!"
+        } else {
+            statusLabel = "Sensei đang lắng nghe"
+            subLabel = "Sẵn sàng nhé! Hãy gửi lời chào đến Sensei nào!"
+        }
     }
 
     return (
@@ -519,19 +529,39 @@ function AgentStatus() {
             <div className={cn(
                 "px-3 py-1.5 rounded-full border text-[9px] font-bold uppercase tracking-tighter shadow-sm transition-all duration-500",
                 isConnected
-                    ? (isSpeaking ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-muted/50 text-muted-foreground border-border/40")
+                    ? (isAgentSpeaking
+                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                        : (isUserSpeaking
+                            ? "bg-primary/10 text-primary border-primary/20"
+                            : "bg-muted/50 text-muted-foreground border-border/40"))
                     : "bg-primary/5 text-primary border-primary/10",
             )}>
-                {isConnected ? (isSpeaking ? "Sensei đang nói" : "Trực tuyến • Sẵn sàng") : "Đang đồng bộ..."}
+                {isConnected
+                    ? (isAgentSpeaking
+                        ? "Sensei đang nói"
+                        : (isUserSpeaking
+                            ? "Bạn đang nói"
+                            : "Trực tuyến • Sẵn sàng"))
+                    : "Đang đồng bộ..."}
             </div>
 
-            <div className="space-y-1.5 text-center max-w-xs">
-                <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
-                    {statusLabel}
-                </h3>
-                <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed mx-auto italic opacity-70">
-                    "{subLabel}"
-                </p>
+            <div className="space-y-1.5 text-center max-w-xs h-20 flex flex-col justify-center">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={statusLabel}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
+                            {statusLabel}
+                        </h3>
+                        <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-relaxed mx-auto italic opacity-70">
+                            "{subLabel}"
+                        </p>
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     )
@@ -542,21 +572,66 @@ function AgentStatus() {
  */
 function AgentVisualizer() {
     const { agent } = useVoiceAssistant()
-    const isSpeaking = agent?.isSpeaking ?? false
+    const { localParticipant } = useLocalParticipant()
+
+    const isAgentSpeaking = agent?.isSpeaking ?? false
+    const isUserSpeaking = localParticipant.isSpeaking
+
+    const activeColor = isAgentSpeaking ? "rgb(16, 185, 129)" : "rgb(59, 130, 246)"
 
     return (
-        <div className="w-full flex items-center justify-center py-1">
-            <div className={cn(
-                "size-32 sm:size-40 rounded-full flex items-center justify-center border transition-all duration-500 bg-gradient-to-b from-background to-muted/20",
-                isSpeaking ? "border-emerald-400/60 shadow-[0_0_40px_rgba(16,185,129,0.25)]" : "border-border/70",
-            )}>
-                <Mic
-                    className={cn(
-                        "size-12 sm:size-14 transition-all duration-300",
-                        isSpeaking ? "text-emerald-500 animate-pulse" : "text-muted-foreground/40",
+        <div className="w-full flex items-center justify-center py-4">
+            <div className="relative size-28 sm:size-32 flex items-center justify-center">
+                {/* Ripple Wave Effect - 3 Sequential Rings */}
+                <AnimatePresence>
+                    {(isAgentSpeaking || isUserSpeaking) && (
+                        <>
+                            {[0, 1, 2].map((i) => (
+                                <motion.div
+                                    key={`ripple-${i}`}
+                                    className="absolute inset-0 rounded-full border-2 z-0"
+                                    initial={{ scale: 1, opacity: 0.6 }}
+                                    animate={{ scale: 2, opacity: 0 }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        delay: i * 0.6,
+                                        ease: "easeOut"
+                                    }}
+                                    style={{ borderColor: activeColor }}
+                                />
+                            ))}
+                        </>
                     )}
-                    strokeWidth={1.8}
-                />
+                </AnimatePresence>
+
+                {/* Main Prominent Circle */}
+                <motion.div
+                    animate={{
+                        scale: isAgentSpeaking || isUserSpeaking ? [1, 1.05, 1] : 1,
+                    }}
+                    transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    className={cn(
+                        "size-full rounded-full flex items-center justify-center transition-all duration-500 border-2 shadow-md relative z-10 bg-background",
+                        isAgentSpeaking && "border-emerald-500 shadow-emerald-100",
+                        isUserSpeaking && "border-primary shadow-blue-100",
+                        !isAgentSpeaking && !isUserSpeaking && "border-border shadow-sm"
+                    )}
+                >
+                    <Mic
+                        className={cn(
+                            "size-12 sm:size-14 transition-colors duration-500",
+                            isAgentSpeaking && "text-emerald-500",
+                            isUserSpeaking && "text-primary",
+                            !isAgentSpeaking && !isUserSpeaking && "text-muted-foreground",
+                        )}
+                        strokeWidth={2.5}
+                    />
+                </motion.div>
             </div>
         </div>
     )

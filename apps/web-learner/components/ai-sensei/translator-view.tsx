@@ -23,13 +23,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { 
-    Card, 
-    CardContent, 
-    CardHeader, 
-    CardTitle, 
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
     CardFooter,
-    CardDescription 
+    CardDescription
 } from "@workspace/ui/components/card"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentTranslateResponseDTO, AgentGrammarCheckResponseDTO } from "@workspace/schemas"
@@ -41,6 +41,46 @@ const LANGUAGES = [
     { value: "ja", label: "Tiếng Nhật", flag: "🇯🇵" },
     { value: "vi", label: "Tiếng Việt", flag: "🇻🇳" },
 ]
+
+const hasJapanese = (text: string) => /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/.test(text);
+
+function HighlightedText({ text, errors, type }: { text: string; errors: any[]; type: 'issue' | 'correction' }) {
+    if (!errors || errors.length === 0) return <span>{text}</span>
+
+    const targets = errors.map(e => (type === 'issue' ? e.issue : e.correction)?.trim()).filter(Boolean) as string[]
+    if (targets.length === 0) return <span>{text}</span>
+
+    // Sort by length to match longest first, then escape
+    const sortedTargets = [...new Set(targets)].sort((a, b) => b.length - a.length)
+    const escapedTargets = sortedTargets.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    const regex = new RegExp(`(${escapedTargets.join('|')})`, 'g')
+
+    const parts = text.split(regex)
+
+    return (
+        <span className="inline-flex flex-wrap items-center gap-y-0.5 leading-relaxed">
+            {parts.map((part, i) => {
+                const isTarget = sortedTargets.includes(part)
+                if (isTarget) {
+                    return (
+                        <span
+                            key={i}
+                            className={cn(
+                                "px-1.5 py-0.5 rounded blur-[0.2px] hover:blur-0 transition-all",
+                                type === 'issue'
+                                    ? "bg-red-500/15 text-red-700 line-through decoration-red-500/50 font-bold border border-red-500/20"
+                                    : "bg-emerald-500/20 text-emerald-800 font-bold border border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.1)]"
+                            )}
+                        >
+                            {part}
+                        </span>
+                    )
+                }
+                return <span key={i} className="px-[1px]">{part}</span>
+            })}
+        </span>
+    )
+}
 
 export function TranslatorView() {
     const [sourceText, setSourceText] = React.useState("")
@@ -56,6 +96,7 @@ export function TranslatorView() {
             setTargetLang(sourceLang)
         }
         setSourceLang(value)
+        setGrammarResult(null)
     }
 
     const handleTargetLangChange = (value: string) => {
@@ -63,6 +104,7 @@ export function TranslatorView() {
             setSourceLang(targetLang)
         }
         setTargetLang(value)
+        setGrammarResult(null)
     }
 
     const swapLanguages = () => {
@@ -74,6 +116,36 @@ export function TranslatorView() {
 
     const handleTranslate = async () => {
         if (!sourceText.trim()) return
+
+        // Auto-detect language mismatch
+        if (sourceLang === "vi" && hasJapanese(sourceText)) {
+            toast.info("Phát hiện Tiếng Nhật trong ô Tiếng Việt. Đang tự động chuyển đổi...")
+
+            // Swap logic
+            const oldSourceText = sourceText
+            const oldTargetText = targetText
+            const oldSourceLang = sourceLang
+            const oldTargetLang = targetLang
+
+            setSourceLang(oldTargetLang)
+            setTargetLang(oldSourceLang)
+            setSourceText(oldSourceText)
+            setTargetText(oldTargetText)
+            setGrammarResult(null)
+
+            // Re-trigger translate with new context
+            setIsTranslating(true)
+            try {
+                const res = await agentApi.sensei.translate(oldSourceText, oldTargetLang, oldSourceLang)
+                setTargetText(res.translatedText)
+            } catch (error) {
+                toast.error("Không thể dịch văn bản")
+            } finally {
+                setIsTranslating(false)
+            }
+            return
+        }
+
         setIsTranslating(true)
         setGrammarResult(null)
         try {
@@ -176,11 +248,11 @@ export function TranslatorView() {
                         )}
                     </div>
                     <div className="p-2 border-t border-border flex items-center justify-end bg-muted/5 gap-1.5">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground" 
-                            onClick={() => copyToClipboard(targetText)} 
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground"
+                            onClick={() => copyToClipboard(targetText)}
                             disabled={!targetText}
                         >
                             <Copy className="size-3.5" />
@@ -189,8 +261,8 @@ export function TranslatorView() {
                 </Card>
             </div>
 
-            {/* AI Grammar Analysis */}
-            {targetText && (
+            {/* AI Grammar Analysis - Only available when inputting Japanese */}
+            {targetText && sourceLang === "ja" && (
                 <div className="flex justify-center pt-2">
                     {!grammarResult && (
                         <Button
@@ -218,38 +290,62 @@ export function TranslatorView() {
                             <X className="size-3.5 opacity-40" />
                         </Button>
                     </div>
-                    
-                    <div className="p-4 sm:p-5 space-y-5 min-w-0 overflow-hidden">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-3.5 rounded-lg bg-muted/20 border border-border min-w-0 overflow-hidden">
-                                <p className="text-[9px] font-bold text-muted-foreground uppercase mb-1.5 opacity-60">Gốc</p>
-                                <p className="text-sm font-medium leading-relaxed break-words">{grammarResult.originalText}</p>
-                            </div>
-                            <div className="p-3.5 rounded-lg bg-primary/5 border border-primary/10 min-w-0 overflow-hidden">
-                                <p className="text-[9px] font-bold text-primary uppercase mb-1.5 opacity-60">Sửa</p>
-                                <p className="text-sm font-bold text-primary leading-relaxed break-words">{grammarResult.correctedText}</p>
-                            </div>
-                        </div>
 
-                        {grammarResult.errors.length > 0 && (
-                            <div className="space-y-2.5">
-                                <p className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">Lỗi chi tiết</p>
-                                <div className="grid grid-cols-1 gap-2.5">
-                                    {grammarResult.errors.map((error, idx) => (
-                                        <div key={idx} className="p-3.5 rounded-lg bg-muted/10 border border-border leading-relaxed flex flex-col sm:flex-row gap-2 sm:gap-3.5 min-w-0 overflow-hidden">
-                                            <div className="text-xs font-bold text-primary/40 shrink-0 hidden sm:block">{idx+1}.</div>
-                                            <div className="space-y-1.5 flex-1 min-w-0">
-                                                <div className="flex items-center flex-wrap gap-x-2 gap-y-1 min-w-0">
-                                                    <span className="line-through text-muted-foreground/40 text-[11px] sm:text-xs truncate max-w-[120px] sm:max-w-none">{error.issue}</span>
-                                                    <ArrowRight className="size-3 text-muted-foreground/20" />
-                                                    <span className="font-bold text-emerald-600 text-xs break-all">{error.correction}</span>
-                                                </div>
-                                                <p className="text-[11px] sm:text-xs text-muted-foreground font-medium italic opacity-80 leading-normal">{error.explanation}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                    <div className="p-4 sm:p-5 space-y-5 min-w-0 overflow-hidden">
+                        {grammarResult.errors.length === 0 && grammarResult.originalText === grammarResult.correctedText ? (
+                            <div className="p-6 rounded-xl bg-emerald-50/50 border border-emerald-100 flex flex-col items-center justify-center text-center gap-3 animate-in fade-in zoom-in duration-500">
+                                <div className="size-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                                    <Check className="size-6 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-emerald-900">Tuyệt vời! Văn bản chính xác</p>
+                                    <p className="text-xs text-emerald-600/80 font-medium mt-1">Sensei không tìm thấy lỗi ngữ pháp nào trong câu này.</p>
                                 </div>
                             </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="p-4 rounded-xl bg-red-50/30 border border-red-100/50 shadow-sm min-w-0 overflow-hidden">
+                                        <p className="text-[10px] font-black text-red-500 uppercase mb-2 tracking-wider opacity-70 flex items-center gap-1.5">
+                                            <span className="size-1.5 rounded-full bg-red-400" />
+                                            Gốc
+                                        </p>
+                                        <div className="text-[13px] sm:text-sm font-medium leading-relaxed break-words text-slate-700">
+                                            <HighlightedText text={grammarResult.originalText} errors={grammarResult.errors} type="issue" />
+                                        </div>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-emerald-50/40 border border-emerald-100/60 shadow-sm min-w-0 overflow-hidden">
+                                        <p className="text-[10px] font-black text-emerald-600 uppercase mb-2 tracking-wider opacity-70 flex items-center gap-1.5">
+                                            <span className="size-1.5 rounded-full bg-emerald-400" />
+                                            Sửa
+                                        </p>
+                                        <div className="text-[13px] sm:text-sm font-bold leading-relaxed break-words text-emerald-900">
+                                            <HighlightedText text={grammarResult.correctedText} errors={grammarResult.errors} type="correction" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {grammarResult.errors.length > 0 && (
+                                    <div className="space-y-2.5">
+                                        <p className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">Lỗi chi tiết</p>
+                                        <div className="grid grid-cols-1 gap-2.5">
+                                            {grammarResult.errors.map((error, idx) => (
+                                                <div key={idx} className="p-3.5 rounded-lg bg-muted/10 border border-border leading-relaxed flex flex-col sm:flex-row gap-2 sm:gap-3.5 min-w-0 overflow-hidden">
+                                                    <div className="text-xs font-bold text-primary/40 shrink-0 hidden sm:block">{idx + 1}.</div>
+                                                    <div className="space-y-1.5 flex-1 min-w-0">
+                                                        <div className="flex items-center flex-wrap gap-x-2 gap-y-1 min-w-0">
+                                                            <span className="line-through text-muted-foreground/40 text-[11px] sm:text-xs truncate max-w-[120px] sm:max-w-none">{error.issue}</span>
+                                                            <ArrowRight className="size-3 text-muted-foreground/20" />
+                                                            <span className="font-bold text-emerald-600 text-xs break-all">{error.correction}</span>
+                                                        </div>
+                                                        <p className="text-[11px] sm:text-xs text-muted-foreground font-medium italic opacity-80 leading-normal">{error.explanation}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </Card>
