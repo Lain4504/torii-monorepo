@@ -10,10 +10,12 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@workspace/ui/components/tooltip"
-import { Zap, Star, Crown, ChevronRight } from "lucide-react"
+import { Zap, Star, Crown, ChevronRight, Calendar } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { formatDistanceToNow, differenceInDays } from "date-fns"
+import { vi } from "date-fns/locale"
 
 export function QuotaIndicator() {
     const { data: quota, isLoading } = useQuery({
@@ -48,7 +50,7 @@ export function QuotaIndicator() {
         </TooltipProvider>
     )
 
-    const percentage = quota.limit === -1 ? 0 : Math.min(100, (quota.used / quota.limit) * 100)
+    const percentage = quota.limit === -1 ? 100 : Math.min(100, (quota.remaining / quota.limit) * 100)
     const isCritical = quota.remaining <= 2 && quota.limit !== -1
 
     const getTierConfig = (tier: string) => {
@@ -134,11 +136,34 @@ export function QuotaIndicator() {
 
                         <div className="space-y-1">
                             <div className="flex justify-between text-xs">
-                                <span className="text-muted-foreground font-medium">Lượt sử dụng AI hôm nay</span>
-                                <span className="font-bold">{quota.used}/{quota.limit === -1 ? "Không giới hạn" : quota.limit}</span>
+                                <span className="text-muted-foreground font-medium">Số lượt còn lại hôm nay</span>
+                                <span className="font-bold">{quota.limit === -1 ? "∞" : `${quota.remaining}/${quota.limit}`}</span>
                             </div>
                             <Progress value={percentage} className="h-1.5" />
                         </div>
+
+                        {quota.expiresAt && (
+                            <div className="space-y-1.5 p-2 rounded-xl bg-muted/30 border border-border/50">
+                                <div className="flex items-center gap-2 text-[11px] font-bold text-foreground">
+                                    <Calendar className="size-3.5 text-primary" />
+                                    <span>Thông tin gói</span>
+                                </div>
+                                <div className="flex flex-col gap-0.5 pl-5.5">
+                                    <div className="flex justify-between text-[10px]">
+                                        <span className="text-muted-foreground">Còn lại:</span>
+                                        <span className="font-bold text-primary">
+                                            {differenceInDays(new Date(quota.expiresAt), new Date())} ngày
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-[10px]">
+                                        <span className="text-muted-foreground">Hết hạn:</span>
+                                        <span className="font-medium">
+                                            {new Date(quota.expiresAt).toLocaleDateString('vi-VN')}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         <p className="text-[11px] text-muted-foreground font-medium leading-relaxed">
                             Số lượt chat và roleplay được cấp hàng ngày dựa trên gói của bạn. Tự động làm mới vào 00:00.

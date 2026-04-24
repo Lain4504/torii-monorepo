@@ -142,7 +142,7 @@ function AuthenticatedDashboardPage() {
                                     Chào mừng trở lại, {firstName} <Hand className="inline-block size-6 -translate-y-0.5" />
                                 </h1>
                                 <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
-                                    Tôi đã nới lại dashboard để vùng chính có nhiều khoảng thở hơn, giảm cảm giác bị dồn card và giúp hành động quan trọng nổi bật hơn.
+                                    Bắt đầu ngày mới với những bài học bổ ích. Sensei đã chuẩn bị lộ trình học tập tối ưu nhất dành cho bạn.
                                 </p>
                             </div>
                         </div>
@@ -246,7 +246,7 @@ function AuthenticatedDashboardPage() {
                                     <div className="space-y-2">
                                         <h2 className="text-2xl font-bold">Chưa có khóa học nào được ghi danh</h2>
                                         <p className="text-sm leading-7 text-muted-foreground">
-                                            Gợi ý khóa học vẫn được giữ trong dashboard để người dùng không rơi vào trạng thái trang trống.
+                                            Hãy khám phá kho khóa học đa dạng của chúng tôi để bắt đầu hành trình chinh phục tiếng Nhật ngay hôm nay.
                                         </p>
                                     </div>
                                     <div className="flex flex-col gap-3 sm:flex-row">
@@ -366,7 +366,7 @@ function AuthenticatedDashboardPage() {
                         <h3 className="mt-1 text-2xl font-bold">Những khu vực bạn dùng thường xuyên</h3>
                     </div>
                     <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                        Tôi đưa các link này xuống một section riêng để tránh sidebar quá đặc và để vùng hero có nhiều khoảng thở hơn.
+                        Truy cập nhanh vào các tính năng quan trọng để tối ưu hóa quá trình học tập của bạn.
                     </p>
                 </div>
 
