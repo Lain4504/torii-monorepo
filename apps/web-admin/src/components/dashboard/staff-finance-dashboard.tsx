@@ -1,6 +1,6 @@
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { PageLoading } from "@workspace/ui/components/page-loading";
-import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { StatsCard } from "./stats-card";
 import { useStaffOperationsDashboard } from "@/lib/api/services/dashboard";
 import { formatCurrency, formatNumber } from "@/lib/format-utils";
@@ -31,6 +31,21 @@ import { orderStatusPieFill, orderStatusLabelVi, revenueLevelPieFill } from "@/l
 import { cn } from "@workspace/ui/lib/utils";
 import { Badge } from "@workspace/ui/components/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
+import {
   DASHBOARD_CHART_H,
   DashboardChartScroll,
   useNarrowMobile,
@@ -47,7 +62,13 @@ function ChartEmpty() {
 
 export default function StaffFinanceDashboard() {
   const narrow = useNarrowMobile();
+  const [selectedDays, setSelectedDays] = useState<7 | 14 | 30>(30);
   const { data, isLoading } = useStaffOperationsDashboard();
+  const revenueLast30Days = data?.revenueLast30Days ?? [];
+  const revenueSeries = useMemo(
+    () => revenueLast30Days.slice(-selectedDays),
+    [revenueLast30Days, selectedDays],
+  );
 
   if (isLoading) {
     return (
@@ -66,8 +87,7 @@ export default function StaffFinanceDashboard() {
     name: r.level,
     value: r.amount,
   }));
-  const recentSales = data?.recentSales ?? [];
-  const revenueLast30Days = data?.revenueLast30Days ?? [];
+  const recentOrders = data?.recentOrders ?? [];
   const tickets = data?.stats.pendingTickets ?? 0;
   const refunds = data?.stats.pendingRefunds ?? 0;
   const hasAttention = tickets > 0 || refunds > 0;
@@ -86,7 +106,7 @@ export default function StaffFinanceDashboard() {
             ) : null}
             {tickets > 0 ? (
               <Badge variant="secondary" className="font-semibold tabular-nums">
-                Ticket: {formatNumber(tickets)}
+                Phiếu hỗ trợ: {formatNumber(tickets)}
               </Badge>
             ) : null}
           </CardContent>
@@ -96,7 +116,7 @@ export default function StaffFinanceDashboard() {
       <div>
         <h2 className="text-base font-semibold tracking-tight">Tài chính &amp; vận hành đơn</h2>
         <p className="text-xs text-muted-foreground">
-          Chuỗi thời gian doanh thu (area); phân bổ theo level (pie); đơn hàng theo trạng thái (cột ngang).
+          Theo dõi xu hướng doanh thu, cơ cấu doanh thu theo cấp độ và phân bổ đơn hàng theo trạng thái.
         </p>
       </div>
 
@@ -104,12 +124,12 @@ export default function StaffFinanceDashboard() {
         <StatsCard
           title="Doanh thu (tổng)"
           value={formatCurrency(data?.stats.totalRevenue ?? 0)}
-          sub="Đã thanh toán (billing)"
+          sub="Tổng doanh thu đã thanh toán"
           icon={Wallet}
           tone="success"
         />
         <StatsCard
-          title="Đơn PAID"
+          title="Đơn đã thanh toán"
           value={formatNumber(data?.stats.paidOrders ?? 0)}
           sub="Giao dịch thành công"
           icon={ReceiptText}
@@ -118,13 +138,13 @@ export default function StaffFinanceDashboard() {
         <StatsCard
           title="Hoàn tiền chờ"
           value={formatNumber(refunds)}
-          sub="Ticket / đối soát"
+          sub="Phiếu hoàn tiền chờ xử lý"
           icon={HandCoins}
           tone="warning"
           highlight={refunds > 0}
         />
         <StatsCard
-          title="Ticket mở"
+          title="Phiếu hỗ trợ mở"
           value={formatNumber(tickets)}
           sub="Hỗ trợ thanh toán"
           icon={ReceiptText}
@@ -135,23 +155,35 @@ export default function StaffFinanceDashboard() {
 
       <Card className={elevatedPanelClass}>
         <CardHeader className={elevatedCardHeaderOps}>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="size-4 text-muted-foreground" aria-hidden />
-            <div>
-              <CardTitle className="text-base">Doanh thu 30 ngày</CardTitle>
-              <CardDescription className="text-xs">Đơn PAID theo ngày — chuỗi thời gian</CardDescription>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="size-4 text-muted-foreground" aria-hidden />
+              <div>
+                <CardTitle className="text-base">Doanh thu theo ngày</CardTitle>
+                <CardDescription className="text-xs">Doanh thu từ đơn đã thanh toán theo khoảng thời gian đã chọn</CardDescription>
+              </div>
             </div>
+            <Select value={String(selectedDays)} onValueChange={(v) => setSelectedDays(Number(v) as 7 | 14 | 30)}>
+              <SelectTrigger className="h-8 w-[120px] text-xs">
+                <SelectValue placeholder="Khoảng ngày" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">7 ngày</SelectItem>
+                <SelectItem value="14">14 ngày</SelectItem>
+                <SelectItem value="30">30 ngày</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent className={elevatedPanelContentClass}>
-          {revenueLast30Days.length === 0 ? (
+          {revenueSeries.length === 0 ? (
             <ChartEmpty />
           ) : (
             <DashboardChartScroll>
               <div className={DASHBOARD_CHART_H}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
-                    data={revenueLast30Days}
+                    data={revenueSeries}
                     margin={{ top: 10, right: 8, left: narrow ? -12 : 0, bottom: 0 }}
                   >
                     <defs>
@@ -198,8 +230,8 @@ export default function StaffFinanceDashboard() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className={elevatedPanelClass}>
           <CardHeader className={elevatedCardHeaderSuccess}>
-            <CardTitle className="text-base">Doanh thu theo Level</CardTitle>
-            <CardDescription className="text-xs">Tỷ trọng doanh thu theo nhóm level</CardDescription>
+            <CardTitle className="text-base">Doanh thu theo cấp độ</CardTitle>
+            <CardDescription className="text-xs">Tỷ trọng doanh thu theo từng nhóm cấp độ</CardDescription>
           </CardHeader>
           <CardContent className={elevatedPanelContentClass}>
             {revenueByLevel.length === 0 ? (
@@ -246,7 +278,7 @@ export default function StaffFinanceDashboard() {
         <Card className={elevatedPanelClass}>
           <CardHeader className={elevatedCardHeaderOps}>
             <CardTitle className="text-base">Đơn hàng theo trạng thái</CardTitle>
-            <CardDescription className="text-xs">Đếm theo status — cột ngang (dễ đọc nhiều trạng thái)</CardDescription>
+            <CardDescription className="text-xs">Số lượng đơn theo từng trạng thái</CardDescription>
           </CardHeader>
           <CardContent className={elevatedPanelContentClass}>
             {ordersBarData.length === 0 ? (
@@ -285,34 +317,41 @@ export default function StaffFinanceDashboard() {
 
       <Card className={elevatedPanelClass}>
         <CardHeader className={elevatedCardHeaderOps}>
-          <CardTitle className="text-base">Giao dịch PAID gần đây</CardTitle>
-          <CardDescription className="text-xs">Theo billing — cuộn trong khung</CardDescription>
+          <CardTitle className="text-base">Đơn hàng mới nhất</CardTitle>
+          <CardDescription className="text-xs">Danh sách đơn hàng gần đây dạng bảng</CardDescription>
         </CardHeader>
         <CardContent className={elevatedPanelContentClass}>
-          {recentSales.length === 0 ? (
+          {recentOrders.length === 0 ? (
             <div className={cn("py-10 text-center text-xs", emptyStateBoxClass)}>Chưa có dữ liệu.</div>
           ) : (
-            <ScrollArea className="h-[min(18rem,40vh)] rounded-md border border-border/60">
-              <div className="space-y-2 p-1 pr-3">
-                {recentSales.map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex flex-col gap-2 rounded-lg border border-border bg-card px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold">{s.userName || s.userEmail || "—"}</div>
-                      <div className="truncate text-xs text-muted-foreground">{s.userEmail}</div>
-                    </div>
-                    <div className="flex shrink-0 items-end justify-between gap-2 text-right sm:block sm:text-right">
-                      <div className="text-sm font-semibold tabular-nums">
-                        {formatCurrency(Number(s.amount) || 0)}
-                      </div>
-                      <div className="text-xs text-muted-foreground tabular-nums">{s.date}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="max-h-[min(20rem,50vh)] max-w-full overflow-auto rounded-md border border-border/60">
+              <Table className="min-w-[560px] w-full">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="sticky top-0 z-10 w-10 bg-card text-center">STT</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Mã đơn</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Khách hàng</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Email</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card text-right">Số tiền</TableHead>
+                    <TableHead className="sticky top-0 z-10 bg-card">Ngày</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentOrders.map((o, index) => (
+                    <TableRow key={o.id}>
+                      <TableCell className="text-center text-xs tabular-nums text-muted-foreground">{index + 1}</TableCell>
+                      <TableCell className="font-mono text-xs font-medium">{o.code}</TableCell>
+                      <TableCell className="max-w-[140px] truncate font-medium">{o.userName || "—"}</TableCell>
+                      <TableCell className="max-w-[180px] truncate text-muted-foreground text-xs">{o.userEmail}</TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums">
+                        {formatCurrency(Number(o.amount) || 0)}
+                      </TableCell>
+                      <TableCell className="text-xs tabular-nums text-muted-foreground">{o.date}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

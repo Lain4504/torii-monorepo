@@ -74,7 +74,7 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
       } else if (value === AcademyAssessmentKind.MODULE_CHECKPOINT) {
         updatedItem.triggerLessonId = undefined
       } else if (value === AcademyAssessmentKind.LESSON_CHECKPOINT) {
-        // Keeps moduleId as a fallback, but primary is triggerLessonId
+        updatedItem.moduleId = undefined
       }
     }
 
@@ -84,13 +84,28 @@ export function AssessmentPlanTab({ courseProfileId, modules }: AssessmentPlanTa
 
   const handleSave = async () => {
     try {
+      const invalidItem = items.find((item) => {
+        if (!item.examId) return true
+        if (item.assessmentKind === AcademyAssessmentKind.LESSON_CHECKPOINT) return !item.triggerLessonId
+        if (item.assessmentKind === AcademyAssessmentKind.MODULE_CHECKPOINT) return !item.moduleId
+        return false
+      })
+
+      if (invalidItem) {
+        toast.error("Vui lòng chọn đầy đủ đề thi và vị trí kích hoạt cho từng milestone.")
+        return
+      }
+
       const cleanedItems = items.map((item, idx) => {
         const cleaned = { ...item, orderIndex: idx };
         if (cleaned.assessmentKind === AcademyAssessmentKind.FINAL_EXAM) {
           cleaned.moduleId = null;
           cleaned.triggerLessonId = null;
         } else if (cleaned.assessmentKind === AcademyAssessmentKind.MODULE_CHECKPOINT) {
+          cleaned.moduleId = cleaned.moduleId ?? null;
           cleaned.triggerLessonId = null;
+        } else if (cleaned.assessmentKind === AcademyAssessmentKind.LESSON_CHECKPOINT) {
+          cleaned.moduleId = null;
         }
         return cleaned;
       });

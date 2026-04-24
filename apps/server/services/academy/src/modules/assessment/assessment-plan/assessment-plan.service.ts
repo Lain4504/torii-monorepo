@@ -42,7 +42,11 @@ export class AssessmentPlanService {
             courseProfileId,
             examId: item.examId,
             assessmentKind: kind as any,
-            moduleId: kind === AcademyAssessmentKind.FINAL_EXAM ? null : item.moduleId,
+            moduleId:
+              kind === AcademyAssessmentKind.FINAL_EXAM ||
+              kind === AcademyAssessmentKind.LESSON_CHECKPOINT
+                ? null
+                : item.moduleId,
             triggerLessonId: kind !== AcademyAssessmentKind.LESSON_CHECKPOINT ? null : item.triggerLessonId,
             orderIndex: item.orderIndex,
             isRequired: item.isRequired,
