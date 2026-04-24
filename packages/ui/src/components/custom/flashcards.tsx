@@ -86,16 +86,16 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
     const progress = ((index + (flipped ? 1 : 0)) / cards.length) * 100
 
     const handleFlip = useCallback(() => setFlipped((f) => !f), [])
-    
+
     const [isAudioPlaying, setIsAudioPlaying] = useState(false)
-    
+
     const playAudio = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-        
+
         if (card.audioUrl) {
             setIsAudioPlaying(true)
             const audio = new Audio(card.audioUrl);
-            
+
             audio.play()
                 .then(() => {
                     console.log("Audio playing:", card.audioUrl);
@@ -112,17 +112,17 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
             if (!card.front) return;
 
             setIsAudioPlaying(true);
-            
+
             // Cancel any ongoing speech
             window.speechSynthesis.cancel();
 
             const utterance = new SpeechSynthesisUtterance(card.front);
-            
+
             // Detect if Japanese (roughly checking for Hiragana, Katakana, or Kanji)
             const isJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(card.front);
             utterance.lang = isJapanese ? 'ja-JP' : 'en-US';
             utterance.rate = 0.9; // Slightly slower for learning
-            
+
             utterance.onend = () => setIsAudioPlaying(false);
             utterance.onerror = () => {
                 setIsAudioPlaying(false);
@@ -138,7 +138,7 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
             const rating = { cardId: card.id, difficulty }
             const newRatings = [...ratings, rating]
             setRatings(newRatings)
-            
+
             // Call onRate callback if provided
             onRate?.(rating)
 
@@ -207,7 +207,7 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
             <div className="relative flex items-center justify-center group px-12 pb-12">
                 {/* Side Arrows */}
                 <Button
-                    variant="ghost" 
+                    variant="ghost"
                     size="icon"
                     className="absolute left-0 top-1/2 -translate-y-1/2 h-14 w-10 md:h-16 md:w-12 rounded-full opacity-60 hover:opacity-100 hover:bg-transparent transition-opacity"
                     onClick={() => { if (index > 0) { setIndex((i) => i - 1); setFlipped(false) } }}
@@ -217,7 +217,7 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                 </Button>
 
                 <Button
-                    variant="ghost" 
+                    variant="ghost"
                     size="icon"
                     className="absolute right-0 top-1/2 -translate-y-1/2 h-14 w-10 md:h-16 md:w-12 rounded-full opacity-60 hover:opacity-100 hover:bg-transparent transition-opacity"
                     onClick={() => { if (index + 1 < cards.length) { setIndex((i) => i + 1); setFlipped(false) } }}
@@ -241,29 +241,33 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                         onKeyDown={(e) => e.key === "Enter" && handleFlip()}
                     >
                         {/* Front Side */}
-                        <div 
-                            className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-card flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-white to-slate-50/50"
+                        <div
+                            className="absolute inset-0 w-full h-full backface-hidden rounded-3xl bg-card flex flex-col items-center p-8 text-center bg-gradient-to-br from-white to-slate-50/50 overflow-y-auto pt-16 scrollbar-hide"
                             style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                         >
-                            <div className="absolute top-8 left-0 right-0 flex justify-center">
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                            <div className="absolute top-4 left-0 right-0 flex justify-center z-10">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className={cn(
-                                        "h-12 w-12 rounded-full transition-all",
+                                        "h-10 w-10 rounded-full transition-all",
                                         isAudioPlaying ? "text-primary animate-pulse scale-110" : "text-slate-400 hover:text-primary"
                                     )}
                                     onClick={playAudio}
                                     disabled={isAudioPlaying}
                                 >
-                                    <Volume2 className={cn("size-8", isAudioPlaying ? "fill-primary" : "")} />
+                                    <Volume2 className={cn("size-6", isAudioPlaying ? "fill-primary" : "")} />
                                 </Button>
                             </div>
-                            
-                            <div className="space-y-4 pt-10">
-                                {card.tag && <Badge variant="secondary" className="px-3 py-1 text-xs font-medium bg-secondary/30">{card.tag}</Badge>}
+
+                            <div className="space-y-4 w-full flex flex-col items-center">
+                                {card.tag && (
+                                    <div className="bg-secondary/20 text-secondary-foreground text-xs font-semibold px-4 py-2 rounded-xl max-w-full leading-relaxed border border-secondary/30 mb-2">
+                                        {card.tag}
+                                    </div>
+                                )}
                                 {card.frontImage && <img src={card.frontImage} alt="card front" className="mx-auto max-h-32 object-contain rounded-xl shadow-sm mb-4" />}
-                                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight leading-tight">
+                                <h3 className="text-4xl md:text-5xl font-extrabold text-slate-800 tracking-tight leading-tight break-words w-full">
                                     {card.front}
                                 </h3>
                                 {card.phonetic && (
@@ -272,8 +276,8 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                             </div>
 
                             <div className="mt-8 flex flex-col items-center gap-4">
-                                <Button 
-                                    variant="link" 
+                                <Button
+                                    variant="link"
                                     className="text-primary font-semibold hover:no-underline"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -286,32 +290,32 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                         </div>
 
                         {/* Back Side */}
-                        <div 
-                            className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-[#f8fbff] flex flex-col items-center justify-center p-8 text-center border-2 border-primary/10 shadow-inner"
+                        <div
+                            className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl bg-[#f8fbff] flex flex-col items-center p-8 text-center border-2 border-primary/10 shadow-inner overflow-y-auto pt-16 scrollbar-hide"
                             style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                         >
-                            <div className="absolute top-8 left-0 right-0 flex justify-center">
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                            <div className="absolute top-4 left-0 right-0 flex justify-center z-10">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className={cn(
-                                        "h-12 w-12 rounded-full transition-all",
+                                        "h-10 w-10 rounded-full transition-all",
                                         isAudioPlaying ? "text-primary animate-pulse scale-110" : "text-slate-400 hover:text-primary"
                                     )}
                                     onClick={playAudio}
                                     disabled={isAudioPlaying}
                                 >
-                                    <Volume2 className={cn("size-8", isAudioPlaying ? "fill-primary" : "")} />
+                                    <Volume2 className={cn("size-6", isAudioPlaying ? "fill-primary" : "")} />
                                 </Button>
                             </div>
 
-                            <div className="max-h-full w-full overflow-y-auto px-4 flex flex-col items-center gap-4 pt-10">
+                            <div className="w-full flex flex-col items-center gap-4 pt-4">
                                 {card.backImage && <img src={card.backImage} alt="card back" className="max-h-32 object-contain rounded-xl shadow-sm mb-2" />}
-                                
+
                                 <h3 className="text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-tight">
                                     {card.front}
                                 </h3>
-                                
+
                                 {card.phonetic && (
                                     <p className="text-xl md:text-2xl text-slate-500 font-medium italic">「 {card.phonetic} 」</p>
                                 )}
@@ -324,8 +328,8 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                             </div>
 
                             <div className="mt-8 flex flex-col items-center gap-4">
-                                <Button 
-                                    variant="link" 
+                                <Button
+                                    variant="link"
                                     className="text-primary font-semibold hover:no-underline"
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -352,10 +356,10 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                     {showRatings && flipped ? (
                         <div className="flex gap-4 flex-wrap justify-center animate-in fade-in slide-in-from-bottom-2 duration-300">
                             {(Object.keys(DIFFICULTY_CONFIG) as FlashcardDifficulty[]).map((d) => (
-                                <Button 
-                                    key={d} 
-                                    variant={DIFFICULTY_CONFIG[d].variant} 
-                                    size="lg" 
+                                <Button
+                                    key={d}
+                                    variant={DIFFICULTY_CONFIG[d].variant}
+                                    size="lg"
                                     className="px-8 rounded-2xl font-bold shadow-md hover:scale-105 transition-transform"
                                     onClick={(e) => { e.stopPropagation(); handleRate(d); }}
                                 >
@@ -364,8 +368,8 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                             ))}
                         </div>
                     ) : (
-                        <Button 
-                            onClick={handleFlip} 
+                        <Button
+                            onClick={handleFlip}
                             size="lg"
                             className="bg-primary hover:bg-primary/90 text-white min-w-[200px] h-14 rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-all"
                         >
@@ -375,7 +379,7 @@ export function Flashcards({ flashcardsData, onRate, onComplete, onViewDetail, c
                     )}
                 </div>
             </div>
-            
+
             {/* Minimal Progress Bar at very bottom */}
             <div className="max-w-2xl mx-auto px-4">
                 <Progress value={progress} className="h-1.5 bg-slate-100" />
