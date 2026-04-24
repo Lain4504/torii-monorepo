@@ -13,8 +13,10 @@ import {
     useStreak,
 } from '@/lib/api/services/gamification-api';
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
+import { Badge } from '@workspace/ui/components/badge';
+import { Button } from '@workspace/ui/components/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Progress } from '@workspace/ui/components/progress';
-import { cn } from '@workspace/ui/lib/utils';
 import {
     ArrowRight,
     Award,
@@ -76,34 +78,15 @@ function AuthenticatedDashboardPage() {
     const firstName = user?.displayName?.split(' ').at(-1) || 'Học viên';
 
     const statCards = [
-        {
-            label: 'Khóa học',
-            value: totalCourses,
-            helper: `${inProgressCourses} đang học`,
-            Icon: BookOpen,
-            tint: 'bg-sky-500/10 text-sky-700 dark:text-sky-300',
-        },
-        {
-            label: 'Giờ học',
-            value: `${totalHours}h`,
-            helper: 'Tổng thời lượng tích lũy',
-            Icon: Clock3,
-            tint: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
-        },
+        { label: 'Khóa học', value: totalCourses, helper: `${inProgressCourses} đang học`, Icon: BookOpen },
+        { label: 'Giờ học', value: `${totalHours}h`, helper: 'Tổng thời lượng tích lũy', Icon: Clock3 },
         {
             label: 'Chuỗi học',
             value: `${currentStreak} ngày`,
             helper: currentStreak > 0 ? 'Đang giữ nhịp ổn định' : 'Bắt đầu lại hôm nay',
             Icon: Flame,
-            tint: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
         },
-        {
-            label: 'Hoàn thành',
-            value: `${completedCourses}`,
-            helper: `${avgProgress}% tiến độ trung bình`,
-            Icon: CheckCircle2,
-            tint: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
-        },
+        { label: 'Hoàn thành', value: `${completedCourses}`, helper: `${avgProgress}% tiến độ trung bình`, Icon: CheckCircle2 },
     ];
 
     const quickLinks = [
@@ -116,10 +99,10 @@ function AuthenticatedDashboardPage() {
     ];
 
     return (
-        <div className="space-y-8 pb-4 animate-in fade-in duration-500">
+        <div className="space-y-6 pb-4">
             {streakSavedByFreeze && (
-                <Alert className="rounded-3xl border-blue-200 bg-blue-50/90 text-blue-950 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
-                    <Shield className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                <Alert>
+                    <Shield className="h-4 w-4" />
                     <AlertTitle>Lá chắn streak đã được kích hoạt</AlertTitle>
                     <AlertDescription>
                         Chuỗi học {currentStreak} ngày của bạn đã được bảo vệ. Chỉ cần hoàn thành một phiên học ngắn hôm nay để giữ nhịp.
@@ -127,248 +110,195 @@ function AuthenticatedDashboardPage() {
                 </Alert>
             )}
 
-            <section className="rounded-3xl border border-border bg-card shadow-sm">
-                <div className="grid gap-8 p-6 lg:grid-cols-[minmax(0,1.5fr)_380px] lg:p-8">
-                    <div className="space-y-6">
-                        <div className="space-y-3">
-                            <div className="space-y-3">
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                                    Chào mừng trở lại, {firstName} <Hand className="inline-block size-6 -translate-y-0.5" />
-                                </h1>
-                                <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-                                    Tiếp tục lộ trình học của bạn với khóa học đang diễn ra và các chỉ số tiến độ quan trọng.
-                                </p>
-                            </div>
-                        </div>
-
+            <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_340px]">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-2xl sm:text-3xl">
+                            Chào mừng trở lại, {firstName} <Hand className="inline-block size-5 -translate-y-0.5" />
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                            Tiếp tục lộ trình học của bạn với khóa học đang diễn ra và các chỉ số tiến độ quan trọng.
+                        </p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                         {coursesLoading ? (
-                            <div className="h-80 rounded-3xl border border-border bg-muted/40 animate-pulse" />
+                            <Card className="h-56 animate-pulse bg-muted/40" />
                         ) : mainCourse ? (
-                            <div className="grid gap-5 rounded-2xl border border-border bg-background p-5 lg:grid-cols-[240px_minmax(0,1fr)]">
-                                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                                    {mainCourse.thumbnailUrl ? (
-                                        <img
-                                            src={mainCourse.thumbnailUrl}
-                                            alt={mainCourse.courseTitle}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="flex h-full items-center justify-center">
-                                            <BookOpen className="size-16 text-muted-foreground/30" />
-                                        </div>
-                                    )}
-                                    <div className="absolute left-3 top-3 rounded-full bg-black/65 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur">
-                                        {jlptTarget}
-                                    </div>
-                                </div>
-
-                                <div className="flex min-w-0 flex-col justify-between gap-5">
-                                    <div className="space-y-4">
-                                        <div className="flex flex-wrap items-start justify-between gap-3">
-                                            <div className="space-y-1.5">
-                                                <p className="text-xs font-semibold text-muted-foreground">
-                                                    Khóa học đang ưu tiên
-                                                </p>
-                                                <h2 className="line-clamp-2 text-2xl font-bold leading-tight text-foreground">
-                                                    {mainCourse.courseTitle}
-                                                </h2>
-                                            </div>
-                                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                                                Đang học
-                                            </span>
-                                        </div>
-
-                                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                                            <span>Giảng viên: {mainCourse.instructorName || 'Đang cập nhật'}</span>
-                                            {!mainCourse.liveClassId && (
-                                                <span>
-                                                    Bài học: {completedLessons}/{totalLessons} đã hoàn thành
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {!mainCourse.liveClassId && (
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between text-sm font-semibold">
-                                                    <span>Tiến độ khóa học</span>
-                                                    <span className="text-primary">{mainCourse.progress}%</span>
-                                                </div>
-                                                <Progress value={mainCourse.progress} className="h-2.5 rounded-full" />
-                                                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                                    <span>Tiếp tục từ bài gần nhất</span>
-                                                    <span>{remainingLessons} bài còn lại</span>
-                                                </div>
+                            <Card>
+                                <CardContent className="grid gap-4 p-4 md:grid-cols-[220px_minmax(0,1fr)]">
+                                    <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-muted">
+                                        {mainCourse.thumbnailUrl ? (
+                                            <img
+                                                src={mainCourse.thumbnailUrl}
+                                                alt={mainCourse.courseTitle}
+                                                className="h-full w-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center">
+                                                <BookOpen className="size-10 text-muted-foreground/40" />
                                             </div>
                                         )}
+                                        <Badge className="absolute left-2 top-2">{jlptTarget}</Badge>
                                     </div>
 
-                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                        <Link
-                                            href={getCourseHref(mainCourse)}
-                                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-                                        >
-                                            Tiếp tục học
-                                            <ArrowRight className="size-4" />
-                                        </Link>
-                                        <Link
-                                            href="/dashboard/my-courses"
-                                            className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-accent"
-                                        >
-                                            Xem toàn bộ khóa học
-                                        </Link>
+                                    <div className="space-y-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-xs text-muted-foreground">Khóa học đang ưu tiên</p>
+                                                <h2 className="line-clamp-2 text-xl font-semibold">{mainCourse.courseTitle}</h2>
+                                            </div>
+                                            <Badge variant="secondary">Đang học</Badge>
+                                        </div>
+
+                                        <p className="text-sm text-muted-foreground">
+                                            Giảng viên: {mainCourse.instructorName || 'Đang cập nhật'}
+                                        </p>
+
+                                        {!mainCourse.liveClassId && (
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between text-sm">
+                                                    <span>Tiến độ khóa học</span>
+                                                    <span>{mainCourse.progress}%</span>
+                                                </div>
+                                                <Progress value={mainCourse.progress} />
+                                                <p className="text-xs text-muted-foreground">
+                                                    {completedLessons}/{totalLessons} bài hoàn thành · {remainingLessons} bài còn lại
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-wrap gap-2">
+                                            <Button asChild>
+                                                <Link href={getCourseHref(mainCourse)}>
+                                                    Tiếp tục học
+                                                    <ArrowRight className="size-4" />
+                                                </Link>
+                                            </Button>
+                                            <Button variant="outline" asChild>
+                                                <Link href="/dashboard/my-courses">Xem toàn bộ khóa học</Link>
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         ) : (
-                            <div className="rounded-3xl border border-dashed border-border/80 bg-background/90 p-8">
-                                <div className="max-w-2xl space-y-4">
-                                    <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                                        <BookOpen className="size-7" />
+                            <Card>
+                                <CardContent className="space-y-4 p-6">
+                                    <div className="flex size-10 items-center justify-center rounded-md bg-muted">
+                                        <BookOpen className="size-5" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <h2 className="text-2xl font-bold">Chưa có khóa học nào được ghi danh</h2>
-                                        <p className="text-sm leading-7 text-muted-foreground">
+                                    <div className="space-y-1">
+                                        <h2 className="text-lg font-semibold">Chưa có khóa học nào được ghi danh</h2>
+                                        <p className="text-sm text-muted-foreground">
                                             Hãy bắt đầu một khóa học phù hợp để dashboard có thể theo dõi tiến độ học tập của bạn.
                                         </p>
                                     </div>
-                                    <div className="flex flex-col gap-3 sm:flex-row">
-                                        <Link
-                                            href="/dashboard/available-courses"
-                                            className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
-                                        >
-                                            Khám phá khóa học
-                                        </Link>
-                                        <Link
-                                            href="/dashboard/my-courses"
-                                            className="inline-flex items-center justify-center rounded-2xl border border-border bg-card px-6 py-3.5 text-sm font-semibold text-foreground transition hover:bg-accent"
-                                        >
-                                            Xem khu vực học tập
-                                        </Link>
+                                    <div className="flex flex-wrap gap-2">
+                                        <Button asChild>
+                                            <Link href="/dashboard/available-courses">Khám phá khóa học</Link>
+                                        </Button>
+                                        <Button variant="outline" asChild>
+                                            <Link href="/dashboard/my-courses">Xem khu vực học tập</Link>
+                                        </Button>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         )}
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-                        <div className="rounded-3xl border border-border/70 bg-background/90 p-6 shadow-sm">
-                            <div className="flex items-start justify-between gap-3">
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                                        Hồ sơ học tập
-                                    </p>
-                                    <h3 className="mt-2 text-xl font-bold">Mục tiêu {jlptTarget}</h3>
+                <div className="space-y-4">
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-base">Hồ sơ học tập</CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                                Mục tiêu {jlptTarget} · Level {level}
+                            </p>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                                <div className="rounded-md border p-2">
+                                    <Flame className="mx-auto mb-1 size-4 text-muted-foreground" />
+                                    <div className="font-semibold">{currentStreak}</div>
+                                    <div className="text-xs text-muted-foreground">streak</div>
                                 </div>
-                                <div className="rounded-2xl bg-primary/10 px-3 py-2 text-right text-primary">
-                                    <div className="text-xs font-semibold uppercase tracking-[0.18em]">Level</div>
-                                    <div className="text-lg font-bold">Lv. {level}</div>
+                                <div className="rounded-md border p-2">
+                                    <Trophy className="mx-auto mb-1 size-4 text-muted-foreground" />
+                                    <div className="font-semibold">{achievementCount}</div>
+                                    <div className="text-xs text-muted-foreground">thành tựu</div>
+                                </div>
+                                <div className="rounded-md border p-2">
+                                    <Star className="mx-auto mb-1 size-4 text-muted-foreground" />
+                                    <div className="font-semibold">{avgProgress}%</div>
+                                    <div className="text-xs text-muted-foreground">tiến độ</div>
                                 </div>
                             </div>
-
-                            <div className="mt-6 grid grid-cols-3 gap-3">
-                                <div className="rounded-2xl bg-amber-500/10 px-3 py-4 text-center">
-                                    <Flame className="mx-auto size-4 text-amber-600 dark:text-amber-300" />
-                                    <div className="mt-2 text-lg font-bold">{currentStreak}</div>
-                                    <div className="text-[11px] text-muted-foreground">ngày streak</div>
-                                </div>
-                                <div className="rounded-2xl bg-sky-500/10 px-3 py-4 text-center">
-                                    <Trophy className="mx-auto size-4 text-sky-600 dark:text-sky-300" />
-                                    <div className="mt-2 text-lg font-bold">{achievementCount}</div>
-                                    <div className="text-[11px] text-muted-foreground">thành tựu</div>
-                                </div>
-                                <div className="rounded-2xl bg-emerald-500/10 px-3 py-4 text-center">
-                                    <Star className="mx-auto size-4 text-emerald-600 dark:text-emerald-300" />
-                                    <div className="mt-2 text-lg font-bold">{avgProgress}%</div>
-                                    <div className="text-[11px] text-muted-foreground">tiến độ</div>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 space-y-2">
-                                <div className="flex items-center justify-between text-sm font-semibold">
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
                                     <span>XP tới level tiếp theo</span>
                                     <span>
                                         {currentXpInLevel.toLocaleString('vi-VN')} / {xpNeededForNextLevel.toLocaleString('vi-VN')}
                                     </span>
                                 </div>
-                                <Progress value={xpProgress} className="h-2.5 rounded-full" />
+                                <Progress value={xpProgress} />
                             </div>
-                        </div>
+                        </CardContent>
+                    </Card>
 
-                        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary/85 p-6 text-primary-foreground shadow-lg shadow-primary/15">
-                            <div className="flex items-center gap-3">
-                                <div className="flex size-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-                                    <Bot className="size-6" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/75">
-                                        Trợ lý học tập
-                                    </p>
-                                    <h3 className="text-xl font-bold">AI Sensei</h3>
-                                </div>
-                            </div>
-                            <p className="mt-4 text-sm leading-7 text-white/85">
-                                Hỏi ngữ pháp, xin giải thích bài học hoặc luyện hội thoại ngay trong cùng một hệ thống giao diện.
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-2 text-base">
+                                <Bot className="size-4" />
+                                AI Sensei
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                                Hỏi ngữ pháp, giải thích bài học hoặc luyện hội thoại ngay trong dashboard.
                             </p>
-                            <Link
-                                href="/ai-sensei/chat"
-                                className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white px-4 py-3.5 text-sm font-bold text-primary transition hover:bg-white/90"
-                            >
-                                Mở AI Sensei
-                            </Link>
-                        </div>
-                    </div>
+                        </CardHeader>
+                        <CardContent>
+                            <Button className="w-full" asChild>
+                                <Link href="/ai-sensei/chat">Mở AI Sensei</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
                 </div>
             </section>
 
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                {statCards.map(({ label, value, helper, Icon, tint }) => (
-                    <div key={label} className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-                        <div className="flex items-start justify-between gap-3">
-                            <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                                    {label}
-                                </p>
-                                <p className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+                {statCards.map(({ label, value, helper, Icon }) => (
+                    <Card key={label}>
+                        <CardContent className="p-4">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-xs text-muted-foreground">{label}</p>
+                                    <p className="mt-2 text-2xl font-semibold">{value}</p>
+                                </div>
+                                <Icon className="size-4 text-muted-foreground" />
                             </div>
-                            <div className={cn('rounded-2xl p-3', tint)}>
-                                <Icon className="size-5" />
-                            </div>
-                        </div>
-                        <p className="mt-4 text-sm leading-6 text-muted-foreground">{helper}</p>
-                    </div>
+                            <p className="mt-2 text-sm text-muted-foreground">{helper}</p>
+                        </CardContent>
+                    </Card>
                 ))}
             </section>
 
-            <section className="rounded-[32px] border border-border bg-card p-6 shadow-sm lg:p-8">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                            Điều hướng nhanh
-                        </p>
-                        <h3 className="mt-1 text-2xl font-bold">Những khu vực bạn dùng thường xuyên</h3>
-                    </div>
-                    <p className="max-w-xl text-sm leading-6 text-muted-foreground">
-                        Truy cập nhanh vào các tính năng quan trọng để tối ưu hóa quá trình học tập của bạn.
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-lg">Điều hướng nhanh</CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                        Truy cập nhanh vào các khu vực bạn dùng thường xuyên.
                     </p>
-                </div>
-
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                </CardHeader>
+                <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {quickLinks.map(({ href, Icon, label }) => (
-                        <Link
-                            key={href}
-                            href={href}
-                            className="group flex items-center gap-4 rounded-2xl border border-border/70 bg-background px-5 py-5 transition hover:border-primary/30 hover:bg-accent"
-                        >
-                            <div className="rounded-2xl bg-primary/10 p-3 text-primary">
-                                <Icon className="size-5 transition group-hover:scale-110" />
-                            </div>
-                            <div className="min-w-0">
-                                <div className="text-sm font-semibold">{label}</div>
-                            </div>
-                        </Link>
+                        <Button key={href} variant="outline" className="h-auto justify-start gap-3 py-3" asChild>
+                            <Link href={href}>
+                                <Icon className="size-4" />
+                                <span>{label}</span>
+                            </Link>
+                        </Button>
                     ))}
-                </div>
-            </section>
+                </CardContent>
+            </Card>
 
             <RecommendedCoursesSection jlptTarget={jlptTarget} />
 
