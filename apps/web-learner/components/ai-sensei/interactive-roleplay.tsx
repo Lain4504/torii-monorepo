@@ -276,6 +276,7 @@ export function InteractiveRoleplay() {
     }
 
     const handleStart = async (topicValueOverride?: string) => {
+        stopSpeaking()
         const topicValue = topicValueOverride || topicForm.getValues("topic")
         if (!topicValue.trim()) return
         topicForm.setValue("topic", topicValue) // Sync form
@@ -297,6 +298,7 @@ export function InteractiveRoleplay() {
 
     const handleSend = async (data: InputFormData) => {
         if (!data.text.trim() || isLoading) return
+        stopSpeaking()
         const userMsgText = data.text
         inputForm.reset({ text: "" })
         const newUserMsg: Message = { id: Date.now().toString(), role: 'user', content: userMsgText }

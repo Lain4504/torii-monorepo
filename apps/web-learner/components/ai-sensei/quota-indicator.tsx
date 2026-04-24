@@ -149,16 +149,10 @@ export function QuotaIndicator() {
                                     <span>Thông tin gói</span>
                                 </div>
                                 <div className="flex flex-col gap-0.5 pl-5.5">
-                                    <div className="flex justify-between text-[10px]">
-                                        <span className="text-muted-foreground">Còn lại:</span>
+                                    <div className="flex justify-between text-[11px]">
+                                        <span className="text-muted-foreground font-medium">Hiệu lực gói:</span>
                                         <span className="font-bold text-primary">
-                                            {differenceInDays(new Date(quota.expiresAt), new Date())} ngày
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between text-[10px]">
-                                        <span className="text-muted-foreground">Hết hạn:</span>
-                                        <span className="font-medium">
-                                            {new Date(quota.expiresAt).toLocaleDateString('vi-VN')}
+                                            Còn {differenceInDays(new Date(quota.expiresAt), new Date())} ngày
                                         </span>
                                     </div>
                                 </div>
