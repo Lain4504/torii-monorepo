@@ -16,6 +16,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { useAppSelector } from "@/hooks/hooks"
 import { usePermissions } from "@/hooks/use-permissions"
+import { useLogo } from "@/hooks/useLogo"
 import { selectUser } from "@/store/slices/auth-slice"
 import { academicNavItems, operationsNavItems, financeNavItems, personnelNavItems, systemNavItems, type NavItem } from "@/config/navigation"
 
@@ -64,6 +65,7 @@ function navItemShows(
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const user = useAppSelector(selectUser);
+    const logo = useLogo();
     const { can, canAny } = usePermissions();
     // Trang "Khóa học VOD tôi phụ trách" chỉ dành cho giảng viên (role=lecturer).
     // Admin/staff lms không phải người giảng dạy nên không được thấy option này.
@@ -105,16 +107,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarHeader className="h-auto py-4 px-4 flex flex-col gap-4 group-data-[collapsible=icon]:px-0">
                 <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
                     <div className="size-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center group-data-[collapsible=icon]:mx-auto">
-                        <LayoutGrid className="size-5 text-primary" />
+                        <img src={logo} alt="Torii" className="size-8 object-contain" />
                     </div>
                     <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-                        <div className="text-sm font-semibold truncate">Torii</div>
+                        <div className="text-sm font-semibold truncate uppercase tracking-wider">Torii Admin</div>
                         <div className="text-[11px] text-muted-foreground/60 truncate">
-                            Điều hướng theo quyền
+                            Hệ thống quản trị
                         </div>
                     </div>
                 </div>
             </SidebarHeader>
+
 
             <SidebarContent className="scrollbar-none">
                 {visibleNavGroups.map((group) => (

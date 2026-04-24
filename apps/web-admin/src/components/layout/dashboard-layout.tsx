@@ -7,7 +7,6 @@ import {
   SidebarInset,
   SidebarTrigger
 } from "@workspace/ui/components/sidebar"
-import { Separator } from "@workspace/ui/components/separator"
 
 export default function DashboardLayout() {
   return (
@@ -19,7 +18,6 @@ export default function DashboardLayout() {
         <SidebarInset className="flex min-w-0 flex-col overflow-hidden bg-background">
           <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b bg-background px-4 md:px-6">
             <SidebarTrigger className="h-9 w-9 shrink-0 rounded-md hover:bg-muted" />
-            <Separator orientation="vertical" className="hidden h-5 md:block" />
             <div className="flex-1 min-w-0">
               <DashboardHeader />
             </div>
