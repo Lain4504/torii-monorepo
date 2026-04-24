@@ -1,4 +1,14 @@
 import { PropsWithChildren } from "react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+    title: "Học tập",
+    description: "Khu vực học tập cá nhân với nội dung bài học, quiz và bài thi.",
+    robots: {
+        index: false,
+        follow: false,
+    },
+}
 
 export default function LearningLayout({ children }: PropsWithChildren) {
     return (

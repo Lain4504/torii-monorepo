@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { PageLoading } from "@workspace/ui/components/page-loading";
 import { StatsCard } from "./stats-card";
@@ -13,12 +13,21 @@ import {
   CartesianGrid,
   AreaChart,
   Area,
+  BarChart,
+  Bar,
   Cell,
   PieChart,
   Pie,
   Legend,
 } from "recharts";
 import { Badge } from "@workspace/ui/components/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select";
 import {
   Table,
   TableBody,
@@ -47,8 +56,8 @@ import { cn } from "@workspace/ui/lib/utils";
 import {
   orderStatusBadgeVariant,
   orderStatusLabelVi,
+  pendingApprovalTypePieFill,
   revenueLevelPieFill,
-  distinctPieSliceFill,
 } from "@/lib/dashboard-chart-colors";
 import {
   DASHBOARD_CHART_H,
@@ -96,6 +105,7 @@ const PRESENCE_FALLBACK = {
 
 export default function AdminDashboardV2() {
   const narrow = useNarrowMobile();
+  const [selectedDays, setSelectedDays] = useState<7 | 14 | 30>(30);
 
   const { data, isLoading } = useAdminDashboard({ refetchInterval: 60_000 });
 
@@ -119,6 +129,10 @@ export default function AdminDashboardV2() {
 
   const recentOrders = (staffOperations?.recentOrders ?? []).slice(0, 12);
   const revenueLast30Days = staffOperations?.revenueLast30Days ?? [];
+  const revenueSeries = useMemo(
+    () => revenueLast30Days.slice(-selectedDays),
+    [revenueLast30Days, selectedDays],
+  );
 
   const pendingPieData = pendingApprovalsByType.map((d) => ({
     name: d.name,
@@ -194,22 +208,37 @@ export default function AdminDashboardV2() {
           <div className="w-full space-y-4">
             <Card className={cn(elevatedPanelClass, "w-full")}>
               <CardHeader className={elevatedCardHeaderPrimary}>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                  <div className="min-w-0">
-                    <CardTitle className="text-base">Doanh thu 30 ngày</CardTitle>
-                    <CardDescription className="text-xs">Đơn PAID theo ngày</CardDescription>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                    <div className="min-w-0">
+                      <CardTitle className="text-base">Doanh thu theo ngày</CardTitle>
+                      <CardDescription className="text-xs">Đơn PAID theo khoảng ngày đã chọn</CardDescription>
+                    </div>
                   </div>
+                  <Select
+                    value={String(selectedDays)}
+                    onValueChange={(v) => setSelectedDays(Number(v) as 7 | 14 | 30)}
+                  >
+                    <SelectTrigger className="h-8 w-[120px] text-xs">
+                      <SelectValue placeholder="Chọn ngày" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7">7 ngày</SelectItem>
+                      <SelectItem value="14">14 ngày</SelectItem>
+                      <SelectItem value="30">30 ngày</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardHeader>
               <CardContent className={elevatedPanelContentClass}>
-                {revenueLast30Days.length === 0 ? (
+                {revenueSeries.length === 0 ? (
                   <ChartEmpty />
                 ) : (
                   <DashboardChartScroll>
                     <div className={DASHBOARD_CHART_H}>
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={revenueLast30Days} margin={{ top: 10, right: 8, left: narrow ? -12 : 0, bottom: 0 }}>
+                        <AreaChart data={revenueSeries} margin={{ top: 10, right: 8, left: narrow ? -12 : 0, bottom: 0 }}>
                           <defs>
                             <linearGradient id="adminRevenueArea" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
@@ -298,6 +327,20 @@ export default function AdminDashboardV2() {
                       </div>
                     </DashboardChartScroll>
                   )}
+                  {revenueByLevel.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {revenueByLevel.map((item, index) => (
+                        <Badge key={item.name} variant="outline" className="gap-1.5 text-[11px]">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ backgroundColor: revenueLevelPieFill(item.name, index) }}
+                            aria-hidden
+                          />
+                          {item.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
 
@@ -316,34 +359,44 @@ export default function AdminDashboardV2() {
                     <DashboardChartScroll>
                       <div className={DASHBOARD_CHART_H}>
                         <ResponsiveContainer width="100%" height="100%">
-                          <PieChart margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
-                            <Tooltip formatter={(v: number | undefined) => (v != null ? formatNumber(Number(v)) : "")} />
-                            <Pie
-                              data={pendingPieData}
-                              dataKey="value"
-                              nameKey="name"
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={narrow ? 32 : 44}
-                              outerRadius={narrow ? 62 : 78}
-                              paddingAngle={2}
-                            >
-                              {pendingPieData.map((entry, index) => (
-                                <Cell key={`${entry.name}-${index}`} fill={distinctPieSliceFill(index)} />
-                              ))}
-                            </Pie>
-                            <Legend
-                              verticalAlign="bottom"
-                              height={narrow ? 56 : 48}
-                              formatter={(value: string) => (
-                                <span className="text-[11px] text-foreground">{value}</span>
-                              )}
+                          <BarChart
+                            data={pendingPieData}
+                            layout="vertical"
+                            margin={{ top: 4, right: 12, left: 8, bottom: 4 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" horizontal={false} />
+                            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                            <YAxis
+                              dataKey="name"
+                              type="category"
+                              width={narrow ? 88 : 116}
+                              tick={{ fontSize: 11 }}
                             />
-                          </PieChart>
+                            <Tooltip formatter={(v: number | undefined) => (v != null ? formatNumber(Number(v)) : "")} />
+                            <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                              {pendingPieData.map((entry, index) => (
+                                <Cell key={`${entry.name}-${index}`} fill={pendingApprovalTypePieFill(entry.name)} />
+                              ))}
+                            </Bar>
+                          </BarChart>
                         </ResponsiveContainer>
                       </div>
                     </DashboardChartScroll>
                   )}
+                  {pendingPieData.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {pendingPieData.map((item, index) => (
+                        <Badge key={`${item.name}-${index}`} variant="outline" className="gap-1.5 text-[11px]">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ backgroundColor: pendingApprovalTypePieFill(item.name) }}
+                            aria-hidden
+                          />
+                          {item.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
             </div>
