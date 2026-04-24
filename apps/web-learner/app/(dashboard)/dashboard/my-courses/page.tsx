@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/av
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
+import { toast } from '@workspace/ui/components/sonner'
 import {
     useAcademyMyCourses,
     useAcademyLearningStats
@@ -37,11 +38,22 @@ import { cn } from '@workspace/ui/lib/utils'
 import { ClassReviewDialog } from '@/components/class-reviews/class-review-dialog'
 import { academyClassReviewHooks } from '@/lib/api/services/academy-class-reviews'
 
+const MEET_URL =
+    typeof process !== 'undefined'
+        ? process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.sbs'
+        : 'https://meet.torii.sbs'
+
 export default function MyCoursesPage() {
     const [filter, setFilter] = useState<'all' | 'in-progress' | 'completed'>('all')
     const [courses, setCourses] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [expiredCourseTitle, setExpiredCourseTitle] = useState<string | null>(null)
+    const [now, setNow] = useState(() => new Date())
+
+    useEffect(() => {
+        const timer = setInterval(() => setNow(new Date()), 30 * 1000)
+        return () => clearInterval(timer)
+    }, [])
 
     const { data: myReviewsResp } = academyClassReviewHooks.useListMine()
     const myReviews = myReviewsResp?.data?.data || []
@@ -149,10 +161,10 @@ export default function MyCoursesPage() {
                                     onClick={async () => {
                                         try {
                                             const joinData = await liveSessionApi.joinSession(nextSession.id);
-                                            const MEET_URL = (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com');
-                                            const url = `${MEET_URL}?access_token=${joinData.token}`;
-                                            window.open(url, '_blank', 'noopener,noreferrer');
-                                        } catch (err) { }
+                                            window.open(`${MEET_URL}?access_token=${joinData.token}`, '_blank', 'noopener,noreferrer');
+                                        } catch (err: any) {
+                                            toast.error(err.response?.data?.message || 'Không thể vào phòng học');
+                                        }
                                     }}
                                 >
                                     Vào lớp ngay

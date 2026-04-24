@@ -64,7 +64,7 @@ export const accountNav: NavItem[] = [
 
 export const aiSenseiNav: NavItem[] = [
     { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
-    { name: 'Hội thoại tự do', href: '/ai-sensei/roleplay/interactive', icon: MessagesSquare },
+    { name: 'Hội thoại chủ đề', href: '/ai-sensei/roleplay/interactive', icon: MessagesSquare },
     { name: 'Hội thoại giọng nói', href: '/ai-sensei/roleplay/voice', icon: MonitorPlay },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
     { name: 'Gói dịch vụ AI', href: '/dashboard/payment/subscriptions', icon: CreditCard },
