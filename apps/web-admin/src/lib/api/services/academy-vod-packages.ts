@@ -20,8 +20,8 @@ export type AcademyVodPackage = {
   submittedForApprovalAt?: string | null
   rejectionReason?: string | null
   instructorId?: string | null
-  instructor?: { id: string; displayName: string } | null
-  courseProfile?: { title: string }
+  instructor?: { id: string; displayName: string; avatarUrl?: string | null } | null
+  courseProfile?: { id: string; title: string; level: string; thumbnailUrl?: string | null }
   createdAt: string
   updatedAt: string
 }

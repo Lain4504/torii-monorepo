@@ -199,7 +199,6 @@ export default function VodPackagesPage() {
                                         <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
                                     </TableRow>
                                 ))
@@ -232,19 +231,13 @@ export default function VodPackagesPage() {
                                         <TableCell className="font-semibold text-sm">{pkg.title}</TableCell>
                                         <TableCell className="text-muted-foreground text-xs">{pkg.instructor?.displayName || 'Chưa chọn'}</TableCell>
                                         <TableCell>
-                                            <div className="flex flex-col">
-                                                {pkg.discountPrice ? (
-                                                    <>
-                                                        <span className="font-bold text-sm tracking-tight text-primary">
-                                                            {Number(pkg.discountPrice).toLocaleString()}₫
-                                                        </span>
-                                                        <span className="text-[10px] text-muted-foreground line-through opacity-70">
-                                                            {Number(pkg.price).toLocaleString()}₫
-                                                        </span>
-                                                    </>
-                                                ) : (
-                                                    <span className="font-bold text-sm tracking-tight">
-                                                        {Number(pkg.price).toLocaleString()}₫
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-sm font-bold text-primary tabular-nums">
+                                                    {pkg.discountPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(pkg.discountPrice)) : (pkg.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(pkg.price)) : 'Miễn phí')}
+                                                </span>
+                                                {pkg.discountPrice && pkg.price && (
+                                                    <span className="text-[10px] text-muted-foreground line-through tabular-nums opacity-70">
+                                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(pkg.price))}
                                                     </span>
                                                 )}
                                             </div>
