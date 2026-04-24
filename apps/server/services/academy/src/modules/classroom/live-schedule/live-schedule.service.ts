@@ -1481,7 +1481,7 @@ export class LiveScheduleService {
   }
 
   private assertClassJoinable(classStatus: string) {
-    if (classStatus !== 'OPENING') {
+    if (classStatus !== 'IN_PROGRESS') {
       throw new BadRequestException(
         'Class is not available for live sessions in current status.',
       );
