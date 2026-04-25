@@ -2,7 +2,7 @@ import { BackgroundConfig } from '@/components/virtual-background/helpers/backgr
 
 export type DeviceOrientation = 'landscape' | 'portrait';
 
-export type SidePanelType = 'CHAT' | 'PARTICIPANTS' | 'POLLS' | null;
+export type SidePanelType = 'CHAT' | 'PARTICIPANTS' | 'POLLS' | 'AI_CHAT' | null;
 
 export interface IBottomIconsSlice {
   isActiveMicrophone: boolean;
@@ -36,4 +36,5 @@ export interface IBottomIconsSlice {
   totalUnreadChatMsgs: number;
   virtualBackground: BackgroundConfig;
   isEnabledExtendedVerticalCamView: boolean;
+  recordingModalOpenNonce: number;
 }
