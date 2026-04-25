@@ -9,6 +9,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtTokenProvider } from '../providers/jwt-token.provider';
+import { AppConfigService } from '../config/app-config.service';
+import { verifyWajlcAccessToken } from '../utils/verify_token';
 import { BlacklistService } from '../services/blacklist.service';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import Redis from 'ioredis';
@@ -22,8 +24,9 @@ export class GatewayAuthGuard implements CanActivate {
     private readonly jwtTokenProvider: JwtTokenProvider,
     private readonly blacklistService: BlacklistService,
     private readonly reflector: Reflector,
+    private readonly appConfig: AppConfigService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
@@ -68,7 +71,30 @@ export class GatewayAuthGuard implements CanActivate {
       throw new UnauthorizedException('No token provided');
     }
 
-    const payload = await this.jwtTokenProvider.verifyToken(token);
+    let payload = await this.jwtTokenProvider.verifyToken(token);
+
+    if (!payload) {
+      // Try verifying as Wajlc token
+      try {
+        const { wajlc } = this.appConfig.security;
+        const wajlcClaims = verifyWajlcAccessToken(
+          wajlc.apiKey,
+          wajlc.apiSecret,
+          token,
+        );
+        if (wajlcClaims) {
+          payload = {
+            sub: wajlcClaims.userId,
+            role: wajlcClaims.isAdmin ? 'lecturer' : 'student',
+            name: wajlcClaims.name,
+            roomId: wajlcClaims.roomId,
+          } as any;
+        }
+      } catch (e) {
+        this.logger.warn(`[GatewayAuthGuard] Token verification failed for both standard and Wajlc`);
+      }
+    }
+
     if (!payload) {
       this.logger.warn(`[GatewayAuthGuard] Token verification failed`);
       throw new UnauthorizedException();
@@ -115,9 +141,16 @@ export class GatewayAuthGuard implements CanActivate {
 
   private extractToken(request: Request): string | undefined {
     // 1. Check Header (Mobile/API)
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    if (type === 'Bearer' && token) {
-      return token;
+    const authHeader = request.headers.authorization;
+    if (authHeader) {
+      const [type, token] = authHeader.split(' ');
+      if (type === 'Bearer' && token) {
+        return token;
+      }
+      if (type && !token) {
+        // Handle cases where Bearer prefix is missing
+        return type;
+      }
     }
 
     // 2. Check Cookie (Web)
@@ -126,7 +159,6 @@ export class GatewayAuthGuard implements CanActivate {
     }
 
     this.logger.debug('[GatewayAuthGuard] No token in Header or Cookies');
-    // console.log('Cookies:', request.cookies);
 
     return undefined;
   }

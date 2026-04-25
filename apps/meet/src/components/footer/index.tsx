@@ -13,6 +13,7 @@ import EndMeetingButton from '@/components/footer/icons/end-meeting';
 import RecordingIcon from '@/components/footer/icons/recording';
 import PollsIcon from '@/components/footer/icons/polls';
 import MenusIcon from '@/components/footer/icons/menus';
+import AiChatIcon from '@/components/footer/icons/ai-chat';
 
 const Footer = () => {
   const { isRecorder, allowChat, isAdmin } = useMemo(() => {
@@ -48,6 +49,7 @@ const Footer = () => {
             <div className="meet-footer-secondary hidden items-center gap-2 md:flex">
               <PollsIcon />
               <RecordingIcon />
+              <AiChatIcon />
             </div>
 
             <div className="flex items-center gap-2 md:hidden">
@@ -63,6 +65,7 @@ const Footer = () => {
         </div>
 
         <div className="footer-right hidden min-w-0 shrink-0 items-center justify-end gap-1.5 md:flex md:gap-2">
+          <AiChatIcon />
           {allowChat && <ChatIcon />}
           <ParticipantIcon />
         </div>
