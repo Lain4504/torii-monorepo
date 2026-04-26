@@ -186,3 +186,9 @@ export const AgentRoleplayResponseSchema = z.object({
     isFinished: z.boolean().nullable().optional(),
 });
 export type AgentRoleplayResponseDTO = z.infer<typeof AgentRoleplayResponseSchema>;
+
+export const AgentLessonChatResponseSchema = z.object({
+    message: z.string(),
+    suggestions: z.array(z.string()),
+});
+export type AgentLessonChatResponseDTO = z.infer<typeof AgentLessonChatResponseSchema>;

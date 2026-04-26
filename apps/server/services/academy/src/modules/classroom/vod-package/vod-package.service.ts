@@ -201,6 +201,38 @@ export class VodPackageService {
       },
     });
 
+    // --- TRIGGER AUTOMATIC TRANSCRIPTION ON PUBLISH ---
+    if (data.status === 'PUBLISHED' && before.status !== 'PUBLISHED') {
+      try {
+        const lessons = await this.prisma.lesson.findMany({
+          where: {
+            module: {
+              courseProfileId: before.courseProfileId,
+            },
+            type: 'VIDEO',
+            videoUrl: { not: null, notIn: [''] },
+          },
+          select: { id: true },
+        });
+
+        if (lessons.length > 0) {
+          this.logger.log(
+            `🚀 Course published! Auto-triggering transcription for ${lessons.length} lessons in background...`,
+          );
+          lessons.forEach((lesson) => {
+            this.natsClient.emit(
+              { cmd: 'agents.sensei.processTranscription' },
+              { lessonId: lesson.id },
+            );
+          });
+        }
+      } catch (err: any) {
+        this.logger.error(
+          `Failed to auto-trigger transcriptions on publish: ${err.message}`,
+        );
+      }
+    }
+
     if (
       requesterId &&
       data.status !== undefined &&

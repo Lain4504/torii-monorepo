@@ -1204,10 +1204,12 @@ model Lesson {
   content    String?    @db.Text
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @default(now()) @updatedAt @map("updated_at")
+  transcriptionStatus String     @default("IDLE") @map("transcription_status")
 
   module             Module                           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress           UserLessonProgress[]
   academyAssessments AcademyCourseProfileAssessment[]
+  transcriptChunks   LessonTranscriptChunk[]
 
   @@unique([moduleId, orderIndex])
   @@index([moduleId])
@@ -2253,4 +2255,17 @@ model AcademyCourseProfileAssessment {
   @@unique([courseProfileId, assessmentKind, moduleId], map: "idx_assessment_module_unique")
   @@index([courseProfileId, isActive, orderIndex])
   @@map("academy_course_profile_assessments")
+}
+
+/// LessonTranscriptChunk lưu kịch bản video theo mốc thời gian
+model LessonTranscriptChunk {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lessonId  String @map("lesson_id") @db.Uuid
+  startTime Int    @map("start_time")
+  endTime   Int    @map("end_time")
+  content   String @db.Text
+  lesson    Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("academy_lesson_transcript_chunks")
 }

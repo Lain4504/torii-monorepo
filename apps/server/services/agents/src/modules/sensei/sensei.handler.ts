@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, OnModuleInit, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Requester } from '@workspace/schemas';
 
@@ -10,11 +10,17 @@ import { TTSService } from './tts.service';
  * Handles inter-service communication via NATS messaging
  */
 @Controller()
-export class SenseiHandler {
+export class SenseiHandler implements OnModuleInit {
+  private readonly logger = new Logger(SenseiHandler.name);
+
   constructor(
     private readonly senseiService: SenseiService,
     private readonly ttsService: TTSService,
-  ) {}
+  ) { }
+
+  onModuleInit() {
+    this.logger.log('✅ SenseiHandler initialized and listening for NATS messages');
+  }
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
@@ -71,12 +77,12 @@ export class SenseiHandler {
     @Payload()
     data: {
       scenario:
-        | 'restaurant'
-        | 'shopping'
-        | 'station'
-        | 'office'
-        | 'casual'
-        | 'formal';
+      | 'restaurant'
+      | 'shopping'
+      | 'station'
+      | 'office'
+      | 'casual'
+      | 'formal';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
       requester: Requester;
@@ -144,6 +150,28 @@ export class SenseiHandler {
     );
   }
 
+  @MessagePattern({ cmd: 'agents.sensei.lessonChat' })
+  async lessonChat(
+    @Payload()
+    data: {
+      requester: Requester;
+      lessonId: string;
+      message: string;
+      history: any[];
+      courseId?: string;
+      currentTimestamp?: string;
+    },
+  ) {
+    return this.senseiService.lessonChat(
+      data.requester,
+      data.lessonId,
+      data.message,
+      data.history || [],
+      data.courseId,
+      data.currentTimestamp,
+    );
+  }
+
   @MessagePattern({ cmd: 'agents.sensei.tts' })
   async tts(@Payload() data: { text: string; voice?: string }) {
     console.log(
@@ -162,5 +190,10 @@ export class SenseiHandler {
       console.error(`[SenseiHandler] TTS failed:`, e);
       throw e;
     }
+  }
+
+  @MessagePattern({ cmd: 'agents.sensei.processTranscription' })
+  async processTranscription(@Payload() data: { lessonId: string }) {
+    return this.senseiService.processVideoTranscription(data.lessonId);
   }
 }
