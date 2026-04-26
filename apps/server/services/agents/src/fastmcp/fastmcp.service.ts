@@ -208,6 +208,40 @@ export class FastMcpService {
     }
   }
 
+  public async callGeminiMultimodal(
+    prompt: string,
+    mediaFiles: { mimeType: string; data: string }[], // Base64 data
+  ): Promise<{ text: string; usage: any }> {
+    if (!this.genAI) {
+      throw new Error('Gemini API Key is missing');
+    }
+
+    try {
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+      const parts = [
+        { text: prompt },
+        ...mediaFiles.map((f) => ({
+          inlineData: {
+            mimeType: f.mimeType,
+            data: f.data,
+          },
+        })),
+      ];
+
+      const result = await model.generateContent({ contents: [{ role: 'user', parts }] });
+      const usage = result.response.usageMetadata;
+
+      return {
+        text: result.response.text(),
+        usage: usage,
+      };
+    } catch (error: any) {
+      this.logger.error('Gemini Multimodal API Error:', error);
+      throw new Error(`Gemini Multimodal API Error: ${error.message}`);
+    }
+  }
+
   public cleanJsonResponse(text: string): any {
     if (process.env.DEBUG_AI) {
       // console.log('--- RAW AI RESPONSE ---');
@@ -222,10 +256,17 @@ export class FastMcpService {
     }
 
     const firstBrace = cleaned.indexOf('{');
+    const firstBracket = cleaned.indexOf('[');
     const lastBrace = cleaned.lastIndexOf('}');
+    const lastBracket = cleaned.lastIndexOf(']');
 
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    const starts = [firstBrace, firstBracket].filter(i => i !== -1);
+    const ends = [lastBrace, lastBracket].filter(i => i !== -1);
+
+    if (starts.length > 0 && ends.length > 0) {
+      const start = Math.min(...starts);
+      const end = Math.max(...ends);
+      cleaned = cleaned.substring(start, end + 1);
     }
 
     try {
@@ -366,8 +407,8 @@ export class FastMcpService {
           averageScore:
             item.scores.length > 0
               ? Math.round(
-                  item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
-                )
+                item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
+              )
               : 0,
         }))
         .sort(
@@ -425,19 +466,19 @@ export class FastMcpService {
         recentVocabulary,
         stats: gamification
           ? {
-              level: gamification.level,
-              streak: gamification.currentStreak,
-              totalXp: gamification.totalXp,
-            }
+            level: gamification.level,
+            streak: gamification.currentStreak,
+            totalXp: gamification.totalXp,
+          }
           : null,
         onboarding: onboardingUser
           ? {
-              jlptTarget:
-                onboardingUser.jlptTarget ??
-                ((onboardingUser.userMetadata as any)?.jlptTarget ??
-                  undefined),
-              currentLevel: onboardingUser.currentLevel ?? undefined,
-            }
+            jlptTarget:
+              onboardingUser.jlptTarget ??
+              ((onboardingUser.userMetadata as any)?.jlptTarget ??
+                undefined),
+            currentLevel: onboardingUser.currentLevel ?? undefined,
+          }
           : null,
       };
     } catch (error) {
