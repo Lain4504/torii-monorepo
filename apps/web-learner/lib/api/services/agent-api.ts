@@ -180,8 +180,21 @@ export const agentApi = {
             }
             return response.data.data;
         },
-        getQuotaStatus: async (): Promise<{ limit: number; used: number; remaining: number; tier: string; resetAt: string }> => {
-            const response = await apiClient.get<{ success: boolean; data: { limit: number; used: number; remaining: number; tier: string; resetAt: string } }>('/api/agents/sensei/quota-status');
+        getQuotaStatus: async (): Promise<{ limit: number; used: number; remaining: number; tier: string; resetAt: string; expiresAt?: string }> => {
+            const response = await apiClient.get<{ success: boolean; data: { limit: number; used: number; remaining: number; tier: string; resetAt: string; expiresAt?: string } }>('/api/agents/sensei/quota-status');
+            return response.data.data;
+        },
+        lessonChat: async (params: {
+            lessonId: string;
+            courseId?: string;
+            currentTimestamp?: string;
+            message: string;
+            history?: any[];
+        }): Promise<{ message: string; suggestions: string[] }> => {
+            const response = await apiClient.post<{ success: boolean; data: { message: string; suggestions: string[] }; message?: string }>('/api/agents/lesson/chat', params);
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to chat about lesson');
+            }
             return response.data.data;
         },
     },

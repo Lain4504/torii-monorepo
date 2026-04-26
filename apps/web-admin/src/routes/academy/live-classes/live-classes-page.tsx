@@ -251,7 +251,9 @@ export default function LiveClassesPage() {
                                 <TableHead className="w-[100px]">Banner</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>
                                 <TableHead>Tên Lớp học</TableHead>
+                                <TableHead className="w-[150px]">Giảng viên</TableHead>
                                 <TableHead className="w-[180px]">Đợt học</TableHead>
+                                <TableHead className="w-[140px]">Học phí</TableHead>
                                 <TableHead className="w-[150px]">Trạng thái</TableHead>
                                 <TableHead className="w-[100px]">Học viên</TableHead>
                                 <TableHead className="text-right pr-6">Thao tác</TableHead>
@@ -266,6 +268,8 @@ export default function LiveClassesPage() {
                                         <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-8" /></TableCell>
                                         <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
@@ -273,7 +277,7 @@ export default function LiveClassesPage() {
                                 ))
                             ) : !classes || classes.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
+                                    <TableCell colSpan={10} className="h-32 text-center text-muted-foreground">
                                         Không tìm thấy lớp học nào.
                                     </TableCell>
                                 </TableRow>
@@ -310,6 +314,22 @@ export default function LiveClassesPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-7 w-7 rounded-full bg-muted overflow-hidden border">
+                                                        {cls.instructor?.avatarUrl ? (
+                                                            <img src={cls.instructor.avatarUrl} alt="" className="h-full w-full object-cover" />
+                                                        ) : (
+                                                            <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground font-bold bg-primary/10 text-primary uppercase">
+                                                                {cls.instructor?.displayName?.charAt(0) || '?'}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-xs font-medium text-slate-700 line-clamp-1">
+                                                        {cls.instructor?.displayName || "Chưa gán"}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
                                                 {cls.cohort?.name ? (
                                                     <div className="flex flex-col gap-1">
                                                         <span className="text-xs font-medium text-slate-700">{cls.cohort.name}</span>
@@ -320,6 +340,18 @@ export default function LiveClassesPage() {
                                                 ) : (
                                                     <span className="text-muted-foreground italic text-xs">—</span>
                                                 )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-sm font-bold text-primary tabular-nums">
+                                                        {cls.discountPrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(cls.discountPrice)) : (cls.price ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(cls.price)) : 'Miễn phí')}
+                                                    </span>
+                                                    {cls.discountPrice && cls.price && (
+                                                        <span className="text-[10px] text-muted-foreground line-through tabular-nums">
+                                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(cls.price))}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </TableCell>
                                             <TableCell>
                                                 <button

@@ -14,6 +14,8 @@ export type AcademyLiveClass = {
   code: string
   name: string
   status: string
+  price?: string | number | null
+  discountPrice?: string | number | null
   instructorId?: string | null
   instructor?: {
     id: string

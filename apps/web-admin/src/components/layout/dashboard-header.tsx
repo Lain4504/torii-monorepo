@@ -14,21 +14,67 @@ import { CommandMenu } from "@/components/layout/command-menu.tsx"
 import { NotificationsDropdown } from "@/components/layout/notifications-dropdown.tsx"
 
 const SEGMENT_LABELS: Record<string, string> = {
+  // Core
   academy: "Học thuật",
+  dashboard: "Bảng điều khiển",
+  finance: "Tài chính",
+  operations: "Vận hành",
+  personnel: "Nhân sự",
+  system: "Hệ thống",
+
+  // Academy / LMS
   "course-profiles": "Kho Khóa học",
   cohorts: "Đợt khai giảng",
-  "vod-packages": "Khóa tự học",
   "live-classes": "Lớp trực tiếp",
+  "vod-packages": "Khóa tự học",
   lessons: "Bài dạy",
   quizzes: "Trắc nghiệm",
   assignments: "Bài tập",
   exams: "Kỳ thi",
-  "question-pools": "Ngân hàng câu hỏi",
-  users: "Người dùng",
-  roles: "Vai trò",
+  "reschedule-requests": "Yêu cầu dời lịch",
+  approvals: "Phê duyệt",
+  "ai-subscriptions": "Gói AI",
+  "study-set-catalogs": "Danh mục bộ thẻ",
+  assessment: "Đánh giá",
+  questions: "Ngân hàng câu hỏi",
+
+  // JLPT
+  jlpt: "Luyện thi JLPT",
+  templates: "Mẫu đề",
+  mondai: "Mondai",
+  config: "Cấu hình",
+
+  // Operational
+  blogs: "Tin tức",
+  tickets: "Hỗ trợ",
+  notifications: "Thông báo",
+  audit: "Kiểm tra",
+  "audit-logs": "Nhật ký hệ thống",
+
+  // Finance
   orders: "Đơn hàng",
   coupons: "Mã giảm giá",
-  tickets: "Hỗ trợ",
+  "revenue-analytics": "Phân tích doanh thu",
+  rewards: "Phần thưởng",
+  achievements: "Thành tựu",
+
+  // Personnel / Users
+  users: "Người dùng",
+  permissions: "Phân quyền",
+  roles: "Vai trò",
+
+  // Common Actions / States
+  create: "Tạo mới",
+  edit: "Chỉnh sửa",
+  detail: "Chi tiết",
+  new: "Thêm mới",
+  my: "Của tôi",
+  discussion: "Thảo luận",
+  schedule: "Lịch học",
+  assessments: "Đánh giá",
+  submissions: "Bài nộp",
+  profile: "Cá nhân",
+  settings: "Cài đặt",
 }
 
 export function DashboardHeader() {

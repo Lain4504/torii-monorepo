@@ -29,7 +29,6 @@ import {
 } from "@workspace/ui/components/table"
 import { useAcademyLiveClass } from '@/lib/api/services/academy-live-classes'
 import { useAcademyVodPackage } from '@/lib/api/services/academy-vod-packages'
-import { usePermissions } from '@/hooks/use-permissions'
 
 interface ClassDiscussionTabProps {
   liveClassId?: string
@@ -43,7 +42,6 @@ export function ClassDiscussionTab({
   vodPackageData,
 }: ClassDiscussionTabProps) {
   const { user, isAuthenticated } = useAuth()
-  const { canAny } = usePermissions()
   const createComment = useCreateComment()
 
   const [selectedTopic, setSelectedTopic] = useState<CommentResponseDTO | null>(null)
@@ -68,17 +66,9 @@ export function ClassDiscussionTab({
     return user?.id === instructorId
   }, [user?.id, academyClass, resolvedVodPackage])
 
-  const isAcademicManager = canAny([
-    "lms.catalog.update",
-    "lms.delivery.update",
-    "lms.commerce.update",
-    "lms.catalog.approve",
-    "lms.delivery.approve",
-    "lms.commerce.approve",
-    "lms.approval.manage",
-  ])
   // Ở màn quản lý (lecture/admin), không cho tạo chủ đề hỏi mới, chỉ dùng để trả lời câu hỏi học viên.
-  const canPost = isAssignedInstructor || isAcademicManager
+  // UPDATE: Chỉ cho phép giảng viên phụ trách (assigned instructor) được phản hồi. Admin và staff chỉ xem.
+  const canPost = isAssignedInstructor
 
   const [selectedLessonId, setSelectedLessonId] = useState<string>('all')
 
@@ -340,7 +330,7 @@ export function ClassDiscussionTab({
                       variant="outline"
                       onClick={() => setSelectedTopic(topic)}
                     >
-                      Phản hồi
+                      {canPost ? "Phản hồi" : "Xem"}
                     </Button>
                   </TableCell>
                 </TableRow>

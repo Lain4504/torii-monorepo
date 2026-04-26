@@ -18,6 +18,7 @@ import PollsComponent from '@/components/polls';
 import ChatComponent from '@/components/chat';
 import ParticipantsComponent from '@/components/participants';
 import SidePanel from '@/components/main-area/side-panel';
+import AiChatBot from '@/components/ai-chatbot';
 
 const MainArea = () => {
   const dispatch = useAppDispatch();
@@ -196,6 +197,13 @@ const MainArea = () => {
             <PollsComponent />
           </SidePanel>
         )}
+        <SidePanel
+          isActive={activeSidePanel === 'AI_CHAT'}
+          panelClass="ai-chat-panel"
+          onToggle={handleSidePanelToggled}
+        >
+          <AiChatBot />
+        </SidePanel>
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ export class SenseiHandler {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     private readonly appConfig: AppConfigService,
-  ) {}
+  ) { }
 
   @Post('grammar-check')
   @UseGuards(GatewayAuthGuard)
@@ -201,6 +201,40 @@ export class SenseiHandler {
     }
   }
 
+  @Post('lesson/chat')
+  @UseGuards(GatewayAuthGuard)
+  async lessonChat(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`📖 Lesson chat request from user ${userId} for lesson ${body.lessonId}`);
+
+      // Check Quota
+      const quota = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'billing.quota.checkAndConsume' },
+          { userId, feature: 'ai_turns' },
+        ),
+      );
+      if (quota.allowed === false) {
+        return errorResponse(
+          `Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.`,
+        );
+      }
+
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.lessonChat' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Lesson chat failed for user ${userId}`, error.stack);
+      return errorResponse(error.message || 'Failed to chat about lesson');
+    }
+  }
+
   @Post('roleplay')
   @UseGuards(GatewayAuthGuard)
   async roleplay(@Req() req: ReqWithRequester, @Body() body: any) {
@@ -276,7 +310,7 @@ export class SenseiHandler {
       if (!usageResult || usageResult.allowed === false) {
         return errorResponse(
           usageResult?.message ||
-            'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
+          'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
         );
       }
 
@@ -321,7 +355,7 @@ export class SenseiHandler {
       if (!usageResult || usageResult.allowed === false) {
         return errorResponse(
           usageResult?.message ||
-            'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
+          'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
         );
       }
 

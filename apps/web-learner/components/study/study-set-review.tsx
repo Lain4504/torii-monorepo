@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
+import {
   useAcademyStudyCards as useStudyCards,
-  useReviewAcademyCard as useReviewCard 
+  useReviewAcademyCard as useReviewCard
 } from '@/lib/api/services/academy-study-set-api';
 import {
   Card,
@@ -53,12 +53,12 @@ export function StudySetReview({ setId }: { setId: string }) {
 
   const flashcardsData: FlashcardsData | null = useMemo(() => {
     if (!displayCards || displayCards.length === 0) return null;
-    
+
     // Helper to resolve potential relative URLs from the backend
     const resolveAudioUrl = (url?: string) => {
       if (!url) return undefined;
       if (url.startsWith('http')) return url;
-      
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
       // Remove trailing slash from baseUrl and leading slash from url if needed
       const cleanBase = baseUrl.replace(/\/$/, '');
@@ -167,12 +167,12 @@ export function StudySetReview({ setId }: { setId: string }) {
   return (
     <div className="flex-1 flex flex-col" data-purpose="review-page">
       <div className="w-full max-w-4xl mx-auto space-y-6 py-4 md:py-6 flex-1 flex flex-col">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between max-w-2xl w-full mx-auto">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push(`/dashboard/study-sets/${setId}`)}
-            className="inline-flex items-center gap-1"
+            className="inline-flex items-center gap-1 -ml-2"
           >
             <ChevronLeft className="h-4 w-4" />
             <span>Quay lại bộ thẻ</span>

@@ -25,13 +25,23 @@ import { AppConfigService } from '../config/app-config.service';
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly appConfig: AppConfigService) {}
+  constructor(private readonly appConfig: AppConfigService) { }
 
   canActivate(context: ExecutionContext): boolean {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    const authToken = request.headers.authorization;
+    const authHeader = request.headers.authorization;
+    let authToken = authHeader;
+
+    if (authHeader) {
+      const [type, token] = authHeader.split(' ');
+      if (type === 'Bearer' && token) {
+        authToken = token;
+      } else if (type && !token) {
+        authToken = type;
+      }
+    }
 
     // Determine error status based on path
     const path = request.path;

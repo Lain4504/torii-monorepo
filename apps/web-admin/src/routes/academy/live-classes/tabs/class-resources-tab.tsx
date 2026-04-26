@@ -15,7 +15,6 @@ import {
     Plus,
     Trash2,
     Download,
-    MoreVertical,
     Eye,
     EyeOff,
     ArrowLeft,
@@ -50,12 +49,6 @@ import {
     SelectTrigger,
     SelectValue
 } from "@workspace/ui/components/select"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "@workspace/ui/components/dropdown-menu"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -321,7 +314,7 @@ export function ClassResourcesTab({ liveClassId, vodPackageId }: ClassResourcesT
                                             placeholder="VD: Tài liệu buổi 1 - Từ vựng N3"
                                             value={newResource.title}
                                             onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
-                                            className="rounded-xl"
+                                            className="rounded-xl w-full"
                                         />
                                     </div>
                                     <div className="grid gap-2">
@@ -354,10 +347,10 @@ export function ClassResourcesTab({ liveClassId, vodPackageId }: ClassResourcesT
                                     <div className="grid gap-2">
                                         <Label>Tải lên tập tin</Label>
                                         {newResource.fileAssetId ? (
-                                            <div className="flex items-center gap-2 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
-                                                <FileText className="size-4" />
-                                                <span className="text-xs font-medium truncate flex-1">{newResource.title}</span>
-                                                <Button variant="ghost" size="sm" onClick={() => setNewResource({ ...newResource, fileAssetId: "" })} className="h-6 px-2 text-emerald-700 hover:bg-emerald-100">Thay đổi</Button>
+                                            <div className="flex items-center gap-2 p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 overflow-hidden">
+                                                <FileText className="size-4 shrink-0" />
+                                                <span className="text-xs font-medium truncate flex-1 min-w-0">{newResource.title}</span>
+                                                <Button variant="ghost" size="sm" onClick={() => setNewResource({ ...newResource, fileAssetId: "" })} className="h-6 px-2 text-emerald-700 hover:bg-emerald-100 shrink-0">Thay đổi</Button>
                                             </div>
                                         ) : (
                                             <div
@@ -430,9 +423,9 @@ export function ClassResourcesTab({ liveClassId, vodPackageId }: ClassResourcesT
                                     {folders.map((f) => (
                                         <TableRow key={f.folderId}>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <Folder className="size-4 text-primary" />
-                                                    <span className="font-medium">{f.folderName}</span>
+                                                <div className="flex items-center gap-2 max-w-[250px]">
+                                                    <Folder className="size-4 text-primary shrink-0" />
+                                                    <span className="font-medium truncate">{f.folderName}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>{f.resourceCount || 0}</TableCell>
@@ -446,22 +439,15 @@ export function ClassResourcesTab({ liveClassId, vodPackageId }: ClassResourcesT
                                                     >
                                                         Mở
                                                     </Button>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="sm" className="gap-1">
-                                                                <MoreVertical className="size-4" />
-                                                                Tùy chọn
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="rounded-xl">
-                                                            <DropdownMenuItem
-                                                                onClick={() => setFolderToDelete(f.folderId)}
-                                                                className="text-destructive gap-2"
-                                                            >
-                                                                <Trash2 className="size-4" /> Xóa thư mục
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setFolderToDelete(f.folderId)}
+                                                        className="text-destructive hover:text-destructive gap-1"
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                        Xóa
+                                                    </Button>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -496,9 +482,9 @@ export function ClassResourcesTab({ liveClassId, vodPackageId }: ClassResourcesT
                                     {resources.map((res) => (
                                         <TableRow key={res.id}>
                                             <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <FileText className="size-4 text-primary" />
-                                                    <span className="font-medium">{res.title}</span>
+                                                <div className="flex items-center gap-2 max-w-[300px]">
+                                                    <FileText className="size-4 text-primary shrink-0" />
+                                                    <span className="font-medium truncate">{res.title}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="max-w-[360px] truncate text-muted-foreground">

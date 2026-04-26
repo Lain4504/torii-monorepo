@@ -2,16 +2,16 @@
 
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { 
-    Send, User, Sparkles, RefreshCcw, CheckCircle, 
-    Mic, MicOff, Volume2, VolumeX, PhoneOff, Settings, 
-    Play, Zap, X, ChevronDown, ChevronUp 
+import {
+    Send, User, Sparkles, RefreshCcw, CheckCircle,
+    Mic, MicOff, Volume2, PhoneOff, Settings,
+    Play, Zap, X, ChevronDown, ChevronUp
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
-    Card, CardContent 
+    Card, CardContent
 } from "@workspace/ui/components/card"
 import {
     Dialog,
@@ -56,8 +56,8 @@ interface Message {
     id: string
     role: 'user' | 'assistant'
     content: string
-    romaji?: string 
-    vietnamese?: string 
+    romaji?: string
+    vietnamese?: string
     isFeedback?: boolean
     isExpended?: boolean
 }
@@ -99,7 +99,7 @@ export function InteractiveRoleplay() {
     // Voice & Tech States
     const [isListening, setIsListening] = React.useState(false)
     const [isSpeaking, setIsSpeaking] = React.useState(false)
-    const [autoPlay, setAutoPlay] = React.useState(true) 
+    const [autoPlay, setAutoPlay] = React.useState(true)
     const queryClient = useQueryClient()
     const recognitionRef = React.useRef<any>(null)
     const [isSpeechSupported, setIsSpeechSupported] = React.useState(false)
@@ -161,7 +161,7 @@ export function InteractiveRoleplay() {
         const triggerFinalCleanup = () => {
             const turnCount = historyRef.current.filter(m => m.role === 'user').length
             if (isStartedRef.current && !isFinishedRef.current && turnCount > 0) {
-                agentApi.sensei.roleplay(topicRef.current, "", historyRef.current, true).catch(() => {});
+                agentApi.sensei.roleplay(topicRef.current, "", historyRef.current, true).catch(() => { });
             }
         }
         const handleBeforeUnload = () => triggerFinalCleanup()
@@ -171,7 +171,7 @@ export function InteractiveRoleplay() {
             triggerFinalCleanup()
             window.removeEventListener('beforeunload', handleBeforeUnload)
             if (recognitionRef.current) {
-                try { recognitionRef.current.abort() } catch (e) {}
+                try { recognitionRef.current.abort() } catch (e) { }
             }
         }
     }, [])
@@ -198,9 +198,9 @@ export function InteractiveRoleplay() {
             return
         }
         stopSpeaking()
-        if (!messageId && !autoPlay) return 
+        if (!messageId && !autoPlay) return
         if (messageId) setCurrentlyPlayingId(messageId)
-        
+
         const currentId = ttsRequestId.current + 1
         ttsRequestId.current = currentId
 
@@ -239,7 +239,7 @@ export function InteractiveRoleplay() {
             if (data.url) {
                 const audio = new Audio(data.url)
                 audioRef.current = audio
-                audio.onended = () => { 
+                audio.onended = () => {
                     if (ttsRequestId.current === requestId) {
                         setIsSpeaking(false)
                         if (messageId) setCurrentlyPlayingId(null)
@@ -250,7 +250,7 @@ export function InteractiveRoleplay() {
                 setIsSpeaking(false)
                 if (messageId) setCurrentlyPlayingId(null)
             }
-        } catch (error) { 
+        } catch (error) {
             if (ttsRequestId.current === requestId) {
                 setIsSpeaking(false)
                 if (messageId) setCurrentlyPlayingId(null)
@@ -276,6 +276,7 @@ export function InteractiveRoleplay() {
     }
 
     const handleStart = async (topicValueOverride?: string) => {
+        stopSpeaking()
         const topicValue = topicValueOverride || topicForm.getValues("topic")
         if (!topicValue.trim()) return
         topicForm.setValue("topic", topicValue) // Sync form
@@ -297,6 +298,7 @@ export function InteractiveRoleplay() {
 
     const handleSend = async (data: InputFormData) => {
         if (!data.text.trim() || isLoading) return
+        stopSpeaking()
         const userMsgText = data.text
         inputForm.reset({ text: "" })
         const newUserMsg: Message = { id: Date.now().toString(), role: 'user', content: userMsgText }
@@ -338,7 +340,7 @@ export function InteractiveRoleplay() {
                 } else setMessages(prev => [...prev, feedbackMsg])
                 setIsFinished(true)
             }
-        } catch (error) {} finally { setIsLoading(false) }
+        } catch (error) { } finally { setIsLoading(false) }
     }
 
     if (!isStarted) {
@@ -355,7 +357,7 @@ export function InteractiveRoleplay() {
                                 Chọn một chủ đề và bắt đầu luyện tập hội thoại tiếng Nhật cùng AI Sensei.
                             </p>
                         </div>
-                        
+
                         <div className="w-full space-y-4">
                             <div className="grid grid-cols-2 gap-2">
                                 {SUGGESTED_TOPICS.map((t) => (
@@ -414,7 +416,7 @@ export function InteractiveRoleplay() {
 
                     {!isFinished && turnCount >= 5 && (
                         <Button variant="outline" size="sm" className="h-8 px-3 font-bold text-[10px] rounded-lg border-primary/40 text-primary hover:bg-primary/5 hidden sm:flex" onClick={handleFinish} disabled={isLoading}>
-                             Kết thúc
+                            Kết thúc
                         </Button>
                     )}
 
@@ -429,7 +431,7 @@ export function InteractiveRoleplay() {
                                 <DialogTitle className="text-lg font-bold">Cài đặt hội thoại</DialogTitle>
                                 <DialogDescription className="text-xs">Tùy chỉnh giọng nói và hỗ trợ học tập.</DialogDescription>
                             </DialogHeader>
-                            
+
                             <div className="p-6 space-y-6">
                                 {/* Option 1: Bật âm thanh */}
                                 <div className="flex items-center justify-between gap-4">
@@ -437,12 +439,12 @@ export function InteractiveRoleplay() {
                                         <Label className="text-sm font-bold">Bật âm thanh</Label>
                                         <p className="text-[10px] text-muted-foreground">Tự động phát âm thanh khi Sensei phản hồi</p>
                                     </div>
-                                    <Switch 
-                                        checked={autoPlay} 
+                                    <Switch
+                                        checked={autoPlay}
                                         onCheckedChange={(val) => {
                                             setAutoPlay(val)
                                             if (!val) stopSpeaking()
-                                        }} 
+                                        }}
                                     />
                                 </div>
 
@@ -481,14 +483,14 @@ export function InteractiveRoleplay() {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={() => speak("こんにちは")} 
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => speak("こんにちは")}
                                         className="flex-1 font-bold h-9 rounded-xl text-[10px] border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 shadow-none"
                                     >
                                         <Volume2 className="size-3.5 mr-2" /> Nghe thử
                                     </Button>
-                                    <Button 
+                                    <Button
                                         variant="secondary"
                                         onClick={() => setShowSettings(false)}
                                         className="flex-1 font-bold h-9 rounded-xl text-[10px] shadow-none"
@@ -514,22 +516,22 @@ export function InteractiveRoleplay() {
                             <div className={cn("flex flex-col gap-1.5 w-full", msg.role === 'user' ? "items-end" : "items-start")}>
                                 <div className={cn(
                                     "relative p-4 rounded-xl text-sm font-medium leading-relaxed border shadow-sm group transition-all",
-                                    msg.role === 'user' 
-                                        ? "bg-primary text-primary-foreground border-primary w-fit max-w-[85%]" 
+                                    msg.role === 'user'
+                                        ? "bg-primary text-primary-foreground border-primary w-fit max-w-[85%]"
                                         : "bg-card border-border text-foreground w-full sm:w-fit sm:max-w-[85%] pr-10 shadow-border/5"
                                 )}>
                                     {msg.content}
 
                                     {/* Inline Voice Action */}
                                     {msg.role === 'assistant' && !msg.isFeedback && (
-                                        <button 
+                                        <button
                                             onClick={() => speak(msg.content, msg.id)}
                                             className={cn(
                                                 "absolute top-3 right-3 h-6 w-6 rounded-md flex items-center justify-center transition-colors",
                                                 currentlyPlayingId === msg.id && isSpeaking ? "text-primary bg-primary/10" : "text-muted-foreground/40 hover:text-primary hover:bg-primary/5"
                                             )}
                                         >
-                                            {currentlyPlayingId === msg.id && isSpeaking ? <VolumeX className="size-3.5" /> : <Volume2 className="size-3.5" />}
+                                            {currentlyPlayingId === msg.id && isSpeaking ? <Volume2 className="size-3.5 animate-pulse" /> : <Volume2 className="size-3.5 opacity-60" />}
                                         </button>
                                     )}
                                 </div>

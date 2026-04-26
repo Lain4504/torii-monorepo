@@ -277,9 +277,17 @@ export function AiChatBot() {
                                                 </Reasoning>
                                             )}
                                             <MessageContent>
-                                                <MessageResponse className="font-semibold text-sm leading-relaxed whitespace-pre-wrap break-words [word-break:normal]">
-                                                    {version.content}
-                                                </MessageResponse>
+                                                {version.content === "..." ? (
+                                                    <div className="flex gap-1.5 py-2 px-1">
+                                                        <span className="size-1.5 rounded-full bg-foreground/30 animate-bounce [animation-delay:-0.32s]"></span>
+                                                        <span className="size-1.5 rounded-full bg-foreground/30 animate-bounce [animation-delay:-0.16s]"></span>
+                                                        <span className="size-1.5 rounded-full bg-foreground/30 animate-bounce"></span>
+                                                    </div>
+                                                ) : (
+                                                    <MessageResponse className="font-semibold text-sm leading-relaxed whitespace-pre-wrap break-words [word-break:normal]">
+                                                        {version.content}
+                                                    </MessageResponse>
+                                                )}
                                             </MessageContent>
                                         </div>
                                     </Message>

@@ -46,10 +46,13 @@ import {
     ChevronLeft, CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
     MessageSquare, ChevronRight, Download, Send,
     AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
-    Paperclip, PenTool, MessageCircle, Menu, X, ChevronDown, LogOut
+    Paperclip, PenTool, MessageCircle, Menu, X, ChevronDown, LogOut,
+    Sparkles
 } from 'lucide-react';
 import type { AcademyLessonModel } from '@workspace/schemas';
 import { LessonDiscussion } from '@/components/courses/lesson-discussion';
+import { LessonAIAssistant } from '@/components/courses/lesson-ai-assistant';
+import { TextSelectionToolbar } from '@/components/courses/text-selection-toolbar';
 import { AcademyResourceList } from '@/components/courses/academy-resource-list';
 import { CourseCompletionModal } from '@/components/courses/course-completion-modal';
 import { MarkdownRenderer } from '@/components/common/markdown-renderer';
@@ -270,7 +273,7 @@ function ModuleItem({ mod, currentLessonId, completedIds, isLessonUnlocked, mile
     );
 }
 
-function VideoPlayer({ lesson, onComplete }: { lesson: any; onComplete: () => void }) {
+function VideoPlayer({ lesson, onComplete, onProgress }: { lesson: any; onComplete: () => void; onProgress?: (time: number) => void }) {
     const autoMarkedRef = useRef(false);
     useEffect(() => { autoMarkedRef.current = false; }, [lesson?.id]);
 
@@ -283,6 +286,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: any; onComplete: () => vo
     const onTimeUpdate = (e: any) => {
         const v = e.currentTarget;
         if (v.duration && v.currentTime / v.duration >= 0.95) markOnce();
+        onProgress?.(v.currentTime);
     };
 
     if (!lesson?.videoUrl) return (
@@ -408,6 +412,7 @@ export default function CourseLearnPage() {
     const [activeTab, setActiveTab] = useState<'content' | 'discussion' | 'resources'>('content');
     const [showCompletionModal, setShowCompletionModal] = useState(false);
     const [pendingMilestone, setPendingMilestone] = useState<any | null>(null);
+    const [lessonVideoTime, setLessonVideoTime] = useState<number>(0);
 
 
     useEffect(() => {
@@ -732,6 +737,7 @@ export default function CourseLearnPage() {
             setSidebarOpen(false);
             const k = normalizeItemKind(lesson.kind);
             setActiveTab(k === 'READING' ? 'discussion' : 'content');
+            setLessonVideoTime(0);
         }
     };
 
@@ -912,7 +918,11 @@ export default function CourseLearnPage() {
                                 <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-3">
                                     <Card>
                                         <CardContent className="p-0">
-                                            <VideoPlayer lesson={lessonDetail} onComplete={markLessonComplete} />
+                                            <VideoPlayer
+                                                lesson={lessonDetail}
+                                                onComplete={markLessonComplete}
+                                                onProgress={setLessonVideoTime}
+                                            />
                                         </CardContent>
                                     </Card>
                                     {!isCurrentDone && lessonDetail?.videoUrl && (
@@ -983,9 +993,9 @@ export default function CourseLearnPage() {
                             ) : (
                                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
                                     <TabsList>
-                                        <TabsTrigger value="content" className="font-normal">Tổng quan</TabsTrigger>
-                                        <TabsTrigger value="discussion" className="font-normal">Thảo luận</TabsTrigger>
-                                        <TabsTrigger value="resources" className="font-normal">Tài liệu</TabsTrigger>
+                                        <TabsTrigger value="content" className="font-normal uppercase tracking-tight text-[10px] font-bold">Tổng quan</TabsTrigger>
+                                        <TabsTrigger value="discussion" className="font-normal uppercase tracking-tight text-[10px] font-bold">Thảo luận</TabsTrigger>
+                                        <TabsTrigger value="resources" className="font-normal uppercase tracking-tight text-[10px] font-bold">Tài liệu</TabsTrigger>
                                     </TabsList>
 
                                     <TabsContent value="content" className="py-6 space-y-4">
@@ -1019,8 +1029,8 @@ export default function CourseLearnPage() {
                             {isArticleLesson && (
                                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
                                     <TabsList>
-                                        <TabsTrigger value="discussion" className="font-normal">Bình luận</TabsTrigger>
-                                        <TabsTrigger value="resources" className="font-normal">Tài nguyên</TabsTrigger>
+                                        <TabsTrigger value="discussion" className="font-normal uppercase tracking-tight text-[10px] font-bold">Bình luận</TabsTrigger>
+                                        <TabsTrigger value="resources" className="font-normal uppercase tracking-tight text-[10px] font-bold">Tài nguyên</TabsTrigger>
                                     </TabsList>
 
                                     <TabsContent value="discussion" className="py-6">
@@ -1136,13 +1146,15 @@ export default function CourseLearnPage() {
                 </aside>
 
                 {/* Overlays for mobile */}
-                {sidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] xl:hidden animate-in fade-in duration-300"
-                        onClick={() => setSidebarOpen(false)}
-                    />
-                )}
-            </div>
+                {
+                    sidebarOpen && (
+                        <div
+                            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] xl:hidden animate-in fade-in duration-300"
+                            onClick={() => setSidebarOpen(false)}
+                        />
+                    )
+                }
+            </div >
 
             <CourseCompletionModal
                 isOpen={showCompletionModal}
@@ -1173,6 +1185,21 @@ export default function CourseLearnPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+
+            {/* Contextual Text Selection Popover - Only for Video/Reading */}
+            {isTrackableLessonKind(currentLesson?.kind) && <TextSelectionToolbar />}
+
+            {/* AI Assistant Floating Chatbox - Only for Video/Reading */}
+            {isTrackableLessonKind(currentLesson?.kind) && (
+                <LessonAIAssistant
+                    key={(currentLesson as any)?.id ?? 'global'}
+                    lessonId={(currentLesson as any)?.id ?? ''}
+                    courseId={deliveryTargetId as string}
+                    currentTime={lessonVideoTime}
+                    lessonTitle={currentLesson?.title}
+                    lessonType={currentLesson?.kind as any}
+                />
+            )}
+        </div >
     );
 }

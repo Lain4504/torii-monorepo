@@ -53,7 +53,7 @@ const sendAPIRequest = async (
     }
     const res = await API.post(path, body, {
       headers: {
-        Authorization: getToken(),
+        Authorization: 'Bearer ' + getToken(),
         'Content-Type': content_type,
       },
       responseType: response_type,
