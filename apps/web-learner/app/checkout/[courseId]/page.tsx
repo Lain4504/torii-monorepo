@@ -75,12 +75,19 @@ export default function CheckoutPage() {
     const [selectedLiveClassId, setSelectedLiveClassId] = useState<string | null>(null)
 
     const selectedClass = (product?.classes || []).find((c: any) => c.id === selectedLiveClassId) || product?.class || null
-    const lessonCount = Array.isArray(selectedClass?.curriculum?.chapters)
-        ? selectedClass.curriculum.chapters.reduce((acc: number, chapter: any) => {
-            const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
-            return acc + chapterItems.length
-        }, 0)
-        : 0
+    // Determine class and lesson counts for both LIVE and VOD products
+    const classCount = isLIVE ? (product?.classes?.length ?? (selectedClass ? 1 : 0)) : 1
+    const lessonCount = isLIVE
+        ? (Array.isArray(selectedClass?.curriculum?.chapters)
+            ? selectedClass?.curriculum?.chapters?.reduce((acc: number, chapter: any) => {
+                const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
+                return acc + chapterItems.length
+              }, 0)
+            : 0)
+        : (product?.courseProfile?.modules?.reduce((acc: number, mod: any) => {
+            const lessons = Array.isArray(mod?.lessons) ? mod.lessons : []
+            return acc + lessons.length
+          }, 0) ?? 0)
 
     // Gift State
     const giftForced = searchParams.get('gift') === 'true'
@@ -353,7 +360,7 @@ export default function CheckoutPage() {
                                             <Item size="sm" className="rounded-lg border border-border/50 bg-card px-3 py-2 shadow-none">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
                                                 <ItemContent>
-                                                    <ItemTitle>{formatNumber(product.classes?.length ?? (selectedClass ? 1 : 0))} lớp</ItemTitle>
+                                                    <ItemTitle>{formatNumber(classCount)} lớp</ItemTitle>
                                                 </ItemContent>
                                             </Item>
                                             <Item size="sm" className="rounded-lg border border-border/50 bg-card px-3 py-2 shadow-none">
