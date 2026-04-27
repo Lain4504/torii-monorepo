@@ -2,7 +2,9 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { LessonType } from '@prisma/generated';
 import { AuditLoggerService } from '../audit-logger.service';
@@ -39,6 +41,7 @@ export class LessonService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   async findAll(query: LessonQueryDto) {
@@ -76,6 +79,17 @@ export class LessonService {
       },
     });
     if (!item) throw new NotFoundException('Lesson not found');
+
+    // --- SEQUENTIAL ASR TRIGGER ---
+    // Khi người học (findById) truy cập video lần đầu, kích hoạt chuỗi bóc băng nếu chưa hoàn thành
+    // Lưu ý: SenseiService sẽ tự động bỏ qua nếu đã có tiến trình bóc băng đang chạy (RAM Lock)
+    if (item.type === 'VIDEO' && item.videoUrl && item.transcriptionStatus !== 'COMPLETED') {
+      this.natsClient.emit(
+        { cmd: 'agents.sensei.processTranscription' },
+        { lessonId: item.id, chain: true },
+      );
+    }
+
     return item;
   }
 
