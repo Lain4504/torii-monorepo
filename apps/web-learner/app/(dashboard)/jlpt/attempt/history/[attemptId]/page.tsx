@@ -212,7 +212,7 @@ export default function JlptAttemptHistoryDetailPage() {
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Chi tiết bài làm</h1>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  Bố cục được tinh gọn lại để cùng nhịp spacing với các trang danh sách trong dashboard.
+                  Xem lại chi tiết kết quả, đáp án và giải thích cho bài thi thử JLPT của bạn.
                 </p>
               </div>
             </div>

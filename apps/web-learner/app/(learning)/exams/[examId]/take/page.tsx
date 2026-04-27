@@ -528,27 +528,22 @@ export default function TakeExamPage() {
                                 <AlertDialogDescription className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[280px] mx-auto uppercase tracking-widest text-[10px]">
                                     Hành động này không thể hoàn tác. Bạn có chắc chắn muốn kết thúc bài thi?
                                 </AlertDialogDescription>
-                            </div>
-
-                            {/* Progress Summary Section */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-muted/50 rounded-2xl p-4 border border-border/50">
-                                    <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đã trả lời</p>
-                                    <p className="text-2xl font-black text-foreground">
-                                        {answeredCount}<span className="text-muted-foreground/40 font-bold ml-1 text-base">/ {totalCount}</span>
-                                    </p>
-                                    <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="bg-muted/50 rounded-2xl p-4 border border-border/50 flex flex-col items-center text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đã trả lời</p>
+                                            <p className="text-2xl font-black text-foreground">
+                                                {answeredCount}<span className="text-muted-foreground/40 font-bold ml-1 text-base">/ {totalCount}</span>
+                                            </p>
+                                            <div className="mt-2 w-full h-1 bg-muted rounded-full overflow-hidden">
+                                                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${progressPercentage}%` }} />
+                                            </div>
+                                        </div>
+                                        <div className="bg-muted/50 rounded-2xl p-4 border border-border/50 flex flex-col items-center text-center">
+                                            <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đang đánh dấu</p>
+                                            <p className="text-2xl font-black text-orange-500">{flaggedCount}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground mt-1">Cần xem lại</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="bg-muted/50 rounded-2xl p-4 border border-border/50">
-                                    <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đang đánh dấu</p>
-                                    <p className="text-2xl font-black text-orange-500">
-                                        {flaggedCount}
-                                    </p>
-                                    <p className="text-[10px] font-bold text-muted-foreground mt-1">Cần xem lại</p>
-                                </div>
-                            </div>
 
                             {/* Warning Message */}
                             {answeredCount < totalCount && (
