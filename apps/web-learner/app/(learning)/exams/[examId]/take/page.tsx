@@ -528,6 +528,7 @@ export default function TakeExamPage() {
                                 <AlertDialogDescription className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[280px] mx-auto uppercase tracking-widest text-[10px]">
                                     Hành động này không thể hoàn tác. Bạn có chắc chắn muốn kết thúc bài thi?
                                 </AlertDialogDescription>
+                            </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="bg-muted/50 rounded-2xl p-4 border border-border/50 flex flex-col items-center text-center">
                                             <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground mb-1">Đã trả lời</p>

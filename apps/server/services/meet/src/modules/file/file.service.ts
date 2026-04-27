@@ -495,7 +495,25 @@ export class FileService {
    * DeleteRoomUploadedDir deletes all uploaded files for a room session
    */
   async deleteRoomUploadedDir(roomSid: string): Promise<void> {
+    if (!roomSid || roomSid.trim() === '') {
+      this.logger.warn(
+        'deleteRoomUploadedDir called with empty roomSid, skipping to protect upload root',
+      );
+      return;
+    }
+
     const roomDir = path.join(this.uploadPath, roomSid);
+    const normalizedUploadRoot = path.resolve(this.uploadPath);
+    const normalizedRoomDir = path.resolve(roomDir);
+
+    // Never allow deleting the upload root directory itself.
+    if (normalizedRoomDir === normalizedUploadRoot) {
+      this.logger.error(
+        `Refusing to delete upload root directory: ${normalizedRoomDir}`,
+      );
+      return;
+    }
+
     if (fs.existsSync(roomDir)) {
       this.logger.log(
         `Deleting uploaded files directory for room session: ${roomSid}`,

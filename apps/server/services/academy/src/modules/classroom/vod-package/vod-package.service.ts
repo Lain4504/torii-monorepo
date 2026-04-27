@@ -219,11 +219,14 @@ export class VodPackageService {
           this.logger.log(
             `🚀 Course published! Auto-triggering transcription for ${lessons.length} lessons in background...`,
           );
-          lessons.forEach((lesson) => {
-            this.natsClient.emit(
-              { cmd: 'agents.sensei.processTranscription' },
-              { lessonId: lesson.id },
-            );
+          lessons.forEach((lesson, index) => {
+            // Stagger emissions by 2 seconds to avoid overwhelming the Gemini API rate limit
+            setTimeout(() => {
+              this.natsClient.emit(
+                { cmd: 'agents.sensei.processTranscription' },
+                { lessonId: lesson.id },
+              );
+            }, index * 3000);
           });
         }
       } catch (err: any) {

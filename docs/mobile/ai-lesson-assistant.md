@@ -176,6 +176,8 @@ SelectionArea(
 | Tính năng | Độ ưu tiên | Ghi chú |
 | :--- | :---: | :--- |
 | **Hide Time for Reading** | Tối quan trọng | Nếu `lesson.type == 'READING'`, ẩn sạch Icon Clock/Badge Time. |
+| **Status UX** | Cần thiết | Nếu `transcriptionStatus == 'PROCESSING'`, hiển thị banner "AI đang bóc băng video, mốc thời gian có thể chưa đầy đủ". |
+| **Bilingual Support** | Bắt buộc | Kết quả AI chứa tiếng Nhật (Kanji/Furigana). Đảm bảo Android/iOS đã cài font Nhật chuẩn. |
 | **History Sliding Window**| Bắt buộc | Chỉ lưu và gửi 6 tin nhắn gần nhất. |
 | **Markdown Rendering** | Bắt buộc | Dùng `flutter_markdown` để hiển thị Markdown chuẩn. |
 | **Error Handling** | Cần thiết | Hiển thị `StandardApiResponse.message` nếu `success == false`. |

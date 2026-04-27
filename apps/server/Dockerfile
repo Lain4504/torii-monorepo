@@ -8,7 +8,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Install Build Dependencies (openssl for Prisma + python3 for edge-tts)
-RUN apt-get update -y && apt-get install -y openssl python3 python3-pip python3-venv && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && apt-get install -y openssl python3 python3-pip python3-venv ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Copy workspace configuration
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
@@ -68,6 +68,7 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     openssl \
     python3 python3-pip python3-venv \
     mupdf-tools \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Create Python venv with edge-tts at the path expected by tts.service.ts

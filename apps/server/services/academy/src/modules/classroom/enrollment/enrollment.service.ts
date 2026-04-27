@@ -526,8 +526,51 @@ export class EnrollmentService {
           },
         });
       }
+
+      // --- TRIGGER AUTOMATIC TRANSCRIPTION ON ENROLLMENT ---
+      if (input.vodPackageId) {
+        // Run in background (after transaction)
+        this.triggerPackageTranscription(input.vodPackageId).catch(err =>
+          this.logger.error(`Failed to trigger ASR on enrollment: ${err.message}`)
+        );
+      }
+
       return enrollment;
     });
+  }
+
+  /**
+   * Helper to trigger transcription for all lessons in a VOD package
+   */
+  private async triggerPackageTranscription(vodPackageId: string) {
+    const pkg = await this.prisma.vodPackage.findUnique({
+      where: { id: vodPackageId },
+      select: { courseProfileId: true }
+    });
+    if (!pkg?.courseProfileId) return;
+
+    const lessons = await this.prisma.lesson.findMany({
+      where: {
+        module: { courseProfileId: pkg.courseProfileId },
+        type: 'VIDEO',
+        videoUrl: { not: null, notIn: [''] },
+        transcriptionStatus: { not: 'COMPLETED' }
+      },
+      select: { id: true }
+    });
+
+    if (lessons.length > 0) {
+      this.logger.log(`🚀 New enrollment! Auto-triggering ASR chain for ${lessons.length} lessons...`);
+      lessons.forEach((lesson, index) => {
+        // Stagger by 3 seconds
+        setTimeout(() => {
+          this.nats.emit(
+            { cmd: 'agents.sensei.processTranscription' },
+            { lessonId: lesson.id, chain: true },
+          );
+        }, index * 3000);
+      });
+    }
   }
 
   async cancelEnrollment(id: string, requesterId = 'SYSTEM') {

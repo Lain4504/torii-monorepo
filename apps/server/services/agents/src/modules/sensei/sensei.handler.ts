@@ -193,7 +193,14 @@ export class SenseiHandler implements OnModuleInit {
   }
 
   @MessagePattern({ cmd: 'agents.sensei.processTranscription' })
-  async processTranscription(@Payload() data: { lessonId: string }) {
-    return this.senseiService.processVideoTranscription(data.lessonId);
+  async processTranscription(
+    @Payload() data: { lessonId: string; startOffset?: number; duration?: number; chain?: boolean }
+  ) {
+    return this.senseiService.processVideoTranscription(
+      data.lessonId,
+      data.startOffset,
+      data.duration,
+      data.chain
+    );
   }
 }
