@@ -176,6 +176,7 @@ export class FastMcpService {
 
   public async callGemini(
     prompt: string,
+    modelName = 'gemini-2.5-flash',
   ): Promise<{ text: string; usage: any }> {
     if (!this.genAI) {
       throw new Error('Gemini API Key is missing');
@@ -183,7 +184,7 @@ export class FastMcpService {
 
     try {
       const model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
+        model: modelName,
         generationConfig: {
           temperature: 0.7,
           topK: 40,
@@ -203,21 +204,22 @@ export class FastMcpService {
         usage: usage,
       };
     } catch (error: any) {
-      this.logger.error('Gemini API Error:', error);
+      this.logger.error(`Gemini API Error (${modelName}):`, error);
       throw new Error(`Gemini API Error: ${error.message}`);
     }
   }
 
   public async callGeminiMultimodal(
     prompt: string,
-    mediaFiles: { mimeType: string; data: string }[], // Base64 data
+    mediaFiles: { mimeType: string; data: string }[],
+    modelName = 'gemini-2.5-flash',
   ): Promise<{ text: string; usage: any }> {
     if (!this.genAI) {
       throw new Error('Gemini API Key is missing');
     }
 
     try {
-      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = this.genAI.getGenerativeModel({ model: modelName });
 
       const parts = [
         { text: prompt },
@@ -237,31 +239,28 @@ export class FastMcpService {
         usage: usage,
       };
     } catch (error: any) {
-      this.logger.error('Gemini Multimodal API Error:', error);
+      this.logger.error(`Gemini Multimodal API Error (${modelName}):`, error);
       throw new Error(`Gemini Multimodal API Error: ${error.message}`);
     }
   }
 
   public cleanJsonResponse(text: string): any {
-    if (process.env.DEBUG_AI) {
-      // console.log('--- RAW AI RESPONSE ---');
-      // console.log(text);
-      // console.log('-----------------------');
-    }
-
     let cleaned = text.trim();
-    const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    if (codeBlockMatch) {
-      cleaned = codeBlockMatch[1];
+
+    // 1. Remove Markdown blocks if present
+    if (cleaned.includes('```')) {
+      const match = cleaned.match(/```(?:json)?([\s\S]*?)```/);
+      if (match) cleaned = match[1].trim();
     }
 
+    // 2. Further aggressive trimming (find first [ or { and last ] or })
     const firstBrace = cleaned.indexOf('{');
     const firstBracket = cleaned.indexOf('[');
     const lastBrace = cleaned.lastIndexOf('}');
     const lastBracket = cleaned.lastIndexOf(']');
 
-    const starts = [firstBrace, firstBracket].filter(i => i !== -1);
-    const ends = [lastBrace, lastBracket].filter(i => i !== -1);
+    const starts = [firstBrace, firstBracket].filter((i) => i !== -1);
+    const ends = [lastBrace, lastBracket].filter((i) => i !== -1);
 
     if (starts.length > 0 && ends.length > 0) {
       const start = Math.min(...starts);
@@ -269,13 +268,19 @@ export class FastMcpService {
       cleaned = cleaned.substring(start, end + 1);
     }
 
+    // 3. Handle trailing commas (common AI mistake)
+    cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
+
     try {
       return JSON.parse(cleaned);
     } catch (e) {
-      this.logger.error('❌ JSON Parse Error', e);
+      this.logger.error('❌ JSON Parse Error. Raw content snippet:', cleaned.substring(0, 100) + '...');
+      if (process.env.DEBUG_AI) {
+        this.logger.error('FULL RAW CONTENT:', cleaned);
+      }
       return {
         error: 'Failed to parse AI response',
-        raw: text,
+        raw: cleaned,
       };
     }
   }

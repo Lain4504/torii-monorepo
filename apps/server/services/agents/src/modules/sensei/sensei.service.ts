@@ -35,6 +35,7 @@ const AgentFlashcardAutofillResponseSchema = z.object({
 @Injectable()
 export class SenseiService implements OnModuleInit {
   private readonly logger = new Logger(SenseiService.name);
+  private processingBlocks = new Set<string>();
 
   constructor(
     private readonly fastMcpService: FastMcpService,
@@ -540,6 +541,7 @@ export class SenseiService implements OnModuleInit {
             id: true,
             title: true,
             content: true,
+            videoUrl: true,
             transcriptionStatus: true,
             module: {
               select: {
@@ -617,14 +619,30 @@ export class SenseiService implements OnModuleInit {
                 ).padStart(2, '0')}]: ${c.content}`,
             )
             .join('\n');
-        } else if (timestampInSeconds !== undefined) {
-          // Auto-trigger transcription if missing and user is watching
-          this.logger.log(
-            `🔍 Transcript missing for lesson ${lessonId}. Auto-triggering background ASR...`,
+        }
+
+        // --- SEQUENTIAL CHAIN TRIGGER (Self-healing) ---
+        // Kích hoạt chuỗi bóc băng nếu bài chưa xong VÀ không có block nào đang chạy thực tế trong RAM
+        if (transcriptionStatus !== 'COMPLETED' && !this.isLessonProcessing(lessonId)) {
+          this.logger.log(`🚀 Student accessing lesson ${lessonId}. Starting/Resuming sequential transcription chain...`);
+          // Bắt đầu từ đoạn cuối cùng đã có (mặc định block 0 đã bóc lúc publish nên start từ 600)
+          const latestChunk = allChunks[allChunks.length - 1];
+          const nextOffset = latestChunk ? Math.floor(latestChunk.endTime) : 0;
+
+          this.processVideoTranscription(lessonId, nextOffset, 600, true).catch((err) =>
+            this.logger.error(`Failed to start sequential ASR: ${err.message}`),
           );
-          this.processVideoTranscription(lessonId).catch((err) =>
-            this.logger.error(`Auto-ASR failed: ${err.message}`),
-          );
+        }
+
+        // Fetch total duration (cached or calculated)
+        let videoDuration = 'Không rõ';
+        if (lesson?.videoUrl) {
+          try {
+            const durationSec = this.getVideoDuration(lesson.videoUrl);
+            videoDuration = `${Math.floor(durationSec / 60)}:${String(Math.floor(durationSec % 60)).padStart(2, '0')}`;
+          } catch (e) {
+            this.logger.warn(`Failed to get duration for hallucination check: ${e.message}`);
+          }
         }
 
         const template = this.fastMcpService.loadPromptTemplate(
@@ -633,6 +651,7 @@ export class SenseiService implements OnModuleInit {
         const prompt = template({
           lessonTitle,
           lessonContent: lessonContent?.substring(0, 8000) || '',
+          videoDuration,
           transcriptContext,
           currentTimestamp,
           courseTitle,
@@ -677,24 +696,78 @@ export class SenseiService implements OnModuleInit {
     );
   }
 
+  // --- Helper: Check if lesson has any active processing blocks ---
+  private isLessonProcessing(lessonId: string): boolean {
+    for (const key of this.processingBlocks) {
+      if (key.startsWith(`${lessonId}-`)) return true;
+    }
+    return false;
+  }
+
+  // --- Helper: Get Video Duration ---
+  private getVideoDuration(videoUrl: string): number {
+    try {
+      const output = execSync(
+        `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${videoUrl}"`,
+        { stdio: 'pipe' },
+      ).toString().trim();
+
+      const duration = parseFloat(output);
+      if (!isNaN(duration)) {
+        return duration;
+      }
+    } catch (e) {
+      this.logger.error(`Failed to get video duration via ffprobe: ${e.message}`);
+
+      // Fallback to ffmpeg -i if ffprobe fails
+      try {
+        const output = execSync(
+          `ffmpeg -i "${videoUrl}" 2>&1 | grep "Duration"`,
+          { stdio: 'pipe' },
+        ).toString();
+        const match = output.match(/Duration: (\d+):(\d+):(\d+\.\d+)/) || output.match(/Duration: (\d+):(\d+):(\d+)/);
+        if (match) {
+          const h = parseInt(match[1]);
+          const m = parseInt(match[2]);
+          const s = parseFloat(match[3]);
+          return h * 3600 + m * 60 + s;
+        }
+      } catch (fallbackErr: any) {
+        this.logger.error(`Fallback duration detection also failed: ${fallbackErr.message}`);
+      }
+    }
+    return 0;
+  }
   // --- Public Methods (Delegate to Tools) ---
 
-  async processVideoTranscription(lessonId: string): Promise<any> {
+  async processVideoTranscription(
+    lessonId: string,
+    startOffset: number = 0,
+    duration: number = 600,
+    chain: boolean = false
+  ): Promise<any> {
+    const blockKey = `${lessonId}-${startOffset}`;
+    if (this.processingBlocks.has(blockKey)) {
+      this.logger.debug(`⏳ Block ${blockKey} already in progress. Skipping.`);
+      return { success: true };
+    }
+
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
     });
 
-    if (!lesson || !lesson.videoUrl) {
-      throw new Error('Lesson not found or missing video URL');
+    if (!lesson || !lesson.videoUrl) throw new Error('Lesson or Video URL not found');
+
+    this.logger.log(`🎬 Transcription Block START [Offset: ${startOffset}s, Duration: ${duration}s, Chain: ${chain}] for lesson: ${lesson.title}`);
+    this.processingBlocks.add(blockKey);
+
+    // Update status to PROCESSING (only if not already)
+    if (lesson.transcriptionStatus !== 'PROCESSING') {
+      await this.prisma.lesson.update({
+        where: { id: lessonId },
+        data: { transcriptionStatus: 'PROCESSING' }
+      });
     }
-
-    this.logger.log(`🎬 Processing transcription for lesson: ${lesson.title}`);
-
-    // Update status to PROCESSING
-    await this.prisma.lesson.update({
-      where: { id: lessonId },
-      data: { transcriptionStatus: 'PROCESSING' }
-    });
 
     const tempDir = os.tmpdir();
     const sessionId = uuidv4().substring(0, 8);
@@ -704,11 +777,11 @@ export class SenseiService implements OnModuleInit {
       // 1. Download/Extract Audio (Small chunk for prototype robustness)
       this.logger.debug(`📥 Extracting audio from ${lesson.videoUrl}...`);
 
-      // Use ffmpeg to get first 10 minutes of audio as a sample for STT
+      // Use ffmpeg to extract specific block
       try {
         execSync(
-          `ffmpeg -i "${lesson.videoUrl}" -t 600 -vn -ar 16000 -ac 1 -ab 64k -y "${audioPath}"`,
-          { stdio: 'pipe' } // Capture stderr/stdout
+          `ffmpeg -i "${lesson.videoUrl}" -ss ${startOffset} -t ${duration} -vn -ar 16000 -ac 1 -ab 64k -y "${audioPath}"`,
+          { stdio: 'pipe' }
         );
       } catch (ffmpegErr: any) {
         this.logger.error(`FFmpeg failed: ${ffmpegErr.stderr?.toString() || ffmpegErr.message}`);
@@ -720,39 +793,78 @@ export class SenseiService implements OnModuleInit {
 
       // 2. Call Gemini Multimodal
       const multimodalRes = await this.fastMcpService.callGeminiMultimodal(
-        `Hãy phân tích file âm thanh bài giảng này và bóc băng phụ đề (transcription) sang tiếng Việt. 
-        Chuỗi kết quả trả về bắt buộc phải là một JSON array theo định dạng: 
-        [{ "startTime": number_giây, "endTime": number_giây, "content": "nội dung text" }].
-        Chia nhỏ mỗi đoạn khoảng 30-60 giây.`,
+        `Hãy bóc băng nội dung bài giảng này. 
+        YÊU CẦU QUAN TRỌNG: 
+        1. Đối với các câu ví dụ bằng TIẾNG NHẬT, hãy giữ nguyên bản văn bản tiếng Nhật (kèm theo Hán tự và Furigana nếu có thể).
+        2. Đối với các lời giảng và giải thích của giảng viên, hãy viết bằng TIẾNG VIỆT.
+        3. Kết quả trả về bắt buộc phải là một JSON array theo định dạng: [{ "startTime": number_giây, "endTime": number_giây, "content": "nội dung text" }].
+        CHÚ Ý: Thời gian trong JSON phải tính từ 0 (tương ứng với file âm thanh đang nghe).
+        4. Chia nhỏ mỗi đoạn khoảng 20-30 giây.`,
         [{ mimeType: 'audio/mp3', data: base64Audio }]
       );
 
       // 3. Parse and Save
       let chunks = this.fastMcpService.cleanJsonResponse(multimodalRes.text);
+      if (chunks?.error) {
+        this.logger.error(`❌ Failed to parse Gemini response for lesson ${lessonId}: ${chunks.error}`);
+        if (process.env.DEBUG_AI) this.logger.error(`RAW TEXT: ${multimodalRes.text}`);
+        return { success: false, error: 'JSON_PARSE_ERROR' };
+      }
+
       if (!Array.isArray(chunks) && typeof chunks === 'object' && chunks !== null) {
         // Handle case where AI returns { chunks: [...] }
         if (Array.isArray((chunks as any).chunks)) chunks = (chunks as any).chunks;
       }
 
       if (Array.isArray(chunks) && chunks.length > 0) {
-        await this.prisma.lessonTranscriptChunk.deleteMany({ where: { lessonId } });
+        // Appending blocks: delete only the range we are re-processing
+        await this.prisma.lessonTranscriptChunk.deleteMany({
+          where: {
+            lessonId,
+            startTime: { gte: startOffset, lt: startOffset + duration }
+          }
+        });
 
         await this.prisma.lessonTranscriptChunk.createMany({
           data: chunks.map((c: any) => ({
             id: uuidv4(),
             lessonId,
-            startTime: Math.floor(c.startTime || c.start || 0),
-            endTime: Math.floor(c.endTime || c.end || 0),
+            startTime: Math.floor((c.startTime || c.start || 0) + startOffset),
+            endTime: Math.floor((c.endTime || c.end || 0) + startOffset),
             content: c.content || c.text || '',
           })),
         });
 
-        await this.prisma.lesson.update({
-          where: { id: lessonId },
-          data: { transcriptionStatus: 'COMPLETED' }
-        });
+        // Detect total duration to see if we should chain
+        const totalDuration = this.getVideoDuration(lesson.videoUrl);
+        const nextOffset = startOffset + duration;
+        this.logger.debug(`📊 Transcription Progress: ${nextOffset}s / ${totalDuration}s (Lesson: ${lesson.title})`);
 
-        this.logger.log(`✅ Successfully generated ${chunks.length} transcript chunks for lesson: ${lesson.title}`);
+        if (chain && nextOffset < totalDuration) {
+          this.logger.log(`🔗 Chaining NEXT block at ${nextOffset}s for lesson: ${lesson.title}`);
+          // Use NATS emit to start next block with a small delay to be safe
+          setTimeout(() => {
+            this.natsClient.emit(
+              { cmd: 'agents.sensei.processTranscription' },
+              { lessonId, startOffset: nextOffset, duration, chain: true }
+            );
+          }, 4000); // 4s gap between blocks
+        } else if (nextOffset >= totalDuration) {
+          // Final block reached
+          await this.prisma.lesson.update({
+            where: { id: lessonId },
+            data: { transcriptionStatus: 'COMPLETED' }
+          });
+          this.logger.log(`🏁 Transcription FULLY COMPLETED for lesson: ${lesson.title}`);
+        } else {
+          // We were not chaining (e.g. Publish phase) and finished a partial block
+          await this.prisma.lesson.update({
+            where: { id: lessonId },
+            data: { transcriptionStatus: 'IDLE' } // Keep as IDLE so it can be resumed later
+          });
+          this.logger.log(`⏸️ Partial transcription finished (Block 0). Ready for student entry.`);
+        }
+
         return { success: true, chunksCount: chunks.length };
       }
 
@@ -771,6 +883,7 @@ export class SenseiService implements OnModuleInit {
       }).catch(() => { });
       throw error;
     } finally {
+      this.processingBlocks.delete(blockKey);
       if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
     }
   }
