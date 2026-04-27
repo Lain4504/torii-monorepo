@@ -216,6 +216,10 @@ export class WebhookService {
     }
 
     const roomId = event.room.name;
+    if (!roomId || roomId.trim() === '') {
+      this.logger.warn('Received room_finished webhook with empty room name');
+      return;
+    }
     const log = this.logger;
     log.log(`Handling room_finished webhook for room: ${roomId}`);
 
@@ -239,6 +243,13 @@ export class WebhookService {
         return;
       }
       rInfo.status = ROOM_STATUS_ENDED;
+    }
+
+    if (!rInfo.roomId || !rInfo.roomSid) {
+      log.warn(
+        `Invalid room info during room_finished cleanup for room "${roomId}" (roomId="${rInfo.roomId}", roomSid="${rInfo.roomSid}")`,
+      );
+      return;
     }
 
     // Populate event with room info
@@ -333,6 +344,13 @@ export class WebhookService {
       return;
     }
 
+    if (!rInfo.roomId || !rInfo.roomSid) {
+      log.warn(
+        `Invalid room info in participant_joined for room "${roomId}" (roomId="${rInfo.roomId}", roomSid="${rInfo.roomSid}")`,
+      );
+      return;
+    }
+
     // Populate event with room info
     event.room.sid = rInfo.roomSid;
     event.room.metadata = rInfo.metadata;
@@ -424,6 +442,13 @@ export class WebhookService {
 
     if (!rInfo) {
       log.warn('Room not found in NATS, skipping participant_left tasks');
+      return;
+    }
+
+    if (!rInfo.roomId || !rInfo.roomSid) {
+      log.warn(
+        `Invalid room info in participant_left for room "${roomId}" (roomId="${rInfo.roomId}", roomSid="${rInfo.roomSid}")`,
+      );
       return;
     }
 
