@@ -629,19 +629,30 @@ export class EnrollmentService {
     }
 
     // Calculate progress for metadata
-    const cpId = enrollment.liveClass?.cohort?.courseProfileId || enrollment.vodPackage?.courseProfileId;
     let progress = 0;
-    if (cpId) {
-      const totalLessons = await this.prisma.lesson.count({
-        where: { module: { courseProfileId: cpId } },
+    if (enrollment.liveClassId) {
+      const liveComputed = await this.computeLiveProgress({
+        enrollmentId: enrollment.id,
+        userId: enrollment.userId,
+        liveClassId: enrollment.liveClassId,
+        courseProfileId: enrollment.liveClass?.cohort?.courseProfileId,
+        cohortEndDate: (enrollment.liveClass?.cohort as any)?.endDate ?? null,
       });
-      const completedCount = await this.prisma.userLessonProgress.count({
-        where: {
-          enrollmentId: enrollment.id,
-          isCompleted: true,
-        },
-      });
-      progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+      progress = liveComputed.progressPercent;
+    } else {
+      const cpId = enrollment.vodPackage?.courseProfileId;
+      if (cpId) {
+        const totalLessons = await this.prisma.lesson.count({
+          where: { module: { courseProfileId: cpId } },
+        });
+        const completedCount = await this.prisma.userLessonProgress.count({
+          where: {
+            enrollmentId: enrollment.id,
+            isCompleted: true,
+          },
+        });
+        progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+      }
     }
 
     return {

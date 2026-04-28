@@ -293,23 +293,64 @@ export class OrderService {
 
     const grandTotalBeforeWallet = Math.max(0, subTotal - discountTotal - prorationDiscount);
     let walletDiscount = 0;
+    let prorationDiscount = 0;
 
-    if (input.useWalletBalance && subscriptionPlans.length > 0) {
+    // --- AI Subscription Proration & Upgrade-only Logic ---
+    if (subscriptionPlans.length > 0) {
+      const activeSub = await this.aiSubscriptionService.getActiveSubscription(userId);
+      if (activeSub) {
+        const newPlan = subscriptionPlans[0]; // Currently supporting one subscription per order
+
+        const currentPrice = Number(activeSub.plan.price);
+        const newPrice = Number(newPlan.price);
+
+        if (newPrice < currentPrice) {
+          throw new BadRequestException(
+            `Bạn đang sử dụng gói cao hơn (${activeSub.plan.name}). Không thể hạ cấp cho đến khi gói cũ hết hạn.`,
+          );
+        }
+        if (newPlan.id === activeSub.planId) {
+          throw new BadRequestException(
+            `Bạn đang sử dụng gói ${activeSub.plan.name}. Vui lòng đợi cho đến khi gói cũ hết hạn để mua tiếp.`,
+          );
+        }
+
+        // Logic: Nâng cấp (Upgrade)
+        const now = new Date();
+        const expiresAt = new Date(activeSub.expiresAt);
+        const startedAt = new Date(activeSub.startedAt);
+
+        const totalDuration = expiresAt.getTime() - startedAt.getTime();
+        const remainingDuration = expiresAt.getTime() - now.getTime();
+
+        if (remainingDuration > 0 && totalDuration > 0) {
+          const ratio = remainingDuration / totalDuration;
+          prorationDiscount = Math.floor(ratio * currentPrice);
+          // Apply as discount
+          discountTotal += prorationDiscount;
+        }
+      }
+    }
+
+    const finalGrandTotalBeforeWallet = Math.max(0, subTotal - discountTotal);
+
+    if (input.useWalletBalance && (subscriptionPlans.length > 0 || vodPackages.length > 0 || cohorts.length > 0 || liveClasses.length > 0)) {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { walletBalance: true },
       });
       const balance = Number(user?.walletBalance || 0);
-      walletDiscount = Math.min(balance, grandTotalBeforeWallet);
+      walletDiscount = Math.min(balance, finalGrandTotalBeforeWallet);
     }
 
-    const grandTotal = grandTotalBeforeWallet - walletDiscount;
+    const grandTotal = finalGrandTotalBeforeWallet - walletDiscount;
 
     return {
       subTotal,
       discountTotal,
       prorationDiscount,
       walletDiscount,
+      prorationDiscount, // Return this for UI feedback
       grandTotal,
       vodPackages,
       cohorts,
@@ -747,6 +788,10 @@ export class OrderService {
     newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
 
     // Cancel existing active subscription(s)
+    // Note: Stacking logic was removed. Existing active subscriptions are cancelled below.
+    // New subscription always starts a clean 1-month cycle from 'now'.
+
+    // Cancel old ones (or update them to EXTENDED/EXPIRED)
     await tx.aiUserSubscription.updateMany({
       where: { userId: targetUserId, status: 'ACTIVE' },
       data: { status: 'CANCELLED' },
