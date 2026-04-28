@@ -10,11 +10,12 @@ import { formatCurrency } from "@/utils/format-utils"
 import { useRouter } from "next/navigation"
 import { toast } from "@workspace/ui/components/sonner"
 import { orderApi } from "@/lib/api/services/order-api"
+import { type OrderPreviewResponse } from "@/lib/api/services/order-api"
+import { useWalletBalance } from "@/lib/api/services/wallet-api"
 import { PaymentMethod } from "@workspace/schemas"
 import { useAppSelector } from "@/hooks/hooks"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { agentApi } from "@/lib/api/services/agent-api"
-import { type OrderPreviewResponse } from "@/lib/api/services/order-api"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import { Separator } from "@workspace/ui/components/separator"
@@ -56,6 +57,8 @@ export default function SubscriptionsPage() {
         queryKey: ['quota-status'],
         queryFn: () => agentApi.sensei.getQuotaStatus(),
     })
+
+    const { data: walletBalance = 0 } = useWalletBalance()
 
     const { data: remotePlans, isLoading: isPlansLoading } = useQuery({
         queryKey: ['ai-subscription-plans'],
@@ -320,21 +323,21 @@ export default function SubscriptionsPage() {
                                     {isCurrent ? "Đang sử dụng" : isDowngrade ? "Đã vượt gói" : tier.price === 0 ? "Bắt đầu ngay" : "Nâng cấp gói"}
                                 </Button>
 
-                                {user?.walletBalance !== undefined && user.walletBalance > 0 && tier.price > 0 && !isCurrent && !isDowngrade && (
+                                {walletBalance > 0 && tier.price > 0 && !isCurrent && !isDowngrade && (
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         className="w-full text-[10px] font-bold text-amber-600 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-all flex items-center justify-center gap-1.5 h-9 rounded-xl shadow-sm mt-1"
                                         onClick={() => {
-                                            const isFull = user.walletBalance >= tier.price
+                                            const isFull = walletBalance >= tier.price
                                             handleConfirmSubscribe(tier, isFull ? PaymentMethod.COIN : PaymentMethod.PAYOS, true)
                                         }}
                                         disabled={loadingTier === tier.id}
                                     >
                                         <Coins className="size-3.5" />
-                                        {user.walletBalance >= tier.price
+                                        {walletBalance >= tier.price
                                             ? `Thanh toán bằng ${tier.price.toLocaleString()} Xu`
-                                            : `Dùng ${user.walletBalance.toLocaleString()} Xu để giảm giá`}
+                                            : `Dùng ${walletBalance.toLocaleString()} Xu để giảm giá`}
                                     </Button>
                                 )}
                             </CardFooter>

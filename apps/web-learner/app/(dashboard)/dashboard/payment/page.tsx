@@ -260,129 +260,138 @@ export default function PaymentHistoryPage() {
                     {isLoading ? (
                         <ComponentLoading className="h-64" />
                     ) : (
-                    <div className="space-y-6">
-                        <Card className="rounded-2xl border-border bg-card overflow-hidden p-0 shadow-sm">
-                            <div className="relative overflow-x-auto">
-                                <Table className="min-w-[1000px] border-collapse bg-transparent">
-                                    <TableHeader className="bg-muted/30 border-b border-border">
-                                        <TableRow className="hover:bg-transparent border-none">
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-[60px]">STT</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-[150px]">Mã đơn</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Nội dung</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-[180px]">Ngày tạo</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right w-[150px]">Tổng tiền</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-center w-[150px]">Trạng thái</TableHead>
-                                            <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right w-[100px]">Thao tác</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {orders.length > 0 ? orders.map((order, index) => {
-                                            const statusInfo = getStatusInfo(order.status)
-                                            return (
-                                                <TableRow key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap font-medium text-center">
-                                                        {(currentPage - 1) * limit + index + 1}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap font-mono text-muted-foreground">
-                                                        #{order.transactionId || order.id.slice(-6).toUpperCase()}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
-                                                        <div className="flex flex-col">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="font-semibold text-foreground truncate max-w-[300px]">{order.description || 'Thanh toán khóa học'}</span>
-                                                                {(order as any).orderType === 'refund' && (
-                                                                    <Badge variant="outline" className="text-[9px] h-4 bg-amber-50 text-amber-600 border-amber-200 font-bold">Hoàn trả</Badge>
-                                                                )}
-                                                            </div>
-                                                            <span className="text-xs text-muted-foreground font-medium">{order.paymentMethod || 'Cổng thanh toán'}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap text-muted-foreground font-medium text-center">
-                                                        {formatDateTime(order.createdAt)}
-                                                    </TableCell>
-                                                    <TableCell className={cn(
-                                                        "py-3 px-4 text-sm whitespace-nowrap text-right font-bold tabular-nums",
-                                                        (order as any).orderType === 'refund' ? "text-emerald-600" : "text-foreground"
-                                                    )}>
-                                                        {(order as any).orderType === 'refund' ? "+" : ""}{formatCurrency(order.amount)}
-                                                    </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
-                                                        <div className="flex justify-center">
-                                                            <span className={cn(
-                                                                "px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5",
-                                                                statusInfo.color
-                                                            )}>
-                                                                {statusInfo.icon}
-                                                                {statusInfo.label}
-                                                            </span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap text-right">
-                                                         <div className="flex justify-end gap-2">
-                                                            {order.status === 'PENDING' && isWithinGracePeriod(order.createdAt, 15) && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="h-8 px-2 rounded-lg text-primary hover:text-primary hover:bg-primary/5 border-primary/20 flex items-center gap-2"
-                                                                    onClick={() => handleRepay(order.id)}
-                                                                    disabled={repayMutation.isPending}
-                                                                >
-                                                                    <CreditCard className="w-3.5 h-3.5" />
-                                                                    <span className="text-xs font-bold">Thanh toán</span>
-                                                                </Button>
-                                                            )}
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                className="h-8 px-3 rounded-lg text-muted-foreground hover:text-foreground border-border/60 flex items-center gap-1.5"
-                                                                onClick={() => handleViewDetail(order.id)}
-                                                            >
-                                                                <Eye className="w-4 h-4" />
-                                                                <span className="text-xs font-medium">Xem</span>
-                                                            </Button>
-                                                         </div>
-                                                     </TableCell>
-                                                </TableRow>
-                                            )
-                                        }) : (
-                                            <TableRow>
-                                                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                                                    Bạn chưa có đơn hàng nào.
-                                                </TableCell>
+                        <div className="space-y-6">
+                            <Card className="rounded-2xl border-border bg-card overflow-hidden p-0 shadow-sm">
+                                <div className="relative overflow-x-auto">
+                                    <Table className="min-w-[1000px] border-collapse bg-transparent">
+                                        <TableHeader className="bg-muted/30 border-b border-border">
+                                            <TableRow className="hover:bg-transparent border-none">
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-[60px]">STT</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-[150px]">Mã đơn</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Nội dung</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-[180px]">Ngày tạo</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right w-[150px]">Tổng tiền</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-center w-[150px]">Trạng thái</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 text-right w-[100px]">Thao tác</TableHead>
                                             </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </Card>
-
-                        {/* Orders Pagination */}
-                        {orders.length > 0 && meta.totalPages > 1 && (
-                            <Pagination>
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-                                    </PaginationItem>
-                                    {getPageNumbers().map((page, index) => (
-                                        <PaginationItem key={index}>
-                                            {page === '...' ? <PaginationEllipsis /> : (
-                                                <PaginationLink isActive={page === currentPage} onClick={() => handlePageChange(page as number)}>
-                                                    {page}
-                                                </PaginationLink>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {orders.length > 0 ? orders.map((order, index) => {
+                                                const statusInfo = getStatusInfo(order.status)
+                                                return (
+                                                    <TableRow key={order.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap font-medium text-center">
+                                                            {(currentPage - 1) * limit + index + 1}
+                                                        </TableCell>
+                                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap font-mono text-muted-foreground">
+                                                            #{order.transactionId || order.id.slice(-6).toUpperCase()}
+                                                        </TableCell>
+                                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
+                                                            <div className="flex flex-col">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-semibold text-foreground truncate max-w-[300px]">{order.description || 'Thanh toán khóa học'}</span>
+                                                                    {(order as any).orderType === 'refund' && (
+                                                                        <Badge variant="outline" className="text-[9px] h-4 bg-amber-50 text-amber-600 border-amber-200 font-bold">Hoàn trả</Badge>
+                                                                    )}
+                                                                </div>
+                                                                <span className="text-xs text-muted-foreground font-medium">{order.paymentMethod || 'Cổng thanh toán'}</span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap text-muted-foreground font-medium text-center">
+                                                            {formatDateTime(order.createdAt)}
+                                                        </TableCell>
+                                                        <TableCell className={cn(
+                                                            "py-3 px-4 text-sm whitespace-nowrap text-right font-bold tabular-nums",
+                                                            (order as any).orderType === 'refund' ? "text-emerald-600" : "text-foreground"
+                                                        )}>
+                                                            {(() => {
+                                                                const walletDiscount = Number((order.metadata as any)?.walletDiscount ?? 0)
+                                                                const cash = order.amount
+                                                                if (walletDiscount > 0 && cash === 0) {
+                                                                    return <span className="text-amber-600">{walletDiscount.toLocaleString()} Xu</span>
+                                                                } else if (walletDiscount > 0 && cash > 0) {
+                                                                    return <span><span className="text-amber-600 text-xs">{walletDiscount.toLocaleString()} Xu + </span>{formatCurrency(cash)}</span>
+                                                                }
+                                                                return <>{(order as any).orderType === 'refund' ? '+' : ''}{formatCurrency(cash)}</>
+                                                            })()}
+                                                        </TableCell>
+                                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap">
+                                                            <div className="flex justify-center">
+                                                                <span className={cn(
+                                                                    "px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1.5",
+                                                                    statusInfo.color
+                                                                )}>
+                                                                    {statusInfo.icon}
+                                                                    {statusInfo.label}
+                                                                </span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                {order.status === 'PENDING' && isWithinGracePeriod(order.createdAt, 15) && (
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-8 px-2 rounded-lg text-primary hover:text-primary hover:bg-primary/5 border-primary/20 flex items-center gap-2"
+                                                                        onClick={() => handleRepay(order.id)}
+                                                                        disabled={repayMutation.isPending}
+                                                                    >
+                                                                        <CreditCard className="w-3.5 h-3.5" />
+                                                                        <span className="text-xs font-bold">Thanh toán</span>
+                                                                    </Button>
+                                                                )}
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    className="h-8 px-3 rounded-lg text-muted-foreground hover:text-foreground border-border/60 flex items-center gap-1.5"
+                                                                    onClick={() => handleViewDetail(order.id)}
+                                                                >
+                                                                    <Eye className="w-4 h-4" />
+                                                                    <span className="text-xs font-medium">Xem</span>
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            }) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                                                        Bạn chưa có đơn hàng nào.
+                                                    </TableCell>
+                                                </TableRow>
                                             )}
-                                        </PaginationItem>
-                                    ))}
-                                    <PaginationItem>
-                                        <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
-                    </div>
-                )}
-            </TabsContent>
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </Card>
 
-            <TabsContent value="wallet" className="mt-0 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            {/* Orders Pagination */}
+                            {orders.length > 0 && meta.totalPages > 1 && (
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                                        </PaginationItem>
+                                        {getPageNumbers().map((page, index) => (
+                                            <PaginationItem key={index}>
+                                                {page === '...' ? <PaginationEllipsis /> : (
+                                                    <PaginationLink isActive={page === currentPage} onClick={() => handlePageChange(page as number)}>
+                                                        {page}
+                                                    </PaginationLink>
+                                                )}
+                                            </PaginationItem>
+                                        ))}
+                                        <PaginationItem>
+                                            <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="wallet" className="mt-0 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         <Card className="rounded-2xl border-border bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-sm overflow-hidden border">
                             <CardHeader className="pb-2">
@@ -542,10 +551,24 @@ export default function PaymentHistoryPage() {
                                         <span className="font-semibold text-xs text-foreground">{orderDetails.paymentMethod || 'Thanh toán trực tuyến'}</span>
                                     </div>
                                     <Separator className="bg-border my-4" />
-                                    <div className="flex justify-between items-center pt-2">
-                                        <span className="text-sm font-bold text-foreground">Tổng tiền</span>
-                                        <span className="text-xl font-bold text-primary">{formatCurrency(orderDetails.amount)}</span>
-                                    </div>
+                                    {(() => {
+                                        const walletDiscount = Number((orderDetails.metadata as any)?.walletDiscount ?? 0)
+                                        const cash = orderDetails.amount
+                                        return (
+                                            <div className="space-y-2 pt-2">
+                                                {walletDiscount > 0 && (
+                                                    <div className="flex justify-between items-center text-sm">
+                                                        <span className="text-muted-foreground font-medium">Thanh toán bằng Xu</span>
+                                                        <span className="font-bold text-amber-600">{walletDiscount.toLocaleString()} Xu</span>
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-sm font-bold text-foreground">Thanh toán tiền mặt</span>
+                                                    <span className="text-xl font-bold text-primary">{formatCurrency(cash)}</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })()}
                                 </div>
                             </div>
 
