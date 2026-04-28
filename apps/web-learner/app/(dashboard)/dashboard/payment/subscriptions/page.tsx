@@ -12,8 +12,11 @@ import { toast } from "@workspace/ui/components/sonner"
 import { orderApi } from "@/lib/api/services/order-api"
 import { PaymentMethod } from "@workspace/schemas"
 import { useAppSelector } from "@/hooks/hooks"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { agentApi } from "@/lib/api/services/agent-api"
+import { type OrderPreviewResponse } from "@/lib/api/services/order-api"
+import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 import { Separator } from "@workspace/ui/components/separator"
 import {
     AlertDialog,
@@ -42,9 +45,12 @@ interface Tier {
 
 export default function SubscriptionsPage() {
     const router = useRouter()
+    const queryClient = useQueryClient()
     const [loadingTier, setLoadingTier] = React.useState<string | null>(null)
     const [selectedTier, setSelectedTier] = React.useState<{ tier: Tier, method: PaymentMethod, useWallet?: boolean } | null>(null)
     const [confirmOpen, setConfirmOpen] = React.useState(false)
+    const [previewData, setPreviewData] = React.useState<OrderPreviewResponse | null>(null)
+    const [isPreviewLoading, setIsPreviewLoading] = React.useState(false)
 
     const { data: quota } = useQuery({
         queryKey: ['quota-status'],
@@ -123,6 +129,28 @@ export default function SubscriptionsPage() {
         setConfirmOpen(true)
     }
 
+    React.useEffect(() => {
+        if (confirmOpen && selectedTier) {
+            const fetchPreview = async () => {
+                setIsPreviewLoading(true)
+                try {
+                    const data = await orderApi.previewOrder({
+                        subscriptionPlanIds: [selectedTier.tier.id],
+                        useWalletBalance: selectedTier.useWallet
+                    })
+                    setPreviewData(data)
+                } catch (err: any) {
+                    toast.error(err.message || "Lỗi khi tính toán giá gói.")
+                } finally {
+                    setIsPreviewLoading(false)
+                }
+            }
+            fetchPreview()
+        } else {
+            setPreviewData(null)
+        }
+    }, [confirmOpen, selectedTier])
+
     const processSubscription = async () => {
         if (!selectedTier) return
 
@@ -143,6 +171,10 @@ export default function SubscriptionsPage() {
                 toast.success("Đang chuyển hướng đến trang thanh toán...")
                 window.location.href = response.paymentUrl
             } else {
+                // If paid with Coins, it might be fulfilled immediately
+                await queryClient.invalidateQueries({ queryKey: ['quota-status'] })
+                await queryClient.invalidateQueries({ queryKey: ['ai-subscription-plans'] })
+
                 router.push(`/dashboard/payment?orderId=${response.id}`)
                 toast.success("Đã tạo đơn hàng thành công!")
             }
@@ -218,12 +250,20 @@ export default function SubscriptionsPage() {
                                     {tier.icon}
                                 </div>
                                 <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <CardTitle className="text-lg font-bold tracking-tight">{tier.name}</CardTitle>
-                                        {isCurrent && (
-                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold h-5 text-[9px] px-1.5 flex items-center justify-center">
-                                                Hiện tại
-                                            </Badge>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <CardTitle className="text-lg font-bold tracking-tight">{tier.name}</CardTitle>
+                                            {isCurrent && (
+                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold h-5 text-[9px] px-1.5 flex items-center justify-center">
+                                                    Hiện tại
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        {isCurrent && quota?.expiresAt && (
+                                            <span className="text-[10px] font-medium text-emerald-600 mt-1 flex items-center gap-1">
+                                                <BadgeCheck className="size-3" />
+                                                Hạn dùng: {format(new Date(quota.expiresAt), "dd/MM/yyyy", { locale: vi })}
+                                            </span>
                                         )}
                                     </div>
                                     <CardDescription className="text-[12px] font-medium text-muted-foreground/60 line-clamp-2">
@@ -334,9 +374,41 @@ export default function SubscriptionsPage() {
                         </div>
                         <AlertDialogTitle className="text-xl font-bold">Xác nhận nâng cấp gói</AlertDialogTitle>
                         <AlertDialogDescription className="text-sm font-medium leading-relaxed">
-                            Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span> với mức phí <span className="text-primary font-bold">{selectedTier?.tier.price ? formatCurrency(selectedTier.tier.price) : "0đ"}</span> / tháng.
-                            <br /><br />
-                            Bạn có đồng ý tiến hành thanh toán và kích hoạt gói ngay bây giờ không?
+                            {isPreviewLoading ? (
+                                <span className="flex items-center gap-2 py-4">
+                                    <Zap className="size-4 animate-spin text-amber-600" />
+                                    Đang tính toán giá ưu đãi...
+                                </span>
+                            ) : (
+                                <>
+                                    Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span>.
+                                    <br /><br />
+                                    <div className="space-y-1.5 bg-muted/30 p-3 rounded-lg border border-border/50">
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">Giá niêm yết:</span>
+                                            <span className="font-bold">{formatCurrency(selectedTier?.tier.price || 0)}</span>
+                                        </div>
+                                        {previewData?.prorationDiscount ? (
+                                            <div className="flex justify-between text-emerald-600">
+                                                <span className="flex items-center gap-1"><BadgeCheck className="size-3" /> Bù trừ gói cũ:</span>
+                                                <span className="font-bold">-{formatCurrency(previewData.prorationDiscount)}</span>
+                                            </div>
+                                        ) : null}
+                                        {previewData?.walletDiscount ? (
+                                            <div className="flex justify-between text-amber-600">
+                                                <span>Sử dụng xu:</span>
+                                                <span className="font-bold">-{formatCurrency(previewData.walletDiscount)}</span>
+                                            </div>
+                                        ) : null}
+                                        <div className="flex justify-between pt-1 border-t border-border/50 text-base">
+                                            <span className="font-bold text-foreground">Tổng thanh toán:</span>
+                                            <span className="font-black text-primary">{formatCurrency(previewData?.grandTotal ?? selectedTier?.tier.price ?? 0)}</span>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    Bạn có đồng ý tiến hành kích hoạt gói mới ngay bây giờ không?
+                                </>
+                            )}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="pt-4 flex-col sm:flex-row gap-3">
