@@ -10,13 +10,25 @@ Tài liệu này hướng dẫn cách triển khai LiveKit Server tích hợp v�
 ## 2. Các cổng cần mở (Firewall GCP/VPS)
 Bạn phải đảm bảo các cổng sau đã được ALLOW:
 - **TCP**: `80`, `443`, `7881`, `5349`
-- **UDP**: `443`, `7882`, `50000-50100`
+- **UDP**: `443`, `7882`, `50000-60000`
+- **UDP**: `443`, `7882`, `50000-60000`
 
-## 3. Quy trình triển khai lần đầu
-1. **Chuẩn bị cấu hình**:
-   - Sửa file `livekit.yaml`: Thay `YOUR_VPS_IP` bằng IP thật của VPS.
+## 3. Cấu hình DNS
+Bạn cần trỏ 2 subdomain sau về IP của VPS (Tắt Proxy Cloudflare):
+1. **api.torii.sbs** -> IP VPS
+2. **turn.torii.sbs** -> IP VPS
+1. **Cấp chứng chỉ SSL (Certbot)**:
+   Nên tạo chứng chỉ gộp cho cả 2 domain để tối ưu:
+   ```bash
+   sudo certbot certonly --manual -d api.torii.sbs -d turn.torii.sbs
+   ```
+   Hoặc tạo riêng cho `turn.torii.sbs`:
+   ```bash
+   sudo certbot certonly --manual -d turn.torii.sbs
+   ```
+
 2. **Đồng bộ Chứng chỉ SSL**:
-   Chạy script để copy cert từ Let's Encrypt vào dự án:
+   Chạy script để copy cert vào dự án:
    ```bash
    chmod +x scripts/update-livekit-certs.sh
    ./scripts/update-livekit-certs.sh
