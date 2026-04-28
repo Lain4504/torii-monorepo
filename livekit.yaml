@@ -35,9 +35,9 @@ ingress:
   rtmp_base_url: rtmp://localhost:1935/live
   whip_base_url: http://localhost:8089/whip
 turn:
-  enabled: true
+  enabled: false
   domain: turn.torii.sbs
   tls_port: 5349
   udp_port: 3478
-  cert_file: /certs/fullchain.pem
-  key_file: /certs/privkey.pem
+  external_tls: false
+  secret: ToriiTurnSecret2026SbsX9k

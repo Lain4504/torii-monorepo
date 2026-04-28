@@ -64,6 +64,17 @@ services:
       - redis
       - livekit
 
+  coturn:
+    image: coturn/coturn:latest
+    container_name: torii-coturn
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./coturn.conf:/etc/coturn/turnserver.conf:ro
+      - ./certs:/certs:ro
+      - coturnlogs:/var/log/coturn
+    command: -c /etc/coturn/turnserver.conf
+
   # ========================================
   # Application Services
   # ========================================
@@ -203,6 +214,7 @@ volumes:
   livekitdata:
   # Dùng chung giữa gateway + meet (uploadPath ./uploads → /app/apps/server/uploads)
   uploads_data:
+  coturnlogs:
 
 
 networks:
