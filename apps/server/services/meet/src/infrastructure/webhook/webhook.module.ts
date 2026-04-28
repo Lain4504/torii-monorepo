@@ -5,7 +5,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { WebhookNotifierService } from './webhook-notifier.service';
 import { WebhookService } from './webhook.service';
-import { WebhookController } from '@server/meet/transport/nats/handlers/webhook.rpc.controller';
 import { SharedModule } from '@server/shared';
 import { RedisRoomService } from '@server/meet/infrastructure/redis/redis-room.service';
 import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module';
@@ -28,7 +27,7 @@ import { BreakoutModule } from '@server/meet/modules/breakout/breakout.module';
     LiveKitModule,
     WajlcAuthModule,
   ],
-  controllers: [WebhookController, WebhookHandler],
+  controllers: [WebhookHandler],
   providers: [
     // Redis
     RedisRoomService,

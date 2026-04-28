@@ -89,6 +89,10 @@ export class RoomEndService {
    */
   async endRoom(req: RoomEndReq): Promise<{ status: boolean; msg: string }> {
     const roomId = req.roomId;
+    if (!roomId || roomId.trim() === '') {
+      this.logger.warn('EndRoom called with empty roomId, aborting');
+      return { status: false, msg: 'roomId không hợp lệ' };
+    }
     this.logger.log(`EndRoom called for: ${roomId}`);
 
     // Step 1: Wait until any ongoing room creation process is complete to avoid race conditions
@@ -321,25 +325,37 @@ export class RoomEndService {
     }
 
     // Step 6: Send a stop signal to any active recorders for this room
-    try {
-      await this.recordingService.sendMsgToRecorder(
-        create(RecordingReqSchema, {
-          task: RecordingTasks.STOP,
-          sid: roomSID,
-          roomId: roomId,
-        }),
+    if (roomSID && roomSID.trim() !== '') {
+      try {
+        await this.recordingService.sendMsgToRecorder(
+          create(RecordingReqSchema, {
+            task: RecordingTasks.STOP,
+            sid: roomSID,
+            roomId: roomId,
+          }),
+        );
+      } catch (error) {
+        this.logger.error(`Error sending stop to recorder: ${error.message}`);
+      }
+    } else {
+      this.logger.warn(
+        `Skip recorder stop for room ${roomId}: empty roomSID from cleanup context`,
       );
-    } catch (error) {
-      this.logger.error(`Error sending stop to recorder: ${error.message}`);
     }
 
     // Step 7: Delete all uploaded files for this session (if not configured to keep)
     const keepFilesForever = this.appConfig.upload.keepForever;
     if (!keepFilesForever) {
-      try {
-        await this.fileService.deleteRoomUploadedDir(roomSID);
-      } catch (error) {
-        this.logger.error(`Error deleting uploaded files: ${error.message}`);
+      if (roomSID && roomSID.trim() !== '') {
+        try {
+          await this.fileService.deleteRoomUploadedDir(roomSID);
+        } catch (error) {
+          this.logger.error(`Error deleting uploaded files: ${error.message}`);
+        }
+      } else {
+        this.logger.warn(
+          `Skip uploaded file cleanup for room ${roomId}: empty roomSID from cleanup context`,
+        );
       }
     }
 

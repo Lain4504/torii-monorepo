@@ -53,6 +53,11 @@ export class NatsRoomService {
    * GetRoomInfo retrieves room information from NATS KV (Consolidated Bucket)
    */
   async getRoomInfo(roomId: string): Promise<NatsKvRoomInfo | null> {
+    if (!roomId || roomId.trim() === '') {
+      this.logger.warn('GetRoomInfo called with empty roomId');
+      return null;
+    }
+
     this.logger.log(`Getting room info for: ${roomId}`);
 
     // Step 1: Try to get cached room info first
@@ -104,6 +109,15 @@ export class NatsRoomService {
           this.natsService.formatRoomKey('metadata'),
         ),
       });
+
+      // Guard against partially deleted/corrupted KV buckets. Returning a blank
+      // object here can trigger destructive cleanup flows with empty room/sid.
+      if (!info.roomId || !info.roomSid || !info.dbTableId || info.dbTableId === '0') {
+        this.logger.warn(
+          `Invalid room info in NATS bucket for ${roomId} (roomId="${info.roomId}", roomSid="${info.roomSid}", dbTableId="${info.dbTableId}")`,
+        );
+        return null;
+      }
 
       // Step 3: Add watcher if room not ended
       if (info.status !== ROOM_STATUS_ENDED) {

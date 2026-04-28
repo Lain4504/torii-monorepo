@@ -180,44 +180,6 @@ services:
       - postgres
       - redis
 
-  communication:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:communication
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
-
-  storage:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:storage
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
-
   agents:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:agents
