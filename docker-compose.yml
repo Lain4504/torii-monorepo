@@ -15,11 +15,6 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -28,18 +23,12 @@ services:
     network_mode: "host"
     volumes:
       - redisdata:/data
-    healthcheck:
-      test: [ 'CMD', 'redis-cli', 'ping' ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   nats:
     image: nats:2.12-alpine
     container_name: torii-nats
     restart: always
     command:
-      - "-DVV"
       - "-config"
       - "/nats-server.conf"
     network_mode: "host"
@@ -51,14 +40,12 @@ services:
     image: livekit/livekit-server:v1.9.11
     container_name: torii-livekit
     restart: always
-    command: --config /livekit.yaml
     network_mode: "host"
+    command: --config /livekit.yaml --node-ip ${VPS_PUBLIC_IP:-34.101.174.98}
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
       - ./certs:/certs:ro
-    environment:
-      - RTC_PACKET_MTU=1400
     depends_on:
       redis:
         condition: service_healthy
@@ -68,8 +55,8 @@ services:
     image: livekit/ingress:v1.4.3
     container_name: torii-livekit-ingress
     restart: always
-    command: --config /ingress.yaml
     network_mode: "host"
+    command: --config /ingress.yaml
     volumes:
       - ./ingress.yaml:/ingress.yaml
     depends_on:
@@ -78,6 +65,17 @@ services:
       livekit:
         condition: service_started
     # Healthcheck removed as ingress image lacks curl
+
+  coturn:
+    image: coturn/coturn:latest
+    container_name: torii-coturn
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./coturn.conf:/etc/coturn/turnserver.conf:ro
+      - ./certs:/certs:ro
+      - coturnlogs:/var/log/coturn
+    command: -c /etc/coturn/turnserver.conf
 
   # ========================================
   # Application Services
@@ -177,6 +175,7 @@ services:
       - nats
       - postgres
       - redis
+      - livekit
 
   agents:
     image: ${DOCKER_USERNAME}/torii-backend:latest
@@ -217,10 +216,10 @@ volumes:
   pgdata:
   redisdata:
   natsdata:
-  livekitdata:
-  # Dùng chung giữa gateway + meet (uploadPath ./uploads → /app/apps/server/uploads)
-  uploads_data:
+  livekitdata: # Dùng chung giữa gateway + meet (uploadPath ./uploads → /app/apps/server/uploads)
 
+  uploads_data:
+  coturnlogs:
 
 networks:
   # Separate network for voice-agent with MTU 1400 to fix GCP connectivity.

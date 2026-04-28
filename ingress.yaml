@@ -20,6 +20,6 @@ redis:
 #  sentinel_username: user
 #  sentinel_password: pass
 
-# cpu costs for various Ingress types with their default values
 cpu_cost:
   rtmp_cpu_cost: 2.0
+  whip_cpu_cost: 2.0
