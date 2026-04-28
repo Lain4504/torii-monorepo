@@ -101,6 +101,7 @@ export class TicketService implements ITicketService {
         }
 
         const enrollment = result.enrollment;
+        const progress = enrollment.progress ?? enrollment.completionPercentage ?? 0;
         const enrolledAt = new Date(enrollment.enrolledAt);
         const originalStatus = enrollment.status;
         const now = new Date();
@@ -115,6 +116,7 @@ export class TicketService implements ITicketService {
               status: true,
               cohort: {
                 select: {
+                  startDate: true,
                   enrollmentOpenAt: true,
                   enrollmentCloseAt: true,
                 },
@@ -126,31 +128,30 @@ export class TicketService implements ITicketService {
             throw new BadRequestException('Lớp LIVE không tồn tại.');
           }
 
-          const cohortOpenAt = liveClass.cohort?.enrollmentOpenAt ?? null;
-          const cohortCloseAt = liveClass.cohort?.enrollmentCloseAt ?? null;
-          const inEnrollmentWindow =
-            liveClass.status === 'OPENING' &&
-            (!cohortOpenAt || now >= cohortOpenAt) &&
-            (!cohortCloseAt || now <= cohortCloseAt);
-
-          if (!inEnrollmentWindow) {
+          const cohortStartDate = liveClass.cohort?.startDate ?? null;
+          if (cohortStartDate && now >= cohortStartDate) {
             throw new BadRequestException(
-              'Yêu cầu hoàn tiền cho lớp LIVE chỉ hợp lệ khi còn trong thời gian tuyển sinh. Lớp đã vào giai đoạn học sẽ không hỗ trợ hoàn tiền.',
+              'Khóa học LIVE đã rẽ sang giai đoạn học tập (đã khai giảng). Hệ thống không hỗ trợ hoàn tiền sau ngày khai giảng.',
             );
           }
+
+          // If it's a Live Class and we passed the startDate check, it's unconditionally refundable
+          // Skip the 14-day and progress checks for Live Classes.
         }
 
-        if (diffDays > 14) {
-          throw new BadRequestException(
-            'Bạn chỉ có thể yêu cầu hoàn tiền trong vòng 14 ngày kể từ ngày đăng ký khóa học.',
-          );
-        }
+        if (!liveClassId) {
+          // Rule for VOD: Within 14 days and < 20% progress
+          if (diffDays > 14) {
+            throw new BadRequestException(
+              'Bạn chỉ có thể yêu cầu hoàn tiền trong vòng 14 ngày kể từ ngày đăng ký khóa học VOD.',
+            );
+          }
 
-        const progress = enrollment.progress ?? enrollment.completionPercentage ?? 0;
-        if (progress > 20) {
-          throw new BadRequestException(
-            `Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành ${progress}% nội dung (giới hạn là 20%).`,
-          );
+          if (progress > 20) {
+            throw new BadRequestException(
+              `Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành ${progress}% nội dung (giới hạn là 20%).`,
+            );
+          }
         }
 
         let courseTitle = 'Khóa học';
