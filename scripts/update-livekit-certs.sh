@@ -3,36 +3,52 @@
 # ==============================================================================
 # Torii LiveKit Cert Sync Script
 # Description: Syncs Let's Encrypt certs to project folder for Docker access.
+# Supports single domain or dedicated TURN domain.
 # ==============================================================================
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CERTS_DIR="$PROJECT_ROOT/certs"
-DOMAIN="api.torii.sbs"
+API_DOMAIN="api.torii.sbs"
+TURN_DOMAIN="turn.torii.sbs"
 
 echo "Starting SSL certificate sync for LiveKit..."
 
 # 1. Create certs directory if not exists
 mkdir -p "$CERTS_DIR"
 
-# 2. Copy certificates from Let's Encrypt
-if [ -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    echo "Copying certificates for $DOMAIN..."
-    sudo cp "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" "$CERTS_DIR/"
-    sudo cp "/etc/letsencrypt/live/$DOMAIN/privkey.pem" "$CERTS_DIR/"
-    
-    # 3. Set proper permissions
-    sudo chown -R $USER:$USER "$CERTS_DIR"
-    chmod 644 "$CERTS_DIR/fullchain.pem"
-    chmod 644 "$CERTS_DIR/privkey.pem"
-    
-    echo "Certificates synced successfully to $CERTS_DIR"
-    
-    # 4. Restart LiveKit to pick up changes
-    echo "Restarting LiveKit container..."
-    sudo docker compose up -d --force-recreate livekit
+# 2. Determine which cert to use
+# Priority:
+# 1. Combined cert (api + turn) or dedicated turn cert
+# 2. Main api cert
+SELECTED_DOMAIN="$API_DOMAIN"
+
+if [ -d "/etc/letsencrypt/live/$TURN_DOMAIN" ]; then
+    SELECTED_DOMAIN="$TURN_DOMAIN"
+    echo "Found dedicated TURN domain cert: $TURN_DOMAIN"
+elif [ -d "/etc/letsencrypt/live/$API_DOMAIN" ]; then
+    SELECTED_DOMAIN="$API_DOMAIN"
+    echo "Using main API domain cert: $API_DOMAIN"
 else
-    echo "Error: Certificate directory for $DOMAIN not found at /etc/letsencrypt/live/"
+    echo "ERROR: No SSL certificates found in /etc/letsencrypt/live/ for $API_DOMAIN or $TURN_DOMAIN"
+    echo "Please run Certbot first to generate certificates."
     exit 1
 fi
+
+echo "Copying certificates from /etc/letsencrypt/live/$SELECTED_DOMAIN..."
+sudo cp -L "/etc/letsencrypt/live/$SELECTED_DOMAIN/fullchain.pem" "$CERTS_DIR/fullchain.pem"
+sudo cp -L "/etc/letsencrypt/live/$SELECTED_DOMAIN/privkey.pem" "$CERTS_DIR/privkey.pem"
+
+# 3. Fix permissions for Docker
+sudo chmod 644 "$CERTS_DIR/fullchain.pem"
+sudo chmod 644 "$CERTS_DIR/privkey.pem"
+sudo chown $USER:$USER "$CERTS_DIR/fullchain.pem" "$CERTS_DIR/privkey.pem"
+
+echo "Success! Certificates synced to $CERTS_DIR"
+ls -l "$CERTS_DIR"
+
+# 5. Restart LiveKit to pick up changes
+echo "Restarting LiveKit container..."
+cd "$PROJECT_ROOT"
+sudo docker compose up -d --force-recreate livekit
 
 echo "Done!"
