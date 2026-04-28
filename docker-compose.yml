@@ -61,13 +61,19 @@ services:
       - '7882:7882/udp'
       # - '5349:5349' # TURN TLS
       # - '443:443/udp' # TURN UDP (Fix for 4G)
-      # - '50000-50100:50000-50100/udp' # Media range (100 ports)
+      # - '50000-60000:50000-60000/udp' # Media range (10000 ports)
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
       # - ./certs:/certs:ro
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7880/healthz"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
 
   livekit-ingress:
     image: livekit/ingress:v1.4.3
@@ -80,8 +86,15 @@ services:
     volumes:
       - ./ingress.yaml:/ingress.yaml
     depends_on:
-      - redis
-      - livekit
+      redis:
+        condition: service_healthy
+      livekit:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
 
   # ========================================
   # Application Services
