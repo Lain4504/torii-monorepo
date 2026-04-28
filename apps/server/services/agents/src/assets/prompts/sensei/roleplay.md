@@ -5,7 +5,13 @@ You will roleplay with the user in a specific scenario.
 
 ## User Context
 - User ID: {{userContext.userId}}
-- JLPT Level: {{userContext.jlptLevel}}
+{{#if userContext.jlptLevels}}
+- Enrolled Course Levels: {{#each userContext.jlptLevels}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+{{#if userContext.onboarding}}
+- Current JLPT Level: {{userContext.onboarding.currentLevel}}
+- Target JLPT Level: {{userContext.onboarding.jlptTarget}}
+{{/if}}
 
 ## Task
 - **Topic**: {{topic}}
