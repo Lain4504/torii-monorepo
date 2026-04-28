@@ -9,7 +9,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { formatCurrency } from "@/utils/format-utils"
 import { useRouter } from "next/navigation"
 import { toast } from "@workspace/ui/components/sonner"
-import { orderApi } from "@/lib/api/services/order-api"
+import { orderApi, OrderPreviewResponse } from "@/lib/api/services/order-api"
 import { PaymentMethod } from "@workspace/schemas"
 import { useAppSelector } from "@/hooks/hooks"
 import { useQuery } from "@tanstack/react-query"
@@ -45,6 +45,8 @@ export default function SubscriptionsPage() {
     const [loadingTier, setLoadingTier] = React.useState<string | null>(null)
     const [selectedTier, setSelectedTier] = React.useState<{ tier: Tier, method: PaymentMethod, useWallet?: boolean } | null>(null)
     const [confirmOpen, setConfirmOpen] = React.useState(false)
+    const [previewData, setPreviewData] = React.useState<OrderPreviewResponse | null>(null)
+    const [isLoadingPreview, setIsLoadingPreview] = React.useState(false)
 
     const { data: quota } = useQuery({
         queryKey: ['quota-status'],
@@ -101,7 +103,7 @@ export default function SubscriptionsPage() {
 
     const user = useAppSelector(state => state.auth.user)
 
-    const handleConfirmSubscribe = (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS, useWallet: boolean = false) => {
+    const handleConfirmSubscribe = async (tier: Tier, method: PaymentMethod = PaymentMethod.PAYOS, useWallet: boolean = false) => {
         const targetTierIndex = tiers.findIndex(t => t.id === tier.id)
 
         if (targetTierIndex < currentTierIndex && currentTier !== 'free') {
@@ -120,7 +122,22 @@ export default function SubscriptionsPage() {
         }
 
         setSelectedTier({ tier, method, useWallet })
+        setPreviewData(null)
         setConfirmOpen(true)
+
+        // Fetch preview to get prorated grandTotal
+        setIsLoadingPreview(true)
+        try {
+            const preview = await orderApi.previewOrder({
+                subscriptionPlanIds: [tier.id],
+                useWalletBalance: useWallet,
+            })
+            setPreviewData(preview)
+        } catch {
+            // Non-fatal: fall back to tier.price
+        } finally {
+            setIsLoadingPreview(false)
+        }
     }
 
     const processSubscription = async () => {
@@ -333,10 +350,62 @@ export default function SubscriptionsPage() {
                             <Zap className="size-6 text-amber-600 fill-amber-600" />
                         </div>
                         <AlertDialogTitle className="text-xl font-bold">Xác nhận nâng cấp gói</AlertDialogTitle>
-                        <AlertDialogDescription className="text-sm font-medium leading-relaxed">
-                            Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span> với mức phí <span className="text-primary font-bold">{selectedTier?.tier.price ? formatCurrency(selectedTier.tier.price) : "0đ"}</span> / tháng.
-                            <br /><br />
-                            Bạn có đồng ý tiến hành thanh toán và kích hoạt gói ngay bây giờ không?
+                        <AlertDialogDescription asChild>
+                            <div className="space-y-3 text-sm font-medium leading-relaxed">
+                                <p>Bạn đang chọn nâng cấp lên gói <span className="text-foreground font-bold">{selectedTier?.tier.name}</span>.</p>
+
+                                {/* Price breakdown */}
+                                <div className="rounded-xl border border-border/40 bg-muted/30 p-3 space-y-2 text-xs">
+                                    {isLoadingPreview ? (
+                                        <div className="flex items-center justify-center py-2 text-muted-foreground">Đang tính giá...</div>
+                                    ) : (() => {
+                                        const rawPrice = selectedTier?.tier.price ?? 0
+                                        const prorationDiscount = previewData?.prorationDiscount ?? 0
+                                        const effectivePrice = previewData?.grandTotal ?? rawPrice
+                                        const walletBalance = user?.walletBalance ?? 0
+                                        const coinUsed = selectedTier?.useWallet ? Math.min(walletBalance, effectivePrice) : 0
+                                        const remaining = Math.max(0, effectivePrice - coinUsed)
+
+                                        return (
+                                            <>
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">Giá niêm yết:</span>
+                                                    <span className="font-bold">{formatCurrency(rawPrice)}</span>
+                                                </div>
+
+                                                {prorationDiscount > 0 && (
+                                                    <div className="flex justify-between text-emerald-600">
+                                                        <span>Bù trừ gói cũ (còn lại):</span>
+                                                        <span className="font-bold">-{formatCurrency(prorationDiscount)}</span>
+                                                    </div>
+                                                )}
+
+                                                {coinUsed > 0 && (
+                                                    <div className="flex justify-between text-amber-600">
+                                                        <span>Khấu trừ Xu ({coinUsed.toLocaleString()} Xu):</span>
+                                                        <span className="font-bold">-{formatCurrency(coinUsed)}</span>
+                                                    </div>
+                                                )}
+
+                                                <div className="border-t border-border/30 pt-2 flex justify-between">
+                                                    <span className="font-bold text-foreground">Tổng thanh toán:</span>
+                                                    <span className="font-bold text-primary">
+                                                        {coinUsed > 0 && remaining === 0
+                                                            ? `${coinUsed.toLocaleString()} Xu`
+                                                            : formatCurrency(remaining)}
+                                                    </span>
+                                                </div>
+
+                                                {coinUsed > 0 && remaining > 0 && (
+                                                    <p className="text-muted-foreground text-[10px]">Phần còn lại {formatCurrency(remaining)} sẽ thanh toán qua PayOS.</p>
+                                                )}
+                                            </>
+                                        )
+                                    })()}
+                                </div>
+
+                                <p>Bạn có đồng ý tiến hành kích hoạt gói mới ngay bây giờ không?</p>
+                            </div>
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="pt-4 flex-col sm:flex-row gap-3">

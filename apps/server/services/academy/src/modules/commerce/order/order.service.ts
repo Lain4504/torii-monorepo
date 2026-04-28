@@ -256,6 +256,27 @@ export class OrderService {
 
     let discountTotal = 0;
     let couponId: string | undefined;
+    let prorationDiscount = 0;
+
+    // Proration: if upgrading subscription, calculate remaining value of current plan
+    if (subscriptionPlans.length > 0) {
+      const activeSub = await this.prisma.aiUserSubscription.findFirst({
+        where: { userId, status: 'ACTIVE' },
+        include: { plan: true },
+        orderBy: { expiresAt: 'desc' },
+      });
+
+      if (activeSub && activeSub.expiresAt > new Date()) {
+        const now = new Date();
+        const msRemaining = activeSub.expiresAt.getTime() - now.getTime();
+        const daysRemaining = msRemaining / (1000 * 60 * 60 * 24);
+        const currentPlanPrice = Number(activeSub.plan.price);
+        prorationDiscount = Math.min(
+          Math.round((daysRemaining / 30) * currentPlanPrice),
+          subTotal,
+        );
+      }
+    }
 
     if (input.couponCode) {
       const coupon = await this.couponService.validateCoupon(
@@ -270,7 +291,7 @@ export class OrderService {
       couponId = coupon.id;
     }
 
-    const grandTotalBeforeWallet = Math.max(0, subTotal - discountTotal);
+    const grandTotalBeforeWallet = Math.max(0, subTotal - discountTotal - prorationDiscount);
     let walletDiscount = 0;
 
     if (input.useWalletBalance && subscriptionPlans.length > 0) {
@@ -287,6 +308,7 @@ export class OrderService {
     return {
       subTotal,
       discountTotal,
+      prorationDiscount,
       walletDiscount,
       grandTotal,
       vodPackages,
@@ -720,28 +742,17 @@ export class OrderService {
   public async fulfillAiSubscription(tx: any, targetUserId: string, item: any) {
     const now = new Date();
 
-    // Find active subscription for stacking logic
-    const activeSub = await tx.aiUserSubscription.findFirst({
-      where: { userId: targetUserId, status: 'ACTIVE' },
-      orderBy: { expiresAt: 'desc' },
-    });
-
-    let newExpiresAt = new Date();
+    // Always start a fresh 30-day cycle from now (no stacking on upgrades)
+    const newExpiresAt = new Date(now);
     newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
 
-    if (activeSub && activeSub.expiresAt > now) {
-      // Stack from current expiresAt
-      newExpiresAt = new Date(activeSub.expiresAt);
-      newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
-    }
-
-    // Cancel old ones (or update them to EXTENDED/EXPIRED)
+    // Cancel existing active subscription(s)
     await tx.aiUserSubscription.updateMany({
       where: { userId: targetUserId, status: 'ACTIVE' },
       data: { status: 'CANCELLED' },
     });
 
-    // Create new one starting from the right point, or just creating a new one that captures the full period
+    // Create new subscription starting today
     await tx.aiUserSubscription.create({
       data: {
         userId: targetUserId,

@@ -44,6 +44,8 @@ export interface OrderPreviewResponse {
     subTotal?: number;
     discount: number;
     discountTotal?: number;
+    prorationDiscount?: number;
+    walletDiscount?: number;
     total: number;
     grandTotal?: number;
     items: any[];
@@ -155,6 +157,8 @@ export const orderApi = {
             subTotal: Number(payload.subTotal ?? 0),
             discount: Number(payload.discountTotal ?? 0),
             discountTotal: Number(payload.discountTotal ?? 0),
+            prorationDiscount: Number(payload.prorationDiscount ?? 0),
+            walletDiscount: Number(payload.walletDiscount ?? 0),
             total: Number(payload.grandTotal ?? 0),
             grandTotal: Number(payload.grandTotal ?? 0),
             items: payload.products ?? [],
