@@ -35,7 +35,7 @@ export const orderCheckoutSchema = z.object({
     (value) => (typeof value === 'string' ? value.toUpperCase() : value),
     z.enum(['PAYOS', 'MOMO', 'STRIPE', 'INTERNAL']).optional(),
   ),
-
+  useWalletBalance: z.boolean().optional(),
 });
 
 export const orderPreviewSchema = z.object({
@@ -56,4 +56,5 @@ export const orderPreviewSchema = z.object({
   recipientEmail: z.string().email().optional(),
   giftMessage: z.string().max(500).optional(),
   description: z.string().optional(),
+  useWalletBalance: z.boolean().optional(),
 });

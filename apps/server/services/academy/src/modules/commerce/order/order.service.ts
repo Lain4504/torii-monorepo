@@ -1094,24 +1094,44 @@ export class OrderService {
     const ordersToCancel = await this.prisma.order.findMany({
       where: {
         status: OrderStatus.PENDING,
-        createdAt: {
-          lt: fifteenMinutesAgo,
-        },
+        createdAt: { lt: fifteenMinutesAgo },
       },
-      select: { id: true, code: true },
+      select: { id: true, code: true, userId: true, metadata: true },
     });
 
     if (ordersToCancel.length > 0) {
       this.logger.log(
         `Auto-cancelling ${ordersToCancel.length} expired orders`,
       );
-      await this.prisma.order.updateMany({
-        where: {
-          id: { in: ordersToCancel.map((o) => o.id) },
-        },
-        data: {
-          status: OrderStatus.CANCELLED,
-        },
+
+      await this.prisma.$transaction(async (tx) => {
+        await tx.order.updateMany({
+          where: { id: { in: ordersToCancel.map((o) => o.id) } },
+          data: { status: OrderStatus.CANCELLED },
+        });
+
+        // Refund wallet coins for orders that had partial coin payment
+        for (const order of ordersToCancel) {
+          const meta = order.metadata as any;
+          const walletDiscount = Number(meta?.walletDiscount ?? 0);
+          if (walletDiscount > 0) {
+            await tx.user.update({
+              where: { id: order.userId },
+              data: { walletBalance: { increment: walletDiscount } },
+            });
+            await tx.walletTransaction.create({
+              data: {
+                userId: order.userId,
+                amount: walletDiscount,
+                type: 'REFUND',
+                description: `Hoàn xu do đơn hàng ${order.code} hết hạn thanh toán`,
+              },
+            });
+            this.logger.log(
+              `Refunded ${walletDiscount} coins to user ${order.userId} for cancelled order ${order.code}`,
+            );
+          }
+        }
       });
 
       for (const order of ordersToCancel) {
