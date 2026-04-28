@@ -25,8 +25,7 @@ services:
     image: redis:7-alpine
     container_name: torii-redis
     restart: always
-    ports:
-      - '6379:6379'
+    network_mode: "host"
     volumes:
       - redisdata:/data
     healthcheck:
@@ -43,9 +42,7 @@ services:
       - "-DVV"
       - "-config"
       - "/nats-server.conf"
-    ports:
-      - "4222:4222/tcp" # clients
-      - "8222:8222/tcp" # websockets
+    network_mode: "host"
     volumes:
       - ./nats_server.conf:/nats-server.conf
       - natsdata:/data/jetstream
@@ -55,33 +52,32 @@ services:
     container_name: torii-livekit
     restart: always
     command: --config /livekit.yaml
-    ports:
-      - '7880:7880'
-      - '7881:7881'
-      - '7882:7882/udp'
-      # - '5349:5349' # TURN TLS
-      # - '443:443/udp' # TURN UDP (Fix for 4G)
-      # - '50000-50100:50000-50100/udp' # Media range (100 ports)
+    network_mode: "host"
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
-      # - ./certs:/certs:ro
+      - ./certs:/certs:ro
+    environment:
+      - RTC_PACKET_MTU=1400
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    # Healthcheck removed as livekit image lacks curl
 
   livekit-ingress:
     image: livekit/ingress:v1.4.3
     container_name: torii-livekit-ingress
     restart: always
     command: --config /ingress.yaml
-    ports:
-      - '1935:1935/tcp' # RTMP
-      - '8089:8089/tcp' # WHIP
+    network_mode: "host"
     volumes:
       - ./ingress.yaml:/ingress.yaml
     depends_on:
-      - redis
-      - livekit
+      redis:
+        condition: service_healthy
+      livekit:
+        condition: service_started
+    # Healthcheck removed as ingress image lacks curl
 
   # ========================================
   # Application Services
@@ -99,13 +95,12 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-    ports:
-      - "8080:8080"
+      - NATS_URL=${NATS_URL:-nats://localhost:4222}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:123456789@localhost:5432/wajlc}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+    network_mode: "host"
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
       - uploads_data:/app/apps/server/uploads
@@ -121,15 +116,16 @@ services:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:identity
     restart: always
+    network_mode: "host"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
+      - NATS_URL=${NATS_URL:-nats://localhost:4222}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:123456789@localhost:5432/wajlc}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
@@ -141,15 +137,16 @@ services:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:academy
     restart: always
+    network_mode: "host"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
+      - NATS_URL=${NATS_URL:-nats://localhost:4222}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:123456789@localhost:5432/wajlc}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
     depends_on:
@@ -161,15 +158,16 @@ services:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:meet
     restart: always
+    network_mode: "host"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
+      - NATS_URL=${NATS_URL:-nats://localhost:4222}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:123456789@localhost:5432/wajlc}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
       - uploads_data:/app/apps/server/uploads
@@ -184,14 +182,15 @@ services:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:agents
     restart: always
+    network_mode: "host"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
+      - NATS_URL=${NATS_URL:-nats://localhost:4222}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:123456789@localhost:5432/wajlc}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
     volumes:
       - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
       - ./apps/server/services/agents/src/assets:/app/apps/server/services/agents/src/assets # Mount prompts
