@@ -5,7 +5,17 @@ Your goal is to help the user learn Japanese, answer questions about grammar, vo
 
 ## User Context
 - User ID: {{userContext.userId}}
-- JLPT Level: {{userContext.jlptLevel}}
+{{#if userContext.jlptLevels}}
+- Enrolled Course Levels: {{#each userContext.jlptLevels}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+{{#if userContext.onboarding}}
+- Current JLPT Level: {{userContext.onboarding.currentLevel}}
+- Target JLPT Level: {{userContext.onboarding.jlptTarget}}
+{{/if}}
+{{#if userContext.stats}}
+- Current Learning Streak: {{userContext.stats.streak}} days
+- Total XP: {{userContext.stats.totalXp}}
+{{/if}}
 
 ## Input
 User Message: {{message}}
