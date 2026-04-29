@@ -68,6 +68,32 @@ export class VodPackageService {
     );
   }
 
+  private notifyApproved(payload: {
+    recipientId: string;
+    packageId: string;
+    packageCode: string;
+    packageTitle: string;
+  }) {
+    this.natsClient.emit(
+      { cmd: 'send_notification' },
+      {
+        recipientId: payload.recipientId,
+        type: 'system',
+        payload: {
+          title: 'Yêu cầu của bạn đã được duyệt',
+          body: `Yêu cầu duyệt VOD Package ${payload.packageCode} đã được duyệt.`,
+          metadata: {
+            entityType: 'VOD_PACKAGE',
+            entityId: payload.packageId,
+            code: payload.packageCode,
+            title: payload.packageTitle,
+            status: 'PUBLISHED',
+          },
+        },
+      },
+    );
+  }
+
   async findAll(query: AcademyVodPackageQueryDTO) {
     const queryAny = query as AcademyVodPackageQueryDTO & { instructorId?: string };
     const where: any = {};
@@ -281,6 +307,28 @@ export class VodPackageService {
       } catch (error: any) {
         this.logger.warn(
           `Failed to send reject notification for VOD package ${id}: ${error?.message || String(error)}`,
+        );
+      }
+    }
+
+    if (
+      before.status === 'PENDING_APPROVAL' &&
+      item.status === 'PUBLISHED' &&
+      requesterId
+    ) {
+      try {
+        const recipientId = await this.resolveRejectRecipient(id, requesterId);
+        if (recipientId && recipientId !== requesterId) {
+          this.notifyApproved({
+            recipientId,
+            packageId: item.id,
+            packageCode: item.code,
+            packageTitle: item.title,
+          });
+        }
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send approve notification for VOD package ${id}: ${error?.message || String(error)}`,
         );
       }
     }

@@ -65,6 +65,32 @@ export class CourseProfileService {
     );
   }
 
+  private notifyApproved(payload: {
+    recipientId: string;
+    profileId: string;
+    profileCode: string;
+    profileTitle: string;
+  }) {
+    this.natsClient.emit(
+      { cmd: 'send_notification' },
+      {
+        recipientId: payload.recipientId,
+        type: 'system',
+        payload: {
+          title: 'Yêu cầu của bạn đã được duyệt',
+          body: `Yêu cầu duyệt Course Profile ${payload.profileCode} đã được duyệt.`,
+          metadata: {
+            entityType: 'COURSE_PROFILE',
+            entityId: payload.profileId,
+            code: payload.profileCode,
+            title: payload.profileTitle,
+            status: 'PUBLISHED',
+          },
+        },
+      },
+    );
+  }
+
   async findAll(query: AcademyCourseProfileQueryDTO) {
     const andFilters: Prisma.CourseProfileWhereInput[] = [];
 
@@ -278,6 +304,22 @@ export class CourseProfileService {
         oldValues: before,
         newValues: item,
       });
+    }
+
+    const recipientId = before.submittedBy;
+    if (recipientId && recipientId !== requesterId) {
+      try {
+        this.notifyApproved({
+          recipientId,
+          profileId: item.id,
+          profileCode: item.code,
+          profileTitle: item.title,
+        });
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send approve notification for course profile ${id}: ${error?.message || String(error)}`,
+        );
+      }
     }
 
     return item;

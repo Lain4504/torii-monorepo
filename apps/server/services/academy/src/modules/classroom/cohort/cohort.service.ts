@@ -68,6 +68,32 @@ export class CohortService {
     );
   }
 
+  private notifyApproved(payload: {
+    recipientId: string;
+    cohortId: string;
+    cohortCode: string;
+    cohortName: string;
+  }) {
+    this.natsClient.emit(
+      { cmd: 'send_notification' },
+      {
+        recipientId: payload.recipientId,
+        type: 'system',
+        payload: {
+          title: 'Yêu cầu của bạn đã được duyệt',
+          body: `Yêu cầu duyệt Cohort ${payload.cohortCode} đã được duyệt.`,
+          metadata: {
+            entityType: 'COHORT',
+            entityId: payload.cohortId,
+            code: payload.cohortCode,
+            name: payload.cohortName,
+            status: 'OPENING',
+          },
+        },
+      },
+    );
+  }
+
   async findAll(query: AcademyCohortQueryDTO) {
     const and: any[] = [];
     if (query.courseProfileId) and.push({ courseProfileId: query.courseProfileId });
@@ -357,6 +383,28 @@ export class CohortService {
       } catch (error: any) {
         this.logger.warn(
           `Failed to send reject notification for cohort ${id}: ${error?.message || String(error)}`,
+        );
+      }
+    }
+
+    if (
+      before.status === 'PENDING_APPROVAL' &&
+      item.status === 'OPENING' &&
+      requesterId
+    ) {
+      try {
+        const recipientId = await this.resolveRejectRecipient(id, requesterId);
+        if (recipientId && recipientId !== requesterId) {
+          this.notifyApproved({
+            recipientId,
+            cohortId: item.id,
+            cohortCode: item.code,
+            cohortName: item.name,
+          });
+        }
+      } catch (error: any) {
+        this.logger.warn(
+          `Failed to send approve notification for cohort ${id}: ${error?.message || String(error)}`,
         );
       }
     }
