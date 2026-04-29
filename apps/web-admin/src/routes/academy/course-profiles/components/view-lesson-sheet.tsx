@@ -45,9 +45,31 @@ export function ViewLessonDialog({
                 {lessonData.type === "VIDEO" && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Video URL</p>
-                    <p className="text-sm text-muted-foreground break-all">
-                      {lessonData.videoUrl || "Chưa có video"}
-                    </p>
+                    {lessonData.videoUrl ? (
+                      <div className="aspect-video w-full rounded-md overflow-hidden bg-black flex items-center justify-center">
+                        {lessonData.videoUrl.includes("youtube.com") || lessonData.videoUrl.includes("youtu.be") ? (
+                          <iframe
+                            src={lessonData.videoUrl.includes("watch?v=") 
+                              ? lessonData.videoUrl.replace("watch?v=", "embed/").split("&")[0]
+                              : lessonData.videoUrl.replace("youtu.be/", "youtube.com/embed/")}
+                            title="Video player"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full border-0"
+                          />
+                        ) : (
+                          <video 
+                            src={lessonData.videoUrl} 
+                            controls 
+                            className="w-full h-full object-contain"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Chưa có video
+                      </p>
+                    )}
                   </div>
                 )}
 
