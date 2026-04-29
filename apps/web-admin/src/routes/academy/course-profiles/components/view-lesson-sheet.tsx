@@ -25,8 +25,8 @@ export function ViewLessonDialog({
           <SheetDescription>Xem nội dung bài học ở chế độ chỉ đọc.</SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="space-y-6 p-6">
+        <ScrollArea className="flex-1 min-h-0 w-full">
+          <div className="space-y-6 p-6 w-full max-w-full min-w-0">
             {isLoading && (
               <div className="space-y-3">
                 <Skeleton className="h-6 w-2/3" />
@@ -73,12 +73,14 @@ export function ViewLessonDialog({
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2 w-full grid grid-cols-1">
                   <p className="text-sm font-medium">Nội dung (Markdown)</p>
-                  <RichTextRenderer
-                    content={lessonData.content}
-                    className="rounded-md border p-4"
-                  />
+                  <div className="w-full min-w-0">
+                    <RichTextRenderer
+                      content={lessonData.content}
+                      className="rounded-md border p-4 w-full max-w-full overflow-x-auto"
+                    />
+                  </div>
                 </div>
               </>
             )}
