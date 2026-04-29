@@ -65,7 +65,7 @@ export function RichTextEditor({
   };
 
   return (
-    <div className="w-full break-all overflow-hidden" data-color-mode={colorMode}>
+    <div className="w-full break-words overflow-hidden" data-color-mode={colorMode}>
       <MDEditor
         value={value}
         onChange={handleChange}
@@ -110,12 +110,11 @@ export function RichTextRenderer({ content, className }: RichTextRendererProps) 
 
   return (
     <div 
-      className={`${className ?? 'w-full'} break-all overflow-hidden`} 
+      className={`${className ?? 'w-full'} break-words [&_.wmde-markdown]:overflow-x-auto [&_.wmde-markdown]:w-full [&_.wmde-markdown]:max-w-full [&_.wmde-markdown_table]:!max-w-none [&_.wmde-markdown_table]:!w-max [&_.wmde-markdown_table]:!whitespace-nowrap [&_.wmde-markdown_pre]:!w-max [&_.wmde-markdown_pre]:!max-w-none`} 
       data-color-mode={colorMode}
     >
       <MDEditor.Markdown 
         source={content} 
-        style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }} 
       />
     </div>
   );

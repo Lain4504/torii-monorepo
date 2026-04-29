@@ -25,8 +25,8 @@ export function ViewLessonDialog({
           <SheetDescription>Xem nội dung bài học ở chế độ chỉ đọc.</SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="space-y-6 p-6">
+        <ScrollArea className="flex-1 min-h-0 w-full">
+          <div className="space-y-6 p-6 w-full max-w-full min-w-0">
             {isLoading && (
               <div className="space-y-3">
                 <Skeleton className="h-6 w-2/3" />
@@ -45,18 +45,42 @@ export function ViewLessonDialog({
                 {lessonData.type === "VIDEO" && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Video URL</p>
-                    <p className="text-sm text-muted-foreground break-all">
-                      {lessonData.videoUrl || "Chưa có video"}
-                    </p>
+                    {lessonData.videoUrl ? (
+                      <div className="aspect-video w-full rounded-md overflow-hidden bg-black flex items-center justify-center">
+                        {lessonData.videoUrl.includes("youtube.com") || lessonData.videoUrl.includes("youtu.be") ? (
+                          <iframe
+                            src={lessonData.videoUrl.includes("watch?v=") 
+                              ? lessonData.videoUrl.replace("watch?v=", "embed/").split("&")[0]
+                              : lessonData.videoUrl.replace("youtu.be/", "youtube.com/embed/")}
+                            title="Video player"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="w-full h-full border-0"
+                          />
+                        ) : (
+                          <video 
+                            src={lessonData.videoUrl} 
+                            controls 
+                            className="w-full h-full object-contain"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Chưa có video
+                      </p>
+                    )}
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2 w-full grid grid-cols-1">
                   <p className="text-sm font-medium">Nội dung (Markdown)</p>
-                  <RichTextRenderer
-                    content={lessonData.content}
-                    className="rounded-md border p-4"
-                  />
+                  <div className="w-full min-w-0">
+                    <RichTextRenderer
+                      content={lessonData.content}
+                      className="rounded-md border p-4 w-full max-w-full overflow-x-auto"
+                    />
+                  </div>
                 </div>
               </>
             )}
