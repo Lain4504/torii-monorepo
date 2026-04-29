@@ -1,11 +1,11 @@
 api_key: APIiYAA5w37Cfo2
 api_secret: 6aNur7qqupeZhFYNOJVUyeXxXhVw8f4lm13pEDUx8SgB
-ws_url: ws://torii-livekit:7880
+ws_url: ws://localhost:7880
 rtmp_port: 1935
 health_port: 8088
 whip_port: 8089
 redis:
-  address: redis:6379
+  address: localhost:6379
   username: ""
   password: ""
   db: 0
@@ -20,6 +20,6 @@ redis:
 #  sentinel_username: user
 #  sentinel_password: pass
 
-# cpu costs for various Ingress types with their default values
 cpu_cost:
   rtmp_cpu_cost: 2.0
+  whip_cpu_cost: 2.0

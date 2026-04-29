@@ -19,7 +19,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog"
-import { format, isSameDay } from "date-fns"
+import { format, isSameDay, isBefore, startOfDay } from "date-fns"
 import { vi } from "date-fns/locale"
 import { cn } from "@workspace/ui/lib/utils"
 import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
@@ -442,7 +442,7 @@ export function ClassAttendanceTab({ liveClassId: propLiveClassId, academyClass:
                                                             <Video className="h-4 w-4" />
                                                         </Button>
                                                     )}
-                                                    {isLecturer && (
+                                                    {isLecturer && !isBefore(new Date(s.sessionDate), startOfDay(new Date())) && (
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"

@@ -15,11 +15,6 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -29,18 +24,12 @@ services:
       - '6379:6379'
     volumes:
       - redisdata:/data
-    healthcheck:
-      test: [ 'CMD', 'redis-cli', 'ping' ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   nats:
     image: nats:2.12-alpine
     container_name: torii-nats
     restart: always
     command:
-      - "-DVV"
       - "-config"
       - "/nats-server.conf"
     ports:
@@ -54,18 +43,12 @@ services:
     image: livekit/livekit-server:v1.9.11
     container_name: torii-livekit
     restart: always
-    command: --config /livekit.yaml
-    ports:
-      - '7880:7880'
-      - '7881:7881'
-      - '7882:7882/udp'
-      # - '5349:5349' # TURN TLS
-      # - '443:443/udp' # TURN UDP (Fix for 4G)
-      # - '50000-50100:50000-50100/udp' # Media range (100 ports)
+    network_mode: "host"
+    command: --config /livekit.yaml --node-ip ${VPS_PUBLIC_IP:-34.101.174.98}
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
-      # - ./certs:/certs:ro
+      - ./certs:/certs:ro
     depends_on:
       - redis
 
@@ -73,10 +56,8 @@ services:
     image: livekit/ingress:v1.4.3
     container_name: torii-livekit-ingress
     restart: always
+    network_mode: "host"
     command: --config /ingress.yaml
-    ports:
-      - '1935:1935/tcp' # RTMP
-      - '8089:8089/tcp' # WHIP
     volumes:
       - ./ingress.yaml:/ingress.yaml
     depends_on:
@@ -179,44 +160,7 @@ services:
       - nats
       - postgres
       - redis
-
-  communication:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:communication
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
-
-  storage:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:storage
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
+      - livekit
 
   agents:
     image: ${DOCKER_USERNAME}/torii-backend:latest
