@@ -90,7 +90,12 @@ export default function PaymentHistoryPage() {
                 window.location.href = result.paymentUrl;
             }
         } catch (error: any) {
-            toast.error(error.message || 'Không thể thực hiện thanh toán lại');
+            const backendMessage = error?.response?.data?.message || error?.message
+            const friendlyMessage =
+                typeof backendMessage === 'string' && backendMessage.includes('Đơn hàng không còn hợp lệ')
+                    ? `${backendMessage}. Vui lòng tạo đơn mới.`
+                    : (backendMessage || 'Không thể thực hiện thanh toán lại');
+            toast.error(friendlyMessage);
         }
     };
 

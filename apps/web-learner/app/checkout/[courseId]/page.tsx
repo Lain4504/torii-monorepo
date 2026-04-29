@@ -270,7 +270,17 @@ export default function CheckoutPage() {
                 setShowSuccessDialog(true)
             }
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Giao dịch thất bại')
+            const backendMessage = error?.response?.data?.message || error?.message
+            const friendlyMessage =
+                typeof backendMessage === 'string' &&
+                (
+                    backendMessage.includes('Đơn hàng không còn hợp lệ') ||
+                    backendMessage.includes('Coupon') ||
+                    backendMessage.includes('mã giảm giá')
+                )
+                    ? `${backendMessage}. Vui lòng tạo đơn mới để tiếp tục thanh toán.`
+                    : (backendMessage || 'Giao dịch thất bại')
+            toast.error(friendlyMessage)
         } finally {
             setIsProcessing(false)
         }
@@ -554,7 +564,7 @@ export default function CheckoutPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button onClick={() => router.push(isGift ? '/dashboard/my-orders' : '/dashboard/my-courses')}>
+                        <Button onClick={() => router.push(isGift ? '/dashboard/payment' : '/dashboard/my-courses')}>
                             {isGift ? 'Xem đơn hàng' : 'Vào học ngay'}
                         </Button>
                     </DialogFooter>

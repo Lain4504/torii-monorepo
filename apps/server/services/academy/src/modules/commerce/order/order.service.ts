@@ -35,6 +35,123 @@ export class OrderService {
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
+  private extractOrderTargets(order: any) {
+    const vodPackageIds = new Set<string>();
+    const liveClassIds = new Set<string>();
+    const cohortIds = new Set<string>();
+
+    for (const item of order.items ?? []) {
+      if (item.vodPackageId) vodPackageIds.add(item.vodPackageId);
+      if (item.liveClassId) liveClassIds.add(item.liveClassId);
+      if (item.cohortId) cohortIds.add(item.cohortId);
+
+      const snapshot = (item.deliverySnapshot ?? {}) as {
+        selectedLiveClassId?: string;
+      };
+      if (snapshot.selectedLiveClassId) {
+        liveClassIds.add(snapshot.selectedLiveClassId);
+      }
+    }
+
+    return { vodPackageIds, liveClassIds, cohortIds };
+  }
+
+  private async assertOrderStillPayable(order: any) {
+    const targetUserId = await this.resolveTargetUserId(order.userId, {
+      isGift: order.metadata?.isGift === true,
+      recipientEmail:
+        typeof order.metadata?.recipientEmail === 'string'
+          ? order.metadata.recipientEmail
+          : undefined,
+    });
+
+    for (const item of order.items ?? []) {
+      if (item.vodPackageId) {
+        const existing = await this.prisma.enrollment.findFirst({
+          where: {
+            userId: targetUserId,
+            vodPackageId: item.vodPackageId,
+            status: { in: ['ACTIVE', 'COMPLETED'] },
+          },
+          select: { id: true },
+        });
+        if (existing) {
+          throw new BadRequestException(
+            'Đơn hàng không còn hợp lệ: Người học đã sở hữu khóa học này',
+          );
+        }
+      }
+
+      const snapshot = (item.deliverySnapshot ?? {}) as {
+        selectedLiveClassId?: string;
+      };
+      const targetLiveClassId = item.liveClassId ?? snapshot.selectedLiveClassId;
+      if (targetLiveClassId) {
+        const existing = await this.prisma.enrollment.findFirst({
+          where: {
+            userId: targetUserId,
+            liveClassId: targetLiveClassId,
+            status: { in: ['ACTIVE', 'COMPLETED'] },
+          },
+          select: { id: true },
+        });
+        if (existing) {
+          throw new BadRequestException(
+            'Đơn hàng không còn hợp lệ: Người học đã đăng ký lớp học này',
+          );
+        }
+      }
+    }
+
+    if (order.couponCode && order.couponId) {
+      await this.couponService.validateCoupon(
+        order.couponCode,
+        order.userId,
+        Number(order.subTotal ?? 0),
+      );
+    }
+  }
+
+  private async cancelConflictingPendingOrders(order: any) {
+    const targets = this.extractOrderTargets(order);
+    if (
+      targets.vodPackageIds.size === 0 &&
+      targets.liveClassIds.size === 0 &&
+      targets.cohortIds.size === 0
+    ) {
+      return 0;
+    }
+
+    const candidates = await this.prisma.order.findMany({
+      where: {
+        userId: order.userId,
+        status: OrderStatus.PENDING,
+        id: { not: order.id },
+      },
+      include: { items: true },
+    });
+
+    const conflictingOrderIds = candidates
+      .filter((candidate) => {
+        const t = this.extractOrderTargets(candidate);
+        return (
+          [...t.vodPackageIds].some((id) => targets.vodPackageIds.has(id)) ||
+          [...t.liveClassIds].some((id) => targets.liveClassIds.has(id)) ||
+          [...t.cohortIds].some((id) => targets.cohortIds.has(id))
+        );
+      })
+      .map((o) => o.id);
+
+    if (!conflictingOrderIds.length) return 0;
+
+    await this.prisma.order.updateMany({
+      where: { id: { in: conflictingOrderIds }, status: OrderStatus.PENDING },
+      data: { status: OrderStatus.CANCELLED },
+    });
+
+    return conflictingOrderIds.length;
+  }
+
   async preview(userId: string, input: OrderPreviewDto) {
     const vodPackageIds = Array.from(new Set(input.vodPackageIds ?? []));
     const cohortIds = Array.from(new Set(input.cohortIds ?? []));
@@ -491,6 +608,13 @@ export class OrderService {
       grandTotal: preview.grandTotal,
     });
     if (input.paymentMethod === PaymentMethod.PAYOS) {
+      const cancelledCount = await this.cancelConflictingPendingOrders(order);
+      if (cancelledCount > 0) {
+        this.logger.warn(
+          `Cancelled ${cancelledCount} conflicting pending order(s) for user ${order.userId} before PAYOS redirect`,
+        );
+      }
+
       // Generate unique integer max 9007199254740991 (Number.MAX_SAFE_INTEGER)
       // Date.now() returns 13 digits. Math.random * 1000 returns 3 digits.
       const numericOrderCode = Number(
@@ -550,6 +674,8 @@ export class OrderService {
     const total = Number(order.grandTotal);
 
     try {
+      await this.assertOrderStillPayable(order);
+
       await this.prisma.$transaction(async (tx) => {
         // 1. Deduct balance safely (Atomic check)
         const updatedUser = await tx.user.updateMany({
@@ -693,6 +819,8 @@ export class OrderService {
   ) {
     this.logger.log(`[TEST BYPASS] processPayment starting for ${order.id} status=${order.status}`);
     if (order.status === OrderStatus.PAID) return { ok: true };
+
+    await this.assertOrderStillPayable(order);
 
     await this.prisma.$transaction(async (tx) => {
       await tx.order.update({
@@ -1068,6 +1196,8 @@ export class OrderService {
       });
       throw new BadRequestException('Đơn hàng đã quá hạn thanh toán (15 phút)');
     }
+
+    await this.assertOrderStillPayable(order);
 
     // Re-construct preview data for handlePaymentRedirect
     const preview = {
