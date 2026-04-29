@@ -1,9 +1,11 @@
 import { Card, CardContent, CardDescription, CardTitle } from "@workspace/ui/components/card"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Layers, Video, FileText, ChevronDown, ChevronUp } from "lucide-react"
+import { Layers, Video, FileText, ChevronDown, ChevronUp, Eye } from "lucide-react"
 import { useState } from "react"
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
+import { ViewLessonDialog } from "@/routes/academy/course-profiles/components/view-lesson-sheet"
 
 interface ClassSyllabusTabProps {
     courseProfileId?: string
@@ -12,6 +14,8 @@ interface ClassSyllabusTabProps {
 export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
     const { data: profile, isLoading } = useAcademyCourseProfile(courseProfileId)
     const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
+    const [viewLessonOpen, setViewLessonOpen] = useState(false)
+    const [viewingLesson, setViewingLesson] = useState<any | null>(null)
 
     if (isLoading) {
         return (
@@ -106,11 +110,25 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                {lesson.duration && (
-                                                    <Badge variant="outline" className="text-[10px] text-muted-foreground shrink-0">
-                                                        {lesson.duration} phút
-                                                    </Badge>
-                                                )}
+                                                <div className="flex items-center gap-2">
+                                                    {lesson.duration && (
+                                                        <Badge variant="outline" className="text-[10px] text-muted-foreground shrink-0">
+                                                            {lesson.duration} phút
+                                                        </Badge>
+                                                    )}
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 px-2"
+                                                        onClick={() => {
+                                                            setViewingLesson(lesson)
+                                                            setViewLessonOpen(true)
+                                                        }}
+                                                    >
+                                                        <Eye className="size-4 sm:mr-1" />
+                                                        <span className="hidden sm:inline">Xem</span>
+                                                    </Button>
+                                                </div>
                                             </div>
                                         ))}
                                         {(!module.lessons || module.lessons.length === 0) && (
@@ -125,6 +143,12 @@ export function ClassSyllabusTab({ courseProfileId }: ClassSyllabusTabProps) {
                     )
                 })}
             </div>
+
+            <ViewLessonDialog
+                open={viewLessonOpen}
+                onOpenChange={setViewLessonOpen}
+                lesson={viewingLesson}
+            />
         </div>
     )
 }
